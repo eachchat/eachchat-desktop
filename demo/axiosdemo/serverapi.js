@@ -82,3 +82,21 @@ function RefreshToken()
     })
 }
 
+function RefreshPassword()
+{
+/*
+    console.log("RefreshToken") 
+    axios.post('/api/v1/token/refresh',
+    {},//parameter
+    {
+        headers:{Authorization:"Bearer " + refreshtoken}
+    }).then(function (response) {
+        console.log(response)
+        if(response.status != 200)
+            return false
+        accesstoken = response.headers['access-token']
+        return true
+    })
+*/
+}
+
