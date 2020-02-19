@@ -92,6 +92,46 @@ function RefreshToken()
     })
 }
 
+function GetDepartmentInfo(username)
+{
+    console.log("GetDepartmentInfo") 
+    axios.post('/api/v1/client/departments',
+    {
+        filters:[
+            {
+            'field':'userName',
+            'operator': 'co',
+            'logic': 1,
+            'value': username
+            }
+        ],
+        sortOrder: 1,
+        sequenceId: 0
+    },
+    {
+        headers:{Authorization:"Bearer " + refreshtoken}
+    }).then(function (response) {
+        console.log(response)
+        if(response.status != 200)
+            return false
+        return true
+    })
+}
+
+function GetEnterpriseInfo()
+{
+    console.log("GetEnterpriseInfo") 
+    axios.get('/api/v1/client/setting/enterprise',
+    {
+        headers:{Authorization:"Bearer " + refreshtoken}
+    }).then(function (response) {
+        console.log(response)
+        if(response.status != 200)
+            return false
+        return true
+    })
+}
+
 function RefreshPassword()
 {
 /*
