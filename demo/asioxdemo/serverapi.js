@@ -1,5 +1,6 @@
 const axios = require('axios');
 var refreshtoken
+var accesstoken
 
 function initserverapi(protocal, ip, host)
 {
@@ -22,7 +23,7 @@ function login(username, password)
         if(response.status != 200)
             return false
         var tmpheader = response.headers
-        var accesstoken = tmpheader['access-token']
+        accesstoken = tmpheader['access-token']
         refreshtoken = tmpheader['refresh-token']
          
         if(accesstoken.length == 0)
@@ -35,8 +36,12 @@ function login(username, password)
 function logout()
 {
     console.log("logout") 
-    axios.defaults.headers.common['Authorization'] = "Bearer " + refreshtoken;
-    axios.post('/api/v1/client/logout').then(function (response) {
+    //axios.defaults.headers.common['Authorization'] = "Bearer " + refreshtoken;
+    axios.post('/api/v1/client/logout',
+    {},//parameter
+    {
+        headers:{Authorization:"Bearer " + refreshtoken}
+    }).then(function (response) {
         console.log(response)
         if(response.status != 200)
             return false
@@ -44,3 +49,20 @@ function logout()
             return true
     })
 };
+
+function GetUserinfo()
+{
+    /*
+    axios.get('/api/v1/client/user',{
+        params:{id:'25d4cb78d54840dfa70df0dfa847c024'},
+        headers:{Authorization : "Bearer " + accesstoken}
+      }).then(function (response) {
+        console.log(response)
+        if(response.status != 200)
+            return false
+        else
+            return true
+    })
+    */
+}
+
