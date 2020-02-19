@@ -2,7 +2,7 @@ const axios = require('axios');
 var refreshtoken
 var accesstoken
 
-function initserverapi(protocal, ip, host)
+function InitServerAPI(protocal, ip, host)
 {
     console.log("initserverapi")
     var url = protocal + '://' + ip + ':' + host 
@@ -12,7 +12,7 @@ function initserverapi(protocal, ip, host)
     //    "Content-type" : "application/json"}
 }
 
-function login(username, password)
+function Login(username, password)
 {
     console.log("login")
     axios.post('/api/v1/client/login', {
@@ -33,7 +33,7 @@ function login(username, password)
       });
 };
 
-function logout()
+function Logout()
 {
     console.log("logout") 
     //axios.defaults.headers.common['Authorization'] = "Bearer " + refreshtoken;
