@@ -50,20 +50,30 @@ function Logout()
     })
 };
 
-function GetUserinfo()
+function GetUserinfo(email)
 {
-    /*
-    axios.get('/api/v1/client/user',{
-        params:{id:'25d4cb78d54840dfa70df0dfa847c024'},
+    axios.post('/api/v1/client/users',
+    {
+        filters:[
+            {
+            'field':'email',
+            'operator': 'co',
+            'logic': 1,
+            'value': email
+            }
+        ],
+        sortOrder: 1,
+        sequenceId: 0
+    },
+    {
         headers:{Authorization : "Bearer " + accesstoken}
-      }).then(function (response) {
+    }).then(function (response) {
         console.log(response)
         if(response.status != 200)
             return false
-        else
-            return true
+        
+        return true
     })
-    */
 }
 
 function RefreshToken()
