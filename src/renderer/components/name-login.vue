@@ -3,7 +3,7 @@
         <div class="login-panel" style="-webkit-app-region: no-drag">
             <div class="title">
                 <div class="title-ico">
-                    <img class="login-logo" src="../assets/Logo_Big.png"></img>
+                    <img class="login-logo" src="../assets/Logo_Big.png">
                 </div>
                 <div class="tltle-content">
                     登录
@@ -29,32 +29,32 @@
 <script>
 import {Login, InitServerAPI} from '../server/serverapi.js'
 export default {
-  name: 'login',
-  data () {
-    return {
-        loginState: '',
-        username: '',
-        password: '',
-        host: '',
-        port: ''
-    }
-  },
-  methods: {
-    clickUser () {
-      location.reload()
+    name: 'login',
+    data () {
+        return {
+            loginState: '',
+            username: '',
+            password: '',
+            host: '',
+            port: ''
+        }
+    },
+    methods: {
+        clickUser () {
+        location.reload()
     },
     login: async function() {
-      let ret = await Login(this.username, this.password)   
-      console.log(ret)
-      if(ret.length == 0)
+        let ret = await Login(this.username, this.password)
+        console.log(ret)
+        if(ret.length == 0)
         this.loginState = "登录成功"
-      else
+        else
         this.loginState = ret  
     }
-  },
-  created: function () {
-    InitServerAPI('http', '139.198.15.253', 8081)
-  }
+    },
+    created: function () {
+        InitServerAPI('http', '139.198.15.253', 8081)
+    }
 }
 </script>
 

@@ -28,8 +28,19 @@ function createWindow () {
     webPreferences: {webSecurity:false}
   })
 
-  mainWindow.loadURL(winURL)
-
+  mainWindow.loadURL(winURL);
+  mainWindow.webContents.once('dom-ready', () => {
+    mainWindow.webContents.openDevTools()
+  })
+  // Open dev tools initially when in development mode
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.webContents.on("did-frame-finish-load", () => {
+    mainWindow.webContents.once("devtools-opened", () => {
+    mainWindow.focus();
+    });
+    mainWindow.webContents.openDevTools();
+    });
+  }
   mainWindow.on('closed', () => {
     mainWindow = null
   })

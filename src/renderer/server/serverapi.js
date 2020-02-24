@@ -41,7 +41,7 @@ export function Login(username, password)
             var tmpheader = response.headers
             accesstoken = tmpheader['access-token']
             refreshtoken = tmpheader['refresh-token']
-             
+        
             if(accesstoken.length == 0)
             {
                 console.log("accesstoken.length == 0")
@@ -50,7 +50,7 @@ export function Login(username, password)
             }
             
             resolve("")
-          })
+        })
     })
 };
 
