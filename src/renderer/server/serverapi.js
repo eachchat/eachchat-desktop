@@ -2,7 +2,7 @@
 
 const axios = require('axios');
 //var DBApi = require('D:/code/YiQiLiao-Desktop/src/renderer/database/dbapi');
-var DBApi = require('./../../src/renderer/database/dbapi');
+var DBApi = require('../database/dbapi').DBApi;
 //var DBApi = require('./../database/dbapi');
 
 var refreshtoken;
