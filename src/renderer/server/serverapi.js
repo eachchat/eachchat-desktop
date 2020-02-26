@@ -1,8 +1,14 @@
-const axios = require('axios');
-var refreshtoken
-var accesstoken
+//document.write('<script src="db.js" type="text/javascript" charset="utf-8"></script>');
 
-export function InitServerAPI(protocal, ip, host)
+const axios = require('axios');
+//var DBApi = require('D:/code/YiQiLiao-Desktop/src/renderer/database/dbapi');
+var DBApi = require('./../../src/renderer/database/dbapi');
+//var DBApi = require('./../database/dbapi');
+
+var refreshtoken;
+var accesstoken;
+
+function InitServerAPI(protocal, ip, host)
 {
     console.log("initserverapi")
     var url = protocal + '://' + ip + ':' + host 
@@ -12,9 +18,11 @@ export function InitServerAPI(protocal, ip, host)
     //     "Content-type" : "application/json",
     //     "Access-Control-Allow-Origin": "*",
     //     "Access-Control-Allow-Method":"POST,GET"}
+    //var tmp1 = new db
+    //tmp1.test()
 }
 
-export function Login(username, password)
+function Login(username, password)
 {
     console.log("login")
     return new Promise((resolve, reject) => {
@@ -49,10 +57,20 @@ export function Login(username, password)
                 return
             }
             
-            resolve("")
+            resolve("success")
         })
     })
 };
+
+function Login1(username, password)
+{
+    console.log("login")
+        axios.post('/api/v1/client/login', {
+            'account': username,
+            'password': password
+        });
+};
+
 
 function Logout()
 {
@@ -169,5 +187,11 @@ function RefreshPassword()
         return true
     })
 */
+}
+
+function CreateDatabase()
+{
+    let db = new DBApi();
+    db.testfunc();
 }
 

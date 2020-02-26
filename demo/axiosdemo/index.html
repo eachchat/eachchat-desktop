@@ -3,14 +3,22 @@
     <title>主界面</title>        
     </head>
     <body>
-        <button onclick="InitServerAPI('http', '139.198.15.253', 8081)">初始化</button>
-        <button onclick="Login('chengfang.ai@yunify.com', '12345678')">登陆</button>
-        <button onclick="Logout()">登出</button>
-        <button onclick="GetUserinfo('chengfang.ai@yunify.com')">用户信息</button>
-        <button onclick="RefreshToken()">刷新token</button>
-        <button onclick="GetDepartmentInfo('chengfang.ai@yunify.com')">部门信息</button>
-        <button onclick="GetEnterpriseInfo()">企业信息</button>
-
-        <script src = "../../src/serverapi.js"></script>
+        <div>
+            <button onclick="InitServerAPI('http', '139.198.15.253', 8081)">初始化</button>
+            <button onclick="Login('chengfang.ai@yunify.com', '12345678')">登陆</button>
+            <button onclick="CheckLogin()">登陆</button>
+            <button onclick="Logout()">登出</button>
+            <button onclick="GetUserinfo('chengfang.ai@yunify.com')">用户信息</button>
+            <button onclick="RefreshToken()">刷新token</button>
+            <button onclick="GetDepartmentInfo('chengfang.ai@yunify.com')">部门信息</button>
+            <button onclick="GetEnterpriseInfo()">企业信息</button>    
+        </div>
+        <div>
+            <button onclick="CreateDatabase()">数据库</button>
+        </div>
+        <!--
+        <script src = "../../src/renderer/database/db.js"></script>   
+        -->
+        <script src = "../../src/renderer/server/serverapi.js"></script>
     </body>
 </html>
