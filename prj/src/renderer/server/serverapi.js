@@ -8,7 +8,7 @@ var DBApi = require('../database/dbapi').DBApi;
 var refreshtoken;
 var accesstoken;
 
-function InitServerAPI(protocal, ip, host)
+export function InitServerAPI(protocal, ip, host)
 {
     console.log("initserverapi")
     var url = protocal + '://' + ip + ':' + host 
@@ -22,55 +22,44 @@ function InitServerAPI(protocal, ip, host)
     //tmp1.test()
 }
 
-function Login(username, password)
+export async function Login(username, password)
 {
     console.log("login")
-    return new Promise((resolve, reject) => {
-        axios.post('/api/v1/client/login', {
-            'account': username,
-            'password': password
-        }).then(function (response) {
-            console.log(response)
-            var ret_data = response.data
-            var msg = ret_data["message"]
-            var code = ret_data["code"]
-            if(response.status != 200)
-            {
-                console.log("response.status != 200")
-                resolve(msg)
-                return
-            }
-            if(code != 200)
-            {
-                console.log("code != 200")
-                resolve(msg)
-                return
-            }
-            var tmpheader = response.headers
-            accesstoken = tmpheader['access-token']
-            refreshtoken = tmpheader['refresh-token']
-        
-            if(accesstoken.length == 0)
-            {
-                console.log("accesstoken.length == 0")
-                resolve("accesstoken.length == 0")
-                return
-            }
-            
-            resolve("success")
-        })
+    var state = ""
+    await axios.post('/api/v1/client/login', {
+        'account': username,
+        'password': password
+    }).then(function (response) 
+    {
+        console.log(response)
+        var ret_data = response.data
+        var msg = ret_data["message"]
+        var code = ret_data["code"]
+        if(response.status != 200)
+        {
+            console.log("response.status != 200")
+            state = msg
+            return
+        }
+        if(code != 200)
+        {
+            console.log("code != 200")
+            state = msg
+            return
+        }
+        var tmpheader = response.headers
+        accesstoken = tmpheader['access-token']
+        refreshtoken = tmpheader['refresh-token']
+    
+        if(accesstoken.length == 0)
+        {
+            console.log("accesstoken.length == 0")
+            resolve("accesstoken.length == 0")
+            return
+        }
     })
+    return state
 };
-
-function Login1(username, password)
-{
-    console.log("login")
-        axios.post('/api/v1/client/login', {
-            'account': username,
-            'password': password
-        });
-};
-
 
 function Logout()
 {

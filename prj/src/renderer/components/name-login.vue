@@ -47,9 +47,9 @@ export default {
         let ret = await Login(this.username, this.password)
         console.log(ret)
         if(ret.length == 0)
-        this.loginState = "登录成功"
+        	this.loginState = "登录成功"
         else
-        this.loginState = ret  
+        	this.loginState = ret  
     }
     },
     created: function () {
