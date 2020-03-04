@@ -11,6 +11,11 @@ export default new Router({
       component: require('@/components/name-login').default
     },
     {
+      path: '/main',
+      name: 'main-page',
+      components: require('@/components/main.vue')
+    },
+    {
       path: '/index',
       redirect: '/'
     }

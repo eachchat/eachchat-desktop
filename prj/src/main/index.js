@@ -8,10 +8,28 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
+
+
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
+
+const ipcMain = require('electron').ipcMain;
+ipcMain.on('showMainPageWindow', function(event, arg) {
+  mainWindow.close();
+  let mainPageWindow = new BrowserWindow({
+    height: 400,
+    useContentSize: true,
+    width:800,
+    webPreferences: {webSecurity:false}
+  })
+  const mainPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/main`
+  : `file://${__dirname}/index.html#main`
+  mainPageWindow.loadURL(mainPageWinURL);
+  openDevToolsInDevelopment(mainPageWindow);
+});
 
 function createWindow () {
   /**
@@ -29,6 +47,9 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL);
+  openDevToolsInDevelopment(mainWindow);
+}
+function openDevToolsInDevelopment(mainWindow) {
   mainWindow.webContents.once('dom-ready', () => {
     mainWindow.webContents.openDevTools()
   })
@@ -45,7 +66,6 @@ function createWindow () {
     mainWindow = null
   })
 }
-
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {

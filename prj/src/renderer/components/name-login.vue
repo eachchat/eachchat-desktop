@@ -44,6 +44,8 @@ export default {
         location.reload()
     },
     login: async function() {
+        const ipcRenderer = require('electron').ipcRenderer
+        ipcRenderer = ipcRenderer.send('showMainPageWindow')
         let ret = await Login(this.username, this.password)
         console.log(ret)
         if(ret.length == 0)
