@@ -1,25 +1,19 @@
 //document.write('<script src="db.js" type="text/javascript" charset="utf-8"></script>');
 
 const axios = require('axios');
-//var DBApi = require('D:/code/YiQiLiao-Desktop/src/renderer/database/dbapi');
-var DBApi = require('../database/dbapi').DBApi;
-//var DBApi = require('./../database/dbapi');
+//var DBApi = require('../database/dbapi').DBApi;
 
-var refreshtoken;
-var accesstoken;
+var g_refreshtoken;
+var g_accesstoken;
+var port8080 = 8080;
+var port8081 = 8081;
+var g_url;
 
-export function InitServerAPI(protocal, ip, host)
+export function InitServerAPI(protocal, ip)
 {
     console.log("initserverapi")
-    var url = protocal + '://' + ip + ':' + host 
-    axios.defaults.baseURL = url
-    // axios.defaults.headers = {
-    //     "Accept" : "application/json",
-    //     "Content-type" : "application/json",
-    //     "Access-Control-Allow-Origin": "*",
-    //     "Access-Control-Allow-Method":"POST,GET"}
-    //var tmp1 = new db
-    //tmp1.test()
+    g_url = protocal + '://' + ip
+    axios.defaults.baseURL = g_url + ':' + port8081
 }
 
 export async function Login(username, password)
@@ -48,10 +42,10 @@ export async function Login(username, password)
             return
         }
         var tmpheader = response.headers
-        accesstoken = tmpheader['access-token']
-        refreshtoken = tmpheader['refresh-token']
+        g_accesstoken = tmpheader['access-token']
+        g_refreshtoken = tmpheader['refresh-token']
     
-        if(accesstoken.length == 0)
+        if(g_accesstoken.length == 0)
         {
             console.log("accesstoken.length == 0")
             resolve("accesstoken.length == 0")
@@ -68,7 +62,7 @@ function Logout()
     axios.post('/api/v1/client/logout',
     {},//parameter
     {
-        headers:{Authorization:"Bearer " + refreshtoken}
+        headers:{Authorization:"Bearer " + g_accesstoken}
     }).then(function (response) {
         console.log(response)
         if(response.status != 200)
@@ -94,7 +88,7 @@ function GetUserinfo(email)
         sequenceId: 0
     },
     {
-        headers:{Authorization : "Bearer " + accesstoken}
+        headers:{Authorization : "Bearer " + g_accesstoken}
     }).then(function (response) {
         console.log(response)
         if(response.status != 200)
@@ -110,7 +104,7 @@ function RefreshToken()
     axios.post('/api/v1/token/refresh',
     {},//parameter
     {
-        headers:{Authorization:"Bearer " + refreshtoken}
+        headers:{Authorization:"Bearer " + g_refreshtoken}
     }).then(function (response) {
         console.log(response)
         if(response.status != 200)
@@ -137,7 +131,7 @@ function GetDepartmentInfo(username)
         sequenceId: 0
     },
     {
-        headers:{Authorization:"Bearer " + refreshtoken}
+        headers:{Authorization:"Bearer " + g_accesstoken}
     }).then(function (response) {
         console.log(response)
         if(response.status != 200)
@@ -151,7 +145,7 @@ function GetEnterpriseInfo()
     console.log("GetEnterpriseInfo") 
     axios.get('/api/v1/client/setting/enterprise',
     {
-        headers:{Authorization:"Bearer " + refreshtoken}
+        headers:{Authorization:"Bearer " + g_accesstoken}
     }).then(function (response) {
         console.log(response)
         if(response.status != 200)
@@ -178,9 +172,24 @@ function RefreshPassword()
 */
 }
 
-function CreateDatabase()
+export function ListGroup(updateTime, perPage)
 {
-    let db = new DBApi();
-    db.testfunc();
+    console.log("ListGroup") 
+    axios.defaults.baseURL = g_url + ':' + port8080
+    return axios.get("api/v1/group/" + updateTime + "/perPage/" + perPage,
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    })
 }
+
+export function ListAllGroup()
+{
+    console.log("ListAllGroup") 
+    axios.defaults.baseURL = g_url + ':' + port8080
+    return axios.get("api/v1/group",
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    })
+}
+
 

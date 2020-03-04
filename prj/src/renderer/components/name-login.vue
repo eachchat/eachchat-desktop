@@ -53,7 +53,7 @@ export default {
     }
     },
     created: function () {
-        InitServerAPI('http', '139.198.15.253', 8081)
+        InitServerAPI('http', '139.198.15.253')
     }
 }
 </script>
