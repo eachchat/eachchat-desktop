@@ -4,9 +4,14 @@
  * @date 2020/03/04
  */
 
-import * as _model from './model.js'
 import { loading } from './loader.js'
+import * as model from './model.js'
+import * as sqlite from './sqlite.js'
 
-loading("model", _model)
+// loading("model", model)
+// loading("sqlite", sqlite)
 
-export * from './model.js'
+export {
+  model,
+  sqlite
+}
