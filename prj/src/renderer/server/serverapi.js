@@ -277,5 +277,25 @@ function TokenValid()
     })
 }
 
+function ClientIncrement(name_value, updatetime_value, sequenceId_value, countperpage_value)
+{
+    console.log("ClientIncrement")
+    axios.default.baseURL = g_url + ":" + port8081
+
+    axios.post("api/v1/client/increment",
+    {
+        name : name_value,
+        updatetime : updatetime_value,
+        sequenceId : sequenceId_value,
+        countperpage_value : countperpage_value
+    },
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    }).then((response)=>
+    {
+        console.log(response)
+    })
+
+} 
 
 
