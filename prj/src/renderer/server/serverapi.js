@@ -192,4 +192,59 @@ export function ListAllGroup()
     })
 }
 
+function UpdateUserWorkDescription(workDescriptionvalue)
+{
+    console.log("UpdateUser")
+    axios.defaults.baseURL = g_url + ':' + port8081
+
+    axios.patch('/api/v1/client/user/profile',
+    {
+        path: "/workDescription",
+        value: workDescriptionvalue
+    },//parameter
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    }).then(function (response) {
+        console.log(response)
+        return true
+    })
+}
+
+function UpdateUserStatusDescription(statusDescriptionvalue)
+{
+    console.log("UpdateUserStatusDescription") 
+    axios.defaults.baseURL = g_url + ':' + port8081
+
+    axios.patch('/api/v1/client/user/profile',
+    {
+        path: "/statusDescription",
+        value: statusDescriptionvalue
+    },//parameter
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    }).then(function (response) {
+        console.log(response)
+        return true
+    })
+}
+
+function UpdateUserPassword(passwordvalue)
+{
+    console.log("UpdateUserPassword") 
+    axios.defaults.baseURL = g_url + ':' + port8081
+
+    axios.patch('/api/v1/client/user/profile',
+    {
+        path: "/password",
+        value: passwordvalue
+    },//parameter
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    }).then(function (response) {
+        console.log(response)
+        return true
+    })
+}
+
+
 
