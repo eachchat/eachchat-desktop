@@ -246,5 +246,22 @@ function UpdateUserPassword(passwordvalue)
     })
 }
 
+function GetNewVersion()
+{
+    console.log("GetNewVersion") 
+    axios.defaults.baseURL = g_url + ':' + port8081
+
+    axios.post('/api/v1/client/version/new',
+    {
+        client: "windows"
+    },//parameter
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    }).then(function (response) {
+        console.log(response)
+        return true
+    })
+}
+
 
 
