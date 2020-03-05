@@ -263,5 +263,19 @@ function GetNewVersion()
     })
 }
 
+function TokenValid()
+{
+    console.log(TokenValid)
+    axios.default.baseURL = g_url + ":" + port8081
+
+    axios.get("api/v1/internal/token",
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    }).then(function(response)
+    {
+        console.log(response)
+    })
+}
+
 
 
