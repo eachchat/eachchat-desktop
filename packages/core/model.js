@@ -4,8 +4,9 @@
  * @date 2020/03/03
  */
 
-import {Sqlite} from './sqlite.js'
+import {Sqlite, Sql} from './sqlite.js'
 
+// 数字整形 委托变量
 const integer = {
 	default: 0,
 
@@ -20,6 +21,7 @@ const integer = {
 	}
 }
 
+// 字符串 委托变量
 const string = {
 	default: "",
 
@@ -29,6 +31,7 @@ const string = {
 	}
 }
 
+// 浮点数 委托变量
 const float = {
 	default: 0.0,
 
@@ -43,6 +46,7 @@ const float = {
 	}
 }
 
+// 日期 委托变量
 const date = {
 	default() {
 		return new Date(0);
@@ -71,87 +75,142 @@ const date = {
 	}
 }
 
-function Model() {}
+class Model {
+	constructor(values) {
+		this._attr = {};
 
-Model.create = function (table, fields) {
-	// var newModel = function (values) {
-	// 	this._table = table;
-	// 	this._fields = fields;
-	// 	this._attr = {};
-
-	// 	for (var fieldKey in this._fields) {
-	// 		if (!this._fields.hasOwnProperty(fieldKey)) {
-	// 			continue;
-	// 		}
-
-	// 		var field = this._fields[fieldKey];
-
-	// 		if (!values.hasOwnProperty(fieldKey)) {
-	// 			if (typeof field.default == "function") {
-	// 				this._attr[fieldKey] = field.default();
-	// 				continue;
-	// 			}
-
-	// 			this._attr[fieldKey] = field.default;
-	// 			continue;
-	// 		}
-
-	// 		this._attr[fieldKey] = field.parse(values[fieldKey]);
-	// 	}
-	// }
-
-	var newModel = (function (t, f) {
-		return function (values) {
-			this._table = t;
-			this._attr = {};
-
-			for (var fKey in f) {
-				if (!f.hasOwnProperty(fKey)) {
-					continue;
-				}
-
-				var field = f[fKey];
-
-				if (!values.hasOwnProperty(fKey)) {
-					if (typeof field.default == "function") {
-						this._attr[fKey] = field.default();
-						continue;
-					}
-
-					this._attr[fKey] = field.default;
-					continue;
-				}
-
-				this._attr[fKey] = field.parse(values[fKey]);
-			}
-		};
-	})(table, fields);
-
-	newModel.prototype = Object.create(Model.prototype);
-	newModel.prototype.constructor = newModel;
-	newModel.prototype.fields = Object.create(fields);
-
-	for (var field in fields) {
-		if (!fields.hasOwnProperty(field)) {
-			continue;
+		if (typeof values != "object") {
+			values = {};
 		}
 
-		(function (fName) {
-			Object.defineProperty(newModel.prototype, fName, {
+		this.initialize(values);
+	}
+
+	initialize(values) {
+		if (typeof this.constructor.fields != "object") {
+			return;
+		}
+
+		var fields = this.constructor.fields;
+
+		for (var fieldKey in fields) {
+			if (!fields.hasOwnProperty(fieldKey)) {
+				continue;
+			}
+
+			this.initField(fieldKey, fields[fieldKey]);
+			this.initFieldValue(fieldKey, fields[fieldKey], values);
+		}
+	}
+
+	initField(fieldKey, field) {
+		(function (_this, _fieldKey, _field) {
+			Object.defineProperty(_this, _fieldKey, {
 				set: function (value) {
-					this._attr[fName] = this.fields[fName].parse(value);
+					this._attr[_fieldKey] = _field.parse(value);
 				},
 
 				get: function() {
-					console.log(fName);
-					return this._attr[fName];
+					console.log(_fieldKey);
+					return this._attr[_fieldKey];
 				}
 			});
-		})(field);
+		})(this, fieldKey, field);
 	}
 
-	return newModel;
-};
+	initFieldValue(fieldKey, field, values) {
+		// Initialize attributes
+		if (!values.hasOwnProperty(fieldKey)) {
+			if (typeof field.default == "function") {
+				this._attr[fieldKey] = field.default();
+				return;
+			}
+
+			this._attr[fieldKey] = field.default;
+			return;
+		}
+
+		this._attr[fieldKey] = field.parse(values[fieldKey]);
+	}
+
+	save() {
+		// code
+	}
+
+	destroy() {
+		// code
+	}
+
+	static create(table, fields) {
+		var newModel = (function () {
+			return class extends Model {
+				constructor(values) {
+					super(values);
+				}
+			};
+		})();
+
+		newModel.table = table;
+		newModel.fields = fields;
+
+		return newModel;
+	}
+
+	static where(where) {
+		if (typeof where != "object") {
+			return this;
+		}
+
+		this._where = where;
+	}
+
+	static orWhere(where) {
+		if (typeof where != "object") {
+			return this;
+		}
+
+		this._orWhere = where;
+	}
+
+	static _queryWhere() {
+		var query = this._getQuery();
+		var where = {};
+		var orWhere = {};
+
+		if (typeof this._where == "object") {
+			// code
+		}
+	}
+
+	static _getQuery() {
+		if (!this.hasOwnProperty('_currentQuery')) {
+			this._currentQuery = new Sql();
+		}
+
+		return this._currentQuery;
+	}
+
+	static _getDatabase() {
+		if (!this.hasOwnProperty('_database')) {
+			this._database = new Sqlite();
+		}
+
+		return this._database;
+	}
+
+	static first() {
+		var query = this._getQuery();
+		var database = this._getDatabase();
+	}
+
+	static last() {
+		// code
+	}
+
+	static list() {
+		// code
+	}
+}
 
 export {
 	integer,
