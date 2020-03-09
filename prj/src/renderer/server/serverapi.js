@@ -145,17 +145,12 @@ export function GetDepartmentInfo(username)
     })
 }
 
-function GetEnterpriseInfo()
+export function GetEnterpriseInfo()
 {
     console.log("GetEnterpriseInfo") 
-    axios.get('/api/v1/client/setting/enterprise',
+    return axios.get('/api/v1/client/setting/enterprise',
     {
         headers:{Authorization:"Bearer " + g_accesstoken}
-    }).then(function (response) {
-        console.log(response)
-        if(response.status != 200)
-            return false
-        return true
     })
 }
 
