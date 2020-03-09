@@ -115,7 +115,6 @@ export default {
   },
   created: function() {
     console.log("Created")
-    setToken(this.$store.state.accesstoken, this.$store.state.refreshtoken)
     InitServerAPI('http', '139.198.15.253')
     ListAllGroup()
         .then((response) => {

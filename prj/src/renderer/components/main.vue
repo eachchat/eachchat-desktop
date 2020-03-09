@@ -66,7 +66,6 @@ export default {
         ChatContent
     },
     created: function () {
-        setToken(this.$store.state.accesstoken, this.$store.state.refreshtoken)
         InitServerAPI('http', '139.198.15.253')
         // GetUserinfo(this.$store.state.userAccount)
         //     .then((response) => {
