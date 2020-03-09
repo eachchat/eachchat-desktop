@@ -1,23 +1,35 @@
 <template>
-    <div class="mainpage">
-        <div class="headbar">
+    <el-container class="mainpage">
+        <el-header class="headbar" height="50px">
             <HeadBar/>
-        </div>
-        <div class="navigate-panel">
-            <ul class="nav-item">
-                <li class="nav-title"
-                    v-for="(tabitem, index) in Navigate"
-                    v-bind:key="index"
-                    @click="menuClicked(index, tabitem.name, tabitem.link, tabitem.view)"
-                    :class="{active: index===curindex}"
-                    >{{tabitem.text}}
-                </li>
-            </ul>
-        </div>
-        <div class="tabcontent">
-            <component :is="curView"></component>
-        </div>
-    </div>
+        </el-header>
+        <el-container class="main-container">
+            <el-aside class="navigate-panel" width="68px">
+                <el-menu
+                    default-active="0"
+                    class="nav-menu"
+                    @open="handleOpen"
+                    @close="handleClose"
+                    active-text-color="#ffd04b">
+                    <el-menu-item
+                        class="nav-item"
+                        v-for="(tabitem, index) in Navigate"
+                        v-bind:key="index"
+                        @click="menuClicked(index, tabitem.name, tabitem.link, tabitem.view)"
+                        :class="{active: index===curindex}"
+                        >
+                        <i :class="getCurNavIcon(index)"></i>
+                    </el-menu-item>
+                    <el-menu-item class="nav-item">
+                        <i class="el-icon-more-outline"></i>
+                    </el-menu-item>
+                </el-menu>
+            </el-aside>
+            <el-main class="tabcontainer">
+                <component :is="curView"></component>
+            </el-main>
+        </el-container>
+    </el-container>
 </template>
 
 <script>
@@ -57,6 +69,19 @@ export default {
             console.log(cur_index);
             console.log(cur_name);
             console.log(cur_link);
+        },
+        getCurNavIcon (cur_index) {
+            if(cur_index === 0)
+            {
+                return "el-icon-s-comment"
+            }
+            else if(cur_index === 1)
+            {
+                return "el-icon-share"
+            }
+            else{
+                return "el-icon-more-outline"
+            }
         }
     },
     components: {
@@ -66,6 +91,7 @@ export default {
         ChatContent
     },
     created: function () {
+        setToken(this.$store.state.accesstoken, this.$store.state.refreshtoken)
         InitServerAPI('http', '139.198.15.253')
         // GetUserinfo(this.$store.state.userAccount)
         //     .then((response) => {
@@ -82,48 +108,48 @@ export default {
         width: 100%;
         height: 100%;
     }
-    .navigate-panel {
-        display: inline-block;
-        float: left;
-        vertical-align: top;
-        width: 68px;
-        height: 100%;
-        background: rgb(49, 51, 72);
-        border-bottom: 1px solid #dddddd;
-    }
-    .tabcontent {
-        display: inline-block;
-        float: left;
-        vertical-align: top;
-        width: calc(100% - 68px);
-        height: 100%;
-    }
 
-    .nav-item {
-        list-style: none;
+    .nav-menu {
         width: 60;
         height: 100%;
         padding: 0px;
         margin: 0px;
+        background: rgb(49, 51, 72);
     }
 
-    .nav-title {
-        width: 60;
-        height: 120px;
-        text-align: center;
-        line-height: 120px;
-        color: white;
-        background-color: rbga(255, 255, 255, 0)
+    .main-container {
+        overflow: hidden;
+        width: 100%;
+        height: calc(100% - 50px);
     }
-    
-    .nav-title.active,.nav-title:active {
-        border-left: 2px solid #36acf4;
-        color: #36acf4;
+
+    .navigate-panel {
+        width: 68px;
+        height: 100%;
+        background: rgb(49, 51, 72);
+    }
+
+    .nav-item {
+        overflow: hidden;
+        width: 60;
+        height: 60px;
+        text-align: center;
+        line-height: 60px;
+    }
+
+    .el-menu-item.is-active {
+        background-color: #247bb4;
+    }
+
+    .tabcontainer {
+        padding: 0px;
+        width: calc(100% - 68px);
+        height: 100%;
+        vertical-align: top;
     }
 
     .headbar {
         width: 100%;
-        height: 50px;
         background: rgb(70, 77, 116);
         margin: 0 0 0 0;
         line-height: 50px;
