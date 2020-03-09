@@ -126,10 +126,10 @@ function RefreshToken()
     })
 }
 
-function GetDepartmentInfo(username)
+export function GetDepartmentInfo(username)
 {
     console.log("GetDepartmentInfo") 
-    axios.post('/api/v1/client/departments',
+    return axios.post('/api/v1/client/departments',
     {
         filters:[
             {
@@ -144,11 +144,6 @@ function GetDepartmentInfo(username)
     },
     {
         headers:{Authorization:"Bearer " + g_accesstoken}
-    }).then(function (response) {
-        console.log(response)
-        if(response.status != 200)
-            return false
-        return true
     })
 }
 
