@@ -302,15 +302,15 @@ function ClientIncrement(name_value, updatetime_value, sequenceId_value, countpe
     })
 
 } 
-/*
-export async function GetHistoryMessageAsync(groupId, sequenceId)
+
+export function HistoryMessage(groupId, sequenceId)
 {
-    console.log("GetHistoryMessageAsync")
+    let res
+    console.log("HistoryMessageAsync")
     axios.defaults.baseURL = g_url + ':' + port8080
     return axios.get("/api/v1/message/group/" + groupId + "/sequence/" + sequenceId,
     {
         headers:{Authorization:"Bearer " + g_accesstoken}
     })
 }
-*/
 
