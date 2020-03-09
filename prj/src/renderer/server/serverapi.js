@@ -35,6 +35,7 @@ export async function Login(username, password)
     }).then(function (response) 
     {
         console.log(response)
+        res = response
         var ret_data = response.data
         var msg = ret_data["message"]
         var code = ret_data["code"]
@@ -42,14 +43,12 @@ export async function Login(username, password)
         {
             console.log("response.status != 200")
             state = msg
-            res = response
             return
         }
         if(code != 200)
         {
             console.log("code != 200")
             state = msg
-            res = response
             return
         }
         var tmpheader = response.headers
@@ -59,7 +58,6 @@ export async function Login(username, password)
         if(g_accesstoken.length == 0)
         {
             console.log("accesstoken.length == 0")
-            res = response
             return
         }
     })
@@ -304,5 +302,15 @@ function ClientIncrement(name_value, updatetime_value, sequenceId_value, countpe
     })
 
 } 
-
+/*
+export async function GetHistoryMessageAsync(groupId, sequenceId)
+{
+    console.log("GetHistoryMessageAsync")
+    axios.defaults.baseURL = g_url + ':' + port8080
+    return axios.get("/api/v1/message/group/" + groupId + "/sequence/" + sequenceId,
+    {
+        headers:{Authorization:"Bearer " + g_accesstoken}
+    })
+}
+*/
 
