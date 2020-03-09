@@ -143,7 +143,7 @@ export default {
 
     .tabcontainer {
         padding: 0px;
-        width: calc(100% - 68px);
+        width: calc(100% - 70px);
         height: 100%;
         vertical-align: top;
     }
@@ -153,6 +153,7 @@ export default {
         background: rgb(70, 77, 116);
         margin: 0 0 0 0;
         line-height: 50px;
+        padding: 0px;
     }
 
 </style>

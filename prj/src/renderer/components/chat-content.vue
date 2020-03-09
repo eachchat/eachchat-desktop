@@ -20,13 +20,17 @@
         <div class="list-content">
           <ul class="group-list">
             <li class="group"
-                v-for="chatGroup in chatGroupList"
+                v-for="(chatGroup, index) in chatGroupList"
                 @click="showChat(chatGroup.name)"
                 >
               <img class="group-ico" :src="chatGroup.group.groupAvatar">
               <div class="group-info">
                 <p class="group-name">{{chatGroup.group.groupName}}</p>
                 <p class="group-content">{{getMsgContent(chatGroup.message.content, chatGroup.message.msgContentType)}}</p>
+              </div>
+              <div class="group-notice">
+                <p class="group-time">{{getMsgLastMsgTime(chatGroup.message)}}</p>
+                <p :class="getUnreadClass(chatGroup.noReaderCount)">{{getUnReadCount(chatGroup.noReaderCount, index)}}</p>
               </div>
             </li>
           </ul>
@@ -58,6 +62,55 @@ export default {
     };
   },
   methods: {
+    Appendzero(o_num) {
+      if(o_num < 10) return "0" + "" + o_num;
+      else return o_num;
+    },
+    getUnreadClass(unReadCount) {
+      if(unReadCount === 0) return "group-readall";
+      else return "group-unread"
+    },
+    getUnReadCount(unReadCount) {
+      if(unReadCount === 0) return "";
+      else return unReadCount
+    },
+    formatTimeFilter(secondsTime) {
+      let curDate = new Date()
+      let curDateSecond = curDate.getTime()
+      let cutTime = curDateSecond - secondsTime
+      let curYeat = curDate.getFullYear()
+      let curMonth = curDate.getMonth()
+      let curDay = curDate.getDay()
+
+      let distdate = new Date(secondsTime);
+      let y = distdate.getFullYear()
+      let mon = distdate.getUTCMonth() + 1
+      let d = distdate.getDate()
+      let h = distdate.getHours();
+      let m = distdate.getMinutes();
+      let s = distdate.getSeconds();
+
+      // console.log(cutTime)
+      // console.log(y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d) + " " + this.Appendzero(h) + ":" + this.Appendzero(m) + ":" + this.Appendzero(s))
+
+      if(cutTime > 0 && cutTime < 24 * 3600 * 1000)
+      {
+        return h + ":" + m
+      }
+      else if(cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000)
+      {
+        return "昨天"
+      }
+      else
+      {
+        return y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d)
+      }
+    },
+    getMsgLastMsgTime(chatGroupMsg) {
+      var timesecond = chatGroupMsg.timestamp
+      var formatTime = this.formatTimeFilter(timesecond)
+      return formatTime
+    },
     getMsgContent(chatGroupMsgContent, chatGroupMsgType) {
       //console.log(chatGroupMsgContent)
       if(chatGroupMsgType === 101)
@@ -66,11 +119,11 @@ export default {
       }
       else if(chatGroupMsgType === 102)
       {
-        return ["图片"]
+        return "[图片]"
       }
       else if(chatGroupMsgType === 103)
       {
-        return ["文件"]
+        return "[文件]"
       }
       else if(chatGroupMsgType === 104)
       {
@@ -104,11 +157,11 @@ export default {
       }
       else if(chatGroupMsgType === 105)
       {
-        return ["语音"]
+        return "[语音]"
       }
       else if(chatGroupMsgType === 106)
       {
-        return ["聊天记录"]
+        return "[聊天记录]"
       }
       return "123"
     }
@@ -196,7 +249,6 @@ export default {
 
   .group {
     height: 50px;
-    border: 0.3px solid rgba(242, 242, 246, 10);
   }
 
   .group-ico {
@@ -205,7 +257,7 @@ export default {
     display: inline-block;
     margin-left: 10px;
     margin-top: 10px;
-    margin-right: 10px;
+    margin-right: 0px;
     margin-bottom: 10px;
   }
   
@@ -213,19 +265,19 @@ export default {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 60px);
+    width: calc(100% - 120px);
   }
 
   .group-name {
     width: calc(100% - 20px);
-    height: 18px;
+    height: 40%;
     font-size: 14px;
     color: rgb(57, 57, 57);
     overflow: hidden;
     margin-left: 10px;
-    margin-top: 10px;
+    margin-top: 5px;
     margin-right: 0px;
-    margin-bottom: 0px;
+    margin-bottom: 5px;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
@@ -235,11 +287,64 @@ export default {
     color: rgb(170, 179, 178);
     overflow: hidden;
     margin-left: 10px;
-    margin-top: 5px;
+    margin-top: 0px;
     margin-right: 10px;
-    margin-bottom: 0px;
+    margin-bottom: 5px;
     white-space: nowrap;
     text-overflow: ellipsis;
+    height: 40%;
   }
 
+  .group-notice {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: 60px;
+  }
+
+  .group-time {
+    font-size: 12px;
+    color: rgb(170, 179, 178);
+    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 5px;
+    margin-right: 0px;
+    margin-bottom: 5px;
+    height: 40%;
+    text-align: right;
+  }
+
+  .group-unread {
+    font-size: 12px;
+    float: right;
+    color: rgb(255, 255, 255);
+    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 5px;
+    text-align: center;
+    height: 15px;
+    width: 15px;
+    line-height: 15px;
+    border-radius: 20px;
+    background-color: rgb(255, 59, 48);
+  }
+
+  .group-readall {
+    font-size: 12px;
+    float: right;
+    color: rgb(255, 255, 255);
+    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 5px;
+    text-align: center;
+    height: 15px;
+    width: 15px;
+    line-height: 15px;
+    border-radius: 20px;
+    background-color: rgb(255, 255, 255);
+  }
 </style>

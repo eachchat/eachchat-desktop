@@ -18,7 +18,15 @@ export default new Vuex.Store({
   mutations: {
     setChatGroup(state, chatGroupList) {
       state.chatGroup = []
-      state.chatGroup = chatGroupList.slice()
+      function compare(){
+        return function(a, b)
+        {
+          var value1 = a.message.timestamp
+          var value2 = b.message.timestamp
+          return value2 - value1
+        }
+      }
+      state.chatGroup = chatGroupList.sort(compare()).slice()
     },
     setRefreshToken(state, refreshtoken) {
       state.refreshtoken = refreshtoken
