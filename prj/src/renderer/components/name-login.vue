@@ -41,56 +41,53 @@ export default {
     },
     methods: {
         clickUser () {
-        location.reload()
+            location.reload()
         },
         login: async function() {
-            await Login(this.username, this.password)
-                .then((resolve, reject) => {
-                    console.log(resolve)
-                    var ret_data = resolve.data
-                    var msg = ret_data["message"]
-                    var code = ret_data["code"]
-                    if(resolve.status != 200)
-                    {
-                        console.log("response.status != 200")
-                        this.loginState = msg
-                        return
-                    }
-                    if(code != 200)
-                    {
-                        console.log("code != 200")
-                        this.loginState = msg
-                        return
-                    }
-                    var tmpheader = resolve.headers
-                    var accesstoken = tmpheader['access-token']
-                    var refreshtoken = tmpheader['refresh-token']
+            let response = await Login(this.username, this.password)
+            console.log(response)
+            var ret_data = response.data
+            var msg = ret_data["message"]
+            var code = ret_data["code"]
+            if(response.status != 200)
+            {
+                console.log("response.status != 200")
+                this.loginState = msg
+                return
+            }
+            if(code != 200)
+            {
+                console.log("code != 200")
+                this.loginState = msg
+                return
+            }
+            var tmpheader = response.headers
+            var accesstoken = tmpheader['access-token']
+            var refreshtoken = tmpheader['refresh-token']
 
-                    this.$store.commit("setRefreshToken", refreshtoken)
-                    this.$store.commit("setAccessToken", accesstoken)
-                    this.$store.commit("setUserAccount", this.username)
+            this.$store.commit("setRefreshToken", refreshtoken)
+            this.$store.commit("setAccessToken", accesstoken)
+            this.$store.commit("setUserAccount", this.username)
 
-                    console.log(this.$store.state.accesstoken)
-                
-                    if(accesstoken.length == 0)
-                    {
-                        console.log("accesstoken.length == 0")
-                        this.loginState = "登录失败"
-                        return
-                    }
+            console.log(this.$store.state.accesstoken)
+        
+            if(accesstoken.length == 0)
+            {
+                console.log("accesstoken.length == 0")
+                this.loginState = "登录失败"
+                return
+            }
 
-                    this.loginState = "登录成功"
-                    ListGroup(0, 10)
-                            .then((response) => {
-                            console.log(response)
-                            var ret_data = response.data
-                            var ret_list = ret_data.results
-                            this.$store.commit("setChatGroup", ret_list)
-                            })
-                    const ipcRenderer = require('electron').ipcRenderer;
-                    ipcRenderer.send('showMainPageWindow')
-
-                })
+            this.loginState = "登录成功"
+            ListGroup(0, 10)
+                    .then((response) => {
+                    console.log(response)
+                    var ret_data = response.data
+                    var ret_list = ret_data.results
+                    this.$store.commit("setChatGroup", ret_list)
+                    })
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('showMainPageWindow')
         }
     },
     created: function () {

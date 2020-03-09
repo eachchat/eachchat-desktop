@@ -22,20 +22,48 @@ export function InitServerAPI(protocal, ip)
     axios.defaults.baseURL = g_url + ':' + port8081
 }
 
-export function Login(username, password)
+export async function Login(username, password)
 {
-    return new Promise(async (resolve, reject) => {
-        console.log("Login1")
-        var ret = await axios.post('/api/v1/client/login', {
-            'account': username,
-            'password': password
-        })
-        var tmpheader = ret.headers
+    console.log("login")
+    var state = ""
+    var res
+    await axios.post("/api/v1/client/login", {
+        "account" : username,
+        "password" : password,
+        "yqlVerCode" : 6,
+        "osType" : "windows"
+    }).then(function (response) 
+    {
+        console.log(response)
+        var ret_data = response.data
+        var msg = ret_data["message"]
+        var code = ret_data["code"]
+        if(response.status != 200)
+        {
+            console.log("response.status != 200")
+            state = msg
+            res = response
+            return
+        }
+        if(code != 200)
+        {
+            console.log("code != 200")
+            state = msg
+            res = response
+            return
+        }
+        var tmpheader = response.headers
         g_accesstoken = tmpheader['access-token']
         g_refreshtoken = tmpheader['refresh-token']
     
-        resolve(ret)
+        if(g_accesstoken.length == 0)
+        {
+            console.log("accesstoken.length == 0")
+            res = response
+            return
+        }
     })
+    return res
 }
 
 function Logout()
