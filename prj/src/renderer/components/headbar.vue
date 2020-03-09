@@ -4,7 +4,7 @@
             <input placeholder="搜索" class="search-input">
         </div>
         <div class="User">
-            <img class="login-logo" src="../assets/user.png">
+            <img class="login-logo" :src="userIco">
         </div>
         <div class="Button">
             <Button class="login-btn-mini" on-click={this.minimize} />
@@ -13,6 +13,32 @@
     </div>
 </template>
 
+
+<script>
+import {ListAllGroup, InitServerAPI, setToken, GetUserinfo} from '../server/serverapi.js'
+
+export default {
+    name: 'headbar',
+    data () {
+        return {
+            userIco: '',
+        }
+    },
+    methods: {
+    },
+    components: {
+    },
+    created: function () {
+        setToken(this.$store.state.accesstoken, this.$store.state.refreshtoken)
+        InitServerAPI('http', '139.198.15.253')
+        GetUserinfo(this.$store.state.userAccount)
+            .then((response) => {
+                console.log(response.data.results[0].avatarOUrl)
+                this.userIco = response.data.results[0].avatarOUrl
+            }) 
+    }
+}
+</script>
 
 <style lang="scss" scoped>
     .HeadBar {
@@ -83,5 +109,9 @@
         margin-left: 30px;
         margin-top: 5px;
         margin-bottom: 5px;
+    }
+    .login-logo {
+        width:40px;
+        height: 40px;
     }
 </style>

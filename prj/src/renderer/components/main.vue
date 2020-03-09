@@ -24,25 +24,28 @@
 import loginpage from './name-login.vue'
 import organization from './organization.vue'
 import HeadBar from './headbar.vue'
+import ChatContent from './chat-content.vue'
+
+import {ListAllGroup, InitServerAPI, setToken, GetUserinfo} from '../server/serverapi.js'
 
 export default {
     name: 'mainpage',
     data () {
         return {
             curindex: 0,
-            curView: 'loginpage',
+            curView: 'ChatContent',
             Navigate:[
                 {    
                     text: "聊天",
                     name: "chat",
                     link: "/chat",
-                    view: "loginpage"
+                    view: "ChatContent"
                 },
                 {
                     text: "组织",
                     name: "contact list",
                     link: "/organization",
-                    view: "organization"   
+                    view: "loginpage"   
                 }
             ]
         }
@@ -59,9 +62,16 @@ export default {
     components: {
         loginpage,
         organization,
-        HeadBar
+        HeadBar,
+        ChatContent
     },
     created: function () {
+        setToken(this.$store.state.accesstoken, this.$store.state.refreshtoken)
+        InitServerAPI('http', '139.198.15.253')
+        // GetUserinfo(this.$store.state.userAccount)
+        //     .then((response) => {
+        //         console.log(response.data.results)
+        //     }) 
     }
 }
 </script>
@@ -74,16 +84,20 @@ export default {
         height: 100%;
     }
     .navigate-panel {
+        display: inline-block;
         float: left;
-        width: 60px;
-        height: 900px;
+        vertical-align: top;
+        width: 68px;
+        height: 100%;
         background: rgb(49, 51, 72);
         border-bottom: 1px solid #dddddd;
     }
     .tabcontent {
-        float: right;
-        width: 740px;
-        height: 480px;
+        display: inline-block;
+        float: left;
+        vertical-align: top;
+        width: calc(100% - 68px);
+        height: 100%;
     }
 
     .nav-item {
@@ -91,6 +105,7 @@ export default {
         width: 60;
         height: 100%;
         padding: 0px;
+        margin: 0px;
     }
 
     .nav-title {

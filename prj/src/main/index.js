@@ -19,16 +19,17 @@ const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.close();
   let mainPageWindow = new BrowserWindow({
-    height: 400,
+    height: 600,
     useContentSize: true,
-    width:800,
-    webPreferences: {webSecurity:false}
+    width:960,
+    webPreferences: {webSecurity:false},
+    frame:false
   })
   const mainPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
-  openDevToolsInDevelopment(mainPageWindow);
+  //openDevToolsInDevelopment(mainPageWindow);
 });
 
 function createWindow () {
@@ -47,7 +48,7 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL);
-  openDevToolsInDevelopment(mainWindow);
+  //openDevToolsInDevelopment(mainWindow);
 }
 function openDevToolsInDevelopment(mainWindow) {
   mainWindow.webContents.once('dom-ready', () => {

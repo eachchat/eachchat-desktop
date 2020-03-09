@@ -9,6 +9,12 @@ var port8080 = 8080;
 var port8081 = 8081;
 var g_url;
 
+export function setToken(accToken, refreshToken)
+{
+    g_accesstoken = accToken;
+    g_refreshtoken = refreshToken
+}
+
 export function InitServerAPI(protocal, ip)
 {
     console.log("initserverapi")
@@ -16,44 +22,21 @@ export function InitServerAPI(protocal, ip)
     axios.defaults.baseURL = g_url + ':' + port8081
 }
 
-export async function Login(username, password)
+export function Login(username, password)
 {
-    console.log("login")
-    var state = ""
-    await axios.post('/api/v1/client/login', {
-        'account': username,
-        'password': password
-    }).then(function (response) 
-    {
-        console.log(response)
-        var ret_data = response.data
-        var msg = ret_data["message"]
-        var code = ret_data["code"]
-        if(response.status != 200)
-        {
-            console.log("response.status != 200")
-            state = msg
-            return
-        }
-        if(code != 200)
-        {
-            console.log("code != 200")
-            state = msg
-            return
-        }
-        var tmpheader = response.headers
+    return new Promise(async (resolve, reject) => {
+        console.log("Login1")
+        var ret = await axios.post('/api/v1/client/login', {
+            'account': username,
+            'password': password
+        })
+        var tmpheader = ret.headers
         g_accesstoken = tmpheader['access-token']
         g_refreshtoken = tmpheader['refresh-token']
     
-        if(g_accesstoken.length == 0)
-        {
-            console.log("accesstoken.length == 0")
-            resolve("accesstoken.length == 0")
-            return
-        }
+        resolve(ret)
     })
-    return state
-};
+}
 
 function Logout()
 {
@@ -72,9 +55,9 @@ function Logout()
     })
 };
 
-function GetUserinfo(email)
+export function GetUserinfo(email)
 {
-    axios.post('/api/v1/client/users',
+    return axios.post('/api/v1/client/users',
     {
         filters:[
             {
@@ -89,13 +72,14 @@ function GetUserinfo(email)
     },
     {
         headers:{Authorization : "Bearer " + g_accesstoken}
-    }).then(function (response) {
-        console.log(response)
-        if(response.status != 200)
-            return false
-        
-        return true
     })
+    // .then(function (response) {
+    //     console.log(response)
+    //     if(response.status != 200)
+    //         return false
+        
+    //     return true
+    // })
 }
 
 function RefreshToken()
