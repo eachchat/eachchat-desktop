@@ -124,21 +124,15 @@ function RefreshToken()
     })
 }
 
-export function GetDepartmentInfo(username)
+export function GetDepartmentInfo(filtersvalue, perpagevalue, sortOrdervalue, sequenceIdvalue)
 {
     console.log("GetDepartmentInfo") 
     return axios.post('/api/v1/client/departments',
     {
-        filters:[
-            {
-            'field':'userName',
-            'operator': 'co',
-            'logic': 1,
-            'value': username
-            }
-        ],
-        sortOrder: 1,
-        sequenceId: 0
+        filters : filtersvalue,
+        perPage : perpagevalue,
+        sortOrder: sortOrdervalue,
+        sequenceId: sequenceIdvalue
     },
     {
         headers:{Authorization:"Bearer " + g_accesstoken}
