@@ -81,20 +81,14 @@ function Logout()
     })
 };
 
-export function GetUserinfo(email)
+export function GetUserinfo(filters_value, perPage_value, sortOrder_value, sequenceId_value)
 {
     return axios.post('/api/v1/client/users',
     {
-        filters:[
-            {
-            'field':'email',
-            'operator': 'co',
-            'logic': 1,
-            'value': email
-            }
-        ],
-        sortOrder: 1,
-        sequenceId: 0
+        filters : filters_value,
+        perPage : perPage_value,
+        sortOrder : sortOrder_value,
+        sequenceId : sequenceId_value
     },
     {
         headers:{Authorization : "Bearer " + g_accesstoken}
