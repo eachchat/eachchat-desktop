@@ -5,12 +5,12 @@ const axios = require('axios');
 
 class ServerApi
 {   
+    m_refreshtoken;
+    m_accesstoken;
+    m_port8080 = 8080;
+    m_port8081 = 8081;
     constructor(protocal, ip)
     {
-        this.m_refreshtoken;
-        this.m_accesstoken;
-        this.m_port8080 = 8080;
-        this.m_port8081 = 8081;
         this.m_url = protocal + '://' + ip;
         axios.defaults.baseURL = this.m_url + ':' + this.m_port8081;
     }
