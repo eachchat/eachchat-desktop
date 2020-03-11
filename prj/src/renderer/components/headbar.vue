@@ -15,12 +15,13 @@
 
 
 <script>
-import {ListAllGroup, InitServerAPI, setToken, GetUserinfo} from '../server/serverapi.js'
+import {ServerApi} from '../server/serverapi.js'
 
 export default {
     name: 'headbar',
     data () {
         return {
+            serverapi : undefined,
             userIco: '',
         }
     },
@@ -29,8 +30,9 @@ export default {
     components: {
     },
     created: function () {
-        InitServerAPI('http', '139.198.15.253')
-        GetUserinfo(this.$store.state.userAccount)
+        this.serverapi = new ServerApi('http', '139.198.15.253')
+		//this.serverapi.Login()
+        this.serverapi.GetUserinfo(this.$store.state.userAccount)
             .then((response) => {
                 console.log(response.data.results[0].avatarOUrl)
                 this.userIco = response.data.results[0].avatarOUrl

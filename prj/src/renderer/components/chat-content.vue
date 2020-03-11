@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import {ListAllGroup, InitServerAPI, setToken, GetUserinfo} from '../server/serverapi.js'
+import {ServerApi} from '../server/serverapi.js'
 export default {
   components: {
   },

@@ -38,7 +38,7 @@ import organization from './organization.vue'
 import HeadBar from './headbar.vue'
 import ChatContent from './chat-content.vue'
 
-import {ListAllGroup, InitServerAPI, setToken, GetUserinfo} from '../server/serverapi.js'
+import {ServerApi} from '../server/serverapi.js'
 
 export default {
     name: 'mainpage',
@@ -46,6 +46,7 @@ export default {
         return {
             curindex: 0,
             curView: 'ChatContent',
+            serverapi: new ServerApi('http', '139.198.15.253'),
             Navigate:[
                 {    
                     text: "聊天",
@@ -91,8 +92,7 @@ export default {
         ChatContent
     },
     created: function () {
-        setToken(this.$store.state.accesstoken, this.$store.state.refreshtoken)
-        InitServerAPI('http', '139.198.15.253')
+        //setToken(this.$store.state.accesstoken, this.$store.state.refreshtoken)
         // GetUserinfo(this.$store.state.userAccount)
         //     .then((response) => {
         //         console.log(response.data.results)
