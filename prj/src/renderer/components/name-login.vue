@@ -27,11 +27,12 @@
 </template>
 
 <script>
-import {Login, InitServerAPI, ListGroup} from '../server/serverapi.js'
+import {ServerApi} from '../server/serverapi.js'
 export default {
     name: 'login',
     data () {
         return {
+            serverapi : undefined,
             loginState: '',
             username: '',
             password: '',
@@ -44,7 +45,7 @@ export default {
             location.reload()
         },
         login: async function() {
-            let response = await Login(this.username, this.password)
+            let response = await this.serverapi.Login(this.username, this.password)
             console.log(response)
             var ret_data = response.data
             var msg = ret_data["message"]
@@ -79,7 +80,7 @@ export default {
             }
 
             this.loginState = "登录成功"
-            ListGroup(0, 10)
+            this.serverapi.ListGroup(0, 10)
                     .then((response) => {
                     console.log(response)
                     var ret_data = response.data
@@ -91,7 +92,7 @@ export default {
         }
     },
     created: function () {
-        InitServerAPI('http', '139.198.15.253')
+        this.serverapi = new ServerApi('http', '139.198.15.253')
     }
 }
 </script>
