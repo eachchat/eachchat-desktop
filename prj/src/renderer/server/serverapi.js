@@ -297,3 +297,32 @@ export function HistoryMessage(groupId, sequenceId)
     })
 }
 
+export function SendNewMessage(msgId_value, 
+                                msgContentType_value,
+                                fromId_value,
+                                groupId_value,
+                                userId_value,
+                                timestamp_value,
+                                text_value,
+                                url_value)
+{
+    console.log("SendNewMessage")
+    axios.defaults.baseURL = g_url + ':' + port8080
+    return axios.post("api/v1/message",
+    {
+        msgId : msgId_value,
+        msgContentType : msgContentType_value,
+        fromId : fromId_value,
+        groupId : groupId_value,
+        userId : userId_value,
+        timestamp : timestamp_value,
+        content:
+        {
+            text : text_value,
+            url : url_value
+        }
+    },
+    {
+        headers : {Authorization : "Bearer " + g_accesstoken}
+    })
+}
