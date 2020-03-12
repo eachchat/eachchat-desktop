@@ -29,7 +29,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
-  //openDevToolsInDevelopment(mainPageWindow);
+  openDevToolsInDevelopment(mainPageWindow);
 });
 
 function createWindow () {
@@ -48,7 +48,7 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL);
-  //openDevToolsInDevelopment(mainWindow);
+  openDevToolsInDevelopment(mainWindow);
 }
 function openDevToolsInDevelopment(mainWindow) {
   mainWindow.webContents.once('dom-ready', () => {

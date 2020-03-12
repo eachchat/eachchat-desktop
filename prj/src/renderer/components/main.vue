@@ -58,7 +58,7 @@ export default {
                     text: "组织",
                     name: "contact list",
                     link: "/organization",
-                    view: "loginpage"   
+                    view: "organization"   
                 }
             ]
         }
