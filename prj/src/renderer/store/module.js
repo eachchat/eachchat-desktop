@@ -5,6 +5,16 @@ export class InvitationUserInfo {
     }
 }
 
+export class Chat {
+    constructor(groupId, groupName, unreadCount, lastMsg, sequenceId) {
+        this.groupId = groupId;
+        this.groupName = groupName;
+        this.unreadCount = unreadCount;
+        this.lastMsg = lastMsg;
+        this.sequenceId = sequenceId
+    }
+}
+
 export class ChatGroupItemMessageId {
     constructor() {
         this.couter = 0;

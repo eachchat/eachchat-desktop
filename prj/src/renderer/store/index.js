@@ -14,32 +14,56 @@ export default new Vuex.Store({
     refreshtoken: "",
     accesstoken: "",
     userAccount: "",
+    userInfo:{},
   },
   mutations: {
     setChatGroup(state, chatGroupList) {
-      state.chatGroup = []
       function compare(){
         return function(a, b)
         {
-          var value1 = a.message.timestamp
-          var value2 = b.message.timestamp
-          return value2 - value1
+          var value1 = a.message.timestamp;
+          var value2 = b.message.timestamp;
+          return value2 - value1;
         }
       }
-      state.chatGroup = chatGroupList.sort(compare()).slice()
+      var chatGroupVar = [];
+      chatGroupVar = chatGroupList.sort(compare());
+      state.chatGroup = [];
+      state.chatGroup = chatGroupVar;
+    },
+    updateChatGroup(state, distMsg) {
+      for(var i=0;i<state.chatGroup.length;i++) {
+        if(state.chatGroup[i].group.groupId === distMsg.groupId) {
+          state.chatGroup[i].message = distMsg;
+          break;
+        }
+      }
+      function compare(){
+        return function(a, b)
+        {
+          var value1 = a.message.timestamp;
+          var value2 = b.message.timestamp;
+          return value2 - value1;
+        }
+      }
+      state.chatGroup = state.chatGroup.sort(compare());
+      console.log(state.chatGroup);
     },
     setRefreshToken(state, refreshtoken) {
-      state.refreshtoken = refreshtoken
+      state.refreshtoken = refreshtoken;
+    },
+    setUserInfo(state, userInfo) {
+      state.userInfo = userInfo;
     },
     setAccessToken(state, accesstoken) {
-      state.accesstoken = accesstoken
+      state.accesstoken = accesstoken;
     },
     setUserAccount(state, account) {
-      state.userAccount = account
+      state.userAccount = account;
     }
   },
   getters: {
-    getChatGroup: state => state.chatGroup
+    getChatGroup: state => state.chatGroup,
   },
   modules,
   plugins: [

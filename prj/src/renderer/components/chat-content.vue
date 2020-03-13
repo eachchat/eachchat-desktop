@@ -12,169 +12,198 @@
                   创建群聊
                 </el-dropdown-item>
                 <el-dropdown-item class="create-new-secret" icon="el-icon-lock">
-                  创建密聊
+                  进入密聊
                 </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-        <div class="list-content">
+        <div class="list-content" :key="needUpdate">
           <ul class="group-list">
             <li class="group"
                 v-for="(chatGroup, index) in chatGroupList"
-                @click="showChat(chatGroup.name)"
+                @click="showChat(chatGroup, index)"
+                :class="{active: index===curindex}"
                 >
               <img class="group-ico" :src="chatGroup.group.groupAvatar">
               <div class="group-info">
                 <p class="group-name">{{chatGroup.group.groupName}}</p>
-                <p class="group-content">{{getMsgContent(chatGroup.message.content, chatGroup.message.msgContentType)}}</p>
+                <p class="group-content">{{getShowMsgContent(chatGroup.message.content, chatGroup.message.msgContentType)}}</p>
               </div>
               <div class="group-notice">
                 <p class="group-time">{{getMsgLastMsgTime(chatGroup.message)}}</p>
-                <p :class="getUnreadClass(chatGroup.noReaderCount)">{{getUnReadCount(chatGroup.noReaderCount, index)}}</p>
+                <p :class="getUnreadClass(chatGroup.noReaderCount, index===curindex)">{{getUnReadCount(chatGroup.noReaderCount, index)}}</p>
               </div>
             </li>
           </ul>
         </div>
       </div>
       <div class="chat">
+        <ChatPage :chat="curChat" @updateChatList="updateChatList"></ChatPage>
       </div>
     </div>
 </template>
 
 <script>
 import {ServerApi} from '../server/serverapi.js'
+import {Chat} from '../store/module.js'
+import ChatPage from './chat.vue'
 export default {
   components: {
+    ChatPage,
   },
   computed: {
     chatGroupList: {
       get: function() {
-        return this.$store.state.chatGroup;
+        return this.$store.getters.getChatGroup;
       },
       set: function(new_list) {
-        this.$store.commit("setChatGroup", new_list)
+        this.$store.commit("setChatGroup", new_list);
       }
     }
   },
   data() {
     return {
       //需要展示的用户群组
+      curChat: {},
+      needUpdate: 1,
+      curindex: 0,
     };
   },
   methods: {
+    updateChatList(newMsg) {
+      ++this.needUpdate;
+      for(var i=0;i<this.$store.state.chatGroup.length;i++) {
+        if(this.$store.state.chatGroup[i].group.groupId === newMsg.groupId) {
+          this.curindex = i;
+          break;
+        }
+      }
+    },
     Appendzero(o_num) {
       if(o_num < 10) return "0" + "" + o_num;
       else return o_num;
     },
-    getUnreadClass(unReadCount) {
-      if(unReadCount === 0) return "group-readall";
-      else return "group-unread"
+    getUnreadClass(unReadCount, selected) {
+      var endPoint = "-unselected";
+      if(selected) {
+        endPoint = "-selected";
+      }
+      if(unReadCount === 0) return "group-readall" + endPoint;
+      else return "group-unread";
     },
     getUnReadCount(unReadCount) {
       if(unReadCount === 0) return "";
-      else return unReadCount
+      else return unReadCount;
     },
     formatTimeFilter(secondsTime) {
-      let curDate = new Date()
-      let curDateSecond = curDate.getTime()
-      let cutTime = curDateSecond - secondsTime
-      let curYeat = curDate.getFullYear()
-      let curMonth = curDate.getMonth()
-      let curDay = curDate.getDay()
+      let curDate = new Date();
+      let curDateSecond = curDate.getTime();
+      let cutTime = curDateSecond - secondsTime;
+      let curYeat = curDate.getFullYear();
+      let curMonth = curDate.getMonth();
+      let curDay = curDate.getDay();
 
       let distdate = new Date(secondsTime);
-      let y = distdate.getFullYear()
-      let mon = distdate.getUTCMonth() + 1
-      let d = distdate.getDate()
+      let y = distdate.getFullYear();
+      let mon = distdate.getUTCMonth() + 1;
+      let d = distdate.getDate();
       let h = distdate.getHours();
       let m = distdate.getMinutes();
       let s = distdate.getSeconds();
 
+      // console.log(distdate)
       // console.log(cutTime)
       // console.log(y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d) + " " + this.Appendzero(h) + ":" + this.Appendzero(m) + ":" + this.Appendzero(s))
 
-      if(cutTime > 0 && cutTime < 24 * 3600 * 1000)
+      if(cutTime < 24 * 3600 * 1000)
       {
-        return h + ":" + m
+        return this.Appendzero(h) + ":" + this.Appendzero(m);
       }
       else if(cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000)
       {
-        return "昨天"
+        return "昨天";
       }
       else
       {
-        return y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d)
+        return y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d);
       }
     },
     getMsgLastMsgTime(chatGroupMsg) {
-      var timesecond = chatGroupMsg.timestamp
-      var formatTime = this.formatTimeFilter(timesecond)
-      return formatTime
+      var timesecond = chatGroupMsg.timestamp;
+      var formatTime = this.formatTimeFilter(timesecond);
+      return formatTime;
     },
-    getMsgContent(chatGroupMsgContent, chatGroupMsgType) {
+    getShowMsgContent(chatGroupMsgContent, chatGroupMsgType) {
       //console.log(chatGroupMsgContent)
       if(chatGroupMsgType === 101)
       {
-        return chatGroupMsgContent.text
+        return chatGroupMsgContent.text;
       }
       else if(chatGroupMsgType === 102)
       {
-        return "[图片]"
+        return "[图片]";
       }
       else if(chatGroupMsgType === 103)
       {
-        return "[文件]"
+        return "[文件]";
       }
       else if(chatGroupMsgType === 104)
       {
         if(chatGroupMsgContent.type === "invitation")
         {
-          var invitee = chatGroupMsgContent.userInfos.userName
-          var inviter = chatGroupMsgContent.userName
-          return inviter + " 邀请 " + invitee + " 加入群聊"
+          var invitee = chatGroupMsgContent.userInfos.userName;
+          var inviter = chatGroupMsgContent.userName;
+          return inviter + " 邀请 " + invitee + " 加入群聊";
         }
         else if(chatGroupMsgContent.type === "notice")
         {
-          var owner = chatGroupMsgContent.userName
-          return owner + " 发布群公告"
+          var owner = chatGroupMsgContent.userName;
+          return owner + " 发布群公告";
         }
         else if(chatGroupMsgContent.type === "updateGroupName")
         {
-          var owner = chatGroupMsgContent.userName
-          var distName = chatGroupMsgContent.text
-          return owner + " 修改群名称为 " + distName
+          var owner = chatGroupMsgContent.userName;
+          var distName = chatGroupMsgContent.text;
+          return owner + " 修改群名称为 " + distName;
         }
         else if(chatGroupMsgContent.type === "deleteGroupUser")
         {
-          var owner = chatGroupMsgContent.userName
-          var bybyer = chatGroupMsgContent.userInfos.userName
-          return owner + " 将 " + bybyer + " 移出了群聊"
+          var owner = chatGroupMsgContent.userName;
+          var bybyer = chatGroupMsgContent.userInfos.userName;
+          return owner + " 将 " + bybyer + " 移出了群聊";
         }
         else
         {
-          return "您收到一条短消息"
+          return "您收到一条短消息";
         }
       }
       else if(chatGroupMsgType === 105)
       {
-        return "[语音]"
+        return "[语音]";
       }
       else if(chatGroupMsgType === 106)
       {
-        return "[聊天记录]"
+        return "[聊天记录]";
       }
-      return "123"
-    }
+      return "收到一条短消息";
+    },
+    showChat: function(chatGroup, index) {
+      console.log("Chat-Content showChat");
+      this.curChat = chatGroup;
+      this.curindex = index;
+    },
   },
   created: function() {
-    console.log("Created")
-    InitServerAPI('http', '139.198.15.253')
-    ListAllGroup()
+    console.log("chat content created");
+    this.serverapi = new ServerApi('http', '139.198.15.253');
+    this.serverapi.m_accesstoken = this.$store.state.accesstoken;
+    this.serverapi.ListAllGroup()
         .then((response) => {
-            //console.log(response)
-            var ret_data = response.data
-            var ret_list = ret_data.results
-            this.$store.commit("setChatGroup", ret_list)
+            var ret_data = response.data;
+            var ret_list = ret_data.results;
+            this.$store.commit("setChatGroup", ret_list);
+            let curGroup = this.$store.state.chatGroup[0];
+            this.showChat(curGroup, 0);
         })
   }
 };
@@ -182,18 +211,20 @@ export default {
 
 <style lang="scss" scoped>
   .chat-panel {
-    width: 890px;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: row;
+    margin: 0px;
   }
+
   .chat {
-    width:610px;
-    flex: 1;
+    width:100%;
     background-color: white;
     display: flex;
     flex-direction: column;
     position: relative;
+    margin: 0px;
   }
 
   .new-chat-dropdown {
@@ -211,7 +242,6 @@ export default {
 
   .chat-label {
     float: left;
-    overflow: hidden;
     height: 60px;
     width:68px;
     margin:0;
@@ -249,6 +279,11 @@ export default {
 
   .group {
     height: 50px;
+  }
+
+  .group.active {
+    height: 50px;
+    background-color: rgb(245, 246, 247);
   }
 
   .group-ico {
@@ -305,7 +340,6 @@ export default {
   .group-time {
     font-size: 12px;
     color: rgb(170, 179, 178);
-    overflow: hidden;
     margin-left: 0px;
     margin-top: 5px;
     margin-right: 0px;
@@ -318,7 +352,6 @@ export default {
     font-size: 12px;
     float: right;
     color: rgb(255, 255, 255);
-    overflow: hidden;
     margin-left: 0px;
     margin-top: 0px;
     margin-right: 0px;
@@ -331,11 +364,26 @@ export default {
     background-color: rgb(255, 59, 48);
   }
 
-  .group-readall {
+  .group-readall-selected {
     font-size: 12px;
     float: right;
     color: rgb(255, 255, 255);
-    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 5px;
+    text-align: center;
+    height: 15px;
+    width: 15px;
+    line-height: 15px;
+    border-radius: 20px;
+    background-color: rgb(245, 246, 255);
+  }
+  
+  .group-readall-unselected {
+    font-size: 12px;
+    float: right;
+    color: rgb(255, 255, 255);
     margin-left: 0px;
     margin-top: 0px;
     margin-right: 0px;

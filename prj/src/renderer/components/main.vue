@@ -8,8 +8,6 @@
                 <el-menu
                     default-active="0"
                     class="nav-menu"
-                    @open="handleOpen"
-                    @close="handleClose"
                     active-text-color="#ffd04b">
                     <el-menu-item
                         class="nav-item"
@@ -103,7 +101,6 @@ export default {
 
 <style lang="scss" scoped>
     .mainpage {
-        overflow:hidden;
         margin: 0 0 0 0;
         width: 100%;
         height: 100%;
@@ -118,7 +115,6 @@ export default {
     }
 
     .main-container {
-        overflow: hidden;
         width: 100%;
         height: calc(100% - 50px);
     }
@@ -130,7 +126,6 @@ export default {
     }
 
     .nav-item {
-        overflow: hidden;
         width: 60;
         height: 60px;
         text-align: center;
@@ -146,6 +141,9 @@ export default {
         width: calc(100% - 70px);
         height: 100%;
         vertical-align: top;
+        margin: 0px;
+        overflow-y:hidden;
+        overflow-x: hidden;
     }
 
     .headbar {

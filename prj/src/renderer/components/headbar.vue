@@ -30,12 +30,14 @@ export default {
     components: {
     },
     created: function () {
-        this.serverapi = new ServerApi('http', '139.198.15.253')
-		//this.serverapi.Login()
-        this.serverapi.GetUserinfo(this.$store.state.userAccount)
+        let filter = [{'field':'email', 'operator':'co', 'logic':1, 'value':this.$store.state.userAccount}];
+
+        this.serverapi = new ServerApi('http', '139.198.15.253');
+        this.serverapi.m_accesstoken = this.$store.state.accesstoken;
+        this.serverapi.GetUserinfo(filter, 50, 1, 0)
             .then((response) => {
-                console.log(response.data.results[0].avatarOUrl)
-                this.userIco = response.data.results[0].avatarOUrl
+                this.$store.commit("setUserInfo", response.data.results[0]);
+                this.userIco = response.data.results[0].avatarOUrl;
             }) 
     }
 }
