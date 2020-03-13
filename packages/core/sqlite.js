@@ -13,40 +13,49 @@ class Sqlite {
     this.filename = filename;
   }
 
-  init(filename) {
-    if (typeof filename == "string") {
-      this.filename = filename;
-    }
-
+  async init() {
+    var filename = this.filename;
     var fileBuffer = undefined;
 
-    if (fs.exists(filename)) {
-      fileBuffer = fs.readFileSync(filename);
+    if (typeof this.db != "undefined") {
+      return this;
     }
 
-    var result = initSqlJs().then((SQL) => {
-      try {
-        if (typeof fileBuffer == 'undefined') {
-          this.db = new SQL.database();
+    var SQL = await initSqlJs();
 
-        } else {
-          this.db = new SQL.database(fileBuffer);
-        }
+    if (typeof filename == "undefined") {
+      try {
+        this.db = new SQL.Database();
+        // console.log('new db');
 
       } catch (e) {
         console.log(e);
       }
 
-      var sql = "create table person (name text, age int);";
-      var res = db.exec(sql);
-      sql = "insert into person (name, age) values ('wangcai', 30);"
-      var res = db.exec(sql);
-      var data = db.export();
-      var buffer = Buffer.from(data, 'binary');
-      fs.writeFileSync(filename, buffer);
-    });
+    } else {
+      if (fs.existsSync(filename)) {
+        try {
+          fileBuffer = fs.readFileSync(filename);
+          console.log('read buffer ok');
 
-    return result;
+        } catch(e) {
+          console.log(e);
+          fileBuffer = undefined;
+        }
+      }
+
+      if (typeof fileBuffer == "undefined") {
+        this.db = new SQL.Database();
+        // console.log('new db');
+
+      } else {
+        console.log('load ' + filename);
+        this.db = new SQL.Database(fileBuffer);
+        console.log('ok');
+      }
+    }
+
+    return this;
   }
 
   exec(sql) {
@@ -58,7 +67,7 @@ class Sqlite {
       sql = sql.sql;
     }
 
-    if (!sql instanceof "string") {
+    if (typeof sql != "string") {
       return undefined;
     }
 
@@ -107,6 +116,38 @@ class Sqlite {
       console.log(e);
     }
   }
+
+  resultToList(result) {
+    var list = [];
+
+    if (result instanceof Array
+      && result.length > 0) {
+      result = result[0];
+
+      if (result.hasOwnProperty("columns")
+        && result.hasOwnProperty("values")) {
+        var columns = result.columns;
+        var values = result.values;
+
+        for (var i = 0; i < values.length; i++) {
+          var object = {};
+          var value = values[i];
+
+          if (columns.length != value.length) {
+            continue;
+          }
+
+          for (var j = 0; j < columns.length; j++) {
+            object[columns[j]] = value[j];
+          }
+
+          list.push(object);
+        }
+      }
+    }
+
+    return list;
+  }
 }
 
 class Sql {
@@ -115,7 +156,7 @@ class Sql {
     this._hasWhere = false;
   }
 
-  select() {
+  select(table, fields) {
     this._sql = "select ";
     var sqlFields = "*";
 
@@ -265,6 +306,18 @@ class Sql {
     this._sql = "delete from " + table + " ";
 
     return this;
+  }
+
+  limit(offset, size) {
+    this._sql += " limit " + String(offset) + ", " + String(size);
+  }
+
+  asc() {
+    this._sql += " asc ";
+  }
+
+  desc() {
+    this._sql += " desc ";
   }
 }
 

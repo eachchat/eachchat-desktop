@@ -8,8 +8,8 @@ import { loading } from './loader.js'
 import * as model from './model.js'
 import * as sqlite from './sqlite.js'
 
-// loading("model", model)
-// loading("sqlite", sqlite)
+loading("model", model)
+loading("sqlite", sqlite)
 
 export {
   model,
