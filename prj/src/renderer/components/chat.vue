@@ -1,6 +1,6 @@
 <template>
     <div class="chat-page">
-        <div class="chat-head">
+        <div class="chat-title">
             <p class="chat-label">{{chat.group.groupName}}</p>
             <div class="chat-tools">
                 <div class="chat-tool-more" @click="More()">
@@ -343,20 +343,49 @@ export default {
 </script>
 
 <style lang="scss">
+  ::-webkit-scrollbar-track-piece {
+    background-color: #F1F1F1;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    height: 50px;
+    background-color: #C1C1C1;
+    border-radius: 10px;
+    outline: none;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    height: 50px;
+    background-color: #A8A8A8;
+    border-radius: 10px;
+  }
+
     .chat-page {
         width: 100%;
         height: 100%;
     }
 
-  .chat-head {
+  .chat-title {
     display: float;
     width: 100%;
-    height: 60px;
-    background-color: rgb(249, 249, 249);
+    height: 42px;
+    background-color: rgb(255, 255, 255);
+    border-bottom: 1px solid rgb(242, 242, 246);
+    -webkit-app-region: drag;
   }
+    * {
+        
+        -webkit-app-region: no-drag;
+    }
 
   .chat-label {
-    margin:20px 30px 20px 30px;
+    margin:10px 30px 20px 30px;
     float: left;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -374,7 +403,7 @@ export default {
     float: right;
     width: 40px;
     line-height: 100%;
-    padding: 22px 0px 22px 0px;
+    padding: 12px 0px 22px 0px;
     margin: 0px;
   }
 
@@ -383,7 +412,7 @@ export default {
     float: right;
     width: 40px;
     line-height: 100%;
-    padding: 22px 0px 22px 0px;
+    padding: 12px 0px 22px 0px;
     margin: 0px;
   }
 
@@ -397,8 +426,8 @@ export default {
 
   .chat-main-message {
       width: 100%;
-      height: calc(100% - 120px);
-      border-bottom: 1px solid rgb(221, 221, 221);
+      height: calc(100% - 160px);
+      border-bottom: 1px solid rgb(242, 242, 246);
       overflow-y: scroll;
   }
 
@@ -423,6 +452,7 @@ export default {
 
   .chat-msg-body {
       font-size: 15px;
+      max-width: 100%;
   }
 
   .msg-info-mine {
@@ -489,7 +519,7 @@ export default {
 
   .chat-msg-content-mine {
       background-color: rgb(220,244,233);
-      width: calc(100%-20px);
+      max-width: calc(100%-20px);
       border-radius: 5px;
       padding: 10px;
       font-size: 14px;

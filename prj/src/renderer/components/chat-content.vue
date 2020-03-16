@@ -1,22 +1,10 @@
 <template>
     <div class="chat-panel">
       <div class="chat-list">
-        <div class="list-head">
-          <p class="chat-label">聊天</p>
-          <el-dropdown class="new-chat-dropdown" trigger="click">
-            <span class="new-chat">
-              <i class="el-icon-plus el-icon--right"></i>
-            </span>
-            <el-dropdown-menu class="new-chat-content" slot="dropdown">
-                <el-dropdown-item class="create-new-group" icon="el-icon-connection">
-                  创建群聊
-                </el-dropdown-item>
-                <el-dropdown-item class="create-new-secret" icon="el-icon-lock">
-                  进入密聊
-                </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+        <div class="list-header">
+          <listHeader/>
         </div>
+        <p class="chat-label">普通</p>
         <div class="list-content" :key="needUpdate">
           <ul class="group-list">
             <li class="group"
@@ -38,6 +26,9 @@
         </div>
       </div>
       <div class="chat">
+        <div class="chat-header">
+            <chatHeader/>
+        </div>
         <ChatPage :chat="curChat" @updateChatList="updateChatList"></ChatPage>
       </div>
     </div>
@@ -47,9 +38,14 @@
 import {ServerApi} from '../server/serverapi.js'
 import {Chat} from '../store/module.js'
 import ChatPage from './chat.vue'
+import listHeader from './listheader'
+import chatHeader from './chatheader'
+
 export default {
   components: {
     ChatPage,
+    listHeader,
+    chatHeader
   },
   computed: {
     chatGroupList: {
@@ -67,6 +63,7 @@ export default {
       curChat: {},
       needUpdate: 1,
       curindex: 0,
+      searchKey: '',
     };
   },
   methods: {
@@ -210,6 +207,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  ::-webkit-scrollbar-track-piece {
+    background-color: #F1F1F1;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    height: 50px;
+    background-color: #C1C1C1;
+    border-radius: 10px;
+    outline: none;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    height: 50px;
+    background-color: #A8A8A8;
+    border-radius: 10px;
+  }
+
   .chat-panel {
     width: 100%;
     height: 100%;
@@ -227,47 +247,42 @@ export default {
     margin: 0px;
   }
 
-  .new-chat-dropdown {
-    float: right;
-    height: 60px;
-    width: 60px;
-    border: 0px;
-  }
-
-  .new-chat {
-    line-height: 60px;
-    border: 0px;
-    background-color: rgb(242, 242, 246);
-  }
-
-  .chat-label {
-    float: left;
-    height: 60px;
-    width:68px;
-    margin:0;
-    line-height: 60px;
-    text-align: center;
-  }
-
   .chat-list {
     height: 100%;
     width: 280px;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgb(242, 242, 246);
+    border-right: 1px solid rgb(242, 242, 246);
   }
 
-  .list-head {
-    display: block;
+  .list-header {
     width: 100%;
-    height: 60px;
-    background-color: rgb(242, 242, 246);
+    height: 56px;
+    line-height: 56px;
+    background-color: rgb(255, 255, 255);
+    border: 0px;
+    margin: 0px 0px 5px 0px;
+    display: block;
+  }
+
+  .chat-label {
+    float: left;
+    font-size: 13px;
+    height: 35px;
+    line-height: 35px;
+    padding: 0px 0px 0px 20px;
+    margin: 0px;
+    display: none;
+    background-color: rgb(239,240,241);
   }
 
   .list-content {
     height: 100%;
     overflow-y: scroll;
     
+    ::-webkit-scrollbar-track {
+      border-radius: 10px;
+    }
   }
 
   .group-list {
@@ -278,22 +293,22 @@ export default {
   }
 
   .group {
-    height: 50px;
+    height: 64px;
   }
 
   .group.active {
-    height: 50px;
+    height: 64px;
     background-color: rgb(245, 246, 247);
   }
 
   .group-ico {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     display: inline-block;
     margin-left: 10px;
-    margin-top: 10px;
+    margin-top: 12px;
     margin-right: 0px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   
   .group-info {
@@ -307,12 +322,12 @@ export default {
     width: calc(100% - 20px);
     height: 40%;
     font-size: 14px;
-    color: rgb(57, 57, 57);
+    color: rgb(51, 51, 51);
     overflow: hidden;
     margin-left: 10px;
-    margin-top: 5px;
+    margin-top: 13px;
     margin-right: 0px;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
@@ -339,11 +354,11 @@ export default {
 
   .group-time {
     font-size: 12px;
-    color: rgb(170, 179, 178);
+    color: rgb(200, 202, 204);
     margin-left: 0px;
-    margin-top: 5px;
+    margin-top: 13px;
     margin-right: 0px;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
     height: 40%;
     text-align: right;
   }
@@ -355,7 +370,7 @@ export default {
     margin-left: 0px;
     margin-top: 0px;
     margin-right: 0px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     text-align: center;
     height: 15px;
     width: 15px;
