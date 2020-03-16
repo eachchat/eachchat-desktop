@@ -15,6 +15,15 @@ class ServerApi
         axios.defaults.baseURL = this.m_url + ':' + this.m_port8081;
     }
 
+    GetAllDepartmentInfo() {
+        console.log("getAllDepartment");
+        return axios.get('http://localhost:9080/static/department.json',{});
+    }
+    GetAllUserInfo() {
+        console.log("getAllUser");
+        return axios.get('http://localhost:9080/static/user.json',{});
+    }
+
     async Login(username, password)
     {
         console.log("login");
@@ -295,7 +304,7 @@ class ServerApi
 }
 
 export {ServerApi}
- 
+
 
 
 

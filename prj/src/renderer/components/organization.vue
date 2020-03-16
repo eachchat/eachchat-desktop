@@ -5,7 +5,7 @@
                 <div class="organization-title">组织</div>
             </div>
             <el-menu mode="vertical">
-                <el-menu-item index="organization-item">
+                <el-menu-item index="organization-item" @click="organizationMenuItemClicked()">
                     <i class="el-icon-menu"> 组织架构</i>
                 </el-menu-item>
                 <div class="other-title">其他</div>
@@ -13,7 +13,7 @@
                     <i class="el-icon-menu"> 我的频道</i>
                     
                 </el-menu-item>
-                <el-menu-item>
+                <el-menu-item index="focus">
                     <i class="el-icon-view"> 特别关注</i>
                 </el-menu-item>
                 <el-submenu index="recent-menu">
@@ -28,38 +28,48 @@
             </el-menu>
         </el-aside>
         <el-container class="right-container">
-            <el-header height="40px">Header</el-header>
-            <el-main>Main</el-main>
+            
+                <component :is="curView"></component>
+            
         </el-container>
     </el-container>
 </template>
 <script>
 import { ServerApi } from '../server/serverapi';
+import organizationList from './organization-list';
 export default {
     name: 'organization',
     data() {
         return {
-            serverapi: undefined,
-        };
+            curindex: 0,
+            curView: 'organizationList',
+            Navigate:[
+                {    
+                    link: "/organization-list",
+                    view: "organizaionList"
+                }
+            ]
+        }
     },
     methods: {
+        organizationMenuItemClicked() {
+            this.curindex = 0;
+            this.curView = "organizationList";
+        },
+        myChannelMenuItemClicked() {
 
+        },
+        focusMenuItemClicked() {
+
+        },
+        recentMenuItemClicked() {
+
+        }
+    },
+    components: {
+        organizationList,
     },
     created() {
-        console.log(this.$store.state.accesstoken);
-        
-        this.serverapi = new ServerApi('http', '139.198.15.253');
-        this.serverapi.m_accesstoken = this.$store.state.accesstoken;
-        this.serverapi.GetDepartmentInfo(100, 1, 0)
-        .then((response) => {
-            console.log(response);
-
-        });
-        this.serverapi.GetUserinfo(10000, 1, 0)
-        .then((response) => {
-            console.log(response);
-        });
-    
         
     }
 }
