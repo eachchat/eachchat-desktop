@@ -1,0 +1,28 @@
+{
+  "name": "core",
+  "version": "0.0.1",
+  "description": "Core modules",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "dev": "webpack --mode=development"
+  },
+  "author": "jakit",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "@babel/core": "^7.8.6",
+    "@babel/preset-env": "^7.8.6",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.0-beta.0",
+    "babel-preset-env": "^1.7.0",
+    "esm": "^3.2.25",
+    "fs": "0.0.1-security",
+    "node-loader": "^0.6.0",
+    "sql.js": "^1.1.0",
+    "webpack": "^4.42.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.11"
+  }
+}
