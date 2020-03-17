@@ -110,16 +110,16 @@ create table users (
   avatar text not null -- 头像本地文件地址
   avatar_minimal text not null -- 头像缩略图文件地址
   role_id integer not null -- 关联角色 ID
-  language integer N/A -- 语言
-  locale integer N/A -- 区域
-  timezone text N/A -- 时区
+  language integer -- 语言
+  locale integer -- 区域
+  timezone text -- 时区
   is_active integer not null -- 账号活跃状态
-  pinyin text N/A -- 用户名拼音
-  remark text N/A -- 备注
-  remark_pinyin text N/A -- 备注拼音
-  job text N/A -- 工作内容信息
-  bio text N/A -- 类似于 github 的 Bio
-)
+  pinyin text -- 用户名拼音
+  remark text -- 备注
+  remark_pinyin text -- 备注拼音
+  job text -- 工作内容信息
+  bio text -- 类似于 github 的 Bio
+);
 ```
 
 ### Login
@@ -141,7 +141,7 @@ create table login (
   refresh_token text not null -- 用于刷新的 token
   account text not null -- 账户名
   password text not null -- 记住密码
-)
+);
 ```
 
 ## Models
