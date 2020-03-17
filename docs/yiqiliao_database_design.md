@@ -149,7 +149,8 @@ create table login (
 ### User
 
 ```
-const User = Model.create(
+const User = model.Model.create(
+  conn,
   'users',
   {
     id: model.integer,
@@ -177,7 +178,8 @@ const User = Model.create(
 ### Login
 
 ```
-const Login = Model.create(
+const Login = model.Model.create(
+  conn,
   'login',
   {
     id: model.integer
@@ -188,4 +190,5 @@ const Login = Model.create(
   },
   'id',
   'id'
-)
+);
+```
