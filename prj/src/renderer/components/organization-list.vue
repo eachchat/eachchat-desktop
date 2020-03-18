@@ -121,6 +121,7 @@ export default {
             _this.serverApi.GetAllUserInfo()
             .then(function(res){
                 _this.allUsers = res.data;
+                _this.$store.commit("setUsersInfo", res.data)
                 console.log(_this.allUsers);
                 for (var i = 0; i < _this.allUsers.length; i ++) {
                     var user = _this.allUsers[i];

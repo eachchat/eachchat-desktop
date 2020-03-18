@@ -79,7 +79,7 @@
 
 <script>
 import { ServerApi } from '../server/serverapi'
-import {generalGuid} from '../server/Utils.js'
+import {generalGuid, Appendzero} from '../server/Utils.js'
 
 export default {
     props: ['chat'],
@@ -130,7 +130,7 @@ export default {
             this.sendingMsgIdList.push(guid);
             this.messageContent = "";
 
-            SendNewMessage(guid, 101, this.$store.state.userInfo.id, this.chat.group.groupId, this.getUserId, curTimeSeconds, varcontent, "")
+            this.serverapi.SendNewMessage(guid, 101, this.$store.state.userInfo.id, this.chat.group.groupId, this.getUserId, curTimeSeconds, varcontent, "")
                 .then((ret) => {
                     var ret_data = ret.data;
                     var code = ret_data.code;
@@ -158,6 +158,9 @@ export default {
 
         },
         MsgContent: function(curMsg) {
+            if(curMsg === null) {
+                return '';
+            }
             let chatGroupMsgType = curMsg.msgContentType;
             let chatGroupMsgContent = curMsg.content;
             if(chatGroupMsgType === 101)
@@ -228,6 +231,9 @@ export default {
             else return o_num;
         },
         MsgTime: function(curMsg) {
+            if(curMsg === null){
+                return "";
+            }
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
             let cutTime = curDateSecond - curMsg;
@@ -253,11 +259,18 @@ export default {
             }
             else
             {
-                return y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d);
+                return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
             }
         },
         MsgBelongUserName: function(curMsg) {
-            return curMsg.fromId.substring(0, 4);
+            var UserName = '';
+            if(curMsg === null) {
+                return '';
+            }
+            else {
+                var res = this.$store.getters.getChatUserName(curMsg.fromId);
+                return res;
+            }
         },
         MsgIsMine:function(curMsg) {
             if(curMsg.fromId === this.$store.state.userInfo.id) {
@@ -268,7 +281,13 @@ export default {
             }
         },
         MsgBelongUserImg: function (curMsg) {
-            return '../assets/user.jpeg';
+            if(curMsg === null) {
+                return '/static/Img/User/user.jpeg';
+            }
+            else {
+                var res = this.$store.getters.getChatUserIcon(curMsg.fromId, false);
+                return res;
+            }
         },
         ChatLeftOrRightClassName: function (curMsg) {
             if(curMsg.fromId === this.$store.state.userInfo.id) {
@@ -378,11 +397,11 @@ export default {
     background-color: rgb(255, 255, 255);
     border-bottom: 1px solid rgb(242, 242, 246);
     -webkit-app-region: drag;
-  }
     * {
         
         -webkit-app-region: no-drag;
     }
+  }
 
   .chat-label {
     margin:10px 30px 20px 30px;

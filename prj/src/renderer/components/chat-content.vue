@@ -15,7 +15,7 @@
               <img class="group-ico" :src="chatGroup.group.groupAvatar">
               <div class="group-info">
                 <p class="group-name">{{chatGroup.group.groupName}}</p>
-                <p class="group-content">{{getShowMsgContent(chatGroup.message.content, chatGroup.message.msgContentType)}}</p>
+                <p class="group-content">{{getShowMsgContent(chatGroup.message)}}</p>
               </div>
               <div class="group-notice">
                 <p class="group-time">{{getMsgLastMsgTime(chatGroup.message)}}</p>
@@ -40,6 +40,7 @@ import {Chat} from '../store/module.js'
 import ChatPage from './chat.vue'
 import listHeader from './listheader'
 import chatHeader from './chatheader'
+import {Appendzero} from '../server/Utils.js'
 
 export default {
   components: {
@@ -76,10 +77,6 @@ export default {
         }
       }
     },
-    Appendzero(o_num) {
-      if(o_num < 10) return "0" + "" + o_num;
-      else return o_num;
-    },
     getUnreadClass(unReadCount, selected) {
       var endPoint = "-unselected";
       if(selected) {
@@ -110,11 +107,11 @@ export default {
 
       // console.log(distdate)
       // console.log(cutTime)
-      // console.log(y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d) + " " + this.Appendzero(h) + ":" + this.Appendzero(m) + ":" + this.Appendzero(s))
+      // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
 
       if(cutTime < 24 * 3600 * 1000)
       {
-        return this.Appendzero(h) + ":" + this.Appendzero(m);
+        return Appendzero(h) + ":" + Appendzero(m);
       }
       else if(cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000)
       {
@@ -122,16 +119,27 @@ export default {
       }
       else
       {
-        return y + "-" + this.Appendzero(mon) + "-" + this.Appendzero(d);
+        return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
       }
     },
     getMsgLastMsgTime(chatGroupMsg) {
+      if(chatGroupMsg === null){
+        return "";
+      }
       var timesecond = chatGroupMsg.timestamp;
       var formatTime = this.formatTimeFilter(timesecond);
       return formatTime;
     },
-    getShowMsgContent(chatGroupMsgContent, chatGroupMsgType) {
+    getShowMsgContent(chatGroupMsg) {
       //console.log(chatGroupMsgContent)
+      if(chatGroupMsg === null){
+        return "";
+      }
+      var chatGroupMsgContent = chatGroupMsg.content;
+      var chatGroupMsgType = chatGroupMsg.msgContentType;
+      if(chatGroupMsgContent === null) {
+        return null;
+      }
       if(chatGroupMsgType === 101)
       {
         return chatGroupMsgContent.text;
@@ -198,6 +206,8 @@ export default {
         .then((response) => {
             var ret_data = response.data;
             var ret_list = ret_data.results;
+            console.log(ret_list)
+            
             this.$store.commit("setChatGroup", ret_list);
             let curGroup = this.$store.state.chatGroup[0];
             this.showChat(curGroup, 0);
@@ -322,6 +332,8 @@ export default {
     width: calc(100% - 20px);
     height: 40%;
     font-size: 14px;
+    font-weight: 550;
+    font-family:Microsoft Yahei;
     color: rgb(51, 51, 51);
     overflow: hidden;
     margin-left: 10px;

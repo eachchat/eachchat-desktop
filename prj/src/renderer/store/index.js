@@ -15,14 +15,15 @@ export default new Vuex.Store({
     accesstoken: "",
     userAccount: "",
     userInfo:{},
+    usersInfo:[],
   },
   mutations: {
     setChatGroup(state, chatGroupList) {
       function compare(){
         return function(a, b)
         {
-          var value1 = a.message.timestamp;
-          var value2 = b.message.timestamp;
+          var value1 = a.message === null ? a.group.updateTime : a.messagetimestamp;
+          var value2 = b.message === null ? b.group.updatet : b.message.timestamp;
           return value2 - value1;
         }
       }
@@ -60,10 +61,61 @@ export default new Vuex.Store({
     },
     setUserAccount(state, account) {
       state.userAccount = account;
+    },
+    setUsersInfo(state, UsersInfo) {
+      state.usersInfo = UsersInfo
     }
   },
   getters: {
     getChatGroup: state => state.chatGroup,
+    getUserIcon: state => (is_original=false) => {
+      if(state.userInfo === null) {
+        return '/static/Img/User/user.jpeg';
+      }
+      if(is_original) {
+        return state.userInfo.avatarTUrl;
+      }
+      else {
+        return state.userInfo.avatarOUrl;
+      }
+    },
+    getChatUserIcon: state => (distId, is_original=false) => {
+        if(state.usersInfo === null) {
+          return '/static/Img/User/user.jpeg';
+        }
+
+        var distUser = state.usersInfo.filter(function(item) {
+          return item.id === distId;
+        })
+
+        if(distUser.length === 0) {
+          return '/static/Img/User/user.jpeg';
+        }
+        else {
+          if(is_original) {
+            return distUser[0].avaterOUrl;
+          } 
+          else {
+            return distUser[0].avatarTUrl;
+          }
+        }
+    },
+    getChatUserName: state => (distId) => {
+      if(state.usersInfo === null) {
+        return '';
+      }
+
+      var distUser = state.usersInfo.filter(function(item) {
+        return item.id === distId;
+      })
+
+      if(distUser.length === 0) {
+        return '';
+      }
+      else {
+        return distUser[0].displayName;
+      }
+    }
   },
   modules,
   plugins: [

@@ -28,6 +28,7 @@ export default {
     name: 'listHeadbar',
     data () {
         return {
+            searchKey: '',
         }
     },
     methods: {

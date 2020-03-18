@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import loginpage from './name-login.vue'
 import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
 
@@ -87,21 +86,12 @@ export default {
         }
     },
     components: {
-        loginpage,
         organization,
         ChatContent
     },
     created: function () {
-        let filter = [{'field':'email', 'operator':'co', 'logic':1, 'value':this.$store.state.userAccount}];
-
-        this.serverapi = new ServerApi('http', '139.198.15.253');
-        this.serverapi.m_accesstoken = this.$store.state.accesstoken;
-        this.serverapi.GetUserinfo(filter, 50, 1, 0)
-            .then((response) => {
-                this.$store.commit("setUserInfo", response.data.results[0]);
-                this.userIco = response.data.results[0].avatarOUrl;
-            }) 
-    }
+        this.userIco = this.$store.getters.getUserIcon(false);
+    },
 }
 </script>
 

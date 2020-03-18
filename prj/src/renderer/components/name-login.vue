@@ -69,6 +69,7 @@ export default {
             this.$store.commit("setRefreshToken", refreshtoken)
             this.$store.commit("setAccessToken", accesstoken)
             this.$store.commit("setUserAccount", this.username)
+            this.$store.commit("setUserInfo", response.data.obj);
 
             console.log(this.$store.state.accesstoken)
         
