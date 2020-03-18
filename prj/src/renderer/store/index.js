@@ -16,6 +16,7 @@ export default new Vuex.Store({
     userAccount: "",
     userInfo:{},
     usersInfo:[],
+    messageLists:{},
   },
   mutations: {
     setChatGroup(state, chatGroupList) {
@@ -63,7 +64,18 @@ export default new Vuex.Store({
       state.userAccount = account;
     },
     setUsersInfo(state, UsersInfo) {
-      state.usersInfo = UsersInfo
+      state.usersInfo = UsersInfo;
+    },
+    setMessageLists(state, MessageList, is_add=false) {
+      if(MessageList.length != 0) {
+        var curGroupId = MessageList[0].groupId;
+        if(is_add) {
+          state.messageLists[curGroupId] = state.messageLists[curGroupId].concat(MessageList);
+        }
+        else {
+          state.messageLists[curGroupId] = MessageList;
+        }
+      }
     }
   },
   getters: {
@@ -115,6 +127,18 @@ export default new Vuex.Store({
       else {
         return distUser[0].displayName;
       }
+    },
+    getChatMsgHistory: state => (groupId) => {
+      if(groupId.length === 0 || groupId === null) {
+        return[];
+      }
+
+      var distMsgList = [].concat(state.messageLists[groupId]);
+      if(typeof(distMsgList) === "undefined") {
+        return [];
+      }
+      
+      return distMsgList;
     }
   },
   modules,

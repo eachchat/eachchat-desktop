@@ -36,7 +36,6 @@
 
 <script>
 import {ServerApi} from '../server/serverapi.js'
-import {Chat} from '../store/module.js'
 import ChatPage from './chat.vue'
 import listHeader from './listheader'
 import chatHeader from './chatheader'
@@ -197,21 +196,26 @@ export default {
       this.curChat = chatGroup;
       this.curindex = index;
     },
+    getGroupList: function() {
+      this.serverapi.ListAllGroup()
+          .then((response) => {
+              var ret_data = response.data;
+              var ret_list = ret_data.results;
+              //console.log(ret_list)
+              
+              this.$store.commit("setChatGroup", ret_list);
+          })
+    },
   },
   created: function() {
     console.log("chat content created");
     this.serverapi = new ServerApi('http', '139.198.15.253');
     this.serverapi.m_accesstoken = this.$store.state.accesstoken;
-    this.serverapi.ListAllGroup()
-        .then((response) => {
-            var ret_data = response.data;
-            var ret_list = ret_data.results;
-            console.log(ret_list)
-            
-            this.$store.commit("setChatGroup", ret_list);
-            let curGroup = this.$store.state.chatGroup[0];
-            this.showChat(curGroup, 0);
-        })
+    this.getGroupList();
+    this.$nextTick(() => {
+      let curGroup = this.$store.state.chatGroup[0];
+      this.showChat(curGroup, 0);
+    })
   }
 };
 </script>
