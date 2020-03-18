@@ -14,6 +14,12 @@
             {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
             }, 
+            "runtimeExecutable": null,
+            "runtimeArgs": ["--nolazy"],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "sourceMaps": true,
             "args": ["."],
             //"outputCapture": "std"
         }

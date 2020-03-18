@@ -9,6 +9,7 @@ class ServerApi
     m_accesstoken;
     m_port8080 = 8080;
     m_port8081 = 8081;
+    m_port8088 = 8888;
     constructor(protocal, ip)
     {
         this.m_url = protocal + '://' + ip;
@@ -301,10 +302,26 @@ class ServerApi
             headers : {Authorization : "Bearer " + this.m_accesstoken}
         });
     }
+
+    Uploadfile(filebuf, type)
+    {
+        console.log("Uploadfile");
+        axios.defaults.baseURL = this.m_url + ':' + this.m_port8088;
+        return axios.post("api/service/file/v1/dfs/upload",
+        {
+            filebuf
+        },
+        {
+            headers : {
+                Authorization : "Bearer " + this.m_accesstoken,
+                Content-Disposition : "form-data;name= \"file\"",
+                Content-Type : type
+            }
+        });
+    }
 }
 
 export {ServerApi}
-
 
 
 
