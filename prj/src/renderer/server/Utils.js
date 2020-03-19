@@ -9,6 +9,11 @@ function generalGuid() {
         return v.toString(16);
     });
 }
+
+export function Appendzero(o_num) {
+    if(o_num < 10) return "0" + "" + o_num;
+    else return o_num;
+}
 const mimestruct = {
     "323": "text/h323",
     "3gp": "video/3gpp",

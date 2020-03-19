@@ -224,17 +224,27 @@ export default {
             // console.log(cutTime)
             // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
 
-            if(cutTime < 24 * 3600 * 1000 && curDay - d === 0)
+            if(cutTime < 24 * 3600 * 1000)
             {
-                return Appendzero(h) + ":" + Appendzero(m);
+                if(curDay - d === 0){
+                    return Appendzero(h) + ":" + Appendzero(m);
+                }
+                else{
+                    return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+                }
             }
-            else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000) || curDay - d === 1)
+            else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000))
             {
-                return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+                if(curDay - d === 1){
+                    return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+                }
+                else{
+                    return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
+                }
             }
             else
             {
-                return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
+                return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
             }
         },
         ChatLeftOrRightClassName: function (curMsg) {
@@ -279,18 +289,21 @@ export default {
         messageListShow: {
             get: function() {
                 return this.messageList.reverse()
-            },
-            set: function() {
-                this.$store.commit(setMessageLists, this.messageList)
             }
         }
     },
     watch: {
         chat: function() {
+            console.log("Watch Chat Update")
             if(this.curGroupId != this.chat.group.groupId) {
-                console.log(this.chat.group.groupId)
-                this.messageList = this.$store.getters.getChatMsgHistory(this.chat.group.groupId);
-                this.messageList.unshift(this.chat.message);
+                var messageListTmp = this.$store.getters.getChatMsgHistory(this.chat.group.groupId);
+                this.messageList = [];
+                if(messageListTmp[0].sequenceId != this.chat.message.sequenceId){
+                    this.messageList.push(this.chat.message);
+                }
+                for(var i=0;i<messageListTmp.length;i++){
+                    this.messageList.push(messageListTmp[i]);
+                }
                 this.$nextTick(() => {
                     let div = document.getElementById("message-show");
                     if(div) {
@@ -302,11 +315,20 @@ export default {
                 this.serverapi.HistoryMessage(this.chat.group.groupId, curSequenceId)
                     .then((responer) => {
                         var theList = responer.data.results;
-                        //console.log(theList)
+                        console.log("HistoryMessage is ", theList)
                         for(var i=0;i<theList.length;i++) {
                             theList[i]["SendSuccess"] = true;
                         }
                         this.$store.commit("setMessageLists", theList, false);
+
+                        var messageListTmp = this.$store.getters.getChatMsgHistory(this.chat.group.groupId);
+                        this.messageList = [];
+                        if(messageListTmp[0].sequenceId != this.chat.message.sequenceId){
+                            this.messageList.push(this.chat.message);
+                        }
+                        for(var i=0;i<messageListTmp.length;i++){
+                            this.messageList.push(messageListTmp[i]);
+                        }
                     })
             }
         }

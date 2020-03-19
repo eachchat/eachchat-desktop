@@ -108,13 +108,23 @@ export default {
       // console.log(cutTime)
       // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
 
-      if(cutTime < 24 * 3600 * 1000 && curDay - d === 0)
+      if(cutTime < 24 * 3600 * 1000)
       {
-        return Appendzero(h) + ":" + Appendzero(m);
+        if(curDay - d === 0){
+          return Appendzero(h) + ":" + Appendzero(m);
+        }
+        else{
+          return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+        }
       }
-      else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000) || curDay - d === 1)
+      else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000))
       {
-        return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+        if(curDay - d === 1){
+          return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+        }
+        else{
+          return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
+        }
       }
       else
       {
@@ -199,6 +209,7 @@ export default {
     getGroupList: function() {
       this.serverapi.ListAllGroup()
           .then((response) => {
+              //console.log(response)
               var ret_data = response.data;
               var ret_list = ret_data.results;
               //console.log(ret_list)
