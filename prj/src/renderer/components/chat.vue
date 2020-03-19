@@ -17,6 +17,7 @@
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
+                        <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <imessage :msg="item"></imessage>
                     </li>
                 </ul>
@@ -125,6 +126,63 @@ export default {
                     }
                 })
         },
+        showNoticeOrNot: function(curMsg) {
+            if(curMsg === null) {
+                return false;
+            }
+            let chatGroupMsgType = curMsg.msgContentType;
+            let chatGroupMsgContent = curMsg.content;
+            if(chatGroupMsgType === 104)
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        },
+        NoticeContent: function(curMsg) {
+            if(curMsg === null) {
+                return '';
+            }
+            let chatGroupMsgType = curMsg.msgContentType;
+            let chatGroupMsgContent = curMsg.content;
+            if(chatGroupMsgType === 104)
+            {
+                if(chatGroupMsgContent.type === "invitation")
+                {
+                    console.log(chatGroupMsgContent)
+                    var invitees = chatGroupMsgContent.userInfos;
+                    var inviteeNames = "";
+                    for(var i=0;i<invitees.length;i++) {
+                        inviteeNames = inviteeNames + "、" + invitees[i].userName
+                    }
+                    var inviter = chatGroupMsgContent.userName;
+                    return inviter + " 邀请 " + inviteeNames + " 加入群聊";
+                }
+                else if(chatGroupMsgContent.type === "notice")
+                {
+                    var owner = chatGroupMsgContent.userName;
+                    return owner + " 发布群公告";
+                }
+                else if(chatGroupMsgContent.type === "updateGroupName")
+                {
+                    var owner = chatGroupMsgContent.userName;
+                    var distName = chatGroupMsgContent.text;
+                    return owner + " 修改群名称为 " + distName;
+                }
+                else if(chatGroupMsgContent.type === "deleteGroupUser")
+                {
+                    var owner = chatGroupMsgContent.userName;
+                    var bybyer = chatGroupMsgContent.userInfos.userName;
+                    return owner + " 将 " + bybyer + " 移出了群聊";
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            return "";
+        },
         openImageProxy: function() {
 
         },
@@ -142,36 +200,41 @@ export default {
                 return false;
             }
         },
-        MsgTime: function(curMsg) {
-            if(curMsg === null){
+        MsgTime(curMsg) {
+            if(curMsg === null) {
                 return "";
             }
+            var secondsTime = curMsg.timestamp;
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
-            let cutTime = curDateSecond - curMsg;
+            let cutTime = curDateSecond - secondsTime;
             let curYeat = curDate.getFullYear();
             let curMonth = curDate.getMonth();
             let curDay = curDate.getDay();
 
-            let distdate = new Date(curMsg.timestamp);
+            let distdate = new Date(secondsTime);
             let y = distdate.getFullYear();
             let mon = distdate.getUTCMonth() + 1;
-            let d = distdate.getDate();
+            let d = distdate.getDay();
             let h = distdate.getHours();
             let m = distdate.getMinutes();
             let s = distdate.getSeconds();
 
-            if(cutTime > 0 && cutTime < 24 * 3600 * 1000)
+            // console.log(distdate)
+            // console.log(cutTime)
+            // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
+
+            if(cutTime < 24 * 3600 * 1000 && curDay - d === 0)
             {
-                return h + ":" + m;
+                return Appendzero(h) + ":" + Appendzero(m);
             }
-            else if(cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000)
+            else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000) || curDay - d === 1)
             {
-                return "昨天" + " " + Appendzero(h) + ":" + Appendzero(m);
+                return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
             }
             else
             {
-                return y + "年" + Appendzero(mon) + "月" + Appendzero(d) + "日" + " " + Appendzero(h) + ":" + Appendzero(m);
+                return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
             }
         },
         ChatLeftOrRightClassName: function (curMsg) {
@@ -239,7 +302,7 @@ export default {
                 this.serverapi.HistoryMessage(this.chat.group.groupId, curSequenceId)
                     .then((responer) => {
                         var theList = responer.data.results;
-                        console.log(theList)
+                        //console.log(theList)
                         for(var i=0;i<theList.length;i++) {
                             theList[i]["SendSuccess"] = true;
                         }
@@ -357,6 +420,15 @@ export default {
         font-family: 'Microsoft YaHei';
         color: rgb(153, 153, 153);
         margin: 5px 0 5px 0;
+    }
+
+    .chat-notice {
+        width: 100%;
+        text-align: center;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        color: rgb(153, 153, 153);
+        margin: 10px 0 10px 0;
     }
 
     .message-right {

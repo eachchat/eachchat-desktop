@@ -23,8 +23,8 @@ export default new Vuex.Store({
       function compare(){
         return function(a, b)
         {
-          var value1 = a.message === null ? a.group.updateTime : a.messagetimestamp;
-          var value2 = b.message === null ? b.group.updatet : b.message.timestamp;
+          var value1 = a.message === null ? a.group.updateTime : a.message.timestamp;
+          var value2 = b.message === null ? b.group.updateTime : b.message.timestamp;
           return value2 - value1;
         }
       }

@@ -99,7 +99,7 @@ export default {
       let distdate = new Date(secondsTime);
       let y = distdate.getFullYear();
       let mon = distdate.getUTCMonth() + 1;
-      let d = distdate.getDate();
+      let d = distdate.getDay();
       let h = distdate.getHours();
       let m = distdate.getMinutes();
       let s = distdate.getSeconds();
@@ -108,13 +108,13 @@ export default {
       // console.log(cutTime)
       // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
 
-      if(cutTime < 24 * 3600 * 1000)
+      if(cutTime < 24 * 3600 * 1000 && curDay - d === 0)
       {
         return Appendzero(h) + ":" + Appendzero(m);
       }
-      else if(cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000)
+      else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000) || curDay - d === 1)
       {
-        return "昨天";
+        return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
       }
       else
       {
