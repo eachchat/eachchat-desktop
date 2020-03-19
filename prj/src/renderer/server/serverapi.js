@@ -1,7 +1,7 @@
 //document.write('<script src="db.js" type="text/javascript" charset="utf-8"></script>');
 
 const axios = require('axios');
-
+const {FileUtil} = require("./Utils.js")
 
 class ServerApi
 {   
@@ -303,25 +303,27 @@ class ServerApi
         });
     }
 
-    Uploadfile(filebuf, type)
+    Uploadfile(filepath)
     {
-        console.log("Uploadfile");
-        axios.defaults.baseURL = this.m_url + ':' + this.m_port8088;
-        return axios.post("api/service/file/v1/dfs/upload",
-        {
-            filebuf
-        },
-        {
-            headers : {
-                Authorization : "Bearer " + this.m_accesstoken,
-                Content-Disposition : "form-data;name= \"file\"",
-                Content-Type : type
+        fu = new FileUtil(filepath);
+        let file = fu.GetUploadfileobj();
+        var formData = new FormData();
+        formData.append('file', file);
+        var instance = axios.create({
+            baseURL: this.m_url + ':' + this.m_port8088,
+            timeout: 2000,
+            headers:{
+                "Authorization" : "Bearer " + this.m_accesstoken,
+                "Content-Type" : "multipart/form-data"
             }
-        });
+        })
+        return instance.post('api/service/file/v1/dfs/upload', formData)
     }
+ 
 }
 
-export {ServerApi}
+export{ServerApi}
+//exports.ServerApi = ServerApi
 
 
 
