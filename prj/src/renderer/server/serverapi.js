@@ -1,7 +1,8 @@
 //document.write('<script src="db.js" type="text/javascript" charset="utf-8"></script>');
 
 const axios = require('axios');
-const {FileUtil} = require("./Utils.js")
+import { FileUtil } from "./Utils.js"
+//const {FileUtil} = require("./Utils.js")
 
 class ServerApi
 {   
