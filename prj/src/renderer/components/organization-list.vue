@@ -10,10 +10,9 @@
             </el-breadcrumb>
         </el-header>
         <el-main>
-            
             <el-menu mode="vertical">
                 <el-menu-item v-show="departments.length" v-for="item in departments" 
-                @click="departmentMenuItenClicked(item.id, item.displayName)">
+                @click="departmentMenuItemClicked(item.id, item.displayName)">
                     <i> {{ item.displayName }}</i>
                 </el-menu-item>
                 <div class="other-title" v-show="managers.length">管理</div>
@@ -25,7 +24,6 @@
                     <i> <img class="avatarTUrl" :src="item.avatarTUrl"> {{ item.displayName }}</i>
                 </el-menu-item>
             </el-menu>
-
         </el-main>
     </el-container>
 </template>
@@ -51,7 +49,7 @@ export default {
             for (var i = 0; i < this.allDepartments.length; i ++) {
                 var department = this.allDepartments[i];
                 if (department.parentId == id) {
-                    tempDepartments.push(department);
+                    tempDepartments[department.showOrder] = department;
                 }
             }
             var tempManagers = [];
@@ -70,7 +68,7 @@ export default {
             this.managers = tempManagers;
             this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
         },
-        departmentMenuItenClicked(id, name) {
+        departmentMenuItemClicked(id, name) {
             var tempDepartments = [];
             for (var i = 0; i < this.allDepartments.length; i ++) {
                 var department = this.allDepartments[i];
@@ -121,7 +119,6 @@ export default {
             _this.serverApi.GetAllUserInfo()
             .then(function(res){
                 _this.allUsers = res.data;
-                _this.$store.commit("setUsersInfo", res.data)
                 console.log(_this.allUsers);
                 for (var i = 0; i < _this.allUsers.length; i ++) {
                     var user = _this.allUsers[i];
@@ -132,6 +129,7 @@ export default {
                         }
                     }
                 }
+                console.log(tempDepartments);
                 _this.departments = tempDepartments;
                 _this.managers = tempManagers;
                 _this.users = tempUsers;

@@ -9,8 +9,8 @@
                     <i class="el-icon-menu"> 组织架构</i>
                 </el-menu-item>
                 <div class="other-title">其他</div>
-                <el-menu-item index="channel-item">
-                    <i class="el-icon-menu"> 我的频道</i>
+                <el-menu-item index="channel-item" @click="myChannelMenuItemClicked()">
+                    <i class="el-icon-menu" > 我的频道</i>
                     
                 </el-menu-item>
                 <el-menu-item index="focus">
@@ -32,11 +32,20 @@
                 <component :is="curView"></component>
             
         </el-container>
+        <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible"
+            width="70%"
+            :before-close="handleClose">
+            <chatGroupCreater>
+            </chatGroupCreater>
+        </el-dialog>
     </el-container>
 </template>
 <script>
 import { ServerApi } from '../server/serverapi';
 import organizationList from './organization-list';
+import chatGroupCreater from './chatgroup-creater';
 export default {
     name: 'organization',
     data() {
@@ -48,7 +57,8 @@ export default {
                     link: "/organization-list",
                     view: "organizaionList"
                 }
-            ]
+            ],
+            dialogVisible: false,
         }
     },
     methods: {
@@ -57,7 +67,7 @@ export default {
             this.curView = "organizationList";
         },
         myChannelMenuItemClicked() {
-
+            this.dialogVisible = true;
         },
         focusMenuItemClicked() {
 
@@ -68,6 +78,7 @@ export default {
     },
     components: {
         organizationList,
+        chatGroupCreater,
     },
     created() {
         
