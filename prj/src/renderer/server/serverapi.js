@@ -321,7 +321,7 @@ class ServerApi
         return instance.post('api/service/file/v1/dfs/upload', formData)
     }
 
-    downloadFile(timelineID, ownerID) {
+    downloadFile(timelineID) {
         var instance = axios.create({
             baseURL: this.m_url + ':' + this.m_port8088,
             timeout: 2000,
@@ -334,11 +334,9 @@ class ServerApi
         return instance.get(
             "api/service/file/v1/dfs/download/"
             + String(timelineID)
-            + "/"
-            + String(ownerID))
     }
 
-    downloadTumbnail(type, timelineID, ownerID) {
+    downloadTumbnail(type, timelineID) {
         var instance = axios.create({
             baseURL: this.m_url + ':' + this.m_port8088,
             timeout: 2000,
@@ -349,12 +347,10 @@ class ServerApi
         });
 
         return instance.get(
-            "api/service/file/v1/dfs/download/"
+            "api/service/file/v1/dfs/thumbnail/"
             + String(type)
             + "/"
             + String(timelineID)
-            + "/"
-            + String(ownerID))
     }
 }
 

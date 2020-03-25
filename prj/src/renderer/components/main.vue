@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import organization from './organization.vue'
+// import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
 
 import {ServerApi} from '../server/serverapi.js'
@@ -51,10 +51,16 @@ export default {
                     view: "organization"   
                 },
                 {
+                    text: "收藏",
+                    name: "favorites",
+                    // link: "/favorites",
+                    // view: "favorites"
+                },
+                {
                     text: "更多",
                     name: "contact list",
                     link: "/organization",
-                    view: "organization"   
+                    view: "organization"
                 }
             ]
         }
@@ -79,6 +85,9 @@ export default {
             else if(cur_index === 1)
             {
                 return "el-icon-share" + endding
+                
+            } else if (cur_index === 2) {
+                return "el-icon-star-off" + endding
             }
             else{
                 return "el-icon-more-outline" + endding
@@ -86,7 +95,7 @@ export default {
         }
     },
     components: {
-        organization,
+        // organization,
         ChatContent
     },
     created: function () {
