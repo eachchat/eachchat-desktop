@@ -333,7 +333,7 @@ class ServerApi
 
         return instance.get(
             "api/service/file/v1/dfs/download/"
-            + String(timelineID)
+            + String(timelineID))
     }
 
     downloadTumbnail(type, timelineID) {
@@ -350,7 +350,7 @@ class ServerApi
             "api/service/file/v1/dfs/thumbnail/"
             + String(type)
             + "/"
-            + String(timelineID)
+            + String(timelineID))
     }
 }
 
