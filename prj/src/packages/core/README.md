@@ -28,7 +28,7 @@ const sqliteConnection = new sqlite.Sqlite('/tmp/test.db');
 ## 初始化 User 模型
 
 ```
-const Person = model.Model.create(
+var Person = await model.Model.create(
   sqliteConnection,
   'person', // 表名称
   {id: model.integer,
@@ -41,13 +41,29 @@ const Person = model.Model.create(
 如果主键、自增字段只有一个，那么可以缩写成：
 
 ```
-const Person = model.Model.create(
-  'person', // 表名称
+var Person = await model.Model.create(
+  'person',
   {id: model.integer,
    name: model.string,
    age: model.integer},
-  'id', // 主键（可能多个）
-  'id') // 自增字段（可能多个）;
+  'id',
+  'id')
+```
+
+### 使用 Promise
+
+```
+var User;
+
+model.Model.create(
+  'person',
+  {id: model.integer,
+   name: model.string,
+   age: model.integer},
+  'id',
+  'id').then((newModel) => {
+    User = newModel;
+    })
 ```
 
 ## 增加条目

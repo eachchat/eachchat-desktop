@@ -7,6 +7,26 @@
 import initSqlJs from 'sql.js';
 const fs = require('fs')
 
+// 数字整形 委托变量
+const integer = {
+  type: "integer"
+}
+
+// 字符串 委托变量
+const string = {
+  type: "text"
+}
+
+// 浮点数 委托变量
+const float = {
+  type: "real"
+}
+
+// 日期 委托变量
+const date = {
+  type: "integer"
+}
+
 class Sqlite {
   constructor(filename) {
     this.db = undefined;
@@ -54,6 +74,8 @@ class Sqlite {
         console.log('ok');
       }
     }
+
+    this.dump();
 
     return this;
   }
@@ -148,12 +170,80 @@ class Sqlite {
 
     return list;
   }
+
+  static async connect(filename) {
+    var connection = new Sqlite(filename);
+    var connection_promise = await connection.init();
+    return connection_promise;
+  }
 }
 
 class Sql {
   constructor() {
     this._sql = "";
     this._hasWhere = false;
+  }
+
+  create(table, fields, primaryKeys, autoincrements) {
+    this._sql = "create table " + table + " ";
+    var sqlFields = [];
+
+    if (!fields instanceof Object) {
+      return this;
+    }
+
+    if (primaryKeys instanceof String) {
+      primaryKeys = [primaryKeys];
+
+    } else if (typeof primaryKeys === "undefined") {
+      primaryKeys = [];
+    }
+
+    if (autoincrements instanceof String) {
+      autoincrements = [autoincrements];
+
+    } else if (typeof autoincrements === "undefined") {
+      autoincrements = [];
+    }
+
+    if (!primaryKeys instanceof Array) {
+      return this;
+    }
+
+    if (!autoincrements instanceof Array) {
+      return this;
+    }
+
+    for (var field in fields) {
+      if (!fields[field] instanceof Object) {
+        continue;
+      }
+
+      if (!fields[field].hasOwnProperty("type")) {
+        continue;
+      }
+
+      var type = fields[field].type;
+      var sqlField = field + " " + type;
+
+      if (primaryKeys.includes(field)) {
+        sqlField += " primary key";
+      }
+
+      if (autoincrements.includes(field)) {
+        sqlField += " autoincrement";
+      }
+
+      sqlFields.push(sqlField);
+    }
+
+    if (sqlFields.length == 0) {
+      return this;
+    }
+
+    this._sql += "(";
+    this._sql += sqlFields.join(", ");
+    this._sql += ")";
   }
 
   select(table, fields) {
@@ -322,6 +412,10 @@ class Sql {
 }
 
 export {
+  integer,
+  string,
+  float,
+  date,
   Sqlite,
   Sql
 }

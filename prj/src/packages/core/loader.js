@@ -15,5 +15,6 @@ function use(name) {
 }
 
 export {
-  loading
+  loading,
+  use
 }

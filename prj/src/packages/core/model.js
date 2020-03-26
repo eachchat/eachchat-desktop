@@ -4,11 +4,15 @@
  * @date 2020/03/03
  */
 
+import {integer as basic_integer,
+				string as basic_string,
+				float as basic_float,
+				date as basic_date} from './sqlite.js'
 import {Sqlite, Sql} from './sqlite.js'
 import {loading, use} from './loader.js'
 
 // 数字整形 委托变量
-const integer = {
+const integer = Object.assign({
 	default: 0,
 
 	parse(value) {
@@ -20,20 +24,20 @@ const integer = {
 
 		return 0;
 	}
-}
+}, basic_integer);
 
 // 字符串 委托变量
-const string = {
+const string = Object.assign({
 	default: "",
 
 	parse(value) {
 		value = String(value);
 		return value;
 	}
-}
+}, basic_string);
 
 // 浮点数 委托变量
-const float = {
+const float = Object.assign({
 	default: 0.0,
 
 	parse(value) {
@@ -45,10 +49,10 @@ const float = {
 
 		return 0.0;
 	}
-}
+}, basic_float);
 
 // 日期 委托变量
-const date = {
+const date = Object.assign({
 	default() {
 		return new Date(0);
 	},
@@ -74,7 +78,7 @@ const date = {
 
 		return new Date(0);
 	}
-}
+}, basic_date);
 
 class Model {
 	constructor(values) {
@@ -165,6 +169,8 @@ class Model {
 
 		database.exec(sql);
 		database.dump();
+
+		return this;
 	}
 
 	async destroy() {
@@ -181,9 +187,28 @@ class Model {
 
 		database.exec(sql);
 		database.dump();
+
+		return this;
 	}
 
-	static create(database, table, fields, primaryKeys, increments) {
+  static async _createTable(table, fields, primaryKeys, increments) {
+  	var sql = this._getSQL();
+  	var database = await this._getDatabase();
+
+  	sql.create(table, fields, primaryKeys, increments);
+  	console.log(sql);
+
+  	try {
+  		database.exec(sql);
+
+  	} catch (e) {
+  		console.debug(e);
+  	}
+  	
+  	database.dump();
+  }
+
+	static async create(database, table, fields, primaryKeys, increments) {
 		var newModel = (function () {
 			return class extends Model {
 				constructor(values) {
@@ -215,6 +240,8 @@ class Model {
 		} else if (increments instanceof Array) {
 			newModel.increments = newModel.increments.concat(increments);
 		}
+
+		await newModel._createTable(table, fields, primaryKeys, increments);
 
 		return newModel;
 	}
@@ -321,7 +348,7 @@ class Model {
 	}
 
 	static async _getDatabase() {
-		await this.database.init();
+		var database = await this.database.init();
 		return this.database;
 	}
 
