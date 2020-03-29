@@ -5,8 +5,9 @@
                     <el-submenu index="organization-item" >
                         <template slot="title"><i class="el-icon-menu"></i> 组织架构</template>
                         <el-menu-item-group>
-                            <el-menu-item v-for="item in departments" 
-                            @click="departmentMenuItemClicked(item.id, item.displayName)">{{ item.displayName }}</el-menu-item>
+                            <el-menu-item v-for="(item, index) in departments" 
+                            @click="departmentMenuItemClicked(item.id, item.displayName)" :key="index">
+                            {{ item.displayName }}</el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
                     <el-submenu index="recent-menu">
@@ -22,7 +23,7 @@
                 <el-container class="aside-container" v-show="showBreadCrumbs">
                     <el-header height="60px" class="aside-header">
                         <el-breadcrumb separator="/">
-                            <el-breadcrumb-item v-for="(item, index) in breadCrumbs">
+                            <el-breadcrumb-item v-for="(item, index) in breadCrumbs" :key="index">
                                 <a href="javascript:void(0)" 
                                 @click="departmentBreadCrumbsClicked(item.id, item.name, index)">
                                 {{ item.name }}</a>
@@ -31,13 +32,13 @@
                     </el-header>
                     <el-main>
                         <ul class="department-list" v-show="departments.length">
-                            <li v-for="item in departments" 
-                            @click="departmentMenuItemClicked(item.id, item.displayName)"> 
+                            <li v-for="(item, index) in departments" 
+                            @click="departmentMenuItemClicked(item.id, item.displayName)" :key="index"> 
                             {{ item.displayName }}
                             </li>
                         </ul>
                         <ul class="user-list" v-show="departments.length">
-                            <li v-for="item in users"> 
+                            <li v-for="(item, index) in users" :key="index"> 
                             <img class="avatarTUrl" :src="item.avatarTUrl">
                             {{ item.displayName }}
                             <input type="checkBox" :checked="item.checkState" 
@@ -54,8 +55,8 @@
                 </el-header>
                 <el-main>
                     <ul class="selected-list">
-                            <li v-for="item in usersSelected" 
-                            @click="departmentMenuItemClicked(item.id, item.displayName)"> 
+                            <li v-for="(item, index) in usersSelected" 
+                            @click="selectedUserMenuItemClicked(item.id, item.displayName)" :key="index"> 
                             {{ item.displayName }}
                             </li>
                         </ul>
@@ -102,6 +103,7 @@ export default {
                     console.log(this.usersSelected);
                     if (user.checkState) {
                         this.allUsers[i].checkState = false;
+                        //this.userSelected.$remove(user);
                         for (var i = 0; i < this.usersSelected.length; i ++) {
                             var user1 = this.usersSelected[i];
                             if (user1.id == id) {
@@ -119,6 +121,23 @@ export default {
             
             console.log(this.usersSelected);
             return true;
+        },
+        selectedUserMenuItemClicked(id) {
+            for (var i = 0; i < this.allUsers.length; i ++) {
+                var user = this.allUsers[i];
+                
+                if (user.id == id) {
+                    this.allUsers[i].checkState = false;
+                    for (var i = 0; i < this.usersSelected.length; i ++) {
+                        var user1 = this.usersSelected[i];
+                        if (user1.id == id) {
+                            this.usersSelected.splice(i, 1);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
         },
         departmentMenuItemClicked(id, name) {
             if (!this.showBreadCrumbs) {
