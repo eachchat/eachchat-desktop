@@ -21,6 +21,12 @@ const common = {
 
   api: undefined,
 
+  accessToken: undefined,
+
+  refreshToken: undefined,
+
+  userId: undefined,
+
   init(config) {
     if ("hostname" in config) {
       this.config.hostname = config.hostname;
@@ -110,6 +116,10 @@ const common = {
         }
       }
 
+      this.accessToken = loginValues['access_token']
+      this.refreshToken = loginValues['refresh_token']
+      this.userId = userValues['id']
+
       data.login = new LoginModel(loginValues);
       data.self = new UserModel(userValues);
 
@@ -121,7 +131,13 @@ const common = {
     })(this.api, this.config, this.data, models.Login, models.User);
   },
 
-  get logout() {}
+  get logout() {
+    return this.api.logout(this.accessToken)
+  },
+
+  get getUserinfo(filters, perPage, sortOrder, sequenceId){
+      return this.api.getUserinfo(this.accessToken, filters, perPage, sortOrder, sequenceId)
+    }
 };
 
 export default {
