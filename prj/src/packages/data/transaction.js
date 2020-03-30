@@ -5,10 +5,10 @@ import { FileUtil } from "../core/Utils.js"
 //const {FileUtil} = require("./Utils.js")
 
 class APITransaction {
-  constructor(ip) {
+  constructor(hostname) {
     // 聊天、收藏、组织、认证、文件、安全、邮件
     // 公共服务
-    this.commonApi = new HTTP(ip, 8888);
+    this.commonApi = new HTTP(hostname, 8888);
 
     // 本地服务
     this.localApi = new HTTP("localhost", 9080);

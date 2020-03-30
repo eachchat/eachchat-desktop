@@ -1,13 +1,14 @@
-import { models } from './models.js'
-import { APITransaction } from './transaction.js'
 
-class CommonService {
-  constructor(protocal, ip) {
-    this.apiTransaction = new APITransaction(protocal, ip);
+import { models } from './models.js';
+import { APITransaction } from './transaction.js';
+
+class CommonService extends APITransaction {
+  constructor(hostname) {
+    super(hostname);
   }
 
   async login(username, password) {
-    let result = await this.apiTransaction.login(username, password);
+    let result = await super.login(username, password);
 
     var loginValues = {
       id: undefined,
@@ -42,8 +43,12 @@ class CommonService {
       return undefined;
     }
 
-    var headersHave = ["access-token", "refresh-token"];
-    var userObjectHave = [
+    var headersHave = {
+      "access-token": "access_token",
+      "refresh-token": "refresh_token"
+    };
+
+    var userObjectHave = {
       "aId",
       "id",
       "userName",
@@ -57,28 +62,29 @@ class CommonService {
       "locale",
       "timezone",
       "active",
-      "statusDescription"];
+      "statusDescription"
+    };
 
     for (var i = 0; i < headersHave.length; i++) {
-      // if (headersHave[i]
+      if (headersHave[i] in result.data) {
+
+      }
     }
   }
 
-  logout()
-  {
-      return this.apiTransaction.Logout().then(function(response){
-          console.log(response)
-      })
-  }
+  // async logout() {
+  //   return this.apiTransaction.Logout().then(function(response){
+  //       console.log(response)
+  //   })
+  // }
 
-  GetUserinfo(filters_value, perPage_value, sortOrder_value, sequenceId_value)
-  {
-      return this.apiTransaction.GetUserinfo(filters_value, perPage_value, sortOrder_value, sequenceId_value).then(function(response){
-          console.log(response)
-      })
-  }
+  // async getUserinfo(filters_value, perPage_value, sortOrder_value, sequenceId_value) {
+  //   return this.apiTransaction.getUserinfo(filters_value, perPage_value, sortOrder_value, sequenceId_value).then(function(response){
+  //       console.log(response)
+  //   })
+  // }
 }
 
 export {
-  DbModels
+  CommonService
 }
