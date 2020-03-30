@@ -9,14 +9,15 @@ const commonConfig = {
   password: undefined
 }; // config info
 
-const commonModels = {
-  login: models.Login
+const commonData = {
+  login: undefined,
+  self: undefined
 }; // model in here
 
 const common = {
   config: commonConfig,
 
-  data: commonModels,
+  data: commonData,
 
   api: undefined,
 
@@ -41,8 +42,8 @@ const common = {
   },
 
   get login() {
-    return (async (api, config, model) => {
-      let result = await super.login(username, password);
+    return (async (api, config, data, LoginModel, UserModel) => {
+      let result = await api.login(config.username, config.password);
 
       var loginValues = {
         id: undefined,
@@ -108,7 +109,16 @@ const common = {
           userValues[userObjectHave[key]] = result.data.obj[key];
         }
       }
-    })(this.api, this.config, this.data.login);
+
+      data.login = new LoginModel(loginValues);
+      data.self = new UserModel(userValues);
+
+      return {
+        login: data.login,
+        self: data.self
+      };
+
+    })(this.api, this.config, this.data, models.Login, models.User);
   },
 
   get logout() {}
