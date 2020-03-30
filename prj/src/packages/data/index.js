@@ -6,10 +6,6 @@
 
 import * as services from './services.js'
 
-const data = {
-  services: services
-}
-
 export {
-  data
+  services
 }

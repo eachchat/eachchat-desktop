@@ -49,20 +49,20 @@ const common = {
         id: undefined,
         access_token: undefined,
         refresh_token: undefined,
-        account: username,
-        password: password
+        account: config.username,
+        password: config.password
       };
 
       var userValues = {
-        id: undefined,#
-        account: username,
-        name: undefined,#
-        pinyin: undefined,#
-        nick_name: undefined,#
-        avatar: undefined,#
-        avatar_minimal: undefined,#
-        role_id: undefined,#
-        role_name: undefined,#
+        id: undefined,
+        account: config.username,
+        name: undefined,
+        pinyin: undefined,
+        nick_name: undefined,
+        avatar: undefined,
+        avatar_minimal: undefined,
+        role_id: undefined,
+        role_name: undefined,
         language: undefined,
         locale: undefined,
         timezone: undefined,

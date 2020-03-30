@@ -15,18 +15,17 @@ const storage = Object.assign(
   {Storage: Storage},
   sqlite_storage);
 
-const core = {
-  loader: loader,
-  model: model,
-  database: {
-    sqlite: sqlite,
-  },
-  storage: storage,
-  net: http
+const net = Object.assign(
+  {}, http);
+
+const database = {
+  sqlite: sqlite
 };
 
-loader.loading("core", core);
-
 export {
-  core
+  loader,
+  model,
+  database,
+  storage,
+  net
 }
