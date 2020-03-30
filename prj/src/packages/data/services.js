@@ -11,7 +11,7 @@ const commonConfig = {
 
 const commonData = {
   login: undefined,
-  self: undefined
+  selfUser: undefined
 }; // model in here
 
 const common = {
@@ -111,11 +111,11 @@ const common = {
       }
 
       data.login = new LoginModel(loginValues);
-      data.self = new UserModel(userValues);
+      data.selfUser = new UserModel(userValues);
 
       return {
         login: data.login,
-        self: data.self
+        selfUser: data.selfUser
       };
 
     })(this.api, this.config, this.data, models.Login, models.User);
