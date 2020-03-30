@@ -60,15 +60,15 @@ const common = {
       };
 
       var userValues = {
-        id: undefined,#
+        id: undefined,
         account: username,
-        name: undefined,#
-        pinyin: undefined,#
-        nick_name: undefined,#
-        avatar: undefined,#
-        avatar_minimal: undefined,#
-        role_id: undefined,#
-        role_name: undefined,#
+        name: undefined,
+        pinyin: undefined,
+        nick_name: undefined,
+        avatar: undefined,
+        avatar_minimal: undefined,
+        role_id: undefined,
+        role_name: undefined,
         language: undefined,
         locale: undefined,
         timezone: undefined,
@@ -135,9 +135,15 @@ const common = {
     return this.api.logout(this.accessToken)
   },
 
-  get getUserinfo(filters, perPage, sortOrder, sequenceId){
-      return this.api.getUserinfo(this.accessToken, filters, perPage, sortOrder, sequenceId)
+  async getUserinfo(filters, perPage, sortOrder, sequenceId){
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
     }
+
+    // You should better mock data to Model before return
+    return await this.api.getUserinfo(this.data.login.access_token, filters, perPage, sortOrder, sequenceId);
+  }
 };
 
 export default {
