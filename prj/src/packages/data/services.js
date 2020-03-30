@@ -38,7 +38,7 @@ const common = {
     }
 
     this.api = new APITransaction(this.config.hostname, this.config.hostname);
-  }
+  },
 
   get login() {
     return (async (api, config, model) => {
@@ -109,7 +109,7 @@ const common = {
         }
       }
     })(this.api, this.config, this.data.login);
-  }
+  },
 
   get logout() {}
 };
