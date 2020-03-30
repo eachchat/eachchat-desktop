@@ -4,85 +4,97 @@
  * @date 2020/03/03
  */
 
-import {integer as basic_integer,
-				string as basic_string,
-				float as basic_float,
-				date as basic_date} from './sqlite.js'
-import {Sqlite, Sql} from './sqlite.js'
-import {loading, use} from './loader.js'
+import {serial,
+				integer,
+  			string,
+  			float,
+  			date} from './types.js';
 
-// 数字整形 委托变量
-const integer = Object.assign({
-	default: 0,
+const fieldTypes = {
+	[serial]: {
+		default: 0,
 
-	parse(value) {
-		value = Number.parseInt(value);
+		parse(value) {
+			value = Number.parseInt(value);
 
-		if (!Number.isNaN(value)) {
-			return value;
-		}
-
-		return 0;
-	}
-}, basic_integer);
-
-// 字符串 委托变量
-const string = Object.assign({
-	default: "",
-
-	parse(value) {
-		value = String(value);
-		return value;
-	}
-}, basic_string);
-
-// 浮点数 委托变量
-const float = Object.assign({
-	default: 0.0,
-
-	parse(value) {
-		value = Number.parseFloat(value);
-
-		if (!Number.isNaN(value)) {
-			return value;
-		}
-
-		return 0.0;
-	}
-}, basic_float);
-
-// 日期 委托变量
-const date = Object.assign({
-	default() {
-		return new Date(0);
-	},
-
-	parse (value) {
-		if (typeof value === "number" && !Number.isNaN(value)) {
-			return new Date(Number(value) * 1000);
-
-		} else if (typeof value === "string") {
-			var timeStamp = Number(value);
-
-			if (Number.isNaN(timeStamp)) {
-				timeStamp = 0;
-
-				// console.log('Illegal date value: ', value);
+			if (!Number.isNaN(value)) {
+				return value;
 			}
 
-			return new Date(timeStamp * 1000);
+			return 0;
+		}
+	},
 
-		} else if (value instanceof Date) {
+	[integer]: {
+		default: 0,
+
+		parse(value) {
+			value = Number.parseInt(value);
+
+			if (!Number.isNaN(value)) {
+				return value;
+			}
+
+			return 0;
+		}
+	},
+
+	[float]: {
+		default: 0.0,
+
+		parse(value) {
+			value = Number.parseFloat(value);
+
+			if (!Number.isNaN(value)) {
+				return value;
+			}
+
+			return 0.0;
+		}
+	},
+
+	[string]: {
+		default: "",
+
+		parse(value) {
+			value = String(value);
 			return value;
 		}
+	},
 
-		return new Date(0);
+	[date]: {
+		default() {
+			return new Date(0);
+		},
+
+		parse (value) {
+			if (typeof value === "number" && !Number.isNaN(value)) {
+				return new Date(Number(value) * 1000);
+
+			} else if (typeof value === "string") {
+				var timeStamp = Number(value);
+
+				if (Number.isNaN(timeStamp)) {
+					timeStamp = 0;
+
+					// console.log('Illegal date value: ', value);
+				}
+
+				return new Date(timeStamp * 1000);
+
+			} else if (value instanceof Date) {
+				return value;
+			}
+
+			return new Date(0);
+		}
 	}
-}, basic_date);
+}
 
 class Model {
 	constructor(values) {
 		this._attr = {};
+		this._originAttr = {};
 		this._commited = false;
 
 		if (typeof values != "object") {
@@ -104,8 +116,14 @@ class Model {
 				continue;
 			}
 
-			this.initField(fieldKey, fields[fieldKey]);
-			this.initFieldValue(fieldKey, fields[fieldKey], values);
+			var fieldTypeName = fields[fieldKey];
+
+			if (fieldTypeName in fieldTypes) {
+				var fieldType = fieldTypes[fieldTypeName];
+
+				this.initField(fieldKey, fieldType);
+				this.initFieldValue(fieldKey, fieldType, values);
+			}
 		}
 	}
 
@@ -136,79 +154,50 @@ class Model {
 			return;
 		}
 
-		this._attr[fieldKey] = field.parse(values[fieldKey]);
+		var parsedValue = field.parse(values[fieldKey]);
+
+		this._attr[fieldKey] = parsedValue;
+		this._originAttr = Object.freeze(Object.assign({}, this._attr));
 	}
 
 	async save() {
-		var sql = this.constructor._getSQL();
-		var database = await this.constructor._getDatabase();
-		var table = this.constructor.table;
-		var attr = this._attr;
-		var primaryKeys = this.constructor.primaryKeys;
+		var storage = this.constructor.storage;
+		var index = this.constructor.index;
+		var fields = this.constructor.fields;
+		var attr = Object.assign({}, this._attr);
+		var originAttr = this._originAttr;
 
-		if (this._commited) {
-			sql.update(table, attr);
-
-			for (var i = 0; i < primaryKeys.length; i++) {
-				sql.where([primaryKeys[i], attr[primaryKeys[i]]]);
+		for (var fieldKey in fields) {
+			if (!fields.hasOwnProperty(fieldKey)) {
+				continue;
 			}
-
-		} else {
-			var attrCopy = Object.assign({}, attr);
-
-			for (var i = 0; i < this.constructor.increments.length; i++) {
-				console.log("deleting" + this.constructor.increments[i]);
-				delete attrCopy[this.constructor.increments[i]];
-			}
-
-			console.log(attrCopy);
-			sql.insert(table, attrCopy);
 		}
 
-		console.log(sql);
+		if (this._commited) {
+			await storage.post(index, attr);
+			this._commited = true;
 
-		database.exec(sql);
-		database.dump();
+		} else {
+			await storage.put(index, attr, originAttr);
+			this._originAttr = Object.freeze(Object.assign({}, attr));
+		}
 
 		return this;
 	}
 
 	async destroy() {
-		var sql = this.constructor._getSQL();
-		var database = await this.constructor._getDatabase();
-		var table = this.constructor.table;
-		var primaryKeys = this.constructor.primaryKeys;
+		var storage = this.constructor.storage;
+		var index = this.constructor.index;
+		var originAttr = this._originAttr;
 
-		sql.delete(table, table);
-
-		for (var i = 0; i < primaryKeys.length; i++) {
-			sql.where([primaryKeys[i], attr[primaryKeys[i]]]);
+		if (this._commited) {
+			await storage.delete(index, originAttr);
 		}
-
-		database.exec(sql);
-		database.dump();
 
 		return this;
 	}
 
-  static async _createTable(table, fields, primaryKeys, increments) {
-  	var sql = this._getSQL();
-  	var database = await this._getDatabase();
-
-  	sql.create(table, fields, primaryKeys, increments);
-  	console.log(sql);
-
-  	try {
-  		database.exec(sql);
-
-  	} catch (e) {
-  		console.debug(e);
-  	}
-  	
-  	database.dump();
-  }
-
-	static async create(database, table, fields, primaryKeys, increments) {
+	static async create(storage, index, fields) {
 		var newModel = (function () {
 			return class extends Model {
 				constructor(values) {
@@ -217,139 +206,14 @@ class Model {
 			};
 		})();
 
-		newModel.database = undefined;
-		newModel.table = table;
+		newModel.storage = undefined;
 		newModel.fields = fields;
-		newModel.primaryKeys = [];
-		newModel.increments = [];
 
-		if (database instanceof Sqlite) {
-			newModel.database = database;
+		if (storage instanceof Storage) {
+			newModel.storage = storage;
 		}
-
-		if (typeof primaryKeys === "string") {
-			newModel.primaryKeys.push(primaryKeys);
-
-		} else if (primaryKeys instanceof Array) {
-			newModel.primaryKeys = newModel.primaryKeys.concat(primaryKeys);
-		}
-
-		if (typeof increments === "string") {
-			newModel.increments.push(increments);
-
-		} else if (increments instanceof Array) {
-			newModel.increments = newModel.increments.concat(increments);
-		}
-
-		await newModel._createTable(table, fields, primaryKeys, increments);
 
 		return newModel;
-	}
-
-	static _getWheres() {
-		if (!this.hasOwnProperty('_wheres')) {
-			this._wheres = [];
-		}
-
-		return this._wheres;
-	}
-
-	static where(where) {
-		if (typeof where != "object") {
-			return this;
-		}
-
-		this._getWheres().push({
-			and: where
-		})
-
-		return this;
-	}
-
-	static orWhere(where) {
-		if (typeof where != "object") {
-			return this;
-		}
-
-		this._getWheres().push({
-			or: where
-		})
-
-		return this;
-	}
-
-	static _applyWhere(sql, where, isOr) {
-		for (var field in where) {
-			var match = where[field];
-
-			if (typeof match == "string"
-				&& match.length > 0) {
-				var operator = '=';
-
-				if (['>', '<', '='].includes(match[0])) {
-					operator = match[0];
-					match = match.substr(1);
-				}
-
-				if (isOr) {
-					sql.whereOr([field, operator, match]);
-					continue;
-				}
-
-				sql.where([field, operator, match]);
-
-			} else if (match instanceof Array) {
-				whereIn = "('";
-				whereIn += match.join("', '");
-				whereIn += match.join("')");
-
-				if (isOr) {
-					sql.where([field, 'in', whereIn]);
-				}
-
-				sql.where([field, 'in', whereIn]);
-			}
-		}
-	}
-
-	static _sqlWhere() {
-		var sql = this._getSQL();
-		var wheres = this._getWheres();
-
-		for (var whereKey in wheres) {
-			var isOr = false;
-			var where = undefined;
-
-			if (wheres[whereKey].hasOwnProperty("and")) {
-				where = wheres[whereKey].and
-
-			} else if (wheres[whereKey].hasOwnProperty("or")) {
-				where = wheres[whereKey].or
-				isOr = true;
-
-			} else {
-				continue;
-			}
-
-			if (typeof where == "undefined") {
-				continue;
-			}
-
-			this._applyWhere(sql, where, isOr);
-		}
-	}
-
-	static _getSQL() {
-		if (!this.hasOwnProperty('_currentsql')) {
-			this._currentsql = new Sql();
-		}
-
-		return this._currentsql;
-	}
-
-	static async _getDatabase() {
-		var database = await this.database.init();
-		return this.database;
 	}
 
 	static spawn(values, isCommited) {
@@ -358,68 +222,18 @@ class Model {
 		return newInstance;
 	}
 
-	static async first(size, offset) {
-		var sql = this._getSQL();
-		var database = await this._getDatabase();
+	static async find(search) {
+		var storage = this.storage;
+		var index = this.index;
 
-		// console.log(database.db);
+		var result = await this.storage.get(index, search);
 
-		if (typeof size == "undefined") {
-			size = 1;
+		if (!result instanceof Array) {
+			result = [];
 		}
 
-		if (typeof offset == "undefined") {
-			offset = 0;
-		}
-
-		sql.select(this.table);
-		this._sqlWhere();
-
-		sql.asc();
-		sql.limit(0, size);
-
-		var result = database.exec(sql);
-		var resultList = database.resultToList(result);
-
-		var instances = [];
-
-		for (var i = 0; i < resultList.length; i++) {
-			var newInstance = this.spawn(resultList[i], true);
-			instances.push(newInstance);
-		}
-
-		return instances;
-	}
-
-	static async last(size, offset) {
-		var sql = this._getSQL();
-		var database = await this._getDatabase();
-
-		if (typeof size == "undefined") {
-			size = 1;
-		}
-
-		if (typeof offset == "undefined") {
-			offset = 0;
-		}
-
-		if (typeof size == "undefined") {
-			size = 1;
-		}
-
-		sql.select(this.table);
-		this._sqlWhere();
-
-		sql.desc();
-		sql.limit(0, size);
-
-		var result = database.exec(sql);
-		var resultList = database.resultToList(result);
-
-		var instances = [];
-
-		for (var i = 0; i < resultList.length; i++) {
-			var newInstance = this.spawn(resultList[i], true);
+		for (var i = 0; i < result.length; i++) {
+			var newInstance = this.spawn(result[i], true);
 			instances.push(newInstance);
 		}
 
@@ -428,9 +242,5 @@ class Model {
 }
 
 export {
-	integer,
-	string,
-	float,
-	date,
 	Model
 }

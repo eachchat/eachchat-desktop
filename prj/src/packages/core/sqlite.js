@@ -5,27 +5,25 @@
  */
 
 import initSqlJs from 'sql.js';
-const fs = require('fs')
+import fs from 'fs';
 
-// 数字整形 委托变量
-const integer = {
-  type: "integer"
-}
+// const mapping = {};
 
-// 字符串 委托变量
-const string = {
-  type: "text"
-}
+// mapping[integer] = {
+//   type: "integer"
+// };
 
-// 浮点数 委托变量
-const float = {
-  type: "real"
-}
+// mapping[float] = {
+//   type: "real"
+// };
 
-// 日期 委托变量
-const date = {
-  type: "integer"
-}
+// mapping[string] = {
+//   type: "text"
+// };
+
+// mapping[date] = {
+//   type: "integer"
+// };
 
 class Sqlite {
   constructor(filename) {
@@ -137,38 +135,6 @@ class Sqlite {
     } catch (e) {
       console.log(e);
     }
-  }
-
-  resultToList(result) {
-    var list = [];
-
-    if (result instanceof Array
-      && result.length > 0) {
-      result = result[0];
-
-      if (result.hasOwnProperty("columns")
-        && result.hasOwnProperty("values")) {
-        var columns = result.columns;
-        var values = result.values;
-
-        for (var i = 0; i < values.length; i++) {
-          var object = {};
-          var value = values[i];
-
-          if (columns.length != value.length) {
-            continue;
-          }
-
-          for (var j = 0; j < columns.length; j++) {
-            object[columns[j]] = value[j];
-          }
-
-          list.push(object);
-        }
-      }
-    }
-
-    return list;
   }
 
   static async connect(filename) {
@@ -409,13 +375,15 @@ class Sql {
   desc() {
     this._sql += " desc ";
   }
+
+  schema(table) {
+    this._sql = "PRAGMA table_info([";
+    this._sql += table;
+    this._sql += "])";
+  }
 }
 
 export {
-  integer,
-  string,
-  float,
-  date,
   Sqlite,
   Sql
 }

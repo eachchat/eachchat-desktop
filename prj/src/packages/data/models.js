@@ -4,9 +4,10 @@
  * 2020/03/17
  */
 
-import {model, sqlite} from '../core/index.js'
+import {model, storage, types} from '../core/index.js'
 
-const sqliteConnection = new sqlite.Sqlite('/tmp/test.db');
+const sqliteConnection = new storage.SQLiteStorage({
+  filename: '/tmp/test.db'});
 
 var models = {
   get User() {
@@ -15,22 +16,22 @@ var models = {
         sqliteConnection,
         'users',
         {
-          id: model.integer,
-          account: model.string,
-          name: model.string,
-          nick_name: model.string,
-          avatar: model.string,
-          avatar_minimal: model.string,
-          role_id: model.integer,
-          language: model.integer,
-          locale: model.integer,
-          timezone: model.string,
-          is_active: model.integer,
-          pinyin: model.string,
-          remark: model.string,
-          remark_pinyin: model.string,
-          job: model.string,
-          bio: model.string
+          id: types.integer,
+          account: types.string,
+          name: types.string,
+          nick_name: types.string,
+          avatar: types.string,
+          avatar_minimal: types.string,
+          role_id: types.integer,
+          language: types.integer,
+          locale: types.integer,
+          timezone: types.string,
+          is_active: types.integer,
+          pinyin: types.string,
+          remark: types.string,
+          remark_pinyin: types.string,
+          job: types.string,
+          bio: types.string
         },
         'id',
         'id'
@@ -44,11 +45,11 @@ var models = {
         sqliteConnection,
         'login',
         {
-          id: model.integer,
-          access_token: model.text,
-          refresh_token: model.text,
-          account: model.text,
-          password: model.text
+          id: types.integer,
+          access_token: types.text,
+          refresh_token: types.text,
+          account: types.text,
+          password: types.text
         },
         'id',
         'id'
