@@ -124,6 +124,6 @@ const common = {
   get logout() {}
 };
 
-export default {
+export {
   common
 }
