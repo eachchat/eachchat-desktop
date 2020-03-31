@@ -15,7 +15,7 @@ var models = {
       sqliteConnection,
       'users',
       {
-        id: types.integer,
+        id: types.string,
         account: types.string,
         name: types.string,
         nick_name: types.string,
