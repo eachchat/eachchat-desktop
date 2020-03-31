@@ -27,7 +27,8 @@
 </template>
 
 <script>
-import {ServerApi} from '../server/serverapi.js'
+import {ServerApi} from '../server/serverapi.js';
+import {services} from '../../packages/data/index.js';
 export default {
     name: 'login',
     data () {
@@ -45,6 +46,17 @@ export default {
             location.reload()
         },
         login: async function() {
+            let config = {
+                hostname: 'http://139.198.15.253',
+                apiPort: '8888',
+                username: 'chengfang.ai@yunify.com',
+                password: '12345678'
+            }
+            services.common.init(config)
+            let ret = services.common.login()
+            console.log(ret)
+            //this.dbmodels.mqttinit()
+            return
             let response = await this.serverapi.Login(this.username, this.password)
             console.log(response)
             var ret_data = response.data
