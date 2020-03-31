@@ -9,6 +9,7 @@ import {serial,
   			string,
   			float,
   			date} from './types.js';
+import {Storage} from './storage.js';
 
 const fieldTypes = {
 	[serial]: {
