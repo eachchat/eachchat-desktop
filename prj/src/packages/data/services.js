@@ -145,7 +145,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.refreshToken(this.data.login.refresh_token)
+    return await this.api.refreshToken(this.data.login.refresh_token)
   },
 
   async getDepartmentInfo(filters,
@@ -158,7 +158,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.getDepartmentInfo(this.data.login.access_token,
+    return await this.api.getDepartmentInfo(this.data.login.access_token,
                                       filters,
                                       perPage,
                                       sortOrder,
@@ -171,7 +171,7 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
-    return this.api.getEnterpriseInfo(this.data.login.access_token)
+    return await this.api.getEnterpriseInfo(this.data.login.access_token)
   },
 
   async listGroup(updateTime, perPage) 
@@ -180,7 +180,7 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
-    return this.api.listGroup(this.data.login.access_token, updateTime, perPage)
+    return await this.api.listGroup(this.data.login.access_token, updateTime, perPage)
   },
 
   async listAllGroup()
@@ -190,7 +190,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.listAllGroup(this.data.login.access_token)
+    return await this.api.listAllGroup(this.data.login.access_token)
   },
 
   async updateUserWorkDescription(workDescription) 
@@ -200,7 +200,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.updateUserWorkDescription(this.data.login.access_token, workDescription)
+    return await this.api.updateUserWorkDescription(this.data.login.access_token, workDescription)
   },
 
   async updateUserStatusDescription(statusDescription) {
@@ -209,7 +209,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.updateUserStatusDescription(this.data.login.access_token, statusDescription)
+    return await this.api.updateUserStatusDescription(this.data.login.access_token, statusDescription)
   },
 
 
@@ -219,7 +219,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.updateUserPassword(this.data.login.access_token, password)
+    return await this.api.updateUserPassword(this.data.login.access_token, password)
   },
 
   async getNewVersion() {
@@ -228,11 +228,11 @@ const common = {
       return undefined;
     }
 
-    return this.api.getNewVersion(this.data.login.access_token)
+    return await this.api.getNewVersion(this.data.login.access_token)
   },
 
   async tokenValid(accessToken) {
-    return this.api.tokenValid(this.data.login.access_token)
+    return await this.api.tokenValid(this.data.login.access_token)
   },
 
   async clientIncrement(name,
@@ -240,7 +240,7 @@ const common = {
     sequenceId,
     countperpageValue) 
   {
-    return this.api.tokenValid(this.data.login.access_token,
+    return await this.api.tokenValid(this.data.login.access_token,
                                 name,
                                 updateTime,
                                 sequenceId,
@@ -249,7 +249,7 @@ const common = {
   },
 
   async historyMessage(groupId, sequenceId) {
-    return this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+    return await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
   },
 
   async sendNewMessage(messageID, 
@@ -260,7 +260,7 @@ const common = {
                         timestamp,
                         text,
                         url) {
-    return this.api.sendNewMessage(this.data.login.access_token,
+    return await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
                                   formID,
@@ -272,15 +272,15 @@ const common = {
   },
 
   async uploadFile(filepath) {
-    return this.api.uploadFile(this.data.login.access_token, filepath);
+    return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
   async downloadFile(sequenceId) {
-    return this.api.downloadFile(this.data.login.access_token, sequenceId)
+    return await this.api.downloadFile(this.data.login.access_token, sequenceId)
   },
 
   async downloadTumbnail(type, sequenceId) {
-    return this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
+    return await this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
   }
 
 };
