@@ -285,6 +285,6 @@ const common = {
 
 };
 
-export default {
+export {
   common
 }
