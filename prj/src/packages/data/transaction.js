@@ -39,13 +39,13 @@ class APITransaction {
   async getAllDepartmentInfo() {
     console.debug("getAllDepartment");
     var response = await this.localApi.get("/static/department.json");
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getAllUserInfo() {
     console.debug("getAllUser");
     var response = await this.localApi.get("/static/user.json");
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async login(username, password) {
@@ -57,7 +57,7 @@ class APITransaction {
         yqlVerCode: 6,
         osType: "windows"
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async logout(accessToken) {
@@ -68,7 +68,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getUserinfo(accessToken,
@@ -88,7 +88,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async refreshToken(originRefreshToken) {
@@ -99,7 +99,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + originRefreshToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getDepartmentInfo(accessToken,
@@ -119,7 +119,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getEnterpriseInfo(accessToken) {
@@ -129,7 +129,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async listGroup(accessToken, updateTime, perPage) {
@@ -139,7 +139,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async listAllGroup(accessToken) {
@@ -149,7 +149,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async updateUserWorkDescription(accessToken, workDescription) {
@@ -163,7 +163,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async updateUserStatusDescription(accessToken, statusDescription) {
@@ -177,7 +177,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async updateUserPassword(accessToken, password) {
@@ -191,7 +191,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getNewVersion(accessToken) {
@@ -204,7 +204,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async tokenValid(accessToken) {
@@ -214,7 +214,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async clientIncrement(accessToken,
@@ -234,7 +234,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async historyMessage(accessToken, groupId, sequenceId) {
@@ -244,7 +244,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async sendNewMessage(accessToken,
@@ -274,7 +274,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async uploadFile(accessToken, filepath) {
@@ -293,7 +293,7 @@ class APITransaction {
       {
         timeout: 15000
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async downloadFile(accessToken, sequenceId) {
@@ -306,7 +306,7 @@ class APITransaction {
         timeout: 15000,
         responseType: "blob"
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async downloadTumbnail(accessToken, type, sequenceId) {
@@ -324,7 +324,7 @@ class APITransaction {
         timeout: 15000,
         responseType: "blob"
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 }
 
