@@ -28,6 +28,7 @@
 
 <script>
 import {ServerApi} from '../server/serverapi.js'
+import {services} from '../../packages/data/index.js'
 
 export default {
     name: 'login',
@@ -45,7 +46,22 @@ export default {
         clickUser () {
             location.reload()
         },
+        callback(msg){
+            console.log('vue-log:' + msg)
+        },
         login: async function() {
+            let config = {
+                hostname: '139.198.15.253',
+                apiPort: '8888',
+                username: 'chengfang.ai@yunify.com',
+                password: '12345678'
+            }
+            services.common.init(config)
+            let ret = await services.common.login
+            console.log(ret)
+            services.common.initmqtt()
+            services.common.handlemessage(this.callback)
+            return
             let response = await this.serverapi.Login(this.username, this.password)
             console.log(response)
             var ret_data = response.data

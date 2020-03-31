@@ -1,6 +1,7 @@
 
 import { models } from './models.js';
 import { APITransaction } from './transaction.js';
+const mqtt = require('mqtt')
 
 const commonConfig = {
   hostname: undefined,
@@ -20,6 +21,8 @@ const common = {
   data: commonData,
 
   api: undefined,
+
+  mqttclient: undefined,
 
   init(config) {
     if ("hostname" in config) {
@@ -84,7 +87,7 @@ const common = {
       };
 
       var userObjectHave = {
-        "aId": "id",
+        "id": "id",
         "displayName": "name",
         "displayNamePy": "pinyin",
         "nickName": "nick_name",
@@ -112,6 +115,11 @@ const common = {
 
       data.login = new LoginModel(loginValues);
       data.selfUser = new UserModel(userValues);
+      this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
+                                      {username: 'client', 
+                                      password: 'yiqiliao',
+                                      clientId: data.selfUser.id + '|1111111111111111111'});
+
 
       return {
         login: data.login,
@@ -119,6 +127,34 @@ const common = {
       };
 
     })(this.api, this.config, this.data, models.Login, models.User);
+  },
+
+  initmqtt(){
+    this.mqttclient.on('connect', function(){
+        console.log("connect success")
+        this.mqttclient.subscribe(this.data.selfUser.id, function (err) {
+            if (err) {
+                console.log("subscribe failed")
+            }
+            else{
+                console.log("subscribe success")
+            }
+          })
+    })
+
+  },
+
+  closemqtt(){
+    this.mqttclient.close()
+  },
+
+  handlemessage(callback){
+    this.mqttclient.on('message', function(topic, message){
+      console.log("mqtt message")
+      console.log(topic)
+      console.log(message.toString())
+      callback(message.toString())
+    })
   },
 
   async logout() {
