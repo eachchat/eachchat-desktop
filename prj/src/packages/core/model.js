@@ -198,7 +198,7 @@ class Model {
 		return this;
 	}
 
-	static async create(storage, index, fields) {
+	static create(storage, index, fields) {
 		var newModel = (function () {
 			return class extends Model {
 				constructor(values) {

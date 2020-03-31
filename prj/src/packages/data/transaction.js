@@ -39,36 +39,36 @@ class APITransaction {
   async getAllDepartmentInfo() {
     console.debug("getAllDepartment");
     var response = await this.localApi.get("/static/department.json");
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getAllUserInfo() {
     console.debug("getAllUser");
     var response = await this.localApi.get("/static/user.json");
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async login(username, password) {
     console.debug("login");
     var response = await this.commonApi.post(
-      "/api/v1/client/login", {
+      "/api/services/auth/v1/login", {
         account: username,
         password: password,
         yqlVerCode: 6,
         osType: "windows"
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async logout(accessToken) {
     console.debug("logout");
     var response = await this.commonApi.post(
-      "/api/v1/client/logout",
+      "/api/services/auth/v1/logout",
       {},
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getUserinfo(accessToken,
@@ -78,7 +78,7 @@ class APITransaction {
                     sequenceId) {
     console.debug("getUserInfo");
     var response = await this.commonApi.post(
-      "/api/v1/client/users",
+      "/api/apps/org/v1/users",
       {
         filters: filters,
         perPage: perPage,
@@ -88,18 +88,18 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async refreshToken(originRefreshToken) {
     console.debug("refreshToken");
     var response = await this.commonApi.post(
-      "/api/v1/token/refresh",
+      "/api/services/auth/v1/token/refresh",
       {},
       {
         Authorization: "Bearer " + originRefreshToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getDepartmentInfo(accessToken,
@@ -109,7 +109,7 @@ class APITransaction {
                           sequenceId) {
     console.debug("GetDepartmentInfo");
     var response = await this.commonApi.post(
-      "/api/v1/client/departments",
+      "/api/apps/org/v1/departments",
       {
         filters: filters,
         perPage: perPage,
@@ -119,43 +119,43 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getEnterpriseInfo(accessToken) {
     console.debug("GetEnterpriseInfo");
     var response = await this.commonApi.get(
-      "/api/v1/client/setting/enterprise",
+      "/api/apps/org/v1/setting/enterprise",
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async listGroup(accessToken, updateTime, perPage) {
     console.debug("ListGroup");
     var response = await this.commonApi.get(
-      "/api/v1/group/" + updateTime + "/perPage/" + perPage,
+      "/api/apps/im/v1/group/" + updateTime + "/perPage/" + perPage,
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async listAllGroup(accessToken) {
     console.debug("ListAllGroup");
     var response = await this.commonApi.get(
-      "/api/v1/group",
+      "/api/apps/im/v1/group",
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async updateUserWorkDescription(accessToken, workDescription) {
     console.debug("UpdateUser");
     var response = await this.commonApi.patch(
-      "/api/v1/client/user/profile",
+      "/api/apps/org/v1/user/profile",
       {
         path: "/workDescription",
         value: workDescription
@@ -163,13 +163,13 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async updateUserStatusDescription(accessToken, statusDescription) {
     console.debug("UpdateUserStatusDescription");
     var response = await this.commonApi.patch(
-      "/api/v1/client/user/profile",
+      "/api/apps/org/v1/user/profile",
       {
         path: "/statusDescription",
         value: statusDescription
@@ -177,13 +177,13 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async updateUserPassword(accessToken, password) {
     console.debug("UpdateUserPassword");
     var response = await this.commonApi.patch(
-      "/api/v1/client/user/profile",
+      "/api/apps/org/v1/user/profile",
       {
         path: "/password",
         value: password
@@ -191,30 +191,30 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async getNewVersion(accessToken) {
     console.debug("GetNewVersion");
     var response = await this.commonApi.post(
-      "/api/v1/client/version/new",
+      "/api/apps/org/v1/version/new",
       {
         client: "windows"
       },
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async tokenValid(accessToken) {
     console.debug("TokenValid");
     var response = await this.commonApi.get(
-      "/api/v1/internal/token",
+      "/api/services/auth/v1/token",
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async clientIncrement(accessToken,
@@ -224,7 +224,7 @@ class APITransaction {
                         countperpageValue) {
     console.debug("ClientIncrement");
     var response = await this.commonApi.post(
-      "api/v1/client/increment",
+      "/api/apps/org/v1/increment",
       {
         name: name,
         updatetime: updateTime,
@@ -234,17 +234,17 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async historyMessage(accessToken, groupId, sequenceId) {
     console.debug("HistoryMessageAsync");
     var response = await this.commonApi.get(
-      "/api/v1/message/group/" + groupId + "/sequence/" + sequenceId,
+      "/api/apps/im/v1/message/group/" + groupId + "/sequence/" + sequenceId,
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async sendNewMessage(accessToken,
@@ -258,7 +258,7 @@ class APITransaction {
                        url) {
     console.debug("SendNewMessage");
     var response = await this.commonApi.post(
-      "api/v1/message",
+      "/api/apps/im/v1/message",
       {
         msgId: messageID,
         msgContentType: messageContentType,
@@ -274,7 +274,7 @@ class APITransaction {
       {
         Authorization: "Bearer " + accessToken
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async uploadFile(accessToken, filepath) {
@@ -284,7 +284,7 @@ class APITransaction {
     formData.append('file', file);
 
     var response = await this.commonApi.post(
-      "/api/service/file/v1/dfs/upload",
+      "/api/services/file/v1/dfs/upload",
       formData,
       {
         Authorization: "Bearer " + accessToken,
@@ -293,12 +293,12 @@ class APITransaction {
       {
         timeout: 15000
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async downloadFile(accessToken, sequenceId) {
     var response = await this.commonApi.get(
-      "/api/service/file/v1/dfs/download/" + String(sequenceId),
+      "/api/services/file/v1/dfs/download/" + String(sequenceId),
       {
         Authorization: "Bearer " + accessToken
       },
@@ -306,11 +306,11 @@ class APITransaction {
         timeout: 15000,
         responseType: "blob"
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 
   async downloadTumbnail(accessToken, type, sequenceId) {
-    var path = "api/service/file/v1/dfs/thumbnail/"
+    var path = "/api/services/file/v1/dfs/thumbnail/"
       + String(type)
       + "/"
       + String(sequenceId);
@@ -324,7 +324,7 @@ class APITransaction {
         timeout: 15000,
         responseType: "blob"
       });
-    return parseStatus(response);
+    return this.parseStatus(response);
   }
 }
 

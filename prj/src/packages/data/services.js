@@ -38,7 +38,7 @@ const common = {
       this.config.password = config.password;
     }
 
-    this.api = new APITransaction(this.config.hostname, this.config.hostname);
+    this.api = new APITransaction(this.config.hostname, this.config.apiPort);
   },
 
   get login() {
