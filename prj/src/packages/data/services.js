@@ -11,7 +11,7 @@ const commonConfig = {
 
 const commonData = {
   login: undefined,
-  self: undefined
+  selfUser: undefined
 }; // model in here
 
 const common = {
@@ -20,12 +20,6 @@ const common = {
   data: commonData,
 
   api: undefined,
-
-  accessToken: undefined,
-
-  refreshToken: undefined,
-
-  userId: undefined,
 
   init(config) {
     if ("hostname" in config) {
@@ -55,13 +49,13 @@ const common = {
         id: undefined,
         access_token: undefined,
         refresh_token: undefined,
-        account: username,
-        password: password
+        account: config.username,
+        password: config.password
       };
 
       var userValues = {
         id: undefined,
-        account: username,
+        account: config.username,
         name: undefined,
         pinyin: undefined,
         nick_name: undefined,
@@ -116,23 +110,23 @@ const common = {
         }
       }
 
-      this.accessToken = loginValues['access_token']
-      this.refreshToken = loginValues['refresh_token']
-      this.userId = userValues['id']
-
       data.login = new LoginModel(loginValues);
-      data.self = new UserModel(userValues);
+      data.selfUser = new UserModel(userValues);
 
       return {
         login: data.login,
-        self: data.self
+        selfUser: data.selfUser
       };
 
     })(this.api, this.config, this.data, models.Login, models.User);
   },
 
-  get logout() {
-    return this.api.logout(this.accessToken)
+  async logout() {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+    return await this.api.logout(this.data.login.access_token)
   },
 
   async getUserinfo(filters, perPage, sortOrder, sequenceId){
@@ -143,7 +137,152 @@ const common = {
 
     // You should better mock data to Model before return
     return await this.api.getUserinfo(this.data.login.access_token, filters, perPage, sortOrder, sequenceId);
+  },
+
+  async refreshToken() {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+
+    return this.api.refreshToken(this.data.login.refresh_token)
+  },
+
+  async getDepartmentInfo(filters,
+                          perPage,
+                          sortOrder,
+                          sequenceId)
+  {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+
+    return this.api.getDepartmentInfo(this.data.login.access_token,
+                                      filters,
+                                      perPage,
+                                      sortOrder,
+                                      sequenceId)
+  },
+
+  async getEnterpriseInfo()
+  {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+    return this.api.getEnterpriseInfo(this.data.login.access_token)
+  },
+
+  async listGroup(updateTime, perPage) 
+  {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+    return this.api.listGroup(this.data.login.access_token, updateTime, perPage)
+  },
+
+  async listAllGroup()
+  {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+
+    return this.api.listAllGroup(this.data.login.access_token)
+  },
+
+  async updateUserWorkDescription(workDescription) 
+  {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+
+    return this.api.updateUserWorkDescription(this.data.login.access_token, workDescription)
+  },
+
+  async updateUserStatusDescription(statusDescription) {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+
+    return this.api.updateUserStatusDescription(this.data.login.access_token, statusDescription)
+  },
+
+
+  async updateUserPassword(password) {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+
+    return this.api.updateUserPassword(this.data.login.access_token, password)
+  },
+
+  async getNewVersion() {
+    if (typeof this.data.login == "undefined") {
+      console.debug("Please login first");
+      return undefined;
+    }
+
+    return this.api.getNewVersion(this.data.login.access_token)
+  },
+
+  async tokenValid(accessToken) {
+    return this.api.tokenValid(this.data.login.access_token)
+  },
+
+  async clientIncrement(name,
+    updateTime,
+    sequenceId,
+    countperpageValue) 
+  {
+    return this.api.tokenValid(this.data.login.access_token,
+                                name,
+                                updateTime,
+                                sequenceId,
+                                countperpageValue)
+    
+  },
+
+  async historyMessage(groupId, sequenceId) {
+    return this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+  },
+
+  async sendNewMessage(messageID, 
+                        messageContentType,
+                        formID,
+                        groupID,
+                        userID,
+                        timestamp,
+                        text,
+                        url) {
+    return this.api.sendNewMessage(this.data.login.access_token,
+                                  messageID, 
+                                  messageContentType,
+                                  formID,
+                                  groupID,
+                                  userID,
+                                  timestamp,
+                                  text,
+                                  url)
+  },
+
+  async uploadFile(filepath) {
+    return this.api.uploadFile(this.data.login.access_token, filepath);
+  },
+
+  async downloadFile(sequenceId) {
+    return this.api.downloadFile(this.data.login.access_token, sequenceId)
+  },
+
+  async downloadTumbnail(type, sequenceId) {
+    return this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
   }
+
 };
 
 export default {
