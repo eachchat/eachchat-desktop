@@ -51,7 +51,7 @@ class APITransaction {
   async login(username, password) {
     console.debug("login");
     var response = await this.commonApi.post(
-      "/api/v1/client/login", {
+      "/api/services/auth/v1/login", {
         account: username,
         password: password,
         yqlVerCode: 6,
