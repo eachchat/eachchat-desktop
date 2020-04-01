@@ -295,8 +295,7 @@ const common = {
                         groupID,
                         userID,
                         timestamp,
-                        text,
-                        url) {
+                        content) {
     return await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
@@ -304,8 +303,7 @@ const common = {
                                   groupID,
                                   userID,
                                   timestamp,
-                                  text,
-                                  url)
+                                  content)
   },
 
   async uploadFile(filepath) {
