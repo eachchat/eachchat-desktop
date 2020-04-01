@@ -87,7 +87,8 @@ const common = {
       };
 
       var userObjectHave = {
-        "id": "id",
+        "aId": "id",
+        "id": "userid",
         "displayName": "name",
         "displayNamePy": "pinyin",
         "nickName": "nick_name",
@@ -132,7 +133,8 @@ const common = {
   initmqtt(){
     this.mqttclient.on('connect', function(){
         console.log("connect success")
-        this.mqttclient.subscribe(this.data.selfUser.id, function (err) {
+        console.log(this.data.selfUser.userid)
+        this.mqttclient.subscribe(this.data.selfUser.userid, function (err) {
             if (err) {
                 console.log("subscribe failed")
             }
@@ -141,7 +143,6 @@ const common = {
             }
           })
     })
-
   },
 
   closemqtt(){
