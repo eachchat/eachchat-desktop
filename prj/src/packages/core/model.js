@@ -136,7 +136,6 @@ class Model {
 				},
 
 				get: function() {
-					console.log(_fieldKey);
 					return this._attr[_fieldKey];
 				}
 			});

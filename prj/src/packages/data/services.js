@@ -131,10 +131,12 @@ const common = {
   },
 
   initmqtt(){
-    this.mqttclient.on('connect', function(){
+    let mqttclient = this.mqttclient;
+    let userid = this.data.selfUser.userid;
+    mqttclient.on('connect', function(){
         console.log("connect success")
-        console.log(this.data.selfUser.userid)
-        this.mqttclient.subscribe(this.data.selfUser.userid, function (err) {
+        console.log(userid)
+        mqttclient.subscribe(userid, function (err) {
             if (err) {
                 console.log("subscribe failed")
             }
