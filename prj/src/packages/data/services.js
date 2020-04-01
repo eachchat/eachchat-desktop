@@ -119,7 +119,7 @@ const common = {
       this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: data.selfUser.id + '|1111111111111111111'});
+                                      clientId: data.selfUser.userid + '|1111111111111111111'});
 
 
       return {
@@ -155,7 +155,6 @@ const common = {
     this.mqttclient.on('message', function(topic, message){
       console.log("mqtt message")
       console.log(topic)
-      console.log(message.toString())
       callback(message.toString())
     })
   },

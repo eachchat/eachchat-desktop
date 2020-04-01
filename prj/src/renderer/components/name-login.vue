@@ -58,7 +58,6 @@ export default {
             }
             services.common.init(config)
             let ret = await services.common.login
-            console.log(ret)
             services.common.initmqtt()
             services.common.handlemessage(this.callback)
             return
