@@ -44,10 +44,10 @@ var models = {
       'login',
       {
         id: types.integer,
-        access_token: types.text,
-        refresh_token: types.text,
-        account: types.text,
-        password: types.text
+        access_token: types.string,
+        refresh_token: types.string,
+        account: types.string,
+        password: types.string
       },
       'id',
       'id'
