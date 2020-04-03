@@ -20,17 +20,26 @@
                     <i> <img class="avatarTUrl" :src="item.avatarTUrl"> {{ item.displayName }} {{ item.title }}</i>
                 </el-menu-item>
                 <div class="other-title" v-show="users.length">成员</div>
-                <el-menu-item v-show="users.length" v-for="item in users">
+                <el-menu-item v-show="users.length" v-for="item in users" @click="userMenuItemClicked(item.id)">
                     <i> <img class="avatarTUrl" :src="item.avatarTUrl"> {{ item.displayName }}</i>
                 </el-menu-item>
             </el-menu>
+            <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px">
+                <userInfoContent :userInfo = "userInfo"></userInfoContent>
+            </yidrawer>
         </el-main>
     </el-container>
 </template>
 <script>
 import {ServerApi} from '../server/serverapi';
+import yidrawer from './yi-drawer';
+import userInfoContent from './user-info';
 export default {
     name: 'organizationList',
+    components: {
+        yidrawer,
+        userInfoContent
+    },
     data () {
         return {
             serverApi: new ServerApi(),
@@ -41,6 +50,8 @@ export default {
             departments: [],
             users: [],
             managers: [],
+            userInfo: {},
+            showUserInfoDrawer: false,
         }
     },
     methods: {
@@ -94,6 +105,29 @@ export default {
                 name: name,
                 id: id
             });
+        },
+        userMenuItemClicked(id) {
+            console.log("userMenuItemClicked");
+            
+            for (var i = 0; i < this.users.length; i ++) {
+                var user = this.users[i];
+                if(user.id == id) {
+                    
+                    this.userInfo = user;
+
+                    break;
+                }
+            }
+            for (var i = 0; i < this.allDepartments.length; i ++) {
+                var department = this.allDepartments[i];
+                if(department.id == this.userInfo.departmentId){
+                    this.userInfo.department = department;
+                }
+            }
+            this.showUserInfoDrawer = true;
+        },
+        managerMenuItemClicked(id) {
+
         }
 
     },
