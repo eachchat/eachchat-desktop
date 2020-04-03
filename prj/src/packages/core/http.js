@@ -30,8 +30,6 @@ class HTTP {
     this.sender = axios.create({
       baseURL: this.baseURL + ":" + String(port)
     });
-
-    console.log(this.sender);
   }
 
   static contentTypeChecker = (function (mimeTypes) {

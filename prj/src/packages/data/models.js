@@ -32,9 +32,7 @@ var models = {
         remark_pinyin: types.string,
         job: types.string,
         bio: types.string
-      },
-      'id',
-      'id'
+      }
     );
   },
 
@@ -48,9 +46,7 @@ var models = {
         refresh_token: types.string,
         account: types.string,
         password: types.string
-      },
-      'id',
-      'id'
+      }
     );
   }
 }
