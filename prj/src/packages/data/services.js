@@ -12,7 +12,7 @@ const commonConfig = {
 
 const commonData = {
   login: undefined,
-  selfUser: undefined,
+  selfuser: undefined,
   department: []
 }; // model in here
 
@@ -24,6 +24,19 @@ const common = {
   api: undefined,
 
   mqttclient: undefined,
+
+  GetLoginModel(){
+    return {login: this.data.login};
+  },
+
+  GetSelfuserModel(){
+     return  {selfuser: this.data.selfUser};
+  },
+
+  GetAllDepartmentsModel()
+  {
+    return {department: this.data.department} 
+  },
 
   init(config) {
     if ("hostname" in config) {
@@ -121,13 +134,6 @@ const common = {
                                       {username: 'client', 
                                       password: 'yiqiliao',
                                       clientId: data.selfUser.userid + '|1111111111111111111'});
-
-
-      return {
-        login: data.login,
-        selfUser: data.selfUser
-      };
-
     })(this.api, this.config, this.data, models.Login, models.User);
   },
 
@@ -236,11 +242,6 @@ const common = {
       }
       this.data.department.push(new models.Department(departmentvalue))
     }
-  },
-
-  getAllDepartments()
-  {
-    return {department: this.data.department} 
   },
 
   async getDepartmentInfo(filters,
