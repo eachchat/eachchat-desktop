@@ -187,7 +187,7 @@ const common = {
     return await this.api.refreshToken(this.data.login.refresh_token)
   },
 
-  async getAllDepartmentInfo(){
+  async AllDepartmentInfo(){
     let index = 0;
     let result;
     let departments = [];
@@ -228,6 +228,7 @@ const common = {
       "del" : "del",
       "showOrder" : "showOrder"
     }
+    this.data.department = []
     for(var item in departments)
     {
       for(var key in responsemap){
@@ -235,7 +236,11 @@ const common = {
       }
       this.data.department.push(new models.Department(departmentvalue))
     }
-    return {department: this.data.department}
+  },
+
+  getAllDepartments()
+  {
+    return {department: this.data.department} 
   },
 
   async getDepartmentInfo(filters,
