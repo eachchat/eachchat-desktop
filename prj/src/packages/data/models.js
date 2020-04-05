@@ -48,6 +48,23 @@ var models = {
         password: types.string
       }
     );
+  },
+
+  get Department(){
+    return model.Model.create(
+      sqliteConnection,
+      'department',
+      {
+        departmentId: types.string,
+        parentId:     types.string,
+        displayName:  types.string,
+        description:  types.string,
+        directorId:   types.string,
+        adminId:      types.string,
+        del:          types.integer,
+        showOrder:    types.integer
+      }
+    )
   }
 }
 

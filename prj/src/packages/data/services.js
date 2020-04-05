@@ -12,7 +12,8 @@ const commonConfig = {
 
 const commonData = {
   login: undefined,
-  selfUser: undefined
+  selfUser: undefined,
+  department: []
 }; // model in here
 
 const common = {
@@ -184,6 +185,57 @@ const common = {
     }
 
     return await this.api.refreshToken(this.data.login.refresh_token)
+  },
+
+  async getAllDepartmentInfo(){
+    let index = 0;
+    let result;
+    let departments = [];
+    do{
+      result = await this.getDepartmentInfo(undefined, undefined, 1, index)
+      if (!result.ok || !result.success) {
+        return undefined;
+      }
+
+      if (!("obj" in result.data)) {
+        return undefined;
+      }
+      for(var item in result.data.results)
+      {
+        index++;
+        departments.push(result.data.results[item])
+      }
+    }while(result.data.results.total > index);
+    var departmentvalue={
+      departmentId: undefined,
+      parentId:     undefined,
+      displayName:  undefined,
+      description:  undefined,
+      directorId:   undefined,
+      adminId:      undefined,
+      del:          undefined,
+      showOrder:    undefined
+    }
+
+    var responsemap = 
+    {
+      "id" : "departmentId",
+      "parentId" : "parentId",
+      "displayName" : "displayName",
+      "description" : "description",
+      "directorId" : "directorId",
+      "adminId" : "adminId",
+      "del" : "del",
+      "showOrder" : "showOrder"
+    }
+    for(var item in departments)
+    {
+      for(var key in departmentvalue){
+        departmentvalue[responsemap[key]] = item[key]
+      }
+      this.data.department.push(new models.Department(departmentvalue))
+    }
+    return {department: this.data.department}
   },
 
   async getDepartmentInfo(filters,
