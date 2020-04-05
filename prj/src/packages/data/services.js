@@ -13,7 +13,12 @@ const commonConfig = {
 const commonData = {
   login: undefined,
   selfuser: undefined,
-  department: []
+  department: [],
+  userinfo: undefined,
+  useremail: undefined,
+  useraddress: undefined,
+  userphone: undefined,
+  userim: undefined
 }; // model in here
 
 const common = {
@@ -25,17 +30,37 @@ const common = {
 
   mqttclient: undefined,
 
-  GetLoginModel(){
-    return {login: this.data.login};
+  get GetLoginModel(){
+    return this.data.login;
   },
 
-  GetSelfuserModel(){
-     return  {selfuser: this.data.selfUser};
+  get GetSelfuserModel(){
+     return this.data.selfUser;
   },
 
-  GetAllDepartmentsModel()
+  get GetAllDepartmentsModel()
   {
-    return {department: this.data.department} 
+    return this.data.department;
+  },
+
+  get GetUserinfo(){
+    return this.data.userinfo;
+  },
+
+  get GetUserEmail(){
+    return this.data.useremail;
+  },
+
+  get GetUserAddress(){
+    return this.data.useraddress;
+  },
+
+  get GetUserPhone(){
+    return this.data.userphone;
+  },
+
+  get GetUserIm(){
+    return this.data.userim;
   },
 
   init(config) {
@@ -58,7 +83,7 @@ const common = {
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
   },
 
-  get login() {
+  login() {
     return (async (api, config, data, LoginModel, UserModel) => {
       let result = await api.login(config.username, config.password);
 
@@ -174,13 +199,30 @@ const common = {
     return await this.api.logout(this.data.login.access_token)
   },
 
-  async getUserinfo(filters, perPage, sortOrder, sequenceId){
-    if (typeof this.data.login == "undefined") {
-      console.debug("Please login first");
-      return undefined;
-    }
+  async AllUserinfo(){
+    let index = 0;
+    let result;
+    let users = [];
+    do{
+      result = await this.Userinfo(undefined, undefined, 1, index)
+      if (!result.ok || !result.success) {
+        return undefined;
+      }
 
-    // You should better mock data to Model before return
+      if (!("obj" in result.data)) {
+        return undefined;
+      }
+      for(var item in result.data.results)
+      {
+        index++;
+        users.push(result.data.results[item])
+      }
+    }while(result.data.total > index);
+    console.log(users)
+  },
+
+  async Userinfo(filters, perPage, sortOrder, sequenceId){
+    
     return await this.api.getUserinfo(this.data.login.access_token, filters, perPage, sortOrder, sequenceId);
   },
 
@@ -211,7 +253,7 @@ const common = {
         index++;
         departments.push(result.data.results[item])
       }
-    }while(result.data.results.total > index);
+    }while(result.data.total > index);
     var departmentvalue={
       departmentId: undefined,
       parentId:     undefined,
