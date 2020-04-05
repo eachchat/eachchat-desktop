@@ -230,8 +230,8 @@ const common = {
     }
     for(var item in departments)
     {
-      for(var key in departmentvalue){
-        departmentvalue[responsemap[key]] = item[key]
+      for(var key in responsemap){
+        departmentvalue[responsemap[key]] = departments[item][key]
       }
       this.data.department.push(new models.Department(departmentvalue))
     }
