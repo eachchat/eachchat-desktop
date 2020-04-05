@@ -24,7 +24,7 @@
 </template>
 
 <script>
-// import organization from './organization.vue'
+import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
 
 import {ServerApi} from '../server/serverapi.js'
@@ -95,7 +95,7 @@ export default {
         }
     },
     components: {
-        // organization,
+        organization,
         ChatContent
     },
     created: function () {

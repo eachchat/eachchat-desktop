@@ -37,15 +37,18 @@
             :visible.sync="dialogVisible"
             width="70%"
             :before-close="handleClose">
-            <!-- <chatGroupCreater>
-            </chatGroupCreater> -->
+            <div>
+                <chatGroupCreater>
+                </chatGroupCreater>
+            </div>
+            
         </el-dialog>
     </el-container>
 </template>
 <script>
 import { ServerApi } from '../server/serverapi';
 import organizationList from './organization-list';
-// import chatGroupCreater from './chatgroup-creater';
+import chatGroupCreater from './chatgroup-creater';
 export default {
     name: 'organization',
     data() {

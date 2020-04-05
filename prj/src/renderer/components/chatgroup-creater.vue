@@ -29,6 +29,10 @@
                                 {{ item.name }}</a>
                             </el-breadcrumb-item>
                         </el-breadcrumb>
+                        <div>
+                            <input type="checkBox" :checked="currentDepartmentSelectAll" 
+                            @click="currentDepartmentSelectAllClicked()"> 全选
+                        </div>
                     </el-header>
                     <el-main>
                         <ul class="department-list" v-show="departments.length">
@@ -55,7 +59,7 @@
                 </el-header>
                 <el-main>
                     <ul class="selected-list">
-                            <li v-for="(item, index) in usersSelected" 
+                            <li v-for="(item, index) in selectedUsers" 
                             @click="selectedUserMenuItemClicked(item.id, item.displayName)" :key="index"> 
                             {{ item.displayName }}
                             </li>
@@ -73,8 +77,7 @@ export default {
         return {
             serverApi: new ServerApi(),
             showBreadCrumbs: false,
-            usersSelected: [],
-            userSelectedState: false,
+            selectedUsers: [],
             recentUsers: [],
             breadCrumbs: [],
             allDepartments: [],
@@ -84,12 +87,34 @@ export default {
         }
     },
     watch: {
-        'usersSelected':function() {
-            this.$emit('getCreateGroupUsersSelected', this.usersSelected);
+        'selectedUsers':function() {
+            this.$emit('getCreateGroupUsersSelected', this.selectedUsers);
         }
     },
     computed: {
-        
+        currentDepartmentSelectedUsers: function() {
+            var temp = [];
+            for (let i = 0; i < this.selectedUsers.length; i++) {
+                const element = this.selectedUsers[i];
+                if (this.users.indexOf(element) != -1){
+                    temp.push(element);
+                }
+            }
+            return temp;
+        },
+        currentDepartmentSelectAll: function() {
+            var selectAll = true;
+            console.log("test");
+            console.log(this.users);
+            for (let i = 0; i < this.users.length; i++) {
+                const user = this.users[i];
+                if (this.selectedUsers.indexOf(user)==-1){
+                    selectAll = false;
+                    break;
+                }
+            }
+            return selectAll;
+        }
     },
     methods: {
         userCheckBoxClicked(id) {
@@ -99,27 +124,23 @@ export default {
                 var user = this.allUsers[i];
                 
                 if (user.id == id) {
-                    console.log(user);
-                    console.log(this.usersSelected);
                     if (user.checkState) {
                         this.allUsers[i].checkState = false;
                         //this.userSelected.$remove(user);
-                        for (var i = 0; i < this.usersSelected.length; i ++) {
-                            var user1 = this.usersSelected[i];
+                        for (var i = 0; i < this.selectedUsers.length; i ++) {
+                            var user1 = this.selectedUsers[i];
                             if (user1.id == id) {
-                                this.usersSelected.splice(i, 1);
+                                this.selectedUsers.splice(i, 1);
                                 break;
                             }
                         }
                     } else {
                         this.allUsers[i].checkState = true;
-                        this.usersSelected.push(user);
+                        this.selectedUsers.push(user);
                     }
                     break;
                 }
             }
-            
-            console.log(this.usersSelected);
             return true;
         },
         selectedUserMenuItemClicked(id) {
@@ -128,10 +149,10 @@ export default {
                 
                 if (user.id == id) {
                     this.allUsers[i].checkState = false;
-                    for (var i = 0; i < this.usersSelected.length; i ++) {
-                        var user1 = this.usersSelected[i];
+                    for (var i = 0; i < this.selectedUsers.length; i ++) {
+                        var user1 = this.selectedUsers[i];
                         if (user1.id == id) {
-                            this.usersSelected.splice(i, 1);
+                            this.selectedUsers.splice(i, 1);
                             break;
                         }
                     }
@@ -186,6 +207,45 @@ export default {
             if (index == 0) {
                 console.log(this.departments);
                 this.showBreadCrumbs = false;
+            }
+        },
+        currentDepartmentSelectAllClicked() {
+            if (!this.currentDepartmentSelectAll){
+                for (let i = 0; i < this.users.length; i++) {
+                    const element = this.users[i];
+                    for (var j = 0; j < this.allUsers.length; j ++) {
+                        var user = this.allUsers[j];
+                        if (user.id == element.id) {
+                            if (element.checkState == false){
+                                this.allUsers[j].checkState = true;
+                                this.users[i].checkState = true;
+                                // 添加到选中列表中
+                                if (this.selectedUsers.indexOf(this.users[i]) == -1) {
+                                    this.selectedUsers.push(this.users[i]);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }else {
+                for (let i = 0; i < this.users.length; i++) {
+                    const element = this.users[i];
+                    for (var j = 0; j < this.allUsers.length; j ++) {
+                        var user = this.allUsers[j];
+                        if (user.id == element.id) {
+                            if (element.checkState == true){
+                                this.allUsers[j].checkState = false;
+                                this.users[i].checkState = false;
+                                // 选中列表中移除
+                                if (this.selectedUsers.indexOf(element) != -1){
+                                    this.selectedUsers.splice(this.selectedUsers.indexOf(element), 1);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
     },
