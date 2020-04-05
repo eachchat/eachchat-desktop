@@ -16,6 +16,7 @@ var models = {
       'users',
       {
         id: types.integer,
+        userid: types.string,
         account: types.string,
         name: types.string,
         nick_name: types.string,
@@ -31,9 +32,7 @@ var models = {
         remark_pinyin: types.string,
         job: types.string,
         bio: types.string
-      },
-      'id',
-      'id'
+      }
     );
   },
 
@@ -43,14 +42,29 @@ var models = {
       'login',
       {
         id: types.integer,
-        access_token: types.text,
-        refresh_token: types.text,
-        account: types.text,
-        password: types.text
-      },
-      'id',
-      'id'
+        access_token: types.string,
+        refresh_token: types.string,
+        account: types.string,
+        password: types.string
+      }
     );
+  },
+
+  get Department(){
+    return model.Model.create(
+      sqliteConnection,
+      'department',
+      {
+        departmentId: types.string,
+        parentId:     types.string,
+        displayName:  types.string,
+        description:  types.string,
+        directorId:   types.string,
+        adminId:      types.string,
+        del:          types.integer,
+        showOrder:    types.integer
+      }
+    )
   }
 }
 

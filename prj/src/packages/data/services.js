@@ -1,6 +1,7 @@
 
 import { models } from './models.js';
 import { APITransaction } from './transaction.js';
+const mqtt = require('mqtt')
 
 const commonConfig = {
   hostname: undefined,
@@ -11,7 +12,8 @@ const commonConfig = {
 
 const commonData = {
   login: undefined,
-  selfUser: undefined
+  selfUser: undefined,
+  department: []
 }; // model in here
 
 const common = {
@@ -20,6 +22,8 @@ const common = {
   data: commonData,
 
   api: undefined,
+
+  mqttclient: undefined,
 
   init(config) {
     if ("hostname" in config) {
@@ -85,6 +89,7 @@ const common = {
 
       var userObjectHave = {
         "aId": "id",
+        "id": "userid",
         "displayName": "name",
         "displayNamePy": "pinyin",
         "nickName": "nick_name",
@@ -112,6 +117,11 @@ const common = {
 
       data.login = new LoginModel(loginValues);
       data.selfUser = new UserModel(userValues);
+      this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
+                                      {username: 'client', 
+                                      password: 'yiqiliao',
+                                      clientId: data.selfUser.userid + '|1111111111111111111'});
+
 
       return {
         login: data.login,
@@ -119,6 +129,35 @@ const common = {
       };
 
     })(this.api, this.config, this.data, models.Login, models.User);
+  },
+
+  initmqtt(){
+    let mqttclient = this.mqttclient;
+    let userid = this.data.selfUser.userid;
+    mqttclient.on('connect', function(){
+        console.log("connect success")
+        console.log(userid)
+        mqttclient.subscribe(userid, function (err) {
+            if (err) {
+                console.log("subscribe failed")
+            }
+            else{
+                console.log("subscribe success")
+            }
+          })
+    })
+  },
+
+  closemqtt(){
+    this.mqttclient.close()
+  },
+
+  handlemessage(callback){
+    this.mqttclient.on('message', function(topic, message){
+      console.log("mqtt message")
+      console.log(topic)
+      callback(message.toString())
+    })
   },
 
   async logout() {
@@ -145,7 +184,63 @@ const common = {
       return undefined;
     }
 
-    return this.api.refreshToken(this.data.login.refresh_token)
+    return await this.api.refreshToken(this.data.login.refresh_token)
+  },
+
+  async AllDepartmentInfo(){
+    let index = 0;
+    let result;
+    let departments = [];
+    do{
+      result = await this.getDepartmentInfo(undefined, undefined, 1, index)
+      if (!result.ok || !result.success) {
+        return undefined;
+      }
+
+      if (!("obj" in result.data)) {
+        return undefined;
+      }
+      for(var item in result.data.results)
+      {
+        index++;
+        departments.push(result.data.results[item])
+      }
+    }while(result.data.results.total > index);
+    var departmentvalue={
+      departmentId: undefined,
+      parentId:     undefined,
+      displayName:  undefined,
+      description:  undefined,
+      directorId:   undefined,
+      adminId:      undefined,
+      del:          undefined,
+      showOrder:    undefined
+    }
+
+    var responsemap = 
+    {
+      "id" : "departmentId",
+      "parentId" : "parentId",
+      "displayName" : "displayName",
+      "description" : "description",
+      "directorId" : "directorId",
+      "adminId" : "adminId",
+      "del" : "del",
+      "showOrder" : "showOrder"
+    }
+    this.data.department = []
+    for(var item in departments)
+    {
+      for(var key in responsemap){
+        departmentvalue[responsemap[key]] = departments[item][key]
+      }
+      this.data.department.push(new models.Department(departmentvalue))
+    }
+  },
+
+  getAllDepartments()
+  {
+    return {department: this.data.department} 
   },
 
   async getDepartmentInfo(filters,
@@ -158,7 +253,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.getDepartmentInfo(this.data.login.access_token,
+    return await this.api.getDepartmentInfo(this.data.login.access_token,
                                       filters,
                                       perPage,
                                       sortOrder,
@@ -171,7 +266,7 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
-    return this.api.getEnterpriseInfo(this.data.login.access_token)
+    return await this.api.getEnterpriseInfo(this.data.login.access_token)
   },
 
   async listGroup(updateTime, perPage) 
@@ -180,7 +275,7 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
-    return this.api.listGroup(this.data.login.access_token, updateTime, perPage)
+    return await this.api.listGroup(this.data.login.access_token, updateTime, perPage)
   },
 
   async listAllGroup()
@@ -190,7 +285,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.listAllGroup(this.data.login.access_token)
+    return await this.api.listAllGroup(this.data.login.access_token)
   },
 
   async updateUserWorkDescription(workDescription) 
@@ -200,7 +295,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.updateUserWorkDescription(this.data.login.access_token, workDescription)
+    return await this.api.updateUserWorkDescription(this.data.login.access_token, workDescription)
   },
 
   async updateUserStatusDescription(statusDescription) {
@@ -209,7 +304,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.updateUserStatusDescription(this.data.login.access_token, statusDescription)
+    return await this.api.updateUserStatusDescription(this.data.login.access_token, statusDescription)
   },
 
 
@@ -219,7 +314,7 @@ const common = {
       return undefined;
     }
 
-    return this.api.updateUserPassword(this.data.login.access_token, password)
+    return await this.api.updateUserPassword(this.data.login.access_token, password)
   },
 
   async getNewVersion() {
@@ -228,11 +323,11 @@ const common = {
       return undefined;
     }
 
-    return this.api.getNewVersion(this.data.login.access_token)
+    return await this.api.getNewVersion(this.data.login.access_token)
   },
 
   async tokenValid(accessToken) {
-    return this.api.tokenValid(this.data.login.access_token)
+    return await this.api.tokenValid(this.data.login.access_token)
   },
 
   async clientIncrement(name,
@@ -240,7 +335,7 @@ const common = {
     sequenceId,
     countperpageValue) 
   {
-    return this.api.tokenValid(this.data.login.access_token,
+    return await this.api.tokenValid(this.data.login.access_token,
                                 name,
                                 updateTime,
                                 sequenceId,
@@ -249,7 +344,7 @@ const common = {
   },
 
   async historyMessage(groupId, sequenceId) {
-    return this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+    return await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
   },
 
   async sendNewMessage(messageID, 
@@ -258,29 +353,27 @@ const common = {
                         groupID,
                         userID,
                         timestamp,
-                        text,
-                        url) {
-    return this.api.sendNewMessage(this.data.login.access_token,
+                        content) {
+    return await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
                                   formID,
                                   groupID,
                                   userID,
                                   timestamp,
-                                  text,
-                                  url)
+                                  content)
   },
 
   async uploadFile(filepath) {
-    return this.api.uploadFile(this.data.login.access_token, filepath);
+    return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
   async downloadFile(sequenceId) {
-    return this.api.downloadFile(this.data.login.access_token, sequenceId)
+    return await this.api.downloadFile(this.data.login.access_token, sequenceId)
   },
 
   async downloadTumbnail(type, sequenceId) {
-    return this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
+    return await this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
   }
 
 };

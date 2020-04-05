@@ -45,6 +45,9 @@ export default {
         clickUser () {
             location.reload()
         },
+        callback(msg){
+            console.log('vue-log:' + msg)
+        },
         login: async function() {
             let response = await this.serverapi.Login(this.username, this.password)
             console.log(response)

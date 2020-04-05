@@ -254,8 +254,7 @@ class APITransaction {
                        groupID,
                        userID,
                        timestamp,
-                       text,
-                       url) {
+                       contentMsg) {
     console.debug("SendNewMessage");
     var response = await this.commonApi.post(
       "/api/apps/im/v1/message",
@@ -266,10 +265,7 @@ class APITransaction {
         groupId: groupID,
         userId: userID,
         timestamp: timestamp,
-        content: {
-          text: text,
-          url: url
-        }
+        content: contentMsg
       },
       {
         Authorization: "Bearer " + accessToken
