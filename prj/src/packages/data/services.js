@@ -42,23 +42,23 @@ const common = {
     return this.data.department;
   },
 
-  get GetUserinfo(){
+  get GetAllUserinfo(){
     return this.data.userinfo;
   },
 
-  get GetUserEmail(){
+  get GetAllUserEmail(){
     return this.data.useremail;
   },
 
-  get GetUserAddress(){
+  get GetAllUserAddress(){
     return this.data.useraddress;
   },
 
-  get GetUserPhone(){
+  get GetAllUserPhone(){
     return this.data.userphone;
   },
 
-  get GetUserIm(){
+  get GetAllUserIm(){
     return this.data.userim;
   },
 
@@ -164,6 +164,7 @@ const common = {
         users.push(result.data.results[item])
       }
     }while(result.data.total > index);
+    this.data.userinfo = servicemodels.UsersModel(users)
     console.log(users)
   },
 

@@ -65,6 +65,36 @@ var models = {
         showOrder:    types.integer
       }
     )
+  },
+
+  get UserInfo(){
+    return model.Model.create(
+      sqliteConnection,
+      'userinfo',
+      {
+        user_id:                  types.string,
+        belong_to_department_id:  types.string,
+        user_name:                types.string,
+        user_display_name:        types.string,
+        user_nickname:            types.string,
+        user_profile_url:         types.string,
+        user_avatar_url:          types.string,
+        user_type:                types.string,
+        user_title:               types.string,
+        user_preferred_language:  types.string,
+        user_locale:              types.string,
+        user_timezone:            types.string,
+        user_active:              types.integer,
+        display_name_py:          types.string,
+        remark_name:              types.string,
+        remark_name_py:           types.string,
+        avatar_o_url:             types.string,
+        avatar_t_url:             types.string,
+        user_active:              types.integer,
+        work_description:         types.string,
+        status_description:       types.string
+      }
+    )
   }
 }
 
