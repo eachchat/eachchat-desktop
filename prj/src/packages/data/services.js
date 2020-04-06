@@ -1,6 +1,5 @@
-
-import { models } from './models.js';
 import { APITransaction } from './transaction.js';
+import { servicemodels } from './servicemodels.js';
 const mqtt = require('mqtt')
 
 const commonConfig = {
@@ -34,8 +33,8 @@ const common = {
     return this.data.login;
   },
 
-  get GetSelfuserModel(){
-     return this.data.selfUser;
+  get GetSelfUserModel(){
+     return this.data.selfuser;
   },
 
   get GetAllDepartmentsModel()
@@ -43,23 +42,23 @@ const common = {
     return this.data.department;
   },
 
-  get GetUserinfo(){
+  get GetAllUserinfo(){
     return this.data.userinfo;
   },
 
-  get GetUserEmail(){
+  get GetAllUserEmail(){
     return this.data.useremail;
   },
 
-  get GetUserAddress(){
+  get GetAllUserAddress(){
     return this.data.useraddress;
   },
 
-  get GetUserPhone(){
+  get GetAllUserPhone(){
     return this.data.userphone;
   },
 
-  get GetUserIm(){
+  get GetAllUserIm(){
     return this.data.userim;
   },
 
@@ -84,34 +83,10 @@ const common = {
   },
 
   login() {
-    return (async (api, config, data, LoginModel, UserModel) => {
+    return (async (api, config, data, LoginModel) => {
       let result = await api.login(config.username, config.password);
 
-      var loginValues = {
-        id: undefined,
-        access_token: undefined,
-        refresh_token: undefined,
-        account: config.username,
-        password: config.password
-      };
-
-      var userValues = {
-        id: undefined,
-        account: config.username,
-        name: undefined,
-        pinyin: undefined,
-        nick_name: undefined,
-        avatar: undefined,
-        avatar_minimal: undefined,
-        role_id: undefined,
-        role_name: undefined,
-        language: undefined,
-        locale: undefined,
-        timezone: undefined,
-        is_active: undefined,
-        bio: undefined
-      };
-
+      
       if (!result.ok || !result.success) {
         return undefined;
       }
@@ -120,51 +95,22 @@ const common = {
         return undefined;
       }
 
-      var headersHave = {
-        "access-token": "access_token",
-        "refresh-token": "refresh_token"
-      };
-
-      var userObjectHave = {
-        "aId": "id",
-        "id": "userid",
-        "displayName": "name",
-        "displayNamePy": "pinyin",
-        "nickName": "nick_name",
-        "avatarOUrl": "avatar",
-        "avatarTUrl": "avatar_minimal",
-        "title": "role_name",
-        "preferredLanguage": "language",
-        "locale": "locale",
-        "timezone": "timezone",
-        "active": "is_active",
-        "statusDescription": "bio"
-      };
-
-      for (var key in headersHave) {
-        if (key in result.headers) {
-          loginValues[headersHave[key]] = result.headers[key];
-        }
-      }
-
-      for (var key in userObjectHave) {
-        if (key in result.data.obj) {
-          userValues[userObjectHave[key]] = result.data.obj[key];
-        }
-      }
-
-      data.login = new LoginModel(loginValues);
-      data.selfUser = new UserModel(userValues);
+      let retmodels = LoginModel(result);
+      data.login = retmodels[0]
+      data.selfuser = retmodels[1] 
+      /* 
       this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: data.selfUser.userid + '|1111111111111111111'});
-    })(this.api, this.config, this.data, models.Login, models.User);
+                                      clientId: data.selfuser.userid + '|1111111111111111111'});
+      */
+    })(this.api, this.config, this.data, servicemodels.LoginModel);
+    
   },
 
   initmqtt(){
     let mqttclient = this.mqttclient;
-    let userid = this.data.selfUser.userid;
+    let userid = this.data.selfuser.userid;
     mqttclient.on('connect', function(){
         console.log("connect success")
         console.log(userid)
@@ -218,7 +164,12 @@ const common = {
         users.push(result.data.results[item])
       }
     }while(result.data.total > index);
-    console.log(users)
+    let models = servicemodels.UsersModel(users)
+    this.data.userinfo = models[0]
+    this.data.useremail = models[1]
+    this.data.useraddress = models[2]
+    this.data.userphone = models[3]
+    this.data.userim = models[4]
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
@@ -254,36 +205,8 @@ const common = {
         departments.push(result.data.results[item])
       }
     }while(result.data.total > index);
-    var departmentvalue={
-      departmentId: undefined,
-      parentId:     undefined,
-      displayName:  undefined,
-      description:  undefined,
-      directorId:   undefined,
-      adminId:      undefined,
-      del:          undefined,
-      showOrder:    undefined
-    }
-
-    var responsemap = 
-    {
-      "id" : "departmentId",
-      "parentId" : "parentId",
-      "displayName" : "displayName",
-      "description" : "description",
-      "directorId" : "directorId",
-      "adminId" : "adminId",
-      "del" : "del",
-      "showOrder" : "showOrder"
-    }
-    this.data.department = []
-    for(var item in departments)
-    {
-      for(var key in responsemap){
-        departmentvalue[responsemap[key]] = departments[item][key]
-      }
-      this.data.department.push(new models.Department(departmentvalue))
-    }
+    this.data.department = servicemodels.DepartmentsModel(departments)
+    
   },
 
   async getDepartmentInfo(filters,
