@@ -164,8 +164,12 @@ const common = {
         users.push(result.data.results[item])
       }
     }while(result.data.total > index);
-    this.data.userinfo = servicemodels.UsersModel(users)
-    console.log(users)
+    let models = servicemodels.UsersModel(users)
+    this.data.userinfo = models[0]
+    this.data.useremail = models[1]
+    this.data.useraddress = models[2]
+    this.data.userphone = models[3]
+    this.data.userim = models[4]
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){

@@ -104,7 +104,7 @@ var models = {
       {
         email_id:      types.integer,
         owner_user_id: types.string,
-        email_name:    types.string,
+        email_value:    types.string,
         email_type:    types.string,
         email_primary: types.integer
       }
@@ -118,9 +118,9 @@ var models = {
       {
         address_id:         types.integer,
         owner_user_id:      types.string,
-        address:            types.string,
-        locality:           types.string,
-        region:             types.string
+        address_value:            types.string,
+        address_locality:           types.string,
+        address_region:             types.string
       }
     )
   },
@@ -130,10 +130,22 @@ var models = {
       sqliteConnection,
       'userphone',
       {
-        phone_id: types.integer,
-        owner_user_id: types.string,
-        phone_value: types.string,
-        phone_type: types.string        
+        phone_id:       types.integer,
+        owner_user_id:  types.string,
+        phone_value:    types.string,
+        phone_type:     types.string        
+      }
+    )
+  },
+
+  get UserIm(){
+    return model.Model.create(
+      sqliteConnection,
+      "userim",
+      {
+        im_id:          types.integer,
+        owner_user_id:  types.string,
+        im_value:       types.string
       }
     )
   }

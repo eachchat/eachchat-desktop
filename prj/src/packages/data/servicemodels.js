@@ -150,14 +150,14 @@ const servicemodels = {
       var useremailvalue = {
         email_id:      undefined,
         owner_user_id: undefined,
-        email_name:    undefined,
+        email_value:    undefined,
         email_type:    undefined,
         email_primary: undefined
       }
 
       var useremailmap = {
         "id":       "owner_user_id",
-        "value":    "email_name",
+        "value":    "email_value",
         "type":     "email_type",
         "primary":  "email_primary",
       }
@@ -165,16 +165,16 @@ const servicemodels = {
       var useraddressvalue = {
         address_id:         undefined,
         owner_user_id:      undefined,
-        address:            undefined,
-        locality:           undefined,
-        region:             undefined
+        address_value:            undefined,
+        address_locality:           undefined,
+        address_region:             undefined
       }
 
       var useraddressmap = {
         "id":"owner_user_id",
-        "address": "address",
-        "locale":"locality",
-        "registrationId": "region"
+        "address": "address_value",
+        "locale":"address_locality",
+        "registrationId": "address_region"
       }
 
       var userphonevalue = {
@@ -189,12 +189,24 @@ const servicemodels = {
         "value": "phone_value",
         "type": "phone_type",
       }
+
+      var userimvalue = {
+        im_id:          undefined,
+        owner_user_id:  undefined,
+        im_value:       undefined
+      }
+
+      var userimmap = {
+        "id":    "owner_user_id",
+        "value": "im_value"
+      }
       
 
       let userinfoarray = []
       let useremailarray = []
       let useraddressarray = []
       let userphonearray = []
+      let userimarray = []
 
       for(var item in users)
       {
@@ -223,12 +235,18 @@ const servicemodels = {
           userphonevalue.owner_user_id = userinfovalue.user_id
         }
 
+        for(var key in userimmap)
+        {
+          userimvalue[userimmap[key]] = users[item][key]
+        }
+
         userinfoarray.push(new models.UserInfo(userinfovalue))
         useremailarray.push(new models.UserEmail(useremailvalue))
         useraddressarray.push(new models.UserAddress(useraddressvalue))
         userphonearray.push(new models.UserPhone(userphonevalue))
+        userimarray.push(new models.UserIm(userimvalue))
       }
-      return [userinfoarray, useremailarray, useraddressarray, userphonearray];
+      return [userinfoarray, useremailarray, useraddressarray, userphonearray, userimarray];
     }
 }
 
