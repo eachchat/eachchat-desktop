@@ -177,9 +177,25 @@ const servicemodels = {
         "registrationId": "region"
       }
 
+      var userphonevalue = {
+        phone_id: undefined,
+        owner_user_id: undefined,
+        phone_value: undefined,
+        phone_type: undefined        
+      }
+
+      var userphonemap = {
+        "id":"owner_user_id",
+        "value": "phone_value",
+        "type": "phone_type",
+      }
+      
+
       let userinfoarray = []
       let useremailarray = []
       let useraddressarray = []
+      let userphonearray = []
+
       for(var item in users)
       {
         for(var key in userinfomap){
@@ -198,11 +214,21 @@ const servicemodels = {
           useraddressvalue[useraddressmap[key]] = users[item][key]
         }
 
+        for(var phoneitem in users[item]["phoneNumbers"])
+        {
+          for(var key in userphonemap)
+          {
+            userphonevalue[userphonemap[key]] = users[item]["phoneNumbers"][phoneitem][key]
+          }
+          userphonevalue.owner_user_id = userinfovalue.user_id
+        }
+
         userinfoarray.push(new models.UserInfo(userinfovalue))
         useremailarray.push(new models.UserEmail(useremailvalue))
         useraddressarray.push(new models.UserAddress(useraddressvalue))
+        userphonearray.push(new models.UserPhone(userphonevalue))
       }
-      return [userinfoarray, useremailarray, useraddressarray];
+      return [userinfoarray, useremailarray, useraddressarray, userphonearray];
     }
 }
 

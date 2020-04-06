@@ -116,11 +116,24 @@ var models = {
       sqliteConnection,
       'useraddress',
       {
-        address_id:         types.string,
+        address_id:         types.integer,
         owner_user_id:      types.string,
         address:            types.string,
         locality:           types.string,
         region:             types.string
+      }
+    )
+  },
+
+  get UserPhone(){
+    return model.Model.create(
+      sqliteConnection,
+      'userphone',
+      {
+        phone_id: types.integer,
+        owner_user_id: types.string,
+        phone_value: types.string,
+        phone_type: types.string        
       }
     )
   }
