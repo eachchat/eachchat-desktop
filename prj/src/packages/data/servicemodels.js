@@ -147,16 +147,42 @@ const servicemodels = {
         "statusDescription":  "status_description"
       }
 
+      var useremailvalue = {
+        email_id:      undefined,
+        owner_user_id: undefined,
+        email_name:    undefined,
+        email_type:    undefined,
+        email_primary: undefined
+      }
+
+      var useremailmap = {
+        "id":       "email_id",
+        "user_id":  "owner_user_id",
+        "value":    "email_name",
+        "type":     "email_type",
+        "primary":  "email_primary",
+      }
+
+
       let userinfoarray = []
-      
+      let useremailarray = []
       for(var item in users)
       {
         for(var key in userinfomap){
           userinfovalue[userinfomap[key]] = users[item][key]
         }
+
+        for(var emailitem in users[item]["emails"])
+        {
+          for(var key in useremailmap){
+            useremailvalue[useremailmap[key]] = users[item]["emails"][emailitem][key]
+          }
+          useremailvalue.owner_user_id = userinfovalue.user_id
+        }  
         userinfoarray.push(new models.UserInfo(userinfovalue))
+        useremailarray.push(new models.UserEmail(useremailvalue))
       }
-      return userinfoarray;
+      return [userinfoarray, useremailarray];
     }
 }
 

@@ -95,6 +95,20 @@ var models = {
         status_description:       types.string
       }
     )
+  },
+
+  get UserEmail(){
+    return model.Model.create(
+      sqliteConnection,
+      'useremail',
+      {
+        email_id:      types.integer,
+        owner_user_id: types.string,
+        email_name:    types.string,
+        email_type:    types.string,
+        email_primary: types.integer
+      }
+    )
   }
 }
 
