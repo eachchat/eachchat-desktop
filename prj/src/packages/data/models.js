@@ -109,6 +109,20 @@ var models = {
         email_primary: types.integer
       }
     )
+  },
+
+  get UserAddress(){
+    return model.Model.create(
+      sqliteConnection,
+      'useraddress',
+      {
+        address_id:         types.string,
+        owner_user_id:      types.string,
+        address:            types.string,
+        locality:           types.string,
+        region:             types.string
+      }
+    )
   }
 }
 

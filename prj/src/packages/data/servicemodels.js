@@ -156,16 +156,30 @@ const servicemodels = {
       }
 
       var useremailmap = {
-        "id":       "email_id",
-        "user_id":  "owner_user_id",
+        "id":       "owner_user_id",
         "value":    "email_name",
         "type":     "email_type",
         "primary":  "email_primary",
       }
 
+      var useraddressvalue = {
+        address_id:         undefined,
+        owner_user_id:      undefined,
+        address:            undefined,
+        locality:           undefined,
+        region:             undefined
+      }
+
+      var useraddressmap = {
+        "id":"owner_user_id",
+        "address": "address",
+        "locale":"locality",
+        "registrationId": "region"
+      }
 
       let userinfoarray = []
       let useremailarray = []
+      let useraddressarray = []
       for(var item in users)
       {
         for(var key in userinfomap){
@@ -179,10 +193,16 @@ const servicemodels = {
           }
           useremailvalue.owner_user_id = userinfovalue.user_id
         }  
+
+        for( var key in useraddressmap){
+          useraddressvalue[useraddressmap[key]] = users[item][key]
+        }
+
         userinfoarray.push(new models.UserInfo(userinfovalue))
         useremailarray.push(new models.UserEmail(useremailvalue))
+        useraddressarray.push(new models.UserAddress(useraddressvalue))
       }
-      return [userinfoarray, useremailarray];
+      return [userinfoarray, useremailarray, useraddressarray];
     }
 }
 
