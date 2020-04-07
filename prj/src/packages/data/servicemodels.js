@@ -294,6 +294,18 @@ const servicemodels = {
       for(let item in result.data.results)
       {
         groupitem = result.data.results[item]
+        //if(groupitem["group"])
+        let group_message = groupitem["message"]
+        let group_group = groupitem["group"]
+        if(group_message == "" || group_message == null || group_message == undefined)
+        {
+          continue
+        }
+        if(group_group == "" || group_group == null || group_group == undefined)
+        {
+          continue
+        }
+
         for(let key in groupmap)
         {
           groupvalue[groupmap[key]] = groupitem["group"][key]
@@ -301,7 +313,7 @@ const servicemodels = {
 
         for(let key in messagemap)
         {
-          groupvalue[messagemap[key]] = groupitem["message"][key]
+            groupvalue[messagemap[key]] = groupitem["message"][key]
         }
 
         for(let key in objmap)
