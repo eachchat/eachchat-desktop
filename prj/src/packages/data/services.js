@@ -1,6 +1,6 @@
 import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
-const mqtt = require('mqtt')
+//const mqtt = require('mqtt')
 
 const commonConfig = {
   hostname: undefined,
@@ -160,11 +160,13 @@ const common = {
   },
 
   handlemessage(callback){
+    /*
     this.mqttclient.on('message', function(topic, message){
       console.log("mqtt message")
       console.log(topic)
       callback(message.toString())
     })
+    */
   },
 
   async logout() {
