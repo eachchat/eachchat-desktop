@@ -12,12 +12,13 @@ const commonConfig = {
 const commonData = {
   login: undefined,
   selfuser: undefined,
-  department: [],
+  department: undefined,
   userinfo: undefined,
   useremail: undefined,
   useraddress: undefined,
   userphone: undefined,
-  userim: undefined
+  userim: undefined,
+  group: undefined
 }; // model in here
 
 const common = {
@@ -56,6 +57,33 @@ const common = {
 
   get GetAllUserPhone(){
     return this.data.userphone;
+  },
+
+  get GetAllGroups(){
+    return this.data.group;
+  },
+
+  get GetRecentUsers(){
+    let recentusers = []
+    let sortkey = "last_message_time"
+
+    for(let groupkey in this.data.group)
+    {
+      let tmp = this.data.group[groupkey]
+      if(this.data.group[groupkey]["group_type"] == "102")
+      {
+        recentusers.push(this.data.group[groupkey])
+      }
+    }
+    
+    function cmp(a,b){
+          var value1 = a[sortkey];
+          var value2 = b[sortkey];
+          return value2 - value1;
+       }
+    
+    recentusers.sort(cmp)
+    return recentusers;
   },
 
   get GetAllUserIm(){
@@ -109,6 +137,7 @@ const common = {
   },
 
   initmqtt(){
+    /*
     let mqttclient = this.mqttclient;
     let userid = this.data.selfuser.userid;
     mqttclient.on('connect', function(){
@@ -123,10 +152,11 @@ const common = {
             }
           })
     })
+    */
   },
 
   closemqtt(){
-    this.mqttclient.close()
+    //this.mqttclient.close()
   },
 
   handlemessage(callback){
@@ -246,12 +276,16 @@ const common = {
 
   async listAllGroup()
   {
-    if (typeof this.data.login == "undefined") {
-      console.debug("Please login first");
+    let result = await this.api.listAllGroup(this.data.login.access_token)
+    if (!result.ok || !result.success) {
       return undefined;
     }
 
-    return await this.api.listAllGroup(this.data.login.access_token)
+    if (!("obj" in result.data)) {
+      return undefined;
+    }
+
+    this.data.group = servicemodels.GroupsModel(result)
   },
 
   async updateUserWorkDescription(workDescription) 

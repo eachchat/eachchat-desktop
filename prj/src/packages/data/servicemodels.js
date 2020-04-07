@@ -247,6 +247,71 @@ const servicemodels = {
         userimarray.push(new models.UserIm(userimvalue))
       }
       return [userinfoarray, useremailarray, useraddressarray, userphonearray, userimarray];
+    },
+
+    GroupsModel(result)
+    {
+        var groupvalue = {
+          group_id :              undefined,
+          contain_user_ids :      undefined,
+          group_name :            undefined,
+          group_avarar :          undefined,
+          group_type :            undefined,
+          status :                undefined,
+          user_id :               undefined,
+          last_message_time :     undefined,
+          owner :                 undefined,
+          group_notice :          undefined,
+          notice_time :           undefined,
+          notice_userId :         undefined,
+          un_read_count :         undefined,
+          draft :                 undefined
+        }
+
+        var groupmap = 
+        {
+          "groupId":  "group_id",          
+          "userIds" : "contain_user_ids",  
+          "groupName": "group_name",        
+          "groupAvatar": "group_avarar",     
+          "groupType": "group_type",        
+          "status": "status",
+          "owner": "owner",             
+          "groupNotice": "group_notice",     
+          "noticeTime": "notice_time",       
+          "noticeUserId": "notice_userId"
+        }
+        var messagemap = {                   
+          "userId": "user_id",        
+          "timestamp": "last_message_time"     
+        }
+        var objmap = {
+          "noReaderCount": "un_read_count" 
+        }
+      let groupitem;
+      let grouparray = [];
+      let groupmodel;
+      for(let item in result.data.results)
+      {
+        groupitem = result.data.results[item]
+        for(let key in groupmap)
+        {
+          groupvalue[groupmap[key]] = groupitem["group"][key]
+        }
+
+        for(let key in messagemap)
+        {
+          groupvalue[messagemap[key]] = groupitem["message"][key]
+        }
+
+        for(let key in objmap)
+        {
+          groupvalue[objmap[key]] = groupitem[key]
+        }
+        groupmodel = new models.Groups(groupvalue)
+        grouparray.push(groupmodel)
+      }
+      return grouparray
     }
 }
 
