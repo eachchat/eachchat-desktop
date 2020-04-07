@@ -116,11 +116,11 @@ const common = {
 
       
       if (!result.ok || !result.success) {
-        return undefined;
+        return result.data;
       }
 
-      if (!("obj" in result.data)) {
-        return undefined;
+      if (200 != result.data.code) {
+        return result.data;
       }
 
       let retmodels = LoginModel(result);

@@ -294,7 +294,6 @@ const servicemodels = {
       for(let item in result.data.results)
       {
         groupitem = result.data.results[item]
-        //if(groupitem["group"])
         let group_message = groupitem["message"]
         let group_group = groupitem["group"]
         if(group_message == "" || group_message == null || group_message == undefined)
