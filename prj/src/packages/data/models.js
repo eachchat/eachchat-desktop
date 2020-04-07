@@ -148,6 +148,29 @@ var models = {
         im_value:       types.string
       }
     )
+  },
+
+  get Groups(){
+    return model.Model.create(
+      sqliteConnection,
+      "group",
+      {
+        group_id :              types.string,
+        contain_user_ids :      types.string,
+        group_name :            types.string,
+        group_avarar :          types.string,
+        group_type :            types.integer,
+        status :                types.string,
+        user_id :               types.string,
+        last_message_time :     types.string,
+        owner :                 types.string,
+        group_notice :          types.string,
+        notice_time :           types.string,
+        notice_userId :         types.string,
+        un_read_count :         types.integer,
+        draft :                 types.string
+      }
+    )
   }
 }
 
