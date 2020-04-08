@@ -66,11 +66,17 @@ const common = {
   get GetRecentUsers(){
     let recentusers = []
     let sortkey = "last_message_time"
-
+    let tmpitem
+    let grouptype
     for(let groupkey in this.data.group)
     {
-      let tmp = this.data.group[groupkey]
-      if(this.data.group[groupkey]["group_type"] == "102")
+      tmpitem = this.data.group[groupkey]
+      grouptype = this.data.group[groupkey]["group_type"]
+      if(!servicemodels.ItemInvalid(grouptype))
+      {
+        continue
+      }
+      if(grouptype == "102")
       {
         recentusers.push(this.data.group[groupkey])
       }

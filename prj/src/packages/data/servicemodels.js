@@ -201,6 +201,9 @@ const servicemodels = {
         "value": "im_value"
       }
       
+      let useritem
+      let useritem_email
+      let useritem_phone
 
       let userinfoarray = []
       let useremailarray = []
@@ -210,34 +213,47 @@ const servicemodels = {
 
       for(var item in users)
       {
-        for(var key in userinfomap){
-          userinfovalue[userinfomap[key]] = users[item][key]
+        useritem = users[item]
+        useritem_email = useritem["emails"]
+        useritem_phone = useritem["phoneNumbers"]
+        if(!this.ItemInvalid(useritem_email))
+        {
+          continue;
         }
 
-        for(var emailitem in users[item]["emails"])
+        if(!this.ItemInvalid(useritem_phone))
         {
-          for(var key in useremailmap){
-            useremailvalue[useremailmap[key]] = users[item]["emails"][emailitem][key]
+          continue;
+        }
+        
+        for(var infokey in userinfomap){
+          userinfovalue[userinfomap[infokey]] = useritem[infokey]
+        }
+
+        for(var emailitem in useritem_email)
+        {
+          for(var emailkey in useremailmap){
+            useremailvalue[useremailmap[emailkey]] = useritem_email[emailitem][emailkey]
           }
           useremailvalue.owner_user_id = userinfovalue.user_id
         }  
 
-        for( var key in useraddressmap){
-          useraddressvalue[useraddressmap[key]] = users[item][key]
+        for( var addresskey in useraddressmap){
+          useraddressvalue[useraddressmap[addresskey]] = useritem[addresskey]
         }
 
-        for(var phoneitem in users[item]["phoneNumbers"])
+        for(var phoneitem in useritem_phone)
         {
-          for(var key in userphonemap)
+          for(var phonekey in userphonemap)
           {
-            userphonevalue[userphonemap[key]] = users[item]["phoneNumbers"][phoneitem][key]
+            userphonevalue[userphonemap[phonekey]] = useritem_phone[phoneitem][phonekey]
           }
           userphonevalue.owner_user_id = userinfovalue.user_id
         }
 
-        for(var key in userimmap)
+        for(var imkey in userimmap)
         {
-          userimvalue[userimmap[key]] = users[item][key]
+          userimvalue[userimmap[imkey]] = useritem[imkey]
         }
 
         userinfoarray.push(new models.UserInfo(userinfovalue))
@@ -296,11 +312,11 @@ const servicemodels = {
         groupitem = result.data.results[item]
         let group_message = groupitem["message"]
         let group_group = groupitem["group"]
-        if(group_message == "" || group_message == null || group_message == undefined)
+        if(!this.ItemInvalid(group_message))
         {
           continue
         }
-        if(group_group == "" || group_group == null || group_group == undefined)
+        if(!this.ItemInvalid(group_group))
         {
           continue
         }
@@ -323,6 +339,15 @@ const servicemodels = {
         grouparray.push(groupmodel)
       }
       return grouparray
+    },
+
+    ItemInvalid(item)
+    {
+      if(item == "" || item == null || item == undefined)
+      {
+        return false
+      }
+      return true
     }
 }
 
