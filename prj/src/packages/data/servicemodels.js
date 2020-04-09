@@ -62,7 +62,7 @@ const servicemodels = {
       return [new models.Login(loginValues), new models.User(userValues)];
     },
 
-    DepartmentsModel(departments)
+    DepartmentsModel(department)
     {
       var departmentvalue={
         departmentId: undefined,
@@ -86,19 +86,14 @@ const servicemodels = {
         "del" : "del",
         "showOrder" : "showOrder"
       }
-      let tmparray = []
-
-      for(var item in departments)
-      {
-        for(var key in responsemap){
-          departmentvalue[responsemap[key]] = departments[item][key]
-        }
-        tmparray.push(new models.Department(departmentvalue))
+      
+      for(var key in responsemap){
+        departmentvalue[responsemap[key]] = departments[key]
       }
-      return tmparray;
+      return new models.Department(departmentvalue)
     },
 
-    UsersModel(users){
+    UsersModel(useritem){
       var userinfovalue={
         user_id:                  undefined,
         belong_to_department_id:  undefined,
@@ -200,145 +195,132 @@ const servicemodels = {
         "id":    "owner_user_id",
         "value": "im_value"
       }
-      
-      let useritem
-      let useritem_email
-      let useritem_phone
 
-      let userinfoarray = []
-      let useremailarray = []
-      let useraddressarray = []
-      let userphonearray = []
-      let userimarray = []
+      let userinfomodel
+      let useremailmodel
+      let useraddressmodel
+      let userphonemodel
+      let userimmodel
 
-      for(var item in users)
+      let useritem_email = useritem["emails"]
+      let useritem_phone = useritem["phoneNumbers"]
+      if(!this.ItemInvalid(useritem_email))
       {
-        useritem = users[item]
-        useritem_email = useritem["emails"]
-        useritem_phone = useritem["phoneNumbers"]
-        if(!this.ItemInvalid(useritem_email))
-        {
-          continue;
-        }
-
-        if(!this.ItemInvalid(useritem_phone))
-        {
-          continue;
-        }
-        
-        for(var infokey in userinfomap){
-          userinfovalue[userinfomap[infokey]] = useritem[infokey]
-        }
-
-        for(var emailitem in useritem_email)
-        {
-          for(var emailkey in useremailmap){
-            useremailvalue[useremailmap[emailkey]] = useritem_email[emailitem][emailkey]
-          }
-          useremailvalue.owner_user_id = userinfovalue.user_id
-        }  
-
-        for( var addresskey in useraddressmap){
-          useraddressvalue[useraddressmap[addresskey]] = useritem[addresskey]
-        }
-
-        for(var phoneitem in useritem_phone)
-        {
-          for(var phonekey in userphonemap)
-          {
-            userphonevalue[userphonemap[phonekey]] = useritem_phone[phoneitem][phonekey]
-          }
-          userphonevalue.owner_user_id = userinfovalue.user_id
-        }
-
-        for(var imkey in userimmap)
-        {
-          userimvalue[userimmap[imkey]] = useritem[imkey]
-        }
-
-        userinfoarray.push(new models.UserInfo(userinfovalue))
-        useremailarray.push(new models.UserEmail(useremailvalue))
-        useraddressarray.push(new models.UserAddress(useraddressvalue))
-        userphonearray.push(new models.UserPhone(userphonevalue))
-        userimarray.push(new models.UserIm(userimvalue))
+        return undefined;
       }
-      return [userinfoarray, useremailarray, useraddressarray, userphonearray, userimarray];
+
+      if(!this.ItemInvalid(useritem_phone))
+      {
+        return undefined;
+      }
+      
+      for(var infokey in userinfomap){
+        userinfovalue[userinfomap[infokey]] = useritem[infokey]
+      }
+
+      for(var emailitem in useritem_email)
+      {
+        for(var emailkey in useremailmap){
+          useremailvalue[useremailmap[emailkey]] = useritem_email[emailitem][emailkey]
+        }
+        useremailvalue.owner_user_id = userinfovalue.user_id
+      }  
+
+      for( var addresskey in useraddressmap){
+        useraddressvalue[useraddressmap[addresskey]] = useritem[addresskey]
+      }
+
+      for(var phoneitem in useritem_phone)
+      {
+        for(var phonekey in userphonemap)
+        {
+          userphonevalue[userphonemap[phonekey]] = useritem_phone[phoneitem][phonekey]
+        }
+        userphonevalue.owner_user_id = userinfovalue.user_id
+      }
+
+      for(var imkey in userimmap)
+      {
+        userimvalue[userimmap[imkey]] = useritem[imkey]
+      }
+
+      userinfomodel = new models.UserInfo(userinfovalue)
+      useremailmodel = new models.UserEmail(useremailvalue)
+      useraddressmodel = new models.UserAddress(useraddressvalue)
+      userphonemodel = new models.UserPhone(userphonevalue)
+      userimmodel = new models.UserIm(userimvalue)
+      
+      return [userinfomodel, useremailmodel, useraddressmodel, userphonemodel, userimmodel];
     },
 
-    GroupsModel(result)
+    GroupsModel(groupitem)
     {
-        var groupvalue = {
-          group_id :              undefined,
-          contain_user_ids :      undefined,
-          group_name :            undefined,
-          group_avarar :          undefined,
-          group_type :            undefined,
-          status :                undefined,
-          user_id :               undefined,
-          last_message_time :     undefined,
-          owner :                 undefined,
-          group_notice :          undefined,
-          notice_time :           undefined,
-          notice_userId :         undefined,
-          un_read_count :         undefined,
-          draft :                 undefined
-        }
-
-        var groupmap = 
-        {
-          "groupId":  "group_id",          
-          "userIds" : "contain_user_ids",  
-          "groupName": "group_name",        
-          "groupAvatar": "group_avarar",     
-          "groupType": "group_type",        
-          "status": "status",
-          "owner": "owner",             
-          "groupNotice": "group_notice",     
-          "noticeTime": "notice_time",       
-          "noticeUserId": "notice_userId"
-        }
-        var messagemap = {                   
-          "userId": "user_id",        
-          "timestamp": "last_message_time"     
-        }
-        var objmap = {
-          "noReaderCount": "un_read_count" 
-        }
-      let groupitem;
-      let grouparray = [];
-      let groupmodel;
-      for(let item in result.data.results)
-      {
-        groupitem = result.data.results[item]
-        let group_message = groupitem["message"]
-        let group_group = groupitem["group"]
-        if(!this.ItemInvalid(group_message))
-        {
-          continue
-        }
-        if(!this.ItemInvalid(group_group))
-        {
-          continue
-        }
-
-        for(let key in groupmap)
-        {
-          groupvalue[groupmap[key]] = groupitem["group"][key]
-        }
-
-        for(let key in messagemap)
-        {
-            groupvalue[messagemap[key]] = groupitem["message"][key]
-        }
-
-        for(let key in objmap)
-        {
-          groupvalue[objmap[key]] = groupitem[key]
-        }
-        groupmodel = new models.Groups(groupvalue)
-        grouparray.push(groupmodel)
+      var groupvalue = {
+        group_id :              undefined,
+        contain_user_ids :      undefined,
+        group_name :            undefined,
+        group_avarar :          undefined,
+        group_type :            undefined,
+        status :                undefined,
+        user_id :               undefined,
+        last_message_time :     undefined,
+        owner :                 undefined,
+        group_notice :          undefined,
+        notice_time :           undefined,
+        notice_userId :         undefined,
+        un_read_count :         undefined,
+        draft :                 undefined
       }
-      return grouparray
+
+      var groupmap = 
+      {
+        "groupId":  "group_id",          
+        "userIds" : "contain_user_ids",  
+        "groupName": "group_name",        
+        "groupAvatar": "group_avarar",     
+        "groupType": "group_type",        
+        "status": "status",
+        "owner": "owner",             
+        "groupNotice": "group_notice",     
+        "noticeTime": "notice_time",       
+        "noticeUserId": "notice_userId"
+      }
+      var messagemap = {                   
+        "userId": "user_id",        
+        "timestamp": "last_message_time"     
+      }
+      var objmap = {
+        "noReaderCount": "un_read_count" 
+      }
+      let groupmodel;
+      
+      let group_message = groupitem["message"]
+      let group_group = groupitem["group"]
+      if(!this.ItemInvalid(group_message))
+      {
+        return undefined
+      }
+      if(!this.ItemInvalid(group_group))
+      {
+        return undefined
+      }
+
+      for(let key in groupmap)
+      {
+        groupvalue[groupmap[key]] = groupitem["group"][key]
+      }
+
+      for(let key in messagemap)
+      {
+          groupvalue[messagemap[key]] = groupitem["message"][key]
+      }
+
+      for(let key in objmap)
+      {
+        groupvalue[objmap[key]] = groupitem[key]
+      }
+      groupmodel = new models.Groups(groupvalue)
+      return groupmodel
     },
 
     ItemInvalid(item)
@@ -348,6 +330,49 @@ const servicemodels = {
         return false
       }
       return true
+    },
+
+    MessageModel(message)
+    {
+      var messgevalue = {
+        message_id:         undefined,
+        time_line_id:       undefined,
+        group_id:           undefined,
+        message_type:       undefined,
+        message_direction:  1,
+        message_status:     undefined,
+        message_from_id:    undefined,
+        sequence_id:        undefined,
+        message_timestamp:  undefined,
+        message_content:    undefined,
+        message_to_id:      undefined,
+        file_local_path:    undefined
+      }
+
+      var messagemap = {
+        "mesId": "message_id",
+        "timelineId": "time_line_id",
+        "groupId": "group_id",
+        "msgContentType": "message_type",
+        "fromId": "message_from_id",
+        "sequenceId": "sequence_id",
+        "timestamp": "message_timestamp",
+        "content": "message_content",
+        "msgId": "message_to_id"
+      }
+
+      for(let key in messagemap)
+      {
+        if(key == "content")
+        {
+          messgevalue[messagemap[key]] = JSON.stringify(message[key])  
+        }
+        else
+        {
+          messgevalue[messagemap[key]] = message[key]
+        }
+      }
+      return new models.Message(messgevalue)
     }
 }
 

@@ -171,7 +171,28 @@ var models = {
         draft :                 types.string
       }
     )
-  }
+  },
+
+  get Message(){
+    return model.Model.create(
+      sqliteConnection,
+      "message",
+      {
+        message_id:         types.string,
+        time_line_id:       types.string,
+        group_id:           types.string,
+        message_type:       types.integer,
+        message_direction:  types.integer,
+        message_status:     types.integer,
+        message_from_id:    types.string,
+        sequence_id:        types.integer,
+        message_timestamp:  types.string,
+        message_content:    types.string,
+        message_to_id:      types.string,
+        file_local_path:    types.string
+      }
+    )
+  },
 }
 
 export {

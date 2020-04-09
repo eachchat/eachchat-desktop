@@ -12,13 +12,14 @@ const commonConfig = {
 const commonData = {
   login: undefined,
   selfuser: undefined,
-  department: undefined,
-  userinfo: undefined,
-  useremail: undefined,
-  useraddress: undefined,
-  userphone: undefined,
-  userim: undefined,
-  group: undefined
+  department: [],
+  userinfo: [],
+  useremail: [],
+  useraddress: [],
+  userphone: [],
+  userim: [],
+  group: [],
+  historymessage: []
 }; // model in here
 
 const common = {
@@ -94,6 +95,10 @@ const common = {
 
   get GetAllUserIm(){
     return this.data.userim;
+  },
+
+  get GetHistoryMessages(){
+    return this.data.historymessage;
   },
 
   init(config) {
@@ -186,7 +191,13 @@ const common = {
   async AllUserinfo(){
     let index = 0;
     let result;
-    let users = [];
+    let useritem;
+    let usermodel;
+    this.data.userinfo = []
+    this.data.useremail = []
+    this.data.useraddress = []
+    this.data.userphone = []
+    this.data.userim = []
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
@@ -199,15 +210,19 @@ const common = {
       for(var item in result.data.results)
       {
         index++;
-        users.push(result.data.results[item])
+        useritem = result.data.results[item]
+        usermodel = servicemodels.UsersModel(useritem)
+        if(usermodel == undefined)
+        {
+          continue;
+        }
+        this.data.userinfo.push(usermodel[0])
+        this.data.useremail.push(usermodel[1])
+        this.data.useraddress.push(usermodel[2])
+        this.data.userphone.push(usermodel[3])
+        this.data.userim.push(usermodel[4])
       }
     }while(result.data.total > index);
-    let models = servicemodels.UsersModel(users)
-    this.data.userinfo = models[0]
-    this.data.useremail = models[1]
-    this.data.useraddress = models[2]
-    this.data.userphone = models[3]
-    this.data.userim = models[4]
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
@@ -227,7 +242,7 @@ const common = {
   async AllDepartmentInfo(){
     let index = 0;
     let result;
-    let departments = [];
+    this.data.department = []
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
@@ -240,11 +255,9 @@ const common = {
       for(var item in result.data.results)
       {
         index++;
-        departments.push(result.data.results[item])
+        this.data.department.push(result.data.results[item])
       }
-    }while(result.data.total > index);
-    this.data.department = servicemodels.DepartmentsModel(departments)
-    
+    }while(result.data.total > index);  
   },
 
   async getDepartmentInfo(filters,
@@ -284,16 +297,33 @@ const common = {
 
   async listAllGroup()
   {
-    let result = await this.api.listAllGroup(this.data.login.access_token)
-    if (!result.ok || !result.success) {
-      return undefined;
-    }
-
-    if (!("obj" in result.data)) {
-      return undefined;
-    }
-
-    this.data.group = servicemodels.GroupsModel(result)
+    let next = false;
+    let index = 0
+    let result;
+    let groupvalue;
+    let groupmodel;
+    this.data.group = []
+    do{
+      result = await this.api.listAllGroup(this.data.login.access_token, undefined)
+      if (!result.ok || !result.success) {
+        return undefined;
+      }
+  
+      if (!("obj" in result.data)) {
+        return undefined;
+      }
+      next = result.data.hasNext
+      for(let item in result.data.results)
+      {
+        groupvalue = result.data.results[item]
+        groupmodel = servicemodels.GroupsModel(groupvalue)
+        if(groupmodel == undefined)
+        {
+          continue
+        }
+        this.data.group.push(groupmodel)
+      }
+    }while(next)
   },
 
   async updateUserWorkDescription(workDescription) 
@@ -351,8 +381,32 @@ const common = {
     
   },
 
-  async historyMessage(groupId, sequenceId) {
-    return await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+  async historyMessage(groupId, sequenceId) { 
+    let result;
+    let resultvalues;
+    let next = false;
+    let message;
+    let messagemodel;
+    this.data.historymessage = []
+    do{
+      result =  await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+      if (!result.ok || !result.success) {
+        return undefined;
+      }
+  
+      if (!("results" in result.data)) {
+        return undefined;
+      }
+      resultvalues = result.data.results
+      next = result.data.hasNext
+
+      for(let item in resultvalues)
+      {
+        message = resultvalues[item]
+        messagemodel = servicemodels.MessageModel(message)
+        this.data.historymessage.push(messagemodel)
+      }
+    }while(next)    
   },
 
   async sendNewMessage(messageID, 
@@ -370,6 +424,11 @@ const common = {
                                   userID,
                                   timestamp,
                                   content)
+  },
+
+  async ReveiveNewMessage(sequenceId, notificationId)
+  {
+    return await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId)
   },
 
   async uploadFile(filepath) {

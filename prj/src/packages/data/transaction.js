@@ -273,6 +273,16 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async ReceiveNewMessage(accessToken, sequenceId, notificationId)
+  {
+    var response = await this.commonApi.get(
+      "/api/apps/im/v1/message/sequence/" + sequenceId + "/notification/" + notificationId,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
   async uploadFile(accessToken, filepath) {
     var fu = new FileUtil(filepath);
     let file = fu.GetUploadfileobj();
