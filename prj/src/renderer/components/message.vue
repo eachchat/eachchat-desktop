@@ -22,7 +22,8 @@
                             :options="editorOption">
                         </quillEditor>
                     </div>
-                    <div class="chat-msg-content-mine-txt" v-else>
+                    <div class="chat-msg-content-mine-txt" 
+                        v-on:click="ShowFile()" v-else>
                         <quillEditor
                             disabled="disabled"
                             v-model="messageContent"
@@ -47,7 +48,8 @@
                             :options="editorOption">
                         </quillEditor>
                     </div>
-                    <div class="chat-msg-content-others-txt" v-else>
+                    <div class="chat-msg-content-others-txt" 
+                        v-on:click="ShowFile()" v-else>
                         <quillEditor
                             disabled="disabled"
                             v-model="messageContent"
