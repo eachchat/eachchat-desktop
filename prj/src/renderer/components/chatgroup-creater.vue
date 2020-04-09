@@ -1,7 +1,88 @@
 <template>
         <el-container class="topContainer">
             <el-aside >
-                <el-menu mode="vertical" v-show="!showBreadCrumbs">
+                <div class="list-content" v-show="!showBreadCrumbs">
+                    <div class="organization-view">
+                        <div class="item" @click="organizationMenuItemClicked()">
+                            <img class="item-icon" src="../../../static/Image/organization_list@2x.png">
+                            <div class="item-info">
+                                <p class="item-title">组织架构</p>
+                            </div>
+                            <div class="item-arrow">
+                                <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
+                            </div>
+                        </div>
+                        <ul class="organization-menu-list" v-show="showOrganizationMenuItem">
+                            <li class="department"
+                            v-for="(department, index) in departments"
+                            @click="departmentMenuItemClicked(department.id, department.displayName)" 
+                            :key="index">
+                            <img class="department-icon" src="../../../static/Image/department_list@2x.png">
+                            <div class="department-info">
+                                <p class="department-name">{{ department.displayName }}</p>
+                            </div>
+                            <div align="center" class="item-arrow">
+                                <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
+                            </div>
+                        </li>
+                        </ul>
+                    </div>
+                    <div class="recentUsers-view">
+                        <div class="item" @click="recentUsersMenuItemClicked()">
+                            <img class="item-icon" src="../../../static/Image/recentUsers_list@2x.png">
+                            <div class="item-info">
+                                <p class="item-title">常用联系人</p>
+                            </div>
+                            <div class="item-arrow">
+                                <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
+                            </div>
+                        </div>
+                        <ul class="recentUsers-menu-list" v-show="showRecentUsersMenuItem">
+                        </ul>
+                    </div>
+                </div>
+                <el-container class="organization-check-view" v-show="showBreadCrumbs">
+                    <el-header height="60px" class="aside-header">
+                        <el-breadcrumb separator="/">
+                            <el-breadcrumb-item v-for="(item, index) in breadCrumbs" :key="index">
+                                <a href="javascript:void(0)" 
+                                @click="departmentBreadCrumbsClicked(item.id, item.name, index)">
+                                {{ item.name }}</a>
+                            </el-breadcrumb-item>
+                        </el-breadcrumb>
+                    </el-header>
+                    <el-main>
+                        <ul class="department-list" v-show="departments.length">
+                            <li class="department" v-for="(item, index) in departments" 
+                            @click="departmentMenuItemClicked(item.id, item.displayName)" :key="index"> 
+                            <img class="department-icon" src="../../../static/Image/department_list@2x.png">
+                            <div class="department-info">
+                                <p class="department-name">{{ item.displayName }}</p>
+                            </div>
+                            <div align="center" class="item-arrow">
+                                <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
+                            </div>
+                            </li>
+                        </ul>
+                        <div class="users-list-header">
+                            <input type="checkBox" class="checkBox-all" :checked="currentDepartmentSelectAll" 
+                            @click="currentDepartmentSelectAllClicked()"> 全选
+                            <p class="checkBox-label">已选{{ currentDepartmentSelectedUsers.length }}人</p>
+                        </div>
+                        <ul class="user-list" v-show="users.length">
+                            <li class="user" v-for="(item, index) in users" :key="index"> 
+                            <img class="user-avatarTUrl" :src="item.avatarTUrl">
+                            <div class="user-info">
+                                <p class="user-name">{{ item.displayName }}</p>
+                            </div>
+                            <input type="checkBox" class="user-checkBox" :checked="item.checkState"
+                            @click="userCheckBoxClicked(item.id)">
+                            
+                            </li>
+                        </ul>
+                    </el-main>
+                </el-container>
+                <!-- <el-menu mode="vertical" v-show="!showBreadCrumbs">
                     <el-submenu index="organization-item" >
                         <template slot="title"><i class="el-icon-menu"></i> 组织架构</template>
                         <el-menu-item-group>
@@ -51,19 +132,26 @@
                             </li>
                         </ul>
                     </el-main>
-                </el-container>
+                </el-container> -->
             </el-aside>
             <el-main>
                 <el-header>
-
+                    <div>已选{{ selectedUsers.length }}人
+                    </div>
                 </el-header>
                 <el-main>
-                    <ul class="selected-list">
-                            <li v-for="(item, index) in selectedUsers" 
-                            @click="selectedUserMenuItemClicked(item.id, item.displayName)" :key="index"> 
-                            {{ item.displayName }}
+                    <ul class="user-list" v-show="selectedUsers.length">
+                            <li class="select-user" v-for="(item, index) in selectedUsers" :key="index"> 
+                            <img class="user-avatarTUrl" :src="item.avatarTUrl">
+                            <div class="user-info">
+                                <p class="user-name">{{ item.displayName }}</p>
+                            </div>
+                            <div class="item-arrow">
+                                <img class="close-icon" src="../../../static/Image/close_icon@2x.png" 
+                                    @click="selectedUserMenuItemClicked(item.id, item.displayName)" :key="index">
+                            </div>
                             </li>
-                        </ul>
+                    </ul>
                 </el-main>
             </el-main>
         </el-container>
@@ -84,6 +172,14 @@ export default {
             allUsers: [],
             users: [],
             departments: [],
+            showOrganizationMenuItem: false,
+            showRecentUsersMenuItem: false,
+        }
+    },
+    props: {
+        disableUsers: {
+            type: Array,
+            default: []
         }
     },
     watch: {
@@ -119,7 +215,6 @@ export default {
     methods: {
         userCheckBoxClicked(id) {
             console.log("clicked");
-            
             for (var i = 0; i < this.allUsers.length; i ++) {
                 var user = this.allUsers[i];
                 
@@ -210,6 +305,7 @@ export default {
             }
         },
         currentDepartmentSelectAllClicked() {
+            var temp = true;
             if (!this.currentDepartmentSelectAll){
                 for (let i = 0; i < this.users.length; i++) {
                     const element = this.users[i];
@@ -247,6 +343,13 @@ export default {
                     }
                 }
             }
+            return temp;
+        },
+        organizationMenuItemClicked() {
+            this.showOrganizationMenuItem = !this.showOrganizationMenuItem;
+        },
+        recentUsersMenuItemClicked() {
+            this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
         }
     },
     created () {
@@ -275,6 +378,14 @@ export default {
                 console.log(_this.allUsers);
                 for (var i = 0; i < _this.allUsers.length; i ++) {
                     var user = _this.allUsers[i];
+                    // if (this.disableUsers){
+                    //     if (this.disableUsers.indexOf(user) != -1){
+                    //         user.disabled = true;
+                    //     }else {
+                    //         user.disabled = false;
+                    //     }
+                    // }
+                    
                     user.checkState = false;
                     _this.allUsers[i] = user;
                 }
@@ -305,44 +416,255 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+/*隐藏滚轮*/
+display: none;
+}
+.el-aside{
+    width: 300px;
+    
+    border-right: 1px solid rgb(221, 221, 221);
+}
+.aside-header {
+    padding: 0px;
+    border-bottom: 1px solid rgb(221, 221, 221);
+}
+.el-main {
+    padding: 0px;
+}
+.el-breadcrumb {
+        display: block;
+        margin-left: 16px;
+        padding-top: 20px;
+        font-size: 14px;
+        line-height: 20px;
+        padding-left: 0px;
+}
+.list-content {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+    
+}
+
+.item {
+    height: 60px;
+    cursor: pointer;
+}
+
+.item.active {
+    height: 60px;
+    background-color: rgb(101, 115, 128);
+}
+.item-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-block;
+    margin-left: 16px;
+    margin-top: 12px;
+    margin-right: 0px;
+    margin-bottom: 12px;
+}
+.item-info {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 92px);
+}
+.item-title {
+    text-align: left;
+    height: 40%;
+    width: 70%;
+    margin-top: 20px;
+    margin-left: 12px;
+    font-size: 14px;
+    line-height: 20px;
+}
+.item-arrow {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: 20px;
+}
+.right-arrow {
+    margin-left: 5px;
+    margin-top: 25px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    width: 7px;
+    height: 13px;
+}
+.close-icon {
+    margin-left: 6.5px;
+    margin-top: 25.5px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    width: 10px;
+    height: 10px;
+}
+// .down-arrow {
+//     margin-left: 6.5px;
+//     margin-top: 25.5px;
+//     margin-right: 0px;
+//     margin-bottom: 0px;
+//     width: 7px;
+//     height: 13px;
+// }
+.organization-check-view {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+    
+}
+.department-list {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+    border-bottom: 1px solid rgb(221, 221, 221);
+    cursor: pointer;
+}
+.users-list-header {
+    height: 52px;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    border-bottom: 1px solid rgb(221, 221, 221);
+}
+.checkBox-all{
+    display: inline-block;
+    margin-left: 16px;
+}
+.checkBox-label {
+    display: inline-block;
+    margin-left: 153px;
+    color: rgb(153, 153, 153);
+    font-size: 14px;
+    text-align: right;
+    line-height: 20px;
+}
+.user-list {
+    width: 100%;
+    height: 100%;
+    padding-left: 0px;
+    margin: 0px;
+    list-style: none;
+    cursor: pointer;
+}
+.user {
+    height: 60px;
+    border-bottom: 1px solid rgb(221, 221, 221);
+}
+.select-user {
+    height: 60px;
+}
+.user-avatarTUrl{
+    width: 36px;
+    height: 36px;
+    display: inline-block;
+    margin-left: 16px;
+    margin-top: 12px;
+    margin-right: 0px;
+    margin-bottom: 12px;
+    border-radius: 3.6px;
+}
+.user-info {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: 205px;
+}
+.user-name {
+    margin-top: 20px;
+    margin-left: 12px;
+    font-size: 14px;
+    line-height: 20px;
+}
+.user-checkBox {
+    display: inline-block;
+    vertical-align: top;
+    width: 20px;
+    height: 20px;
+    margin-left: 0px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.organization-menu-list {
+    width: 100%;
+    height: 100%;
+    padding-left: 0px;
+    margin: 0px;
+    list-style: none;
+    cursor: pointer;
+    //border-top: 1px solid rgb(221, 221, 221);
+}
+
+.department {
+    height: 60px;
+}
+.department-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-block;
+    margin-left: 36px;
+    margin-top: 12px;
+    margin-right: 0px;
+    margin-bottom: 12px;
+    border-radius: 3.6px;
+}
+.department-info {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 117px);
+}
+.department-name {
+    text-align: left;
+    height: 40%;
+    width: 70%;
+    margin-top: 21px;
+    margin-left: 16px;
+    font-size: 14px;
+    line-height: 22px;
+}
 .topContainer {
     height: 200px;
     width: auto;
 }
-.el-aside {
-    width: auto;
-}
-.el-menu {
-    width: auto;
-}
-ul {
-    list-style: none;
-    line-height: 30px;
-    margin: 0;
-    padding-left: 0px;
-    font-size: 12px;
-    font-family: sans-serif;
-    .titleLi {
-        margin-left: -25px;
-        font-size: 12px;
-        color: darkgray;
-        &:hover{
-            background-color: white;
-        }
-    }
-    li {
-        white-space: nowrap;
-        overflow: hidden;
-        padding-left: 20px;
-        span {
-            margin-left: 10px;
-            cursor: default;
-        }
-        &:hover {
-        background-color: #e3e3e3;
-        }
-    }
-}
+
+// ul {
+//     list-style: none;
+//     line-height: 30px;
+//     margin: 0;
+//     padding-left: 0px;
+//     font-size: 12px;
+//     font-family: sans-serif;
+//     .titleLi {
+//         margin-left: -25px;
+//         font-size: 12px;
+//         color: darkgray;
+//         &:hover{
+//             background-color: white;
+//         }
+//     }
+//     li {
+//         white-space: nowrap;
+//         overflow: hidden;
+//         padding-left: 20px;
+//         span {
+//             margin-left: 10px;
+//             cursor: default;
+//         }
+//         &:hover {
+//         background-color: #e3e3e3;
+//         }
+//     }
+// }
 .avatarTUrl {
         width:40px;
         height: 40px;

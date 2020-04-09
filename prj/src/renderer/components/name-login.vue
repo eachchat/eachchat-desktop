@@ -28,7 +28,7 @@
 
 <script>
 import {ServerApi} from '../server/serverapi.js'
-
+import {services} from '../../packages/data/index.js'
 export default {
     name: 'login',
     data () {
@@ -45,52 +45,63 @@ export default {
         clickUser () {
             location.reload()
         },
-        login: async function() {
-            let response = await this.serverapi.Login(this.username, this.password)
+        login:async function() {
+            let config = {
+                hostname: "139.198.15.253",
+                apiPort: 8888,
+                username: this.username,
+                password: this.password
+            };
+            services.common.init(config);
+            
+            let loginModel = services.common.GetLoginModel;
+            console.log(loginModel);
+            let response = await services.common.login();
             console.log(response)
-            var ret_data = response.data
-            var msg = ret_data["message"]
-            var code = ret_data["code"]
-            if(response.status != 200)
-            {
-                console.log("response.status != 200")
-                this.loginState = msg
-                return
+            var ret_data = response;
+            if(response){
+                var msg = ret_data["message"];
+                var code = ret_data["code"];
+                if(code != 200)
+                    {
+                    console.log("code != 200")
+                    this.loginState = msg
+                    return
+                }
             }
-            if(code != 200)
-            {
-                console.log("code != 200")
-                this.loginState = msg
-                return
-            }
-            var tmpheader = response.headers
-            var accesstoken = tmpheader['access-token']
-            var refreshtoken = tmpheader['refresh-token']
-
-            this.$store.commit("setRefreshToken", refreshtoken)
-            this.$store.commit("setAccessToken", accesstoken)
-            this.$store.commit("setUserAccount", this.username)
-            this.$store.commit("setUserInfo", response.data.obj);
-
-            console.log(this.$store.state.accesstoken)
-        
-            if(accesstoken.length == 0)
-            {
-                console.log("accesstoken.length == 0")
-                this.loginState = "登录失败"
-                return
-            }
-
+            
             this.loginState = "登录成功"
-            this.serverapi.ListGroup(0, 10)
-                    .then((response) => {
-                    console.log(response)
-                    var ret_data = response.data
-                    var ret_list = ret_data.results
-                    this.$store.commit("setChatGroup", ret_list)
-                    })
+            await services.common.listAllGroup();
+            console.log(services.common.GetAllGroups);
             const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('showMainPageWindow')
+            ipcRenderer.send('showMainPageWindow');
+            // var tmpheader = response.headers
+            // var accesstoken = tmpheader['access-token']
+            // var refreshtoken = tmpheader['refresh-token']
+
+            // this.$store.commit("setRefreshToken", refreshtoken)
+            // this.$store.commit("setAccessToken", accesstoken)
+            // this.$store.commit("setUserAccount", this.username)
+            // this.$store.commit("setUserInfo", response.data.obj);
+
+            // console.log(this.$store.state.accesstoken)
+        
+            // if(accesstoken.length == 0)
+            // {
+            //     console.log("accesstoken.length == 0")
+            //     this.loginState = "登录失败"
+            //     return
+            // }
+
+            
+            // this.serverapi.ListGroup(0, 10)
+            //         .then((response) => {
+            //         console.log(response)
+            //         var ret_data = response.data
+            //         var ret_list = ret_data.results
+            //         this.$store.commit("setChatGroup", ret_list)
+            //         })
+            
         }
     },
     created: function () {

@@ -1,8 +1,8 @@
 <template>
-    <div class="drawer">
+    <div class="drawer" v-if="display">
         <div v-if="mask" class="mask"></div>
         <div :class="maskClass" @click="closeByMask()"></div>
-        <div :class="mainClass" :style="mainStyle" class="main">
+        <div :class="mainClass" :style="mainStyle" class="main" >
             
             <slot/>
             
@@ -101,6 +101,7 @@ export default {
 <style lang="scss" scoped>
 
 .drawer {
+    height: 100%;
   /* 遮罩 */
 .mask-show {
     position: fixed;
@@ -109,7 +110,7 @@ export default {
     width: 100%;
     height: 100%;
     z-index: 10;
-    //background-color: rgba(221,0,0,.5);
+    background-color: rgba(221,0,0,.5);
     opacity: 1;
     transition: opacity .5s;
 }

@@ -14,45 +14,47 @@
         </div>
         <div class="userState-view">
             <ul class="userState-list">
-                <li class="userState">
-                    <p>状态</p>
-                    <p>{{ userInfo.statusDescription }}</p>
+                <li>
+                    <p class="userInfo-key">状态</p>
+                    <p class="userInfo-value">{{ userInfo.statusDescription }}</p>
                 </li>
                 <li>
-                    <p>工作计划</p>
-                    <p>{{ userInfo.workDescription }}</p>
+                    <p class="userInfo-key">工作计划</p>
+                    <p class="userInfo-value">{{ userInfo.workDescription }}</p>
                 </li>
             </ul>
         </div>
         <div class="userOrganizationInfo-view">
             <div class="userOrganization-header">
+                组织信息
             </div>
             <ul class="userOrganization-list">
                 <li>
-                    <p>汇报关系</p>
-                    <p>查看</p>
+                    <p class="userInfo-key">汇报关系</p>
+                    <p class="userInfo-value">查看</p>
                 </li>
                 <li>
-                    <p>所属部门</p>
-                    <p>{{ userInfo.department.displayName }}</p>
+                    <p class="userInfo-key">所属部门</p>
+                    <p class="userInfo-value">{{ userInfo.department.displayName }}</p>
                 </li>
             </ul>
         </div>
         <div class="userContact-view">
             <div class="userContact-header">
+                联系信息
             </div>
             <ul class="userContact-list">
                 <li>
-                    <p>手机号</p>
-                    <p>{{ userInfo.phoneNumbers[0].value }}</p>
+                    <p class="userInfo-key">手机号</p>
+                    <p class="userInfo-value">{{ userInfo.phoneNumbers[0].value }}</p>
                 </li>
                 <li>
-                    <p>固话</p>
-                    <p>{{ userInfo.phoneNumbers[1].value }}</p>
+                    <p class="userInfo-key">固话</p>
+                    <p class="userInfo-value">{{ userInfo.phoneNumbers[1].value }}</p>
                 </li>
                 <li>
-                    <p>电子邮箱</p>
-                    <p>{{ userInfo.emails[0].value }}</p>
+                    <p class="userInfo-key">电子邮箱</p>
+                    <p class="userInfo-value">{{ userInfo.emails[0].value }}</p>
                 </li>
             </ul>
         </div>
@@ -69,7 +71,7 @@ export default {
     props: {
         "userInfo": {
             type:Object,
-            default:[]
+            default:{}
         }
     },
     methods: {
@@ -87,7 +89,7 @@ export default {
         }
     },
     created () {
-
+        console.log(this.userInfo);
     }
 }
 </script>
@@ -131,7 +133,7 @@ export default {
     margin-left: 16px;
     font-size: 12px;
     line-height: 18px;
-
+    color: rgb(153, 153, 153);
 }
 .userAction-view {
     height: 54px;
@@ -140,6 +142,7 @@ export default {
     display: inline-block;
     vertical-align: top;
     border-bottom: 1px solid rgb(221, 221, 221);
+    margin-bottom: 8px;
 }
 .userAudioIcon {
     height: 28px;
@@ -159,20 +162,52 @@ export default {
     margin-top: 13px;
     margin-left: 14px;
 }
-.ul{
-    list-style: none;
-}
-.userState-view {
 
+.userState-view {
+    width: 100%;
+    margin-bottom: 10px;
 }
 .userState-list {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
 
 }
-.userState {
+.userOrganization-list {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
 
+}
+.userContact-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.li {
+    height: 34px;
+    line-height: 34px;
+    width: 100%;
+}
+.userInfo-key {
+    display:inline-block;
+    line-height: 18px;
+    width: 48px;
+    font-size: 12px;
+    color: rgb(153, 153, 153);
+}
+.userInfo-value {
+    display:inline-block;
+    line-height: 18px;
+    width: calc(100% - 78px);
+    font-size: 12px;
+    
 }
 .userOrganizationInfo-view {
-
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 
