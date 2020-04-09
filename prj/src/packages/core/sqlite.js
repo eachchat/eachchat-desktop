@@ -7,24 +7,6 @@
 import initSqlJs from 'sql.js';
 import fs from 'fs';
 
-// const mapping = {};
-
-// mapping[integer] = {
-//   type: "integer"
-// };
-
-// mapping[float] = {
-//   type: "real"
-// };
-
-// mapping[string] = {
-//   type: "text"
-// };
-
-// mapping[date] = {
-//   type: "integer"
-// };
-
 class Sqlite {
   constructor(filename) {
     this.db = undefined;
@@ -150,61 +132,54 @@ class Sql {
     this._hasWhere = false;
   }
 
-  create(table, fields, primaryKeys, autoincrements) {
+  create(table, fields, primaryKeys) {
     this._sql = "create table " + table + " ";
     var sqlFields = [];
 
-    if (!fields instanceof Object) {
+    if (typeof fields != "object") {
       return this;
     }
 
-    if (primaryKeys instanceof String) {
+    if (typeof primaryKeys == "string") {
       primaryKeys = [primaryKeys];
 
     } else if (typeof primaryKeys === "undefined") {
       primaryKeys = [];
     }
 
-    if (autoincrements instanceof String) {
-      autoincrements = [autoincrements];
-
-    } else if (typeof autoincrements === "undefined") {
-      autoincrements = [];
-    }
-
-    if (!primaryKeys instanceof Array) {
-      return this;
-    }
-
-    if (!autoincrements instanceof Array) {
+    if (!(primaryKeys instanceof Array)) {
+      console.log(2);
       return this;
     }
 
     for (var field in fields) {
-      if (!fields[field] instanceof Object) {
+      if (typeof fields[field] != "object") {
+        console.log(3);
         continue;
       }
 
-      if (!fields[field].hasOwnProperty("type")) {
+      if (!("type" in fields[field])) {
+        console.log(4);
         continue;
       }
 
       var type = fields[field].type;
       var sqlField = field + " " + type;
 
-      if (primaryKeys.includes(field)) {
-        sqlField += " primary key";
-      }
-
-      if (autoincrements.includes(field)) {
-        sqlField += " autoincrement";
-      }
-
       sqlFields.push(sqlField);
     }
 
     if (sqlFields.length == 0) {
+      console.log(5);
       return this;
+    }
+
+    if (primaryKeys.length > 0) {
+      var primarySql = "primary key(";
+      primarySql += primaryKeys.join(", ");
+      primarySql += ")";
+
+      sqlFields.push(primarySql);
     }
 
     this._sql += "(";
@@ -251,6 +226,13 @@ class Sql {
         return;
       }
 
+      if (item[2] instanceof Array) {
+        item[2] = "(" + item[2].join(", ") + ")";
+
+      } else if (typeof item[2] == "string") {
+        item[2] = "'" + item[2] + "'";
+      }
+
       sqlWheres.push(item.join(" "));
     });
 
@@ -290,6 +272,13 @@ class Sql {
 
       if (item.length != 3) {
         return;
+      }
+
+      if (item[2] instanceof Array) {
+        item[2] = "(" + item[2].join(", ") + ")";
+
+      } else if (typeof item[2] == "string") {
+        item[2] = "'" + item[2] + "'";
       }
 
       sqlWheres.push(item.join(" "));
@@ -366,20 +355,29 @@ class Sql {
 
   limit(offset, size) {
     this._sql += " limit " + String(offset) + ", " + String(size);
+    return this;
   }
 
   asc() {
     this._sql += " asc ";
+    return this;
   }
 
   desc() {
     this._sql += " desc ";
+    return this;
   }
 
   schema(table) {
     this._sql = "PRAGMA table_info([";
     this._sql += table;
     this._sql += "])";
+    return this;
+  }
+
+  lastInsert() {
+    this._sql = "select last_insert_rowid();";
+    return this;
   }
 }
 

@@ -139,7 +139,6 @@ const common = {
                                       clientId: data.selfuser.userid + '|1111111111111111111'});
       */
     })(this.api, this.config, this.data, servicemodels.LoginModel);
-    
   },
 
   initmqtt(){

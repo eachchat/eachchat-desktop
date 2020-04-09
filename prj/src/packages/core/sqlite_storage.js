@@ -4,8 +4,40 @@
  * @date 2020/03/27
  */
 
-import { Storage } from './storage.js'
-import { Sqlite, Sql } from './sqlite.js'
+import {serial,
+        bool,
+        integer,
+        string,
+        float,
+        date} from './types.js';
+import { Storage } from './storage.js';
+import { Sqlite, Sql } from './sqlite.js';
+
+var fieldTypes = {
+  [serial]: {
+    type: "integer"
+  },
+
+  [integer]: {
+    type: "integer"
+  },
+
+  [bool]: {
+    type: "integer"
+  },
+
+  [float]: {
+    type: "real"
+  },
+
+  [string]: {
+    type: "text"
+  },
+
+  [date]: {
+    type: "integer"
+  }
+};
 
 class SQLiteStorage extends Storage {
   constructor(config) {
@@ -22,12 +54,12 @@ class SQLiteStorage extends Storage {
   }
 
   async getDatabase() {
-    await this.database.init();
+    await this.connect();
     return this.database;
   }
 
   async connect() {
-    getDatabase();
+    await this.database.init();
   }
 
   async disconnect() {
@@ -155,7 +187,9 @@ class SQLiteStorage extends Storage {
   }
 
   checkTable(database, index) {
-    var schema = database.schema(index);
+    var sql = new Sql();
+    sql.schema(index);
+    var schema = database.exec(sql);
 
     if (schema.length > 0) {
       return true;
@@ -165,9 +199,11 @@ class SQLiteStorage extends Storage {
   }
 
   getPrimaryKeys(database, index) {
-    var schema = database.schema(index);
+    var sql = new Sql();
+    sql.schema(index);
+    var schema = database.exec(sql);
 
-    if (schema.length < 0) {
+    if (schema.length == 0) {
       return [];
     }
 
@@ -178,6 +214,8 @@ class SQLiteStorage extends Storage {
     var values = schema[0].values;
     var primaryKeys = [];
 
+    console.log(values);
+
     for (var i = 0; i < values.length; i++) {
       var value = values[i];
 
@@ -185,12 +223,35 @@ class SQLiteStorage extends Storage {
         continue;
       }
 
-      if (value[5] == 1) {
-        primaryKeys.push(values[1]);
+      if (value[5] > 0) {
+        primaryKeys.push(value[1]);
       }
     }
 
     return primaryKeys;
+  }
+
+  async registerFields(index, fields, primaryKeys) {
+    var database = await this.getDatabase();
+
+    if (this.checkTable(database, index)) {
+      return;
+    }
+
+    var sql = new Sql();
+    var tableFields = {};
+
+    for (var name in fields) {
+      var field = fields[name];
+
+      if (field in fieldTypes) {
+        tableFields[name] = fieldTypes[field];
+      }
+    }
+
+    sql.create(index, tableFields, primaryKeys);
+    database.exec(sql);
+    database.dump();
   }
 
   async fetch(index, search) {
@@ -200,11 +261,58 @@ class SQLiteStorage extends Storage {
     sql.select(index);
     this.appendSearch(sql, search);
 
+    console.log(index, search);
+
+    console.log(sql);
+
     var result = database.exec(sql);
 
     this.sql = sql;
 
     return this.resultToList(result);
+  }
+
+  _getLastInsert(database, index) {
+    var sql = new Sql();
+    sql = sql.lastInsert();
+    var result = database.exec(sql);
+    var lastInsert = {};
+
+    if (!(result instanceof Array)
+      || result.length == 0) {
+      return lastInsert;
+    }
+
+    result = result[0];
+
+    if (!("values" in result)) {
+      return lastInsert;
+    }
+
+    result = result.values;
+
+    if (!(result instanceof Array)
+      || result.length == 0) {
+      return lastInsert;
+    }
+
+    result = result[0];
+
+    if (!(result instanceof Array)
+      || result.length == 0) {
+      return lastInsert;
+    }
+
+    var rowId = result[0];
+
+    sql = sql.select(index);
+
+    this.appendSearch(sql, {
+      $offset: rowId - 1,
+      $size: 1
+    });
+
+    return database.exec(sql);
   }
 
   async add(index, data) {
@@ -213,10 +321,26 @@ class SQLiteStorage extends Storage {
 
     sql.insert(index, data);
 
+    this.sql = sql;
+
     var result = database.exec(sql);
+
+    if (typeof result == "undefined") {
+      return result;
+    }
+
+    result = this._getLastInsert(database, index);
+
     database.dump();
 
-    this.sql = sql;
+    result = this.resultToList(result);
+
+    if (result.length > 0) {
+      result = result[0];
+
+    } else {
+      result = undefined;
+    }
 
     return result;
   }
@@ -236,7 +360,7 @@ class SQLiteStorage extends Storage {
     }
 
     sql.update(index, data);
-    this.appendSearch(sql, search);
+    this.appendSearch(sql, primaryValues);
 
     var result = database.exec(sql);
     database.dump();
@@ -261,7 +385,7 @@ class SQLiteStorage extends Storage {
     }
 
     sql.delete(index);
-    this.appendSearch(sql, search);
+    this.appendSearch(sql, primaryValues);
 
     var result = database.exec(sql);
     database.dump();
@@ -269,6 +393,17 @@ class SQLiteStorage extends Storage {
     this.sql = sql;
 
     return result;
+  }
+
+  async exec(sql) {
+    var database = await this.getDatabase();
+
+    try {
+      return database.exec(sql);
+
+    } catch (e) {
+      return e;
+    }
   }
 }
 
