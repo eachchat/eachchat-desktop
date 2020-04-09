@@ -18,7 +18,8 @@ const commonData = {
   useraddress: undefined,
   userphone: undefined,
   userim: undefined,
-  group: undefined
+  group: undefined,
+  historymessage: []
 }; // model in here
 
 const common = {
@@ -94,6 +95,10 @@ const common = {
 
   get GetAllUserIm(){
     return this.data.userim;
+  },
+
+  get GetHistoryMessages(){
+    return this.data.historymessage;
   },
 
   init(config) {
@@ -351,8 +356,31 @@ const common = {
     
   },
 
-  async historyMessage(groupId, sequenceId) {
-    return await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+  async historyMessage(groupId, sequenceId) { 
+    let result;
+    let resultvalues;
+    let next = false;
+    let message;
+    let messagemodel;
+    do{
+      result =  await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+      if (!result.ok || !result.success) {
+        return undefined;
+      }
+  
+      if (!("results" in result.data)) {
+        return undefined;
+      }
+      resultvalues = result.data.results
+      next = result.data.hasNext
+
+      for(let item in resultvalues)
+      {
+        message = resultvalues[item]
+        messagemodel = servicemodels.MessageModel(message)
+        this.data.historymessage.push(messagemodel)
+      }
+    }while(next)    
   },
 
   async sendNewMessage(messageID, 

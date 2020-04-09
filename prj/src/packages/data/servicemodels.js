@@ -348,6 +348,49 @@ const servicemodels = {
         return false
       }
       return true
+    },
+
+    MessageModel(message)
+    {
+      var messgevalue = {
+        message_id:         undefined,
+        time_line_id:       undefined,
+        group_id:           undefined,
+        message_type:       undefined,
+        message_direction:  1,
+        message_status:     undefined,
+        message_from_id:    undefined,
+        sequence_id:        undefined,
+        message_timestamp:  undefined,
+        message_content:    undefined,
+        message_to_id:      undefined,
+        file_local_path:    undefined
+      }
+
+      var messagemap = {
+        "mesId": "message_id",
+        "timelineId": "time_line_id",
+        "groupId": "group_id",
+        "msgContentType": "message_type",
+        "fromId": "message_from_id",
+        "sequenceId": "sequence_id",
+        "timestamp": "message_timestamp",
+        "content": "message_content",
+        "msgId": "message_to_id"
+      }
+
+      for(let key in messagemap)
+      {
+        if(key == "content")
+        {
+          messgevalue[messagemap[key]] = JSON.stringify(message[key])  
+        }
+        else
+        {
+          messgevalue[messagemap[key]] = message[key]
+        }
+      }
+      return new models.Message(messgevalue)
     }
 }
 
