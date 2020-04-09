@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import {ServerApi} from '../server/serverapi.js'
+import {APITransaction} from '../../packages/data/transaction.js'
 import ChatPage from './chat.vue'
 import listHeader from './listheader'
 import chatHeader from './chatheader'
@@ -207,7 +207,7 @@ export default {
       this.curindex = index;
     },
     getGroupList: function() {
-      this.serverapi.ListAllGroup()
+      this.serverapi.listAllGroup(this.$store.state.accesstoken)
           .then((response) => {
               //console.log(response)
               var ret_data = response.data;
@@ -220,7 +220,7 @@ export default {
   },
   created: function() {
     console.log("chat content created");
-    this.serverapi = new ServerApi('http', '139.198.15.253');
+    this.serverapi = new APITransaction('139.198.15.253', 8888)
     this.serverapi.m_accesstoken = this.$store.state.accesstoken;
     this.getGroupList();
     this.$nextTick(() => {
