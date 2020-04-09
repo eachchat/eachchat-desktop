@@ -372,6 +372,11 @@ const common = {
                                   content)
   },
 
+  async ReveiveNewMessage(sequenceId, notificationId)
+  {
+    return await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId)
+  },
+
   async uploadFile(filepath) {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
