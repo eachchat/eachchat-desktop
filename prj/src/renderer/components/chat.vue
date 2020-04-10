@@ -66,7 +66,7 @@ import * as Quill from 'quill'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import Faces from './faces.vue';
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal} from '../server/Utils.js'
+import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath} from '../server/Utils.js'
 import imessage from './message.vue'
 
 const InlineBlot = Quill.import('blots/block/embed')
@@ -120,7 +120,6 @@ export default {
                 for(var i=0;i<fileList.length;i++) {
                     if(this.waitForSendingFiles.indexOf(fileList[i] != -1)) {
                         var range = this.editor.getSelection();
-                        console.log("Insert Image range is ", range);
                         var reader = new FileReader();
                         var curPath = fileList[i].path;
                         var curIndex = range==null ? 0 : range.index;
@@ -129,18 +128,18 @@ export default {
                             // Image
                             reader.readAsDataURL(fileList[i]);
                             reader.onloadend = () => {
-                                // this.editor.insertEmbed(curIndex, "image", reader.result);
                                 this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "image"})
                                 this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                             }
                         }
                         else {
                             // File
-                            var showfu = new FileUtil('D:\\workgit\\YiQiLiao-Desktop\\prj\\static\\Img\\Chat\\pdf@3x.png');
+                            var fileExt = fileTypeFromMIME(fileType);
+                            var iconPath = getIconPath(fileExt);
+                            var showfu = new FileUtil(iconPath);
                             let showfileObj = showfu.GetUploadfileobj();
                             reader.readAsDataURL(showfileObj);
                             reader.onloadend = () => {
-                                // this.editor.insertEmbed(curIndex, "image", reader.result);
                                 this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "file"})
                                 this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                             }
@@ -299,19 +298,19 @@ export default {
                             let picUrl = curMsgItem.fileBlot.src;
                             let filePath = curMsgItem.fileBlot.local_path;
                             let ext = filePath.split(".").pop();
-                            let willSendMsgContent = {
+                            let willShowMsgContent = {
                                 "ext":ext,
                                 "fileName":'',
                                 "url":"",
                                 "middleImage":"",
-                                "thumbnailImage": picUrl,
+                                "thumbnailImage": filePath,
                                 "imgWidth": "",
                                 "imgHeight": "",
                                 "fileSize": ""
                             }
                             var guid = generalGuid();
                             let willSendMsg = {
-                                "content": willSendMsgContent,
+                                "content": willShowMsgContent,
                                 "fromId": this.$store.state.userInfo.id,
                                 "groupId": this.chat.group.groupId,
                                 "timestamp": curTimeSeconds,
@@ -327,6 +326,7 @@ export default {
                                     // ToDo Failed List
                                     console.log("UploadFile response ", ret);
                                     var uploadRetData = ret.data.obj;
+                                    let willSendMsgContent = {};
                                     willSendMsgContent.ext = uploadRetData.ext;
                                     willSendMsgContent.fileName = uploadRetData.fileName;
                                     willSendMsgContent.url = uploadRetData.url;
@@ -386,7 +386,7 @@ export default {
                             let picUrl = curMsgItem.fileBlot.src;
                             let filePath = curMsgItem.fileBlot.local_path;
                             let ext = filePath.split(".").pop();
-                            let willSendMsgContent = {
+                            let willShowMsgContent = {
                                 "ext":ext,
                                 "fileName":'',
                                 "url":"",
@@ -394,7 +394,7 @@ export default {
                             }
                             let guid = generalGuid();
                             let willSendMsg = {
-                                "content": willSendMsgContent,
+                                "content": willShowMsgContent,
                                 "fromId": this.$store.state.userInfo.id,
                                 "groupId": this.chat.group.groupId,
                                 "timestamp": curTimeSeconds,
@@ -410,6 +410,7 @@ export default {
                                     // ToDo Failed List
                                     console.log("UploadFile response ", ret);
                                     var uploadRetData = ret.data.obj;
+                                    let willSendMsgContent = {};
                                     willSendMsgContent.ext = uploadRetData.ext;
                                     willSendMsgContent.fileName = uploadRetData.fileName;
                                     willSendMsgContent.url = uploadRetData.url;

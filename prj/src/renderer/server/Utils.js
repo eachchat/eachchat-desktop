@@ -579,6 +579,12 @@ class FileUtil
     }
 }
 
+function fileTypeFromMIME(mimeName){
+    var ext = "";
+    ext = findKey(mimestruct, mimeName);
+    return ext;
+}
+
 const faceUtils = {
     alt: [
       '[微笑]',
@@ -980,6 +986,6 @@ class ConfService {
     }
 }
 const confservice = new ConfService();
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, transform};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, transform, fileTypeFromMIME};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

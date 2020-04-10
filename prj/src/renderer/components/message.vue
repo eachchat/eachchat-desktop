@@ -143,6 +143,7 @@ export default {
             if(this.msg === null) {
                 return '';
             }
+            this.messageContent = '';
             let chatGroupMsgType = this.msg.msgContentType;
             let chatGroupMsgContent = this.msg.content;
             if(chatGroupMsgType === 101)
@@ -151,8 +152,22 @@ export default {
             }
             else if(chatGroupMsgType === 102)
             {
-                // var sldn = this.$store.getters.getImgMessageThumbLocalPath(this.msg);
-                if(this.msg.thumb_local_path == undefined){
+                if(fs.existsSync(chatGroupMsgContent.thumbnailImage)){
+                    //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+                    var thumb_local_path = chatGroupMsgContent.thumbnailImage;
+                    var showfu = new FileUtil(thumb_local_path);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        let imageHeight = 100;
+                        if(chatGroupMsgContent.imgHeight < 100){
+                            imageHeight = chatGroupMsgContent.imgHeight;
+                        }
+                        this.messageContent = '<p><img src=' + reader.result + ' align=left height=' + imageHeight + '></img><span>' + this.msg.content.fileName + '</span></p>'
+                    }
+                }
+                else{
                     this.serverapi.downloadTumbnail(this.$store.state.accesstoken, "T", this.msg.timelineId)
                         .then((ret) => {
                             let reader = new FileReader();
@@ -166,20 +181,6 @@ export default {
                                 // this.saveThumbImage(chatGroupMsgContent.fileName, reader.result);
                             }
                         })
-                }
-                else{
-                    var thumb_local_path = this.msg.thumb_local_path;
-                    var showfu = new FileUtil(thumb_local_path);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.messageContent = '<p><img src=' + reader.result + ' align=left height=' + imageHeight + '></img><span>' + this.msg.content.fileName + '</span></p>'
-                    }
                 }
             }
             else if(chatGroupMsgType === 103)
@@ -308,8 +309,6 @@ export default {
                 placeholder: "",
                 theme:'bubble',
             },
-            mineRefresh: true,
-            otherRefresh: true,
         }
     },
     mounted: function() {
@@ -320,11 +319,13 @@ export default {
                     if(this.msgContentMine == null) {
                         this.msgContentMine = this.$refs.msgQuillEditorMine.quill;
                     }
+                    this.MsgContent(true);
                 }
                 else {
                     if(this.msgContentOthers == null) {
                         this.msgContentOthers = this.$refs.msgQuillEditorOthers.quill;
                     }
+                    this.MsgContent(true);
                 }
             })
         }, 0)
@@ -336,21 +337,7 @@ export default {
     },
     watch: {
         msg: function() {
-            if(this.MsgIsMine()) {
-                this.mineRefresh = false;
-                this.otherRefresh = true;
-            }
-            else{
-                this.otherRefresh = false;
-                this.mineRefresh = true;
-            }
             this.$nextTick(() => {
-                if(this.MsgIsMine()) {
-                    this.mineRefresh = true;
-                }
-                else{
-                    this.otherRefresh = true;
-                }
                 setTimeout(() => {
                     this.$nextTick(() => {
                         if(this.MsgIsMine()) {
