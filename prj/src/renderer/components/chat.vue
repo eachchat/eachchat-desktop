@@ -736,10 +736,10 @@ export default {
                 for(var i=0;i<messageListTmp.length;i++){
                     this.messageList.unshift(messageListTmp[i]);
                 }
-                console.log("messagelist tmp is ", messageListTmp)
                 if(messageListTmp.length !=0){
                     if(messageListTmp[0].sequenceId != this.chat.message.sequenceId){
                         this.messageList.push(this.chat.message);
+                        console.log("Push Last Msg")
                     }
                 }
                 else{
@@ -763,20 +763,23 @@ export default {
                         for(var i=0;i<theList.length;i++) {
                             theList[i]["SendSuccess"] = true;
                         }
+
+                        if(theList.length !=0){
+                            if(theList[0].sequenceId != this.chat.message.sequenceId){
+                                theList.unshift(this.chat.message);
+                                console.log("unshift Last Msg")
+                            }
+                        }
+                        else{
+                            theList.unshift(this.chat.message);
+                        }
+
                         this.$store.commit("setMessageLists", theList, false);
 
                         var messageListTmp = this.$store.getters.getChatMsgHistory(this.chat.group.groupId);
                         this.messageList = [];
                         for(var i=0;i<messageListTmp.length;i++){
                             this.messageList.unshift(messageListTmp[i]);
-                        }
-                        if(messageListTmp.length !=0){
-                            if(messageListTmp[0].sequenceId != this.chat.message.sequenceId){
-                                this.messageList.push(this.chat.message);
-                            }
-                        }
-                        else{
-                            this.messageList.push(this.chat.message);
                         }
                     })
             }
