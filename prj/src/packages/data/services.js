@@ -1,6 +1,6 @@
 import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
-//const mqtt = require('mqtt')
+const mqtt = require('mqtt')
 
 const commonConfig = {
   hostname: undefined,
@@ -137,18 +137,18 @@ const common = {
       let retmodels = LoginModel(result);
       data.login = retmodels[0]
       data.selfuser = retmodels[1] 
-      /* 
-      this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
-                                      {username: 'client', 
-                                      password: 'yiqiliao',
-                                      clientId: data.selfuser.userid + '|1111111111111111111'});
-      */
+      
+      
     })(this.api, this.config, this.data, servicemodels.LoginModel);
     
   },
 
   initmqtt(){
-    /*
+    this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
+                                      {username: 'client', 
+                                      password: 'yiqiliao',
+                                      clientId: this.data.selfuser.userid + '|1111111111111111111'});
+      
     let mqttclient = this.mqttclient;
     let userid = this.data.selfuser.userid;
     mqttclient.on('connect', function(){
@@ -163,21 +163,20 @@ const common = {
             }
           })
     })
-    */
+    
   },
 
   closemqtt(){
-    //this.mqttclient.close()
+    this.mqttclient.close()
   },
 
   handlemessage(callback){
-    /*
     this.mqttclient.on('message', function(topic, message){
       console.log("mqtt message")
       console.log(topic)
       callback(message.toString())
     })
-    */
+    
   },
 
   async logout() {
