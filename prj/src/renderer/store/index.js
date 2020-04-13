@@ -14,11 +14,28 @@ export default new Vuex.Store({
     refreshtoken: "",
     accesstoken: "",
     userAccount: "",
+    userPwd:"",
     userInfo:{},
     usersInfo:[],
     messageLists:{},
+    uploadingList:[],
   },
   mutations: {
+    setUploadFile(state, filePaths) {
+      for(var i=0;i<filePaths.length;i++) {
+        if(state.uploadingList.indexOf(filePaths[i]) != -1) {
+          state.uploadingList.push(filePaths[i]);
+        }
+      }
+    },
+    removeUploadFile(state, filePaths) {
+      for(var i=0;i<filePaths.length;i++) {
+        var distIndex = state.uploadingList.indexOf(filePaths[i]);
+        if(distIndex != -1) {
+          state.uploadingList.splice(distIndex, 1);
+        }
+      }
+    },
     setChatGroup(state, chatGroupList) {
       function compare(){
         return function(a, b)
@@ -49,7 +66,7 @@ export default new Vuex.Store({
         }
       }
       state.chatGroup = state.chatGroup.sort(compare());
-      console.log(state.chatGroup);
+      //console.log(state.chatGroup);
     },
     setRefreshToken(state, refreshtoken) {
       state.refreshtoken = refreshtoken;
@@ -63,6 +80,9 @@ export default new Vuex.Store({
     setUserAccount(state, account) {
       state.userAccount = account;
     },
+    setUserPwd(state, pwd) {
+      state.userPwd = pwd;
+    },
     setUsersInfo(state, UsersInfo) {
       state.usersInfo = UsersInfo;
     },
@@ -74,6 +94,50 @@ export default new Vuex.Store({
         }
         else {
           state.messageLists[curGroupId] = MessageList;
+        }
+      }
+    },
+    updateFileMessageLocalPath(state, distMsg, local_path) {
+      var curGroupId = distMsg.groupId;
+      var curSequenceId = distMsg.sequenceId;
+      var belongMsgList = [];
+      belongMsgList = state.messageLists[curGroupId];
+      for(var i=0;i<belongMsgList.length;i++){
+        if(belongMsgList[i].sequenceId == curSequenceId){
+          belongMsgList[i]["file_local_path"] = local_path;
+        }
+      }
+    },
+    updateImgMessageThumbLocalPath(state, distMsg) {
+      var curGroupId = distMsg.groupId;
+      var curSequenceId = distMsg.sequenceId;
+      var belongMsgList = [];
+      belongMsgList = state.messageLists[curGroupId];
+      for(var i=0;i<belongMsgList.length;i++){
+        if(belongMsgList[i].sequenceId == curSequenceId){
+          belongMsgList[i] = distMsg;
+        }
+      }
+    },
+    updateImgMessageMLocalPath(state, distMsg, local_path) {
+      var curGroupId = distMsg.groupId;
+      var curSequenceId = distMsg.sequenceId;
+      var belongMsgList = [];
+      belongMsgList = state.messageLists[curGroupId];
+      for(var i=0;i<belongMsgList.length;i++){
+        if(belongMsgList[i].sequenceId == curSequenceId){
+          belongMsgList[i]["M_file_local_path"] = local_path;
+        }
+      }
+    },
+    updateImgMessageLocalPath(state, distMsg, local_path) {
+      var curGroupId = distMsg.groupId;
+      var curSequenceId = distMsg.sequenceId;
+      var belongMsgList = [];
+      belongMsgList = state.messageLists[curGroupId];
+      for(var i=0;i<belongMsgList.length;i++){
+        if(belongMsgList[i].sequenceId == curSequenceId){
+          belongMsgList[i]["file_local_path"] = local_path;
         }
       }
     }
@@ -90,6 +154,12 @@ export default new Vuex.Store({
       else {
         return state.userInfo.avatarOUrl;
       }
+    },
+    getLoginUserName: state => () => {
+      return state.userAccount;
+    },
+    getLoginUserPwd: state => () => {
+      return state.userPwd;
     },
     getChatUserIcon: state => (distId, is_original=false) => {
         if(state.usersInfo === null) {
@@ -130,16 +200,45 @@ export default new Vuex.Store({
     },
     getChatMsgHistory: state => (groupId) => {
       if(groupId.length === 0 || groupId === null) {
-        return[];
+        return [];
       }
 
+      if(state.messageLists[groupId] == undefined){
+        return [];
+      }
       var distMsgList = [].concat(state.messageLists[groupId]);
       if(typeof(distMsgList) === "undefined") {
         return [];
       }
-      
       return distMsgList;
+    },
+    getImgMessageThumbLocalPath: state => (checkMsg) => {
+      var curGroupId = checkMsg.groupId;
+      var curSequenceId = checkMsg.sequenceId;
+      var belongMsgList = [];
+      var distMsg = null;
+      belongMsgList = state.messageLists[curGroupId];
+      for(var i=0;i<belongMsgList.length;i++){
+        if(belongMsgList[i].sequenceId == curSequenceId){
+          distMsg = belongMsgList[i];
+          console.log("in get dist msg is ", distMsg)
+        }
+      }
+      if(distMsg == null){
+        return "";
+      }
+      else{
+        var distPath = distMsg.thumb_local_path;
+        console.log("in get dist path is ", distPath)
+        if(distPath == undefined){
+          return "";
+        }
+        else{
+          return distPath;
+        }
+      }
     }
+
   },
   modules,
   plugins: [

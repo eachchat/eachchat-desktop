@@ -13,7 +13,24 @@
                 <div class="about-msg">
                     <div class="each-msg-info-time" v-show=false>{{MsgTime()}}</div>
                     <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
-                    <pre class="chat-msg-content-mine" v-text="MsgContent()" v-on:click="openImageProxy()"></pre>
+                    <div class="chat-msg-content-mine-file"
+                        v-on:click="ShowFile()" v-if="MsgIsImage()">
+                        <quillEditor
+                            disabled="disabled"
+                            v-model="messageContent"
+                            ref="msgQuillEditorMine"
+                            :options="editorOption">
+                        </quillEditor>
+                    </div>
+                    <div class="chat-msg-content-mine-txt" 
+                        v-on:click="ShowFile()" v-else>
+                        <quillEditor
+                            disabled="disabled"
+                            v-model="messageContent"
+                            ref="msgQuillEditorMine"
+                            :options="editorOption">
+                        </quillEditor>
+                    </div>
                 </div>
                 <img class="msg-info-img" :src="MsgBelongUserImg()" alt="头像">
             </div>
@@ -22,7 +39,24 @@
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="each-msg-info-time" v-show=false>{{MsgTime()}}</div>
-                    <pre class="chat-msg-content-others" v-text="MsgContent()" v-on:click="openImageProxy()"></pre>
+                    <div class="chat-msg-content-others-file"
+                        v-on:click="ShowFile()" v-if="MsgIsImage()">
+                        <quillEditor
+                            disabled="disabled"
+                            v-model="messageContent"
+                            ref="msgQuillEditorOthers"
+                            :options="editorOption">
+                        </quillEditor>
+                    </div>
+                    <div class="chat-msg-content-others-txt" 
+                        v-on:click="ShowFile()" v-else>
+                        <quillEditor
+                            disabled="disabled"
+                            v-model="messageContent"
+                            ref="msgQuillEditorOthers"
+                            :options="editorOption">
+                        </quillEditor>
+                    </div>
                 </div>
                 <div class="msgState" v-if="MsgIsSending()">
                     <i class="el-icon-loading"></i>
@@ -38,35 +72,127 @@
 </template>
 
 <script>
-import { ServerApi } from '../server/serverapi'
-import {generalGuid, Appendzero} from '../server/Utils.js'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.bubble.css'
+import {quillEditor} from 'vue-quill-editor'
+import * as Quill from 'quill'
+import * as path from 'path'
+import * as fs from 'fs-extra'
+import {shell} from 'electron'
+
+import {APITransaction} from '../../packages/data/transaction.js'
+import {generalGuid, Appendzero, FileUtil, confservice, getIconPath} from '../server/Utils.js'
 
 export default {
+    components: {
+        quillEditor
+    },
     props: ['msg'],
     methods: {
+        ShowFile: function() {
+            console.log("open image proxy ", this.msg)
+            let chatGroupMsgType = this.msg.msgContentType;
+            let chatGroupMsgContent = this.msg.content;
+            if(chatGroupMsgType === 102)
+            {
+                shell.openExternal("C:\\Users\\wangx\\Pictures\\1-1Z919202U1519.jpg");
+            }
+            else if(chatGroupMsgType === 103)
+            {
+                shell.openExternal("C:\\Users\\wangx\\Downloads\\服务端API文档.docx");
+            }
+        },
         MsgIsFailed: function() {
         },
         MsgIsSending: function() {
         },
-        openImageProxy: function() {
+        saveFile: function(data) {
+            confservice.getFilePath()
         },
-        MsgContent: function() {
+        saveThumbImage: function(file_name, data) {
+            var dist_path = path.join(confservice.getThumbImagePath(this.$store.state.userInfo.id), file_name);
+            this.msg["thumb_local_path"] = dist_path;
+            try{
+                fs.writeFileSync(dist_path, data);
+                this.$store.commit("updateImgMessageThumbLocalPath", this.msg);
+            }
+            catch(err){
+                console.log("Save Thumb Failed And Err is ",err);
+            }
+        },
+        saveMImage: function(data) {
+            confservice.getMImagePath()
+        },
+        saveImage: function(data) {
+            confservice.getImagePath()
+        },
+        getFileIconThroughExt: function(ext) {
+            var iconPath = getIconPath(ext);
+            return iconPath;
+        },
+        MsgIsImage: function() {
+            let chatGroupMsgType = this.msg.msgContentType;
+            if(chatGroupMsgType == 102){
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+        MsgContent: function(is_mine=false) {
             if(this.msg === null) {
                 return '';
             }
+            this.messageContent = '';
             let chatGroupMsgType = this.msg.msgContentType;
             let chatGroupMsgContent = this.msg.content;
             if(chatGroupMsgType === 101)
             {
-                return chatGroupMsgContent.text;
+                this.messageContent = '<p>' + chatGroupMsgContent.text + '</p>'
             }
             else if(chatGroupMsgType === 102)
             {
-                return chatGroupMsgContent.thumbnailImage;
+                if(fs.existsSync(chatGroupMsgContent.thumbnailImage)){
+                    //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+                    var thumb_local_path = chatGroupMsgContent.thumbnailImage;
+                    var showfu = new FileUtil(thumb_local_path);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        let imageHeight = 100;
+                        if(chatGroupMsgContent.imgHeight < 100){
+                            imageHeight = chatGroupMsgContent.imgHeight;
+                        }
+                        this.messageContent = '<p><img src=' + reader.result + ' align=left height=' + imageHeight + '></img><span>' + this.msg.content.fileName + '</span></p>'
+                    }
+                }
+                else{
+                    this.serverapi.downloadTumbnail(this.$store.state.accesstoken, "T", this.msg.timelineId)
+                        .then((ret) => {
+                            let reader = new FileReader();
+                            reader.readAsDataURL(ret.data);
+                            reader.onloadend = () => {
+                                let imageHeight = 100;
+                                if(chatGroupMsgContent.imgHeight < 100){
+                                    imageHeight = chatGroupMsgContent.imgHeight;
+                                }
+                                this.messageContent = '<p><img src=' + reader.result + ' height=' + imageHeight + '></img></P>'
+                                // this.saveThumbImage(chatGroupMsgContent.fileName, reader.result);
+                            }
+                        })
+                }
             }
             else if(chatGroupMsgType === 103)
             {
-                return chatGroupMsgContent.fileName;
+                var iconPath = this.getFileIconThroughExt(this.msg.content.ext);
+                var showfu = new FileUtil(iconPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    this.messageContent = '<p><img src=' + reader.result + ' height=70></img><span>' + this.msg.content.fileName + '</span></p>'
+                }
             }
             else if(chatGroupMsgType === 104)
             {
@@ -177,14 +303,59 @@ export default {
     },
     data() {
         return {
-            messageContent: '',
+            messageContent: '<p></p>',
+            fileIcon: '',
+            editorOption : {
+                placeholder: "",
+                theme:'bubble',
+            },
         }
     },
     mounted: function() {
+        // When Mounting Can Not Get The Element. Here Need SetTimeout
+        setTimeout(() => {
+            this.$nextTick(() => {
+                if(this.MsgIsMine()) {
+                    if(this.msgContentMine == null) {
+                        this.msgContentMine = this.$refs.msgQuillEditorMine.quill;
+                    }
+                    this.MsgContent(true);
+                }
+                else {
+                    if(this.msgContentOthers == null) {
+                        this.msgContentOthers = this.$refs.msgQuillEditorOthers.quill;
+                    }
+                    this.MsgContent(true);
+                }
+            })
+        }, 0)
+
     },
     created: function() {
-        this.serverapi = new ServerApi('http', '139.198.15.253');
+        this.serverapi = new APITransaction('139.198.15.253', 8888)
         this.serverapi.m_accesstoken = this.$store.state.accesstoken;
+    },
+    watch: {
+        msg: function() {
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        if(this.MsgIsMine()) {
+                            if(this.msgContentMine == null) {
+                                this.msgContentMine = this.$refs.msgQuillEditorMine.quill;
+                            }
+                            this.MsgContent(true);
+                        }
+                        else {
+                            if(this.msgContentOthers == null) {
+                                this.msgContentOthers = this.$refs.msgQuillEditorOthers.quill;
+                            }
+                            this.MsgContent(false);
+                        }
+                    })
+                }, 0)
+            })
+        }
     }
 }
 </script>
@@ -250,29 +421,94 @@ export default {
         font-size: 10px;
         color: rgb(153, 153, 153);
     }
-
-    .chat-msg-content-others {
+    
+    .chat-msg-content-others-txt {
+        float: left;
         background-color: rgb(245,246,247);
-        width: calc(100%-20px);
+        max-width: 260px;
+        min-width: 20px;
         border-radius: 5px;
-        padding: 12px;
+        padding: 0 12px 12px 12px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
+        text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
     }
 
-    .chat-msg-content-mine {
-        background-color: rgb(220,244,233);
-        max-width: calc(100%-20px);
+    .chat-msg-content-others-txt:hover {
+        float: left;
+        background-color: rgb(233,234,235);
+        max-width: 260px;
+        min-width: 20px;
         border-radius: 5px;
-        padding: 12px;
+        padding: 0 12px 12px 12px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
+        text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
-    }  
+    }
 
+    .chat-msg-content-others-file {
+        float: left;
+        background-color: white;
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        cursor: pointer;
+    }
+
+    .chat-msg-content-mine-txt {
+        float:right;
+        background-color: rgb(220,244,233);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0 12px 12px 12px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .chat-msg-content-mine-txt:hover{
+        float:right;
+        background-color: rgb(209,232,221);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0 12px 12px 12px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .chat-msg-content-mine-file {
+        float:right;
+        background-color: white;
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        cursor: pointer;
+    }
+    
+    .imageTip {
+        text-align: center;
+    }
 </style>
