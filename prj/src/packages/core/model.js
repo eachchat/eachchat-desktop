@@ -17,6 +17,13 @@ const fieldTypes = {
     default: 0,
 
     parse(value) {
+      if (typeof value == "undefined") {
+        return 0;
+
+      } else if (value == null) {
+        return 0;
+      }
+
       value = Number.parseInt(value);
 
       if (!Number.isNaN(value)) {
@@ -33,6 +40,9 @@ const fieldTypes = {
     parse(value) {
       if (typeof value == "boolean") {
         return value ? 1 : 0;
+
+      } else if (value == null) {
+        return 0;
       }
 
       value = Number.parseInt(value);
@@ -61,13 +71,17 @@ const fieldTypes = {
     default: 0,
 
     parse(value) {
-      value = Number.parseInt(value);
-
-      if (!Number.isNaN(value)) {
-        return value;
+      if (value == null) {
+        return 0;
       }
 
-      return 0;
+      value = Number.parseInt(value);
+
+      if (Number.isNaN(value)) {
+        return 0;
+      }
+
+      return value;
     }
   },
 
@@ -89,6 +103,13 @@ const fieldTypes = {
     default: "",
 
     parse(value) {
+      if (typeof value == "undefined") {
+        return "";
+
+      } else if (value == null) {
+        return "";
+      }
+
       value = String(value);
       return value;
     }
@@ -105,6 +126,9 @@ const fieldTypes = {
 
       } else if (value instanceof Date) {
         return value.getTime() / 1000;
+
+      } else if (value == null) {
+        return this.default();
       }
     },
 
@@ -131,10 +155,12 @@ class Model {
       values = {};
     }
 
-    this.initialize(values);
+    this.initialize();
+
+    this.values = values;
   }
 
-  initialize(values) {
+  initialize() {
     if (typeof this.constructor.fields != "object") {
       return;
     }
@@ -153,8 +179,7 @@ class Model {
       fieldType = fieldTypes[fieldType];
 
       this.initField(fieldKey, fieldType);
-      this.initFieldValue(fieldKey, fieldType, values);
-      this.initFieldEmpties(empties, fieldKey);
+      empties = this.initFieldEmpties(empties, fieldKey);
     }
 
     this.empty = Object.freeze(empties);
@@ -187,20 +212,6 @@ class Model {
     });
   }
 
-  initFieldValue(fieldKey, fieldType, values) {
-    const name = fieldKey;
-    const type = fieldType;
-
-    if (!(name in values)) {
-      return;
-    }
-
-    // Initialize attributes
-    var parsedValue = type.parse(values[name]);
-
-    this._attr[name] = parsedValue;
-  }
-
   initFieldEmpties(empties, fieldKey) {
     const name = fieldKey;
     var _this = this;
@@ -210,6 +221,56 @@ class Model {
         return !_this._attr.hasOwnProperty(name);
       }
     });
+
+    return empties;
+  }
+
+  get values() {
+    return Object.assign({}, this._attr);
+  }
+
+  set values(values) {
+    if (typeof values != "object") {
+      values = {};
+    }
+
+    const fields = this.constructor.fields;
+    const alias = this.constructor.alias;
+
+    for (var name in values) {
+      var check = false;
+
+      if (name in fields) {
+        check = true;
+
+      } else if (name in alias) {
+        check = true;
+      }
+
+      if (!check) {
+        continue;
+      }
+
+      var value = values[name];
+
+      // convert alias to field name
+      if (name in alias) {
+        name = alias[name];
+      }
+
+      this[name] = value;
+    }
+  }
+
+  get commited() {
+    return this._commited;
+  }
+
+  set commited(status) {
+    if (status) {
+      this._commited = true;
+      this._originAttr = Object.freeze(Object.assign({}, attr));
+    }
   }
 
   async save() {
@@ -228,6 +289,11 @@ class Model {
 
     if (!this._commited) {
       var result = await storage.post(index, attr);
+
+      if (typeof result == "undefined") {
+        console.log("save failed!!!");
+        return this;
+      }
 
       for (var i = 0; i < primaryKeys.length; i++) {
         var primaryKey = primaryKeys[i];
@@ -265,25 +331,62 @@ class Model {
     return this;
   }
 
-  static async create(storage, index, fields, primaryKeys) {
-    if (!(storage instanceof Storage)) {
+  static async create(config) {
+    if (typeof config != "object") {
       return undefined;
     }
 
-    if (typeof index != "string") {
+    if (!("fields" in config)) {
       return undefined;
     }
 
-    if (typeof fields != "object") {
-      return undefined;
+    var storage = undefined;
+    var index = "";
+    var fields = {};
+    var primaryKeys = [];
+    var alias = {};
+
+    if ("storage" in config
+      && config.storage instanceof Storage) {
+      storage = config.storage;
     }
 
-    if (typeof primaryKeys == "string") {
-      primaryKeys = [primaryKeys];
+    if ("index" in config
+      && typeof config.index == "string") {
+      index = config.index;
     }
 
-    if (!(primaryKeys instanceof Array)) {
-      return undefined;
+    if (typeof config.fields == "object") {
+      fields = config.fields;
+    }
+
+    if ("primaryKey" in config) {
+      if (typeof config.primaryKey == "string") {
+        primaryKeys.push(config.primaryKey);
+
+      } else if (config.primaryKey instanceof Array) {
+        for (var i = 0; i < config.primaryKey.length; i++) {
+          if (!(typeof config.primaryKey[i] == "string")) {
+            continue;
+          }
+
+          primaryKeys.push(config.primaryKey[i]);
+        }
+      }
+    }
+
+    if ("alias" in config
+      && (typeof config.alias == "object")) {
+
+      for (var name in config.alias) {
+        var forField = config.alias[name];
+
+        if (!(forField in fields)) {
+          continue;
+        }
+
+        alias[name] = forField;
+      }
     }
 
     var newModel = (function () {
@@ -298,6 +401,7 @@ class Model {
     newModel.index = index;
     newModel.fields = fields;
     newModel.primaryKeys = primaryKeys;
+    newModel.alias = alias;
 
     await storage.registerFields(index, fields, primaryKeys);
 

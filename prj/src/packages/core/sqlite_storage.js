@@ -214,7 +214,7 @@ class SQLiteStorage extends Storage {
     var values = schema[0].values;
     var primaryKeys = [];
 
-    console.log(values);
+    // console.log(values);
 
     for (var i = 0; i < values.length; i++) {
       var value = values[i];
@@ -261,9 +261,9 @@ class SQLiteStorage extends Storage {
     sql.select(index);
     this.appendSearch(sql, search);
 
-    console.log(index, search);
+    // console.log(index, search);
 
-    console.log(sql);
+    // console.log(sql);
 
     var result = database.exec(sql);
 

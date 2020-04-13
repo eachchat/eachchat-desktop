@@ -3,3 +3,4 @@ build
 dist
 .DS_Store
 package-lock.json
+prj/src/packages/core/node_modules
