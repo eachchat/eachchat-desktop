@@ -404,7 +404,7 @@ class Model {
     newModel.alias = alias;
 
     await storage.registerFields(index, fields, primaryKeys);
-
+    
     return newModel;
   }
 

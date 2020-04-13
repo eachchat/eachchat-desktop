@@ -26,5 +26,7 @@ export {
   integer,
   string,
   float,
+  array,
+  object,
   date
 }

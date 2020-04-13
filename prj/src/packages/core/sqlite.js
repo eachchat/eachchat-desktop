@@ -4,7 +4,6 @@
  * @date 2020/03/04
  */
 
-import initSqlJs from 'sql.js';
 import fs from 'fs';
 
 class Sqlite {
@@ -18,6 +17,19 @@ class Sqlite {
     var fileBuffer = undefined;
 
     if (typeof this.db != "undefined") {
+      return this;
+    }
+
+    var initSqlJs = undefined;
+
+    if (typeof window == "undefined") {
+      initSqlJs = require('sql.js');
+
+    } else if (typeof window == "object") {
+      initSqlJs = window.initSqlJs;
+    }
+
+    if (typeof initSqlJs == "undefined") {
       return this;
     }
 

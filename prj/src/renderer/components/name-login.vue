@@ -29,6 +29,7 @@
 <script>
 import {ServerApi} from '../server/serverapi.js'
 import {services} from '../../packages/data/index.js'
+
 export default {
     name: 'login',
     data () {
@@ -54,27 +55,27 @@ export default {
             };
             services.common.init(config);
             
-            let loginModel = services.common.GetLoginModel;
-            console.log(loginModel);
+            // let loginModel = services.common.GetLoginModel;
+            // console.log(loginModel);
             let response = await services.common.login();
-            console.log(response)
-            var ret_data = response;
-            if(response){
-                var msg = ret_data["message"];
-                var code = ret_data["code"];
-                if(code != 200)
-                    {
-                    console.log("code != 200")
-                    this.loginState = msg
-                    return
-                }
-            }
+            console.log(response);
+            // var ret_data = response;
+            // if(response){
+            //     var msg = ret_data["message"];
+            //     var code = ret_data["code"];
+            //     if(code != 200)
+            //         {
+            //         console.log("code != 200")
+            //         this.loginState = msg
+            //         return
+            //     }
+            // }
             
-            this.loginState = "登录成功"
-            await services.common.listAllGroup();
-            console.log(services.common.GetAllGroups);
-            const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('showMainPageWindow');
+            // this.loginState = "登录成功"
+            // await services.common.listAllGroup();
+            // console.log(services.common.GetAllGroups);
+            // const ipcRenderer = require('electron').ipcRenderer;
+            // ipcRenderer.send('showMainPageWindow');
             // var tmpheader = response.headers
             // var accesstoken = tmpheader['access-token']
             // var refreshtoken = tmpheader['refresh-token']

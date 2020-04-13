@@ -137,14 +137,27 @@ const common = {
       return result.data;
     }
 
-    // console.log(result.headers);
-    // console.log(result.data.obj);
-
     var login = new LoginModel(result.headers);
     var selfUser = new UserModel(result.data.obj);
 
     login.save();
-    selfUser.save();
+
+    var foundUsers = await UserModel.find({
+      id: selfUser.id
+    });
+
+    if (foundUsers instanceof Array
+      && foundUsers.length > 0) {
+      var foundUser = foundUsers[0];
+      foundUser.values = selfUser.values;
+      foundUser.save();
+
+      console.log('Your profile has been update!');
+
+    } else {
+      selfUser.save();
+      console.log('New account login ok!');
+    }
 
     this.data.login = login;
     this.data.selfUser = selfUser;
@@ -202,10 +215,6 @@ const common = {
     }
     return await this.api.logout(this.data.login.access_token)
   },
-
-  async getAllUsers() {
-    
-  }
 
   async AllUserinfo(){
     let index = 0;
