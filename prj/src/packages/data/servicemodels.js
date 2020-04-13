@@ -34,7 +34,7 @@ const servicemodels = {
 
       var userObjectHave = {
         "aId": "id",
-        "id": "userid",
+        "id": "id",
         "displayName": "name",
         "displayNamePy": "pinyin",
         "nickName": "nick_name",

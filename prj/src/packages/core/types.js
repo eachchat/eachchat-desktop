@@ -6,22 +6,27 @@
 
 const serial = Symbol("serial");
 
-// 数字整形 委托变量
+const bool = Symbol("bool");
+
 const integer = Symbol("integer");
 
-// 字符串 委托变量
 const string = Symbol("string");
 
-// 浮点数 委托变量
 const float = Symbol("float");
 
-// 日期 委托变量
 const date = Symbol("date");
+
+const array = Symbol("array");
+
+const object = Symbol("object");
 
 export {
   serial,
+  bool,
   integer,
   string,
   float,
+  array,
+  object,
   date
 }

@@ -1,5 +1,6 @@
 import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
+import { models } from './models.js';
 const mqtt = require('mqtt')
 
 const commonConfig = {
@@ -102,6 +103,10 @@ const common = {
   },
 
   init(config) {
+    if (typeof config != "object") {
+      config = {};
+    }
+
     if ("hostname" in config) {
       this.config.hostname = config.hostname;
     }
@@ -118,39 +123,64 @@ const common = {
       this.config.password = config.password;
     }
 
+    models.init();
+
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
   },
 
-  login() {
-    return (async (api, config, data, LoginModel) => {
-      let result = await api.login(config.username, config.password);
+  async login() {
+    var api = this.api;
+    var config = this.config;
+    var data = this.data;
 
-      
-      if (!result.ok || !result.success) {
-        return result.data;
-      }
+    const LoginModel = await models.Login;
+    const UserModel = await models.User;
 
-      if (200 != result.data.code) {
-        return result.data;
-      }
+    let result = await this.api.login(config.username, config.password);
 
-      let retmodels = LoginModel(result);
-      data.login = retmodels[0]
-      data.selfuser = retmodels[1] 
-      
-      
-    })(this.api, this.config, this.data, servicemodels.LoginModel);
-    
+    if (!result.ok || !result.success) {
+      return result.data;
+    }
+
+    var login = new LoginModel(result.headers);
+    var selfuser = new UserModel(result.data.obj);
+
+    login.save();
+
+    var foundUsers = await UserModel.find({
+      id: selfuser.id
+    });
+
+    if (foundUsers instanceof Array
+      && foundUsers.length > 0) {
+      var foundUser = foundUsers[0];
+      foundUser.values = selfuser.values;
+      foundUser.save();
+
+      console.log('Your profile has been update!');
+
+    } else {
+      selfuser.save();
+      console.log('New account login ok!');
+    }
+
+    this.data.login = login;
+    this.data.selfuser = selfuser;
+
+    return {
+      login: login,
+      selfuser: selfuser
+    };
   },
 
   initmqtt(){
     this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.userid + '|1111111111111111111'});
+                                      clientId: this.data.selfuser.id + '|1111111111111111111'});
       
     let mqttclient = this.mqttclient;
-    let userid = this.data.selfuser.userid;
+    let userid = this.data.selfuser.id;
     mqttclient.on('connect', function(){
         console.log("connect success")
         console.log(userid)
