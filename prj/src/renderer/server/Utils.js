@@ -587,88 +587,105 @@ function fileTypeFromMIME(mimeName){
 
 const faceUtils = {
     alt: [
-      '[微笑]',
-      '[嘻嘻]',
-      '[哈哈]',
-      '[可爱]',
-      '[可怜]',
-      '[挖鼻]',
-      '[吃惊]',
-      '[害羞]',
-      '[挤眼]',
-      '[闭嘴]',
-      '[鄙视]',
-      '[爱你]',
-      '[泪]',
-      '[偷笑]',
-      '[亲亲]',
-      '[生病]',
-      '[太开心]',
-      '[白眼]',
-      '[右哼哼]',
-      '[左哼哼]',
-      '[嘘]',
-      '[衰]',
-      '[委屈]',
-      '[吐]',
-      '[哈欠]',
-      '[抱抱]',
-      '[怒]',
-      '[疑问]',
-      '[馋嘴]',
-      '[拜拜]',
-      '[思考]',
-      '[汗]',
-      '[困]',
-      '[睡]',
-      '[钱]',
-      '[失望]',
-      '[酷]',
-      '[色]',
-      '[哼]',
-      '[鼓掌]',
-      '[晕]',
-      '[悲伤]',
-      '[抓狂]',
-      '[黑线]',
-      '[阴险]',
-      '[怒骂]',
-      '[互粉]',
-      '[心]',
-      '[伤心]',
-      '[猪头]',
-      '[熊猫]',
-      '[兔子]',
-      '[ok]',
-      '[耶]',
-      '[good]',
-      '[NO]',
-      '[赞]',
-      '[来]',
-      '[弱]',
-      '[草泥马]',
-      '[神马]',
-      '[囧]',
-      '[浮云]',
-      '[给力]',
-      '[围观]',
-      '[威武]',
-      '[奥特曼]',
-      '[礼物]',
-      '[钟]',
-      '[话筒]',
-      '[蜡烛]',
-      '[蛋糕]'
+        '&#128516;',//0
+      '&#128515;',//1
+      '&#128517;',//2
+      '&#128578;',//3
+      '&#128541;',//4
+      '&#128540;',//5
+      '&#128514;',//6
+      '&#129396;',//7
+      '&#128563;',//8
+      '&#128544;',//9
+      '&#128562;',//10
+      '&#129303;',//11
+      '&#128538;',//12
+      '&#128557;',//13
+      '&#128532;',//14
+      '&#128517;',//15
+      '&#128564;',//16
+      '&#129322;',//17
+      '&#128551;',//18
+      '&#128567;',//19
+      '&#128548;',//20
+      '&#129323;',//21
+      '&#129395;',//22
+      '&#129402;',//23
+      '&#128123;',//24
+      '&#128554;',//25
+      '&#128525;',//26
+      '&#128522;',//27
+      '&#128526;',//28
+      '&#128530;',//29
+      '&#128577;',//30
+      '&#129296;',//31
+      '&#128545;',//32
+      '&#129324;',//33
+      '&#128520;',//34
+      '&#128580;',//35
+      '&#128561;',//36
+      '&#128531;',//37
+      '&#128536;',//38
+      '&#129321;',//39
+      '&#129327;',//40
+      '&#128519;',//41
+      '&#129398;',//42
+      '&#127769;',//43
+      '&#127774;',//44
+      '&#9889;',//45
+      '&#128068;',//46
+      '&#128269;',//47
+      '&#128163;',//48
+      '&#127867;',//49
+      '&#128079;',//50
+      '&#128074;',//51
+      '&#128170;',//52
+      '&#129309;',//53
+      '&#128591;',//54
+      '&#128076;',//55
+      '&#128078;',//56
+      '&#128077;',//57
+      '&#9996;',//58
+      '&#128071;',//59
+      '&#128072;',//60
+      '&#128073;',//61
+      '&#128070;',//62
+      '&#9757;',//63
+      '&#9994;',//64 
+      '&#128068;',//65
+      '&#128138;',//66
+      '&#128169;',//67
+      '&#9917;',//68
+      '&#9729;',//69
+      '&#128345;',//70
+      '&#9748;',//71
     ],
     faces: function() {
       let self = this;
       let arr = {};
       for (let i = 0; i < self.alt.length; i++) {
-        arr[self.alt[i]] = './static/Img/Chat/face/' + i + '.gif';
+        arr[self.alt[i]] = './static/Img/Chat/face/' + i + '.png';
       }
       return arr;
     }
 }
+
+// https://blog.csdn.net/weixin_41643133/article/details/88118716
+function uncodeUtf16(str){
+    var reg = /\&#.*?;/g;
+    var result = str.replace(reg,function(char){
+        var H,L,code;
+        if(char.length == 9 ){
+            code = parseInt(char.match(/[0-9]+/g));
+            H = Math.floor((code-0x10000) / 0x400)+0xD800;
+            L = (code - 0x10000) % 0x400 + 0xDC00;
+            return unescape("%u"+H.toString(16)+"%u"+L.toString(16));
+        }else{
+            return char;
+        }
+    });
+    return result;
+ }
 
 function transform(content) {
     // 支持的html标签
@@ -685,7 +702,7 @@ function transform(content) {
 }
   
 function getIconPath(ext) {
-    var iconDirPath = 'D:\\workgit\\YiQiLiao-Desktop\\prj\\static\\Img\\Chat';
+    var iconDirPath = './static/Img/Chat/';
     var distExt = '';
     var distIconPath = '';
     for (var key in iconMap) {
@@ -986,6 +1003,6 @@ class ConfService {
     }
 }
 const confservice = new ConfService();
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, transform, fileTypeFromMIME};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, transform, fileTypeFromMIME, uncodeUtf16};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

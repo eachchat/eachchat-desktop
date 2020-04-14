@@ -191,7 +191,7 @@ export default {
                 let reader = new FileReader();
                 reader.readAsDataURL(showfileObj);
                 reader.onloadend = () => {
-                    this.messageContent = '<p><img src=' + reader.result + ' height=70></img><span>' + this.msg.content.fileName + '</span></p>'
+                    this.messageContent = '<p><img src=' + reader.result + ' height=46></img><span>' + this.msg.content.fileName + '</span></p>'
                 }
             }
             else if(chatGroupMsgType === 104)

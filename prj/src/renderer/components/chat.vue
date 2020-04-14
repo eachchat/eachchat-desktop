@@ -43,7 +43,7 @@
                         <i class="el-icon-s-promotion"></i>
                     </div>
                 </div>
-                <input type="file" id="fileInput" style="display:none" @change="handleFiles()">
+                <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
                 <div class="text-input">
                     <quillEditor
                         ref="chatQuillEditor"
@@ -66,10 +66,11 @@ import * as Quill from 'quill'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import Faces from './faces.vue';
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath} from '../server/Utils.js'
+import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16} from '../server/Utils.js'
 import imessage from './message.vue'
 
-const InlineBlot = Quill.import('blots/block/embed')
+const InlineBlot = Quill.import('formats/image')
+const Delta = Quill.import('delta')
 class FileBlot extends InlineBlot {
     static create(data) {
         console.log("FileBlot create data is ", data);
@@ -77,7 +78,8 @@ class FileBlot extends InlineBlot {
         node.setAttribute('local-path', data.local_path);
         node.setAttribute('src', data.src);
         node.setAttribute('type', data.file_type);
-        node.setAttribute('height', 60);
+        node.setAttribute('height', data.file_height);
+        node.setAttribute('style', data.style);
 
         return node;
     }
@@ -86,13 +88,14 @@ class FileBlot extends InlineBlot {
         tmp["local_path"] = domNode.getAttribute('local-path');
         tmp["type"] = domNode.getAttribute('type');
         tmp["src"] = domNode.getAttribute('src');
+        tmp["file_height"] = domNode.getAttribute('height');
         return tmp;
     }
 }
 FileBlot.blotName = 'fileBlot';
 FileBlot.className = 'file-blot';
 FileBlot.tagName = 'img';
-Quill.register(FileBlot);
+Quill.register({ 'formats/imageBlot': FileBlot });
 
 export default {
     components: {
@@ -106,7 +109,10 @@ export default {
             this.showFace = !this.showFace;
         },
         insertFace: function(item) {
-            this.messageContent = this.messageContent + 'face' + item;
+            console.log("insert item is ", uncodeUtf16(item))
+            var range = this.editor.getSelection();
+            var curIndex = range==null ? 0 : range.index;
+            this.editor.insertText(curIndex, uncodeUtf16(item));
             this.showFace = false;
         },
         handleFiles: function() {
@@ -120,16 +126,21 @@ export default {
                 for(var i=0;i<fileList.length;i++) {
                     if(this.waitForSendingFiles.indexOf(fileList[i] != -1)) {
                         var range = this.editor.getSelection();
+                        var curIndex = range==null ? 0 : range.index;
                         var reader = new FileReader();
                         var curPath = fileList[i].path;
-                        var curIndex = range==null ? 0 : range.index;
                         var fileType = fileList[i].type;
                         if(fileType.split("/")[0] == "image"){
                             // Image
                             reader.readAsDataURL(fileList[i]);
                             reader.onloadend = () => {
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "image"})
-                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                                var img = new Image();
+                                img.src = reader.result;
+                                img.onload = function(){
+                                    let src_height = img.height;
+                                    this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "image", height: src_height});
+                                    this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                                }
                             }
                         }
                         else {
@@ -140,7 +151,7 @@ export default {
                             let showfileObj = showfu.GetUploadfileobj();
                             reader.readAsDataURL(showfileObj);
                             reader.onloadend = () => {
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "file"})
+                                this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "file", file_height: 46, style:"vertical-align:middle;"})
                                 this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                             }
                         }
@@ -297,6 +308,7 @@ export default {
                             let sendingMsgContentType = 102;
                             let picUrl = curMsgItem.fileBlot.src;
                             let filePath = curMsgItem.fileBlot.local_path;
+                            let fileHeight = curMsgItem.fileBlot.file_height;
                             let ext = filePath.split(".").pop();
                             let willShowMsgContent = {
                                 "ext":ext,
@@ -305,7 +317,7 @@ export default {
                                 "middleImage":"",
                                 "thumbnailImage": filePath,
                                 "imgWidth": "",
-                                "imgHeight": "",
+                                "imgHeight": fileHeight,
                                 "fileSize": ""
                             }
                             var guid = generalGuid();
@@ -702,7 +714,7 @@ export default {
                 placeholder: "",
                 theme:'bubble',
             },
-            showFace: false,
+            showFace: false
         }
     },
     mounted: function() {
@@ -1013,17 +1025,20 @@ export default {
     // }
 
     .ql-bubble .ql-editor{
+        height: 100%;
         margin: 0px;
         padding: 0px;
+        font-size: 13px;
+        font-family: 'Microsoft YaHei';
     }
 
     .text-input {
         border: 0px;
-        width: 100%;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         height: 150px;
     }
+
     .text-input:focus {
         outline: none;
         width: 100%;
