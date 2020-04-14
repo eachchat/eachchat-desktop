@@ -245,6 +245,8 @@ const common = {
   async AllDepartmentInfo(){
     let index = 0;
     let result;
+    let departmentitem;
+    let departmentmodel;
     this.data.department = []
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
@@ -258,7 +260,10 @@ const common = {
       for(var item in result.data.results)
       {
         index++;
-        this.data.department.push(result.data.results[item])
+        departmentitem = result.data.results[item]
+        departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
+        this.data.department.push(departmentmodel)
+        departmentmodel.save()
       }
     }while(result.data.total > index);  
   },

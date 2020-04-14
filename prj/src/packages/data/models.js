@@ -94,7 +94,8 @@ var models = {
           adminId:      types.string,
           del:          types.integer,
           showOrder:    types.integer
-        }
+        },
+        primaryKey: "deparmentId"
       });
     })();
   },

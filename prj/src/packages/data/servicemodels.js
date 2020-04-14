@@ -85,7 +85,7 @@ const servicemodels = {
       return [loginmodel, selfusermodel];
     },
 
-    DepartmentsModel(department)
+    async DepartmentsModel(department)
     {
       var departmentvalue={
         departmentId: undefined,
@@ -111,9 +111,10 @@ const servicemodels = {
       }
       
       for(var key in responsemap){
-        departmentvalue[responsemap[key]] = departments[key]
+        departmentvalue[responsemap[key]] = department[key]
       }
-      return new models.Department(departmentvalue)
+      const DepartModelClass = await models.Department;
+      return new DepartModelClass(departmentvalue)
     },
 
     UsersModel(useritem){
