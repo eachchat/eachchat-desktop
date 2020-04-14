@@ -72,7 +72,7 @@ function initForWindows(env) {
   }
 
   env.path.base = eachChatDir;
-  env.path.sqlite = eachChatDir + "\\profile.db";
+  env.path.sqlite = eachChatDir + "\\eachchat.db";
 
   return true;
 }
@@ -90,7 +90,7 @@ function initForOSX(env) {
   }
 
   env.path.base = eachChatDir;
-  env.path.sqlite = eachChatDir + "/profile.db";
+  env.path.sqlite = eachChatDir + "/eachchat.db";
 
   return true;
 }

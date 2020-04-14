@@ -235,7 +235,6 @@ class Model {
     }
 
     const fields = this.constructor.fields;
-    const alias = this.constructor.alias;
 
     for (var name in values) {
       var check = false;
@@ -243,21 +242,13 @@ class Model {
       if (name in fields) {
         check = true;
 
-      } else if (name in alias) {
-        check = true;
-      }
+      } 
 
       if (!check) {
         continue;
       }
 
       var value = values[name];
-
-      // convert alias to field name
-      if (name in alias) {
-        name = alias[name];
-      }
-
       this[name] = value;
     }
   }
@@ -344,7 +335,6 @@ class Model {
     var index = "";
     var fields = {};
     var primaryKeys = [];
-    var alias = {};
 
     if ("storage" in config
       && config.storage instanceof Storage) {
@@ -375,20 +365,6 @@ class Model {
       }
     }
 
-    if ("alias" in config
-      && (typeof config.alias == "object")) {
-
-      for (var name in config.alias) {
-        var forField = config.alias[name];
-
-        if (!(forField in fields)) {
-          continue;
-        }
-
-        alias[name] = forField;
-      }
-    }
-
     var newModel = (function () {
       return class extends Model {
         constructor(values) {
@@ -401,7 +377,6 @@ class Model {
     newModel.index = index;
     newModel.fields = fields;
     newModel.primaryKeys = primaryKeys;
-    newModel.alias = alias;
 
     await storage.registerFields(index, fields, primaryKeys);
     

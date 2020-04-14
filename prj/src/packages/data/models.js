@@ -46,36 +46,20 @@ var models = {
           id: types.string,
           account: types.string,
           name: types.string,
+          pinyin: types.string,
           nick_name: types.string,
           avatar: types.string,
           avatar_minimal: types.string,
           role_id: types.integer,
+          role_name: types.string,
           language: types.integer,
           locale: types.integer,
           timezone: types.string,
           is_active: types.integer,
-          pinyin: types.string,
-          remark: types.string,
-          remark_pinyin: types.string,
           job: types.string,
           bio: types.string
         },
-        primaryKey: 'id',
-        alias: {
-          "id": "id",
-          "userName": "account",
-          "displayName": "name",
-          "displayNamePy": "pinyin",
-          "nickName": "nick_name",
-          "avatarOUrl": "avatar",
-          "avatarTUrl": "avatar_minimal",
-          "title": "job",
-          "preferredLanguage": "language",
-          "locale": "locale",
-          "timezone": "timezone",
-          "active": "is_active",
-          "statusDescription": "bio"
-        }
+        primaryKey: 'id'
       });
     })();
   },
@@ -86,17 +70,12 @@ var models = {
         storage: this.storage.sqlite,
         index: 'login',
         fields: {
-          id: types.integer,
           access_token: types.string,
           refresh_token: types.string,
           account: types.string,
           password: types.string
         },
-        primaryKey: 'id',
-        alias: {
-          "access-token": "access_token",
-          "refresh-token": "refresh_token"
-        }
+        primaryKey: 'account'
       });
     })();
   },

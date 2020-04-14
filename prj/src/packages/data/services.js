@@ -123,8 +123,6 @@ const common = {
       this.config.password = config.password;
     }
 
-    models.init();
-
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
   },
 
@@ -133,44 +131,20 @@ const common = {
     var config = this.config;
     var data = this.data;
 
-    const LoginModel = await models.Login;
-    const UserModel = await models.User;
-
     let result = await this.api.login(config.username, config.password);
 
     if (!result.ok || !result.success) {
       return result.data;
     }
 
-    var login = new LoginModel(result.headers);
-    var selfuser = new UserModel(result.data.obj);
-
+    var retmodels = await servicemodels.LoginModel(result)
+    let login = retmodels[0]
+    let selfuser = retmodels[1]
+    login.account = config.username
     login.save();
-
-    var foundUsers = await UserModel.find({
-      id: selfuser.id
-    });
-
-    if (foundUsers instanceof Array
-      && foundUsers.length > 0) {
-      var foundUser = foundUsers[0];
-      foundUser.values = selfuser.values;
-      foundUser.save();
-
-      console.log('Your profile has been update!');
-
-    } else {
-      selfuser.save();
-      console.log('New account login ok!');
-    }
 
     this.data.login = login;
     this.data.selfuser = selfuser;
-
-    return {
-      login: login,
-      selfuser: selfuser
-    };
   },
 
   initmqtt(){

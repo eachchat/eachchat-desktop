@@ -1,10 +1,9 @@
 import { models } from './models.js';
 
 const servicemodels = {
-    LoginModel(result)
+  async LoginModel(result)
     {
       var loginValues = {
-        id: undefined,
         access_token: undefined,
         refresh_token: undefined,
         account: undefined,
@@ -25,7 +24,8 @@ const servicemodels = {
         locale: undefined,
         timezone: undefined,
         is_active: undefined,
-        bio: undefined
+        bio: undefined,
+        job: undefined
       };
       var headersHave = {
         "access-token": "access_token",
@@ -33,7 +33,6 @@ const servicemodels = {
       };
 
       var userObjectHave = {
-        "aId": "id",
         "id": "id",
         "displayName": "name",
         "displayNamePy": "pinyin",
@@ -41,12 +40,16 @@ const servicemodels = {
         "avatarOUrl": "avatar",
         "avatarTUrl": "avatar_minimal",
         "title": "role_name",
+        "roleId": "role_id",
         "preferredLanguage": "language",
         "locale": "locale",
         "timezone": "timezone",
         "active": "is_active",
-        "statusDescription": "bio"
+        "statusDescription": "bio",
+        "title":"job"
       };
+
+      models.init();
 
       for (var key in headersHave) {
         if (key in result.headers) {
@@ -59,7 +62,27 @@ const servicemodels = {
           userValues[userObjectHave[key]] = result.data.obj[key];
         }
       }
-      return [new models.Login(loginValues), new models.User(userValues)];
+      const LoginModel = await models.Login
+      const UserModel = await models.User
+      
+      let loginmodel = new LoginModel(loginValues)
+      let selfusermodel = new UserModel(userValues)
+      var foundUsers = await UserModel.find({
+        id: selfusermodel.id
+      });
+  
+      if (foundUsers instanceof Array
+        && foundUsers.length > 0) {
+        var foundUser = foundUsers[0];
+        foundUser.values = selfusermodel.values;
+        foundUser.save();
+  
+        console.log('Your profile has been update!');
+      } else {
+        selfusermodel.save();
+        console.log('New account login ok!');
+      }
+      return [loginmodel, selfusermodel];
     },
 
     DepartmentsModel(department)
