@@ -64,7 +64,7 @@
                 </div>
             </div>
             <div class="userInfo-view" v-show="showUserInfoDrawer">
-                <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px">
+                <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px" :closable="true">
                     <userInfoContent :userInfo = "userInfo"></userInfoContent>
                 </yidrawer>
             </div>
@@ -223,27 +223,31 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-::-webkit-scrollbar-track-piece {
-    background-color: #F1F1F1;
-    border-radius: 10px;
-}
+// ::-webkit-scrollbar-track-piece {
+//     background-color: #F1F1F1;
+//     border-radius: 10px;
+// }
 
+// ::-webkit-scrollbar {
+//     width: 8px;
+//     height: 12px;
+// }
+
+// ::-webkit-scrollbar-thumb {
+//     height: 50px;
+//     background-color: #C1C1C1;
+//     border-radius: 10px;
+//     outline: none;
+// }
+
+// ::-webkit-scrollbar-thumb:hover {
+//     height: 50px;
+//     background-color: #A8A8A8;
+//     border-radius: 10px;
+// }
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 12px;
-}
-
-::-webkit-scrollbar-thumb {
-    height: 50px;
-    background-color: #C1C1C1;
-    border-radius: 10px;
-    outline: none;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    height: 50px;
-    background-color: #A8A8A8;
-    border-radius: 10px;
+/*隐藏滚轮*/
+display: none;
 }
 .organization-list-panel {
     width: 100%;
@@ -255,10 +259,10 @@ export default {
     height: 55px;
     background-color: rgb(255, 255, 255);
     border-bottom: 1px solid rgb(221, 221, 221);
-    -webkit-app-region: drag;
-    * {            
-        -webkit-app-region: no-drag;
-    }
+    //-webkit-app-region: drag;
+    // * {            
+    //     -webkit-app-region: no-drag;
+    // }
 }
 .organization-content {
     width: 100%;
@@ -275,9 +279,9 @@ export default {
     border-right: 1px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;
-    ::-webkit-scrollbar-track {
-        border-radius: 10px;
-    }
+    // ::-webkit-scrollbar-track {
+    //     border-radius: 10px;
+    // }
     margin: 0px;
     cursor: pointer;
 }

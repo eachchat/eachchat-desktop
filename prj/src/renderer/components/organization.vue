@@ -32,9 +32,9 @@
                 <component :is="curView"></component>
             
         </el-container>
-        <el-dialog title="创建群聊天" :visible.sync="dialogVisible" width="70%" :before-close="handleClose">
+        <el-dialog title="创建群聊天" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
-                <chatGroupCreater @getCreateGroupUsersSelected="getUsersSelected">
+                <chatGroupCreater ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
                 </chatGroupCreater>
             </div>
             <span slot="footer" class="dialog-footer">
@@ -86,6 +86,9 @@ export default {
         },
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
+        },
+        handleDialogClose() {
+            this.$refs.chatGroupCreater.initData();
         }
     },
     components: {
@@ -100,28 +103,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-::-webkit-scrollbar-track-piece {
-    background-color: #F1F1F1;
-    border-radius: 10px;
-}
+// ::-webkit-scrollbar-track-piece {
+//     background-color: #F1F1F1;
+//     border-radius: 10px;
+// }
 
-::-webkit-scrollbar {
-    width: 8px;
-    height: 12px;
-}
+// ::-webkit-scrollbar {
+//     width: 8px;
+//     height: 12px;
+// }
 
-::-webkit-scrollbar-thumb {
-    height: 50px;
-    background-color: #C1C1C1;
-    border-radius: 10px;
-    outline: none;
-}
+// ::-webkit-scrollbar-thumb {
+//     height: 50px;
+//     background-color: #C1C1C1;
+//     border-radius: 10px;
+//     outline: none;
+// }
 
-::-webkit-scrollbar-thumb:hover {
-    height: 50px;
-    background-color: #A8A8A8;
-    border-radius: 10px;
-}
+// ::-webkit-scrollbar-thumb:hover {
+//     height: 50px;
+//     background-color: #A8A8A8;
+//     border-radius: 10px;
+// }
 
 .list-header {
     width: 100%;

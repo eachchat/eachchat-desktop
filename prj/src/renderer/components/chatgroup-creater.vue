@@ -164,6 +164,7 @@ export default {
     data () {
         return {
             serverApi: new ServerApi(),
+            resetData: false,
             showBreadCrumbs: false,
             selectedUsers: [],
             recentUsers: [],
@@ -185,7 +186,7 @@ export default {
     watch: {
         'selectedUsers':function() {
             this.$emit('getCreateGroupUsersSelected', this.selectedUsers);
-        }
+        },
     },
     computed: {
         currentDepartmentSelectedUsers: function() {
@@ -350,10 +351,10 @@ export default {
         },
         recentUsersMenuItemClicked() {
             this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
-        }
-    },
-    created () {
+        },
+        initData() {
         console.log('createchatgroup');
+        Object.assign(this.$data, this.$options.data())
         var _this = this;
         this.serverApi.GetAllDepartmentInfo()
         .then(function(res){
@@ -412,6 +413,10 @@ export default {
         })
         .catch(err=>{console.log(err)}
         )
+        }
+    },
+    created () {
+        this.initData();
     }
 }
 </script>
