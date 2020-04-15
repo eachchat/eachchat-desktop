@@ -151,7 +151,12 @@ class HTTP {
       headers: headers,
     }, appendix);
 
-    var response = await this.sender.post(path, data, config);
+    try {
+      var response = await this.sender.post(path, data, config);
+
+    } catch (e) {
+      console.log(e);
+    }
 
     return this.parseResponse(response);
   }
