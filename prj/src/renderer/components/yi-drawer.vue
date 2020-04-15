@@ -3,7 +3,10 @@
         <div v-if="mask" class="mask"></div>
         <div :class="maskClass" @click="closeByMask()"></div>
         <div :class="mainClass" :style="mainStyle" class="main" >
-            
+            <div class="close-button" v-show="closable">
+                <img class = "close-icon" src="../../../static/Image/close_icon@2x.png"
+                    @click="closeByButton()">
+            </div>
             <slot/>
             
         </div>
@@ -31,7 +34,7 @@ export default {
     // 是否显示关闭按钮
         closable: {
         type: Boolean,
-            default: false
+            default: true
         },
 
     // 是否显示遮罩
@@ -49,7 +52,7 @@ export default {
     // 宽度
         width: {
             type: String,
-            default: '400px'
+            default: '336px'
         },
 
     // 是否在父级元素中打开
@@ -102,6 +105,7 @@ export default {
 
 .drawer {
     height: 100%;
+    border-left: 1px solid rgb(221, 221, 221);
   /* 遮罩 */
 .mask-show {
     position: fixed;
@@ -142,5 +146,17 @@ export default {
 
   /* 其他样式 */
 
+}
+.close-button {
+    width: 20px;
+    height: 20px;
+    margin-top: 0px;
+    margin-left: 300px;
+}
+.close-icon {
+    width: 10px;
+    height: 10px;
+    text-align: center;
+    vertical-align: middle;
 }
 </style>
