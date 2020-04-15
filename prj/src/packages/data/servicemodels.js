@@ -67,21 +67,7 @@ const servicemodels = {
       
       let loginmodel = new LoginModel(loginValues)
       let selfusermodel = new UserModel(userValues)
-      var foundUsers = await UserModel.find({
-        id: selfusermodel.id
-      });
-  
-      if (foundUsers instanceof Array
-        && foundUsers.length > 0) {
-        var foundUser = foundUsers[0];
-        foundUser.values = selfusermodel.values;
-        foundUser.save();
-  
-        console.log('Your profile has been update!');
-      } else {
-        selfusermodel.save();
-        console.log('New account login ok!');
-      }
+      
       return [loginmodel, selfusermodel];
     },
 

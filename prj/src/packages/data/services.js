@@ -137,13 +137,45 @@ const common = {
       return result.data;
     }
 
+    
     var retmodels = await servicemodels.LoginModel(result)
     let login = retmodels[0]
     let selfuser = retmodels[1]
-    login.account = config.username
-    login.save();
 
-    this.data.login = login;
+
+    var foundUsers = await(await models.User).find({
+      id: selfuser.id
+    });
+
+    if (foundUsers instanceof Array
+      && foundUsers.length > 0) {
+      var foundUser = foundUsers[0];
+      foundUser.values = selfuser.values;
+      foundUser.save();
+
+      console.log('Your profile has been update!');
+    } else {
+      selfuser.save();
+      console.log('New account login ok!');
+    }
+
+    let foundlogin = await(await models.Login).find({
+      account: config.username
+    })
+
+    if(foundlogin.length == 0){
+      login.save();  
+      this.data.login = login;
+    }
+    else{
+      var currentlogin = foundlogin[0]
+      currentlogin.access_token = login.access_token
+      currentlogin.refresh_token = login.refresh_token
+      currentlogin.save();
+      this.data.login = currentlogin;
+    }
+    
+    
     this.data.selfuser = selfuser;
   },
 

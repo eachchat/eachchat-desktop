@@ -95,7 +95,7 @@ var models = {
           del:          types.integer,
           showOrder:    types.integer
         },
-        primaryKey: "deparmentId"
+        primaryKey: "departmentId"
       });
     })();
   },
