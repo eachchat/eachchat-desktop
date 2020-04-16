@@ -2,7 +2,7 @@
     <div class="chat-panel">
       <div class="chat-list">
         <div class="list-header">
-          <listHeader/>
+          <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
         </div>
         <p class="chat-label">普通</p>
         <div class="list-content" :key="needUpdate">
@@ -67,6 +67,9 @@ export default {
     };
   },
   methods: {
+    getCreateGroupInfo(groupInfo) {
+      console.log("Created Info is ", groupInfo)
+    },
     updateChatList(newMsg) {
       ++this.needUpdate;
       for(var i=0;i<this.$store.state.chatGroup.length;i++) {
