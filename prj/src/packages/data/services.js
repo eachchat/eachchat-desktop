@@ -32,12 +32,28 @@ const common = {
 
   mqttclient: undefined,
 
-  get GetLoginModel(){
+  async GetLoginModel(){
+    let foundlogin = await(await models.Login).find(
+      {
+        $size: 1,
+        $reverse: true
+      });
+    if(foundlogin.length == 0){
+      return;
+    }
+    this.data.login = foundlogin[0];
     return this.data.login;
   },
 
-  get GetSelfUserModel(){
-     return this.data.selfuser;
+  async GetSelfUserModel(){
+    var foundUsers = await(await models.User).find({
+      id: this.data.login.user_id
+    });
+    if(foundUsers.length == 0){
+      return;
+    }
+    this.data.selfuser = foundUsers[0]
+    return this.data.selfuser;
   },
 
   get GetAllDepartmentsModel()
@@ -66,17 +82,17 @@ const common = {
   },
 
   get GetRecentUsers(){
-    let recentusers = []
-    let sortkey = "last_message_time"
-    let tmpitem
-    let grouptype
+    let recentusers = [];
+    let sortkey = "last_message_time";
+    let tmpitem;
+    let grouptype;
     for(let groupkey in this.data.group)
     {
       tmpitem = this.data.group[groupkey]
       grouptype = this.data.group[groupkey]["group_type"]
       if(!servicemodels.ItemInvalid(grouptype))
       {
-        continue
+        continue;
       }
       if(grouptype == "102")
       {
@@ -124,6 +140,7 @@ const common = {
     }
 
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
+    models.init();
   },
 
   async login() {
@@ -160,10 +177,11 @@ const common = {
     }
 
     let foundlogin = await(await models.Login).find({
-      account: config.username
+      user_id: selfuser.id
     })
 
     if(foundlogin.length == 0){
+      login.user_id = selfuser.id;
       login.save();  
       this.data.login = login;
     }
@@ -228,11 +246,21 @@ const common = {
     let result;
     let useritem;
     let usermodel;
-    this.data.userinfo = []
-    this.data.useremail = []
-    this.data.useraddress = []
-    this.data.userphone = []
-    this.data.userim = []
+    let userInfoModel;
+    let userEmailModel;
+    let userAddressModel;
+    let userPhoneModel;
+    let userImModel;
+    this.data.userinfo = [];
+    this.data.useremail = [];
+    this.data.useraddress = [];
+    this.data.userphone = [];
+    this.data.userim = [];
+    await (await models.UserInfo).truncate()
+    await (await models.UserEmail).truncate()
+    await (await models.UserAddress).truncate()
+    await (await models.UserPhone).truncate()
+    await (await models.UserIm).truncate()
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
@@ -246,16 +274,29 @@ const common = {
       {
         index++;
         useritem = result.data.results[item]
-        usermodel = servicemodels.UsersModel(useritem)
+        usermodel = await servicemodels.UsersModel(useritem)
         if(usermodel == undefined)
         {
           continue;
         }
-        this.data.userinfo.push(usermodel[0])
-        this.data.useremail.push(usermodel[1])
-        this.data.useraddress.push(usermodel[2])
-        this.data.userphone.push(usermodel[3])
-        this.data.userim.push(usermodel[4])
+        userInfoModel = usermodel[0];
+        userInfoModel.save();
+        this.data.userinfo.push(userInfoModel);
+
+        userEmailModel = usermodel[1];
+        userEmailModel.save();
+        this.data.useremail.push(userEmailModel);
+        userAddressModel = usermodel[2];
+        userAddressModel.save();
+        this.data.useraddress.push(userAddressModel);
+        
+        userPhoneModel = usermodel[3];
+        userPhoneModel.save();
+        this.data.userphone.push(userPhoneModel);
+
+        userImModel = usermodel[4];
+        userImModel.save();
+        this.data.userim.push(userImModel);
       }
     }while(result.data.total > index);
   },
@@ -280,6 +321,7 @@ const common = {
     let departmentitem;
     let departmentmodel;
     this.data.department = []
+    await(await models.Department).truncate()
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
@@ -295,7 +337,7 @@ const common = {
         departmentitem = result.data.results[item]
         departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
         this.data.department.push(departmentmodel)
-        departmentmodel.save()
+        departmentmodel.save();        
       }
     }while(result.data.total > index);  
   },

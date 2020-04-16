@@ -72,10 +72,10 @@ var models = {
         fields: {
           access_token: types.string,
           refresh_token: types.string,
-          account: types.string,
+          user_id: types.string,
           password: types.string
         },
-        primaryKey: 'account'
+        primaryKey: 'user_id'
       });
     })();
   },
@@ -124,10 +124,10 @@ var models = {
           remark_name_py:           types.string,
           avatar_o_url:             types.string,
           avatar_t_url:             types.string,
-          user_active:              types.integer,
           work_description:         types.string,
           status_description:       types.string
-        }
+        },
+        primaryKey: "user_id"
       });
     })();
   },
@@ -138,12 +138,13 @@ var models = {
         storage: this.storage.sqlite,
         index: 'useremail',
         fields: {
-          email_id:      types.integer,
+          id:      types.integer,
           owner_user_id: types.string,
           email_value:    types.string,
           email_type:    types.string,
           email_primary: types.integer
-        }
+        },
+        primaryKey: "id"
       });
     })();
   },
@@ -154,12 +155,13 @@ var models = {
         storage: this.storage.sqlite,
         index: 'useraddress',
         fields: {
-          address_id:         types.integer,
+          id:         types.integer,
           owner_user_id:      types.string,
           address_value:            types.string,
           address_locality:           types.string,
           address_region:             types.string
-        }
+        },
+        primaryKey: "id"
       });
     })();
   },
@@ -170,11 +172,12 @@ var models = {
         storage: this.storage.sqlite,
         index: 'userphone',
         fields: {
-          phone_id:       types.integer,
+          id:       types.integer,
           owner_user_id:  types.string,
           phone_value:    types.string,
           phone_type:     types.string        
-        }
+        },
+        primaryKey: "id"
       });
     })();
   },
@@ -185,10 +188,11 @@ var models = {
         storage: this.storage.sqlite,
         index: "userim",
         fields: {
-          im_id:          types.integer,
+          id:          types.integer,
           owner_user_id:  types.string,
           im_value:       types.string
-        }
+        },
+        primaryKey: "id"
       });
     })();
   },

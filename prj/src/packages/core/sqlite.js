@@ -391,6 +391,11 @@ class Sql {
     this._sql = "select last_insert_rowid();";
     return this;
   }
+
+  truncate(table) {
+    this._sql = "delete from " + table + ";";
+    return this;
+  }
 }
 
 export {
