@@ -500,6 +500,10 @@ const common = {
 
   async downloadTumbnail(type, sequenceId) {
     return await this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
+  },
+  
+  async createGroup(groupNameValue, groupUsersArray){
+    return await this.api.createGroup(this.data.login.access_token, groupNameValue, groupUsersArray)
   }
 
 };

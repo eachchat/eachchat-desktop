@@ -152,6 +152,20 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async createGroup(accessToken, groupNameValue, groupUsersArray){
+    console.debug("createGroup");
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group",
+      {
+        gropuName: groupNameValue,
+        userIds: groupUsersArray
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
   async updateUserWorkDescription(accessToken, workDescription) {
     console.debug("UpdateUser");
     var response = await this.commonApi.patch(
