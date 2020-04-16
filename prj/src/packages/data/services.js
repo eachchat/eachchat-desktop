@@ -160,11 +160,11 @@ const common = {
     }
 
     let foundlogin = await(await models.Login).find({
-      account: config.username
+      user_id: selfuser.id
     })
 
     if(foundlogin.length == 0){
-      login.account = config.username;
+      login.user_id = selfuser.id;
       login.save();  
       this.data.login = login;
     }

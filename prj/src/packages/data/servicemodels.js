@@ -7,7 +7,7 @@ const servicemodels = {
       var loginValues = {
         access_token: undefined,
         refresh_token: undefined,
-        account: undefined,
+        user_id: undefined,
         password: undefined
       };
 

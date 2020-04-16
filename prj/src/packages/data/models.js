@@ -72,10 +72,10 @@ var models = {
         fields: {
           access_token: types.string,
           refresh_token: types.string,
-          account: types.string,
+          user_id: types.string,
           password: types.string
         },
-        primaryKey: 'account'
+        primaryKey: 'user_id'
       });
     })();
   },
