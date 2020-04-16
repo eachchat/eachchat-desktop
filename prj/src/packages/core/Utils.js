@@ -14,6 +14,15 @@ export function Appendzero(o_num) {
     if(o_num < 10) return "0" + "" + o_num;
     else return o_num;
 }
+
+async function downloadGroupAvatar(url, accesstoken)
+{
+  return axios.get(url,
+  {
+      headers:{Authorization:"Bearer " + accesstoken}
+  })
+}
+
 const mimestruct = {
     "323": "text/h323",
     "3gp": "video/3gpp",
@@ -567,6 +576,6 @@ class FileUtil
     }
 }
 
-export {generalGuid, FileUtil};
+export {generalGuid, FileUtil, downloadGroupAvatar};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
