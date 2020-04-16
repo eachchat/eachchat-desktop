@@ -42,19 +42,19 @@ class Storage {
   }
 
   async get(index, search) {
-    var result = await this.fetch(index, search);
+    return await this.fetch(index, search);
   }
 
   async post(index, data) {
-    var result = await this.add(index, data);
+    return await this.add(index, data);
   }
 
   async put(index, data, search) {
-    var result = await this.update(index, data, search);
+    return await this.update(index, data, search);
   }
 
   async delete(index, search) {
-    var result = await this.drop(index, search);
+    return await this.drop(index, search);
   }
 }
 

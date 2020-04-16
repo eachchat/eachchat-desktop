@@ -5,7 +5,9 @@
  */
 
 import * as services from './services.js'
+import {environment} from './environment.js'
 
 export {
-  services
+  services,
+  environment
 }

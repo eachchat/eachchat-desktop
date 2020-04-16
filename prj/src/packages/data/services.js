@@ -1,5 +1,6 @@
 import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
+import { models } from './models.js';
 const mqtt = require('mqtt')
 
 const commonConfig = {
@@ -102,6 +103,10 @@ const common = {
   },
 
   init(config) {
+    if (typeof config != "object") {
+      config = {};
+    }
+
     if ("hostname" in config) {
       this.config.hostname = config.hostname;
     }
@@ -121,36 +126,67 @@ const common = {
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
   },
 
-  login() {
-    return (async (api, config, data, LoginModel) => {
-      let result = await api.login(config.username, config.password);
+  async login() {
+    var api = this.api;
+    var config = this.config;
+    var data = this.data;
 
-      
-      if (!result.ok || !result.success) {
-        return result.data;
-      }
+    let result = await this.api.login(config.username, config.password);
 
-      if (200 != result.data.code) {
-        return result.data;
-      }
+    if (!result.ok || !result.success) {
+      return result.data;
+    }
 
-      let retmodels = LoginModel(result);
-      data.login = retmodels[0]
-      data.selfuser = retmodels[1] 
-      
-      
-    })(this.api, this.config, this.data, servicemodels.LoginModel);
     
+    var retmodels = await servicemodels.LoginModel(result)
+    let login = retmodels[0]
+    let selfuser = retmodels[1]
+
+
+    var foundUsers = await(await models.User).find({
+      id: selfuser.id
+    });
+
+    if (foundUsers instanceof Array
+      && foundUsers.length > 0) {
+      var foundUser = foundUsers[0];
+      foundUser.values = selfuser.values;
+      foundUser.save();
+
+      console.log('Your profile has been update!');
+    } else {
+      selfuser.save();
+      console.log('New account login ok!');
+    }
+
+    let foundlogin = await(await models.Login).find({
+      account: config.username
+    })
+
+    if(foundlogin.length == 0){
+      login.save();  
+      this.data.login = login;
+    }
+    else{
+      var currentlogin = foundlogin[0]
+      currentlogin.access_token = login.access_token
+      currentlogin.refresh_token = login.refresh_token
+      currentlogin.save();
+      this.data.login = currentlogin;
+    }
+    
+    
+    this.data.selfuser = selfuser;
   },
 
   initmqtt(){
     this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.userid + '|1111111111111111111'});
+                                      clientId: this.data.selfuser.id + '|1111111111111111111'});
       
     let mqttclient = this.mqttclient;
-    let userid = this.data.selfuser.userid;
+    let userid = this.data.selfuser.id;
     mqttclient.on('connect', function(){
         console.log("connect success")
         console.log(userid)
@@ -241,6 +277,8 @@ const common = {
   async AllDepartmentInfo(){
     let index = 0;
     let result;
+    let departmentitem;
+    let departmentmodel;
     this.data.department = []
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
@@ -254,7 +292,10 @@ const common = {
       for(var item in result.data.results)
       {
         index++;
-        this.data.department.push(result.data.results[item])
+        departmentitem = result.data.results[item]
+        departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
+        this.data.department.push(departmentmodel)
+        departmentmodel.save()
       }
     }while(result.data.total > index);  
   },

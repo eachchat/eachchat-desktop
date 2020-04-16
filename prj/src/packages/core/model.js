@@ -5,242 +5,417 @@
  */
 
 import {serial,
-				integer,
-  			string,
-  			float,
-  			date} from './types.js';
+        bool,
+        integer,
+        string,
+        float,
+        date} from './types.js';
 import {Storage} from './storage.js';
 
 const fieldTypes = {
-	[serial]: {
-		default: 0,
+  [serial]: {
+    default: 0,
 
-		parse(value) {
-			value = Number.parseInt(value);
+    parse(value) {
+      if (typeof value == "undefined") {
+        return 0;
 
-			if (!Number.isNaN(value)) {
-				return value;
-			}
+      } else if (value == null) {
+        return 0;
+      }
 
-			return 0;
-		}
-	},
+      value = Number.parseInt(value);
 
-	[integer]: {
-		default: 0,
+      if (!Number.isNaN(value)) {
+        return value;
+      }
 
-		parse(value) {
-			value = Number.parseInt(value);
+      return 0;
+    }
+  },
 
-			if (!Number.isNaN(value)) {
-				return value;
-			}
+  [bool]: {
+    default: 1,
 
-			return 0;
-		}
-	},
+    parse(value) {
+      if (typeof value == "boolean") {
+        return value ? 1 : 0;
 
-	[float]: {
-		default: 0.0,
+      } else if (value == null) {
+        return 0;
+      }
 
-		parse(value) {
-			value = Number.parseFloat(value);
+      value = Number.parseInt(value);
 
-			if (!Number.isNaN(value)) {
-				return value;
-			}
+      if (Number.isNaN(value)) {
+        return 0;
+      }
 
-			return 0.0;
-		}
-	},
+      if (value > 0) {
+        return 1;
+      }
 
-	[string]: {
-		default: "",
+      return 0;
+    },
 
-		parse(value) {
-			value = String(value);
-			return value;
-		}
-	},
+    generate(value) {
+      if (typeof value != "number") {
+        return false;
+      }
 
-	[date]: {
-		default() {
-			return new Date(0);
-		},
+      return value > 0 ? true : false;
+    }
+  },
 
-		parse (value) {
-			if (typeof value === "number" && !Number.isNaN(value)) {
-				return new Date(Number(value) * 1000);
+  [integer]: {
+    default: 0,
 
-			} else if (typeof value === "string") {
-				var timeStamp = Number(value);
+    parse(value) {
+      if (value == null) {
+        return 0;
+      }
 
-				if (Number.isNaN(timeStamp)) {
-					timeStamp = 0;
+      value = Number.parseInt(value);
 
-					// console.log('Illegal date value: ', value);
-				}
+      if (Number.isNaN(value)) {
+        return 0;
+      }
 
-				return new Date(timeStamp * 1000);
+      return value;
+    }
+  },
 
-			} else if (value instanceof Date) {
-				return value;
-			}
+  [float]: {
+    default: 0.0,
 
-			return new Date(0);
-		}
-	}
-}
+    parse(value) {
+      value = Number.parseFloat(value);
+
+      if (!Number.isNaN(value)) {
+        return value;
+      }
+
+      return 0.0;
+    }
+  },
+
+  [string]: {
+    default: "",
+
+    parse(value) {
+      if (typeof value == "undefined") {
+        return "";
+
+      } else if (value == null) {
+        return "";
+      }
+
+      value = String(value);
+      return value;
+    }
+  },
+
+  [date]: {
+    default() {
+      return (new Date()).getTime() / 1000;
+    },
+
+    parse (value) {
+      if (typeof value == "number") {
+        return value;
+
+      } else if (value instanceof Date) {
+        return value.getTime() / 1000;
+
+      } else if (value == null) {
+        return this.default();
+      }
+    },
+
+    generate(value) {
+      if (typeof value === "number" && !Number.isNaN(value)) {
+        return new Date(Number(value) * 1000);
+
+      } else if (value instanceof Date) {
+        return value;
+      }
+
+      return new Date();
+    }
+  }
+};
 
 class Model {
-	constructor(values) {
-		this._attr = {};
-		this._originAttr = {};
-		this._commited = false;
+  constructor(values) {
+    this._attr = {};
+    this._originAttr = {};
+    this._commited = false;
 
-		if (typeof values != "object") {
-			values = {};
-		}
+    if (typeof values != "object") {
+      values = {};
+    }
 
-		this.initialize(values);
-	}
+    this.initialize();
 
-	initialize(values) {
-		if (typeof this.constructor.fields != "object") {
-			return;
-		}
+    this.values = values;
+  }
 
-		var fields = this.constructor.fields;
+  initialize() {
+    if (typeof this.constructor.fields != "object") {
+      return;
+    }
 
-		for (var fieldKey in fields) {
-			if (!fields.hasOwnProperty(fieldKey)) {
-				continue;
-			}
+    var fields = this.constructor.fields;
+    var empties = {};
 
-			var fieldTypeName = fields[fieldKey];
+    for (var fieldKey in fields) {
+      var fieldType = fields[fieldKey];
 
-			if (fieldTypeName in fieldTypes) {
-				var fieldType = fieldTypes[fieldTypeName];
+      // Check illegal type
+      if (!(fieldType in fieldTypes)) {
+        continue;
+      }
 
-				this.initField(fieldKey, fieldType);
-				this.initFieldValue(fieldKey, fieldType, values);
-			}
-		}
-	}
+      fieldType = fieldTypes[fieldType];
 
-	initField(fieldKey, field) {
-		(function (_this, _fieldKey, _field) {
-			Object.defineProperty(_this, _fieldKey, {
-				set: function (value) {
-					this._attr[_fieldKey] = _field.parse(value);
-				},
+      this.initField(fieldKey, fieldType);
+      empties = this.initFieldEmpties(empties, fieldKey);
+    }
 
-				get: function() {
-					return this._attr[_fieldKey];
-				}
-			});
-		})(this, fieldKey, field);
-	}
+    this.empty = Object.freeze(empties);
+  }
 
-	initFieldValue(fieldKey, field, values) {
-		// Initialize attributes
-		if (!values.hasOwnProperty(fieldKey)) {
-			if (typeof field.default == "function") {
-				this._attr[fieldKey] = field.default();
-				return;
-			}
+  initField(fieldKey, fieldType) {
+    const name = fieldKey;
+    const type = fieldType;
 
-			this._attr[fieldKey] = field.default;
-			return;
-		}
+    Object.defineProperty(this, name, {
+      set: function (value) {
+        this._attr[name] = type.parse(value);
+      },
 
-		var parsedValue = field.parse(values[fieldKey]);
+      get: function() {
+        if (!(name in this._attr)) {
+          if (typeof type.default == "function") {
+            return type.default();
+          }
 
-		this._attr[fieldKey] = parsedValue;
-		this._originAttr = Object.freeze(Object.assign({}, this._attr));
-	}
+          return type.default;
+        }
 
-	async save() {
-		var storage = this.constructor.storage;
-		var index = this.constructor.index;
-		var fields = this.constructor.fields;
-		var attr = Object.assign({}, this._attr);
-		var originAttr = this._originAttr;
+        if ("generate" in type) {
+          return type.generate(this._attr[name]);
+        }
 
-		for (var fieldKey in fields) {
-			if (!fields.hasOwnProperty(fieldKey)) {
-				continue;
-			}
-		}
+        return this._attr[name];
+      }
+    });
+  }
 
-		if (this._commited) {
-			await storage.post(index, attr);
-			this._commited = true;
+  initFieldEmpties(empties, fieldKey) {
+    const name = fieldKey;
+    var _this = this;
 
-		} else {
-			await storage.put(index, attr, originAttr);
-			this._originAttr = Object.freeze(Object.assign({}, attr));
-		}
+    Object.defineProperty(empties, name, {
+      get: function() {
+        return !_this._attr.hasOwnProperty(name);
+      }
+    });
 
-		return this;
-	}
+    return empties;
+  }
 
-	async destroy() {
-		var storage = this.constructor.storage;
-		var index = this.constructor.index;
-		var originAttr = this._originAttr;
+  get values() {
+    return Object.assign({}, this._attr);
+  }
 
-		if (this._commited) {
-			await storage.delete(index, originAttr);
-		}
+  set values(values) {
+    if (typeof values != "object") {
+      values = {};
+    }
 
-		return this;
-	}
+    const fields = this.constructor.fields;
 
-	static create(storage, index, fields) {
-		var newModel = (function () {
-			return class extends Model {
-				constructor(values) {
-					super(values);
-				}
-			};
-		})();
+    for (var name in values) {
+      var check = false;
 
-		newModel.storage = undefined;
-		newModel.fields = fields;
+      if (name in fields) {
+        check = true;
 
-		if (storage instanceof Storage) {
-			newModel.storage = storage;
-		}
+      } 
 
-		return newModel;
-	}
+      if (!check) {
+        continue;
+      }
 
-	static spawn(values, isCommited) {
-		var newInstance = new this(values);
-		newInstance._commited = isCommited;
-		return newInstance;
-	}
+      var value = values[name];
+      this[name] = value;
+    }
+  }
 
-	static async find(search) {
-		var storage = this.storage;
-		var index = this.index;
+  get commited() {
+    return this._commited;
+  }
 
-		var result = await this.storage.get(index, search);
+  set commited(status) {
+    if (status) {
+      this._commited = true;
+      this._originAttr = Object.freeze(Object.assign({}, attr));
+    }
+  }
 
-		if (!result instanceof Array) {
-			result = [];
-		}
+  async save() {
+    var storage = this.constructor.storage;
+    var index = this.constructor.index;
+    var fields = this.constructor.fields;
+    var primaryKeys = this.constructor.primaryKeys;
+    var attr = Object.assign({}, this._attr);
+    var originAttr = this._originAttr;
 
-		for (var i = 0; i < result.length; i++) {
-			var newInstance = this.spawn(result[i], true);
-			instances.push(newInstance);
-		}
+    for (var fieldKey in fields) {
+      if (!fields.hasOwnProperty(fieldKey)) {
+        continue;
+      }
+    }
 
-		return instances;
-	}
+    if (!this._commited) {
+      var result = await storage.post(index, attr);
+
+      if (typeof result == "undefined") {
+        console.log("save failed!!!");
+        return this;
+      }
+
+      for (var i = 0; i < primaryKeys.length; i++) {
+        var primaryKey = primaryKeys[i];
+
+        if (primaryKey in result) {
+          this[primaryKey] = result[primaryKey];
+        }
+      }
+
+      this._commited = true;
+
+    } else {
+      await storage.put(index, attr, originAttr);
+    }
+
+    // Update origin attributes
+    this._originAttr = Object.freeze(Object.assign({}, attr));
+
+    return this;
+  }
+
+  async destroy() {
+    var storage = this.constructor.storage;
+    var index = this.constructor.index;
+    var originAttr = this._originAttr;
+
+    if (this._commited) {
+      await storage.delete(index, originAttr);
+    }
+
+    this._attr = {};
+    this._originAttr = {};
+    this._commited = false;
+
+    return this;
+  }
+
+  static async create(config) {
+    if (typeof config != "object") {
+      return undefined;
+    }
+
+    if (!("fields" in config)) {
+      return undefined;
+    }
+
+    var storage = undefined;
+    var index = "";
+    var fields = {};
+    var primaryKeys = [];
+
+    if ("storage" in config
+      && config.storage instanceof Storage) {
+      storage = config.storage;
+    }
+
+    if ("index" in config
+      && typeof config.index == "string") {
+      index = config.index;
+    }
+
+    if (typeof config.fields == "object") {
+      fields = config.fields;
+    }
+
+    if ("primaryKey" in config) {
+      if (typeof config.primaryKey == "string") {
+        primaryKeys.push(config.primaryKey);
+
+      } else if (config.primaryKey instanceof Array) {
+        for (var i = 0; i < config.primaryKey.length; i++) {
+          if (!(typeof config.primaryKey[i] == "string")) {
+            continue;
+          }
+
+          primaryKeys.push(config.primaryKey[i]);
+        }
+      }
+    }
+
+    var newModel = (function () {
+      return class extends Model {
+        constructor(values) {
+          super(values);
+        }
+      };
+    })();
+
+    newModel.storage = storage;
+    newModel.index = index;
+    newModel.fields = fields;
+    newModel.primaryKeys = primaryKeys;
+
+    await storage.registerFields(index, fields, primaryKeys);
+    
+    return newModel;
+  }
+
+  static spawn(values, isCommited) {
+    var newInstance = new this(values);
+    newInstance._commited = isCommited;
+    return newInstance;
+  }
+
+  static async find(search) {
+    var storage = this.storage;
+    var index = this.index;
+
+    if (typeof search != "object") {
+      search = {};
+    }
+
+    var result = await this.storage.get(index, search);
+
+    if (!(result instanceof Array)) {
+      result = [];
+    }
+
+    var instances = [];
+
+    for (var i = 0; i < result.length; i++) {
+      var newInstance = this.spawn(result[i], true);
+      // Update origin attributes
+      newInstance._originAttr = Object.freeze(Object.assign({}, newInstance._attr));
+      instances.push(newInstance);
+    }
+
+    return instances;
+  }
 }
 
 export {
-	Model
+  Model
 }

@@ -1,10 +1,9 @@
 import { models } from './models.js';
 
 const servicemodels = {
-    LoginModel(result)
+  async LoginModel(result)
     {
       var loginValues = {
-        id: undefined,
         access_token: undefined,
         refresh_token: undefined,
         account: undefined,
@@ -25,7 +24,8 @@ const servicemodels = {
         locale: undefined,
         timezone: undefined,
         is_active: undefined,
-        bio: undefined
+        bio: undefined,
+        job: undefined
       };
       var headersHave = {
         "access-token": "access_token",
@@ -33,20 +33,23 @@ const servicemodels = {
       };
 
       var userObjectHave = {
-        "aId": "id",
-        "id": "userid",
+        "id": "id",
         "displayName": "name",
         "displayNamePy": "pinyin",
         "nickName": "nick_name",
         "avatarOUrl": "avatar",
         "avatarTUrl": "avatar_minimal",
         "title": "role_name",
+        "roleId": "role_id",
         "preferredLanguage": "language",
         "locale": "locale",
         "timezone": "timezone",
         "active": "is_active",
-        "statusDescription": "bio"
+        "statusDescription": "bio",
+        "title":"job"
       };
+
+      models.init();
 
       for (var key in headersHave) {
         if (key in result.headers) {
@@ -59,10 +62,16 @@ const servicemodels = {
           userValues[userObjectHave[key]] = result.data.obj[key];
         }
       }
-      return [new models.Login(loginValues), new models.User(userValues)];
+      const LoginModel = await models.Login
+      const UserModel = await models.User
+      
+      let loginmodel = new LoginModel(loginValues)
+      let selfusermodel = new UserModel(userValues)
+      
+      return [loginmodel, selfusermodel];
     },
 
-    DepartmentsModel(department)
+    async DepartmentsModel(department)
     {
       var departmentvalue={
         departmentId: undefined,
@@ -88,9 +97,10 @@ const servicemodels = {
       }
       
       for(var key in responsemap){
-        departmentvalue[responsemap[key]] = departments[key]
+        departmentvalue[responsemap[key]] = department[key]
       }
-      return new models.Department(departmentvalue)
+      const DepartModelClass = await models.Department;
+      return new DepartModelClass(departmentvalue)
     },
 
     UsersModel(useritem){
