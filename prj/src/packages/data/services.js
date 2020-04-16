@@ -32,12 +32,28 @@ const common = {
 
   mqttclient: undefined,
 
-  get GetLoginModel(){
+  async GetLoginModel(){
+    let foundlogin = await(await models.Login).find(
+      {
+        $size: 1,
+        $reverse: true
+      });
+    if(foundlogin.length == 0){
+      return;
+    }
+    this.data.login = foundlogin[0];
     return this.data.login;
   },
 
-  get GetSelfUserModel(){
-     return this.data.selfuser;
+  async GetSelfUserModel(){
+    var foundUsers = await(await models.User).find({
+      id: this.data.login.user_id
+    });
+    if(foundUsers.length == 0){
+      return;
+    }
+    this.data.selfuser = foundUsers[0]
+    return this.data.selfuser;
   },
 
   get GetAllDepartmentsModel()
@@ -68,15 +84,15 @@ const common = {
   get GetRecentUsers(){
     let recentusers = [];
     let sortkey = "last_message_time";
-    let tmpitem
-    let grouptype
+    let tmpitem;
+    let grouptype;
     for(let groupkey in this.data.group)
     {
       tmpitem = this.data.group[groupkey]
       grouptype = this.data.group[groupkey]["group_type"]
       if(!servicemodels.ItemInvalid(grouptype))
       {
-        continue
+        continue;
       }
       if(grouptype == "102")
       {
@@ -124,6 +140,7 @@ const common = {
     }
 
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
+    models.init();
   },
 
   async login() {

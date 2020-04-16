@@ -50,8 +50,6 @@ const servicemodels = {
         "title":"job"
       };
 
-      models.init();
-
       for (let key in headersHave) {
         if (key in result.headers) {
           loginValues[headersHave[key]] = result.headers[key];
