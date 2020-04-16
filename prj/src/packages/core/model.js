@@ -414,6 +414,13 @@ class Model {
 
     return instances;
   }
+
+  static async truncate() {
+    var storage = this.storage;
+    var index = this.index;
+
+    await this.storage.truncate(index);
+  }
 }
 
 export {

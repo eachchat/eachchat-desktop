@@ -405,6 +405,20 @@ class SQLiteStorage extends Storage {
       return e;
     }
   }
+
+  async truncate(index) {
+    var sql = new Sql();
+    var database = await this.getDatabase();
+
+    sql.truncate(index);
+
+    var result = database.exec(sql);
+    database.dump();
+
+    this.sql = sql;
+
+    return result;
+  }
 }
 
 export {
