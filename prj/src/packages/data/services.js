@@ -164,6 +164,7 @@ const common = {
     })
 
     if(foundlogin.length == 0){
+      login.account = config.username;
       login.save();  
       this.data.login = login;
     }
@@ -238,6 +239,11 @@ const common = {
     this.data.useraddress = [];
     this.data.userphone = [];
     this.data.userim = [];
+    await (await models.UserInfo).truncate()
+    await (await models.UserEmail).truncate()
+    await (await models.UserAddress).truncate()
+    await (await models.UserPhone).truncate()
+    await (await models.UserIm).truncate()
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
@@ -263,11 +269,10 @@ const common = {
         userEmailModel = usermodel[1];
         userEmailModel.save();
         this.data.useremail.push(userEmailModel);
-
         userAddressModel = usermodel[2];
         userAddressModel.save();
         this.data.useraddress.push(userAddressModel);
-
+        
         userPhoneModel = usermodel[3];
         userPhoneModel.save();
         this.data.userphone.push(userPhoneModel);
@@ -299,6 +304,7 @@ const common = {
     let departmentitem;
     let departmentmodel;
     this.data.department = []
+    await(await models.Department).truncate()
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {

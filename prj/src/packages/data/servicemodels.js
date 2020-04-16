@@ -52,22 +52,22 @@ const servicemodels = {
 
       models.init();
 
-      for (var key in headersHave) {
+      for (let key in headersHave) {
         if (key in result.headers) {
           loginValues[headersHave[key]] = result.headers[key];
         }
       }
 
-      for (var key in userObjectHave) {
+      for (let key in userObjectHave) {
         if (key in result.data.obj) {
           userValues[userObjectHave[key]] = result.data.obj[key];
         }
       }
-      const LoginModel = await models.Login
-      const UserModel = await models.User
+      const LoginModel = await models.Login;
+      const UserModel = await models.User;
       
-      let loginmodel = new LoginModel(loginValues)
-      let selfusermodel = new UserModel(userValues)
+      let loginmodel = new LoginModel(loginValues);
+      let selfusermodel = new UserModel(userValues);
       
       return [loginmodel, selfusermodel];
     },
@@ -153,7 +153,6 @@ const servicemodels = {
       }
 
       var useremailvalue = {
-        email_id:      undefined,
         owner_user_id: undefined,
         email_value:    undefined,
         email_type:    undefined,
@@ -168,7 +167,6 @@ const servicemodels = {
       };
 
       var useraddressvalue = {
-        address_id:         undefined,
         owner_user_id:      undefined,
         address_value:            undefined,
         address_locality:           undefined,
@@ -183,7 +181,6 @@ const servicemodels = {
       };
 
       var userphonevalue = {
-        phone_id: undefined,
         owner_user_id: undefined,
         phone_value: undefined,
         phone_type: undefined        
@@ -196,7 +193,6 @@ const servicemodels = {
       };
 
       var userimvalue = {
-        im_id:          undefined,
         owner_user_id:  undefined,
         im_value:       undefined
       };
