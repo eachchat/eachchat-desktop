@@ -103,7 +103,7 @@ const servicemodels = {
       return new DepartModelClass(departmentvalue)
     },
 
-    UsersModel(useritem){
+    async UsersModel(useritem){
       var userinfovalue={
         user_id:                  undefined,
         belong_to_department_id:  undefined,
@@ -254,16 +254,16 @@ const servicemodels = {
         userimvalue[userimmap[imkey]] = useritem[imkey]
       }
 
-      userinfomodel = new models.UserInfo(userinfovalue)
-      useremailmodel = new models.UserEmail(useremailvalue)
-      useraddressmodel = new models.UserAddress(useraddressvalue)
-      userphonemodel = new models.UserPhone(userphonevalue)
-      userimmodel = new models.UserIm(userimvalue)
+      userinfomodel = await new models.UserInfo(userinfovalue)
+      useremailmodel = await new models.UserEmail(useremailvalue)
+      useraddressmodel = await new models.UserAddress(useraddressvalue)
+      userphonemodel = await new models.UserPhone(userphonevalue)
+      userimmodel = await new models.UserIm(userimvalue)
       
       return [userinfomodel, useremailmodel, useraddressmodel, userphonemodel, userimmodel];
     },
 
-    GroupsModel(groupitem)
+    async GroupsModel(groupitem)
     {
       var groupvalue = {
         group_id :              undefined,
@@ -329,7 +329,8 @@ const servicemodels = {
       {
         groupvalue[objmap[key]] = groupitem[key]
       }
-      groupmodel = new models.Groups(groupvalue)
+
+      groupmodel = await new models.Groups(groupvalue)
       return groupmodel
     },
 
@@ -342,7 +343,7 @@ const servicemodels = {
       return true
     },
 
-    MessageModel(message)
+    async MessageModel(message)
     {
       var messgevalue = {
         message_id:         undefined,
@@ -382,7 +383,7 @@ const servicemodels = {
           messgevalue[messagemap[key]] = message[key]
         }
       }
-      return new models.Message(messgevalue)
+      return await new models.Message(messgevalue)
     }
 }
 
