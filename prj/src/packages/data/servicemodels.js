@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 import { models } from './models.js';
 
 const servicemodels = {
@@ -123,7 +124,6 @@ const servicemodels = {
         remark_name_py:           undefined,
         avatar_o_url:             undefined,
         avatar_t_url:             undefined,
-        user_active:              undefined,
         work_description:         undefined,
         status_description:       undefined
       }
@@ -158,14 +158,14 @@ const servicemodels = {
         email_value:    undefined,
         email_type:    undefined,
         email_primary: undefined
-      }
+      };
 
       var useremailmap = {
         "id":       "owner_user_id",
         "value":    "email_value",
         "type":     "email_type",
         "primary":  "email_primary",
-      }
+      };
 
       var useraddressvalue = {
         address_id:         undefined,
@@ -173,47 +173,47 @@ const servicemodels = {
         address_value:            undefined,
         address_locality:           undefined,
         address_region:             undefined
-      }
+      };
 
       var useraddressmap = {
         "id":"owner_user_id",
         "address": "address_value",
         "locale":"address_locality",
         "registrationId": "address_region"
-      }
+      };
 
       var userphonevalue = {
         phone_id: undefined,
         owner_user_id: undefined,
         phone_value: undefined,
         phone_type: undefined        
-      }
+      };
 
       var userphonemap = {
         "id":"owner_user_id",
         "value": "phone_value",
         "type": "phone_type",
-      }
+      };
 
       var userimvalue = {
         im_id:          undefined,
         owner_user_id:  undefined,
         im_value:       undefined
-      }
+      };
 
       var userimmap = {
         "id":    "owner_user_id",
         "value": "im_value"
-      }
+      };
 
-      let userinfomodel
-      let useremailmodel
-      let useraddressmodel
-      let userphonemodel
-      let userimmodel
+      let userinfomodel;
+      let useremailmodel;
+      let useraddressmodel;
+      let userphonemodel;
+      let userimmodel;
 
-      let useritem_email = useritem["emails"]
-      let useritem_phone = useritem["phoneNumbers"]
+      let useritem_email = useritem.emails;
+      let useritem_phone = useritem.phoneNumbers;
       if(!this.ItemInvalid(useritem_email))
       {
         return undefined;
@@ -225,40 +225,48 @@ const servicemodels = {
       }
       
       for(var infokey in userinfomap){
-        userinfovalue[userinfomap[infokey]] = useritem[infokey]
+        userinfovalue[userinfomap[infokey]] = useritem[infokey];
       }
 
       for(var emailitem in useritem_email)
       {
         for(var emailkey in useremailmap){
-          useremailvalue[useremailmap[emailkey]] = useritem_email[emailitem][emailkey]
+          useremailvalue[useremailmap[emailkey]] = useritem_email[emailitem][emailkey];
         }
-        useremailvalue.owner_user_id = userinfovalue.user_id
+        useremailvalue.owner_user_id = userinfovalue.user_id;
       }  
 
       for( var addresskey in useraddressmap){
-        useraddressvalue[useraddressmap[addresskey]] = useritem[addresskey]
+        useraddressvalue[useraddressmap[addresskey]] = useritem[addresskey];
       }
 
       for(var phoneitem in useritem_phone)
       {
         for(var phonekey in userphonemap)
         {
-          userphonevalue[userphonemap[phonekey]] = useritem_phone[phoneitem][phonekey]
+          userphonevalue[userphonemap[phonekey]] = useritem_phone[phoneitem][phonekey];
         }
-        userphonevalue.owner_user_id = userinfovalue.user_id
+        userphonevalue.owner_user_id = userinfovalue.user_id;
       }
 
       for(var imkey in userimmap)
       {
-        userimvalue[userimmap[imkey]] = useritem[imkey]
+        userimvalue[userimmap[imkey]] = useritem[imkey];
       }
+      const infoModel = await models.UserInfo;
+      userinfomodel = await new infoModel(userinfovalue);
 
-      userinfomodel = await new models.UserInfo(userinfovalue)
-      useremailmodel = await new models.UserEmail(useremailvalue)
-      useraddressmodel = await new models.UserAddress(useraddressvalue)
-      userphonemodel = await new models.UserPhone(userphonevalue)
-      userimmodel = await new models.UserIm(userimvalue)
+      const emailModel = await models.UserEmail;
+      useremailmodel = await new emailModel(useremailvalue);
+
+      const addressModel = await models.UserAddress;
+      useraddressmodel = await new addressModel(useraddressvalue);
+
+      const phoneModel = await models.UserPhone;
+      userphonemodel = await new phoneModel(userphonevalue);
+    
+      const imModel = await models.UserIm;
+      userimmodel = await new imModel(userimvalue);
       
       return [userinfomodel, useremailmodel, useraddressmodel, userphonemodel, userimmodel];
     },

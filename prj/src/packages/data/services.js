@@ -66,8 +66,8 @@ const common = {
   },
 
   get GetRecentUsers(){
-    let recentusers = []
-    let sortkey = "last_message_time"
+    let recentusers = [];
+    let sortkey = "last_message_time";
     let tmpitem
     let grouptype
     for(let groupkey in this.data.group)
@@ -228,11 +228,16 @@ const common = {
     let result;
     let useritem;
     let usermodel;
-    this.data.userinfo = []
-    this.data.useremail = []
-    this.data.useraddress = []
-    this.data.userphone = []
-    this.data.userim = []
+    let userInfoModel;
+    let userEmailModel;
+    let userAddressModel;
+    let userPhoneModel;
+    let userImModel;
+    this.data.userinfo = [];
+    this.data.useremail = [];
+    this.data.useraddress = [];
+    this.data.userphone = [];
+    this.data.userim = [];
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
@@ -246,16 +251,30 @@ const common = {
       {
         index++;
         useritem = result.data.results[item]
-        usermodel = servicemodels.UsersModel(useritem)
+        usermodel = await servicemodels.UsersModel(useritem)
         if(usermodel == undefined)
         {
           continue;
         }
-        this.data.userinfo.push(usermodel[0])
-        this.data.useremail.push(usermodel[1])
-        this.data.useraddress.push(usermodel[2])
-        this.data.userphone.push(usermodel[3])
-        this.data.userim.push(usermodel[4])
+        userInfoModel = usermodel[0];
+        userInfoModel.save();
+        this.data.userinfo.push(userInfoModel);
+
+        userEmailModel = usermodel[1];
+        userEmailModel.save();
+        this.data.useremail.push(userEmailModel);
+
+        userAddressModel = usermodel[2];
+        userAddressModel.save();
+        this.data.useraddress.push(userAddressModel);
+
+        userPhoneModel = usermodel[3];
+        userPhoneModel.save();
+        this.data.userphone.push(userPhoneModel);
+
+        userImModel = usermodel[4];
+        userImModel.save();
+        this.data.userim.push(userImModel);
       }
     }while(result.data.total > index);
   },
@@ -295,7 +314,7 @@ const common = {
         departmentitem = result.data.results[item]
         departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
         this.data.department.push(departmentmodel)
-        departmentmodel.save()
+        departmentmodel.save();        
       }
     }while(result.data.total > index);  
   },

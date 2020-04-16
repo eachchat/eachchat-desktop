@@ -124,10 +124,10 @@ var models = {
           remark_name_py:           types.string,
           avatar_o_url:             types.string,
           avatar_t_url:             types.string,
-          user_active:              types.integer,
           work_description:         types.string,
           status_description:       types.string
-        }
+        },
+        primaryKey: "user_id"
       });
     })();
   },
@@ -143,7 +143,8 @@ var models = {
           email_value:    types.string,
           email_type:    types.string,
           email_primary: types.integer
-        }
+        },
+        primaryKey: "email_id"
       });
     })();
   },
@@ -159,7 +160,8 @@ var models = {
           address_value:            types.string,
           address_locality:           types.string,
           address_region:             types.string
-        }
+        },
+        primaryKey: "address_id"
       });
     })();
   },
@@ -174,7 +176,8 @@ var models = {
           owner_user_id:  types.string,
           phone_value:    types.string,
           phone_type:     types.string        
-        }
+        },
+        primaryKey: "phone_id"
       });
     })();
   },
@@ -188,7 +191,8 @@ var models = {
           im_id:          types.integer,
           owner_user_id:  types.string,
           im_value:       types.string
-        }
+        },
+        primaryKey: "im_id"
       });
     })();
   },
