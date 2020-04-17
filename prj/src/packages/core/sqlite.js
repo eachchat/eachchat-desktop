@@ -14,13 +14,13 @@ class Sqlite {
 
   async init() {
     var filename = this.filename;
-    var fileBuffer = undefined;
+    var fileBuffer;
 
     if (typeof this.db != "undefined") {
       return this;
     }
 
-    var initSqlJs = undefined;
+    var initSqlJs;
 
     if (typeof window == "undefined") {
       initSqlJs = require('sql.js');
@@ -90,7 +90,7 @@ class Sqlite {
     }
 
     if (sql[sql.length - 1] != ";") {
-      sql += ";"
+      sql += ";";
     }
 
     try {
@@ -145,7 +145,7 @@ class Sql {
   }
 
   create(table, fields, primaryKeys) {
-    this._sql = "create table " + table + " ";
+    this._sql = "create table `" + table + "` ";
     var sqlFields = [];
 
     if (typeof fields != "object") {
@@ -176,7 +176,7 @@ class Sql {
       }
 
       var type = fields[field].type;
-      var sqlField = field + " " + type;
+      var sqlField = "`" + field + "` " + type;
 
       sqlFields.push(sqlField);
     }
@@ -187,9 +187,9 @@ class Sql {
     }
 
     if (primaryKeys.length > 0) {
-      var primarySql = "primary key(";
-      primarySql += primaryKeys.join(", ");
-      primarySql += ")";
+      var primarySql = "primary key(`";
+      primarySql += primaryKeys.join("`, `");
+      primarySql += "`)";
 
       sqlFields.push(primarySql);
     }
@@ -203,18 +203,21 @@ class Sql {
     this._sql = "select ";
     var sqlFields = "*";
 
-    if (fields instanceof Array) {
-      sqlFields = fields.join(", ");
+    if (fields instanceof Array &&
+      fields.length > 0) {
+      sqlFields = "`";
+      sqlFields += fields.join("`, `");
+      sqlFields += "`";
     }
 
     this._sql += sqlFields + " ";
-    this._sql += "from " + table + " ";
+    this._sql += "from `" + table + "` ";
 
     return this;
   }
 
   where(wheres) {
-    if (!wheres instanceof Array) {
+    if (!(wheres instanceof Array)) {
       return this;
     }
 
@@ -245,6 +248,7 @@ class Sql {
         item[2] = "'" + item[2] + "'";
       }
 
+      item[0] = "`" + item[0] + "`";
       sqlWheres.push(item.join(" "));
     });
 
@@ -262,7 +266,7 @@ class Sql {
   }
 
   whereOr(wheres) {
-    if (!wheres instanceof Array) {
+    if (!(wheres instanceof Array)) {
       return this;
     }
 
@@ -293,6 +297,7 @@ class Sql {
         item[2] = "'" + item[2] + "'";
       }
 
+      item[0] = "`" + item[0] + "`";
       sqlWheres.push(item.join(" "));
     });
 
@@ -317,7 +322,7 @@ class Sql {
     var sqlFields = [];
     var sqlValues = [];
 
-    if (!typeof values == "object") {
+    if (typeof values != "object") {
       return this;
     }
 
@@ -330,8 +335,8 @@ class Sql {
       return this;
     }
 
-    this._sql = "insert into " + table + " ";
-    this._sql += "(" + sqlFields.join(", ") + ") ";
+    this._sql = "insert into `" + table + "` ";
+    this._sql += "(`" + sqlFields.join("`, `") + "`) ";
     this._sql += "values ";
     this._sql += "('" + sqlValues.join("', '") + "')";
 
@@ -341,26 +346,27 @@ class Sql {
   update(table, values) {
     var sqlPairs = [];
 
-    if (!typeof values == "object") {
+    if (typeof values != "object") {
       return this;
     }
 
     for (var field in values) {
-      sqlPairs.push(field + "='" + values[field] + "'");
+      sqlPairs.push(
+        "`" + field + "`='" + values[field] + "'");
     }
 
     if (sqlPairs.length < 1) {
       return this;
     }
 
-    this._sql = "update " + table + " set ";
+    this._sql = "update `" + table + "` set ";
     this._sql += sqlPairs.join(", ") + " ";
 
     return this;
   }
 
   delete(table) {
-    this._sql = "delete from " + table + " ";
+    this._sql = "delete from `" + table + "` ";
 
     return this;
   }
@@ -381,9 +387,9 @@ class Sql {
   }
 
   schema(table) {
-    this._sql = "PRAGMA table_info([";
+    this._sql = "PRAGMA table_info(`";
     this._sql += table;
-    this._sql += "])";
+    this._sql += "`)";
     return this;
   }
 
@@ -393,7 +399,7 @@ class Sql {
   }
 
   truncate(table) {
-    this._sql = "delete from " + table + ";";
+    this._sql = "delete from `" + table + "`;";
     return this;
   }
 }
@@ -401,4 +407,4 @@ class Sql {
 export {
   Sqlite,
   Sql
-}
+};
