@@ -385,6 +385,8 @@ const common = {
     let groupvalue;
     let groupmodel;
     this.data.group = []
+    await (await models.Groups).truncate()
+
     do{
       result = await this.api.listAllGroup(this.data.login.access_token, undefined)
       if (!result.ok || !result.success) {
@@ -398,11 +400,12 @@ const common = {
       for(let item in result.data.results)
       {
         groupvalue = result.data.results[item]
-        groupmodel = servicemodels.GroupsModel(groupvalue)
+        groupmodel = await servicemodels.GroupsModel(groupvalue)
         if(groupmodel == undefined)
         {
           continue
         }
+        groupmodel.save()
         this.data.group.push(groupmodel)
       }
     }while(next)

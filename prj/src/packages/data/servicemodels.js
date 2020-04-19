@@ -332,7 +332,7 @@ const servicemodels = {
         groupvalue[objmap[key]] = groupitem[key]
       }
 
-      groupmodel = await new models.Groups(groupvalue)
+      groupmodel = await new (await models.Groups)(groupvalue)
       return groupmodel
     },
 
