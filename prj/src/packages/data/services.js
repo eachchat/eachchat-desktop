@@ -56,9 +56,12 @@ const common = {
     return this.data.selfuser;
   },
 
-  get GetAllDepartmentsModel()
+  async GetAllDepartmentsModel()
   {
-    return this.data.department;
+    let allDepartments = await(await models.Department).find({
+      $reverse: true
+    })
+    return this.data.department = allDepartments;
   },
 
   get GetAllUserinfo(){
