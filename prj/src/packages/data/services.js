@@ -404,29 +404,27 @@ const common = {
     this.data.group = []
     await (await models.Groups).truncate()
 
-    do{
-      result = await this.api.listAllGroup(this.data.login.access_token, undefined)
-      if (!result.ok || !result.success) {
-        return undefined;
-      }
-  
-      if (!("obj" in result.data)) {
-        return undefined;
-      }
-      next = result.data.hasNext
-      for(let item in result.data.results)
+    result = await this.api.listAllGroup(this.data.login.access_token, undefined)
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    if (!("obj" in result.data)) {
+      return undefined;
+    }
+    next = result.data.hasNext
+    for(let item in result.data.results)
+    {
+      groupvalue = result.data.results[item]
+      groupmodel = await servicemodels.GroupsModel(groupvalue)
+      if(groupmodel == undefined)
       {
-        groupvalue = result.data.results[item]
-        groupmodel = await servicemodels.GroupsModel(groupvalue)
-        if(groupmodel == undefined)
-        {
-          continue
-        }
-      
-        groupmodel.save()
-        this.data.group.push(groupmodel)
+        continue
       }
-    }while(next)
+    
+      groupmodel.save()
+      this.data.group.push(groupmodel)
+    }
   },
 
   async updateUserWorkDescription(workDescription) 
@@ -484,40 +482,49 @@ const common = {
     
   },
 
-  async historyMessage(groupId, sequenceId) { 
+  async historyMessage(groupId, sequenceId, count) { 
     let result;
     let resultvalues;
     let next = false;
     let message;
     let messagemodel;
     this.data.historymessage = []
-    /*
+    
     let items = await (await models.Message).find(
       {
-
+        group_id: groupId,
+        sequence_id: "<"+sequenceId,
+        $size: count
       }
     )
-    */
-    do{
-      result =  await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
-      if (!result.ok || !result.success) {
-        return undefined;
-      }
-  
-      if (!("results" in result.data)) {
-        return undefined;
-      }
-      resultvalues = result.data.results
-      next = result.data.hasNext
+    //sort items by sequenceId
+    if(items != undefined && items.length == count)
+    {
+      return items;
+    }
 
-      for(let item in resultvalues)
-      {
-        message = resultvalues[item]
-        messagemodel = await servicemodels.MessageModel(message)
-        messagemodel.save()
-        this.data.historymessage.push(messagemodel)
-      }
-    }while(next) 
+    if(items != undefined)
+    {
+      sequenceId = items[items.length - 1].sequence_id
+    }
+    
+    result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    if (!("results" in result.data)) {
+      return undefined;
+    }
+    resultvalues = result.data.results
+
+    for(let item in resultvalues)
+    {
+      message = resultvalues[item]
+      messagemodel = await servicemodels.MessageModel(message)
+      messagemodel.save()
+      this.data.historymessage.push(messagemodel)
+    }
     return this.data.historymessage;
   },
 
