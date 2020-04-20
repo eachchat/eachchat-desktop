@@ -125,7 +125,9 @@ var models = {
           avatar_o_url:             types.string,
           avatar_t_url:             types.string,
           work_description:         types.string,
-          status_description:       types.string
+          status_description:       types.string,
+          manager:                  types.bool,
+          manager_id:               types.string
         },
         primaryKey: "user_id"
       });
@@ -224,25 +226,28 @@ var models = {
   },
 
   get Message(){
-    return model.Model.create(
-      sqliteConnection,
-      "message",
-      {
-        message_id:         types.string,
-        time_line_id:       types.string,
-        group_id:           types.string,
-        message_type:       types.integer,
-        message_direction:  types.integer,
-        message_status:     types.integer,
-        message_from_id:    types.string,
-        sequence_id:        types.integer,
-        message_timestamp:  types.string,
-        message_content:    types.string,
-        message_to_id:      types.string,
-        file_local_path:    types.string
-      }
-    )
-  },
+    return (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: "message",
+        fields: {
+          message_id:         types.string,
+          time_line_id:       types.string,
+          group_id:           types.string,
+          message_type:       types.integer,
+          message_direction:  types.integer,
+          message_status:     types.integer,
+          message_from_id:    types.string,
+          sequence_id:        types.integer,
+          message_timestamp:  types.string,
+          message_content:    types.string,
+          message_to_id:      types.string,
+          file_local_path:    types.string
+        },
+        primaryKey: "message_id"
+      });
+    })();
+  }
 }
 
 export {

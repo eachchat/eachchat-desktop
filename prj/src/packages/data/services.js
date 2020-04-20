@@ -135,10 +135,6 @@ const common = {
     return recentusers;
   },
 
-  get GetHistoryMessages(){
-    return this.data.historymessage;
-  },
-
   init(config) {
     if (typeof config != "object") {
       config = {};
@@ -509,10 +505,14 @@ const common = {
       for(let item in resultvalues)
       {
         message = resultvalues[item]
-        messagemodel = servicemodels.MessageModel(message)
+        messagemodel = await servicemodels.MessageModel(message)
+        console.log(messagemodel.message_id)
+        messagemodel.save()
         this.data.historymessage.push(messagemodel)
       }
-    }while(next)    
+    }while(next) 
+    console.log("11111111111111")
+    return this.data.historymessage;
   },
 
   async sendNewMessage(messageID, 

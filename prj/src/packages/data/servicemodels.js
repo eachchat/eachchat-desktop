@@ -351,6 +351,7 @@ const servicemodels = {
 
     async MessageModel(message)
     {
+      let messagemodel;
       var messgevalue = {
         message_id:         undefined,
         time_line_id:       undefined,
@@ -362,20 +363,18 @@ const servicemodels = {
         sequence_id:        undefined,
         message_timestamp:  undefined,
         message_content:    undefined,
-        message_to_id:      undefined,
         file_local_path:    undefined
       }
 
       var messagemap = {
-        "mesId": "message_id",
+        "msgId": "message_id",
         "timelineId": "time_line_id",
         "groupId": "group_id",
         "msgContentType": "message_type",
         "fromId": "message_from_id",
         "sequenceId": "sequence_id",
         "timestamp": "message_timestamp",
-        "content": "message_content",
-        "msgId": "message_to_id"
+        "content": "message_content"
       }
 
       for(let key in messagemap)
@@ -389,7 +388,8 @@ const servicemodels = {
           messgevalue[messagemap[key]] = message[key]
         }
       }
-      return await new models.Message(messgevalue)
+      messagemodel = await new(await models.Message)(messgevalue);
+      return messagemodel;
     }
 }
 
