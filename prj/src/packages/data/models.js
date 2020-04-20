@@ -241,7 +241,6 @@ var models = {
           sequence_id:        types.integer,
           message_timestamp:  types.string,
           message_content:    types.string,
-          message_to_id:      types.string,
           file_local_path:    types.string
         },
         primaryKey: "message_id"
