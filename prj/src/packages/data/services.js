@@ -64,24 +64,46 @@ const common = {
     return this.data.department = allDepartments;
   },
 
-  get GetAllUserinfo(){
-    return this.data.userinfo;
+  async GetAllUserinfo(){
+    let allItems = await(await models.UserInfo).find({
+      $reverse: true
+    });
+    return this.data.userinfo = allItems;
   },
 
-  get GetAllUserEmail(){
-    return this.data.useremail;
+  async GetAllUserEmail(){
+    let allItems = await(await models.UserEmail).find({
+      $reverse: true
+    });
+    return this.data.useremail = allItems;
   },
 
-  get GetAllUserAddress(){
-    return this.data.useraddress;
+  async GetAllUserAddress(){
+    let allItems = await(await models.UserAddress).find({
+      $reverse: true
+    });
+    return this.data.useraddress = allItems;
   },
 
-  get GetAllUserPhone(){
-    return this.data.userphone;
+  async GetAllUserPhone(){
+    let allItems = await(await models.UserPhone).find({
+      $reverse: true
+    });
+    return this.data.userphone = allItems;
   },
 
-  get GetAllGroups(){
-    return this.data.group;
+  async GetAllUserIm(){
+    let allItems = await(await models.UserIm).find({
+      $reverse: true
+    });
+    return this.data.userim = allItems;
+  },
+
+  async GetAllGroups(){
+    let allItems = await(await models.Groups).find({
+      $reverse: true
+    });
+    return this.data.group = allItems;
   },
 
   get GetRecentUsers(){
@@ -111,10 +133,6 @@ const common = {
     
     recentusers.sort(cmp)
     return recentusers;
-  },
-
-  get GetAllUserIm(){
-    return this.data.userim;
   },
 
   get GetHistoryMessages(){
