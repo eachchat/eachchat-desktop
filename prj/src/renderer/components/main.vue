@@ -26,7 +26,7 @@
 <script>
 import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
-
+import {services} from '../../packages/data/index.js'
 import {ServerApi} from '../server/serverapi.js'
 
 export default {
@@ -66,6 +66,31 @@ export default {
         }
     },
     methods: {
+        getAppBaseData:async function() {
+            // Init services
+            let config = {
+                hostname: "139.198.15.253",
+                apiPort: 8888,
+            };
+            services.common.init(config);
+            // Set accessToken in services
+            services.common.GetLoginModel();
+            // Get data from server and set in database
+            // UserInfo
+            await services.common.AllUserinfo();
+            // var userInfos = await services.common.GetAllUserinfo();
+            // for (var i = 0; i < userInfos.length; i++) {
+            //     console.log(userInfos[i].user_name);
+            // }
+            
+            // DepartmentInfo
+            await services.common.AllDepartmentInfo();
+            // var departmentInfos = await services.common.GetAllDepartmentsModel();
+            // for (var i = 0; i < departmentInfos.length; i++) {
+            //     console.log(departmentInfos[i].displayName);
+            // }
+
+        },
         menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;
             this.curView = cur_view;
@@ -100,6 +125,7 @@ export default {
     },
     created: function () {
         this.userIco = this.$store.getters.getUserIcon(false);
+        this.getAppBaseData();
     },
 }
 </script>

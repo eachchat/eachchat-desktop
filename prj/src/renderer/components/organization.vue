@@ -68,8 +68,8 @@ export default {
     methods: {
         initSomeConfig: async function() {
             console.log("12312324234");
-            console.log(services.common.GetAllGroups);
-            console.log(services.common.GetRecentUsers);
+            await services.common.AllDepartmentInfo();
+            
         },
         organizationMenuItemClicked() {
             this.curindex = 0;
