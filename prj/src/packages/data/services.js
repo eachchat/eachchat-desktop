@@ -422,6 +422,7 @@ const common = {
         {
           continue
         }
+      
         groupmodel.save()
         this.data.group.push(groupmodel)
       }
@@ -490,6 +491,13 @@ const common = {
     let message;
     let messagemodel;
     this.data.historymessage = []
+    /*
+    let items = await (await models.Message).find(
+      {
+
+      }
+    )
+    */
     do{
       result =  await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
       if (!result.ok || !result.success) {
@@ -506,12 +514,10 @@ const common = {
       {
         message = resultvalues[item]
         messagemodel = await servicemodels.MessageModel(message)
-        console.log(messagemodel.message_id)
         messagemodel.save()
         this.data.historymessage.push(messagemodel)
       }
     }while(next) 
-    console.log("11111111111111")
     return this.data.historymessage;
   },
 

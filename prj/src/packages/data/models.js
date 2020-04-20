@@ -206,6 +206,7 @@ var models = {
         index: "group",
         fields: {
           group_id:              types.string,
+          sequence_id:           types.string,
           contain_user_ids:      types.string,
           group_name:            types.string,
           group_avarar:          types.string,
@@ -213,6 +214,9 @@ var models = {
           status:                types.string,
           user_id:               types.string,
           last_message_time:     types.string,
+          message_from_id:       types.string,
+          message_content_type:  types.string,
+          message_content:       types.string,
           owner:                 types.string,
           group_notice:          types.string,
           notice_time:           types.string,

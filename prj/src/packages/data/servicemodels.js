@@ -273,6 +273,7 @@ const servicemodels = {
     {
       var groupvalue = {
         group_id :              undefined,
+        sequence_id:            undefined,
         contain_user_ids :      undefined,
         group_name :            undefined,
         group_avarar :          undefined,
@@ -280,6 +281,9 @@ const servicemodels = {
         status :                undefined,
         user_id :               undefined,
         last_message_time :     undefined,
+        message_from_id:        undefined,
+        message_content_type:   undefined,
+        message_content:        undefined,
         owner :                 undefined,
         group_notice :          undefined,
         notice_time :           undefined,
@@ -290,7 +294,7 @@ const servicemodels = {
 
       var groupmap = 
       {
-        "groupId":  "group_id",          
+        "groupId":  "group_id",  
         "userIds" : "contain_user_ids",  
         "groupName": "group_name",        
         "groupAvatar": "group_avarar",     
@@ -302,7 +306,10 @@ const servicemodels = {
         "noticeUserId": "notice_userId"
       }
       var messagemap = {                   
-        "userId": "user_id",        
+        "userId": "user_id",    
+        "sequenceId": "sequence_id", 
+        "fromId":     "message_from_id",  
+        "msgContentType":"message_content_type",
         "timestamp": "last_message_time"     
       }
       var objmap = {
@@ -323,19 +330,21 @@ const servicemodels = {
 
       for(let key in groupmap)
       {
-        groupvalue[groupmap[key]] = groupitem["group"][key]
+        groupvalue[groupmap[key]] = groupitem["group"][key];
       }
 
       for(let key in messagemap)
       {
-          groupvalue[messagemap[key]] = groupitem["message"][key]
+        groupvalue[messagemap[key]] = groupitem["message"][key];
       }
+      groupvalue["message_content"] = JSON.stringify(groupitem["message"]["content"]);  
 
       for(let key in objmap)
       {
         groupvalue[objmap[key]] = groupitem[key]
       }
-
+      
+        
       groupmodel = await new (await models.Groups)(groupvalue)
       return groupmodel
     },
@@ -352,7 +361,7 @@ const servicemodels = {
     async MessageModel(message)
     {
       let messagemodel;
-      var messgevalue = {
+      var messagevalue = {
         message_id:         undefined,
         time_line_id:       undefined,
         group_id:           undefined,
@@ -378,17 +387,12 @@ const servicemodels = {
       }
 
       for(let key in messagemap)
-      {
-        if(key == "content")
-        {
-          messgevalue[messagemap[key]] = JSON.stringify(message[key])  
-        }
-        else
-        {
-          messgevalue[messagemap[key]] = message[key]
-        }
+      {  
+        messagevalue[messagemap[key]] = message[key];
       }
-      messagemodel = await new(await models.Message)(messgevalue);
+      messagevalue["message_content"] = JSON.stringify(message["content"]);  
+
+      messagemodel = await new(await models.Message)(messagevalue);
       return messagemodel;
     }
 }
