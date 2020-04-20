@@ -489,7 +489,9 @@ const common = {
     let message;
     let messagemodel;
     this.data.historymessage = []
+    let totalcount = 0
     
+
     let items = await (await models.Message).find(
       {
         group_id: groupId,
@@ -506,6 +508,11 @@ const common = {
     if(items != undefined)
     {
       sequenceId = items[items.length - 1].sequence_id
+      for(let index in items)
+      {
+        this.data.historymessage.push(items[index]);
+        totalcount++;
+      }
     }
     
     result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
@@ -523,7 +530,10 @@ const common = {
       message = resultvalues[item]
       messagemodel = await servicemodels.MessageModel(message)
       messagemodel.save()
-      this.data.historymessage.push(messagemodel)
+      if(totalcount++ < count)
+      {
+        this.data.historymessage.push(messagemodel)
+      }
     }
     return this.data.historymessage;
   },
