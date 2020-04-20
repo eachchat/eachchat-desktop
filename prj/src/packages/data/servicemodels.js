@@ -123,7 +123,9 @@ const servicemodels = {
         avatar_o_url:             undefined,
         avatar_t_url:             undefined,
         work_description:         undefined,
-        status_description:       undefined
+        status_description:       undefined,
+        manager:                  undefined,
+        manager_id:               undefined
       }
   
       var userinfomap = 
@@ -147,7 +149,9 @@ const servicemodels = {
         "avatarTUrl":         "avatar_t_url",            
         "active":             "user_active",             
         "workDescription":    "work_description",       
-        "statusDescription":  "status_description"
+        "statusDescription":  "status_description",
+        "manager":            "manager",
+        "managerId":          "manager_id"
       }
 
       var useremailvalue = {
