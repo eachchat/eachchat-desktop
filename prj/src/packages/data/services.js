@@ -517,11 +517,11 @@ const common = {
     
     result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
     if (!result.ok || !result.success) {
-      return undefined;
+      return this.data.historymessage;
     }
 
     if (!("results" in result.data)) {
-      return undefined;
+      return this.data.historymessage;
     }
     resultvalues = result.data.results
 
