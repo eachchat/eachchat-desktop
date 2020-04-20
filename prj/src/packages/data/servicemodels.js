@@ -131,7 +131,7 @@ const servicemodels = {
         "id":                 "user_id",                
         "departmentId":       "belong_to_department_id", 
         "userName":           "user_name",               
-        "userName":           "user_display_name",       
+        "displayName":        "user_display_name",       
         "nickName":           "user_nickname",      
         "profileUrl":         "user_profile_url",        
         "userType":           "user_type",               
