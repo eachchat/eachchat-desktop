@@ -29,4 +29,4 @@ export {
   array,
   object,
   date
-}
+};

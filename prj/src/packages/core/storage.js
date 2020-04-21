@@ -11,12 +11,21 @@ const types = {};
 Search DSL
 ==========
 var search = {
-  a: 1,          // a == 1
-  _b: 2,         // or b == 2
-  c: [1, 2, 3],  // c in [1, 2, 3]
+  a: 1,              // a == 1
+  _b: 2,             // or b == 2
+  c: [1, 2, 3],      // c in [1, 2, 3]
+  d: {               // d > 1 and d < 100
+    range: [1, 100]
+  },
+  e: {
+    between: [1, 50] // between 1 and 50
+  }
   $offset: 0,
   $size: 20,
-  $reverse: true // reverse result
+  $order: {          // order by a desc
+    by: 'a',
+    reverse: true
+  }
 }
 */
 

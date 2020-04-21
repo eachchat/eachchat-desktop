@@ -272,6 +272,10 @@ class Model {
     var attr = Object.assign({}, this._attr);
     var originAttr = this._originAttr;
 
+    if (storage == null) {
+      return this;
+    }
+
     for (var fieldKey in fields) {
       if (!fields.hasOwnProperty(fieldKey)) {
         continue;
@@ -311,6 +315,10 @@ class Model {
     var index = this.constructor.index;
     var originAttr = this._originAttr;
 
+    if (storage == null) {
+      return this;
+    }
+
     if (this._commited) {
       await storage.delete(index, originAttr);
     }
@@ -331,18 +339,18 @@ class Model {
       return undefined;
     }
 
-    var storage = undefined;
+    var storage = null;
     var index = "";
     var fields = {};
     var primaryKeys = [];
 
-    if ("storage" in config
-      && config.storage instanceof Storage) {
+    if ("storage" in config &&
+      config.storage instanceof Storage) {
       storage = config.storage;
     }
 
-    if ("index" in config
-      && typeof config.index == "string") {
+    if ("index" in config &&
+      typeof config.index == "string") {
       index = config.index;
     }
 
@@ -356,12 +364,26 @@ class Model {
 
       } else if (config.primaryKey instanceof Array) {
         for (var i = 0; i < config.primaryKey.length; i++) {
-          if (!(typeof config.primaryKey[i] == "string")) {
+          if (typeof config.primaryKey[i] != "string") {
             continue;
           }
 
           primaryKeys.push(config.primaryKey[i]);
         }
+      }
+    }
+
+    if ("alias" in config &&
+      (typeof config.alias == "object")) {
+
+      for (var name in config.alias) {
+        var forField = config.alias[name];
+
+        if (!(forField in fields)) {
+          continue;
+        }
+
+        alias[name] = forField;
       }
     }
 
@@ -377,8 +399,11 @@ class Model {
     newModel.index = index;
     newModel.fields = fields;
     newModel.primaryKeys = primaryKeys;
+    newModel.alias = alias;
 
-    await storage.registerFields(index, fields, primaryKeys);
+    if (storage != null) {
+      await storage.register(index, fields, primaryKeys);
+    }
     
     return newModel;
   }
@@ -392,6 +417,10 @@ class Model {
   static async find(search) {
     var storage = this.storage;
     var index = this.index;
+
+    if (storage == null) {
+      return null;
+    }
 
     if (typeof search != "object") {
       search = {};
@@ -419,10 +448,16 @@ class Model {
     var storage = this.storage;
     var index = this.index;
 
+    if (storage == null) {
+      return this;
+    }
+
     await this.storage.truncate(index);
+
+    return this;
   }
 }
 
 export {
   Model
-}
+};

@@ -376,13 +376,18 @@ class Sql {
     return this;
   }
 
-  asc() {
-    this._sql += " asc ";
-    return this;
-  }
+  orderBy(field, reverse) {
+    this._sql += " order by `";
+    this._sql += field;
+    this._sql += "` ";
 
-  desc() {
-    this._sql += " desc ";
+    if (reverse) {
+      this._sql += " desc ";
+
+    } else {
+      this._sql += " asc ";
+    }
+
     return this;
   }
 
@@ -390,6 +395,7 @@ class Sql {
     this._sql = "PRAGMA table_info(`";
     this._sql += table;
     this._sql += "`)";
+
     return this;
   }
 

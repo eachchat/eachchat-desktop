@@ -46,7 +46,7 @@ class SQLiteStorage extends Storage {
     var filename = "";
 
     if ("filename" in config) {
-      filename = config["filename"];
+      filename = config.filename;
     }
 
     this.database = new Sqlite(filename);
@@ -66,8 +66,27 @@ class SQLiteStorage extends Storage {
     await this.database.close();
   }
 
+  _parseSearchStatement(sql, statement) {
+    var expressions = [];
+
+    if (!statement.includes('&') &&
+      !statement.includes('|')) {
+      expressions.push(statement);
+
+      return expressions;
+    }
+
+    var begin = 0;
+
+    for (var i = 0; i < statement.length; i++) {
+      if (statement[i] == '&') {
+
+      }
+    }
+  }
+
   async appendSearch(sql, search) {
-    if (!typeof search == "object") {
+    if (typeof search != "object") {
       search = {};
     }
 
@@ -75,8 +94,8 @@ class SQLiteStorage extends Storage {
       var value = search[field];
       var isOr = false;
 
-      if (typeof field != "string"
-        || field.length == 0) {
+      if (typeof field != "string" ||
+        field.length == 0) {
         continue;
       }
 
@@ -85,15 +104,15 @@ class SQLiteStorage extends Storage {
       }
 
       if (field[0] == "_") {
-        isOr == true;
+        isOr = true;
       }
 
       if (typeof value == "number") {
         value = String(value);
       }
 
-      if (typeof value == "string"
-        && value.length > 0) {
+      if (typeof value == "string" &&
+        value.length > 0) {
         var operator = '=';
 
         if (['>', '<', '='].includes(value[0])) {
@@ -114,25 +133,77 @@ class SQLiteStorage extends Storage {
         whereIn += value.join("')");
 
         if (isOr) {
-          sql.where([field, 'in', whereIn]);
+          sql.whereOr([field, 'in', whereIn]);
+          continue;
         }
 
         sql.where([field, 'in', whereIn]);
+
+      } else if (typeof value === "object") {
+        var comparations = [];
+
+        if ("lt" in value) {
+          comparations.push([field, '<', value.lt]);
+
+        } else if ("lte" in value) {
+          comparations.push([field, '<=', value.lte]);
+        }
+
+        if ("gt" in value) {
+          comparations.push([field, '>', value.gt]);
+
+        } else if ("gte" in value) {
+          comparations.push([field, '>=', value.gte]);
+        }
+
+        if (isOr) {
+          if (comparations.length == 0) {
+            continue;
+          }
+
+          sql.whereOr(comparations[0]);
+
+          if (comparations.length < 2) {
+            continue;
+          }
+
+          sql.where(comparations[1]);
+          continue;
+        }
+
+        if (comparations.length == 0) {
+          continue;
+        }
+
+        sql.where(comparations[0]);
+
+        if (comparations.length < 2) {
+          continue;
+        }
+
+        sql.where(comparations[1]);
       }
     }
 
-    if ("$reverse" in search) {
-      var reverse = false;
+    if ("$order" in search &&
+      typeof search.$order === "object") {
+      if ("by" in search.$order &&
+        typeof search.$order.by === "string") {
+        var reverse = false;
 
-      if (search.$reverse) {
-        reverse = true;
-      }
+        if ("$reverse" in search &&
+          typeof search.$order.reverse === "boolean") {
+          if (search.$reverse) {
+            reverse = true;
+          }
+        }
 
-      if (reverse) {
-        sql.desc();
+        if (reverse) {
+          sql.desc();
 
-      } else {
-        sql.asc();
+        } else {
+          sql.asc();
+        }
       }
     }
 
@@ -157,12 +228,12 @@ class SQLiteStorage extends Storage {
   resultToList(result) {
     var list = [];
 
-    if (result instanceof Array
-      && result.length > 0) {
+    if (result instanceof Array &&
+      result.length > 0) {
       result = result[0];
 
-      if (result.hasOwnProperty("columns")
-        && result.hasOwnProperty("values")) {
+      if (result.hasOwnProperty("columns") &&
+        result.hasOwnProperty("values")) {
         var columns = result.columns;
         var values = result.values;
 
@@ -231,7 +302,7 @@ class SQLiteStorage extends Storage {
     return primaryKeys;
   }
 
-  async registerFields(index, fields, primaryKeys) {
+  async register(index, fields, primaryKeys) {
     var database = await this.getDatabase();
 
     if (this.checkTable(database, index)) {
@@ -278,8 +349,8 @@ class SQLiteStorage extends Storage {
     var result = database.exec(sql);
     var lastInsert = {};
 
-    if (!(result instanceof Array)
-      || result.length == 0) {
+    if (!(result instanceof Array) ||
+      result.length == 0) {
       return lastInsert;
     }
 
@@ -291,15 +362,15 @@ class SQLiteStorage extends Storage {
 
     result = result.values;
 
-    if (!(result instanceof Array)
-      || result.length == 0) {
+    if (!(result instanceof Array) ||
+      result.length == 0) {
       return lastInsert;
     }
 
     result = result[0];
 
-    if (!(result instanceof Array)
-      || result.length == 0) {
+    if (!(result instanceof Array) ||
+      result.length == 0) {
       return lastInsert;
     }
 
@@ -423,4 +494,4 @@ class SQLiteStorage extends Storage {
 
 export {
   SQLiteStorage
-}
+};
