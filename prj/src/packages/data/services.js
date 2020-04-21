@@ -255,7 +255,10 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
-    await (await models.Login).truncate()
+    let foundlogin = await(await models.Login).find({
+      user_id: this.data.selfuser.id
+    })
+    foundlogin[0].destroy();
     return await this.api.logout(this.data.login.access_token)
   },
 
@@ -330,7 +333,13 @@ const common = {
       return undefined;
     }
 
-    return await this.api.refreshToken(this.data.login.refresh_token)
+    let result = await this.api.refreshToken(this.data.login.refresh_token)
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    this.data.login.access_token = result.headers["access-token"];
+    this.data.login.save()
   },
 
   async AllDepartmentInfo(){
