@@ -115,9 +115,23 @@ class SQLiteStorage extends Storage {
         value.length > 0) {
         var operator = '=';
 
-        if (['>', '<', '='].includes(value[0])) {
+        if (['>', '<', '=', '%'].includes(value[0])) {
+          if (value.length < 2) {
+            continue;
+          }
+
           operator = value[0];
           value = value.substr(1);
+        }
+
+        if (operator == '%') {
+          operator = 'like';
+
+          if (value.slice(-1) != '%') {
+            value += '%';
+          }
+
+          value = '%' + value;
         }
 
         if (isOr) {
