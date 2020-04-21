@@ -255,6 +255,7 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
+    await (await models.Login).truncate()
     return await this.api.logout(this.data.login.access_token)
   },
 
