@@ -3,6 +3,7 @@ import { models } from './models.js';
 
 class BaseMqttHandler{
     constructor(message, callback){
+        this.message = message;
         this.callback = callback;
         this.type = message.name;
     }
