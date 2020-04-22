@@ -510,12 +510,12 @@ const common = {
       }
     )
     //sort items by sequenceId
-    if(items != undefined && items.length == count)
+    if(items.length != 0 && items.length == count)
     {
       return items;
     }
 
-    if(items != undefined)
+    if(items.length != 0)
     {
       sequenceId = items[items.length - 1].sequence_id
       for(let index in items)
