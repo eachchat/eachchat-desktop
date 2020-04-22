@@ -555,7 +555,7 @@ const common = {
                         userID,
                         timestamp,
                         content) {
-    return await this.api.sendNewMessage(this.data.login.access_token,
+    let result = await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
                                   formID,
@@ -563,6 +563,17 @@ const common = {
                                   userID,
                                   timestamp,
                                   content)
+    if (!result.ok || !result.success) 
+    {
+      return undefined;
+    }
+    if (!("obj" in result.data)) 
+    {
+      return undefined;
+    }
+    let msg = result.data.obj.message;
+    let msgmodel = await servicemodels.MessageModel(msg)
+    msgmodel.save()
   },
 
   async ReveiveNewMessage(sequenceId, notificationId)
