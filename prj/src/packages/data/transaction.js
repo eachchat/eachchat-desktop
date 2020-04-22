@@ -251,6 +251,15 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async groupIncrement(accessToken, updateTime, notification){
+    var response = await this.commonApi.get(
+      "/api/apps/im/v1/group/" + updateTime + "/notification/" + notification,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
   async historyMessage(accessToken, groupId, sequenceId) {
     console.debug("HistoryMessageAsync");
     var response = await this.commonApi.get(

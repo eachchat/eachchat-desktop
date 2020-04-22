@@ -245,13 +245,13 @@ const common = {
 
   handlemessage(callback){
     let userid = this.data.selfuser.id;
-
+    let access_token = this.data.login.access_token;
     this.mqttclient.on('message', function(topic, message){
       if(topic != userid)
       {
         return;
       }
-      mqttrouter(JSON.parse(message.toString()), callback)
+      mqttrouter(JSON.parse(message.toString()), callback, access_token)
     })
     
   },
