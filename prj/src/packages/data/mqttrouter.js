@@ -19,7 +19,7 @@ class MessageHandler extends BaseMqttHandler{
             console.log(this.type);
         }
         else{
-            let handler = new GroupHandler(this.message, callback);
+            let handler = new GroupHandler(this.message, this.callback);
             handler.handle();
         }
     }
@@ -34,7 +34,7 @@ class GroupHandler extends BaseMqttHandler{
             console.log(this.type);
         }
         else{
-            let handler = new UserHandler(this.message, callback);
+            let handler = new UserHandler(this.message, this.callback);
             handler.handle();
         }
     }
@@ -49,7 +49,7 @@ class UserHandler extends BaseMqttHandler{
             console.log(this.type);
         }
         else{
-            let handler = new DepartmentHandler(this.message, callback);
+            let handler = new DepartmentHandler(this.message, this.callback);
             handler.handle();
         }
     }
@@ -65,7 +65,7 @@ class DepartmentHandler extends BaseMqttHandler{
             console.log(this.type);
         }
         else{
-            let handler = new TopicHandler(this.message, callback);
+            let handler = new TopicHandler(this.message, this.callback);
             handler.handle();
         }
     }
@@ -81,7 +81,7 @@ class TopicHandler extends BaseMqttHandler{
             console.log(this.type);
         }
         else{
-            let handler = new ReplyTopicHandler(this.message, callback);
+            let handler = new ReplyTopicHandler(this.message, this.callback);
             handler.handle();
         }
     }
@@ -98,7 +98,7 @@ class ReplyTopicHandler extends BaseMqttHandler{
             console.log(this.type);
         }
         else{
-            let handler = new TopicCountHandler(this.message, callback);
+            let handler = new TopicCountHandler(this.message, this.callback);
             handler.handle();
         }
     }
