@@ -567,7 +567,44 @@ const common = {
 
   async ReveiveNewMessage(sequenceId, notificationId)
   {
-    return await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId)
+    let result = await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId);
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+    if (!("results" in result.data)) {
+      return undefined;
+    }
+    let array_message = result.data.results;
+    let group_key;
+    let group_item;
+    let message_key;
+    let message_item;
+    let group_id;
+    let group_msgs;
+    let msg_models = [];
+    let tmpmodel;
+    for(group_key in array_message)
+    {
+      group_item = array_message[group_key]
+      if(!group_item.groupId)
+      {
+        continue;
+      }
+      group_id = group_item.groupId;
+      group_msgs = group_item.messages;
+      for(message_key in group_msgs)
+      {
+        message_item = group_msgs[message_key];
+        //if(message_item.msgContentType)//101 104
+        //{
+          
+        //}
+        tmpmodel = await servicemodels.MessageModel(message_item)
+        tmpmodel.save()
+        msg_models.push(tmpmodel)
+      }
+    }
+    return msg_models;
   },
 
   async uploadFile(filepath) {
