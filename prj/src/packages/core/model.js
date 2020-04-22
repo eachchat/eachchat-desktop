@@ -343,6 +343,7 @@ class Model {
     var index = "";
     var fields = {};
     var primaryKeys = [];
+    var alias = {};
 
     if ("storage" in config &&
       config.storage instanceof Storage) {
