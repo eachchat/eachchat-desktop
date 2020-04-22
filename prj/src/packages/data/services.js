@@ -1,6 +1,8 @@
 import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
+import { mqttrouter } from './mqttrouter.js'
+
 const mqtt = require('mqtt')
 
 const commonConfig = {
@@ -242,10 +244,14 @@ const common = {
   },
 
   handlemessage(callback){
+    let userid = this.data.selfuser.id;
+
     this.mqttclient.on('message', function(topic, message){
-      console.log("mqtt message")
-      console.log(topic)
-      callback(message.toString())
+      if(topic != userid)
+      {
+        return;
+      }
+      mqttrouter(JSON.parse(message.toString()), callback)
     })
     
   },
