@@ -215,7 +215,7 @@ var models = {
           user_id:               types.string,
           last_message_time:     types.string,
           message_from_id:       types.string,
-          message_content_type:  types.string,
+          message_content_type:  types.integer,
           message_content:       types.string,
           owner:                 types.string,
           group_notice:          types.string,
