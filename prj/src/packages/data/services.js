@@ -583,6 +583,7 @@ const common = {
     let group_msgs;
     let msg_models = [];
     let tmpmodel;
+    let findmsgs;
     for(group_key in array_message)
     {
       group_item = array_message[group_key]
@@ -600,8 +601,19 @@ const common = {
           
         //}
         tmpmodel = await servicemodels.MessageModel(message_item)
-        tmpmodel.save()
-        msg_models.push(tmpmodel)
+        findmsgs = await(await models.Message).find(
+          {
+            message_id: tmpmodel.message_id
+          });
+        if(findmsgs.length != 0){
+          findmsgs[0].value = tmpmodel.value;
+          findmsgs[0].save();
+          msg_models.push(findmsgs[0])
+        }    
+        else{
+          tmpmodel.save()
+          msg_models.push(tmpmodel)
+        }    
       }
     }
     return msg_models;
