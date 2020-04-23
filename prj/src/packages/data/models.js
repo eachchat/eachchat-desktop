@@ -222,7 +222,8 @@ var models = {
           notice_time:           types.string,
           notice_userId:         types.string,
           un_read_count:         types.integer,
-          draft:                 types.string
+          draft:                 types.string,
+          msg_id:                types.string
         },
         primaryKey: "group_id"
       });

@@ -110,7 +110,6 @@ const servicemodels = {
         user_display_name:        undefined,
         user_nickname:            undefined,
         user_profile_url:         undefined,
-        user_avatar_url:          undefined,
         user_type:                undefined,
         user_title:               undefined,
         user_preferred_language:  undefined,
@@ -289,7 +288,8 @@ const servicemodels = {
         notice_time :           undefined,
         notice_userId :         undefined,
         un_read_count :         undefined,
-        draft :                 undefined
+        draft :                 undefined,
+        msg_id:                 undefined
       }
 
       var groupmap = 
@@ -310,7 +310,8 @@ const servicemodels = {
         "sequenceId": "sequence_id", 
         "fromId":     "message_from_id",  
         "msgContentType":"message_content_type",
-        "timestamp": "last_message_time"     
+        "timestamp": "last_message_time",
+        "msgId":      "msg_id"
       }
       var objmap = {
         "noReaderCount": "un_read_count" 
