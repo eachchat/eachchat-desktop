@@ -621,6 +621,7 @@ const common = {
     let msg = result.data.obj.message;
     let msgmodel = await servicemodels.MessageModel(msg)
     msgmodel.save()
+    return msgmodel;
   },
 
   async ReveiveNewMessage(sequenceId, notificationId)
