@@ -73,26 +73,26 @@ const servicemodels = {
     async DepartmentsModel(department)
     {
       var departmentvalue={
-        departmentId: undefined,
-        parentId:     undefined,
-        displayName:  undefined,
+        department_id: undefined,
+        parent_id:     undefined,
+        display_name:  undefined,
         description:  undefined,
-        directorId:   undefined,
-        adminId:      undefined,
+        director_id:   undefined,
+        admin_id:      undefined,
         del:          undefined,
-        showOrder:    undefined
+        show_order:    undefined
       }
   
       var responsemap = 
       {
-        "id" : "departmentId",
-        "parentId" : "parentId",
-        "displayName" : "displayName",
+        "id" : "department_id",
+        "parentId" : "parent_id",
+        "displayName" : "display_name",
         "description" : "description",
-        "directorId" : "directorId",
-        "adminId" : "adminId",
+        "directorId" : "director_id",
+        "adminId" : "admin_id",
         "del" : "del",
-        "showOrder" : "showOrder"
+        "showOrder" : "show_order"
       }
       
       for(var key in responsemap){

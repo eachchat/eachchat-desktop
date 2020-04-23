@@ -86,16 +86,16 @@ var models = {
         storage: this.storage.sqlite,
         index: 'department',
         fields: {
-          departmentId: types.string,
-          parentId:     types.string,
-          displayName:  types.string,
+          department_id: types.string,
+          parent_id:     types.string,
+          display_name:  types.string,
           description:  types.string,
-          directorId:   types.string,
-          adminId:      types.string,
+          director_id:   types.string,
+          admin_id:      types.string,
           del:          types.integer,
-          showOrder:    types.integer
+          show_order:    types.integer
         },
-        primaryKey: "departmentId"
+        primaryKey: "department_id"
       });
     })();
   },
