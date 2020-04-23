@@ -108,11 +108,24 @@ const common = {
     return this.data.group = allItems;
   },
 
-  get GetRecentUsers(){
-    let recentusers = [];
+  async GetRecentUsers(){
+    let recentGroups = [];
+    let recentUsers = [];
     let sortkey = "last_message_time";
     let tmpitem;
     let grouptype;
+    if(await this.GetAllGroups() == 0)
+    {
+      console.log("group table is empty");
+      return;
+    }
+
+    if(await this.GetAllUserinfo() == 0)
+    {
+      console.log("userinfo table is empty");
+      return;
+    }
+    
     for(let groupkey in this.data.group)
     {
       tmpitem = this.data.group[groupkey]
@@ -123,7 +136,7 @@ const common = {
       }
       if(grouptype == "102")
       {
-        recentusers.push(this.data.group[groupkey])
+        recentGroups.push(this.data.group[groupkey])
       }
     }
     
@@ -133,8 +146,36 @@ const common = {
           return value2 - value1;
        }
     
-    recentusers.sort(cmp)
-    return recentusers;
+    recentGroups.sort(cmp)
+    let containUsers;
+    let tmpUserId;
+    let findusers;
+    for(let groupkey in recentGroups)
+    {
+      tmpitem = recentGroups[groupkey];
+      containUsers = tmpitem.contain_user_ids.split(",");
+      if(containUsers.length != 2)
+      {
+        continue;
+      }
+      for(let itemUserIdindex in containUsers)
+      {
+        tmpUserId = containUsers[itemUserIdindex]
+        if(tmpUserId != this.data.selfuser.id)
+        {
+          findusers = await(await models.UserInfo).find({
+                  user_id:tmpUserId
+                })
+
+          if(findusers.length !=0 )
+          {
+            recentUsers.push(findusers[0]);
+          }
+          break;
+        }
+      }
+    }
+    return recentUsers;
   },
 
   init(config) {
