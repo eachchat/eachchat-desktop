@@ -57,7 +57,8 @@ var models = {
           timezone: types.string,
           is_active: types.integer,
           job: types.string,
-          bio: types.string
+          bio: types.string,
+          maxsequenceid: types.string
         },
         primaryKey: 'id'
       });

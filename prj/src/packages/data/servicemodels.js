@@ -391,8 +391,7 @@ const servicemodels = {
       {  
         messagevalue[messagemap[key]] = message[key];
       }
-      messagevalue["message_content"] = JSON.stringify(message["content"]);  
-
+      messagevalue["message_content"] = escape(JSON.stringify(message["content"]));  
       messagemodel = await new(await models.Message)(messagevalue);
       return messagemodel;
     }

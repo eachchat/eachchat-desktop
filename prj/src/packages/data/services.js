@@ -257,6 +257,15 @@ const common = {
     this.data.selfuser = selfuser;
   },
 
+  async InitServiceData(){
+    this.ReveiveNewMessage(0, 0)
+  },
+
+  async InitDbData()
+  {
+
+  },
+
   initmqtt(){
     this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
                                       {username: 'client', 
@@ -287,12 +296,13 @@ const common = {
   handlemessage(callback){
     let userid = this.data.selfuser.id;
     let access_token = this.data.login.access_token;
+    let services = this;
     this.mqttclient.on('message', function(topic, message){
       if(topic != userid)
       {
         return;
       }
-      mqttrouter(JSON.parse(message.toString()), callback, access_token)
+      mqttrouter(JSON.parse(message.toString()), callback, services)
     })
     
   },
@@ -624,16 +634,10 @@ const common = {
     return msgmodel;
   },
 
-  async ReveiveNewMessage(sequenceId, notificationId)
+  async ReveiveNewMessage(sequenceId, notificationId, callback = undefined)
   {
-    let result = await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId);
-    if (!result.ok || !result.success) {
-      return undefined;
-    }
-    if (!("results" in result.data)) {
-      return undefined;
-    }
-    let array_message = result.data.results;
+    let result;
+    let hasNext = true;
     let group_key;
     let group_item;
     let message_key;
@@ -643,36 +647,77 @@ const common = {
     let msg_models = [];
     let tmpmodel;
     let findmsgs;
-    for(group_key in array_message)
+    let array_message;
+
+    while(hasNext)
     {
-      group_item = array_message[group_key]
-      if(!group_item.groupId)
-      {
-        continue;
+      result = await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId);
+      if (!result.ok || !result.success) {
+        return undefined;
       }
-      group_id = group_item.groupId;
-      group_msgs = group_item.messages;
-      for(message_key in group_msgs)
+      if (!("results" in result.data)) {
+        return undefined;
+      }
+  
+      if (!("obj" in result.data)) {
+        return undefined;
+      }
+
+      if (!("obj" in result.data)) {
+        return undefined;
+      }
+      
+      array_message = result.data.results;
+      for(group_key in array_message)
       {
-        message_item = group_msgs[message_key];
-        //if(message_item.msgContentType)//101 104
-        //{
-          
-        //}
-        tmpmodel = await servicemodels.MessageModel(message_item)
-        findmsgs = await(await models.Message).find(
+        group_item = array_message[group_key]
+        if(!group_item.groupId)
+        {
+          continue;
+        }
+        group_id = group_item.groupId;
+        group_msgs = group_item.messages;
+        for(message_key in group_msgs)
+        {
+          message_item = group_msgs[message_key];
+          //if(message_item.msgContentType)//101 104
+          //{
+            
+          //}
+          tmpmodel = await servicemodels.MessageModel(message_item)
+          findmsgs = await(await models.Message).find(
+            {
+              message_id: tmpmodel.message_id
+            });
+          if(findmsgs.length != 0){
+            findmsgs[0].value = tmpmodel.value;
+            findmsgs[0].save();
+            msg_models.push(findmsgs[0])
+          }    
+          else{
+            tmpmodel.save()
+            msg_models.push(tmpmodel)
+          } 
+          if(callback != undefined)
           {
-            message_id: tmpmodel.message_id
-          });
-        if(findmsgs.length != 0){
-          findmsgs[0].value = tmpmodel.value;
-          findmsgs[0].save();
-          msg_models.push(findmsgs[0])
-        }    
+            callback(tmpmodel);   
+          }
+        }
+        
+        if (result.data.hasNext == true) {
+          sequenceId = result.data.obj.maxSequenceId;
+          hasNext = true;
+        }
         else{
-          tmpmodel.save()
-          msg_models.push(tmpmodel)
-        }    
+          hasNext = false;
+          var foundUsers = await(await models.User).find({
+            id: this.data.login.user_id
+          });
+          if(foundUsers.length != 0){
+            foundUsers[0].maxsequenceid = tmpmodel.sequence_id;
+            foundUsers[0].save();
+          }
+        }
       }
     }
     return msg_models;
