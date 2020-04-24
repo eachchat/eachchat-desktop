@@ -205,9 +205,9 @@ class SQLiteStorage extends Storage {
         typeof search.$order.by === "string") {
         var reverse = false;
 
-        if ("$reverse" in search &&
+        if ("reverse" in search.$order &&
           typeof search.$order.reverse === "boolean") {
-          if (search.$reverse) {
+          if (search.$order.reverse) {
             reverse = true;
           }
         }
