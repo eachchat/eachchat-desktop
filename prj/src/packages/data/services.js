@@ -557,11 +557,19 @@ const common = {
     sequenceId,
     countperpageValue) 
   {
-    return await this.api.clientIncrement(this.data.login.access_token,
+    let result = await this.api.clientIncrement(this.data.login.access_token,
                                 name,
                                 updateTime,
                                 sequenceId,
                                 countperpageValue)
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    let item;
+    for(let index in result.data.results){
+      item = result.data.results[index];
+    }                
     
   },
 
