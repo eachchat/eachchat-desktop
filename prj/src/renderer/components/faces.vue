@@ -8,7 +8,8 @@
     </div>
 </template>
 <script>
-const { faceUtils } = require('../server/Utils.js');
+import {faceUtils} from '../../packages/core/Utils.js'
+// const faceUtils = require('../server/Utils.js');
 
 export default {
   name: 'faces',

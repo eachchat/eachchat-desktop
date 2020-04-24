@@ -11,7 +11,6 @@
                 <div class="msgState" v-else>
                 </div>
                 <div class="about-msg">
-                    <div class="each-msg-info-time" v-show=false>{{MsgTime()}}</div>
                     <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
@@ -38,7 +37,6 @@
                 <img class="msg-info-img" :src="MsgBelongUserImg()" alt="头像">
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
-                    <div class="each-msg-info-time" v-show=false>{{MsgTime()}}</div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
                         <quillEditor
@@ -81,7 +79,8 @@ import * as fs from 'fs-extra'
 import {shell} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
-import {generalGuid, Appendzero, FileUtil, confservice, getIconPath} from '../server/Utils.js'
+import {services} from '../../packages/data/index.js'
+import {generalGuid, Appendzero, FileUtil, confservice, getIconPath} from '../../packages/core/Utils.js'
 
 export default {
     components: {
@@ -106,32 +105,12 @@ export default {
         },
         MsgIsSending: function() {
         },
-        saveFile: function(data) {
-            confservice.getFilePath()
-        },
-        saveThumbImage: function(file_name, data) {
-            var dist_path = path.join(confservice.getThumbImagePath(this.$store.state.userInfo.id), file_name);
-            this.msg["thumb_local_path"] = dist_path;
-            try{
-                fs.writeFileSync(dist_path, data);
-                this.$store.commit("updateImgMessageThumbLocalPath", this.msg);
-            }
-            catch(err){
-                console.log("Save Thumb Failed And Err is ",err);
-            }
-        },
-        saveMImage: function(data) {
-            confservice.getMImagePath()
-        },
-        saveImage: function(data) {
-            confservice.getImagePath()
-        },
         getFileIconThroughExt: function(ext) {
             var iconPath = getIconPath(ext);
             return iconPath;
         },
         MsgIsImage: function() {
-            let chatGroupMsgType = this.msg.msgContentType;
+            let chatGroupMsgType = this.msg.message_type;
             if(chatGroupMsgType == 102){
                 return true;
             }
@@ -144,8 +123,14 @@ export default {
                 return '';
             }
             this.messageContent = '';
-            let chatGroupMsgType = this.msg.msgContentType;
-            let chatGroupMsgContent = this.msg.content;
+            let chatGroupMsgType = this.msg.message_type;
+            var chatGroupMsgContent = {};
+            try{
+                chatGroupMsgContent = JSON.parse(unescape(this.msg.message_content));
+            } catch (e) {
+                console.log("Message Content Json parse Failed.", this.msg.message_content);
+            }
+
             if(chatGroupMsgType === 101)
             {
                 this.messageContent = '<p>' + chatGroupMsgContent.text + '</p>'
@@ -164,11 +149,11 @@ export default {
                         if(chatGroupMsgContent.imgHeight < 100){
                             imageHeight = chatGroupMsgContent.imgHeight;
                         }
-                        this.messageContent = '<p><img src=' + reader.result + ' align=left height=' + imageHeight + '></img><span>' + this.msg.content.fileName + '</span></p>'
+                        this.messageContent = '<p><img src=' + reader.result + ' align=left height=' + imageHeight + '></img><span>' + chatGroupMsgContent.fileName + '</span></p>'
                     }
                 }
                 else{
-                    this.serverapi.downloadTumbnail(this.$store.state.accesstoken, "T", this.msg.timelineId)
+                    this.serverapi.downloadTumbnail(this.$store.state.accesstoken, "T", this.msg.time_line_id)
                         .then((ret) => {
                             let reader = new FileReader();
                             reader.readAsDataURL(ret.data);
@@ -178,29 +163,32 @@ export default {
                                     imageHeight = chatGroupMsgContent.imgHeight;
                                 }
                                 this.messageContent = '<p><img src=' + reader.result + ' height=' + imageHeight + '></img></P>'
-                                // this.saveThumbImage(chatGroupMsgContent.fileName, reader.result);
                             }
                         })
                 }
             }
             else if(chatGroupMsgType === 103)
             {
-                var iconPath = this.getFileIconThroughExt(this.msg.content.ext);
+                var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
                 var showfu = new FileUtil(iconPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
                 reader.readAsDataURL(showfileObj);
                 reader.onloadend = () => {
-                    this.messageContent = '<p><img src=' + reader.result + ' height=46></img><span>' + this.msg.content.fileName + '</span></p>'
+                    this.messageContent = '<p><img src=' + reader.result + ' height=46></img><span>' + chatGroupMsgContent.fileName + '</span></p>'
                 }
             }
             else if(chatGroupMsgType === 104)
             {
                 if(chatGroupMsgContent.type === "invitation")
                 {
-                    var invitee = chatGroupMsgContent.userInfos.userName;
+                    var invitees = chatGroupMsgContent.userInfos;
+                    var inviteeNames = "";
+                    for(var i=0;i<invitees.length;i++) {
+                        inviteeNames = inviteeNames + "、" + invitees[i].userName
+                    }
                     var inviter = chatGroupMsgContent.userName;
-                    return inviter + " 邀请 " + invitee + " 加入群聊";
+                    return inviter + " 邀请 " + inviteeNames + " 加入群聊";
                 }
                 else if(chatGroupMsgContent.type === "notice")
                 {
@@ -232,37 +220,8 @@ export default {
             {
                 return "[聊天记录]";
             }
-        },
-        MsgTime: function() {
-            if(this.msg === null){
-                return "";
-            }
-            let curDate = new Date();
-            let curDateSecond = curDate.getTime();
-            let cutTime = curDateSecond - this.msg.timestamp;
-            let curYeat = curDate.getFullYear();
-            let curMonth = curDate.getMonth();
-            let curDay = curDate.getDay();
-
-            let distdate = new Date(this.msg.timestamp);
-            let y = distdate.getFullYear();
-            let mon = distdate.getUTCMonth() + 1;
-            let d = distdate.getDate();
-            let h = distdate.getHours();
-            let m = distdate.getMinutes();
-            let s = distdate.getSeconds();
-
-            if(cutTime > 0 && cutTime < 24 * 3600 * 1000)
-            {
-                return h + ":" + m;
-            }
-            else if(cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000)
-            {
-                return "昨天";
-            }
-            else
-            {
-                return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
+            else {
+                return this.messageContent = '<p>' + "不支持的消息类型，请升级客户端。" + '</p>'
             }
         },
         MsgBelongUserName: function() {
@@ -271,32 +230,34 @@ export default {
                 return '';
             }
             else {
-                var res = this.$store.getters.getChatUserName(this.msg.fromId);
+                var res = this.$store.getters.getChatUserName(this.msg.message_from_id);
                 return res;
             }
         },
         MsgIsMine:function() {
-            if(this.msg.fromId === this.$store.state.userInfo.id) {
+            if(this.msg.message_from_id === this.$store.state.userId) {
                 return true;
             }
             else {
                 return false;
             }
         },
-        MsgBelongUserImg: function () {
+        MsgBelongUserImg: async function () {
             if(this.msg === null) {
                 return '/static/Img/User/user.jpeg';
             }
             else {
-                var res = this.$store.getters.getChatUserIcon(this.msg.fromId, false);
+                var res = this.$store.getters.getChatUserIcon(this.msg.message_from_id, false);
+                // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
+                // var distUserInfo = await services.common.GetUserModelThroughUid(this.msg.message_from_id)
                 return res;
             }
         },
         compare: function(){
             return function(a, b)
             {
-                var value1 = a.sequenceId;
-                var value2 = b.sequenceId;
+                var value1 = a.sequence_id;
+                var value2 = b.sequence_id;
                 return value2 - value1;
             }
         }
@@ -331,9 +292,8 @@ export default {
         }, 0)
 
     },
-    created: function() {
+    created: async function() {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
-        this.serverapi.m_accesstoken = this.$store.state.accesstoken;
     },
     watch: {
         msg: function() {
@@ -401,11 +361,6 @@ export default {
         display: inline-block;
         width: 20px;
         height: 20px;
-    }
-
-    .each-msg-info-time {
-        height: 15px;
-        font-size: 10px;
     }
 
     .msg-info-username-mine {

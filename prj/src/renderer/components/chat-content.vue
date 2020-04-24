@@ -8,18 +8,18 @@
         <div class="list-content" :key="needUpdate">
           <ul class="group-list">
             <li class="group"
-                v-for="(chatGroup, index) in chatGroupList"
-                @click="showChat(chatGroup, index)"
+                v-for="(chatGroupItem, index) in dealShowGroupList"
+                @click="showChat(chatGroupItem, index)"
                 :class="{active: index===curindex}"
                 >
-              <img class="group-ico" :src="chatGroup.group.groupAvatar">
+              <img class="group-ico" :id="getChatElementId(chatGroupItem)"/>
               <div class="group-info">
-                <p class="group-name">{{chatGroup.group.groupName}}</p>
-                <p class="group-content">{{getShowMsgContent(chatGroup.message)}}</p>
+                <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
+                <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
               </div>
               <div class="group-notice">
-                <p class="group-time">{{getMsgLastMsgTime(chatGroup.message)}}</p>
-                <p :class="getUnreadClass(chatGroup.noReaderCount, index===curindex)">{{getUnReadCount(chatGroup.noReaderCount, index)}}</p>
+                <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
               </div>
             </li>
           </ul>
@@ -36,10 +36,11 @@
 
 <script>
 import {APITransaction} from '../../packages/data/transaction.js'
+import {services} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
 import listHeader from './listheader'
 import chatHeader from './chatheader'
-import {Appendzero} from '../server/Utils.js'
+import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
 
 export default {
   components: {
@@ -48,13 +49,17 @@ export default {
     chatHeader
   },
   computed: {
-    chatGroupList: {
-      get: function() {
-        return this.$store.getters.getChatGroup;
-      },
-      set: function(new_list) {
-        this.$store.commit("setChatGroup", new_list);
+    dealShowGroupList: function() {
+      if(this.showGroupList.length == 0) {
+        return;
       }
+      var chatGroupVar = [];
+      chatGroupVar = this.showGroupList.sort(this.compare());
+      if(chatGroupVar[0].sequence_id > this.$store.state.latestSequenceId) {
+        // Update latest message's sequenceId
+        this.$store.commit("setLatestSequenceId", chatGroupVar[0].sequence_id);
+      }
+      return chatGroupVar
     }
   },
   data() {
@@ -64,16 +69,53 @@ export default {
       needUpdate: 1,
       curindex: 0,
       searchKey: '',
+      loginInfo: '',
+      normalGroupList: [],
+      encryptGroupList: [],
+      showGroupList: [],
+      isSqlite: true,
     };
   },
   methods: {
+    // Download thumb and show in dist id element
+    showGroupIcon() {
+      for(var i=0;i<this.showGroupList.length;i++) {
+        let elementImg = document.getElementById(this.showGroupList[i].group_id);
+        downloadGroupAvatar(this.showGroupList[i].group_avarar, this.loginInfo.access_token)
+          .then((ret) => {
+              elementImg.setAttribute("src", URL.createObjectURL(ret.data));
+              elementImg.onload = () => {
+                URL.revokeObjectURL(elementImg.getAttribute("src"))
+              }
+          })
+      }
+    },
     getCreateGroupInfo(groupInfo) {
       console.log("Created Info is ", groupInfo)
+      this.$store.commit("addNewChatGroup", groupInfo);
+      // ++this.needUpdate;
     },
     updateChatList(newMsg) {
-      ++this.needUpdate;
-      for(var i=0;i<this.$store.state.chatGroup.length;i++) {
-        if(this.$store.state.chatGroup[i].group.groupId === newMsg.groupId) {
+      // ++this.needUpdate;
+      for(var i=0;i<this.showGroupList.length;i++) {
+        if(this.showGroupList[i].group_id === newMsg.group_id) {
+          this.showGroupList[i].last_message_time = newMsg.message_timestamp;
+          this.showGroupList[i].message_content = newMsg.message_content;
+          this.showGroupList[i].message_content_type = newMsg.message_type;
+          this.showGroupList[i].message_from_id = newMsg.message_from_id;
+          this.showGroupList[i].message_id = newMsg.message_id;
+          this.showGroupList[i].sequence_id = newMsg.sequence_id;
+          this.curindex = i;
+          break;
+        }
+      }
+    },
+    updateChatListThroughGroupId(groupId, newMsgList) {
+      // ++this.needUpdate;
+      for(var i=0;i<this.showGroupList.length.length;i++) {
+        if(this.showGroupList[i].group_id === groupId) {
+          console.log("new msg list is ", newMsgList)
+          // this.$store.commit("addMessageLists", newMsgList);
           this.curindex = i;
           break;
         }
@@ -95,14 +137,14 @@ export default {
       let curDate = new Date();
       let curDateSecond = curDate.getTime();
       let cutTime = curDateSecond - secondsTime;
-      let curYeat = curDate.getFullYear();
-      let curMonth = curDate.getMonth();
-      let curDay = curDate.getDay();
+      let curYeat = curDate.getUTCFullYear();
+      let curMonth = curDate.getUTCMonth() + 1;
+      let curDay = curDate.getDate();
 
       let distdate = new Date(secondsTime);
-      let y = distdate.getFullYear();
-      let mon = distdate.getUTCMonth() + 1;
-      let d = distdate.getDay();
+      let y = distdate.getUTCFullYear();
+      let mon = distdate.getMonth() + 1;
+      let d = distdate.getDate();
       let h = distdate.getHours();
       let m = distdate.getMinutes();
       let s = distdate.getSeconds();
@@ -134,23 +176,53 @@ export default {
         return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
       }
     },
-    getMsgLastMsgTime(chatGroupMsg) {
-      if(chatGroupMsg === null){
-        return "";
+    getMsgLastMsgTime(chatGroupItem) {
+      var formatTime = ""
+      var timesecond = Number(chatGroupItem.last_message_time);
+
+      if(timesecond.length == 0) {
+        return formatTime;
       }
-      var timesecond = chatGroupMsg.timestamp;
-      var formatTime = this.formatTimeFilter(timesecond);
+
+      formatTime = this.formatTimeFilter(timesecond);
       return formatTime;
     },
-    getShowMsgContent(chatGroupMsg) {
-      //console.log(chatGroupMsgContent)
-      if(chatGroupMsg === null){
+    getIdThroughId(groupInfo) {
+      return groupInfo.groupId;
+    },
+    // To get group_id uesed as current chat group's element id
+    getChatElementId: function(curChat) {
+      return curChat.group_id;
+    },
+    getShowGroupName(chatGroupItem) {
+      if(chatGroupItem === null){
         return "";
       }
-      var chatGroupMsgContent = chatGroupMsg.content;
-      var chatGroupMsgType = chatGroupMsg.msgContentType;
+      var groupName = chatGroupItem.group_name;
+      if(groupName.length == 0) {
+        var aboutUids = chatGroupItem.contain_user_ids;
+        var groupUidNameList = [];
+        for(var i=0;i<aboutUids.length;i++) {
+          let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
+          groupUidNameList.unshift(nameTmp);
+          if(i > 3) {
+            break;
+          }
+        }
+        groupName = groupUidNameList.join("、");
+      }
+      return groupName
+    },
+    getShowMsgContent(chatGroupItem) {
+      // console.log("getShowMsgContent is ", chatGroupItem)
+      if(chatGroupItem === null){
+        return "";
+      }
+      var chatGroupMsgContent = strMsgContentToJson(chatGroupItem.message_content);
+
+      var chatGroupMsgType = chatGroupItem.message_content_type;
       if(chatGroupMsgContent === null) {
-        return null;
+        return "";
       }
       if(chatGroupMsgType === 101)
       {
@@ -168,9 +240,13 @@ export default {
       {
         if(chatGroupMsgContent.type === "invitation")
         {
-          var invitee = chatGroupMsgContent.userInfos.userName;
+          var invitees = chatGroupMsgContent.userInfos;
+          var inviteeNames = "";
+          for(var i=0;i<invitees.length;i++) {
+              inviteeNames = inviteeNames + "、" + invitees[i].userName
+          }
           var inviter = chatGroupMsgContent.userName;
-          return inviter + " 邀请 " + invitee + " 加入群聊";
+          return inviter + " 邀请 " + inviteeNames + " 加入群聊";
         }
         else if(chatGroupMsgContent.type === "notice")
         {
@@ -209,27 +285,65 @@ export default {
       this.curChat = chatGroup;
       this.curindex = index;
     },
-    getGroupList: function() {
-      this.serverapi.listAllGroup(this.$store.state.accesstoken)
+    getGroupList: async function(updateCurPage=false) {
+      if(this.isSqlite) {
+        var ret = await services.common.GetAllGroups()
+        console.log("sql getGroupList is ", ret)
+        this.showGroupList = ret;
+        if(updateCurPage){
+          let chatGroupVar = [];
+          chatGroupVar = this.showGroupList.sort(this.compare());
+          let curGroup = chatGroupVar[0];
+          console.log("getgrouplist the cur group is ", curGroup)
+          this.showChat(curGroup, 0);
+        }
+      }
+      else {
+        this.serverapi.listAllGroup(this.loginInfo.access_token)
           .then((response) => {
               //console.log(response)
               var ret_data = response.data;
               var ret_list = ret_data.results;
-              //console.log(ret_list)
-              
+              console.log("this.serverapi.listAllGroup ", ret_list)
+              this.showGroupList = [];
+              for(var i=0;i<ret_list.length;i++) {
+                this.showGroupList[i] = ret_list[i];
+              }
               this.$store.commit("setChatGroup", ret_list);
           })
+      }
+    },
+    compare: function() {
+      return function(a, b)
+      {
+        var value1 = a.last_message_time;
+        var value2 = b.last_message_time;
+        return value2 - value1;
+      }
+    },
+    callback(msg) {
+      console.log("chat content callback msg is ", msg);
     },
   },
-  created: function() {
-    console.log("chat content created");
+  mounted: function() {
+      // When Mounting Can Not Get The Element. Here Need SetTimeout
+      setTimeout(() => {
+          this.$nextTick(() => {
+            this.showGroupIcon();
+          })
+      }, 0)
+  },
+  created: async function() {
     this.serverapi = new APITransaction('139.198.15.253', 8888)
-    this.serverapi.m_accesstoken = this.$store.state.accesstoken;
-    this.getGroupList();
-    this.$nextTick(() => {
-      let curGroup = this.$store.state.chatGroup[0];
-      this.showChat(curGroup, 0);
-    })
+    // To GetSelfUserModel Must Do GetLoginModel Firstly?
+    this.loginInfo = await services.common.GetLoginModel();
+    var curUserInfo = await services.common.GetSelfUserModel();
+    this.$store.commit("setUserId", curUserInfo.id);
+
+    services.common.initmqtt();
+    services.common.handlemessage(this.callback);
+
+    this.getGroupList(true);
   }
 };
 </script>

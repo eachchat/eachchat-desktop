@@ -1,19 +1,19 @@
 <template>
     <div class="chat-page">
         <div class="chat-title">
-            <p class="chat-label">{{chat.group.groupName}}</p>
+            <p class="chat-name" id="chat-group-name"></p>
             <div class="chat-tools">
                 <div class="chat-tool-more" @click="More()">
                     <i class="el-icon-more"></i>
                 </div>
-                <div class="chat-tool-call" @click="Call()">
+                <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
             </div>
         </div>
         <div class="chat-main">
             <div class="chat-main-message" id="message-show">
-                <ul class="msg-list">
+                <ul class="msg-list" id="message-show-list" ref="viewBox">
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
@@ -47,10 +47,7 @@
                 <div class="text-input">
                     <quillEditor
                         ref="chatQuillEditor"
-                        :options="editorOption"
-                        @blur="onEditorBlur($event)"
-                        @focus="onEditorFocus($event)"
-                        @change="onEditorChange($event)">
+                        :options="editorOption">
                     </quillEditor>
                 </div>
             </div>
@@ -65,8 +62,9 @@ import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
 
 import {APITransaction} from '../../packages/data/transaction.js'
+import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16} from '../server/Utils.js'
+import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 
 const InlineBlot = Quill.import('formats/image')
@@ -108,8 +106,28 @@ export default {
         showExpression: function() {
             this.showFace = !this.showFace;
         },
+        showGroupName(chatGroupItem) {
+            var groupNameElement = document.getElementById("chat-group-name");
+            if(chatGroupItem === null){
+                return "";
+            }
+            console.log("getShowGroupName is ", chatGroupItem.group_id)
+            var groupName = chatGroupItem.group_name;
+            if(groupName.length == 0) {
+                var aboutUids = chatGroupItem.contain_user_ids;
+                var groupUidNameList = [];
+                for(var i=0;i<aboutUids.length;i++) {
+                    let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
+                    groupUidNameList.unshift(nameTmp);
+                    if(i > 3) {
+                            break;
+                        }
+                }
+                groupName = groupUidNameList.join(",");
+            }
+            groupNameElement.innerHTML = groupName;
+        },
         insertFace: function(item) {
-            console.log("insert item is ", uncodeUtf16(item))
             var range = this.editor.getSelection();
             var curIndex = range==null ? 0 : range.index;
             this.editor.insertText(curIndex, uncodeUtf16(item));
@@ -159,15 +177,6 @@ export default {
                 }
             }
         },
-        onEditorBlur: function(editor) {
-
-        },
-        onEditorFocus: function(editor) {
-
-        },
-        onEditorChange: function(editor) {
-
-        },
         cleanEditor: function() {
             this.editor.container.getElementsByClassName("ql-editor")[0].innerHTML = "";
         },
@@ -180,32 +189,25 @@ export default {
         updateChatList: function() {
             this.$store.state.chatGroup[0].message = this.messageList[-1];
         },
-        getUserId: function() {
-            if(this.chat.group.groupType === 101)
-            {
-                return '';
-            }
-            else
-            {
-                return this.chat.group.userIds.pop(this.$store.state.userInfo.id)[0];
-            }
-        },
+        // Sending message need to show sending circle.
         MsgIsSending: function(curMsg) {
-            if(this.sendingMsgIdList.indexOf(curMsg.msgId) > -1){
+            if(this.sendingMsgIdList.indexOf(curMsg.message_id) > -1){
                 return true;
             }
             else{
                 return false;
             }
         },
+        // Check message send successfully or failed.
         MsgIsFailed: function(curMsg) {
-            if(this.failedList.indexOf(curMsg.msgId) > -1) {
+            if(this.failedList.indexOf(curMsg.message_id) > -1) {
                 return true;
             }
             else {
                 return false;
             }
         },
+        // Send msg demo
         ssendMsg: function() {
             // Send Test Interface
             let varcontent = this.editor.getContents();
@@ -310,7 +312,7 @@ export default {
                             let filePath = curMsgItem.fileBlot.local_path;
                             let fileHeight = curMsgItem.fileBlot.file_height;
                             let ext = filePath.split(".").pop();
-                            let willShowMsgContent = {
+                            let willShowMsgContent = JsonMsgContentToString({
                                 "ext":ext,
                                 "fileName":'',
                                 "url":"",
@@ -319,21 +321,22 @@ export default {
                                 "imgWidth": "",
                                 "imgHeight": fileHeight,
                                 "fileSize": ""
-                            }
+                            });
                             var guid = generalGuid();
                             let willSendMsg = {
-                                "content": willShowMsgContent,
-                                "fromId": this.$store.state.userInfo.id,
-                                "groupId": this.chat.group.groupId,
-                                "timestamp": curTimeSeconds,
-                                "msgContentType": sendingMsgContentType,
-                                "msgId": guid,
+                                "message_content": willShowMsgContent,
+                                "message_from_id": this.$store.state.userId,
+                                "group_id": this.chat.group_id,
+                                "message_timestamp": curTimeSeconds,
+                                "message_type": sendingMsgContentType,
+                                "message_id": guid,
                                 };
                             this.messageList.push(willSendMsg);
                             this.sendingMsgIdList.push(willSendMsg);
                             this.cleanEditor();
 
-                            this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
+                            // this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
+                            services.common.uploadFile(pathDeal(filePath))
                                 .then((ret) => {
                                     // ToDo Failed List
                                     console.log("UploadFile response ", ret);
@@ -348,13 +351,19 @@ export default {
                                     willSendMsgContent.imgHeight = uploadRetData.imgHeight;
                                     willSendMsgContent.fileSize = uploadRetData.fileSize;
 
-                                    this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.getUserId, curTimeSeconds, willSendMsgContent)
+                                    // this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
+                                    services.common.sendNewMessage(
+                                            guid, 
+                                            sendingMsgContentType, 
+                                            this.$store.state.userId, 
+                                            this.chat.group_id, 
+                                            '', 
+                                            curTimeSeconds, 
+                                            willSendMsgContent)
                                         .then((ret) => {
                                             console.log("send img message ret ", ret)
-                                            var ret_data = ret.data;
-                                            var code = ret_data.code;
                                             var obj = ret_data.obj;
-                                            if(code != 200) {
+                                            if(ret == undefined) {
                                                 for(var i=0;i<this.sendingMsgIdList.length;i++){
                                                     if(this.sendingMsgIdList[i].guid == guid){
                                                         this.sendingMsgIdList.splice(i, 1);
@@ -378,16 +387,18 @@ export default {
                                                 }
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].guid == guid){
-                                                        this.messageList[i] = obj.message;
+                                                        this.messageList[i] = ret;
                                                         break;
                                                     }
                                                 }
                                                 console.log("Send Image msg list is ", this.messageList)
-                                                this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', obj.message);
+                                                // this.$store.commit("updateChatGroup", obj.message);
+                                                this.$emit('updateChatList', ret);
                                                 let div = document.getElementById("message-show");
                                                 if(div) {
-                                                    div.scrollTop = div.scrollHeight;
+                                                    this.$nextTick(() => {
+                                                        div.scrollTop = div.scrollHeight;
+                                                    })
                                                 }
                                             }
                                         })
@@ -398,26 +409,27 @@ export default {
                             let picUrl = curMsgItem.fileBlot.src;
                             let filePath = curMsgItem.fileBlot.local_path;
                             let ext = filePath.split(".").pop();
-                            let willShowMsgContent = {
+                            let willShowMsgContent = JsonMsgContentToString({
                                 "ext":ext,
                                 "fileName":'',
                                 "url":"",
                                 "fileSize": ""
-                            }
+                            })
                             let guid = generalGuid();
                             let willSendMsg = {
-                                "content": willShowMsgContent,
-                                "fromId": this.$store.state.userInfo.id,
-                                "groupId": this.chat.group.groupId,
-                                "timestamp": curTimeSeconds,
-                                "msgContentType": sendingMsgContentType,
-                                "msgId": guid,
+                                "message_content": willShowMsgContent,
+                                "message_from_id": this.$store.state.userInfo.id,
+                                "group_id": this.chat.group_id,
+                                "message_timestamp": curTimeSeconds,
+                                "message_type": sendingMsgContentType,
+                                "message_id": guid,
                                 };
                             this.messageList.push(willSendMsg);
                             this.sendingMsgIdList.push(guid);
                             this.cleanEditor();
 
-                            this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
+                            // this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
+                            services.common.uploadFile(pathDeal(filePath))
                                 .then((ret) => {
                                     // ToDo Failed List
                                     console.log("UploadFile response ", ret);
@@ -428,13 +440,18 @@ export default {
                                     willSendMsgContent.url = uploadRetData.url;
                                     willSendMsgContent.fileSize = uploadRetData.fileSize;
 
-                                    this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.getUserId, curTimeSeconds, willSendMsgContent)
+                                    // this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
+                                    services.common.sendNewMessage(
+                                            guid, 
+                                            sendingMsgContentType, 
+                                            this.$store.state.userId, 
+                                            this.chat.group_id, 
+                                            '', 
+                                            curTimeSeconds, 
+                                            willSendMsgContent)
                                         .then((ret) => {
                                             console.log("send img message ret ", ret)
-                                            var ret_data = ret.data;
-                                            var code = ret_data.code;
-                                            var obj = ret_data.obj;
-                                            if(code != 200) {
+                                            if(ret == undefined) {
                                                 for(var i=0;i<this.sendingMsgIdList.length;i++){
                                                     if(this.sendingMsgIdList[i].guid == guid){
                                                         this.sendingMsgIdList.splice(i, 1);
@@ -458,16 +475,18 @@ export default {
                                                 }
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].guid == guid){
-                                                        this.messageList[i] = obj.message;
+                                                        this.messageList[i] = ret.message;
                                                         break;
                                                     }
                                                 }
-                                                this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', obj.message);
+                                                // this.$store.commit("updateChatGroup", obj.message);
+                                                this.$emit('updateChatList', ret.message);
 
                                                 let div = document.getElementById("message-show");
                                                 if(div) {
-                                                    div.scrollTop = div.scrollHeight;
+                                                    this.$nextTick(() => {
+                                                        div.scrollTop = div.scrollHeight;
+                                                    })
                                                 }
                                             }
                                         })
@@ -483,27 +502,39 @@ export default {
                         }
                         let sendingMsgContentType = 101;
                         let msgContent = curMsgItem;
+                        var msgContentJson = {
+                            "text": msgContent
+                        };
+                        var willShowMsgContent = JsonMsgContentToString(msgContentJson);
                         let willSendMsgContent = {"text": msgContent};
                         console.log("will send msg content ", willSendMsgContent)
                         let guid = generalGuid();
                         let willSendMsg = {
-                            "content": willSendMsgContent,
-                            "fromId": this.$store.state.userInfo.id,
-                            "groupId": this.chat.group.groupId,
-                            "timestamp": curTimeSeconds,
-                            "msgContentType": sendingMsgContentType,
-                            "msgId": guid,
+                            "message_content": willShowMsgContent,
+                            "message_from_id": this.$store.state.userId,
+                            "group_id": this.chat.group_id,
+                            "message_timestamp": curTimeSeconds,
+                            "message_type": sendingMsgContentType,
+                            "message_id": guid,
                             };
                         this.messageList.push(willSendMsg);
                         this.sendingMsgIdList.push(guid);
                         this.cleanEditor();
+                        willSendMsg.content = willSendMsgContent;
 
-                        this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.getUserId, curTimeSeconds, willSendMsgContent)
+                        // this.serverapi.sendNewMessage(this.loginInfo.access_token, guid, sendingMsgContentType, this.$store.state.userId, this.chat.group.group_id, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
+                        services.common.sendNewMessage(
+                                guid, 
+                                sendingMsgContentType, 
+                                this.$store.state.userId, 
+                                this.chat.group_id, 
+                                '', 
+                                curTimeSeconds, 
+                                willSendMsgContent)
                             .then((ret) => {
-                                var ret_data = ret.data;
-                                var code = ret_data.code;
-                                var obj = ret_data.obj;
-                                if(code != 200) {
+                                console.log("sendNewMessage ret is ", ret);
+
+                                if(ret == undefined) {
                                     for(var i=0;i<this.sendingMsgIdList.length;i++){
                                         if(this.sendingMsgIdList[i].guid == guid){
                                             this.sendingMsgIdList.splice(i, 1);
@@ -527,16 +558,18 @@ export default {
                                     }
                                     for(var i=0;i<this.messageList.length;i++){
                                         if(this.messageList[i].guid == guid){
-                                            this.messageList[i] = obj.message;
+                                            this.messageList[i] = ret;
                                             break;
                                         }
                                     }
-                                    this.$store.commit("updateChatGroup", obj.message);
-                                    this.$emit('updateChatList', obj.message);
+                                    // this.$store.commit("updateChatGroup", obj.message);
+                                    this.$emit('updateChatList', ret);
 
                                     let div = document.getElementById("message-show");
                                     if(div) {
-                                        div.scrollTop = div.scrollHeight;
+                                        this.$nextTick(() => {
+                                            div.scrollTop = div.scrollHeight;
+                                        })
                                     }
                                 }
                             })
@@ -544,12 +577,13 @@ export default {
                 }
             }
         },
+        // If message is notice set visible
         showNoticeOrNot: function(curMsg) {
             if(curMsg === null) {
                 return false;
             }
-            let chatGroupMsgType = curMsg.msgContentType;
-            let chatGroupMsgContent = curMsg.content;
+            let chatGroupMsgType = curMsg.message_type;
+            let chatGroupMsgContent = curMsg.message_content;
             if(chatGroupMsgType === 104)
             {
                 return true;
@@ -558,12 +592,13 @@ export default {
                 return false;
             }
         },
+        // Notice show difference with message.
         showMessageOrNot: function(curMsg) {
             if(curMsg === null) {
                 return false;
             }
-            let chatGroupMsgType = curMsg.msgContentType;
-            let chatGroupMsgContent = curMsg.content;
+            let chatGroupMsgType = curMsg.message_type;
+            let chatGroupMsgContent = curMsg.message_content;
             if(chatGroupMsgType === 104)
             {
                 return false;
@@ -572,12 +607,14 @@ export default {
                 return true;
             }
         },
+        // Notice content
         NoticeContent: function(curMsg) {
             if(curMsg === null) {
                 return '';
             }
-            let chatGroupMsgType = curMsg.msgContentType;
-            let chatGroupMsgContent = curMsg.content;
+            let chatGroupMsgType = curMsg.message_type;
+            let chatGroupMsgContent = strMsgContentToJson(curMsg.message_content);
+
             if(chatGroupMsgType === 104)
             {
                 if(chatGroupMsgContent.type === "invitation")
@@ -615,15 +652,16 @@ export default {
             }
             return "";
         },
+        // Show time when time between messages over 1 min
         showTimeOrNot(curMsg, lastMsg) {
             if(lastMsg === undefined) {
                 return true;
             }
-            let chatGroupMsgType = curMsg.msgContentType;
+            let chatGroupMsgType = curMsg.message_type;
             if(chatGroupMsgType == 104){
                 return true;
             }
-            let cutTime = curMsg.timestamp - lastMsg.timestamp;
+            let cutTime = curMsg.message_timestamp - lastMsg.message_timestamp;
 
             if(cutTime > 1000 * 1 * 60) {
                 return true;
@@ -632,22 +670,23 @@ export default {
                 return false;
             }
         },
+        // Get formate message time
         MsgTime(curMsg) {
             if(curMsg === null) {
                 return "";
             }
-            var secondsTime = curMsg.timestamp;
+            var secondsTime = Number(curMsg.message_timestamp);
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
             let cutTime = curDateSecond - secondsTime;
             let curYeat = curDate.getFullYear();
-            let curMonth = curDate.getMonth();
-            let curDay = curDate.getDay();
+            let curMonth = curDate.getMonth() + 1;
+            let curDay = curDate.getDate();
 
             let distdate = new Date(secondsTime);
             let y = distdate.getFullYear();
-            let mon = distdate.getMonth();
-            let d = distdate.getDay();
+            let mon = distdate.getMonth() + 1;
+            let d = distdate.getDate();
             let h = distdate.getHours();
             let m = distdate.getMinutes();
             let s = distdate.getSeconds();
@@ -679,8 +718,9 @@ export default {
                 return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
             }
         },
+        // Difference in css. Left of Right
         ChatLeftOrRightClassName: function (curMsg) {
-            if(curMsg.fromId === this.$store.state.userInfo.id) {
+            if(curMsg.message_from_id === this.$store.state.userId) {
                 return "message-right";
             }
             else {
@@ -696,9 +736,93 @@ export default {
         compare: function(){
             return function(a, b)
             {
-                var value1 = a.sequenceId;
-                var value2 = b.sequenceId;
+                var value1 = a.sequence_id;
+                var value2 = b.sequence_id;
                 return value1 - value2;
+            }
+        },
+        handleScroll: function() {
+            let uldiv = document.getElementById("message-show-list");
+            if(uldiv) {
+                if(uldiv.scrollTop < 100){
+                    var curTime = new Date().getTime();
+                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
+                        let lastScrollHeight = uldiv.scrollHeight;
+                        console.log("lastScrollHeight is ", lastScrollHeight);
+                        this.isRefreshing = true;
+                        this.lastRefreshTime = new Date().getTime();
+                        let lastSequenceId = this.messageList[0].sequence_id;
+                        services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
+                            .then((ret) => {
+                                this.isRefreshing = false;
+                                var messageListTmp = ret;
+                                for(var i=0;i<messageListTmp.length;i++){
+                                    this.messageList.unshift(messageListTmp[i]);
+                                }
+                                this.$nextTick(() => {
+                                    console.log("uldiv.scrollHeight is ", uldiv.scrollHeight)
+                                    console.log("uldiv.scrollTop is ", uldiv.scrollTop);
+                                    uldiv.scrollTop = uldiv.scrollHeight - lastScrollHeight;
+                                })
+                            })
+                    }
+                }
+            }
+        },
+        getHistoryMessage: function() {
+            services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
+                .then((ret) => {
+                    var messageListTmp = ret;
+                    this.messageList = [];
+                    
+                    for(var i=0;i<messageListTmp.length;i++){
+                        this.messageList.unshift(messageListTmp[i]);
+                    }
+                    if(messageListTmp.length !=0){
+                        if(messageListTmp[0].sequence_id != this.chat.sequence_id){
+                            let messageFromGroup = {};
+                            messageFromGroup.message_type = this.chat.message_content_type;
+                            messageFromGroup.message_content = this.chat.message_content;
+                            messageFromGroup.message_from_id = this.chat.message_from_id;
+                            messageFromGroup.message_timestamp = this.chat.last_message_time;
+                            messageFromGroup.sequence_id = this.chat.sequence_id;
+                            messageFromGroup.message_id = this.chat.message_id;
+                            this.messageList.push(messageFromGroup);
+                        }
+                    }
+                    else{
+                        let messageFromGroup = {};
+                        messageFromGroup.message_type = this.chat.message_content_type;
+                        messageFromGroup.message_content = this.chat.message_content;
+                        messageFromGroup.message_from_id = this.chat.message_from_id;
+                        messageFromGroup.message_timestamp = this.chat.last_message_time;
+                        messageFromGroup.sequence_id = this.chat.sequence_id;
+                        messageFromGroup.message_id = this.chat.message_id;
+                        this.messageList.push(messageFromGroup);
+                    }
+                    console.log("Get From store msg list is ", this.messageList);
+                    this.$nextTick(() => {
+                        let div = document.getElementById("message-show-list");
+                        if(div) {
+                            div.scrollTop = div.scrollHeight;
+                            // The left msg get through scroll event
+                            div.addEventListener('scroll', this.handleScroll);
+                        }
+                        this.isRefreshing = false;
+                    })
+                })
+        },
+        callback(msg) {
+            console.log("chat callback msg is ", msg);
+            if(msg.group_id == this.chat.group_id) {
+                this.messageList.push(msg);
+            }
+            this.$emit('updateChatList', msg);
+            let div = document.getElementById("message-show");
+            if(div) {
+                this.$nextTick(() => {
+                    div.scrollTop = div.scrollHeight;
+                })
             }
         }
     },
@@ -714,7 +838,11 @@ export default {
                 placeholder: "",
                 theme:'bubble',
             },
-            showFace: false
+            showFace: false,
+            lastRefreshTime: 0,
+            // When watch finished set isRefreshing to false
+            isRefreshing: true,
+            viewBox: '',
         }
     },
     mounted: function() {
@@ -726,12 +854,19 @@ export default {
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
+                this.viewBox = this.$refs.viewBox;
+                this.showGroupName(this.chat);
             })
         }, 0)
     },
-    created: function() {
+    created: async function() {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
-        this.serverapi.m_accesstoken = this.$store.state.accesstoken;
+        this.loginInfo = await services.common.GetLoginModel();
+        var curUserInfo = await services.common.GetSelfUserModel();
+        this.$store.commit("setUserId", curUserInfo.id);
+
+        // services.common.initmqtt();
+        // services.common.handlemessage(this.callback);
     },
     computed: {
         messageListShow: {
@@ -742,59 +877,11 @@ export default {
     },
     watch: {
         chat: function() {
-            if(this.curGroupId != this.chat.group.groupId) {
-                var messageListTmp = this.$store.getters.getChatMsgHistory(this.chat.group.groupId);
-                this.messageList = [];
-                console.log("the chat message is ", this.chat.message)
-                for(var i=0;i<messageListTmp.length;i++){
-                    this.messageList.unshift(messageListTmp[i]);
-                }
-                if(messageListTmp.length !=0){
-                    if(messageListTmp[0].sequenceId != this.chat.message.sequenceId){
-                        this.messageList.push(this.chat.message);
-                        console.log("Push Last Msg")
-                    }
-                }
-                else{
-                    this.messageList.push(this.chat.message);
-                }
-                console.log("Get From store msg list is ", this.messageList);
-                this.$nextTick(() => {
-                    let div = document.getElementById("message-show");
-                    if(div) {
-                        div.scrollTop = div.scrollHeight;
-                    }
-                })
-                this.curGroupId = this.chat.group.groupId;
-                var curSequenceId = this.chat.message.sequenceId;
-                this.serverapi.historyMessage(this.$store.state.accesstoken, this.chat.group.groupId, curSequenceId)
-                    .then((responer) => {
-                        var theList = responer.data.results;
-                        // 后端返回的历史消息 list[0] 为最新
-                        // 实际显示需要 list[-1] 为最新，显示前将list倒序，放入绑定的list中
-                        console.log("HistoryMessage is ", theList)
-                        for(var i=0;i<theList.length;i++) {
-                            theList[i]["SendSuccess"] = true;
-                        }
-
-                        if(theList.length !=0){
-                            if(theList[0].sequenceId != this.chat.message.sequenceId){
-                                theList.unshift(this.chat.message);
-                                console.log("unshift Last Msg")
-                            }
-                        }
-                        else{
-                            theList.unshift(this.chat.message);
-                        }
-
-                        this.$store.commit("setMessageLists", theList, false);
-
-                        var messageListTmp = this.$store.getters.getChatMsgHistory(this.chat.group.groupId);
-                        this.messageList = [];
-                        for(var i=0;i<messageListTmp.length;i++){
-                            this.messageList.unshift(messageListTmp[i]);
-                        }
-                    })
+            if(this.curGroupId != this.chat.group_id) {
+                this.curGroupId = this.chat.group_id;
+                var curSequenceId = this.chat.sequence_id;
+                
+                this.getHistoryMessage();
             }
         }
     }
@@ -843,11 +930,14 @@ export default {
         }
     }
 
-    .chat-label {
+    .chat-name {
         margin:10px 30px 20px 30px;
         float: left;
         white-space: nowrap;
         text-overflow: ellipsis;
+        font-size: 16px;
+        font-family: 'Microsoft YaHei';
+        font-weight: 590;
     }
 
     .chat-tools {
@@ -885,15 +975,29 @@ export default {
 
     .chat-main-message {
         width: 100%;
-        height: calc(100% - 160px);
+        height: calc(100% - 150px);
         border-bottom: 1px solid rgb(242, 242, 246);
-        overflow-y: scroll;
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        overflow-y: hidden;
         overflow-x: hidden;
     }
 
     .msg-list {
         list-style: none;
+        margin: 0;
         padding: 0;
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        // height: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+
+        li {
+            list-style-type: none;
+        }
     }
 
     .msg-info {
@@ -907,7 +1011,7 @@ export default {
         font-size: 12px;
         font-family: 'Microsoft YaHei';
         color: rgb(153, 153, 153);
-        margin: 5px 50px 5px 50px;
+        margin: 5px 10px 5px 10px;
     }
 
     .chat-notice {
@@ -916,7 +1020,7 @@ export default {
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         color: rgb(153, 153, 153);
-        margin: 10px 50px 10px 50px;
+        margin: 10px 10px 10px 10px;
     }
 
     .message-right {

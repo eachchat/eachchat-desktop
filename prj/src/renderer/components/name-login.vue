@@ -27,18 +27,17 @@
 </template>
 
 <script>
-import {ServerApi} from '../server/serverapi.js'
 import {services} from '../../packages/data/index.js'
 export default {
     name: 'login',
     data () {
         return {
-            serverapi : undefined,
             loginState: '',
             username: '',
             password: '',
             host: '',
-            port: ''
+            port: '',
+            services: null
         }
     },
     methods: {
@@ -54,9 +53,8 @@ export default {
             };
             services.common.init(config);
             
-            let loginModel = services.common.GetLoginModel;
-            console.log(loginModel);
             let response = await services.common.login();
+            await services.common.InitServiceData();
             console.log(response)
             var ret_data = response;
             if(response){
@@ -73,39 +71,25 @@ export default {
             this.loginState = "登录成功"
             await services.common.listAllGroup();
             console.log(services.common.GetAllGroups);
+            let loginModel = await services.common.GetLoginModel();
+            let userModel = await services.common.GetSelfUserModel();
+
+            // console.log("the login model is ", loginModel)
+            // console.log("the login model token is ", loginModel.refresh_token)
+            // console.log("the user model is ", userModel)
+            
+            this.$store.commit("setRefreshToken", loginModel.refresh_token);
+            this.$store.commit("setAccessToken", loginModel.access_token);
+            this.$store.commit("setUserAccount", this.username);
+            this.$store.commit("setUserPwd", this.password);
+            this.$store.commit("setUserId", loginModel.user_id);
+            // this.$store.commit("setUserInfo", userModel);
+
             const ipcRenderer = require('electron').ipcRenderer;
             ipcRenderer.send('showMainPageWindow');
-            // var tmpheader = response.headers
-            // var accesstoken = tmpheader['access-token']
-            // var refreshtoken = tmpheader['refresh-token']
-
-            // this.$store.commit("setRefreshToken", refreshtoken)
-            // this.$store.commit("setAccessToken", accesstoken)
-            // this.$store.commit("setUserAccount", this.username)
-            // this.$store.commit("setUserInfo", response.data.obj);
-
-            // console.log(this.$store.state.accesstoken)
-        
-            // if(accesstoken.length == 0)
-            // {
-            //     console.log("accesstoken.length == 0")
-            //     this.loginState = "登录失败"
-            //     return
-            // }
-
-            
-            // this.serverapi.ListGroup(0, 10)
-            //         .then((response) => {
-            //         console.log(response)
-            //         var ret_data = response.data
-            //         var ret_list = ret_data.results
-            //         this.$store.commit("setChatGroup", ret_list)
-            //         })
-            
         }
     },
     created: function () {
-        this.serverapi = new ServerApi('http', '139.198.15.253')
     }
 }
 </script>

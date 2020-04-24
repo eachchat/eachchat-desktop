@@ -303,6 +303,7 @@ const common = {
     let access_token = this.data.login.access_token;
     let services = this;
     this.mqttclient.on('message', function(topic, message){
+      console.log("handle message get sth ", JSON.parse(message.toString()))
       if(topic != userid)
       {
         return;

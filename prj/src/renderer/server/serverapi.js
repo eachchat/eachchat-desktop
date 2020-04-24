@@ -280,8 +280,7 @@ class ServerApi
                     groupId_value,
                     userId_value,
                     timestamp_value,
-                    text_value,
-                    url_value)
+                    content)
     {
         console.log("SendNewMessage");
         axios.defaults.baseURL = this.m_url + ':' + this.m_port8080;
@@ -293,11 +292,7 @@ class ServerApi
             groupId : groupId_value,
             userId : userId_value,
             timestamp : timestamp_value,
-            content:
-            {
-                text : text_value,
-                url : url_value
-            }
+            content: content
         },
         {
             headers : {Authorization : "Bearer " + this.m_accesstoken}
@@ -306,7 +301,7 @@ class ServerApi
 
     Uploadfile(filepath)
     {
-        fu = new FileUtil(filepath);
+        var fu = new FileUtil(filepath);
         let file = fu.GetUploadfileobj();
         var formData = new FormData();
         formData.append('file', file);

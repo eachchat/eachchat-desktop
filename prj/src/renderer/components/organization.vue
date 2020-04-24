@@ -81,7 +81,7 @@
     </el-container>
 </template>
 <script>
-import {services} from '../../packages/data/index.js';
+import {services} from '../../packages/data/transaction.js';
 import organizationList from './organization-list';
 import chatGroupCreater from './chatgroup-creater';
 import listHeader from './listheader';

@@ -8,8 +8,6 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-
-
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
@@ -29,7 +27,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
-  openDevToolsInDevelopment(mainPageWindow);
+  //openDevToolsInDevelopment(mainPageWindow);
 });
 
 function createWindow () {
@@ -48,11 +46,11 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL);
-  openDevToolsInDevelopment(mainWindow);
+  //openDevToolsInDevelopment(mainWindow);
 }
 function openDevToolsInDevelopment(mainWindow) {
   mainWindow.webContents.once('dom-ready', () => {
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
   })
   // Open dev tools initially when in development mode
   if (process.env.NODE_ENV === "development") {
@@ -60,7 +58,7 @@ function openDevToolsInDevelopment(mainWindow) {
     mainWindow.webContents.once("devtools-opened", () => {
     mainWindow.focus();
     });
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     });
   }
   mainWindow.on('closed', () => {

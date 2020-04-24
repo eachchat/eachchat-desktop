@@ -1,5 +1,7 @@
 // Common Interface
-const fs = require('fs')
+const axios = require('axios');
+import * as fs from 'fs-extra'
+import * as path from 'path'
 //const mimestruct = require("./mine.js");
 
 //https://blog.csdn.net/qq_37568049/article/details/80736305
@@ -10,17 +12,52 @@ function generalGuid() {
     });
 }
 
-export function Appendzero(o_num) {
+function strMsgContentToJson(strMsgContent) {
+    var chatGroupMsgContent = {};
+    try{
+        chatGroupMsgContent = JSON.parse(unescape(strMsgContent));
+    } catch (e) {
+        console.log("Message Content Json parse Failed.", strMsgContent);
+    }
+    return chatGroupMsgContent;
+}
+
+function JsonMsgContentToString (jsonMsgContent) {
+    var chatGroupMsgContent = "";
+    try{
+        chatGroupMsgContent =JSON.stringify(jsonMsgContent);
+    } catch (e) {
+        console.log("Message Content Json stringify Failed.", jsonMsgContent);
+    }
+    return chatGroupMsgContent;
+}
+
+//https://blog.csdn.net/qq_36644766/article/details/80258048
+function findKey(obj, value, compare = (a, b) => a === b) {
+    return Object.keys(obj).find(k => compare(obj[k], value));
+}
+
+function pathDeal(oriPath) {
+    return oriPath.replace("/", "\\");
+}
+
+function Appendzero(o_num) {
     if(o_num < 10) return "0" + "" + o_num;
     else return o_num;
 }
 
 async function downloadGroupAvatar(url, accesstoken)
 {
-  return axios.get(url,
-  {
-      headers:{Authorization:"Bearer " + accesstoken}
-  })
+    var headers={Authorization:"Bearer " + accesstoken};
+    var appendix = {
+            timeout: 15000,
+            responseType: "blob"
+        };
+    var config = Object.assign({
+      headers: headers,
+    }, appendix);
+
+  return axios.get(url,config);
 }
 
 const mimestruct = {
@@ -576,6 +613,416 @@ class FileUtil
     }
 }
 
-export {generalGuid, FileUtil, downloadGroupAvatar};
+function fileTypeFromMIME(mimeName){
+    var ext = "";
+    ext = findKey(mimestruct, mimeName);
+    return ext;
+}
+
+const faceUtils = {
+    alt: [
+        '&#128516;',//0
+      '&#128515;',//1
+      '&#128517;',//2
+      '&#128578;',//3
+      '&#128541;',//4
+      '&#128540;',//5
+      '&#128514;',//6
+      '&#129396;',//7
+      '&#128563;',//8
+      '&#128544;',//9
+      '&#128562;',//10
+      '&#129303;',//11
+      '&#128538;',//12
+      '&#128557;',//13
+      '&#128532;',//14
+      '&#128517;',//15
+      '&#128564;',//16
+      '&#129322;',//17
+      '&#128551;',//18
+      '&#128567;',//19
+      '&#128548;',//20
+      '&#129323;',//21
+      '&#129395;',//22
+      '&#129402;',//23
+      '&#128123;',//24
+      '&#128554;',//25
+      '&#128525;',//26
+      '&#128522;',//27
+      '&#128526;',//28
+      '&#128530;',//29
+      '&#128577;',//30
+      '&#129296;',//31
+      '&#128545;',//32
+      '&#129324;',//33
+      '&#128520;',//34
+      '&#128580;',//35
+      '&#128561;',//36
+      '&#128531;',//37
+      '&#128536;',//38
+      '&#129321;',//39
+      '&#129327;',//40
+      '&#128519;',//41
+      '&#129398;',//42
+      '&#127769;',//43
+      '&#127774;',//44
+      '&#9889;',//45
+      '&#128068;',//46
+      '&#128269;',//47
+      '&#128163;',//48
+      '&#127867;',//49
+      '&#128079;',//50
+      '&#128074;',//51
+      '&#128170;',//52
+      '&#129309;',//53
+      '&#128591;',//54
+      '&#128076;',//55
+      '&#128078;',//56
+      '&#128077;',//57
+      '&#9996;',//58
+      '&#128071;',//59
+      '&#128072;',//60
+      '&#128073;',//61
+      '&#128070;',//62
+      '&#9757;',//63
+      '&#9994;',//64 
+      '&#128068;',//65
+      '&#128138;',//66
+      '&#128169;',//67
+      '&#9917;',//68
+      '&#9729;',//69
+      '&#128345;',//70
+      '&#9748;',//71
+    ],
+    faces: function() {
+      let self = this;
+      let arr = {};
+      for (let i = 0; i < self.alt.length; i++) {
+        arr[self.alt[i]] = './static/Img/Chat/face/' + i + '.png';
+      }
+      return arr;
+    }
+}
+
+// https://blog.csdn.net/weixin_41643133/article/details/88118716
+function uncodeUtf16(str){
+    var reg = /\&#.*?;/g;
+    var result = str.replace(reg,function(char){
+        var H,L,code;
+        if(char.length == 9 ){
+            code = parseInt(char.match(/[0-9]+/g));
+            H = Math.floor((code-0x10000) / 0x400)+0xD800;
+            L = (code - 0x10000) % 0x400 + 0xDC00;
+            return unescape("%u"+H.toString(16)+"%u"+L.toString(16));
+        }else{
+            return char;
+        }
+    });
+    return result;
+ }
+
+function getIconPath(ext) {
+    var iconDirPath = './static/Img/Chat/';
+    var distExt = '';
+    var distIconPath = '';
+    for (var key in iconMap) {
+        iconMap[key].forEach((item) => {
+            if (ext !== '') {
+                if (item === ext) {
+                    distExt = key;
+                }
+            }
+        })
+    }
+    if(distExt == "zip"){
+        distIconPath = path.join(iconDirPath, "filesZip@3x.png");
+    }
+    else if(distExt == "apk"){
+        distIconPath = path.join(iconDirPath, "apk@3x.png");
+    }
+    else if(distExt == "exe"){
+        distIconPath = path.join(iconDirPath, "exe@3x.png");
+    }
+    else if(distExt == "excel"){
+        distIconPath = path.join(iconDirPath, "xls@3x.png");
+    }
+    else if(distExt == "ipa"){
+        distIconPath = path.join(iconDirPath, "ipa@3x.png");
+    }
+    else if(distExt == "iso"){
+        distIconPath = path.join(iconDirPath, "dmg@3x.png");
+    }
+    else if(distExt == "music"){
+        distIconPath = path.join(iconDirPath, "voiceAudio@3x.png");
+    }
+    else if(distExt == "pdf"){
+        distIconPath = path.join(iconDirPath, "pdf@3x.png");
+    }
+    else if(distExt == "ppt"){
+        distIconPath = path.join(iconDirPath, "ppt@3x.png");
+    }
+    else if(distExt == "video"){
+        distIconPath = path.join(iconDirPath, "Audio@3x.png");
+    }
+    else if(distExt == "word"){
+        distIconPath = path.join(iconDirPath, "doc@3x.png");
+    }
+    else if(distExt == "txt"){
+        distIconPath = path.join(iconDirPath, "txt@3x.png");
+    }
+    else{
+        distIconPath = path.join(iconDirPath, "unknown@3x.png");
+    }
+
+    return distIconPath
+}
+
+const iconMap = {
+    zip: ['zip', 'rar', '7z', 'gz', 'tar'],
+    ai: ['ai', 'eps'],
+    apk: ['apk'],
+    exe: ['exe'],
+    excel: [
+      'et',
+      'ett',
+      'xls',
+      'xlt',
+      'xlsx',
+      'xlsm',
+      'csv',
+      'dbf',
+      'prn',
+      'dif',
+      'xltx',
+      'xltm',
+      'xlsb'
+    ],
+    ipa: ['ipa'],
+    iso: ['iso', 'dmg'],
+    music: [
+      'mp3',
+      'aac',
+      'ac3',
+      'wav',
+      'ogg',
+      'wma',
+      'aif',
+      'aifc',
+      'aiff',
+      'au',
+      'mid',
+      'rmi',
+      'snd',
+      'svx',
+      'ra',
+      'ape',
+      'fla',
+      'mmf',
+      'amr',
+      'm4a',
+      'm4r',
+      'mp2',
+      'ram',
+      'flac'
+    ],
+    pdf: ['pdf'],
+    ppt: [
+      'ppt',
+      'pptx',
+      'pot',
+      'dps',
+      'dpt',
+      'pps',
+      'pptm',
+      'pstx',
+      'potx',
+      'potm',
+      'ppsx',
+      'ppsm'
+    ],
+    ps: ['psd'],
+    video: [
+      'mp4',
+      'mkv',
+      'mov',
+      'avi',
+      'wmv',
+      'rm',
+      'rmvb',
+      'ts',
+      '3gp',
+      'asf',
+      'mpg',
+      'mpeg',
+      'flv',
+      'swf',
+      'f4v',
+      'h264',
+      'dat(VCD)',
+      'asp',
+      'mov',
+      'moov',
+      'movie',
+      'qt',
+      'qtm',
+      'vob'
+    ],
+    web: ['html', 'htm'],
+    word: ['doc', 'docx', 'wps', 'wpt', 'rtf', 'dot', 'dotm', 'docm', 'dotx'],
+    txt: ['txt', 'log', 'xml']
+  }
+class ConfService {
+    // 放弃，梁杰有替代方案
+    // 配置和数据库放在%localappdata%/Workly/EachChat
+    // 缓存参照微信，放在用户文档中的EachChatFiles中，目录结构：
+        // 用户ID命名的文件夹：
+        //     Files：聊天中的文档，按月分文件夹
+        //     General：头像和高清头像
+                    // HeadImage为头像缩略图
+                    // HDHeadImage为头像原图
+        //     Image：聊天中的图片，按月分文件夹，参照teams和飞书，不支持聊天内图片的同时预览
+                    // Thumb放置缩略图
+                    // MImage放置M Size图片
+                    // OImage放置原图
+
+    constructor() {
+        this.appName = 'EachChat';
+        this.companyName = 'Workly';
+        this.productName = 'EachChat';
+        this.localAnyBoxDirName = 'AnyBoxSpaces';
+        this.filesDirName = 'EachChatFiles';
+        this.filesFilesDirName = 'Files';
+        this.headImageDirName = 'General';
+        this.headThumbDirName = 'HeadImage';
+        this.headHDDirName = 'HDHeadImage';
+        this.imagesDirName = 'Image';
+        this.imageThumbDirName = 'Thumb';
+        this.imageMDirName = 'MImage';
+        this.imageODirName = 'OImage';
+        this.init();
+    }
+    init() {
+        this.documentsPath = this.getDocumentsPath();
+        this.appdataPath = this.getAppDataPath();
+        // For Conf
+        this.companyPath = path.join(this.appdataPath, this.companyName);
+        if(!fs.existsSync(this.companyPath)) {
+            fs.ensureDir(this.companyPath);
+        }
+        this.productPath = path.join(this.companyPath, this.productName);
+        if(!fs.existsSync(this.productPath)){
+            fs.ensureDirSync(this.productPath);
+        }
+
+        // For Files
+        this.filesPath = path.join(this.documentsPath, this.filesDirName);
+        if(!fs.existsSync(this.filesPath)){
+            fs.ensureDirSync(this.filesPath);
+        }
+    }
+    getDocumentsPath() {
+        var documentsPath = '';
+        let { app } = require('electron').remote;
+        documentsPath = path.join(app.getPath('documents'));
+        return documentsPath
+    }
+    getAppDataPath() {
+        var appDatePath = '';
+        let { app } = require('electron').remote;
+        appDatePath = path.join(app.getPath('appData'));
+        return appDatePath;
+    }
+    getConfPath(userId){
+        var userPath = path.join(this.productPath, userId);
+        if(!fs.existsSync(userPath)){
+            fs.ensureDirSync(userPath);
+        }
+        return userPath;
+    }
+    getFilePath(userId) {
+        let curDate = new Date();
+        let curYeat = curDate.getFullYear();
+        let curMonth = curDate.getMonth();
+        var YearMonth = curYeat + '-' + Appendzero(curMonth);
+        var userFilesPath = path.join(this.filesPath, userId);
+        if(!fs.existsSync(userFilesPath)){
+            fs.ensureDirSync(userFilesPath);
+        }
+        var userCurFilesPath = path.join(userFilesPath, this.filesFilesDirName, YearMonth);
+        if(!fs.existsSync(userCurFilesPath)){
+            fs.ensureDirSync(userCurFilesPath);
+        }
+        return userCurFilesPath;
+    }
+    getUserThumbHeadPath(userId) {
+        var userFilesPath = path.join(this.filesPath, userId);
+        if(!fs.existsSync(userFilesPath)){
+            fs.ensureDirSync(userFilesPath);
+        }
+        var userCurHeadPath = path.join(userFilesPath, this.headImageDirName, this.headThumbDirName);
+        if(!fs.existsSync(userCurHeadPath)){
+            fs.ensureDirSync(userCurHeadPath);
+        }
+        return userCurHeadPath;
+    }
+    getUserHDHeadPath(userId) {
+        var userFilesPath = path.join(this.filesPath, userId);
+        if(!fs.existsSync(userFilesPath)){
+            fs.ensureDirSync(userFilesPath);
+        }
+        var userCurHeadPath = path.join(userFilesPath, this.headImageDirName, this.headHDDirName);
+        if(!fs.existsSync(userCurHeadPath)){
+            fs.ensureDirSync(userCurHeadPath);
+        }
+        return userCurHeadPath;
+    }
+    getImagePath(userId) {
+        let curDate = new Date();
+        let curYeat = curDate.getFullYear();
+        let curMonth = curDate.getMonth();
+        var YearMonth = curYeat + '-' + Appendzero(curMonth);
+        var userImagePath = path.join(this.filesPath, userId);
+        if(!fs.existsSync(userImagePath)){
+            fs.ensureDirSync(userImagePath);
+        }
+        var userCurFilesPath = path.join(userImagePath, this.imagesDirName, YearMonth, this.imageODirName);
+        if(!fs.existsSync(userCurFilesPath)){
+            fs.ensureDirSync(userCurFilesPath);
+        }
+        return userCurFilesPath;
+    }
+    getThumbImagePath(userId) {
+        let curDate = new Date();
+        let curYeat = curDate.getFullYear();
+        let curMonth = curDate.getMonth();
+        var YearMonth = curYeat + '-' + Appendzero(curMonth);
+        var userImagePath = path.join(this.filesPath, userId);
+        if(!fs.existsSync(userImagePath)){
+            fs.ensureDirSync(userImagePath);
+        }
+        var userCurFilesPath = path.join(userImagePath, this.imagesDirName, YearMonth, this.imageThumbDirName);
+        if(!fs.existsSync(userCurFilesPath)){
+            fs.ensureDirSync(userCurFilesPath);
+        }
+        return userCurFilesPath;
+    }
+    getMImagePath(userId) {
+        let curDate = new Date();
+        let curYeat = curDate.getFullYear();
+        let curMonth = curDate.getMonth();
+        var YearMonth = curYeat + '-' + Appendzero(curMonth);
+        var userImagePath = path.join(this.filesPath, userId);
+        if(!fs.existsSync(userImagePath)){
+            fs.ensureDirSync(userImagePath);
+        }
+        var userCurFilesPath = path.join(userImagePath, this.imagesDirName, YearMonth, this.imageMDirName);
+        if(!fs.existsSync(userCurFilesPath)){
+            fs.ensureDirSync(userCurFilesPath);
+        }
+        return userCurFilesPath;
+    }
+}
+const confservice = new ConfService();
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

@@ -2,7 +2,7 @@
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
             <div class="User">
-                <img class="login-logo" :src="userIco">
+                <img class="login-logo" :src="userIco" id="userHead">
             </div>
             <el-menu
                 class="nav-menu">
@@ -28,6 +28,7 @@ import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
 import {services} from '../../packages/data/index.js'
 import {ServerApi} from '../server/serverapi.js'
+import {downloadGroupAvatar} from '../../packages/core/Utils.js'
 
 export default {
     name: 'mainpage',
@@ -74,8 +75,9 @@ export default {
             };
             services.common.init(config);
             // Set accessToken in services
-            await services.common.GetLoginModel();
-            await services.common.GetSelfUserModel();
+            this.loginInfo = await services.common.GetLoginModel();
+            this.curUserInfo = await services.common.GetSelfUserModel();
+            console.log("lognInfo is ", this.loginInfo);
             // Get data from server and set in database
             // UserInfo
             await services.common.AllUserinfo();
@@ -118,15 +120,30 @@ export default {
             else{
                 return "el-icon-more-outline" + endding
             }
+        },
+        showCurUserIcon() {
+            let elementImg = document.getElementById("userHead");
+            downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
+            .then((ret) => {
+                elementImg.setAttribute("src", URL.createObjectURL(ret.data));
+                elementImg.onload = () => {
+                    URL.revokeObjectURL(elementImg.getAttribute("src"))
+                }
+            })
         }
     },
     components: {
         organization,
         ChatContent
     },
-    created: function () {
-        this.userIco = this.$store.getters.getUserIcon(false);
-        this.getAppBaseData();
+    mounted: function() {
+    },
+    created: async function () {
+        // this.userIco = this.$store.getters.getUserIcon(false);
+        await this.getAppBaseData();
+        this.$nextTick(() => {
+            this.showCurUserIcon();
+        })
     },
 }
 </script>
