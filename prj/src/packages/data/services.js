@@ -261,8 +261,7 @@ const common = {
   async InitServiceData(){
     if(this.data.selfuser.maxsequenceid == "")
     {
-      console.log(this.data.selfuser.maxsequenceid)
-      this.ReveiveNewMessage(0, 0)
+      await this.ReveiveNewMessage(0, 0)
     }
   },
 
