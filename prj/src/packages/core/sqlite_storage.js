@@ -212,12 +212,7 @@ class SQLiteStorage extends Storage {
           }
         }
 
-        if (reverse) {
-          sql.desc();
-
-        } else {
-          sql.asc();
-        }
+        sql.orderBy(search.$order.by, reverse);
       }
     }
 
