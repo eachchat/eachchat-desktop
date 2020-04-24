@@ -338,7 +338,7 @@ const servicemodels = {
       {
         groupvalue[messagemap[key]] = groupitem["message"][key];
       }
-      groupvalue["message_content"] = JSON.stringify(groupitem["message"]["content"]);  
+      groupvalue["message_content"] = escape(JSON.stringify(groupitem["message"]["content"]));  
 
       for(let key in objmap)
       {
