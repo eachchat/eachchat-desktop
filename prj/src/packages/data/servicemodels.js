@@ -124,7 +124,8 @@ const servicemodels = {
         work_description:         undefined,
         status_description:       undefined,
         manager:                  undefined,
-        manager_id:               undefined
+        manager_id:               undefined,
+        updatetime:               undefined
       }
   
       var userinfomap = 
@@ -150,7 +151,8 @@ const servicemodels = {
         "workDescription":    "work_description",       
         "statusDescription":  "status_description",
         "manager":            "manager",
-        "managerId":          "manager_id"
+        "managerId":          "manager_id",
+        "updateTimestamp":    "updatetime"
       }
 
       var useremailvalue = {

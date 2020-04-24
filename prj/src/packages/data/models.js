@@ -128,7 +128,8 @@ var models = {
           work_description:         types.string,
           status_description:       types.string,
           manager:                  types.bool,
-          manager_id:               types.string
+          manager_id:               types.string,
+          updatetime:               types.integer
         },
         primaryKey: "user_id"
       });
