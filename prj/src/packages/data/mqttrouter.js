@@ -36,9 +36,10 @@ class GroupHandler extends BaseMqttHandler{
     constructor(message, callback, services){
         super(message, callback, services)
     }
-    handle(){
+    async handle(){
         if(this.type == "updateGroup"){
-            console.log(this.type);
+            let updatetime = this.message.value.updateTime;
+            this.services.groupIncrement(updatetime, 0);
         }
         else{
             let handler = new UserHandler(this.message, this.callback, this.services);

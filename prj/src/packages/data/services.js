@@ -557,12 +557,36 @@ const common = {
     sequenceId,
     countperpageValue) 
   {
-    return await this.api.tokenValid(this.data.login.access_token,
+    return await this.api.clientIncrement(this.data.login.access_token,
                                 name,
                                 updateTime,
                                 sequenceId,
                                 countperpageValue)
     
+  },
+
+  async groupIncrement(updateTime, notification){
+    let result = await this.api.groupIncrement(this.data.login.access_token, updateTime, notification);
+
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    let groupItem;
+    let groupModel;
+    let findGroups;
+    let groupId;
+    for(let index in result.data.results){
+      groupItem = result.data.results[index];
+      groupId = groupItem.groupId;
+      findGroups = await (await models.Groups).find({
+        group_id: groupId
+      })
+      if(findGroups.length != 0){
+        groupModel = servicemodels.UpdateGroupGroup(findGroups[0], groupItem);
+      }
+      groupModel.save();
+    }
   },
 
   async historyMessage(groupId, sequenceId, count) { 

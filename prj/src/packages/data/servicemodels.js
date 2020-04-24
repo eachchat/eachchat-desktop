@@ -350,6 +350,44 @@ const servicemodels = {
       return groupmodel
     },
 
+    UpdateGroupGroup(groupmodel, groupvalue)
+    {
+      var groupmap = 
+      {
+        "groupId":  "group_id",  
+        "userIds" : "contain_user_ids",  
+        "groupName": "group_name",        
+        "groupAvatar": "group_avarar",     
+        "groupType": "group_type",        
+        "status": "status",
+        "owner": "owner",             
+        "groupNotice": "group_notice",     
+        "noticeTime": "notice_time",       
+        "noticeUserId": "notice_userId"
+      }
+      return this.UpdateGroup(groupmodel, groupvalue, groupmap);
+    },
+
+    UpdateGroupMessage(groupmodel, messagevalue){
+      var messagemap = {                   
+        "userId": "user_id",    
+        "sequenceId": "sequence_id", 
+        "fromId":     "message_from_id",  
+        "msgContentType":"message_content_type",
+        "timestamp": "last_message_time",
+        "msgId":      "msg_id"
+      }
+      return this.UpdateGroup(groupmodel, messagevalue, messagemap);
+    },
+
+    UpdateGroup(model, value, map){
+      for(let key in map)
+      {
+        model[map[key]] = value[key];
+      }
+      return model;
+    },
+
     ItemInvalid(item)
     {
       if(item == "" || item == null || item == undefined)
