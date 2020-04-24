@@ -8,53 +8,53 @@
             </div>
         </div>
         <div class="userAction-view">
-            <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
-            <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png">
+            <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
+            <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
             <img class="userChatIcon" src="../../../static/Image/userInfoChat_icon@2x.png">
         </div>
-        <div class="userState-view">
+        <div class="userState-view" v-show="showStateView">
             <ul class="userState-list">
-                <li>
+                <li v-show="showStatusDescription">
                     <p class="userInfo-key">状态</p>
                     <p class="userInfo-value">{{ userInfo.statusDescription }}</p>
                 </li>
-                <li>
+                <li v-show="showWorkDescription">
                     <p class="userInfo-key">工作计划</p>
                     <p class="userInfo-value">{{ userInfo.workDescription }}</p>
                 </li>
             </ul>
         </div>
-        <div class="userOrganizationInfo-view">
+        <div class="userOrganizationInfo-view" v-show="showOrganizationView">
             <div class="userOrganization-header">
                 组织信息
             </div>
             <ul class="userOrganization-list">
-                <li>
+                <li v-show="showRelation">
                     <p class="userInfo-key">汇报关系</p>
                     <p class="userInfo-value">查看</p>
                 </li>
-                <li>
+                <li v-show="showDepartment">
                     <p class="userInfo-key">所属部门</p>
-                    <p class="userInfo-value">{{ userInfo.department.displayName }}</p>
+                    <p class="userInfo-value">{{ userInfo.department.display_name }}</p>
                 </li>
             </ul>
         </div>
-        <div class="userContact-view">
+        <div class="userContact-view" v-show="showContractView">
             <div class="userContact-header">
                 联系信息
             </div>
             <ul class="userContact-list">
-                <li>
+                <li v-show="showPhone">
                     <p class="userInfo-key">手机号</p>
-                    <p class="userInfo-value">{{ userInfo.phoneNumbers[0].value }}</p>
+                    <p class="userInfo-phone-value">{{ userInfo.phone.phone_value }}</p>
                 </li>
-                <li>
+                <li v-show="showPhone">
                     <p class="userInfo-key">固话</p>
-                    <p class="userInfo-value">{{ userInfo.phoneNumbers[1].value }}</p>
+                    <p class="userInfo-phone-value">{{ userInfo.phone.phone_value }}</p>
                 </li>
-                <li>
+                <li v-show="showEmail">
                     <p class="userInfo-key">电子邮箱</p>
-                    <p class="userInfo-value">{{ userInfo.emails[0].value }}</p>
+                    <p class="userInfo-value">{{ userInfo.email.email_value }}</p>
                 </li>
             </ul>
         </div>
@@ -74,7 +74,46 @@ export default {
             default:{}
         }
     },
+    computed: {
+        showStateView: function() {
+            return this.showWorkDescription||this.showStatusDescription;
+        },
+        showOrganizationView: function() {
+            return this.showDepartment||this.showRelation;
+        },
+        showContractView: function() {
+            return this.showPhone||this.showEmail;
+        },
+        showStatusDescription: function() {
+            return !this.isEmpty(this.userInfo.statusDescription);
+        },
+        showWorkDescription: function() {
+            return !this.isEmpty(this.userInfo.workDescription);
+        },
+        showPhone: function() {
+            return !this.isEmpty(this.userInfo.phone.phone_value);
+        },
+        showEmail: function() {
+            return !this.isEmpty(this.userInfo.email.email_value);
+        },
+        showDepartment: function() {
+            if(this.userInfo.department.display_name){
+                return true;
+            }
+            return false;
+        },
+        showRelation: function() {
+            return !this.isEmpty(this.userInfo.managerId);
+        }
+    },
     methods: {
+        isEmpty(obj){
+            if(typeof obj == "undefined" || obj == null || obj == ""){
+                return true;
+            }else{
+                return false;
+            }
+        },
         userChatButtonClicked() {
 
         },
@@ -96,11 +135,12 @@ export default {
 <style lang="scss" scoped>
 .userInfo-view {
     height: auto;
-    width: 296;
+    width: 296px;
     margin-left: 20px;
     margin-right: 20px;
-    margin-top: 20px;
+    margin-top: 0px;
     margin-bottom: 18px;
+    cursor: default;
 }
 .userBaseInfo-view {
     height: 56px;
@@ -201,8 +241,18 @@ export default {
 .userInfo-value {
     display:inline-block;
     line-height: 18px;
-    width: calc(100% - 78px);
+    width: 216px;
     font-size: 12px;
+    padding-left: 20px;
+    cursor: pointer;
+}
+.userInfo-phone-value{
+    display:inline-block;
+    line-height: 18px;
+    width: 216px;
+    font-size: 12px;
+    padding-left: 20px;
+    color: rgb(62, 180, 240);
     
 }
 .userOrganizationInfo-view {

@@ -5,6 +5,42 @@
                 <listHeader></listHeader>
             </div>
             <div class="list-content">
+                <div class="organization-view">
+                    <div class="item" @click="organizationMenuItemClicked()">
+                        <img class="item-icon" src="../../../static/Image/organization_list@2x.png">
+                        <div class="item-info">
+                            <p class="item-title">组织架构</p>
+                        </div>
+                        <div class="item-arrow">
+                            <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
+                        </div>
+                    </div>
+                </div>
+                <div class="recentUsers-view">
+                    <div class="item" @click="recentUsersMenuItemClicked()">
+                        <img class="item-icon" src="../../../static/Image/recentUsers_list@2x.png">
+                        <div class="item-info">
+                            <p class="item-title">常用联系人</p>
+                        </div>
+                        <div class="item-arrow">
+                            <img class="right-arrow" :src="arrowImageSrc">
+                        </div>
+                    </div>
+                    <ul class="recentUsers-menu-list" v-show="showRecentUsersMenuItem">
+                        <li class="user"
+                        v-for="(user, index) in recentUsers"
+                        :key="index">
+                            <img class="user-icon" :src="user.avatar_t_url">
+                            <div class="user-info">
+                                <p class="user-name">{{ user.user_display_name }}</p>
+                                <p class="user-title">{{ user.user_title }}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                    
+<!-- 
+
                 <ul class="item-list">
                     <li class="item" @click="organizationMenuItemClicked()">
                         <img class="item-icon" src="../../../static/Image/organization_list@2x.png">
@@ -23,8 +59,9 @@
                         <div class="item-arrow">
                             <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
                         </div>
+
                     </li>
-                </ul>
+                </ul> -->
             </div>
         </el-aside>
         <el-container class="right-container">
@@ -62,15 +99,13 @@ export default {
             ],
             dialogVisible: false,
             usersSelected: [],
-            recentUsers: []
+            recentUsers: [],
+            showRecentUsersMenuItem: false,
+            arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
     methods: {
-        initSomeConfig: async function() {
-            console.log("12312324234");
-            await services.common.AllDepartmentInfo();
-            
-        },
+        
         organizationMenuItemClicked() {
             this.curindex = 0;
             this.curView = "organizationList";
@@ -81,8 +116,14 @@ export default {
         focusMenuItemClicked() {
 
         },
-        recentMenuItemClicked() {
-            this.dialogVisible = true;
+        recentUsersMenuItemClicked:async function() {
+            if (this.showRecentUsersMenuItem) {
+                this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
+            }else {
+                this.recentUsers = await services.common.GetRecentUsers();
+                this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
+            }
+            this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
         },
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
@@ -97,7 +138,8 @@ export default {
         listHeader
     },
     created() {
-        this.initSomeConfig();
+        
+        console.log(this.recentUsers);
     }
 }
 </script>
@@ -125,7 +167,10 @@ export default {
 //     background-color: #A8A8A8;
 //     border-radius: 10px;
 // }
-
+::-webkit-scrollbar {
+/*隐藏滚轮*/
+display: none;
+}
 .list-header {
     width: 100%;
     height: 56px;
@@ -147,6 +192,59 @@ export default {
     // border-top: 1px solid rgb(221, 221, 221);
     // border-bottom: 1px solid rgb(221, 221, 221);
 }
+.recentUsers-view {
+    width: 100%;
+    height: 70%;
+    padding: 0;
+    margin: 0;
+}
+.recentUsers-menu-list {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow: scroll;
+}
+.user {
+    height: 64px;
+    cursor: pointer;
+    //border-bottom: 1px solid rgb(221, 221, 221);
+}
+.user-icon {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    margin-left: 36px;
+    margin-top: 12px;
+    margin-right: 0px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+}
+.user-info {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 108px);
+}
+.user-name {
+    height: 20px;
+    width: 100%;
+    margin-top: 12px;
+    margin-bottom: 2px;;
+    margin-left: 12px;
+    font-size: 14px;
+    line-height: 20px;
+}
+.user-title {
+    height: 20px;
+    width: 100%;
+    margin-top: 0px;
+    margin-bottom: 12px;
+    margin-left: 12px;
+    font-size: 14px;
+    line-height: 20px;
+}
 
 .item {
     height: 64px;
@@ -167,12 +265,13 @@ export default {
     margin-top: 12px;
     margin-right: 0px;
     margin-bottom: 12px;
+    border-radius: 4px;
 }
 .item-info {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 92px);
+    width: calc(100% - 88px);
 }
 .item-title {
     text-align: left;

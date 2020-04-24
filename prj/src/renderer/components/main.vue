@@ -74,7 +74,8 @@ export default {
             };
             services.common.init(config);
             // Set accessToken in services
-            services.common.GetLoginModel();
+            await services.common.GetLoginModel();
+            await services.common.GetSelfUserModel();
             // Get data from server and set in database
             // UserInfo
             await services.common.AllUserinfo();

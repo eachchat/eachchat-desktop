@@ -16,11 +16,11 @@
                     <ul class="departments-list">
                         <li class="department"
                             v-for="(department, index) in departments"
-                            @click="departmentMenuItemClicked(department.id, department.displayName)" 
+                            @click="departmentMenuItemClicked(department.department_id, department.display_name)" 
                             :key="index">
                             <img class="department-icon" src="../../../static/Image/department_list@2x.png">
                             <div class="department-info">
-                                <p class="department-name">{{ department.displayName }}</p>
+                                <p class="department-name">{{ department.display_name }}</p>
                             </div>
                             <div align="center" class="item-arrow">
                                 <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
@@ -35,12 +35,12 @@
                     <ul class="managers-list">
                         <li class="manager"
                             v-for="(manager, index) in managers"
-                            @click="userMenuItemClicked(manager.id)" 
+                            @click="userMenuItemClicked(manager.user_id)" 
                             :key="index">
-                            <img class="manager-icon" :src="manager.avatarTUrl">
+                            <img class="manager-icon" :src="manager.avatar_t_url">
                             <div class="manager-info">
-                                <p class="manager-name">{{ manager.displayName }}</p>
-                                <p class="manager-title">{{ manager.title }}</p>
+                                <p class="manager-name">{{ manager.user_display_name }}</p>
+                                <p class="manager-title">{{ manager.user_title }}</p>
                             </div>
                         </li>
                     </ul>
@@ -52,12 +52,12 @@
                     <ul class="managers-list">
                         <li class="manager"
                             v-for="(manager, index) in users"
-                            @click="userMenuItemClicked(manager.id)" 
+                            @click="userMenuItemClicked(manager.user_id)" 
                             :key="index">
-                            <img class="manager-icon" :src="manager.avatarTUrl">
+                            <img class="manager-icon" :src="manager.avatar_t_url">
                             <div class="manager-info">
-                                <p class="manager-name">{{ manager.displayName }}</p>
-                                <p class="manager-title">{{ manager.title }}</p>
+                                <p class="manager-name">{{ manager.user_display_name }}</p>
+                                <p class="manager-title">{{ manager.user_title }}</p>
                             </div>
                         </li>
                     </ul>
@@ -73,7 +73,7 @@
     </el-container>
 </template>
 <script>
-import {ServerApi} from '../server/serverapi';
+import {services} from '../../packages/data/index.js';
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 export default {
@@ -84,11 +84,12 @@ export default {
     },
     data () {
         return {
-            serverApi: new ServerApi(),
-            current_level: 1,
             breadCrumbs: [],
             allDepartments: [],
             allUsers: [],
+            allEmails: [],
+            allAddress: [],
+            allPhones: [],
             departments: [],
             users: [],
             managers: [],
@@ -102,15 +103,15 @@ export default {
             var tempDepartments = [];
             for (var i = 0; i < this.allDepartments.length; i ++) {
                 var department = this.allDepartments[i];
-                if (department.parentId == id) {
-                    tempDepartments[department.showOrder] = department;
+                if (department.parent_id == id) {
+                    tempDepartments[department.show_order] = department;
                 }
             }
             var tempManagers = [];
             var tempUsers = [];
             for (var i = 0; i < this.allUsers.length; i ++) {
                 var user = this.allUsers[i];
-                if (user.departmentId == id) {
+                if (user.belong_to_department_id == id) {
                     tempUsers.push(user);
                     if (user.manager) {
                         tempManagers.push(user);
@@ -127,15 +128,15 @@ export default {
             var tempDepartments = [];
             for (var i = 0; i < this.allDepartments.length; i ++) {
                 var department = this.allDepartments[i];
-                if (department.parentId == id) {
-                    tempDepartments.push(department);
+                if (department.parent_id == id) {
+                    tempDepartments[department.show_order] = department;
                 }
             }
             var tempManagers = [];
             var tempUsers = [];
             for (var i = 0; i < this.allUsers.length; i ++) {
                 var user = this.allUsers[i];
-                if (user.departmentId == id) {
+                if (user.belong_to_department_id == id) {
                     tempUsers.push(user);
                     if (user.manager) {
                         tempManagers.push(user);
@@ -151,28 +152,100 @@ export default {
             });
         },
         userMenuItemClicked(id) {
-            
-            
+            if (this.showUserInfoDrawer&&(this.userInfo.id == id)){
+                this.showUserInfoDrawer = false;
+                return;
+            }
+            var tempUserInfo = {};
             for (var i = 0; i < this.users.length; i ++) {
                 var user = this.users[i];
-                if(user.id == id) {
+                if(user.user_id == id) {
                     
-                    this.userInfo = user;
+                    tempUserInfo.id = user.user_id;
+                    tempUserInfo.avatarTUrl = user.avatar_t_url;
+                    tempUserInfo.displayName = user.user_display_name;
+                    tempUserInfo.title = user.user_title;
+                    tempUserInfo.statusDescription = user.status_description;
+                    tempUserInfo.workDescription = user.work_description;
+                    tempUserInfo.managerId = user.manager_id;
+                    tempUserInfo.departmentId = user.belong_to_department_id;
+
 
                     break;
                 }
             }
             for (var i = 0; i < this.allDepartments.length; i ++) {
                 var department = this.allDepartments[i];
-                if(department.id == this.userInfo.departmentId){
-                    this.userInfo.department = department;
+                if(department.department_id == tempUserInfo.departmentId){
+                    tempUserInfo.department = department;
+                    break;
+                }
+                
+            }
+            for (var i = 0; i < this.allEmails.length; i ++) {
+                var email = this.allEmails[i];
+                if(email.owner_user_id == id) {
+                    tempUserInfo.email = email;
+                    break;
                 }
             }
+            for (var i = 0; i < this.allPhones.length; i ++) {
+                var phone = this.allPhones[i];
+                if(phone.owner_user_id == id) {
+                    tempUserInfo.phone = phone;
+                    break;
+                }
+            }
+            this.userInfo = tempUserInfo;
             this.showUserInfoDrawer = true;
-        }
+        },
+        getAppBaseData:async function() {
+            this.allDepartments = await services.common.GetAllDepartmentsModel();
+            this.allUsers = await services.common.GetAllUserinfo();
+            this.allEmails = await services.common.GetAllUserEmail();
+            this.allPhones = await services.common.GetAllUserPhone();
+            this.allAddress = await services.common.GetAllUserAddress();
+
+            var tempDepartments = [];
+            var tempRootDepartment = [];
+            var tempManagers = [];
+            var tempUsers = [];
+
+            for (var i = 0; i < this.allDepartments.length; i ++){
+                var department = this.allDepartments[i];
+                if (!department.parent_id) {
+                    tempRootDepartment = department;
+                    break;
+                }
+            }
+            for (var i = 0; i < this.allDepartments.length; i ++){
+                var department = this.allDepartments[i];
+                if (department.parent_id == tempRootDepartment.department_id) {
+                    tempDepartments[department.show_order] = department;
+                }
+            }
+            for (var i = 0; i < this.allUsers.length; i ++) {
+                var user = this.allUsers[i];
+                if (user.department_id == tempRootDepartment.department_id) {
+                    tempUsers.push(user);
+                    if (user.manager) {
+                        tempManagers.push(user);
+                    }
+                }
+            }
+                
+            this.departments = tempDepartments;
+            this.managers = tempManagers;
+            this.users = tempUsers;
+            this.breadCrumbs.push({
+                name: "组织架构",
+                id: tempRootDepartment.department_id
+            });
+        },
     },
-    created () {
-        var _this = this;
+    created: async function() {
+        await this.getAppBaseData();
+        /*
         this.serverApi.GetAllDepartmentInfo()
         .then(function(res){
             _this.allDepartments = res.data;
@@ -217,7 +290,7 @@ export default {
         })
         .catch(err=>{console.log(err)}
         )
-        
+        */
         
     }
 }
@@ -276,7 +349,7 @@ display: none;
     height: 100%;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgb(221, 221, 221);
+    //border-right: 1px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;
     // ::-webkit-scrollbar-track {
