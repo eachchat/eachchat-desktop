@@ -227,12 +227,16 @@ const common = {
     if (foundUsers instanceof Array
       && foundUsers.length > 0) {
       var foundUser = foundUsers[0];
+      let maxSequenceId = foundUser.maxsequenceid;
       foundUser.values = selfuser.values;
+      foundUser.maxsequenceid = maxSequenceId;
       foundUser.save();
+      this.data.selfuser = foundUser;
 
       console.log('Your profile has been update!');
     } else {
       selfuser.save();
+      this.data.selfuser = selfuser;
       console.log('New account login ok!');
     }
 
@@ -251,14 +255,15 @@ const common = {
       currentlogin.refresh_token = login.refresh_token
       currentlogin.save();
       this.data.login = currentlogin;
-    }
-    
-    
-    this.data.selfuser = selfuser;
+    }    
   },
 
   async InitServiceData(){
-    this.ReveiveNewMessage(0, 0)
+    if(this.data.selfuser.maxsequenceid == "")
+    {
+      console.log(this.data.selfuser.maxsequenceid)
+      this.ReveiveNewMessage(0, 0)
+    }
   },
 
   async InitDbData()
