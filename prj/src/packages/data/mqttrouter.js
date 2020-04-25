@@ -36,9 +36,10 @@ class GroupHandler extends BaseMqttHandler{
     constructor(message, callback, services){
         super(message, callback, services)
     }
-    handle(){
+    async handle(){
         if(this.type == "updateGroup"){
-            console.log(this.type);
+            let updatetime = this.message.value.updateTime;
+            this.services.groupIncrement(updatetime, 0);
         }
         else{
             let handler = new UserHandler(this.message, this.callback, this.services);
@@ -51,9 +52,19 @@ class UserHandler extends BaseMqttHandler{
     constructor(message, callback, services){
         super(message, callback, services)
     }
-    handle(){
+    async handle(){
         if(this.type == "updateUser"){
-            console.log(this.type);
+            let users = await (await models.UserInfo).find({
+                $order: {
+                    by: 'updatetime',
+                    reverse: true
+                  },
+                  $limit: 1
+            })
+            console.log(users)
+            let updatetime = this.message.value.updateTimestamp;
+            let name = this.type;
+            this.services.clientIncrement(name, updatetime, 0, 0);
         }
         else{
             let handler = new DepartmentHandler(this.message, this.callback, this.services);
@@ -67,7 +78,7 @@ class DepartmentHandler extends BaseMqttHandler{
         super(message, callback, services)
 
     }
-    handle(){
+    async handle(){
         if(this.type == "updateDepartment"){
             console.log(this.type);
         }
@@ -83,7 +94,7 @@ class TopicHandler extends BaseMqttHandler{
     constructor(message, callback, services){
         super(message, callback, services)
     }
-    handle(){
+    async handle(){
         if(this.type == "updateTopic"){
             console.log(this.type);
         }
@@ -100,7 +111,7 @@ class ReplyTopicHandler extends BaseMqttHandler{
         super(message, callback, services)
 
     }
-    handle(){
+    async handle(){
         if(this.type == "updateReplyTopic"){
             console.log(this.type);
         }
@@ -115,7 +126,7 @@ class TopicCountHandler extends BaseMqttHandler{
     constructor(message, callback, services){
         super(message, callback, services)
     }
-    handle(){
+    async handle(){
         if(this.type == "updateReplyTopic"){
             console.log(this.type);
         }

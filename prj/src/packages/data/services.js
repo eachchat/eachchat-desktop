@@ -54,7 +54,7 @@ const common = {
     if(foundUsers.length == 0){
       return;
     }
-    this.data.selfuser = foundUsers[0]
+    this.data.selfuser = foundUsers[0];
     return this.data.selfuser;
   },
 
@@ -227,9 +227,7 @@ const common = {
     if (foundUsers instanceof Array
       && foundUsers.length > 0) {
       var foundUser = foundUsers[0];
-      let maxSequenceId = foundUser.maxsequenceid;
       foundUser.values = selfuser.values;
-      foundUser.maxsequenceid = maxSequenceId;
       foundUser.save();
       this.data.selfuser = foundUser;
 
@@ -259,10 +257,10 @@ const common = {
   },
 
   async InitServiceData(){
-    if(this.data.selfuser.maxsequenceid == "")
-    {
-      await this.ReveiveNewMessage(0, 0)
-    }
+    //if(this.data.selfuser.maxsequenceid == "")
+    //{
+    //  await this.ReveiveNewMessage(this.data.selfuser.maxsequenceid, 0)
+    //}
   },
 
   async InitDbData()
@@ -474,6 +472,7 @@ const common = {
     let groupvalue;
     let groupmodel;
     this.data.group = []
+    let maxSequenceId = "0";
     await (await models.Groups).truncate()
 
     result = await this.api.listAllGroup(this.data.login.access_token, undefined)
@@ -493,10 +492,23 @@ const common = {
       {
         continue
       }
-    
       groupmodel.save()
       this.data.group.push(groupmodel)
+
+      if(parseInt(groupmodel.sequence_id) > parseInt(maxSequenceId))
+      {
+        maxSequenceId = groupmodel.sequence_id;
+      }
     }
+    var foundUsers = await(await models.User).find({
+      id: this.data.login.user_id
+    });
+    if(foundUsers.length == 0){
+      return;
+    }
+    foundUsers[0].maxsequenceid = maxSequenceId;
+    foundUsers[0].save();
+    this.data.selfuser.maxsequenceid = maxSequenceId;
   },
 
   async updateUserWorkDescription(workDescription) 
@@ -546,12 +558,44 @@ const common = {
     sequenceId,
     countperpageValue) 
   {
-    return await this.api.tokenValid(this.data.login.access_token,
+    let result = await this.api.clientIncrement(this.data.login.access_token,
                                 name,
                                 updateTime,
                                 sequenceId,
                                 countperpageValue)
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    let item;
+    for(let index in result.data.results){
+      item = result.data.results[index];
+    }                
     
+  },
+
+  async groupIncrement(updateTime, notification){
+    let result = await this.api.groupIncrement(this.data.login.access_token, updateTime, notification);
+
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    let groupItem;
+    let groupModel;
+    let findGroups;
+    let groupId;
+    for(let index in result.data.results){
+      groupItem = result.data.results[index];
+      groupId = groupItem.groupId;
+      findGroups = await (await models.Groups).find({
+        group_id: groupId
+      })
+      if(findGroups.length != 0){
+        groupModel = servicemodels.UpdateGroupGroup(findGroups[0], groupItem);
+      }
+      groupModel.save();
+    }
   },
 
   async historyMessage(groupId, sequenceId, count) { 
