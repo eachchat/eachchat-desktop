@@ -795,7 +795,7 @@ export default {
                             messageFromGroup.message_from_id = this.chat.message_from_id;
                             messageFromGroup.message_timestamp = this.chat.last_message_time;
                             messageFromGroup.sequence_id = this.chat.sequence_id;
-                            messageFromGroup.message_id = this.chat.msg_id;
+                            messageFromGroup.message_id = this.chat.message_id;
                             this.messageList.push(messageFromGroup);
                         }
                     }
@@ -806,7 +806,7 @@ export default {
                         messageFromGroup.message_from_id = this.chat.message_from_id;
                         messageFromGroup.message_timestamp = this.chat.last_message_time;
                         messageFromGroup.sequence_id = this.chat.sequence_id;
-                        messageFromGroup.message_id = this.chat.msg_id;
+                        messageFromGroup.message_id = this.chat.message_id;
                         this.messageList.push(messageFromGroup);
                     }
                     console.log("Get From store msg list is ", this.messageList);
