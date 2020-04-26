@@ -26,7 +26,7 @@
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-mine-txt" :id="msg.message_id"></p>
+                        <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
                 <img class="msg-info-img" :src="MsgBelongUserImg()" alt="头像">
@@ -49,7 +49,7 @@
                     </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-others-txt" :id="msg.message_id"></p>
+                        <p class="chat-msg-content-others-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
                 <div class="msgState" v-if="MsgIsSending()">
@@ -130,14 +130,16 @@ export default {
             this.messageContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
+            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             if(chatGroupMsgType === 101)
             {
+                console.log("textMsgImgElement is ", textMsgImgElement)
+                var textMsgImgElement = document.getElementById(this.msg.message_id);
                 this.messageContent = sliceReturnsOfString(chatGroupMsgContent.text);
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
                 }
-                var textMsgImgElement = document.getElementById(this.msg.message_id);
-                textMsgImgElement.innerHTML = this.messageContent;
+                // textMsgImgElement.innerHTML = this.messageContent;
             }
             else if(chatGroupMsgType === 102)
             {
@@ -278,7 +280,7 @@ export default {
     },
     data() {
         return {
-            messageContent: '<p></p>',
+            messageContent: '',
             fileName: '',
             fileIcon: '',
             fileSize: 0,
