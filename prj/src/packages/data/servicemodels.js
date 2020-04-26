@@ -147,7 +147,6 @@ const servicemodels = {
         "remarkNamePy":       "remark_name_py",          
         "avatarOUrl":         "avatar_o_url",            
         "avatarTUrl":         "avatar_t_url",            
-        "active":             "user_active",             
         "workDescription":    "work_description",       
         "statusDescription":  "status_description",
         "manager":            "manager",

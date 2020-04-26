@@ -241,7 +241,7 @@ class APITransaction {
       "/api/apps/org/v1/increment",
       {
         name: name,
-        updatetime: updateTime,
+        updateTime: updateTime,
         sequenceId: sequenceId,
         countperpage_value: countperpageValue
       },

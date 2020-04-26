@@ -23,11 +23,11 @@ class MessageHandler extends BaseMqttHandler{
                 let selfmodel = await(this.services.GetSelfUserModel());
                 maxsequenceid = selfmodel.maxsequenceid;
             }
-            this.services.ReveiveNewMessage(maxsequenceid, 0, this.callback);
+            await this.services.ReveiveNewMessage(maxsequenceid, 0, this.callback);
         }
         else{
             let handler = new GroupHandler(this.message, this.callback, this.services);
-            handler.handle();
+            await handler.handle();
         }
     }
 }
@@ -39,11 +39,11 @@ class GroupHandler extends BaseMqttHandler{
     async handle(){
         if(this.type == "updateGroup"){
             let updatetime = this.message.value.updateTime;
-            this.services.groupIncrement(updatetime, 0);
+            await this.services.groupIncrement(updatetime, 0);
         }
         else{
             let handler = new UserHandler(this.message, this.callback, this.services);
-            handler.handle();
+            await handler.handle();
         }
     }
 }
@@ -54,21 +54,25 @@ class UserHandler extends BaseMqttHandler{
     }
     async handle(){
         if(this.type == "updateUser"){
-            let users = await (await models.UserInfo).find({
+            console.log("mqttrouter updateUser");
+            let userinfos = await (await models.UserInfo).find({
                 $order: {
                     by: 'updatetime',
                     reverse: true
                   },
-                  $limit: 1
+                  $size: 1
             })
-            console.log(users)
-            let updatetime = this.message.value.updateTimestamp;
+            if(userinfos.length == 0)
+            {
+                return;
+            }
+            let updatetime = userinfos[0].updatetime;
             let name = this.type;
-            this.services.clientIncrement(name, updatetime, 0, 0);
+            await this.services.clientIncrement(name, updatetime, 0, 0);
         }
         else{
             let handler = new DepartmentHandler(this.message, this.callback, this.services);
-            handler.handle();
+            await handler.handle();
         }
     }
 }
@@ -84,7 +88,7 @@ class DepartmentHandler extends BaseMqttHandler{
         }
         else{
             let handler = new TopicHandler(this.message, this.callback, this.services);
-            handler.handle();
+            await handler.handle();
         }
     }
 
@@ -100,7 +104,7 @@ class TopicHandler extends BaseMqttHandler{
         }
         else{
             let handler = new ReplyTopicHandler(this.message, this.callback, this.services);
-            handler.handle();
+            await handler.handle();
         }
     }
 
@@ -117,7 +121,7 @@ class ReplyTopicHandler extends BaseMqttHandler{
         }
         else{
             let handler = new TopicCountHandler(this.message, this.callback, this.services);
-            handler.handle();
+            await handler.handle();
         }
     }
 }
@@ -136,10 +140,10 @@ class TopicCountHandler extends BaseMqttHandler{
     }
 }
 
-function mqttrouter(message, callback, services)
+async function mqttrouter(message, callback, services)
 {
     let msghandler = new MessageHandler(message, callback, services);
-    msghandler.handle();
+    await msghandler.handle();
 }
 
 export {

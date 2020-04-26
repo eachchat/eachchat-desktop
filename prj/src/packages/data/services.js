@@ -1,7 +1,8 @@
 import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
-import { mqttrouter } from './mqttrouter.js'
+import { mqttrouter } from './mqttrouter.js';
+import { clientIncrementRouter } from './clientincrementrouter.js'
 
 const mqtt = require('mqtt')
 
@@ -295,21 +296,19 @@ const common = {
     this.mqttclient.close()
   },
 
-  handlemessage(callback){
+  async handlemessage(callback){
     let userid = this.data.selfuser.id;
-    let access_token = this.data.login.access_token;
     let services = this;
-    this.mqttclient.on('message', function(topic, message){
+    await this.mqttclient.on('message', async function(topic, message){
       console.log("handle message get sth ", JSON.parse(message.toString()))
       if(topic != userid)
       {
         return;
       }
-      mqttrouter(JSON.parse(message.toString()), callback, services)
+      await mqttrouter(JSON.parse(message.toString()), callback, services);
     })
     
   },
-
   async logout() {
     if (typeof this.data.login == "undefined") {
       console.debug("Please login first");
@@ -558,20 +557,29 @@ const common = {
     sequenceId,
     countperpageValue) 
   {
-    let result = await this.api.clientIncrement(this.data.login.access_token,
-                                name,
-                                updateTime,
-                                sequenceId,
-                                countperpageValue)
-    if (!result.ok || !result.success) {
-      return undefined;
-    }
+    let next = true;
+    let result;
+    let totalIndex = 0;
+    console.log("clientIncrement")
+    while(next){
+      result = await this.api.clientIncrement(this.data.login.access_token,
+        name,
+        updateTime,
+        totalIndex,
+        countperpageValue)
+      if (!result.ok || !result.success) {
+        return undefined;
+      }
+      next = result.data.hasNext;
 
-    let item;
-    for(let index in result.data.results){
-      item = result.data.results[index];
-    }                
-    
+      let item;
+      for(let index in result.data.results){
+        totalIndex++;
+        item = result.data.results[index];
+        await clientIncrementRouter(name, item, this)
+      }
+       
+    }
   },
 
   async groupIncrement(updateTime, notification){
@@ -605,13 +613,16 @@ const common = {
     let message;
     let messagemodel;
     this.data.historymessage = []
-    let totalcount = 0
-    
+    let totalcount = 0;
 
     let items = await (await models.Message).find(
       {
         group_id: groupId,
         sequence_id: "<"+sequenceId,
+        $order: {
+          by: 'sequence_id',
+          reverse: true
+        },
         $size: count
       }
     )
