@@ -291,7 +291,7 @@ const servicemodels = {
         notice_userId :         undefined,
         un_read_count :         undefined,
         draft :                 undefined,
-        msg_id:                 undefined
+        message_id:                 undefined
       }
 
       var groupmap = 
@@ -313,7 +313,7 @@ const servicemodels = {
         "fromId":     "message_from_id",  
         "msgContentType":"message_content_type",
         "timestamp": "last_message_time",
-        "msgId":      "msg_id"
+        "msgId":      "message_id"
       }
       var objmap = {
         "noReaderCount": "un_read_count" 
@@ -377,7 +377,7 @@ const servicemodels = {
         "fromId":     "message_from_id",  
         "msgContentType":"message_content_type",
         "timestamp": "last_message_time",
-        "msgId":      "msg_id"
+        "msgId":      "message_id"
       }
       return this.UpdateGroup(groupmodel, messagevalue, messagemap);
     },
