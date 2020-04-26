@@ -90,11 +90,12 @@ var models = {
           department_id: types.string,
           parent_id:     types.string,
           display_name:  types.string,
-          description:  types.string,
+          description:   types.string,
           director_id:   types.string,
           admin_id:      types.string,
-          del:          types.integer,
-          show_order:    types.integer
+          del:           types.integer,
+          show_order:    types.integer,
+          updatetime:    types.integer
         },
         primaryKey: "department_id"
       });

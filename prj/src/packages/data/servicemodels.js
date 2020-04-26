@@ -80,7 +80,8 @@ const servicemodels = {
         director_id:   undefined,
         admin_id:      undefined,
         del:          undefined,
-        show_order:    undefined
+        show_order:    undefined,
+        updatetime:     undefined,
       }
   
       var responsemap = 
@@ -92,7 +93,8 @@ const servicemodels = {
         "directorId" : "director_id",
         "adminId" : "admin_id",
         "del" : "del",
-        "showOrder" : "show_order"
+        "showOrder" : "show_order",
+        "updateTimestamp": "updatetime"
       }
       
       for(var key in responsemap){

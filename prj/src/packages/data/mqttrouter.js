@@ -54,7 +54,6 @@ class UserHandler extends BaseMqttHandler{
     }
     async handle(){
         if(this.type == "updateUser"){
-            console.log("mqttrouter updateUser");
             let userinfos = await (await models.UserInfo).find({
                 $order: {
                     by: 'updatetime',
@@ -67,8 +66,7 @@ class UserHandler extends BaseMqttHandler{
                 return;
             }
             let updatetime = userinfos[0].updatetime;
-            let name = this.type;
-            await this.services.clientIncrement(name, updatetime, 0, 0);
+            await this.services.clientIncrement(this.type, updatetime, 0, 0);
         }
         else{
             let handler = new DepartmentHandler(this.message, this.callback, this.services);
@@ -84,7 +82,19 @@ class DepartmentHandler extends BaseMqttHandler{
     }
     async handle(){
         if(this.type == "updateDepartment"){
-            console.log(this.type);
+            let department = await (await models.Department).find({
+                $order: {
+                    by: 'updatetime',
+                    reverse: true
+                  },
+                  $size: 1
+            })
+            if(department.length == 0)
+            {
+                return;
+            }
+            let updatetime = department[0].updatetime;
+            await this.services.clientIncrement(this.type, updatetime, 0, 0);
         }
         else{
             let handler = new TopicHandler(this.message, this.callback, this.services);
