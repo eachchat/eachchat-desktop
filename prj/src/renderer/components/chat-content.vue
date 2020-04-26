@@ -340,8 +340,8 @@ export default {
     var curUserInfo = await services.common.GetSelfUserModel();
     this.$store.commit("setUserId", curUserInfo.id);
 
-    services.common.initmqtt();
-    services.common.handlemessage(this.callback);
+    // services.common.initmqtt();
+    // services.common.handlemessage(this.callback);
 
     this.getGroupList(true);
   }

@@ -64,7 +64,7 @@ import * as Quill from 'quill'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
+import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 
 const InlineBlot = Quill.import('formats/image')
@@ -73,20 +73,22 @@ class FileBlot extends InlineBlot {
     static create(data) {
         console.log("FileBlot create data is ", data);
         const node = super.create(data);
-        node.setAttribute('local-path', data.local_path);
+        node.setAttribute('localPath', data.localPath);
         node.setAttribute('src', data.src);
-        node.setAttribute('type', data.file_type);
-        node.setAttribute('height', data.file_height);
+        node.setAttribute('type', data.fileType);
+        node.setAttribute('height', data.fileHeight);
         node.setAttribute('style', data.style);
+        node.setAttribute('size', data.fileSize);
 
         return node;
     }
     static value(domNode) {
         var tmp = {};
-        tmp["local_path"] = domNode.getAttribute('local-path');
+        tmp["localPath"] = domNode.getAttribute('localPath');
         tmp["type"] = domNode.getAttribute('type');
         tmp["src"] = domNode.getAttribute('src');
-        tmp["file_height"] = domNode.getAttribute('height');
+        tmp["fileSeight"] = domNode.getAttribute('height');
+        tmp["fileSize"] = domNode.getAttribute('size');
         return tmp;
     }
 }
@@ -148,6 +150,7 @@ export default {
                         var reader = new FileReader();
                         var curPath = fileList[i].path;
                         var fileType = fileList[i].type;
+                        var fileSize = fileList[i].size;
                         if(fileType.split("/")[0] == "image"){
                             // Image
                             reader.readAsDataURL(fileList[i]);
@@ -155,8 +158,8 @@ export default {
                                 var img = new Image();
                                 img.src = reader.result;
                                 img.onload = function(){
-                                    let src_height = img.height;
-                                    this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "image", height: src_height});
+                                    let srcHeight = img.height;
+                                    this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
                                     this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                                 }
                             }
@@ -169,7 +172,7 @@ export default {
                             let showfileObj = showfu.GetUploadfileobj();
                             reader.readAsDataURL(showfileObj);
                             reader.onloadend = () => {
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {local_path: curPath, src: reader.result, file_type: "file", file_height: 46, style:"vertical-align:middle;"})
+                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: fileSize, style:"vertical-align:middle;"})
                                 this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                             }
                         }
@@ -229,17 +232,19 @@ export default {
                         if(curMsgItem.fileBlot.type == "image"){
                             let sendingMsgContentType = 102;
                             let picUrl = curMsgItem.fileBlot.src;
-                            let filePath = curMsgItem.fileBlot.local_path;
+                            let filePath = curMsgItem.fileBlot.localPath;
                             let ext = filePath.split(".").pop();
+                            let fileSize = curMsgItem.fileBlot.fileSize;
+                            let fileName = getFileNameInPath(filePath);
                             let willSendMsgContent = {
                                 "ext":ext,
-                                "fileName":'',
+                                "fileName":fileName,
                                 "url":"",
                                 "middleImage":"",
                                 "thumbnailImage": picUrl,
                                 "imgWidth": "",
                                 "imgHeight": "",
-                                "fileSize": ""
+                                "fileSize": fileSize
                             }
                             let guid = generalGuid();
                             let willSendMsg = {
@@ -255,13 +260,15 @@ export default {
                         else{
                             let sendingMsgContentType = 103;
                             let picUrl = curMsgItem.fileBlot.src;
-                            let filePath = curMsgItem.fileBlot.local_path;
+                            let filePath = curMsgItem.fileBlot.localPath;
+                            let fileSize = curMsgItem.fileBlot.fileSize;
+                            let fileName = getFileNameInPath(filePath);
                             let ext = filePath.split(".").pop();
                             let willSendMsgContent = {
                                 "ext":ext,
-                                "fileName":'',
+                                "fileName":fileName,
                                 "url":"",
-                                "fileSize": ""
+                                "fileSize": fileSize
                             }
                             let guid = generalGuid();
                             let willSendMsg = {
@@ -309,23 +316,25 @@ export default {
                         if(curMsgItem.fileBlot.type == "image"){
                             let sendingMsgContentType = 102;
                             let picUrl = curMsgItem.fileBlot.src;
-                            let filePath = curMsgItem.fileBlot.local_path;
-                            let fileHeight = curMsgItem.fileBlot.file_height;
+                            let filePath = curMsgItem.fileBlot.localPath;
+                            let fileHeight = curMsgItem.fileBlot.fileHeight;
+                            let fileSize = curMsgItem.fileBlot.fileSize;
+                            let fileName = getFileNameInPath(filePath);
                             let ext = filePath.split(".").pop();
                             let willShowMsgContent = JsonMsgContentToString({
                                 "ext":ext,
-                                "fileName":'',
+                                "fileName":fileName,
                                 "url":"",
                                 "middleImage":"",
                                 "thumbnailImage": filePath,
                                 "imgWidth": "",
                                 "imgHeight": fileHeight,
-                                "fileSize": ""
+                                "fileSize": fileSize
                             });
                             var guid = generalGuid();
                             let willSendMsg = {
                                 "message_content": willShowMsgContent,
-                                "message_from_id": this.$store.state.userId,
+                                "message_from_id": this.curUserInfo.id,
                                 "group_id": this.chat.group_id,
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
@@ -355,7 +364,7 @@ export default {
                                     services.common.sendNewMessage(
                                             guid, 
                                             sendingMsgContentType, 
-                                            this.$store.state.userId, 
+                                            this.curUserInfo.id, 
                                             this.chat.group_id, 
                                             '', 
                                             curTimeSeconds, 
@@ -407,18 +416,21 @@ export default {
                         else{
                             let sendingMsgContentType = 103;
                             let picUrl = curMsgItem.fileBlot.src;
-                            let filePath = curMsgItem.fileBlot.local_path;
+                            let filePath = curMsgItem.fileBlot.localPath;
+                            let fileSize = curMsgItem.fileBlot.fileSize;
+                            let fileName = getFileNameInPath(filePath);
+                            console.log("chat file name is ", fileName)
                             let ext = filePath.split(".").pop();
                             let willShowMsgContent = JsonMsgContentToString({
                                 "ext":ext,
-                                "fileName":'',
+                                "fileName":fileName,
                                 "url":"",
-                                "fileSize": ""
+                                "fileSize": fileSize
                             })
                             let guid = generalGuid();
                             let willSendMsg = {
                                 "message_content": willShowMsgContent,
-                                "message_from_id": this.$store.state.userInfo.id,
+                                "message_from_id": this.curUserInfo.id,
                                 "group_id": this.chat.group_id,
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
@@ -444,7 +456,7 @@ export default {
                                     services.common.sendNewMessage(
                                             guid, 
                                             sendingMsgContentType, 
-                                            this.$store.state.userId, 
+                                            this.curUserInfo.id, 
                                             this.chat.group_id, 
                                             '', 
                                             curTimeSeconds, 
@@ -496,9 +508,9 @@ export default {
                     else{
                         // Text
                         // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
-                        var curMsgItem_split = curMsgItem.split('\n')
-                        if(curMsgItem_split.length == 2 && curMsgItem_split[0].trim().length == 0 && curMsgItem_split[1].trim() == 0){
-                            continue
+                        curMsgItem = sliceReturnsOfString(curMsgItem);
+                        if(curMsgItem.length == 0){
+                            return;
                         }
                         let sendingMsgContentType = 101;
                         let msgContent = curMsgItem;
@@ -511,7 +523,7 @@ export default {
                         let guid = generalGuid();
                         let willSendMsg = {
                             "message_content": willShowMsgContent,
-                            "message_from_id": this.$store.state.userId,
+                            "message_from_id": this.curUserInfo.id,
                             "group_id": this.chat.group_id,
                             "message_timestamp": curTimeSeconds,
                             "message_type": sendingMsgContentType,
@@ -526,7 +538,7 @@ export default {
                         services.common.sendNewMessage(
                                 guid, 
                                 sendingMsgContentType, 
-                                this.$store.state.userId, 
+                                this.curUserInfo.id, 
                                 this.chat.group_id, 
                                 '', 
                                 curTimeSeconds, 
@@ -748,7 +760,6 @@ export default {
                     var curTime = new Date().getTime();
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
                         let lastScrollHeight = uldiv.scrollHeight;
-                        console.log("lastScrollHeight is ", lastScrollHeight);
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
                         let lastSequenceId = this.messageList[0].sequence_id;
@@ -760,8 +771,6 @@ export default {
                                     this.messageList.unshift(messageListTmp[i]);
                                 }
                                 this.$nextTick(() => {
-                                    console.log("uldiv.scrollHeight is ", uldiv.scrollHeight)
-                                    console.log("uldiv.scrollTop is ", uldiv.scrollTop);
                                     uldiv.scrollTop = uldiv.scrollHeight - lastScrollHeight;
                                 })
                             })
@@ -786,7 +795,7 @@ export default {
                             messageFromGroup.message_from_id = this.chat.message_from_id;
                             messageFromGroup.message_timestamp = this.chat.last_message_time;
                             messageFromGroup.sequence_id = this.chat.sequence_id;
-                            messageFromGroup.message_id = this.chat.message_id;
+                            messageFromGroup.message_id = this.chat.msg_id;
                             this.messageList.push(messageFromGroup);
                         }
                     }
@@ -797,7 +806,7 @@ export default {
                         messageFromGroup.message_from_id = this.chat.message_from_id;
                         messageFromGroup.message_timestamp = this.chat.last_message_time;
                         messageFromGroup.sequence_id = this.chat.sequence_id;
-                        messageFromGroup.message_id = this.chat.message_id;
+                        messageFromGroup.message_id = this.chat.msg_id;
                         this.messageList.push(messageFromGroup);
                     }
                     console.log("Get From store msg list is ", this.messageList);
@@ -814,11 +823,11 @@ export default {
         },
         callback(msg) {
             console.log("chat callback msg is ", msg);
-            if(msg.group_id == this.chat.group_id) {
+            if(msg.group_id == this.chat.group_id && msg.message_from_id != this.curUserInfo.id) {
                 this.messageList.push(msg);
             }
             this.$emit('updateChatList', msg);
-            let div = document.getElementById("message-show");
+            let div = document.getElementById("message-show-list");
             if(div) {
                 this.$nextTick(() => {
                     div.scrollTop = div.scrollHeight;
@@ -862,11 +871,10 @@ export default {
     created: async function() {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
         this.loginInfo = await services.common.GetLoginModel();
-        var curUserInfo = await services.common.GetSelfUserModel();
-        this.$store.commit("setUserId", curUserInfo.id);
+        this.curUserInfo = await services.common.GetSelfUserModel();
 
-        // services.common.initmqtt();
-        // services.common.handlemessage(this.callback);
+        services.common.initmqtt();
+        services.common.handlemessage(this.callback);
     },
     computed: {
         messageListShow: {

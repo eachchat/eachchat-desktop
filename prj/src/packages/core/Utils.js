@@ -32,6 +32,34 @@ function JsonMsgContentToString (jsonMsgContent) {
     return chatGroupMsgContent;
 }
 
+function getFileNameInPath(filePath) {
+    var dealedPath = filePath.replace("/", "\\");
+    var pos = dealedPath.lastIndexOf('\\');
+    var m_filename = dealedPath.substring(pos + 1);
+    return m_filename;
+}
+
+function sliceReturnsOfString (originalStr) {
+    var finalStr = originalStr;
+    var str_split = originalStr.split('\n');
+    if(str_split.length == 0) {
+        return finalStr;
+    }
+    var modified = false;
+    if(str_split[0] != undefined && str_split[0].length == 0){
+        modified = true;
+        str_split = str_split.slice(1, str_split.length);
+    }
+    if(str_split[str_split.length - 1] != undefined && str_split[str_split.length - 1].length == 0) {
+        modified = true;
+        str_split = str_split.slice(0, str_split.length-1);
+    }
+    if(modified) {
+        finalStr = str_split.join('\n');
+    }
+    return finalStr;
+}
+
 //https://blog.csdn.net/qq_36644766/article/details/80258048
 function findKey(obj, value, compare = (a, b) => a === b) {
     return Object.keys(obj).find(k => compare(obj[k], value));
@@ -1023,6 +1051,6 @@ class ConfService {
     }
 }
 const confservice = new ConfService();
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
