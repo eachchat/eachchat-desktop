@@ -1,12 +1,7 @@
 <template>
     <div class="ListHeadBar">
         <div class="Search">
-            <el-input placeholder="搜索..." 
-                class="search-input"
-                v-model="searchKey"
-                size="small">
-                <i slot="suffix" class="el-input__icon el-icon-search"></i>
-            </el-input>
+            <eSearch/>
         </div>
         <el-dropdown class="new-chat-dropdown" trigger="click">
             <i class="el-icon-circle-plus-outline"></i>
@@ -36,6 +31,7 @@
 import chatGroupCreater from './chatgroup-creater'
 import {createGroup} from '../../packages/data/services'
 import {APITransaction} from '../../packages/data/transaction.js'
+import eSearch from './searchbar.vue'
 export default {
     name: 'listHeadbar',
     data () {
@@ -108,6 +104,7 @@ export default {
     },
     components: {
         chatGroupCreater,
+        eSearch
     },
     created: function () {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
@@ -117,31 +114,33 @@ export default {
 
 <style lang="scss" scoped>
     .ListHeadBar {
-        height: 56px;
+        height: 41px;
         width: 280px;
+        line-height: 41px;
         -webkit-app-region: drag;
     }
     * {
-        
         -webkit-app-region: no-drag;
     } 
 
     .Search {
+        width: calc(100% - 50px);
+        height: 34px;
+        line-height: 34px;
+        font-size: 14px;
         display: inline-block;
         padding: 0px;
-        margin: 10px 10px 0px 20px;
+        margin: 0px 0px 0px 0px;
     }
 
     .new-chat-dropdown {
+        display: inline-block;
         font-size: 20px;
-    }
-
-    .new-chat {
-        width: 100%;
-        border: 0px;
-        background-color: rgb(242, 242, 246);
-        font-size: 28px;
-        line-height: 44px;
+        height: 34px;
+        line-height: 34px;
+        padding: 0px;
+        margin: 0px 0px 0px 0px;
+        overflow: hidden;
     }
 
     .el-icon-circle-plus-outline {

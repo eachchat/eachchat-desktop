@@ -1,43 +1,49 @@
 <template>
-    <div class="chat-panel">
-      <div class="chat-list">
-        <div class="list-header">
-          <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
-        </div>
-        <p class="chat-label">普通</p>
-        <div class="list-content" :key="needUpdate">
-          <ul class="group-list">
-            <li class="group"
-                v-for="(chatGroupItem, index) in dealShowGroupList"
-                @click="showChat(chatGroupItem, index)"
-                :class="{active: index===curindex}"
-                >
-              <img class="group-ico" :id="getChatElementId(chatGroupItem)"/>
-              <div class="group-info">
-                <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
-                <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
-              </div>
-              <div class="group-notice">
-                <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
-                <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
-              </div>
-            </li>
-          </ul>
-        </div>
+    <div class="chat-wind">
+      <div class="win-header">
+        <winHeaderBar v-show="isWindows"></winHeaderBar>
       </div>
-      <div class="chat">
-        <div class="chat-header">
-            <chatHeader/>
+      <div class="chat-panel">
+        <div class="chat-list">
+          <div class="list-header">
+            <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
+          </div>
+          <p class="chat-label">普通</p>
+          <div class="list-content" :key="needUpdate">
+            <ul class="group-list">
+              <li class="group"
+                  v-for="(chatGroupItem, index) in dealShowGroupList"
+                  @click="showChat(chatGroupItem, index)"
+                  :class="{active: index===curindex}"
+                  >
+                <img class="group-ico" :id="getChatElementId(chatGroupItem)"/>
+                <div class="group-info">
+                  <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
+                  <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                </div>
+                <div class="group-notice">
+                  <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                  <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
-        <ChatPage :chat="curChat" @updateChatList="updateChatList"></ChatPage>
+        <div class="chat">
+          <div class="chat-header">
+              <chatHeader v-show="false"/>
+          </div>
+          <ChatPage :chat="curChat" @updateChatList="updateChatList"></ChatPage>
+        </div>
       </div>
     </div>
 </template>
 
 <script>
 import {APITransaction} from '../../packages/data/transaction.js'
-import {services} from '../../packages/data/index.js'
+import {services, environment} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
+import winHeaderBar from './win-header.vue'
 import listHeader from './listheader'
 import chatHeader from './chatheader'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
@@ -46,7 +52,8 @@ export default {
   components: {
     ChatPage,
     listHeader,
-    chatHeader
+    chatHeader,
+    winHeaderBar
   },
   computed: {
     dealShowGroupList: function() {
@@ -77,6 +84,9 @@ export default {
     };
   },
   methods: {
+    isWindows() {
+      return environment.os.isWindows;
+    },
     // Download thumb and show in dist id element
     showGroupIcon() {
       for(var i=0;i<this.showGroupList.length;i++) {
@@ -372,6 +382,14 @@ export default {
     border-radius: 10px;
   }
 
+  .chat-wind {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+  }
+
   .chat-panel {
     width: 100%;
     height: 100%;
@@ -399,11 +417,11 @@ export default {
 
   .list-header {
     width: 100%;
-    height: 56px;
-    line-height: 56px;
+    height: 41px;
+    line-height: 41px;
     background-color: rgb(255, 255, 255);
     border: 0px;
-    margin: 0px 0px 5px 0px;
+    margin: 0px 0px 0px 0px;
     display: block;
   }
 
