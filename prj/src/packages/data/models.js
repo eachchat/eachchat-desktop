@@ -58,7 +58,10 @@ var models = {
           is_active: types.integer,
           job: types.string,
           bio: types.string,
-          maxsequenceid: types.integer
+          msg_max_sequenceid: types.integer,
+          user_max_updatetime: types.integer,
+          group_max_updatetime:types.integer
+          
         },
         primaryKey: 'id'
       });
@@ -226,7 +229,8 @@ var models = {
           notice_userId:         types.string,
           un_read_count:         types.integer,
           draft:                 types.string,
-          message_id:            types.string
+          message_id:            types.string,
+          updatetime:            types.integer
         },
         primaryKey: "group_id"
       });

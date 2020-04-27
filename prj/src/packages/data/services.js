@@ -2,7 +2,8 @@ import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
-import { clientIncrementRouter } from './clientincrementrouter.js'
+import { clientIncrementRouter } from './clientincrementrouter.js';
+import { sqliteutil } from './sqliteutil.js'
 
 const mqtt = require('mqtt')
 
@@ -117,13 +118,11 @@ const common = {
     let grouptype;
     if(await this.GetAllGroups() == 0)
     {
-      console.log("group table is empty");
       return;
     }
 
     if(await this.GetAllUserinfo() == 0)
     {
-      console.log("userinfo table is empty");
       return;
     }
     
@@ -231,7 +230,6 @@ const common = {
       foundUser.values = selfuser.values;
       foundUser.save();
       this.data.selfuser = foundUser;
-
       console.log('Your profile has been update!');
     } else {
       selfuser.save();
@@ -258,15 +256,33 @@ const common = {
   },
 
   async InitServiceData(){
-    //if(this.data.selfuser.maxsequenceid == "")
-    //{
-    //  await this.ReveiveNewMessage(this.data.selfuser.maxsequenceid, 0)
-    //}
+    await this.AllUserinfo();
+    await this.listAllGroup();
+    await this.ReveiveNewMessage(0, 0);
   },
 
   async InitDbData()
   {
+    await this.GetLoginModel();
+    await this.GetSelfUserModel();
+    await this.UpdateGroups();
+    //await this.UpdateUserinfo();
+    //await this.UpdateMessages();
+  },
 
+  async UpdateUserinfo(){
+
+  },
+
+  async UpdateGroups()
+  {
+    let updatetime = await sqliteutil.GetMaxGroupUpdatetime(this.data.selfuser.id);
+    await this.groupIncrement(updatetime, 0);
+  },
+
+  async UpdateMessages(){
+    let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(this.data.selfuser.id);
+    await this.ReveiveNewMessage(maxSequenceIdFromGroup, 0)
   },
 
   initmqtt(){
@@ -278,7 +294,7 @@ const common = {
     let mqttclient = this.mqttclient;
     let userid = this.data.selfuser.id;
     mqttclient.on('connect', function(){
-        console.log("connect success")
+        console.log("mqtt connect success")
         console.log(userid)
         mqttclient.subscribe(userid, function (err) {
             if (err) {
@@ -336,6 +352,7 @@ const common = {
     this.data.useraddress = [];
     this.data.userphone = [];
     this.data.userim = [];
+    let updateTime;
     await (await models.UserInfo).truncate()
     await (await models.UserEmail).truncate()
     await (await models.UserAddress).truncate()
@@ -350,6 +367,9 @@ const common = {
       if (!("obj" in result.data)) {
         return undefined;
       }
+
+      updateTime = result.data.obj.updateTime;
+
       for(var item in result.data.results)
       {
         index++;
@@ -379,6 +399,14 @@ const common = {
         this.data.userim.push(userImModel);
       }
     }while(result.data.total > index);
+    var foundUsers = await(await models.User).find({
+      id: this.data.login.user_id
+    });
+    if(foundUsers.length == 0){
+      return;
+    }
+    foundUsers[0].user_max_updatetime = updateTime;
+    foundUsers[0].save();
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
@@ -471,7 +499,7 @@ const common = {
     let groupvalue;
     let groupmodel;
     this.data.group = []
-    let maxSequenceId = "0";
+    let updateTime = 0;
     await (await models.Groups).truncate()
 
     result = await this.api.listAllGroup(this.data.login.access_token, undefined)
@@ -482,6 +510,9 @@ const common = {
     if (!("obj" in result.data)) {
       return undefined;
     }
+
+    updateTime = result.data.obj.updateTime;
+
     next = result.data.hasNext
     for(let item in result.data.results)
     {
@@ -493,21 +524,9 @@ const common = {
       }
       groupmodel.save()
       this.data.group.push(groupmodel)
-
-      if(parseInt(groupmodel.sequence_id) > parseInt(maxSequenceId))
-      {
-        maxSequenceId = groupmodel.sequence_id;
-      }
     }
-    var foundUsers = await(await models.User).find({
-      id: this.data.login.user_id
-    });
-    if(foundUsers.length == 0){
-      return;
-    }
-    foundUsers[0].maxsequenceid = maxSequenceId;
-    foundUsers[0].save();
-    this.data.selfuser.maxsequenceid = maxSequenceId;
+    sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
+    this.data.selfuser.group_max_updatetime = updateTime;
   },
 
   async updateUserWorkDescription(workDescription) 
@@ -560,7 +579,6 @@ const common = {
     let next = true;
     let result;
     let totalIndex = 0;
-    console.log("clientIncrement")
     while(next){
       result = await this.api.clientIncrement(this.data.login.access_token,
         name,
@@ -602,8 +620,13 @@ const common = {
       if(findGroups.length != 0){
         groupModel = servicemodels.UpdateGroupGroup(findGroups[0], groupItem);
       }
+      else{
+        groupModel = await servicemodels.IncrementGroupModel(groupItem);
+      }
       groupModel.save();
     }
+    sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
+    this.data.selfuser.group_max_updatetime = updateTime;
   },
 
   async historyMessage(groupId, sequenceId, count) { 
@@ -615,20 +638,34 @@ const common = {
     this.data.historymessage = []
     let totalcount = 0;
 
-    let items = await (await models.Message).find(
-      {
+    let condition;
+    if(sequenceId){
+      condition = {
+      group_id: groupId,
+      sequence_id: "<"+sequenceId,
+      $order: {
+        by: 'sequence_id',
+        reverse: true
+      },
+      $size: count
+      };
+    }
+    else{
+      condition = {
         group_id: groupId,
-        sequence_id: "<"+sequenceId,
         $order: {
           by: 'sequence_id',
           reverse: true
         },
         $size: count
-      }
-    )
+        };
+    }
+
+    let items = await (await models.Message).find(condition)
     //sort items by sequenceId
     if(items.length != 0 && items.length == count)
     {
+      console.log(items)
       return items;
     }
 
@@ -638,10 +675,9 @@ const common = {
       for(let index in items)
       {
         this.data.historymessage.push(items[index]);
-        totalcount++;
       }
     }
-    
+    /*
     result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
     if (!result.ok || !result.success) {
       return this.data.historymessage;
@@ -662,6 +698,7 @@ const common = {
         this.data.historymessage.push(messagemodel)
       }
     }
+    */
     return this.data.historymessage;
   },
 
@@ -763,9 +800,8 @@ const common = {
             callback(tmpmodel);   
           }
         }
-        
+        sequenceId = result.data.obj.maxSequenceId;
         if (result.data.hasNext == true) {
-          sequenceId = result.data.obj.maxSequenceId;
           hasNext = true;
         }
         else{
@@ -774,7 +810,8 @@ const common = {
             id: this.data.login.user_id
           });
           if(foundUsers.length != 0){
-            foundUsers[0].maxsequenceid = tmpmodel.sequence_id;
+            this.data.selfuser.msg_max_sequenceid = sequenceId;
+            foundUsers[0].msg_max_sequenceid = sequenceId;
             foundUsers[0].save();
           }
         }

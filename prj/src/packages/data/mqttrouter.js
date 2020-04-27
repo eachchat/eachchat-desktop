@@ -21,7 +21,7 @@ class MessageHandler extends BaseMqttHandler{
             if(this.services.data.currentsequenceid == undefined)
             {
                 let selfmodel = await(this.services.GetSelfUserModel());
-                maxsequenceid = selfmodel.maxsequenceid;
+                maxsequenceid = selfmodel.msg_max_sequenceid;
             }
             await this.services.ReveiveNewMessage(maxsequenceid, 0, this.callback);
         }

@@ -292,7 +292,8 @@ const servicemodels = {
         notice_userId :         undefined,
         un_read_count :         undefined,
         draft :                 undefined,
-        message_id:                 undefined
+        message_id:             undefined,
+        updatetime:             undefined
       }
 
       var groupmap = 
@@ -306,7 +307,8 @@ const servicemodels = {
         "owner": "owner",             
         "groupNotice": "group_notice",     
         "noticeTime": "notice_time",       
-        "noticeUserId": "notice_userId"
+        "noticeUserId": "notice_userId",
+        "updateTime":   "updatetime"
       }
       var messagemap = {                   
         "userId": "user_id",    
@@ -350,7 +352,44 @@ const servicemodels = {
       
         
       groupmodel = await new (await models.Groups)(groupvalue)
-      return groupmodel
+      return groupmodel;
+    },
+
+    async IncrementGroupModel(value){
+      let groupvalue = {
+        group_id:           undefined,
+        contain_user_ids:   undefined,
+        group_name:         undefined,
+        group_avarar:       undefined,
+        group_type :        undefined,
+        status:             undefined,
+        owner:              undefined,
+        group_notice:       undefined,
+        notice_time:        undefined,
+        notice_userId:      undefined,
+        updatetime:         undefined
+      }
+
+      var groupmap = 
+      {
+        "groupId":  "group_id",  
+        "userIds" : "contain_user_ids",  
+        "groupName": "group_name",        
+        "groupAvatar": "group_avarar",     
+        "groupType": "group_type",        
+        "status": "status",
+        "owner": "owner",             
+        "groupNotice": "group_notice",     
+        "noticeTime": "notice_time",       
+        "noticeUserId": "notice_userId",
+        "updateTime":   "updatetime"
+      }
+      for(let key in groupmap)
+      {
+        groupvalue[groupmap[key]] = value[key];
+      }
+      let groupmodel = await new (await models.Groups)(groupvalue);
+      return groupmodel;
     },
 
     UpdateGroupGroup(groupmodel, groupvalue)
