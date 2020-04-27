@@ -58,7 +58,7 @@ var models = {
           is_active: types.integer,
           job: types.string,
           bio: types.string,
-          maxsequenceid: types.string
+          maxsequenceid: types.integer
         },
         primaryKey: 'id'
       });
@@ -209,20 +209,20 @@ var models = {
         index: "group",
         fields: {
           group_id:              types.string,
-          sequence_id:           types.string,
+          sequence_id:           types.integer,
           contain_user_ids:      types.string,
           group_name:            types.string,
           group_avarar:          types.string,
           group_type:            types.integer,
           status:                types.string,
           user_id:               types.string,
-          last_message_time:     types.string,
+          last_message_time:     types.integer,
           message_from_id:       types.string,
           message_content_type:  types.integer,
           message_content:       types.string,
           owner:                 types.string,
           group_notice:          types.string,
-          notice_time:           types.string,
+          notice_time:           types.integer,
           notice_userId:         types.string,
           un_read_count:         types.integer,
           draft:                 types.string,
@@ -247,7 +247,7 @@ var models = {
           message_status:     types.integer,
           message_from_id:    types.string,
           sequence_id:        types.integer,
-          message_timestamp:  types.string,
+          message_timestamp:  types.integer,
           message_content:    types.string,
           file_local_path:    types.string
         },
