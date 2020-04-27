@@ -18,7 +18,7 @@
                         :class="ChatLeftOrRightClassName(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
-                        <imessage :msg="item" v-show="showMessageOrNot(item)"></imessage>
+                        <imessage :msg="item" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage"></imessage>
                     </li>
                 </ul>
             </div>
@@ -105,6 +105,9 @@ export default {
     },
     props: ['chat'],
     methods: {
+        showImageOfMessage(imgSrcInfo) {
+            this.$emit('showImageOfMessage', imgSrcInfo);
+        },
         showExpression: function() {
             this.showFace = !this.showFace;
         },

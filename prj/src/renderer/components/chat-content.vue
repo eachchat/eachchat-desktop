@@ -30,12 +30,10 @@
           </div>
         </div>
         <div class="chat">
-          <div class="chat-header">
-              <chatHeader v-show="false"/>
-          </div>
-          <ChatPage :chat="curChat" @updateChatList="updateChatList"></ChatPage>
+          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage"></ChatPage>
         </div>
       </div>
+      <imageLayer :imgSrcInfo="imageLayersSrcInfo" :access_token="loginInfo.access_token" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
     </div>
 </template>
 
@@ -44,16 +42,16 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services, environment} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
 import winHeaderBar from './win-header.vue'
+import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
-import chatHeader from './chatheader'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
 
 export default {
   components: {
     ChatPage,
     listHeader,
-    chatHeader,
-    winHeaderBar
+    winHeaderBar,
+    imageLayer
   },
   computed: {
     dealShowGroupList: function() {
@@ -81,6 +79,8 @@ export default {
       encryptGroupList: [],
       showGroupList: [],
       isSqlite: true,
+      showImageLayers: false,
+      imageLayersSrcInfo: '',
     };
   },
   methods: {
@@ -104,6 +104,15 @@ export default {
       console.log("Created Info is ", groupInfo)
       this.$store.commit("addNewChatGroup", groupInfo);
       // ++this.needUpdate;
+    },
+    showImageOfMessage(imgSrcInfo) {
+      console.log("showImageOfMessage and imgSrcInfo is ", imgSrcInfo)
+      this.imageLayersSrcInfo = imgSrcInfo;
+      this.showImageLayers = true;
+    },
+    closeImageOfMessage() {
+      this.imageLayersSrc = '';
+      this.showImageLayers = false;
     },
     updateChatList(newMsg) {
       // ++this.needUpdate;

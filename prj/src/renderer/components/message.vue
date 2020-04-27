@@ -86,13 +86,14 @@ export default {
     methods: {
         ShowFile: function() {
             console.log("open image proxy ", this.msg)
-            let chatGroupMsgType = this.msg.msgContentType;
-            let chatGroupMsgContent = this.msg.content;
-            if(chatGroupMsgType === 102)
+            let msgType = this.msg.message_type;
+            let msgContent = strMsgContentToJson(this.msg.message_content);
+            if(msgType === 102)
             {
-                shell.openExternal("C:\\Users\\wangx\\Pictures\\1-1Z919202U1519.jpg");
+                this.$emit('showImageOfMessage', this.msg);
+                // shell.openExternal("C:\\Users\\wangx\\Pictures\\1-1Z919202U1519.jpg");
             }
-            else if(chatGroupMsgType === 103)
+            else if(msgType === 103)
             {
                 shell.openExternal("C:\\Users\\wangx\\Downloads\\服务端API文档.docx");
             }
