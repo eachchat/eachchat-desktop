@@ -20,15 +20,15 @@ const environment = {
     description: "unknown",
 
     get isWindows() {
-      return env.type == osType.WINDOWS;
+      return this.type == osType.WINDOWS;
     },
 
     get isLinux() {
-      return env.type == osType.LINUX;
+      return this.type == osType.LINUX;
     },
 
     get isOSX() {
-      return env.type == osType.OSX;
+      return this.type == osType.OSX;
     }
   },
 
