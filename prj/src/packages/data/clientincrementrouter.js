@@ -43,6 +43,7 @@ class UserIncrement extends BaseIncrement{
             }
             updatetime = userInfoModel.updatetime;
             sqliteutil.UpdateMaxUserUpdatetime(this.service.data.selfuser.id, updatetime);
+            this.service.data.login.user_max_updatetime = updatetime
             /*
             let userEmailModel = itemModel[1];
             let userAddressModel = itemModel[2];
@@ -82,6 +83,8 @@ class DepartmentIncrement extends BaseIncrement{
             let findDepartment = departments[0];
             findDepartment.values = departmentModel.values;
             findDepartment.save();
+            this.service.data.login.department_max_updatetime = updatetime;
+
         }
         else{
             console.log("unknow clientIncrement:" + this.type);

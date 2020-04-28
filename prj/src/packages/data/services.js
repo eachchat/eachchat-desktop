@@ -273,7 +273,7 @@ const common = {
     await this.GetLoginModel();
     await this.GetSelfUserModel();
     await this.UpdateGroups();
-    await this.UpdateUserinfo();
+    //await this.UpdateUserinfo();
     //await this.UpdateDepartment();
     //await this.UpdateMessages();
   },
@@ -639,8 +639,8 @@ const common = {
       }
       groupModel.save();
     }
-    sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
-    this.data.selfuser.group_max_updatetime = updateTime;
+    sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, groupModel.updatetime)
+    this.data.selfuser.group_max_updatetime = groupModel.updatetime;
   },
 
   async historyMessage(groupId, sequenceId, count) { 
