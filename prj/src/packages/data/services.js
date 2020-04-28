@@ -793,10 +793,6 @@ const common = {
       if (!("obj" in result.data)) {
         return undefined;
       }
-
-      if (!("obj" in result.data)) {
-        return undefined;
-      }
       
       array_message = result.data.results;
       for(group_key in array_message)
@@ -833,31 +829,31 @@ const common = {
           {
             callback(tmpmodel);   
           }
-          if(!bFirstLogin)
-          {
-            let group = await sqliteutil.FindItemFromGroupByGroupID(tmpmodel.group_id);
-            if(group == undefined)
-            {
-              console.log("ReveiveNewMessage update groups failed, can't find groupid:" + msgmodel.group_id); 
-              return;
-            }
-            else
-            {
-              group = await servicemodels.UpdateGroupMessage(group, message_item);
-              group.save();
-            }
-          }
         }
-        sequenceId = result.data.obj.maxSequenceId;
-        if (result.data.hasNext == true) {
-          hasNext = true;
+        let group = await sqliteutil.FindItemFromGroupByGroupID(tmpmodel.group_id);
+        if(group == undefined)
+        {
+          console.log("ReveiveNewMessage update groups failed, can't find groupid:" + msgmodel.group_id); 
+          return;
         }
-        else{
-          hasNext = false;
-          await sqliteutil.UpdateMaxMsgSequenceID(this.data.login.user_id, sequenceId);
-          this.data.selfuser.msg_max_sequenceid = sequenceId;
+        else
+        {
+          group = await servicemodels.UpdateGroupMessage(group, message_item);
+          group.un_read_count = group_item.noReaderCount;
+          group.save();
         }
       }
+      sequenceId = result.data.obj.maxSequenceId;
+      if (result.data.hasNext == true) {
+        hasNext = true;
+      }
+      else{
+        hasNext = false;
+        await sqliteutil.UpdateMaxMsgSequenceID(this.data.login.user_id, sequenceId);
+        this.data.selfuser.msg_max_sequenceid = sequenceId;
+      }
+      
+
     }
     return msg_models;
   },
@@ -890,6 +886,14 @@ const common = {
     let groupModel = await servicemodels.IncrementGroupModel(groupValue);
     groupModel.group_name = groupNameValue;
     groupModel.save();
+  },
+
+  async MessageRead(groupid, sequenceid){
+    let result = await this.api.MessageRead(this.data.login.access_token, groupid, sequenceid);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return true;
   }
 
 };

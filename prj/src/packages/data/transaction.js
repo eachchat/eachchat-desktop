@@ -355,6 +355,20 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async MessageRead(accessToken, groupid, sequenceid){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/message/reader",
+      {
+        groupId: groupid,
+	      sequenceId: sequenceid
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+
+  }
 }
 
 class MQTTTransaction {}
