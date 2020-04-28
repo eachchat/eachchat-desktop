@@ -267,11 +267,18 @@ const common = {
     await this.GetSelfUserModel();
     await this.UpdateGroups();
     await this.UpdateUserinfo();
+    //await this.UpdateDepartment();
     //await this.UpdateMessages();
   },
 
-  async UpdateUserinfo(){
+  async UpdateDepartment(){
+    let updatetime = sqliteutil.GetMaxDepartmentUpdatetime(this.data.selfuser.id);
+    await this.clientIncrement("updateDepartment", updatetime, 0, 0);
+  },
 
+  async UpdateUserinfo(){
+    let updatetime = sqliteutil.GetMaxUserUpdatetime(this.data.selfuser.id);
+    await this.clientIncrement("updateUser", updatetime, 0, 0);
   },
 
   async UpdateGroups()

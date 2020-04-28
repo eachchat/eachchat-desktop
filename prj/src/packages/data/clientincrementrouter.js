@@ -1,5 +1,6 @@
 import { models } from './models.js';
 import { servicemodels } from './servicemodels.js';
+import { sqliteutil } from './sqliteutil.js'
 
 class BaseIncrement{
     constructor(type, item, service){
@@ -27,14 +28,21 @@ class UserIncrement extends BaseIncrement{
             let userinfos = await (await models.UserInfo).find({
                 user_id: userInfoModel.user_id
             })
+            let updatetime;
             if(userinfos.length == 0)
             {
-                itemModel.save();
+                updatetime = userInfoModel.updatetime;
+                userInfoModel.save();
                 return;
             }
-            let findUserInfo = userinfos[0];
-            findUserInfo.values = userInfoModel.values;
-            findUserInfo.save();
+            else{
+                let findUserInfo = userinfos[0];
+                findUserInfo.values = userInfoModel.values;
+                findUserInfo.save();
+    
+            }
+            updatetime = userInfoModel.updatetime;
+            sqliteutil.UpdateMaxUserUpdatetime(this.service.data.selfuser.id, updatetime);
             /*
             let userEmailModel = itemModel[1];
             let userAddressModel = itemModel[2];
