@@ -773,6 +773,12 @@ const common = {
     let tmpmodel;
     let findmsgs;
     let array_message;
+    let bFirstLogin = false;
+
+    if(sequenceId == 0)
+    {
+      bFirstLogin = true;
+    }
 
     while(hasNext)
     {
@@ -826,6 +832,20 @@ const common = {
           if(callback != undefined)
           {
             callback(tmpmodel);   
+          }
+          if(!bFirstLogin)
+          {
+            let group = await sqliteutil.FindItemFromGroupByGroupID(tmpmodel.group_id);
+            if(group == undefined)
+            {
+              console.log("ReveiveNewMessage update groups failed, can't find groupid:" + msgmodel.group_id); 
+              return;
+            }
+            else
+            {
+              group = await servicemodels.UpdateGroupMessage(group, message_item);
+              group.save();
+            }
           }
         }
         sequenceId = result.data.obj.maxSequenceId;
