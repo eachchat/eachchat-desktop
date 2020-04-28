@@ -279,13 +279,13 @@ const common = {
   },
 
   async UpdateDepartment(){
-    let updatetime = sqliteutil.GetMaxDepartmentUpdatetime(this.data.selfuser.id);
-    await this.clientIncrement("updateDepartment", updatetime, 0, 0);
+    let updateTime = await sqliteutil.GetMaxDepartmentUpdatetime(this.data.selfuser.id);
+    await this.clientIncrement("updateDepartment", updateTime, 0, 0);
   },
 
   async UpdateUserinfo(){
-    let updatetime = sqliteutil.GetMaxUserUpdatetime(this.data.selfuser.id);
-    await this.clientIncrement("updateUser", updatetime, 0, 0);
+    let updateTime = await sqliteutil.GetMaxUserUpdatetime(this.data.selfuser.id);
+    await this.clientIncrement("updateUser", updateTime, 0, 0);
   },
 
   async UpdateGroups()
