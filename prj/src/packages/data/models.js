@@ -60,8 +60,8 @@ var models = {
           bio: types.string,
           msg_max_sequenceid: types.integer,
           user_max_updatetime: types.integer,
-          group_max_updatetime:types.integer
-          
+          group_max_updatetime:types.integer,
+          department_max_updatetime: types.integer
         },
         primaryKey: 'id'
       });
