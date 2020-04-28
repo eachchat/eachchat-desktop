@@ -741,7 +741,21 @@ const common = {
     }
     let msg = result.data.obj.message;
     let msgmodel = await servicemodels.MessageModel(msg)
-    msgmodel.save()
+    msgmodel.save();
+    await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, msgmodel.sequence_id)
+    this.data.selfuser.msg_max_sequenceid = msgmodel.sequence_id
+
+    let group = await sqliteutil.FindItemFromGroupByGroupID(msgmodel.group_id);
+    if(group == undefined)
+    {
+      console.log("sendNewMessage update groups failed, can't find groupid:" + msgmodel.group_id); 
+      return;
+    }
+    else
+    {
+      group = await servicemodels.UpdateGroupMessage(group, msg);
+      group.save();
+    }
     return msgmodel;
   },
 

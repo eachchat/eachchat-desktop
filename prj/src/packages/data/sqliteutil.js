@@ -84,7 +84,7 @@ const sqliteutil = {
     },
 
     async UpdateMaxDepartmentUpdatetime(userid, updatetime){
-        var foundUsers = await(await models.User).find({
+        let foundUsers = await(await models.User).find({
             id: userid
           });
         if(foundUsers.length == 0){
@@ -94,6 +94,15 @@ const sqliteutil = {
         foundUsers[0].save();
     },
 
+    async FindItemFromGroupByGroupID(groupid){
+        var groups = await(await models.Groups).find({
+            group_id: groupid
+          });
+        if(groups.length == 0){
+            return undefined;
+        }
+        return groups[0];
+    }
 }
 
 export{
