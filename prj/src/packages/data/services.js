@@ -60,6 +60,13 @@ const common = {
     return this.data.selfuser;
   },
 
+  async GetDistUserinfo(uid){
+    let distItem = await(await models.UserInfo).find({
+      user_id: uid
+    });
+    return distItem;
+  },
+
   async GetAllDepartmentsModel()
   {
     let allDepartments = await(await models.Department).find({

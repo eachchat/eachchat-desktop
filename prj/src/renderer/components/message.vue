@@ -29,10 +29,10 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-img" :src="MsgBelongUserImg()" alt="头像">
+                <img class="msg-info-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-img" :src="MsgBelongUserImg()" alt="头像">
+                <img class="msg-info-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像">
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"
@@ -76,7 +76,7 @@ import {shell} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
-import {generalGuid, Appendzero, FileUtil, confservice, getIconPath, sliceReturnsOfString, strMsgContentToJson} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, confservice, getIconPath, sliceReturnsOfString, strMsgContentToJson} from '../../packages/core/Utils.js'
 
 export default {
     components: {
@@ -84,6 +84,9 @@ export default {
     },
     props: ['msg'],
     methods: {
+        getUserIconId: function() {
+            return this.msg.message_id + "-usericon"
+        },
         ShowFile: function() {
             console.log("open image proxy ", this.msg)
             let msgType = this.msg.message_type;
@@ -134,7 +137,6 @@ export default {
             console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             if(chatGroupMsgType === 101)
             {
-                console.log("textMsgImgElement is ", textMsgImgElement)
                 var textMsgImgElement = document.getElementById(this.msg.message_id);
                 this.messageContent = sliceReturnsOfString(chatGroupMsgContent.text);
                 if(this.messageContent.length == 0) {
@@ -259,16 +261,26 @@ export default {
             }
         },
         MsgBelongUserImg: async function () {
-            if(this.msg === null) {
-                return '/static/Img/User/user.jpeg';
+            var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
+            if(distUserInfo == undefined || distUserInfo.length == 0) {
+                return;
             }
-            else {
-                var res = this.$store.getters.getChatUserIcon(this.msg.message_from_id, false);
-                // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
-                // var distUserInfo = await services.common.GetUserModel(this.msg.message_from_id);
-                // console.log("dist user info ", distUserInfo);
-                return res;
+            var userIconElementId = this.getUserIconId();
+            var userIconElement = document.getElementById(userIconElementId);
+            console.log("userIconElementId is ", userIconElementId);
+            console.log("userIconElement is ", userIconElement);
+            if(userIconElement == undefined) {
+                return;
             }
+            var distTAvarar = distUserInfo[0].avatar_t_url;
+
+            downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
+            .then((ret) => {
+                userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
+                userIconElement.onload = () => {
+                    URL.revokeObjectURL(userIconElement.getAttribute("src"))
+                }
+            })
         },
         compare: function(){
             return function(a, b)
@@ -300,14 +312,17 @@ export default {
                     this.MsgContent(true);
                 }
                 else {
-                    this.MsgContent(true);
+                    this.MsgContent(false);
                 }
+                this.MsgBelongUserImg();
             })
         }, 0)
 
     },
     created: async function() {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
+        this.loginInfo = await services.common.GetLoginModel();
+        this.curUserInfo = await services.common.GetSelfUserModel();
     },
     watch: {
         msg: function() {
@@ -320,6 +335,7 @@ export default {
                         else {
                             this.MsgContent(false);
                         }
+                        this.MsgBelongUserImg();
                     })
                 }, 0)
             })
