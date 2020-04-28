@@ -43,7 +43,7 @@ class UserIncrement extends BaseIncrement{
             }
             updatetime = userInfoModel.updatetime;
             sqliteutil.UpdateMaxUserUpdatetime(this.service.data.selfuser.id, updatetime);
-            this.service.data.login.user_max_updatetime = updatetime
+            this.service.data.login.user_max_updatetime = updatetime;
             /*
             let userEmailModel = itemModel[1];
             let userAddressModel = itemModel[2];
@@ -65,25 +65,27 @@ class DepartmentIncrement extends BaseIncrement{
         super(type, item, service);
     }
     async handler(){
-        if(this.name == "updateDepartment"){
+        if(this.type == "updateDepartment"){
             let itemModel = await servicemodels.DepartmentsModel(this.item);
             if(itemModel == undefined)
             {
               return;
             }
-            let departmentModel = itemModel[0];
+            let departmentModel = itemModel;
             let departments = await (await models.Department).find({
                 department_id: departmentModel.department_id
             })
             if(departments.length == 0)
             {
                 departmentModel.save();
-                return;
             }
-            let findDepartment = departments[0];
-            findDepartment.values = departmentModel.values;
-            findDepartment.save();
-            this.service.data.login.department_max_updatetime = updatetime;
+            else{
+                let findDepartment = departments[0];
+                findDepartment.values = departmentModel.values;
+                findDepartment.save();
+            }
+            sqliteutil.UpdateMaxDepartmentUpdatetime(this.service.data.selfuser.id, departmentModel.updatetime);
+            this.service.data.login.department_max_updatetime = departmentModel.updatetime;
 
         }
         else{

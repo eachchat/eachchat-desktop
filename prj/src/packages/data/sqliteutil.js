@@ -14,6 +14,17 @@ const sqliteutil = {
         return item.msg_max_sequenceid;
     },
 
+    async UpdateMaxMsgSequenceID(userid, sequenceid){
+        var foundUsers = await(await models.User).find({
+            id: userid
+          });
+        if(foundUsers.length == 0){
+            return;
+        }
+        foundUsers[0].msg_max_sequenceid = sequenceid;
+        foundUsers[0].save();
+    },
+
     async GetMaxGroupUpdatetime(userid){
         let groups = await(await models.User).find({
             id: userid

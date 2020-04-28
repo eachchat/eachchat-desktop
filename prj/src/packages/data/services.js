@@ -273,9 +273,9 @@ const common = {
     await this.GetLoginModel();
     await this.GetSelfUserModel();
     await this.UpdateGroups();
-    //await this.UpdateUserinfo();
-    //await this.UpdateDepartment();
-    //await this.UpdateMessages();
+    await this.UpdateUserinfo();
+    await this.UpdateDepartment();
+    await this.UpdateMessages();
   },
 
   async UpdateDepartment(){
@@ -820,14 +820,8 @@ const common = {
         }
         else{
           hasNext = false;
-          var foundUsers = await(await models.User).find({
-            id: this.data.login.user_id
-          });
-          if(foundUsers.length != 0){
-            this.data.selfuser.msg_max_sequenceid = sequenceId;
-            foundUsers[0].msg_max_sequenceid = sequenceId;
-            foundUsers[0].save();
-          }
+          await sqliteutil.UpdateMaxMsgSequenceID(this.data.login.user_id, sequenceId);
+          this.data.selfuser.msg_max_sequenceid = sequenceId;
         }
       }
     }
