@@ -266,7 +266,7 @@ const common = {
     await this.GetLoginModel();
     await this.GetSelfUserModel();
     await this.UpdateGroups();
-    //await this.UpdateUserinfo();
+    await this.UpdateUserinfo();
     //await this.UpdateMessages();
   },
 
@@ -832,8 +832,22 @@ const common = {
     return await this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
   },
   
-  async createGroup(groupNameValue, groupUsersArray){
-    return await this.api.createGroup(this.data.login.access_token, groupNameValue, groupUsersArray)
+  async CreateGroup(groupNameValue, groupUsersArray){
+    let result = await this.api.createGroup(this.data.login.access_token, groupNameValue, groupUsersArray)
+    console.log(result)
+    
+    if (!result.ok || !result.success) {
+      return undefined;
+    }
+
+    if (!("obj" in result.data)) {
+      return undefined;
+    }
+
+    let groupValue = result.data.obj;
+    let groupModel = await servicemodels.IncrementGroupModel(groupValue);
+    groupModel.group_name = groupNameValue;
+    groupModel.save();
   }
 
 };
