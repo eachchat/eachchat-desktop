@@ -102,8 +102,8 @@ export default {
     },
     getCreateGroupInfo(groupInfo) {
       console.log("Created Info is ", groupInfo)
-      this.$store.commit("addNewChatGroup", groupInfo);
-      // ++this.needUpdate;
+      this.showGroupList.unshift(groupInfo);
+      ++this.needUpdate;
     },
     showImageOfMessage(imgSrcInfo) {
       console.log("showImageOfMessage and imgSrcInfo is ", imgSrcInfo)
@@ -133,7 +133,6 @@ export default {
       // ++this.needUpdate;
       for(var i=0;i<this.showGroupList.length.length;i++) {
         if(this.showGroupList[i].group_id === groupId) {
-          console.log("new msg list is ", newMsgList)
           // this.$store.commit("addMessageLists", newMsgList);
           this.curindex = i;
           break;
@@ -197,7 +196,7 @@ export default {
     },
     getMsgLastMsgTime(chatGroupItem) {
       var formatTime = ""
-      var timesecond = Number(chatGroupItem.last_message_time);
+      var timesecond = chatGroupItem.last_message_time == 0 ? chatGroupItem.updatetime : chatGroupItem.last_message_time;
 
       if(timesecond.length == 0) {
         return formatTime;
@@ -335,8 +334,8 @@ export default {
     compare: function() {
       return function(a, b)
       {
-        var value1 = a.last_message_time;
-        var value2 = b.last_message_time;
+        var value1 = a.last_message_time == 0 ? a.updatetime : a.last_message_time;
+        var value2 = b.last_message_time == 0 ? b.updatetime : b.last_message_time;;
         return value2 - value1;
       }
     },

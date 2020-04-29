@@ -29,10 +29,10 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showInfoTip">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showInfoTip">
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"
@@ -66,24 +66,39 @@
 </template>
 
 <script>
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.bubble.css'
-import {quillEditor} from 'vue-quill-editor'
-import * as Quill from 'quill'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, confservice, getIconPath, sliceReturnsOfString, strMsgContentToJson} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, confservice, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft} from '../../packages/core/Utils.js'
 
 export default {
     components: {
-        quillEditor
     },
     props: ['msg'],
     methods: {
+        showInfoTip: function() {
+            if(this.userIconElement == undefined) {
+                this.userIconElement = document.getElementById(userIconElementId);
+            }
+            if(this.userIconElement == undefined) {
+                // ToDo exception.
+                return;
+            }
+            var curAbsoluteTop = getElementTop(this.userIconElement);
+            var curAbsoluteLeft = getElementLeft(this.userIconElement);
+            var tipInfos = {
+                "userInfo": this.userInfo,
+                "absoluteTop": curAbsoluteTop,
+                "absoluteLeft": curAbsoluteLeft
+            }
+            console.log("emit absoluteTop ", curAbsoluteTop);
+            console.log("emit absoluteLeft ", curAbsoluteLeft);
+            // console.log("emit openUserInfoTip ", tipInfos);
+            this.$emit("openUserInfoTip", tipInfos);
+        },
         getUserIconId: function() {
             return this.msg.message_id + "-usericon"
         },
@@ -134,7 +149,7 @@ export default {
             this.messageContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             if(chatGroupMsgType === 101)
             {
                 var textMsgImgElement = document.getElementById(this.msg.message_id);
@@ -142,6 +157,7 @@ export default {
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
                 }
+                // console.log("this.messageContent is ", this.messageContent)
                 // textMsgImgElement.innerHTML = this.messageContent;
             }
             else if(chatGroupMsgType === 102)
@@ -261,26 +277,38 @@ export default {
             }
         },
         MsgBelongUserImg: async function () {
-            var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
-            if(distUserInfo == undefined || distUserInfo.length == 0) {
+            // var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
+            if(this.userInfo == undefined || this.userInfo == null) {
                 return;
             }
             var userIconElementId = this.getUserIconId();
-            var userIconElement = document.getElementById(userIconElementId);
-            console.log("userIconElementId is ", userIconElementId);
-            console.log("userIconElement is ", userIconElement);
-            if(userIconElement == undefined) {
+            this.userIconElement = document.getElementById(userIconElementId);
+            if(this.userIconElement == undefined) {
                 return;
             }
-            var distTAvarar = distUserInfo[0].avatar_t_url;
+            console.log("this.userInfo.user_id is ", this.userInfo.user_id);
+            var distTAvarar = this.userInfo.avatar_t_url;
 
             downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
             .then((ret) => {
-                userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
-                userIconElement.onload = () => {
-                    URL.revokeObjectURL(userIconElement.getAttribute("src"))
+                this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
+                this.userIconElement.onload = () => {
+                    URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
                 }
             })
+        },
+        msgUserInfo: async function() {
+            console.log("this.msg.message_from_id is ", this.msg.message_from_id);
+            console.log("this.msg.message_id is ", this.msg.message_id);
+            var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
+            console.log("userInfo is ", userInfos)
+            if(userInfos == undefined || userInfos.length == 0) {
+                console.log("err");
+                this.userInfo = {};
+                return;
+            }
+
+            this.userInfo = userInfos[0];
         },
         compare: function(){
             return function(a, b)
@@ -302,9 +330,11 @@ export default {
                 placeholder: "",
                 theme:'bubble',
             },
+            userIconElement: null,
+            userInfo: null,
         }
     },
-    mounted: function() {
+    mounted: async function() {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
         setTimeout(() => {
             this.$nextTick(() => {
@@ -314,10 +344,15 @@ export default {
                 else {
                     this.MsgContent(false);
                 }
+                
+                var userIconElementId = this.getUserIconId();
+                if(this.userIconElement == undefined) {
+                    this.userIconElement = document.getElementById(userIconElementId);
+                }
                 this.MsgBelongUserImg();
             })
         }, 0)
-
+        await this.msgUserInfo();
     },
     created: async function() {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
@@ -335,6 +370,7 @@ export default {
                         else {
                             this.MsgContent(false);
                         }
+                        this.msgUserInfo();
                         this.MsgBelongUserImg();
                     })
                 }, 0)
@@ -368,11 +404,19 @@ export default {
         margin-left: 8px;
     }
 
-    .msg-info-img {
+    .msg-info-user-img {
         display: inline-block;
         vertical-align: top;
         width: 40px;
         height: 40px;
+    }
+
+    .msg-info-user-img:hover {
+        display: inline-block;
+        vertical-align: top;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
     }
 
     .about-msg {

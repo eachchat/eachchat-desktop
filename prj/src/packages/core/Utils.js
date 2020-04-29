@@ -73,6 +73,38 @@ function Appendzero(o_num) {
     if(o_num < 10) return "0" + "" + o_num;
     else return o_num;
 }
+// https://www.jianshu.com/p/3b5728046dc8
+function getElementTop(element) {
+    // var actTop = element.offsetTop;
+    // var current = element.offsetParent;
+    // while(current !== null){
+    //     actTop += current.offsetTop;
+    //     current = current.offsetParent;
+    // }
+    var actTop = element.offsetTop;
+    var current = element.offsetParent;
+    while(current !== null){
+        actTop += current.offsetTop;
+        current = current.offsetParent;
+    }
+    if (document.compatMode == 'BackCompat') {
+        var scrollTop = document.body.scrollTop;
+    } else {
+        var scrollTop = document.documentElement.scrollTop;
+    }
+    return actTop - scrollTop;
+}
+
+// https://www.jianshu.com/p/3b5728046dc8
+function getElementLeft(element) {
+    var actLeft = element.offsetLeft;
+    // var current = element.offsetParent;
+    // while(current !== null){
+    //     actLeft += current.offsetLeft;
+    //     current = current.offsetParent;
+    // }
+    return actLeft;
+}
 
 async function downloadGroupAvatar(url, accesstoken)
 {
@@ -1051,6 +1083,6 @@ class ConfService {
     }
 }
 const confservice = new ConfService();
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

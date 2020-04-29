@@ -31,6 +31,7 @@
 import chatGroupCreater from './chatgroup-creater'
 import {createGroup} from '../../packages/data/services'
 import {APITransaction} from '../../packages/data/transaction.js'
+import {services} from '../../packages/data/index.js'
 import eSearch from './searchbar.vue'
 export default {
     name: 'listHeadbar',
@@ -38,17 +39,19 @@ export default {
         return {
             searchKey: '',
             dialogVisible: false,
-            disabledusers: [this.$store.state.userInfo.id],
+            disabledusers: [],
         }
     },
     methods: {
         showCreateGroup: function(){
-            console.log("this disabledusers is ", this.disabledusers)
+            this.disabledusers = [this.curUserInfo.id];
             this.dialogVisible = true;
+            console.log("this disabledusers is ", this.disabledusers)
         },
-        createGroup: function() {
+        createGroup: async function() {
             var groupUserIds = [];
             console.log("this.usersSelected = ", this.usersSelected);
+            console.log("this disabledusers is ", this.disabledusers)
             for(var j=0;j<this.disabledusers.length;j++) {
                 groupUserIds.push(this.disabledusers[j]);
             }
@@ -71,29 +74,66 @@ export default {
                 groupName = groupUserName[0];
             }
             console.log("group user ids is ", groupUserIds)
-            // if(groupUserIds.length <= 2) {
-            //     var groupItem = {};
-            //     groupItem["group"] = ret.data.obj;
-            //     groupItem["message"] = ret.data.message;
-            //     groupItem["noReaderCount"] = 0;
-            //     this.$emit('getCreateGroupInfo', groupItem);
-            //     this.dialogVisible = false;
-            // }
-            // else {
-                // this.serverapi.createGroup(this.$store.state.accesstoken, groupName, groupUserIds)
-                servcies.createGroup(groupName, groupUserIds)
+            console.log("group groupName ids is ", groupName)
+            if(this.usersSelected.length == 0) {
+                alert("选一个呗")
+            }
+            else if(this.usersSelected.length == 1) {
+                var groupItem = {};
+                var selectedId = this.usersSelected[0];
+                var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
+                var chatUserInfo = userInfos[0];
+                var chatAvater = chatUserInfo.avatar_t_url;
+                var chatName = chatUserInfo.user_name
+                groupItem["contain_user_ids"] = groupUserIds;
+                groupItem["group_avarar"] = chatAvater;
+                groupItem["group_name"] = chatName;
+                groupItem["group_type"] = 101;
+                groupItem["last_message_time"] = 0;
+                groupItem["message_content"] = '';
+                groupItem["message_content_type"] = 0;
+                groupItem["message_from_id"] = null;
+                groupItem["message_id"] = '';
+                groupItem["owner"] = null;
+                groupItem["sequence_id"] = 0;
+                groupItem["status"] = 0;
+                groupItem["un_read_count"] = 0;
+                groupItem["updatetime"] = new Date().getTime();
+                groupItem["user_id"] = selectedId;
+    
+                let groupvalue = {
+                    group_id:           undefined,
+                    contain_user_ids:   groupUserIds,
+                    group_name:         chatName,
+                    group_avarar:       chatAvater,
+                    group_type :        101,
+                    status:             0,
+                    owner:              undefined,
+                    group_notice:       undefined,
+                    notice_time:        undefined,
+                    notice_userId:      undefined,
+                    updatetime:         new Date().getTime()
+                    }
+
+                this.$emit('getCreateGroupInfo', groupItem);
+                this.dialogVisible = false;
+            }
+            else {
+                this.serverapi.createGroup(this.$store.state.accesstoken, groupName, groupUserIds)
+
+                services.common.CreateGroup(groupName, groupUserIds)
                     .then((ret) => {
-                        if(ret.data.code == 200) {
-                            console.log("the ret of create group is ", ret)
-                            var groupItem = {};
-                            groupItem["group"] = ret.data.obj;
-                            groupItem["message"] = ret.data.message;
-                            groupItem["noReaderCount"] = 0;
-                            this.$emit('getCreateGroupInfo', groupItem);
-                            this.dialogVisible = false;
+                        if(ret == undefined) {
+                            console.log("!!!!!!!!!!!1 ")
+                            // ToDo exception notice.
+                            return;
                         }
+                        console.log("services.CreateGroup ret is ", ret);
+                        this.$emit('getCreateGroupInfo', ret);
+                        this.dialogVisible = false;
                     })
-            // }
+
+            }
         },
         handleDialogClose() {
             this.$refs.chatGroupCreater.initData();
@@ -106,8 +146,10 @@ export default {
         chatGroupCreater,
         eSearch
     },
-    created: function () {
+    created: async function () {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
+        this.loginInfo = await services.common.GetLoginModel();
+        this.curUserInfo = await services.common.GetSelfUserModel();
     }
 }
 </script>

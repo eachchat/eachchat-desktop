@@ -75,6 +75,14 @@ const common = {
     return this.data.department = allDepartments;
   },
 
+  async GetDistDepartmentsModel(departmentId)
+  {
+    let distDepartments = await(await models.Department).find({
+      department_id: departmentId
+    })
+    return distDepartments;
+  },
+
   async GetAllUserinfo(){
     let allItems = await(await models.UserInfo).find({
       $reverse: true
@@ -886,6 +894,8 @@ const common = {
     let groupModel = await servicemodels.IncrementGroupModel(groupValue);
     groupModel.group_name = groupNameValue;
     groupModel.save();
+
+    return groupModel;
   },
 
   async MessageRead(groupid, sequenceid){

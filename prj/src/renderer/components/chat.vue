@@ -13,12 +13,12 @@
         </div>
         <div class="chat-main">
             <div class="chat-main-message" id="message-show">
-                <ul class="msg-list" id="message-show-list" ref="viewBox">
+                <ul class="msg-list" id="message-show-list">
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
-                        <imessage :msg="item" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage"></imessage>
+                        <imessage :msg="item" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip"></imessage>
                     </li>
                 </ul>
             </div>
@@ -52,6 +52,7 @@
                 </div>
             </div>
         </div>
+        <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos"></userInfoTip>
     </div>
 </template>
 
@@ -64,6 +65,7 @@ import * as Quill from 'quill'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
+import userInfoTip from './userinfo-tip.vue'
 import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 
@@ -102,11 +104,22 @@ export default {
         quillEditor,
         imessage,
         Faces,
+        userInfoTip,
     },
     props: ['chat'],
     methods: {
         showImageOfMessage(imgSrcInfo) {
             this.$emit('showImageOfMessage', imgSrcInfo);
+        },
+        openUserInfoTip(tipInfos) {
+            console.log("openUserInfoTip showUserInfoTips is ", this.showUserInfoTips)
+            this.tipInfos = tipInfos;
+            this.showUserInfoTips = true;
+            console.log("openUserInfoTip showUserInfoTips is ", this.showUserInfoTips)
+        },
+        closeUserInfoTip(){
+            this.tipInfos = {};
+            this.showUserInfoTips = false;
         },
         showExpression: function() {
             this.showFace = !this.showFace;
@@ -854,7 +867,8 @@ export default {
             lastRefreshTime: 0,
             // When watch finished set isRefreshing to false
             isRefreshing: true,
-            viewBox: '',
+            showUserInfoTips: false,
+            tipInfos: {},
         }
     },
     mounted: function() {
@@ -866,7 +880,6 @@ export default {
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
-                this.viewBox = this.$refs.viewBox;
                 this.showGroupName(this.chat);
             })
         }, 0)
@@ -878,6 +891,15 @@ export default {
 
         services.common.initmqtt();
         services.common.handlemessage(this.callback);
+
+        document.addEventListener('click',function(e){
+            if(e.target.className!='userInfo-view' && e.target.className!='userInfo-Top' & e.target.className!='msg-info-user-img'){
+                console.log("cur class  is ", e.target.className);
+                console.log("showUserInfoTips is ", this.showUserInfoTips);
+                this.tipInfos = {};
+                this.showUserInfoTips = false;
+            }
+        })
     },
     computed: {
         messageListShow: {
