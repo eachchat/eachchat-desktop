@@ -833,7 +833,7 @@ const common = {
         let group = await sqliteutil.FindItemFromGroupByGroupID(tmpmodel.group_id);
         if(group == undefined)
         {
-          console.log("ReveiveNewMessage update groups failed, can't find groupid:" + msgmodel.group_id); 
+          console.log("ReveiveNewMessage update groups failed, can't find groupid:" + tmpmodel.group_id); 
           return;
         }
         else
