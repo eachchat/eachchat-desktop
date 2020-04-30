@@ -193,6 +193,12 @@ const common = {
     return recentUsers;
   },
 
+  async GetGroupByName(name){
+    return await(await models.Groups).find({
+      group_name: name
+    });
+  },
+
   init(config) {
     if (typeof config != "object") {
       config = {};
