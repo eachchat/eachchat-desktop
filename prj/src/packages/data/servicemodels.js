@@ -355,6 +355,46 @@ const servicemodels = {
       return groupmodel;
     },
 
+    async MessageGroup(value){
+      let groupvalue = {
+        group_id:           undefined,
+        contain_user_ids:   undefined,
+        group_name:         undefined,
+        group_avarar:       undefined,
+        group_type :        102,
+        status:             undefined,
+        owner:              undefined,
+        group_notice:       undefined,
+        notice_time:        undefined,
+        notice_userId:      undefined,
+        last_message_time:  undefined,
+        sequence_id:        undefined,
+        message_id:         undefined,
+        message_content_type: undefined,
+        message_from_id:    undefined,
+        message_content:    undefined
+      }
+
+      var groupmap = 
+      {
+        "groupId":  "group_id",  
+        "content":  "message_content",
+        "fromId" : "message_from_id",  
+        "msgContentType": "message_content_type",        
+        "msgId": "message_id",     
+        "sequenceId": "sequence_id",             
+        "timestamp": "last_message_time"   
+      }
+      for(let key in groupmap)
+      {
+        groupvalue[groupmap[key]] = value[key];
+      }
+      groupvalue.message_content = escape(JSON.stringify(value.content));
+
+      let groupmodel = await new (await models.Groups)(groupvalue);
+      return groupmodel;
+    },
+
     async IncrementGroupModel(value){
       let groupvalue = {
         group_id:           undefined,
@@ -417,7 +457,8 @@ const servicemodels = {
         "fromId":     "message_from_id",  
         "msgContentType":"message_content_type",
         "timestamp": "last_message_time",
-        "msgId":      "message_id"
+        "msgId":      "message_id",
+        "content":  "message_content"
       }
       return this.UpdateGroup(groupmodel, messagevalue, messagemap);
     },
@@ -425,7 +466,14 @@ const servicemodels = {
     UpdateGroup(model, value, map){
       for(let key in map)
       {
-        model[map[key]] = value[key];
+        if(key == 'content')
+        {
+          model[map[key]] = escape(JSON.stringify(value[key]));
+        }
+        else
+        {
+          model[map[key]] = value[key];
+        }
       }
       return model;
     },

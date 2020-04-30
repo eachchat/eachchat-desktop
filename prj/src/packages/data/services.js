@@ -756,14 +756,17 @@ const common = {
     let group = await sqliteutil.FindItemFromGroupByGroupID(msgmodel.group_id);
     if(group == undefined)
     {
-      console.log("sendNewMessage update groups failed, can't find groupid:" + msgmodel.group_id); 
-      return;
+      group = await servicemodels.MessageGroup(msg);
+      let userarray = [];
+      userarray.push(formID);
+      userarray.push(userID);
+      group.contain_user_ids = userarray.toString();
     }
     else
     {
       group = await servicemodels.UpdateGroupMessage(group, msg);
-      group.save();
     }
+    group.save();
     return msgmodel;
   },
 
@@ -841,15 +844,14 @@ const common = {
         let group = await sqliteutil.FindItemFromGroupByGroupID(tmpmodel.group_id);
         if(group == undefined)
         {
-          console.log("ReveiveNewMessage update groups failed, can't find groupid:" + tmpmodel.group_id); 
-          return;
+          group = await servicemodels.MessageGroup(msg);
         }
         else
         {
           group = await servicemodels.UpdateGroupMessage(group, message_item);
-          group.un_read_count = group_item.noReaderCount;
-          group.save();
         }
+        group.un_read_count = group_item.noReaderCount;
+        group.save();
       }
       sequenceId = result.data.obj.maxSequenceId;
       if (result.data.hasNext == true) {
