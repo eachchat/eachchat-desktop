@@ -102,6 +102,18 @@ const sqliteutil = {
             return undefined;
         }
         return groups[0];
+    },
+
+    async ExistMsg(msgid){
+        let msgs = await(await models.Message).find(
+            {
+                message_id: msgid
+            }
+        );
+        if(msgs.length == 0){
+            return false;
+        }
+        return true;
     }
 }
 

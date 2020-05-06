@@ -279,7 +279,7 @@ const common = {
   async InitServiceData(){
     await this.AllUserinfo();
     await this.listAllGroup();
-    await this.ReveiveNewMessage(0, 0);
+    //await this.ReveiveNewMessage(0, 0);
   },
 
   async InitDbData()
@@ -289,7 +289,8 @@ const common = {
     await this.UpdateGroups();
     await this.UpdateUserinfo();
     await this.UpdateDepartment();
-    await this.UpdateMessages();
+    //await this.UpdateMessages();
+    await this.ListAllCollections();
   },
 
   async UpdateDepartment(){
@@ -657,15 +658,47 @@ const common = {
     this.data.selfuser.group_max_updatetime = groupModel.updatetime;
   },
 
-  async historyMessage(groupId, sequenceId, count) { 
+  async historyMessage(bNew, groupId, sequenceId, count) { 
     let result;
     let resultvalues;
-    let next = false;
+    let next = true;
     let message;
     let messagemodel;
     this.data.historymessage = []
     let totalcount = 0;
 
+    if(bNew){
+      while(next){
+        result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+        if (!result.ok || !result.success) {
+          return this.data.historymessage;
+        }
+    
+        if (!("results" in result.data)) {
+          return this.data.historymessage;
+        }
+        resultvalues = result.data.results;
+        next = result.data.hasNext;
+        for(let item in resultvalues)
+        {
+          message = resultvalues[item]
+          if(sqliteutil.ExistMsg(message.msgId)){
+            next = false;
+            break;
+          }
+          else{
+            messagemodel = await servicemodels.MessageModel(message)
+            messagemodel.save()
+            sequenceId = messagemodel.sequence_id;
+          }
+          
+          //if(totalcount++ < count)
+          //{
+          //  this.data.historymessage.push(messagemodel)
+          //}
+        }
+      }
+    }
     let condition;
     if(sequenceId){
       condition = {
@@ -693,7 +726,6 @@ const common = {
     //sort items by sequenceId
     if(items.length != 0 && items.length == count)
     {
-      console.log(items)
       return items;
     }
 
@@ -705,28 +737,6 @@ const common = {
         this.data.historymessage.push(items[index]);
       }
     }
-    /*
-    result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
-    if (!result.ok || !result.success) {
-      return this.data.historymessage;
-    }
-
-    if (!("results" in result.data)) {
-      return this.data.historymessage;
-    }
-    resultvalues = result.data.results
-
-    for(let item in resultvalues)
-    {
-      message = resultvalues[item]
-      messagemodel = await servicemodels.MessageModel(message)
-      messagemodel.save()
-      if(totalcount++ < count)
-      {
-        this.data.historymessage.push(messagemodel)
-      }
-    }
-    */
     return this.data.historymessage;
   },
 
@@ -912,6 +922,14 @@ const common = {
       return false;
     }
     return true;
+  },
+
+  async ListAllCollections(){
+    let result = await this.api.ListAllCollections(this.data.login.access_token);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    console.log(result)
   }
 
 };
