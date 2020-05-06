@@ -29,10 +29,10 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"
@@ -79,7 +79,7 @@ export default {
     },
     props: ['msg'],
     methods: {
-        showInfoTip: function() {
+        showUserInfoTip: function() {
             if(this.userIconElement == undefined) {
                 this.userIconElement = document.getElementById(userIconElementId);
             }
@@ -92,7 +92,8 @@ export default {
             var tipInfos = {
                 "userInfo": this.userInfo,
                 "absoluteTop": curAbsoluteTop,
-                "absoluteLeft": curAbsoluteLeft
+                "absoluteLeft": curAbsoluteLeft,
+                "isMine": this.MsgIsMine(),
             }
             console.log("emit absoluteTop ", curAbsoluteTop);
             console.log("emit absoluteLeft ", curAbsoluteLeft);
@@ -149,7 +150,7 @@ export default {
             this.messageContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             if(chatGroupMsgType === 101)
             {
                 var textMsgImgElement = document.getElementById(this.msg.message_id);
@@ -255,7 +256,7 @@ export default {
                 return "[聊天记录]";
             }
             else {
-                return this.messageContent = '<p>' + "不支持的消息类型，请升级客户端。" + '</p>'
+                return this.messageContent = "不支持的消息类型，请升级客户端。"
             }
         },
         MsgBelongUserName: function() {

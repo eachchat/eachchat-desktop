@@ -30,7 +30,7 @@
           </div>
         </div>
         <div class="chat">
-          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage"></ChatPage>
+          <ChatPage :chat="curChat" :forceUpdate="forceUpdate" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage"></ChatPage>
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" :access_token="loginInfo.access_token" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -81,9 +81,20 @@ export default {
       isSqlite: true,
       showImageLayers: false,
       imageLayersSrcInfo: '',
+      clickedGroupList: [],
+      forceUpdate: true,
     };
   },
   methods: {
+    checkForceUpdate(groupId) {
+      if(this.clickedGroupList.indexOf(groupId) != -1) {
+        this.forceUpdate = false;
+      }
+      else{
+        this.forceUpdate = true;
+      }
+      console.log("in chat-content this.forceUpdate is ", this.forceUpdate)
+    },
     isWindows() {
       return environment.os.isWindows;
     },
@@ -213,16 +224,35 @@ export default {
       return curChat.group_id;
     },
     getShowGroupName(chatGroupItem) {
+
+      async function getUserNameFromDb(distUid) {
+        var nameTemp = '';
+        var userInfos = await services.common.GetDistUserinfo(distUid);
+        if(userInfos.length == 0) {
+          return nameTemp;
+        }
+        var distUserInfo = userInfos[0];
+        if(distUserInfo != undefined){
+          nameTemp = distUserInfo.user_display_name;
+        }
+        return nameTemp;
+      }
+
       if(chatGroupItem === null){
         return "";
       }
       var groupName = chatGroupItem.group_name;
       if(groupName.length == 0) {
-        var aboutUids = chatGroupItem.contain_user_ids;
+        var aboutUids = chatGroupItem.contain_user_ids.split(",");
         var groupUidNameList = [];
         for(var i=0;i<aboutUids.length;i++) {
-          let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
-          groupUidNameList.unshift(nameTmp);
+          var userName = getUserNameFromDb(aboutUids[i]);
+          userName.then((ret) => {
+            if(ret.length != 0){
+              // let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
+              groupUidNameList.unshift(ret);
+            }
+          })
           if(i > 3) {
             break;
           }
@@ -300,6 +330,7 @@ export default {
     },
     showChat: function(chatGroup, index) {
       console.log("Chat-Content showChat");
+      this.checkForceUpdate(chatGroup.group_id);
       this.curChat = chatGroup;
       this.curindex = index;
     },

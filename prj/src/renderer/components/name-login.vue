@@ -37,12 +37,22 @@ export default {
             password: '',
             host: '',
             port: '',
-            services: null
+            services: null,
+            tokenExpired: false,
         }
     },
     methods: {
         clickUser () {
             location.reload()
+        },
+        checkToken: async function() {
+            var ret = await services.common.refreshToken();
+            if(ret == undefined) {
+                return false;
+            }
+            else {
+                return true;
+            }
         },
         login:async function() {
             let config = {
@@ -69,20 +79,20 @@ export default {
             }
             
             this.loginState = "登录成功"
-            await services.common.listAllGroup();
-            console.log(services.common.GetAllGroups);
-            let loginModel = await services.common.GetLoginModel();
-            let userModel = await services.common.GetSelfUserModel();
+            // await services.common.listAllGroup();
+            // console.log(services.common.GetAllGroups);
+            // let loginModel = await services.common.GetLoginModel();
+            // let userModel = await services.common.GetSelfUserModel();
 
             // console.log("the login model is ", loginModel)
             // console.log("the login model token is ", loginModel.refresh_token)
             // console.log("the user model is ", userModel)
             
-            this.$store.commit("setRefreshToken", loginModel.refresh_token);
-            this.$store.commit("setAccessToken", loginModel.access_token);
-            this.$store.commit("setUserAccount", this.username);
-            this.$store.commit("setUserPwd", this.password);
-            this.$store.commit("setUserId", loginModel.user_id);
+            // this.$store.commit("setRefreshToken", loginModel.refresh_token);
+            // this.$store.commit("setAccessToken", loginModel.access_token);
+            // this.$store.commit("setUserAccount", this.username);
+            // this.$store.commit("setUserPwd", this.password);
+            // this.$store.commit("setUserId", loginModel.user_id);
             // this.$store.commit("setUserInfo", userModel);
 
             const ipcRenderer = require('electron').ipcRenderer;
@@ -90,6 +100,21 @@ export default {
         }
     },
     created: function () {
+    },
+    beforeCreate: async function() {
+        console.log("before create ")
+        var ret = await services.common.refreshToken();
+        if(ret == undefined) {
+            console.log("failed")
+        }
+        else{
+            console.log("check token success ")
+            await services.common.InitDbData();
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('showMainPageWindow');
+        }
+        
+        console.log("go out create ")
     }
 }
 </script>

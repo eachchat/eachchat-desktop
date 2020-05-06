@@ -81,7 +81,7 @@ export default {
             else if(this.usersSelected.length == 1) {
                 var groupItem = {};
                 var selectedId = this.usersSelected[0];
-                var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
+                var userInfos = await services.common.GetDistUserinfo(this.usersSelected[0].id);
                 var chatUserInfo = userInfos[0];
                 var chatAvater = chatUserInfo.avatar_t_url;
                 var chatName = chatUserInfo.user_name

@@ -106,7 +106,7 @@ export default {
         Faces,
         userInfoTip,
     },
-    props: ['chat'],
+    props: ['chat', 'forceUpdate'],
     methods: {
         showImageOfMessage(imgSrcInfo) {
             this.$emit('showImageOfMessage', imgSrcInfo);
@@ -779,7 +779,8 @@ export default {
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
                         let lastSequenceId = this.messageList[0].sequence_id;
-                        services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
+                        console.log("handleScroll this.forceUpdate is ", this.forceUpdate);
+                        services.common.historyMessage(this.forceUpdate, this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
                                 this.isRefreshing = false;
                                 var messageListTmp = ret;
@@ -795,8 +796,10 @@ export default {
             }
         },
         getHistoryMessage: function() {
-            services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
+            console.log("getHistoryMessage this.forceUpdate is ", this.forceUpdate);
+            services.common.historyMessage(this.forceUpdate, this.chat.group_id, this.chat.sequence_id, 20)
                 .then((ret) => {
+                    console.log("getHistoryMessage historyMessage ret is ", ret)
                     var messageListTmp = ret;
                     this.messageList = [];
                     
@@ -916,6 +919,9 @@ export default {
                 
                 this.getHistoryMessage();
             }
+        },
+        forceUpdate: function() {
+            return this.forceUpdate;
         }
     }
 }

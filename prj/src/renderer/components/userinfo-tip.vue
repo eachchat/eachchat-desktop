@@ -6,7 +6,7 @@
                 <p class="user-name">{{ userInfo.user_display_name }}</p>
                 <p class="user-title">{{ userInfo.user_title }}</p>
             </div>
-            <img class="user-icon" :src="userInfo.avatar_t_url">
+            <img class="user-icon" id="userInfoTipUserImg" :src="getUserImg()">
         </div>
         <div class="userAction-view">
             <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
@@ -51,12 +51,14 @@
 </template>
 <script>
 import { services } from '../../packages/data'
+import {downloadGroupAvatar} from '../../packages/core/Utils.js'
 export default {
     name: 'user-info',
     data() {
         return {
             departmentName: '',
             wholeTipElement: null,
+            userIconElement: null,
             // Used for get click class name 
             holdElement: null,
             userInfo: {},
@@ -102,6 +104,25 @@ export default {
         }
     },
     methods: {
+        getUserImg(){
+            if(this.userInfo == undefined || this.userInfo == null) {
+                return "";
+            }
+            
+            this.userIconElement = document.getElementById("userInfoTipUserImg");
+            if(this.userIconElement == undefined) {
+                return;
+            }
+            var distTAvarar = this.userInfo.avatar_t_url;
+
+            downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
+            .then((ret) => {
+                this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
+                this.userIconElement.onload = () => {
+                    URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
+                }
+            })
+        },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){
                 return true;
@@ -122,7 +143,17 @@ export default {
 
         }
     },
-    created () {
+    async created () {
+        this.loginInfo = await services.common.GetLoginModel();
+    },
+    mounted() {
+        setTimeout(() => {
+            this.$nextTick(() => {
+                if(this.userIconElement == undefined) {
+                    this.userIconElement = document.getElementById("userInfoTipUserImg");
+                }
+            })
+        }, 0)
     },
     watch: {
         tipInfos: function() {
@@ -135,11 +166,16 @@ export default {
             if(this.tipInfos == "" || this.wholeTipElement == null) {
                 return;
             }
+            console.log("this.tipInfos is ", this.tipInfos)
             this.userInfo = this.tipInfos.userInfo;
             this.absoluteTop = this.tipInfos.absoluteTop;
             this.absoluteLeft = this.tipInfos.absoluteLeft;
-
-            this.wholeTipElement.style.left = (this.absoluteLeft - this.wholeTipElement.offsetWidth).toString() + "px";
+            if(this.tipInfos.isMine){
+                this.wholeTipElement.style.left = (this.absoluteLeft - this.wholeTipElement.offsetWidth).toString() + "px";
+            }
+            else {
+                this.wholeTipElement.style.left = (this.absoluteLeft + 46).toString() + "px";
+            }
             this.wholeTipElement.style.top = this.absoluteTop.toString() + "px";
             
             // this.holdElement.style.left = (this.absoluteLeft - this.wholeTipElement.offsetWidth).toString() + "px";
@@ -148,6 +184,7 @@ export default {
     }
 }
 </script>
+
 <style lang="scss" scoped>
 .userInfo-view {
     height: auto;
