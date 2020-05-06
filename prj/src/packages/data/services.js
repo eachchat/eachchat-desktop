@@ -682,7 +682,7 @@ const common = {
         for(let item in resultvalues)
         {
           message = resultvalues[item]
-          if(sqliteutil.ExistMsg(message.msgId)){
+          if(await sqliteutil.ExistMsg(message.msgId)){
             next = false;
             break;
           }
@@ -925,13 +925,68 @@ const common = {
   },
 
   async ListAllCollections(){
-    let result = await this.api.ListAllCollections(this.data.login.access_token);
+    await this.ListMessageCollections();
+  },
+
+  async ListMessageCollections(){
+    let result = await this.api.ListAllCollections(this.data.login.access_token,
+                                                  101,
+                                                  0,
+                                                  10,
+                                                  1);
     if (!result.ok || !result.success) {
       return false;
     }
     console.log(result)
-  }
+  },
 
+  async ListPictureCollections(){
+    let result = await this.api.ListAllCollections(this.data.login.access_token,
+      102,
+      0,
+      10,
+      1);
+    if (!result.ok || !result.success) {
+    return false;
+    }
+    console.log(result)
+  },
+  
+  async ListFileCollections(){
+    let result = await this.api.ListAllCollections(this.data.login.access_token,
+      103,
+      0,
+      10,
+      1);
+    if (!result.ok || !result.success) {
+    return false;
+    }
+    console.log(result)
+  },
+
+  async ListGroupCollections(){
+    let result = await this.api.ListAllCollections(this.data.login.access_token,
+      104,
+      0,
+      10,
+      1);
+    if (!result.ok || !result.success) {
+    return false;
+    }
+    console.log(result)
+  },
+
+  async ListTopicCollections(){
+    let result = await this.api.ListAllCollections(this.data.login.access_token,
+      106,
+      0,
+      10,
+      1);
+    if (!result.ok || !result.success) {
+    return false;
+    }
+    console.log(result)
+  }
 };
 
 export {
