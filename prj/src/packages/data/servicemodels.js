@@ -522,6 +522,37 @@ const servicemodels = {
       messagevalue["message_content"] = escape(JSON.stringify(message["content"]));  
       messagemodel = await new(await models.Message)(messagevalue);
       return messagemodel;
+    },
+
+    async CollectionModel(value){
+      let collectionmodel;
+      var collectionvalue = {
+        collection_id:         undefined,
+        collection_type:       undefined,
+        collection_content:    undefined,
+        favourite_id:          undefined,
+        sequence_id:           undefined,
+        timeline_id:           undefined,
+        timestamp:             undefined
+      }
+
+      var collectionmap = {
+        "collectionId": "collection_id",
+        "collectionType": "collection_type",
+        "content": "collection_content",
+        "favoriteId": "favourite_id",
+        "sequenceId": "sequence_id",
+        "timelineId": "timeline_id",
+        "timestamp": "timestamp"
+      }
+
+      for(let key in collectionmap)
+      {  
+        collectionvalue[collectionmap[key]] = value[key];
+      }
+      collectionvalue["collection_content"] = escape(JSON.stringify(value["content"]));  
+      collectionmodel = await new(await models.Collection)(collectionvalue);
+      return collectionmodel; 
     }
 }
 

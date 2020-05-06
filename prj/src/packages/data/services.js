@@ -926,67 +926,62 @@ const common = {
 
   async ListAllCollections(){
     await this.ListMessageCollections();
+    await this.ListPictureCollections();
+    await this.ListFileCollections();
+    await this.ListGroupCollections();
+    await this.ListTopicCollections();
   },
 
   async ListMessageCollections(){
-    let result = await this.api.ListAllCollections(this.data.login.access_token,
-                                                  101,
-                                                  0,
-                                                  10,
-                                                  1);
-    if (!result.ok || !result.success) {
-      return false;
-    }
-    console.log(result)
+    await this.ListCollectionByType(101);
   },
 
   async ListPictureCollections(){
-    let result = await this.api.ListAllCollections(this.data.login.access_token,
-      102,
-      0,
-      10,
-      1);
-    if (!result.ok || !result.success) {
-    return false;
-    }
-    console.log(result)
+    await this.ListCollectionByType(102);
   },
   
   async ListFileCollections(){
-    let result = await this.api.ListAllCollections(this.data.login.access_token,
-      103,
-      0,
-      10,
-      1);
-    if (!result.ok || !result.success) {
-    return false;
-    }
-    console.log(result)
+    await this.ListCollectionByType(103);
   },
 
   async ListGroupCollections(){
-    let result = await this.api.ListAllCollections(this.data.login.access_token,
-      104,
-      0,
-      10,
-      1);
-    if (!result.ok || !result.success) {
-    return false;
-    }
-    console.log(result)
+    await this.ListCollectionByType(104);
+
   },
 
   async ListTopicCollections(){
-    let result = await this.api.ListAllCollections(this.data.login.access_token,
-      106,
-      0,
-      10,
-      1);
-    if (!result.ok || !result.success) {
-    return false;
+    await this.ListCollectionByType(106);
+  },
+  
+  async ListCollectionByType(type){
+    let result;
+    let bNext = true;
+    let item;
+    let collectionModel;
+    let sequenceId = await sqliteutil.FindMaxCollectionSequenceID(type);
+
+    while(bNext){
+      result = await this.api.ListAllCollections(this.data.login.access_token,
+                                                  type,
+                                                  sequenceId,
+                                                  10,
+                                                  1);
+      if (!result.ok || !result.success) {
+        return false;
+      }
+      bNext = result.data.hasNext;
+
+      for(let index in result.data.results){
+        item = result.data.results[index];
+        let b = await sqliteutil.ExistCollection(item.collectionId)
+        if(!await sqliteutil.ExistCollection(item.collectionId)){
+          collectionModel = await servicemodels.CollectionModel(item);
+          collectionModel.save();
+        }
+      }
     }
-    console.log(result)
-  }
+  },
+
 };
 
 export {

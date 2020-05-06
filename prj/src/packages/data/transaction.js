@@ -369,14 +369,14 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async ListAllCollections(accessToken){
+  async ListAllCollections(accessToken, type, sequenceId, perpage, sortOrder){
     var response = await this.commonApi.post(
       "/api/apps/fav/v1/collection/favorite",
       {
-        collectionType:103,
-        sequenceId:1,
-        perPage:10,
-        sortOrder:0
+        collectionType:type,
+        sequenceId:sequenceId,
+        perPage:perpage,
+        sortOrder:sortOrder
       },
       {
         Authorization: "Bearer " + accessToken

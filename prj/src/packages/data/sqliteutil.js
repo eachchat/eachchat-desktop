@@ -114,6 +114,36 @@ const sqliteutil = {
             return false;
         }
         return true;
+    },
+    
+    async FindMaxCollectionSequenceID(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type,
+                $order: {
+                    by: 'sequence_id',
+                    reverse: true
+                    },
+                $size: 1
+            }
+        );
+        
+        if(collections.length == 0){
+            return 0;
+        }
+        return collections[0].sequence_id;
+    },
+
+    async ExistCollection(collectionId){
+        let collections = await(await models.Collection).find(
+            {
+                collection_id: collectionId
+            }
+        );
+        if(collections.length == 0){
+            return false;
+        }
+        return true;
     }
 }
 
