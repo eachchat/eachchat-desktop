@@ -683,6 +683,9 @@ const common = {
     let condition;
     condition = {
       group_id: groupId,
+      sequence_id:{
+        lte: sequenceId
+      },
       $order: {
         by: 'sequence_id',
         reverse: true
