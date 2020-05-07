@@ -279,7 +279,7 @@ const common = {
   async InitServiceData(){
     await this.AllUserinfo();
     await this.listAllGroup();
-    //await this.ReveiveNewMessage(0, 0);
+    await this.ReveiveNewMessage(0, 0);
   },
 
   async InitDbData()
@@ -289,7 +289,7 @@ const common = {
     await this.UpdateGroups();
     await this.UpdateUserinfo();
     await this.UpdateDepartment();
-    //await this.UpdateMessages();
+    await this.UpdateMessages();
     await this.ListAllCollections();
   },
 
