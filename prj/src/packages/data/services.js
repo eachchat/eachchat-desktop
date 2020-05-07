@@ -195,7 +195,8 @@ const common = {
 
   async GetGroupByName(name){
     return await(await models.Groups).find({
-      group_name: name
+      group_name: name,
+      group_type: 102 
     });
   },
 
@@ -730,7 +731,7 @@ const common = {
 
   async sendNewMessage(messageID, 
                         messageContentType,
-                        formID,
+                        fromID,
                         groupID,
                         userID,
                         timestamp,
@@ -738,7 +739,7 @@ const common = {
     let result = await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
-                                  formID,
+                                  fromID,
                                   groupID,
                                   userID,
                                   timestamp,
@@ -762,7 +763,7 @@ const common = {
     {
       group = await servicemodels.MessageGroup(msg);
       let userarray = [];
-      userarray.push(formID);
+      userarray.push(fromID);
       userarray.push(userID);
       group.contain_user_ids = userarray.toString();
     }
