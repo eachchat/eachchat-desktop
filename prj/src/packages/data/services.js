@@ -279,7 +279,7 @@ const common = {
   async InitServiceData(){
     await this.AllUserinfo();
     await this.listAllGroup();
-    await this.ReveiveNewMessage(0, 0);
+    //await this.ReveiveNewMessage(0, 0);
   },
 
   async InitDbData()
@@ -658,7 +658,7 @@ const common = {
     this.data.selfuser.group_max_updatetime = groupModel.updatetime;
   },
 
-  async historyMessage(bNew, groupId, sequenceId, count) { 
+  async historyMessage(groupId, sequenceId, count) { 
     let result;
     let resultvalues;
     let next = true;
@@ -667,60 +667,15 @@ const common = {
     this.data.historymessage = []
     let totalcount = 0;
 
-    if(bNew){
-      while(next){
-        result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
-        if (!result.ok || !result.success) {
-          return this.data.historymessage;
-        }
-    
-        if (!("results" in result.data)) {
-          return this.data.historymessage;
-        }
-        resultvalues = result.data.results;
-        next = result.data.hasNext;
-        for(let item in resultvalues)
-        {
-          message = resultvalues[item]
-          if(await sqliteutil.ExistMsg(message.msgId)){
-            next = false;
-            break;
-          }
-          else{
-            messagemodel = await servicemodels.MessageModel(message)
-            messagemodel.save()
-            sequenceId = messagemodel.sequence_id;
-          }
-          
-          //if(totalcount++ < count)
-          //{
-          //  this.data.historymessage.push(messagemodel)
-          //}
-        }
-      }
-    }
     let condition;
-    if(sequenceId){
-      condition = {
+    condition = {
       group_id: groupId,
-      sequence_id: "<"+sequenceId,
       $order: {
         by: 'sequence_id',
         reverse: true
       },
       $size: count
       };
-    }
-    else{
-      condition = {
-        group_id: groupId,
-        $order: {
-          by: 'sequence_id',
-          reverse: true
-        },
-        $size: count
-        };
-    }
 
     let items = await (await models.Message).find(condition)
     //sort items by sequenceId
@@ -734,7 +689,40 @@ const common = {
       sequenceId = items[items.length - 1].sequence_id
       for(let index in items)
       {
+        totalcount++;
         this.data.historymessage.push(items[index]);
+      }
+    }
+
+    while(next){
+      result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+      if (!result.ok || !result.success) {
+        return this.data.historymessage;
+      }
+  
+      if (!("results" in result.data)) {
+        return this.data.historymessage;
+      }
+      resultvalues = result.data.results;
+      next = result.data.hasNext;
+      for(let item in resultvalues)
+      {
+        message = resultvalues[item]
+        if(await sqliteutil.ExistMsg(message.msgId)){
+          next = false;
+          console.log("historyMessage exist message");
+          break;
+        }
+        else{
+          messagemodel = await servicemodels.MessageModel(message)
+          messagemodel.save()
+          sequenceId = messagemodel.sequence_id;
+        }
+        
+        if(totalcount++ < count)
+        {
+          this.data.historymessage.push(messagemodel)
+        }
       }
     }
     return this.data.historymessage;
@@ -860,7 +848,7 @@ const common = {
         let group = await sqliteutil.FindItemFromGroupByGroupID(tmpmodel.group_id);
         if(group == undefined)
         {
-          group = await servicemodels.MessageGroup(msg);
+          group = await servicemodels.MessageGroup(message_item);
         }
         else
         {
@@ -875,10 +863,9 @@ const common = {
       }
       else{
         hasNext = false;
-        await sqliteutil.UpdateMaxMsgSequenceID(this.data.login.user_id, sequenceId);
-        this.data.selfuser.msg_max_sequenceid = sequenceId;
       }
-      
+      await sqliteutil.UpdateMaxMsgSequenceID(this.data.login.user_id, sequenceId);
+      this.data.selfuser.msg_max_sequenceid = sequenceId;
 
     }
     return msg_models;
