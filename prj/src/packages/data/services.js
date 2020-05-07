@@ -315,6 +315,9 @@ const common = {
   },
 
   initmqtt(){
+    if(this.mqttclient != undefined) {
+      return;
+    }
     this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
                                       {username: 'client', 
                                       password: 'yiqiliao',
@@ -444,18 +447,27 @@ const common = {
   },
 
   async refreshToken() {
+    var ret = {
+      "state": true,
+      "msg": ""
+    };
     if (typeof this.data.login == "undefined") {
       console.debug("Please login first");
-      return undefined;
+      ret.state = false;
+      ret.msg = "noLoginModel";
+      return ret;
     }
 
     let result = await this.api.refreshToken(this.data.login.refresh_token)
     if (!result.ok || !result.success) {
-      return undefined;
+      ret.state = false;
+      ret.msg = "tokenExpired";
+      return ret;
     }
 
     this.data.login.access_token = result.headers["access-token"];
     this.data.login.save()
+    return ret;
   },
 
   async AllDepartmentInfo(){

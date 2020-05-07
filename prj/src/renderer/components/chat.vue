@@ -106,7 +106,7 @@ export default {
         Faces,
         userInfoTip,
     },
-    props: ['chat', 'forceUpdate'],
+    props: ['chat'],
     methods: {
         showImageOfMessage(imgSrcInfo) {
             this.$emit('showImageOfMessage', imgSrcInfo);
@@ -226,6 +226,22 @@ export default {
                 return false;
             }
         },
+        getDistUidThroughUids: function(uids) {
+            if(uids.length > 2) {
+                return "";
+            }
+            else if(uids.length == 1) {
+                return uids[0];
+            }
+            else {
+                if(uids[0] == this.userInfo.id) {
+                    return uids[1];
+                }
+                else {
+                    return uids[0];
+                }
+            }
+        },
         // Send msg demo
         ssendMsg: function() {
             // Send Test Interface
@@ -324,6 +340,7 @@ export default {
                 alert("不能发送空白信息。")
             }
             else{
+                var uid = this.getDistUidThroughUids(this.chat.contain_user_ids);
                 for(var i=0;i<varcontent.ops.length;i++){
                     let curMsgItem = varcontent.ops[i].insert;
                     let curTimeSeconds = new Date().getTime();
@@ -382,7 +399,7 @@ export default {
                                             sendingMsgContentType, 
                                             this.curUserInfo.id, 
                                             this.chat.group_id, 
-                                            '', 
+                                            uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent)
                                         .then((ret) => {
@@ -474,7 +491,7 @@ export default {
                                             sendingMsgContentType, 
                                             this.curUserInfo.id, 
                                             this.chat.group_id, 
-                                            '', 
+                                            uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent)
                                         .then((ret) => {
@@ -556,7 +573,7 @@ export default {
                                 sendingMsgContentType, 
                                 this.curUserInfo.id, 
                                 this.chat.group_id, 
-                                '', 
+                                uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent)
                             .then((ret) => {
@@ -779,8 +796,7 @@ export default {
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
                         let lastSequenceId = this.messageList[0].sequence_id;
-                        console.log("handleScroll this.forceUpdate is ", this.forceUpdate);
-                        services.common.historyMessage(this.forceUpdate, this.chat.group_id, lastSequenceId, 20)
+                        services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
                                 this.isRefreshing = false;
                                 var messageListTmp = ret;
@@ -796,8 +812,7 @@ export default {
             }
         },
         getHistoryMessage: function() {
-            console.log("getHistoryMessage this.forceUpdate is ", this.forceUpdate);
-            services.common.historyMessage(this.forceUpdate, this.chat.group_id, this.chat.sequence_id, 20)
+            services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then((ret) => {
                     console.log("getHistoryMessage historyMessage ret is ", ret)
                     var messageListTmp = ret;
@@ -828,16 +843,17 @@ export default {
                         messageFromGroup.message_id = this.chat.message_id;
                         this.messageList.push(messageFromGroup);
                     }
-                    console.log("Get From store msg list is ", this.messageList);
-                    this.$nextTick(() => {
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            div.scrollTop = div.scrollHeight;
-                            // The left msg get through scroll event
-                            div.addEventListener('scroll', this.handleScroll);
-                        }
-                        this.isRefreshing = false;
-                    })
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            let div = document.getElementById("message-show-list");
+                            if(div) {
+                                div.scrollTop = div.scrollHeight;
+                                // The left msg get through scroll event
+                                div.addEventListener('scroll', this.handleScroll);
+                            }
+                            this.isRefreshing = false;
+                        })
+                    }, 100)
                 })
         },
         callback(msg) {
@@ -897,8 +913,8 @@ export default {
 
         document.addEventListener('click',function(e){
             if(e.target.className!='userInfo-view' && e.target.className!='userInfo-Top' & e.target.className!='msg-info-user-img'){
-                console.log("cur class  is ", e.target.className);
-                console.log("showUserInfoTips is ", this.showUserInfoTips);
+                // console.log("cur class  is ", e.target.className);
+                // console.log("showUserInfoTips is ", this.showUserInfoTips);
                 this.tipInfos = {};
                 this.showUserInfoTips = false;
             }
@@ -918,10 +934,8 @@ export default {
                 var curSequenceId = this.chat.sequence_id;
                 
                 this.getHistoryMessage();
+                this.showGroupName(this.chat);
             }
-        },
-        forceUpdate: function() {
-            return this.forceUpdate;
         }
     }
 }

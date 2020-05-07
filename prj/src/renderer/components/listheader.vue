@@ -33,6 +33,7 @@ import {createGroup} from '../../packages/data/services'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import eSearch from './searchbar.vue'
+import {strMsgContentToJson} from '../../packages/core/Utils.js'
 export default {
     name: 'listHeadbar',
     data () {
@@ -81,45 +82,52 @@ export default {
             else if(this.usersSelected.length == 1) {
                 var groupItem = {};
                 var selectedId = this.usersSelected[0];
-                var userInfos = await services.common.GetDistUserinfo(this.usersSelected[0].id);
+                var userInfos = await services.common.GetDistUserinfo(selectedId.id);
                 var chatUserInfo = userInfos[0];
                 var chatAvater = chatUserInfo.avatar_t_url;
-                var chatName = chatUserInfo.user_name
-                groupItem["contain_user_ids"] = groupUserIds;
-                groupItem["group_avarar"] = chatAvater;
-                groupItem["group_name"] = chatName;
-                groupItem["group_type"] = 101;
-                groupItem["last_message_time"] = 0;
-                groupItem["message_content"] = '';
-                groupItem["message_content_type"] = 0;
-                groupItem["message_from_id"] = null;
-                groupItem["message_id"] = '';
-                groupItem["owner"] = null;
-                groupItem["sequence_id"] = 0;
-                groupItem["status"] = 0;
-                groupItem["un_read_count"] = 0;
-                groupItem["updatetime"] = new Date().getTime();
-                groupItem["user_id"] = selectedId;
-    
-                let groupvalue = {
-                    group_id:           undefined,
-                    contain_user_ids:   groupUserIds,
-                    group_name:         chatName,
-                    group_avarar:       chatAvater,
-                    group_type :        101,
-                    status:             0,
-                    owner:              undefined,
-                    group_notice:       undefined,
-                    notice_time:        undefined,
-                    notice_userId:      undefined,
-                    updatetime:         new Date().getTime()
-                    }
+                var chatName = chatUserInfo.user_name;
+                var groupCheck = await services.common.GetGroupByUserId(selectedId.id);
+                console.log("groupCheck is ", groupCheck)
+                if(groupCheck.length == 0) {
+                    groupItem["contain_user_ids"] = groupUserIds;
+                    groupItem["group_avarar"] = chatAvater;
+                    groupItem["group_name"] = chatName;
+                    groupItem["group_type"] = 101;
+                    groupItem["last_message_time"] = 0;
+                    groupItem["message_content"] = strMsgContentToJson('');
+                    groupItem["message_content_type"] = 101;
+                    groupItem["message_from_id"] = this.curUserInfo.id;
+                    groupItem["message_id"] = '';
+                    groupItem["owner"] = null;
+                    groupItem["sequence_id"] = 0;
+                    groupItem["status"] = 0;
+                    groupItem["un_read_count"] = 0;
+                    groupItem["updatetime"] = new Date().getTime();
+                    groupItem["user_id"] = selectedId.id;
+        
+                    let groupvalue = {
+                        group_id:           undefined,
+                        contain_user_ids:   groupUserIds,
+                        group_name:         chatName,
+                        group_avarar:       chatAvater,
+                        group_type :        101,
+                        status:             0,
+                        owner:              undefined,
+                        group_notice:       undefined,
+                        notice_time:        undefined,
+                        notice_userId:      undefined,
+                        updatetime:         new Date().getTime()
+                        }
+                }
+                else {
+                    groupItem = groupCheck;
+                }
 
                 this.$emit('getCreateGroupInfo', groupItem);
                 this.dialogVisible = false;
             }
             else {
-                this.serverapi.createGroup(this.$store.state.accesstoken, groupName, groupUserIds)
+                // this.serverapi.createGroup(this.$store.state.accesstoken, groupName, groupUserIds)
 
                 services.common.CreateGroup(groupName, groupUserIds)
                     .then((ret) => {

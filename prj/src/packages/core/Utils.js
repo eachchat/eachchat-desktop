@@ -13,6 +13,9 @@ function generalGuid() {
 }
 
 function strMsgContentToJson(strMsgContent) {
+    if(strMsgContent == "") {
+        return "";
+    }
     var chatGroupMsgContent = {};
     try{
         chatGroupMsgContent = JSON.parse(unescape(strMsgContent));
@@ -40,6 +43,9 @@ function getFileNameInPath(filePath) {
 }
 
 function sliceReturnsOfString (originalStr) {
+    if(originalStr == "" || originalStr == undefined) {
+        return "";
+    }
     var finalStr = originalStr;
     var str_split = originalStr.split('\n');
     if(str_split.length == 0) {
@@ -110,7 +116,7 @@ async function downloadGroupAvatar(url, accesstoken)
 {
     var headers={Authorization:"Bearer " + accesstoken};
     var appendix = {
-            timeout: 15000,
+            timeout: 35000,
             responseType: "blob"
         };
     var config = Object.assign({

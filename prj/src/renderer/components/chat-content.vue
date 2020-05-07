@@ -30,7 +30,7 @@
           </div>
         </div>
         <div class="chat">
-          <ChatPage :chat="curChat" :forceUpdate="forceUpdate" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage"></ChatPage>
+          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage"></ChatPage>
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" :access_token="loginInfo.access_token" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -82,19 +82,9 @@ export default {
       showImageLayers: false,
       imageLayersSrcInfo: '',
       clickedGroupList: [],
-      forceUpdate: true,
     };
   },
   methods: {
-    checkForceUpdate(groupId) {
-      if(this.clickedGroupList.indexOf(groupId) != -1) {
-        this.forceUpdate = false;
-      }
-      else{
-        this.forceUpdate = true;
-      }
-      console.log("in chat-content this.forceUpdate is ", this.forceUpdate)
-    },
     isWindows() {
       return environment.os.isWindows;
     },
@@ -114,7 +104,13 @@ export default {
     getCreateGroupInfo(groupInfo) {
       console.log("Created Info is ", groupInfo)
       this.showGroupList.unshift(groupInfo);
-      ++this.needUpdate;
+      setTimeout(() => {
+        this.$nextTick(() => {
+          this.curindex = 0;
+          this.curChat = groupInfo;
+        })
+      }, 500)
+      // ++this.needUpdate;
     },
     showImageOfMessage(imgSrcInfo) {
       console.log("showImageOfMessage and imgSrcInfo is ", imgSrcInfo)
@@ -329,8 +325,6 @@ export default {
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
-      console.log("Chat-Content showChat");
-      this.checkForceUpdate(chatGroup.group_id);
       this.curChat = chatGroup;
       this.curindex = index;
     },

@@ -1,6 +1,14 @@
 <template>
     <div class="login">
-        <div class="login-panel" style="-webkit-app-region: no-drag">
+        <div class="welcome-panel" v-if="isCheckToken()">
+            <p class="welcome-zh-line1">您好，</p><p class="welcome-zh-line2">欢迎使用易企聊!</p>
+            <p class="welcome-en">Hello, welcome to user EachChat!</p>
+            <div class="welcome-loading">
+                <i class="el-icon-loading"></i><p class="welcome-loading-text">加载中，请稍后...</p>
+            </div>
+            <p class="copy-right">版权所有 2019-2020 workly.ai 保留所有权利</p>
+        </div>
+        <div class="login-panel" v-else style="-webkit-app-region: no-drag">
             <div class="title">
                 <div class="title-ico">
                     <img class="login-logo" src="../assets/Logo_Big.png">
@@ -39,9 +47,13 @@ export default {
             port: '',
             services: null,
             tokenExpired: false,
+            tokenRefreshing: true,
         }
     },
     methods: {
+        isCheckToken() {
+            return this.tokenRefreshing;
+        },
         clickUser () {
             location.reload()
         },
@@ -79,47 +91,109 @@ export default {
             }
             
             this.loginState = "登录成功"
-            // await services.common.listAllGroup();
-            // console.log(services.common.GetAllGroups);
-            // let loginModel = await services.common.GetLoginModel();
-            // let userModel = await services.common.GetSelfUserModel();
-
-            // console.log("the login model is ", loginModel)
-            // console.log("the login model token is ", loginModel.refresh_token)
-            // console.log("the user model is ", userModel)
-            
-            // this.$store.commit("setRefreshToken", loginModel.refresh_token);
-            // this.$store.commit("setAccessToken", loginModel.access_token);
-            // this.$store.commit("setUserAccount", this.username);
-            // this.$store.commit("setUserPwd", this.password);
-            // this.$store.commit("setUserId", loginModel.user_id);
-            // this.$store.commit("setUserInfo", userModel);
 
             const ipcRenderer = require('electron').ipcRenderer;
             ipcRenderer.send('showMainPageWindow');
         }
     },
-    created: function () {
-    },
-    beforeCreate: async function() {
-        console.log("before create ")
+    mounted: async function() {
+        this.tokenRefreshing = true;
+        let config = {
+            hostname: "139.198.15.253",
+            apiPort: 8888,
+            username: "",
+            password: ""
+        };
+        services.common.init(config);
+        await services.common.InitDbData();
         var ret = await services.common.refreshToken();
-        if(ret == undefined) {
-            console.log("failed")
+        if(ret.state) {
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('showMainPageWindow');
         }
         else{
-            console.log("check token success ")
-            await services.common.InitDbData();
-            const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('showMainPageWindow');
+            if(ret.msg == "tokenExpired") {
+                this.loginState = "认证已过期，请重新登录。"
+            }
+            this.tokenRefreshing = false;
         }
-        
-        console.log("go out create ")
-    }
+    },
 }
 </script>
 
 <style lang="scss" scoped>
+    .login {
+        width: 100%;
+        height: 100%;
+    }
+
+    .welcome-panel {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .welcome-zh-line1 {
+        margin: 0px;
+        padding-top: 10%;
+        padding-left: 30px;
+        padding-bottom: 10px;
+        font-size: 24px;
+        font-family: 'Microsoft YaHei';
+    }
+
+    .welcome-zh-line2 {
+        margin: 0px;
+        padding-top: 0;
+        padding-left: 30px;
+        padding-bottom: 10px;
+        font-size: 24px;
+        font-family: 'Microsoft YaHei';
+    }
+
+    .welcome-en {
+        margin: 0px;
+        padding-left: 30px;
+        padding-bottom: 30px;
+        font-size: 15px;
+        font-family: 'Microsoft YaHei';
+        color: rgba(60, 60, 67, 0.6);
+    }
+    
+    .el-icon-loading {
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    .welcome-loading-text {
+        display: inline-block;
+        color:rgba(60, 60, 67, 0.9)
+    }
+
+    .welcome-loading {
+        width: 100%;;
+        font-size: 12px;
+        font-family: 'Microsoft YaHei';
+        text-align: center;
+        margin: 0px;
+        padding: 0px;
+        position: absolute;
+        bottom: 45px;
+        left: 0px;
+    }
+
+    .copy-right {
+        width: 100%;;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: center;
+        margin: 0px;
+        padding: 0px;
+        position: absolute;
+        bottom: 30px;
+        left: 0px;
+    }
+
     .login-panel {
         width: 480px;
         height: 210px;

@@ -150,8 +150,9 @@ export default {
             this.messageContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
-            if(chatGroupMsgType === 101)
+            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // 数据库缺省type = 0 
+            if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
                 var textMsgImgElement = document.getElementById(this.msg.message_id);
                 this.messageContent = sliceReturnsOfString(chatGroupMsgContent.text);
@@ -182,7 +183,7 @@ export default {
                     }
                 }
                 else{
-                    this.serverapi.downloadTumbnail(this.$store.state.accesstoken, "T", this.msg.time_line_id)
+                    this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.msg.time_line_id)
                         .then((ret) => {
                             let reader = new FileReader();
                             reader.readAsDataURL(ret.data);
@@ -287,7 +288,7 @@ export default {
             if(this.userIconElement == undefined) {
                 return;
             }
-            console.log("this.userInfo.user_id is ", this.userInfo.user_id);
+            // console.log("this.userInfo.user_id is ", this.userInfo.user_id);
             var distTAvarar = this.userInfo.avatar_t_url;
 
             downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
@@ -299,10 +300,10 @@ export default {
             })
         },
         msgUserInfo: async function() {
-            console.log("this.msg.message_from_id is ", this.msg.message_from_id);
-            console.log("this.msg.message_id is ", this.msg.message_id);
+            // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
+            // console.log("this.msg.message_id is ", this.msg.message_id);
             var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
-            console.log("userInfo is ", userInfos)
+            // console.log("userInfo is ", userInfos)
             if(userInfos == undefined || userInfos.length == 0) {
                 console.log("err");
                 this.userInfo = {};
@@ -553,12 +554,13 @@ export default {
     }
     
     .file-info {
-        height: 46px;
+        min-height: 46px;
         display: inline-block;
         vertical-align: top;
     }
 
     .file-name {
+        max-width: 150px;
         font-size: 14px;
         font-weight: 550;
         font-family:Microsoft Yahei;
@@ -568,8 +570,6 @@ export default {
         margin-top: 4px;
         margin-right: 0px;
         margin-bottom: 3px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
     }
 
     .file-size {
@@ -659,6 +659,20 @@ export default {
     }
 
     .chat-msg-content-mine-file {
+        float:right;
+        background-color: rgb(220,244,233);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 10px 12px 10px 12px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        cursor: pointer;
+    }
+    
+    .chat-msg-content-mine-file:hover {
         float:right;
         background-color: rgb(220,244,233);
         max-width: 260px;

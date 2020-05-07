@@ -157,7 +157,7 @@ class APITransaction {
     var response = await this.commonApi.post(
       "/api/apps/im/v1/group",
       {
-        gropuName: groupNameValue,
+        groupName: groupNameValue,
         userIds: groupUsersArray
       },
       {
@@ -332,7 +332,7 @@ class APITransaction {
         Authorization: "Bearer " + accessToken
       },
       {
-        timeout: 15000,
+        timeout: 35000,
         responseType: "blob"
       });
     return this.parseStatus(response);
@@ -350,7 +350,7 @@ class APITransaction {
         Authorization: "Bearer " + accessToken
       },
       {
-        timeout: 15000,
+        timeout: 35000,
         responseType: "blob"
       });
     return this.parseStatus(response);
