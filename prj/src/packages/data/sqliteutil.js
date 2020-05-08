@@ -144,6 +144,25 @@ const sqliteutil = {
             return false;
         }
         return true;
+    },
+
+    async DeleteItemFromCollection(favouriteID){
+        let collections = await (await models.Collection).find({
+            favourite_id: favouriteID
+        });
+        if(collections.length != 0){
+            collections[0].destroy();
+        }
+    },
+
+    async FindItemByCollectionID(collectionID){
+        let collections = await (await models.Collection).find({
+            collection_id: collectionID
+        });
+        if(collections.length != 0){
+            return collections[0];
+        }
+        return undefined;
     }
 }
 

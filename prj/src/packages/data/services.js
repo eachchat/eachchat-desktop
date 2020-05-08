@@ -936,24 +936,24 @@ const common = {
   },
 
   async ListMessageCollections(){
-    await this.ListCollectionByType(101);
+    await this.ListCollectionByType([101]);
   },
 
   async ListPictureCollections(){
-    await this.ListCollectionByType(102);
+    await this.ListCollectionByType([102]);
   },
   
   async ListFileCollections(){
-    await this.ListCollectionByType(103);
+    await this.ListCollectionByType([103]);
   },
 
   async ListGroupCollections(){
-    await this.ListCollectionByType(104);
+    await this.ListCollectionByType([104]);
 
   },
 
   async ListTopicCollections(){
-    await this.ListCollectionByType(106);
+    await this.ListCollectionByType([106]);
   },
   
   async ListCollectionByType(type){
@@ -961,7 +961,7 @@ const common = {
     let bNext = true;
     let item;
     let collectionModel;
-    let sequenceId = await sqliteutil.FindMaxCollectionSequenceID(type);
+    let sequenceId = await sqliteutil.FindMaxCollectionSequenceID(type[0]);
 
     while(bNext){
       result = await this.api.ListAllCollections(this.data.login.access_token,
@@ -976,15 +976,68 @@ const common = {
 
       for(let index in result.data.results){
         item = result.data.results[index];
-        let b = await sqliteutil.ExistCollection(item.collectionId)
-        if(!await sqliteutil.ExistCollection(item.collectionId)){
-          collectionModel = await servicemodels.CollectionModel(item);
+        collectionModel = await servicemodels.CollectionModel(item);
+
+        let find = await sqliteutil.FindItemByCollectionID(item.collectionId)
+        if(find == undefined){
           collectionModel.save();
+        }
+        else{
+          find.values = collectionModel.values;
+          find.save();
         }
       }
     }
   },
 
+  async CollectMessage(timelineIDs){
+    let result = await this.api.CollectMessage(this.data.login.access_token, timelineIDs);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    let item;
+    let model;
+    for(let index in result.data.results){
+      item = result.data.results[index];
+      model = await servicemodels.CollectionModel(item);
+      let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+      if(findmodel == undefined){
+        model.save();
+      }
+      else{
+        findmodel.values = model.values;
+        findmodel.save();
+      }
+    }
+  },
+
+  async CollectGroup(grouID){
+    let result = await this.api.CollectGroup(this.data.login.access_token, grouID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    for(let index in result.data.results){
+      item = result.data.results[index];
+      model = await servicemodels.CollectionModel(item);
+      let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+      if(findmodel == undefined){
+        model.save();
+      }
+      else{
+        findmodel.values = model.values;
+        findmodel.save();
+      }
+    }
+    console.log(result)
+  },
+
+  async DeleteCollectionMessage(favoriteID){
+    let result = await this.api.DeleteCollectionMessage(this.data.login.access_token, favoriteID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await sqliteutil.DeleteItemFromCollection()
+  }
 };
 
 export {

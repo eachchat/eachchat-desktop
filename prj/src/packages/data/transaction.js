@@ -371,12 +371,66 @@ class APITransaction {
 
   async ListAllCollections(accessToken, type, sequenceId, perpage, sortOrder){
     var response = await this.commonApi.post(
-      "/api/apps/fav/v1/collection/favorite",
+      "/api/apps/fav/v1/collection/favorites",
       {
         collectionType:type,
         sequenceId:sequenceId,
         perPage:perpage,
         sortOrder:sortOrder
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async CollectMessage(accessToken, timelineIDs){
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection/message",
+      {
+        msgIds:   timelineIDs
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async CollectGroup(accessToken, grouID){
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection/group",
+      {
+        groupId: grouID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteCollectionMessage(accessToken, favoriteID){
+    var response = await this.commonApi.delete(
+      "/api/apps/fav/v1/collection/" + favoriteID,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteCollectionGroup(accessToken, favoriteID){
+    var response = await this.commonApi.delete(
+      "/api/apps/fav/v1/collection/group/" + favoriteID,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteCollectionMessages(accessToken, array){
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection/del",
+      {
+        favoriteIds: array
       },
       {
         Authorization: "Bearer " + accessToken
