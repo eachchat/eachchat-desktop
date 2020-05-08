@@ -146,9 +146,18 @@ const sqliteutil = {
         return true;
     },
 
-    async DeleteItemFromCollection(favouriteID){
+    async DeleteItemFromCollectionByFavouriteID(favouriteID){
         let collections = await (await models.Collection).find({
             favourite_id: favouriteID
+        });
+        if(collections.length != 0){
+            collections[0].destroy();
+        }
+    },
+
+    async DeleteItemFromCollectionByCollectionIdID(collectionId){
+        let collections = await (await models.Collection).find({
+            collection_id: collectionId
         });
         if(collections.length != 0){
             collections[0].destroy();

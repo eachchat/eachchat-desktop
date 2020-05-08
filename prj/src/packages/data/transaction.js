@@ -417,9 +417,9 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async DeleteCollectionGroup(accessToken, favoriteID){
+  async DeleteCollectionGroup(accessToken, collectionId){
     var response = await this.commonApi.delete(
-      "/api/apps/fav/v1/collection/group/" + favoriteID,
+      "/api/apps/fav/v1/collection/group/" + collectionId,
       {
         Authorization: "Bearer " + accessToken
       });

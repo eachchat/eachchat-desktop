@@ -1036,8 +1036,17 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
-    await sqliteutil.DeleteItemFromCollection()
+    await sqliteutil.DeleteItemFromCollectionByFavouriteID(favoriteID)
+  },
+
+  async DeleteCollectionGroup(gorupID){
+    let result = await this.api.DeleteCollectionGroup(this.data.login.access_token, gorupID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await sqliteutil.DeleteItemFromCollectionByCollectionIdID(gorupID)
   }
+  
 };
 
 export {
