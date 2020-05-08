@@ -66,6 +66,10 @@ class HTTP {
       is: checker
     }, result);
 
+    if(response == undefined){
+      return result;
+    }
+
     if ("status" in response) {
       result.status = response.status;
 
@@ -91,7 +95,7 @@ class HTTP {
 
     result.data = undefined;
 
-    if ("data" in response) {
+    if (response != undefined && "data" in response) {
       result.data = response.data;
     }
 
