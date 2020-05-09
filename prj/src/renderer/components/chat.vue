@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
-                <div class="text-input">
+                <div class="text-input" @keyup="keyHandle($event)">
                     <quillEditor
                         ref="chatQuillEditor"
                         :options="editorOption">
@@ -108,14 +108,22 @@ export default {
     },
     props: ['chat'],
     methods: {
+        keyHandle(event) {
+            if(event.code == "Enter" && !event.ctrlKey) {
+                this.sendMsg();
+            }
+            else if(event.code == "Enter" && event.ctrlKey) {
+                var range = this.editor.getSelection();
+                var curIndex = range == null ? 0 : range.index;
+                this.editor.insertText(curIndex, '\n');
+            }
+        },
         showImageOfMessage(imgSrcInfo) {
             this.$emit('showImageOfMessage', imgSrcInfo);
         },
         openUserInfoTip(tipInfos) {
-            console.log("openUserInfoTip showUserInfoTips is ", this.showUserInfoTips)
             this.tipInfos = tipInfos;
             this.showUserInfoTips = true;
-            console.log("openUserInfoTip showUserInfoTips is ", this.showUserInfoTips)
         },
         closeUserInfoTip(){
             this.tipInfos = {};
@@ -374,6 +382,14 @@ export default {
                                 "message_id": guid,
                                 };
                             this.messageList.push(willSendMsg);
+
+                            let div = document.getElementById("message-show");
+                            if(div) {
+                                this.$nextTick(() => {
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
+                            
                             this.sendingMsgIdList.push(willSendMsg);
                             this.cleanEditor();
 
@@ -436,12 +452,6 @@ export default {
                                                 console.log("Send Image msg list is ", this.messageList)
                                                 // this.$store.commit("updateChatGroup", obj.message);
                                                 this.$emit('updateChatList', ret);
-                                                let div = document.getElementById("message-show");
-                                                if(div) {
-                                                    this.$nextTick(() => {
-                                                        div.scrollTop = div.scrollHeight;
-                                                    })
-                                                }
                                             }
                                         })
                                 })
@@ -470,6 +480,14 @@ export default {
                                 "message_id": guid,
                                 };
                             this.messageList.push(willSendMsg);
+
+                            let div = document.getElementById("message-show");
+                            if(div) {
+                                this.$nextTick(() => {
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
+                            
                             this.sendingMsgIdList.push(guid);
                             this.cleanEditor();
 
@@ -527,12 +545,6 @@ export default {
                                                 // this.$store.commit("updateChatGroup", obj.message);
                                                 this.$emit('updateChatList', ret.message);
 
-                                                let div = document.getElementById("message-show");
-                                                if(div) {
-                                                    this.$nextTick(() => {
-                                                        div.scrollTop = div.scrollHeight;
-                                                    })
-                                                }
                                             }
                                         })
                                 })
@@ -563,6 +575,14 @@ export default {
                             "message_id": guid,
                             };
                         this.messageList.push(willSendMsg);
+                        
+                        let div = document.getElementById("message-show");
+                        if(div) {
+                            this.$nextTick(() => {
+                                div.scrollTop = div.scrollHeight;
+                            })
+                        }
+                        
                         this.sendingMsgIdList.push(guid);
                         this.cleanEditor();
                         willSendMsg.content = willSendMsgContent;
@@ -610,12 +630,6 @@ export default {
                                     // this.$store.commit("updateChatGroup", obj.message);
                                     this.$emit('updateChatList', ret);
 
-                                    let div = document.getElementById("message-show");
-                                    if(div) {
-                                        this.$nextTick(() => {
-                                            div.scrollTop = div.scrollHeight;
-                                        })
-                                    }
                                 }
                             })
                     }
@@ -881,6 +895,9 @@ export default {
             editorOption : {
                 placeholder: "",
                 theme:'bubble',
+                modules: {
+                    toolbar: false,
+                }
             },
             showFace: false,
             lastRefreshTime: 0,

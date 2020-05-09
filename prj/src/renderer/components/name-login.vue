@@ -96,7 +96,7 @@ export default {
             ipcRenderer.send('showMainPageWindow');
         }
     },
-    mounted: async function() {
+    mounted: function() {
         this.tokenRefreshing = true;
         let config = {
             hostname: "139.198.15.253",
@@ -104,19 +104,24 @@ export default {
             username: "",
             password: ""
         };
-        services.common.init(config);
-        await services.common.InitDbData();
-        var ret = await services.common.refreshToken();
-        if(ret.state) {
-            const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('showMainPageWindow');
-        }
-        else{
-            if(ret.msg == "tokenExpired") {
-                this.loginState = "认证已过期，请重新登录。"
-            }
-            this.tokenRefreshing = false;
-        }
+        setTimeout(() => {
+            this.$nextTick(async () => {
+                services.common.init(config);
+                await services.common.InitDbData();
+                var ret = await services.common.refreshToken();
+                if(ret.state) {
+                    const ipcRenderer = require('electron').ipcRenderer;
+                    ipcRenderer.send('showMainPageWindow');
+                }
+                else{
+                    if(ret.msg == "tokenExpired") {
+                        this.loginState = "认证已过期，请重新登录。"
+                    }
+                    this.tokenRefreshing = false;
+                }
+            })
+
+        }, 1000)
     },
 }
 </script>
