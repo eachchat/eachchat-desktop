@@ -61,6 +61,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
+import {ipcRenderer} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -208,10 +209,64 @@ export default {
             this.editor.container.getElementsByClassName("ql-editor")[0].innerHTML = "";
         },
         insertPic: function() {
-            this.fileInput.click();
+            // this.fileInput.click();
+            ipcRenderer.send('open-directory-dialog', 'openFile');
+            ipcRenderer.on('selectedItem', this.nHandleFiles);
         },
         insertFiles: function() {
-            this.fileInput.click();
+            // this.fileInput.click();
+            ipcRenderer.send('open-directory-dialog', 'openFile');
+            ipcRenderer.on('selectedItem', this.nHandleFiles);
+        },
+        nHandleFiles: function(e, paths) {
+            // Select Same File Failed.
+            var fileList = paths;
+            console.log("======", fileList)
+            if(fileList === null || fileList.length === 0) {
+                alert("请选择一个文件/文件夹。");
+            }
+            else {
+                for(var i=0;i<fileList.length;i++) {
+                    var curPath = fileList[i]
+                    console.log("filelist[i] = ", fileList[i])
+                    if(this.waitForSendingFiles.indexOf(fileList[i] != -1)) {
+                        var range = this.editor.getSelection();
+                        var curIndex = range==null ? 0 : range.index;
+
+                        var showfu = new FileUtil(fileList[i]);
+                        var showfileObj = showfu.GetUploadfileobj();
+                        var fileType = showfu.GetMimename();
+                        var fileExt = showfu.GetExtname();
+
+                        if(fileType.split("/")[0] == "image"){
+                            // Image
+                            let reader = new FileReader();
+                            reader.readAsDataURL(showfileObj);
+                            reader.onloadend = () => {
+                                var img = new Image();
+                                img.src = reader.result;
+                                img.onload = function(){
+                                    let srcHeight = img.height;
+                                    this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
+                                    this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                                }
+                            }
+                        }
+                        else {
+                            // File
+                            var iconPath = getIconPath(fileExt);
+                            var showfu = new FileUtil(iconPath);
+                            let showfileObj = showfu.GetUploadfileobj();
+                            let reader = new FileReader();
+                            reader.readAsDataURL(showfileObj);
+                            reader.onloadend = () => {
+                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: 123, style:"vertical-align:middle;"})
+                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                            }
+                        }
+                    }
+                }
+            }
         },
         updateChatList: function() {
             this.$store.state.chatGroup[0].message = this.messageList[-1];
@@ -538,12 +593,12 @@ export default {
                                                 }
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].guid == guid){
-                                                        this.messageList[i] = ret.message;
+                                                        this.messageList[i] = ret;
                                                         break;
                                                     }
                                                 }
                                                 // this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', ret.message);
+                                                this.$emit('updateChatList', ret);
 
                                             }
                                         })

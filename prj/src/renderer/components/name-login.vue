@@ -107,7 +107,12 @@ export default {
         setTimeout(() => {
             this.$nextTick(async () => {
                 services.common.init(config);
-                await services.common.InitDbData();
+                try{
+                    await services.common.InitDbData();
+                }
+                catch(error){
+
+                }
                 var ret = await services.common.refreshToken();
                 if(ret.state) {
                     const ipcRenderer = require('electron').ipcRenderer;

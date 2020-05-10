@@ -510,8 +510,7 @@ export default {
     .chat-msg-content-others-img {
         float: left;
         background-color: rgba(1,1,1,0);
-        max-width: 260px;
-        min-width: 20px;
+        width: 104px;
         border-radius: 5px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
@@ -648,8 +647,7 @@ export default {
     .chat-msg-content-mine-img {
         float: right;
         background-color: rgba(1,1,1,0);
-        max-width: 260px;
-        min-width: 20px;
+        width: 104px;
         border-radius: 5px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';

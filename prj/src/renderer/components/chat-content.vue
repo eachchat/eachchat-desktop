@@ -123,6 +123,7 @@ export default {
     },
     updateChatList(newMsg) {
       // ++this.needUpdate;
+      console.log("newMsg is ", newMsg)
       for(var i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_id === newMsg.group_id) {
           this.showGroupList[i].last_message_time = newMsg.message_timestamp;
@@ -203,7 +204,7 @@ export default {
     },
     getMsgLastMsgTime(chatGroupItem) {
       var formatTime = ""
-      var timesecond = chatGroupItem.last_message_time == 0 ? chatGroupItem.updatetime : chatGroupItem.last_message_time;
+      var timesecond = Number(chatGroupItem.last_message_time) == 0 ? Number(chatGroupItem.updatetime) : Number(chatGroupItem.last_message_time);
 
       if(timesecond.length == 0) {
         return formatTime;
@@ -327,6 +328,8 @@ export default {
     showChat: function(chatGroup, index) {
       this.curChat = chatGroup;
       this.curindex = index;
+      services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
+      this.curChat.un_read_count = 0;
     },
     getGroupList: async function(updateCurPage=false) {
       if(this.isSqlite) {
