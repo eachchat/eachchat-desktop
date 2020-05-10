@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, BrowserWindow, Menu, dialog} from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -28,6 +28,16 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
   //openDevToolsInDevelopment(mainPageWindow);
+});
+
+ipcMain.on('open-directory-dialog', function(event, arg) {
+  dialog.showOpenDialog({
+    properties: [arg, 'multiSelections']
+  },function(files) {
+    if(files.length != 0) {
+      event.sender.send('selectedItem', files);
+    }
+  })
 });
 
 function createWindow () {
