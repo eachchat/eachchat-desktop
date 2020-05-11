@@ -103,13 +103,30 @@ export default {
     },
     getCreateGroupInfo(groupInfo) {
       console.log("Created Info is ", groupInfo)
-      this.showGroupList.unshift(groupInfo);
-      setTimeout(() => {
-        this.$nextTick(() => {
-          this.curindex = 0;
-          this.curChat = groupInfo;
-        })
-      }, 500)
+      var groupIndex = -1;
+      for(var i=0;i<this.showGroupList.length;i++) {
+        if(this.showGroupList[i].group_id === groupInfo.group_id) {
+          groupIndex = i;
+          break;
+        }
+      }
+      if(groupIndex == -1) {
+        this.showGroupList.unshift(groupInfo);
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.curindex = 0;
+            this.curChat = groupInfo;
+          })
+        }, 500)
+      }
+      else {
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.curindex = groupIndex;
+            this.curChat = this.showGroupList[groupIndex];
+          })
+        }, 500)
+      }
       // ++this.needUpdate;
     },
     showImageOfMessage(imgSrcInfo) {
@@ -128,11 +145,14 @@ export default {
         if(this.showGroupList[i].group_id === newMsg.group_id) {
           this.showGroupList[i].last_message_time = newMsg.message_timestamp;
           this.showGroupList[i].message_content = newMsg.message_content;
+          console.log("the content is ", strMsgContentToJson(newMsg.message_content))
           this.showGroupList[i].message_content_type = newMsg.message_type;
           this.showGroupList[i].message_from_id = newMsg.message_from_id;
           this.showGroupList[i].message_id = newMsg.message_id;
           this.showGroupList[i].sequence_id = newMsg.sequence_id;
+          this.showGroupList[i].un_read_count += 1;
           this.curindex = i;
+          this.curChat = this.showGroupList[i];
           break;
         }
       }

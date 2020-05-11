@@ -60,7 +60,7 @@ export default {
             for(var i=0;i<this.usersSelected.length;i++) {
                 groupUserIds.push(this.usersSelected[i].id)
                 if(i < 4) {
-                    groupUserName.push(this.usersSelected[i].userName)
+                    groupUserName.push(this.usersSelected[i].displayName)
                 }
             }
             var groupName = '';
@@ -83,10 +83,11 @@ export default {
                 var groupItem = {};
                 var selectedId = this.usersSelected[0];
                 var userInfos = await services.common.GetDistUserinfo(selectedId.id);
+                console.log("userInfos is ", userInfos);
                 var chatUserInfo = userInfos[0];
                 var chatAvater = chatUserInfo.avatar_t_url;
-                var chatName = chatUserInfo.user_name;
-                var groupCheck = await services.common.GetGroupByUserId(selectedId.id);
+                var chatName = chatUserInfo.user_display_name;
+                var groupCheck = await services.common.GetGroupByName(chatName);
                 console.log("groupCheck is ", groupCheck)
                 if(groupCheck.length == 0) {
                     groupItem["contain_user_ids"] = groupUserIds;
@@ -94,7 +95,7 @@ export default {
                     groupItem["group_name"] = chatName;
                     groupItem["group_type"] = 101;
                     groupItem["last_message_time"] = 0;
-                    groupItem["message_content"] = strMsgContentToJson('');
+                    groupItem["message_content"] = null;
                     groupItem["message_content_type"] = 101;
                     groupItem["message_from_id"] = this.curUserInfo.id;
                     groupItem["message_id"] = '';
@@ -120,7 +121,7 @@ export default {
                         }
                 }
                 else {
-                    groupItem = groupCheck;
+                    groupItem = groupCheck[0];
                 }
 
                 this.$emit('getCreateGroupInfo', groupItem);
@@ -136,8 +137,28 @@ export default {
                             // ToDo exception notice.
                             return;
                         }
-                        console.log("services.CreateGroup ret is ", ret);
-                        this.$emit('getCreateGroupInfo', ret);
+                        ret.message_content = null;
+                        
+                        var groupItem = {};
+                        groupItem["contain_user_ids"] = ret.contain_user_ids;
+                        groupItem["group_id"] = ret.group_id;
+                        groupItem["group_avarar"] = ret.group_avarar;
+                        groupItem["group_name"] = ret.group_name;
+                        groupItem["group_type"] = ret.group_type;
+                        groupItem["last_message_time"] = ret.last_message_time;
+                        groupItem["message_content"] = null;
+                        groupItem["message_content_type"] = ret.message_content_type;
+                        groupItem["message_from_id"] = ret.message_from_id;
+                        groupItem["message_id"] = ret.message_id;
+                        groupItem["owner"] = ret.owner;
+                        groupItem["sequence_id"] = ret.sequence_id;
+                        groupItem["status"] = ret.status;
+                        groupItem["un_read_count"] = ret.un_read_count;
+                        groupItem["updatetime"] = ret.updatetime;
+                        groupItem["user_id"] = '';
+                
+                        console.log("services.CreateGroup ret is ", groupItem);
+                        this.$emit('getCreateGroupInfo', groupItem);
                         this.dialogVisible = false;
                     })
 

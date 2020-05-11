@@ -165,9 +165,10 @@ export default {
             else if(chatGroupMsgType === 102)
             {
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                if(false && fs.existsSync(chatGroupMsgContent.thumbnailImage)){
+                if(fs.existsSync(chatGroupMsgContent.thumbnailImage)){
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                     var thumb_local_path = chatGroupMsgContent.thumbnailImage;
+                    console.log("thumb_local_path is ", thumb_local_path);
                     var showfu = new FileUtil(thumb_local_path);
                     let showfileObj = showfu.GetUploadfileobj();
                     let reader = new FileReader();
@@ -178,7 +179,7 @@ export default {
                             imageHeight = chatGroupMsgContent.imgHeight;
                         }
                         this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("src", URL.createObjectURL(reader.result));
+                        imgMsgImgElement.setAttribute("src", reader.result);
                         imgMsgImgElement.setAttribute("height", imageHeight);
                     }
                 }
@@ -280,6 +281,7 @@ export default {
         },
         MsgBelongUserImg: async function () {
             // var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
+            // console.log("MsgBelongUserImg this.userInfo is ", this.userInfo)
             if(this.userInfo == undefined || this.userInfo == null) {
                 return;
             }
@@ -288,7 +290,7 @@ export default {
             if(this.userIconElement == undefined) {
                 return;
             }
-            // console.log("this.userInfo.user_id is ", this.userInfo.user_id);
+            // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
             var distTAvarar = this.userInfo.avatar_t_url;
 
             downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
@@ -301,7 +303,7 @@ export default {
         },
         msgUserInfo: async function() {
             // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
-            // console.log("this.msg.message_id is ", this.msg.message_id);
+            // console.log("this.msg.messagecontent is ", strMsgContentToJson(this.msg.message_content));
             var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
             // console.log("userInfo is ", userInfos)
             if(userInfos == undefined || userInfos.length == 0) {
@@ -311,6 +313,7 @@ export default {
             }
 
             this.userInfo = userInfos[0];
+            // console.log("this.userInfo is ", this.userInfo)
         },
         compare: function(){
             return function(a, b)
@@ -510,7 +513,7 @@ export default {
     .chat-msg-content-others-img {
         float: left;
         background-color: rgba(1,1,1,0);
-        width: 104px;
+        min-width: 104px;
         border-radius: 5px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
@@ -647,7 +650,7 @@ export default {
     .chat-msg-content-mine-img {
         float: right;
         background-color: rgba(1,1,1,0);
-        width: 104px;
+        min-width: 104px;
         border-radius: 5px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';

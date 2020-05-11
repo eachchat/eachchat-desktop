@@ -231,6 +231,7 @@ export default {
                     console.log("filelist[i] = ", fileList[i])
                     if(this.waitForSendingFiles.indexOf(fileList[i] != -1)) {
                         var range = this.editor.getSelection();
+                        console.log("this. editor is ", this.editor)
                         var curIndex = range==null ? 0 : range.index;
 
                         var showfu = new FileUtil(fileList[i]);
@@ -247,9 +248,10 @@ export default {
                                 img.src = reader.result;
                                 img.onload = function(){
                                     let srcHeight = img.height;
-                                    this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
-                                    this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                                    console.log("this.editor is ", this.editor)
                                 }
+                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", fileHeight: 46});
+                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                             }
                         }
                         else {
@@ -265,6 +267,7 @@ export default {
                             }
                         }
                     }
+                    console.log("finished")
                 }
             }
         },
@@ -297,7 +300,7 @@ export default {
                 return uids[0];
             }
             else {
-                if(uids[0] == this.userInfo.id) {
+                if(uids[0] == this.curUserInfo.id) {
                     return uids[1];
                 }
                 else {
@@ -404,6 +407,7 @@ export default {
             }
             else{
                 var uid = this.getDistUidThroughUids(this.chat.contain_user_ids);
+                var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
                 for(var i=0;i<varcontent.ops.length;i++){
                     let curMsgItem = varcontent.ops[i].insert;
                     let curTimeSeconds = new Date().getTime();
@@ -431,7 +435,7 @@ export default {
                             let willSendMsg = {
                                 "message_content": willShowMsgContent,
                                 "message_from_id": this.curUserInfo.id,
-                                "group_id": this.chat.group_id,
+                                "group_id": gorupId,
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
@@ -439,11 +443,13 @@ export default {
                             this.messageList.push(willSendMsg);
 
                             let div = document.getElementById("message-show");
-                            if(div) {
-                                this.$nextTick(() => {
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
+                            setTimeout(() => {
+                                if(div) {
+                                    this.$nextTick(() => {
+                                        div.scrollTop = div.scrollHeight;
+                                    })
+                                }
+                            }, 0)
                             
                             this.sendingMsgIdList.push(willSendMsg);
                             this.cleanEditor();
@@ -469,16 +475,15 @@ export default {
                                             guid, 
                                             sendingMsgContentType, 
                                             this.curUserInfo.id, 
-                                            this.chat.group_id, 
+                                            gorupId, 
                                             uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent)
                                         .then((ret) => {
-                                            console.log("send img message ret ", ret)
-                                            var obj = ret_data.obj;
+                                            // console.log("send img message ret ", ret)
                                             if(ret == undefined) {
                                                 for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                                    if(this.sendingMsgIdList[i].guid == guid){
+                                                    if(this.sendingMsgIdList[i].message_id == guid){
                                                         this.sendingMsgIdList.splice(i, 1);
                                                         break;
                                                     }
@@ -487,24 +492,28 @@ export default {
                                             }
                                             else {
                                                 for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                                    if(this.sendingMsgIdList[i].guid == guid){
+                                                    if(this.sendingMsgIdList[i].message_id == guid){
                                                         this.sendingMsgIdList.splice(i, 1);
                                                         break;
                                                     }
                                                 }
                                                 for(var i=0;i<this.failedList.length;i++){
-                                                    if(this.failedList[i].guid == guid){
+                                                    if(this.failedList[i].message_id == guid){
                                                         this.failedList.splice(i, 1);
                                                         break;
                                                     }
                                                 }
                                                 for(var i=0;i<this.messageList.length;i++){
-                                                    if(this.messageList[i].guid == guid){
+                                                    // console.log("cur guie is ", guid)
+                                                    // console.log("the messagelist guid is ", this.messageList[i].message_id)
+                                                    if(this.messageList[i].message_id == guid){
+                                                        console.log("update ret")
                                                         this.messageList[i] = ret;
                                                         break;
                                                     }
                                                 }
-                                                console.log("Send Image msg list is ", this.messageList)
+                                                // console.log("Send Image msg list is ", this.messageList)
+                                                // console.log("Send Image msg list content is ", strMsgContentToJson(this.messageList.message_content))
                                                 // this.$store.commit("updateChatGroup", obj.message);
                                                 this.$emit('updateChatList', ret);
                                             }
@@ -529,7 +538,7 @@ export default {
                             let willSendMsg = {
                                 "message_content": willShowMsgContent,
                                 "message_from_id": this.curUserInfo.id,
-                                "group_id": this.chat.group_id,
+                                "group_id": gorupId,
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
@@ -537,11 +546,13 @@ export default {
                             this.messageList.push(willSendMsg);
 
                             let div = document.getElementById("message-show");
-                            if(div) {
-                                this.$nextTick(() => {
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
+                            setTimeout(() => {
+                                if(div) {
+                                    this.$nextTick(() => {
+                                        div.scrollTop = div.scrollHeight;
+                                    })
+                                }
+                            }, 0)
                             
                             this.sendingMsgIdList.push(guid);
                             this.cleanEditor();
@@ -563,7 +574,7 @@ export default {
                                             guid, 
                                             sendingMsgContentType, 
                                             this.curUserInfo.id, 
-                                            this.chat.group_id, 
+                                            gorupId, 
                                             uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent)
@@ -580,19 +591,19 @@ export default {
                                             }
                                             else {
                                                 for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                                    if(this.sendingMsgIdList[i].guid == guid){
+                                                    if(this.sendingMsgIdList[i].message_id == guid){
                                                         this.sendingMsgIdList.splice(i, 1);
                                                         break;
                                                     }
                                                 }
                                                 for(var i=0;i<this.failedList.length;i++){
-                                                    if(this.failedList[i].guid == guid){
+                                                    if(this.failedList[i].message_id == guid){
                                                         this.failedList.splice(i, 1);
                                                         break;
                                                     }
                                                 }
                                                 for(var i=0;i<this.messageList.length;i++){
-                                                    if(this.messageList[i].guid == guid){
+                                                    if(this.messageList[i].message_id == guid){
                                                         this.messageList[i] = ret;
                                                         break;
                                                     }
@@ -620,11 +631,12 @@ export default {
                         var willShowMsgContent = JsonMsgContentToString(msgContentJson);
                         let willSendMsgContent = {"text": msgContent};
                         console.log("will send msg content ", willSendMsgContent)
+                        console.log("will send msg uid ", uid)
                         let guid = generalGuid();
                         let willSendMsg = {
                             "message_content": willShowMsgContent,
                             "message_from_id": this.curUserInfo.id,
-                            "group_id": this.chat.group_id,
+                            "group_id": gorupId,
                             "message_timestamp": curTimeSeconds,
                             "message_type": sendingMsgContentType,
                             "message_id": guid,
@@ -632,22 +644,26 @@ export default {
                         this.messageList.push(willSendMsg);
                         
                         let div = document.getElementById("message-show");
-                        if(div) {
-                            this.$nextTick(() => {
-                                div.scrollTop = div.scrollHeight;
-                            })
-                        }
+                        setTimeout(() => {
+                            if(div) {
+                                this.$nextTick(() => {
+                                    console.log("div scrolltop is ", div.scrollHeight)
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
+                        }, 0)
                         
                         this.sendingMsgIdList.push(guid);
                         this.cleanEditor();
                         willSendMsg.content = willSendMsgContent;
+                        console.log("willSendMsg is ", willSendMsg);
 
                         // this.serverapi.sendNewMessage(this.loginInfo.access_token, guid, sendingMsgContentType, this.$store.state.userId, this.chat.group.group_id, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
                         services.common.sendNewMessage(
                                 guid, 
                                 sendingMsgContentType, 
                                 this.curUserInfo.id, 
-                                this.chat.group_id, 
+                                gorupId, 
                                 uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent)
@@ -656,7 +672,7 @@ export default {
 
                                 if(ret == undefined) {
                                     for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                        if(this.sendingMsgIdList[i].guid == guid){
+                                        if(this.sendingMsgIdList[i].message_id == guid){
                                             this.sendingMsgIdList.splice(i, 1);
                                             break;
                                         }
@@ -665,20 +681,23 @@ export default {
                                 }
                                 else {
                                     for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                        if(this.sendingMsgIdList[i].guid == guid){
+                                        if(this.sendingMsgIdList[i].message_id == guid){
                                             this.sendingMsgIdList.splice(i, 1);
                                             break;
                                         }
                                     }
                                     for(var i=0;i<this.failedList.length;i++){
-                                        if(this.failedList[i].guid == guid){
+                                        if(this.failedList[i].message_id == guid){
                                             this.failedList.splice(i, 1);
                                             break;
                                         }
                                     }
                                     for(var i=0;i<this.messageList.length;i++){
-                                        if(this.messageList[i].guid == guid){
+                                        if(this.messageList[i].message_id == guid){
                                             this.messageList[i] = ret;
+                                            if(this.existingMsgId.indexOf(ret.message_id) == -1) {
+                                                this.existingMsgId.push(ret.message_id);
+                                            }
                                             break;
                                         }
                                     }
@@ -726,6 +745,7 @@ export default {
             if(curMsg === null) {
                 return '';
             }
+            
             let chatGroupMsgType = curMsg.message_type;
             let chatGroupMsgContent = strMsgContentToJson(curMsg.message_content);
 
@@ -733,7 +753,6 @@ export default {
             {
                 if(chatGroupMsgContent.type === "invitation")
                 {
-                    console.log(chatGroupMsgContent)
                     var invitees = chatGroupMsgContent.userInfos;
                     var inviteeNames = "";
                     for(var i=0;i<invitees.length;i++) {
@@ -870,7 +889,11 @@ export default {
                                 this.isRefreshing = false;
                                 var messageListTmp = ret;
                                 for(var i=0;i<messageListTmp.length;i++){
-                                    this.messageList.unshift(messageListTmp[i]);
+                                    if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
+                                        console.log("+============= push")
+                                        this.messageList.unshift(messageListTmp[i]);
+                                        this.existingMsgId.push(messageListTmp[i].message_id);
+                                    }
                                 }
                                 this.$nextTick(() => {
                                     uldiv.scrollTop = uldiv.scrollHeight - lastScrollHeight;
@@ -888,7 +911,10 @@ export default {
                     this.messageList = [];
                     
                     for(var i=0;i<messageListTmp.length;i++){
-                        this.messageList.unshift(messageListTmp[i]);
+                        if(this.existingMsgId.indexOf(messageListTmp.message_id) == -1) {
+                            this.messageList.unshift(messageListTmp[i]);
+                            this.existingMsgId.push(messageListTmp[i].message_id);
+                        }
                     }
                     if(messageListTmp.length !=0){
                         if(messageListTmp[0].sequence_id != this.chat.sequence_id){
@@ -899,18 +925,28 @@ export default {
                             messageFromGroup.message_timestamp = this.chat.last_message_time;
                             messageFromGroup.sequence_id = this.chat.sequence_id;
                             messageFromGroup.message_id = this.chat.message_id;
-                            this.messageList.push(messageFromGroup);
+                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
+                                this.messageList.push(messageFromGroup);
+                                this.existingMsgId.push(messageFromGroup.message_id);
+                            }
                         }
                     }
                     else{
-                        let messageFromGroup = {};
-                        messageFromGroup.message_type = this.chat.message_content_type;
-                        messageFromGroup.message_content = this.chat.message_content;
-                        messageFromGroup.message_from_id = this.chat.message_from_id;
-                        messageFromGroup.message_timestamp = this.chat.last_message_time;
-                        messageFromGroup.sequence_id = this.chat.sequence_id;
-                        messageFromGroup.message_id = this.chat.message_id;
-                        this.messageList.push(messageFromGroup);
+                        if(this.chat.message_content != null){
+                            console.log("this.chat.message_content is ", this.chat.message_content)
+                            let messageFromGroup = {};
+                            messageFromGroup.message_type = this.chat.message_content_type;
+                            messageFromGroup.message_content = this.chat.message_content;
+                            messageFromGroup.message_from_id = this.chat.message_from_id;
+                            messageFromGroup.message_timestamp = this.chat.last_message_time;
+                            messageFromGroup.sequence_id = this.chat.sequence_id;
+                            messageFromGroup.message_id = this.chat.message_id;
+                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
+                                this.messageList.push(messageFromGroup);
+                                this.existingMsgId.push(messageFromGroup.message_id);
+                            }
+                        }
+                        console.log("this.messagelist is ", this.messageList)
                     }
                     setTimeout(() => {
                         this.$nextTick(() => {
@@ -926,16 +962,21 @@ export default {
                 })
         },
         callback(msg) {
-            console.log("chat callback msg is ", msg);
-            if(msg.group_id == this.chat.group_id && msg.message_from_id != this.curUserInfo.id) {
-                this.messageList.push(msg);
-            }
-            this.$emit('updateChatList', msg);
-            let div = document.getElementById("message-show-list");
-            if(div) {
-                this.$nextTick(() => {
-                    div.scrollTop = div.scrollHeight;
-                })
+            // console.log("chat callback msg is ", msg);
+            console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
+            if(msg.group_id == this.chat.group_id) {
+                if(this.existingMsgId.indexOf(msg.message_id) == -1){
+                    this.messageList.push(msg);
+                    this.existingMsgId.push(msg.message_id);
+                    console.log("emit updatechatlist");
+                    this.$emit('updateChatList', msg);
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        this.$nextTick(() => {
+                            div.scrollTop = div.scrollHeight;
+                        })
+                    }
+                }
             }
         }
     },
@@ -960,6 +1001,7 @@ export default {
             isRefreshing: true,
             showUserInfoTips: false,
             tipInfos: {},
+            existingMsgId: [],
         }
     },
     mounted: function() {
