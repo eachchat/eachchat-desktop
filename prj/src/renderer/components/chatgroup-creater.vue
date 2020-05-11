@@ -15,11 +15,11 @@
                         <ul class="organization-menu-list" v-show="showOrganizationMenuItem">
                             <li class="department"
                             v-for="(department, index) in departments"
-                            @click="departmentMenuItemClicked(department.id, department.displayName)" 
+                            @click="departmentMenuItemClicked(department.department_id, department.display_name)" 
                             :key="index">
                             <img class="department-icon" src="../../../static/Image/department_list@2x.png">
                             <div class="department-info">
-                                <p class="department-name">{{ department.displayName }}</p>
+                                <p class="department-name">{{ department.display_name }}</p>
                             </div>
                             <div align="center" class="item-arrow">
                                 <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
@@ -34,10 +34,24 @@
                                 <p class="item-title">常用联系人</p>
                             </div>
                             <div class="item-arrow">
-                                <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
+                                <img class="right-arrow" :src=arrowImageSrc>
                             </div>
                         </div>
-                        <ul class="recentUsers-menu-list" v-show="showRecentUsersMenuItem">
+                        <div class="users-list-header" v-show="showRecentUsersMenuItem">
+                            <input type="checkBox" class="checkBox-all" :checked="currentDepartmentSelectAll" 
+                            @click="currentDepartmentSelectAllClicked()"> 全选
+                            <p class="checkBox-label">已选{{ currentDepartmentSelectedUsers.length }}人</p>
+                        </div>
+                        <ul class="user-list" v-show="showRecentUsersMenuItem">
+                            <li class="user" v-for="(item, index) in users" :key="index"> 
+                            <img class="user-avatarTUrl" :src="item.avatarTUrl">
+                            <div class="user-info">
+                                <p class="user-name">{{ item.displayName }}</p>
+                            </div>
+                            <input type="checkBox" class="user-checkBox" :checked="item.checkState"
+                            @click="userCheckBoxClicked(item.id)">
+                            
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -54,10 +68,10 @@
                     <el-main>
                         <ul class="department-list" v-show="departments.length">
                             <li class="department" v-for="(item, index) in departments" 
-                            @click="departmentMenuItemClicked(item.id, item.displayName)" :key="index"> 
+                            @click="departmentMenuItemClicked(item.department_id, item.display_name)" :key="index"> 
                             <img class="department-icon" src="../../../static/Image/department_list@2x.png">
                             <div class="department-info">
-                                <p class="department-name">{{ item.displayName }}</p>
+                                <p class="department-name">{{ item.display_name }}</p>
                             </div>
                             <div align="center" class="item-arrow">
                                 <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
@@ -158,12 +172,12 @@
 
 </template>
 <script>
-import {ServerApi} from '../server/serverapi';
+
+import { services } from '../../packages/data/index.js';
 export default {
     name: 'chatgroup-creater',
     data () {
         return {
-            serverApi: new ServerApi(),
             resetData: false,
             showBreadCrumbs: false,
             selectedUsers: [],
@@ -175,6 +189,7 @@ export default {
             departments: [],
             showOrganizationMenuItem: false,
             showRecentUsersMenuItem: false,
+            arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
     props: {
@@ -257,14 +272,15 @@ export default {
             }
         },
         departmentMenuItemClicked(id, name) {
+            this.showRecentUsersMenuItem = false;
             if (!this.showBreadCrumbs) {
                 this.showBreadCrumbs = true;
             }
             var tempDepartments = [];
             for (var i = 0; i < this.allDepartments.length; i ++) {
                 var department = this.allDepartments[i];
-                if (department.parentId == id) {
-                    tempDepartments.push(department);
+                if (department.parent_id == id) {
+                    tempDepartments[department.show_order] = department;
                 }
             }
             var tempManagers = [];
@@ -283,11 +299,12 @@ export default {
             });
         },
         departmentBreadCrumbsClicked(id, name, index) {
+            this.showRecentUsersMenuItem = false;
             var tempDepartments = [];
             for (var i = 0; i < this.allDepartments.length; i ++) {
                 var department = this.allDepartments[i];
-                if (department.parentId == id) {
-                    tempDepartments[department.showOrder] = department;
+                if (department.parent_id == id) {
+                    tempDepartments[department.show_order] = department;
                 }
             }
             var tempUsers = [];
@@ -348,71 +365,123 @@ export default {
         },
         organizationMenuItemClicked() {
             this.showOrganizationMenuItem = !this.showOrganizationMenuItem;
+            
         },
-        recentUsersMenuItemClicked() {
-            this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
-        },
-        initData() {
-        console.log('createchatgroup');
-        Object.assign(this.$data, this.$options.data())
-        var _this = this;
-        this.serverApi.GetAllDepartmentInfo()
-        .then(function(res){
-            _this.allDepartments = res.data;
-            console.log(_this.allDepartments);
-            var tempDepartments = [];
-            var tempRootDepartment = [];
-            var tempManagers = [];
-            var tempUsers = [];
-            for (var i = 0; i < _this.allDepartments.length; i ++){
-                var department = _this.allDepartments[i];
-                if (department.level == 1){
-                    tempDepartments[department.showOrder] = department;
-                }
-                if (department.level == 0) {
-                    tempRootDepartment = department;
-                }
-            }
-            _this.serverApi.GetAllUserInfo()
-            .then(function(res){
-                _this.allUsers = res.data;
-                console.log(_this.allUsers);
-                for (var i = 0; i < _this.allUsers.length; i ++) {
-                    var user = _this.allUsers[i];
-                    // if (this.disableUsers){
-                    //     if (this.disableUsers.indexOf(user) != -1){
-                    //         user.disabled = true;
-                    //     }else {
-                    //         user.disabled = false;
-                    //     }
-                    // }
-                    
-                    user.checkState = false;
-                    _this.allUsers[i] = user;
-                }
-                for (var i = 0; i < _this.allUsers.length; i ++) {
-                    var user = _this.allUsers[i];
-                    
-                    if (user.departmentId == tempRootDepartment.id) {
-                        tempUsers.push(user);
-                        if (user.manager) {
-                            tempManagers.push(user);
+        recentUsersMenuItemClicked:async function() {
+            
+            if (this.showRecentUsersMenuItem) {
+                this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
+            }else {
+                var tempRecentUserModels = await services.common.GetRecentUsers();
+                var tempRecentUsers = [];
+                for (var i = 0; i < tempRecentUserModels.length; i ++) {
+                    var tempRecentUser = tempRecentUserModels[i];
+                    for(var j = 0; j < this.allUsers.length; j ++) {
+                        if (tempRecentUser.user_id == this.allUsers[j].id) {
+                            tempRecentUsers.push(this.allUsers[j]);
                         }
                     }
                 }
-                _this.departments = tempDepartments;
-                _this.managers = tempManagers;
-                _this.users = tempUsers;
-                _this.breadCrumbs.push({
-                    name: "组织架构",
-                    id: tempRootDepartment.id
-                })
-            })
-            .catch(err=>{console.log(err)}
-            )
-        })
-        .catch(err=>{console.log(err)}
-        )
+                this.users = tempRecentUsers;
+                this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
+            }
+            this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
+        },
+        initData:async function() {
+        console.log('createchatgroup');
+        Object.assign(this.$data, this.$options.data())
+        this.allDepartments = await services.common.GetAllDepartmentsModel();
+        var tempUserModels = await services.common.GetAllUserinfo();
+        //this.allUsers = await services.common.GetAllUserinfo();
+        var tempDepartments = [];
+        var tempRootDepartment = [];
+        var tempUsers = [];
+        this.allUsers = this.getUsersFromUserModels(tempUserModels);
+        /*for (var i = 0; i < tempUserModels.length; i ++) {
+            var userModel = tempUserModels[i];
+            var user = {};
+            user.id = userModel.user_id;
+            user.departmentId = userModel.belong_to_department_id;
+            user.name = userModel.user_name;
+            user.displayName = userModel.user_display_name;
+            user.profileUrl = userModel.user_profile_url;
+            user.userType = userModel.user_type;
+            user.title = userModel.user_title;
+            user.preferredLanguage = userModel.user_preferred_language;
+            user.locale = userModel.user_locale;
+            user.timezone = userModel.user_timezone;
+            user.active = userModel.user_active;
+            user.displayNamePy = userModel.display_name_py;
+            user.remarkName = userModel.remark_name;
+            user.remarkNamePy = userModel.remark_name_py;
+            user.avatarOUrl = userModel.avatar_o_url;
+            user.avatarTUrl = userModel.avatar_t_url;
+            user.workDescription = userModel.work_description;
+            user.statusDescription = userModel.status_description;
+            user.manager = userModel.manager;
+            user.managerId = userModel.manager_id;
+            user.updateTime = userModel.updatetime;
+            this.allUsers.push(user);
+        }*/
+        
+        for (var i = 0; i < this.allDepartments.length; i ++){
+            var department = this.allDepartments[i];
+            if (!department.parent_id) {
+                tempRootDepartment = department;
+                break;
+            }
+        }
+        for (var i = 0; i < this.allDepartments.length; i ++){
+            var department = this.allDepartments[i];
+            if (department.parent_id == tempRootDepartment.department_id) {
+                tempDepartments[department.show_order] = department;
+            }
+        }
+        for (var i = 0; i < this.allUsers.length; i ++) {
+            var user = this.allUsers[i];
+            if (user.department_id == tempRootDepartment.department_id) {
+                tempUsers.push(user);
+            }
+        }
+                
+        this.departments = tempDepartments;
+        this.users = tempUsers;
+        this.breadCrumbs.push({
+            name: "组织架构",
+            id: tempRootDepartment.department_id
+        });
+
+        },
+        getUsersFromUserModels(userModels) {
+            var tempAllUsers = [];
+            for (var i = 0; i < userModels.length; i ++) {
+                var userModel = userModels[i];
+                var user = {};
+                user.id = userModel.user_id;
+                user.departmentId = userModel.belong_to_department_id;
+                user.name = userModel.user_name;
+                user.displayName = userModel.user_display_name;
+                user.profileUrl = userModel.user_profile_url;
+                user.userType = userModel.user_type;
+                user.title = userModel.user_title;
+                user.preferredLanguage = userModel.user_preferred_language;
+                user.locale = userModel.user_locale;
+                user.timezone = userModel.user_timezone;
+                user.active = userModel.user_active;
+                user.displayNamePy = userModel.display_name_py;
+                user.remarkName = userModel.remark_name;
+                user.remarkNamePy = userModel.remark_name_py;
+                user.avatarOUrl = userModel.avatar_o_url;
+                user.avatarTUrl = userModel.avatar_t_url;
+                user.workDescription = userModel.work_description;
+                user.statusDescription = userModel.status_description;
+                user.manager = userModel.manager;
+                user.managerId = userModel.manager_id;
+                user.updateTime = userModel.updatetime;
+                user.checkState = false;
+                tempAllUsers.push(user);
+            }
+            return tempAllUsers;
         }
     },
     created () {

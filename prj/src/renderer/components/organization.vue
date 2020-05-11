@@ -81,7 +81,7 @@
     </el-container>
 </template>
 <script>
-import {services} from '../../packages/data/transaction.js';
+import {services} from '../../packages/data/index.js';
 import organizationList from './organization-list';
 import chatGroupCreater from './chatgroup-creater';
 import listHeader from './listheader';
@@ -117,6 +117,8 @@ export default {
 
         },
         recentUsersMenuItemClicked:async function() {
+            this.dialogVisible = true;
+            /*
             if (this.showRecentUsersMenuItem) {
                 this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
             }else {
@@ -124,6 +126,7 @@ export default {
                 this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
             }
             this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
+            */
         },
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;

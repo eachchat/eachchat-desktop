@@ -27,7 +27,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
-  //openDevToolsInDevelopment(mainPageWindow);
+  openDevToolsInDevelopment(mainPageWindow);
 });
 
 ipcMain.on('open-directory-dialog', function(event, arg) {
@@ -56,11 +56,11 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL);
-  //openDevToolsInDevelopment(mainWindow);
+  openDevToolsInDevelopment(mainWindow);
 }
 function openDevToolsInDevelopment(mainWindow) {
   mainWindow.webContents.once('dom-ready', () => {
-    //mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
   })
   // Open dev tools initially when in development mode
   if (process.env.NODE_ENV === "development") {
@@ -68,7 +68,7 @@ function openDevToolsInDevelopment(mainWindow) {
     mainWindow.webContents.once("devtools-opened", () => {
     mainWindow.focus();
     });
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
     });
   }
   mainWindow.on('closed', () => {
