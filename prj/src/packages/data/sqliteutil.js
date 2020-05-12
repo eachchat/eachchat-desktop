@@ -172,7 +172,18 @@ const sqliteutil = {
             return collections[0];
         }
         return undefined;
-    }
+    },
+
+    async SetGroupMessageRead(groupID){
+        let groups = await (await models.Groups).find({
+            group_id: groupID
+        });
+        if(groups.length != 0){
+            let group = groups[0]
+            group.un_read_count = 0;
+            group.save();
+        }
+    } 
 }
 
 export{

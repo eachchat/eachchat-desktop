@@ -924,6 +924,7 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
+    await sqliteutil.SetGroupMessageRead(groupid);
     return true;
   },
 
