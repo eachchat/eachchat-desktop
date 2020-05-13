@@ -11,6 +11,7 @@ import * as http from './http.js';
 import * as types from './types.js';
 import {Storage} from './storage.js';
 import * as sqlite_storage from './sqlite_storage.js';
+import {FileStorage} from './file_storage.js'
 
 const storage = Object.assign(
   {Storage: Storage},
@@ -29,5 +30,6 @@ export {
   types,
   database,
   storage,
-  net
+  net,
+  FileStorage
 }

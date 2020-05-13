@@ -184,8 +184,10 @@ export default {
                     }
                 }
                 else{
-                    this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.msg.time_line_id)
+                    services.cache.download([this.msg.sequence_id], services.common.downloadTumbnail, services.common)
+                    // this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.msg.time_line_id)
                         .then((ret) => {
+                            console.log("this.services.cache.download ret ", ret);
                             let reader = new FileReader();
                             reader.readAsDataURL(ret.data);
                             reader.onloadend = () => {

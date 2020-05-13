@@ -4,6 +4,7 @@ import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
 import { sqliteutil } from './sqliteutil.js'
+import { FileStorage } from '../core/index.js';
 
 const mqtt = require('mqtt')
 
@@ -279,6 +280,7 @@ const common = {
 
   async InitServiceData(){
     await this.AllUserinfo();
+    await this.AllDepartmentInfo();
     await this.listAllGroup();
     //await this.ReveiveNewMessage(0, 0);
   },
@@ -1050,6 +1052,61 @@ const common = {
   
 };
 
+const cache = {
+  files: null,
+
+  async download(params, method, target) {
+    if (this.files == null) {
+      return null;
+    }
+
+    var description = method.name;
+    description += JSON.stringify(params);
+    console.log("download files is ", this.files)
+
+    var recent = this.files.get('cache', {
+      description: escape(description)
+    });
+
+    if (recent) {
+      recent = recent[0];
+
+      var currentTime = (new Date()).getTime();
+      // var duration = currentTime - recent.update_time;
+      var duration = 0;
+
+      if (duration < (60 * 60)) {
+        return recent;
+
+      }
+
+      // Update after 1 hour
+      this.files.delete(recent);
+    }
+
+    var result = method.call(
+      target,
+      params[0],
+      params[1],
+      params[2],
+      params[3],
+      params[4],
+      params[5]
+    );
+
+    return await this.files.post('cache', {
+      raw: result.data,
+      description: escape(description)
+    });
+  }
+};
+
+// Cache Initialize
+((cacheObject) => {
+  cacheObject.files = new FileStorage();
+})(cache);
+
 export {
-  common
+  common,
+  cache
 }
