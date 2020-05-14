@@ -647,6 +647,11 @@ class FileUtil
        fs.readFile(this.m_fullname, callback);
     }
 
+    GetFileSize()
+    {
+        return this.GetUploadfileobj().size;
+    }
+
     GetFilename()
     {
         if(this.m_filename != '')
@@ -770,6 +775,10 @@ const faceUtils = {
     }
 }
 
+function insertStr(source, start, newStr) {
+    return source.slice(0, start) + newStr + source.slice(start);
+}
+
 // https://blog.csdn.net/weixin_41643133/article/details/88118716
 function uncodeUtf16(str){
     var reg = /\&#.*?;/g;
@@ -800,46 +809,46 @@ function getIconPath(ext) {
             }
         })
     }
+
     if(distExt == "zip"){
-        distIconPath = path.join(iconDirPath, "filesZip@3x.png");
+        distIconPath = iconDirPath + "/" + "filesZip@3x.png";
     }
     else if(distExt == "apk"){
-        distIconPath = path.join(iconDirPath, "apk@3x.png");
+        distIconPath = iconDirPath + "/" + "apk@3x.png";
     }
     else if(distExt == "exe"){
-        distIconPath = path.join(iconDirPath, "exe@3x.png");
+        distIconPath = iconDirPath + "/" + "exe@3x.png";
     }
     else if(distExt == "excel"){
-        distIconPath = path.join(iconDirPath, "xls@3x.png");
+        distIconPath = iconDirPath + "/" + "xls@3x.png";
     }
     else if(distExt == "ipa"){
-        distIconPath = path.join(iconDirPath, "ipa@3x.png");
+        distIconPath = iconDirPath + "/" + "ipa@3x.png";
     }
     else if(distExt == "iso"){
-        distIconPath = path.join(iconDirPath, "dmg@3x.png");
+        distIconPath = iconDirPath + "/" + "dmg@3x.png";
     }
     else if(distExt == "music"){
-        distIconPath = path.join(iconDirPath, "voiceAudio@3x.png");
+        distIconPath = iconDirPath + "/" + "voiceAudio@3x.png";
     }
     else if(distExt == "pdf"){
-        distIconPath = path.join(iconDirPath, "pdf@3x.png");
+        distIconPath = iconDirPath + "/" + "pdf@3x.png";
     }
     else if(distExt == "ppt"){
-        distIconPath = path.join(iconDirPath, "ppt@3x.png");
+        distIconPath = iconDirPath + "/" + "ppt@3x.png";
     }
     else if(distExt == "video"){
-        distIconPath = path.join(iconDirPath, "Audio@3x.png");
+        distIconPath = iconDirPath + "/" + "Audio@3x.png";
     }
     else if(distExt == "word"){
-        distIconPath = path.join(iconDirPath, "doc@3x.png");
+        distIconPath = iconDirPath + "/" + "doc@3x.png";
     }
     else if(distExt == "txt"){
-        distIconPath = path.join(iconDirPath, "txt@3x.png");
+        distIconPath = iconDirPath + "/" + "txt@3x.png";
     }
     else{
-        distIconPath = path.join(iconDirPath, "unknown@3x.png");
+        distIconPath = iconDirPath + "/" + "unknown@3x.png";
     }
-
     return distIconPath
 }
 
@@ -1089,6 +1098,6 @@ class ConfService {
     }
 }
 const confservice = new ConfService();
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

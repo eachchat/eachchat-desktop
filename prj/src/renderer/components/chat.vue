@@ -54,8 +54,7 @@
         </div>
         <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos"></userInfoTip>
         <div id="complextype" class="edit-file-blot" style="display:none;">
-            <!-- <span class="complex" spellcheck="false" contenteditable="false"><span class="inner">Format applied</span><span class="nested">More text</span><span class="formatting">with formatting</span><span class="nested">dolor</span></span> -->
-            <span local_path="对象.docx" file_size=345 class="complex" spellcheck="false" contenteditable="false" style='display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:20px;'></span>
+            <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
     </div>
 </template>
@@ -71,7 +70,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath} from '../../packages/core/Utils.js'
+import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 
 
@@ -90,7 +89,6 @@ function extend(target, base) {
     }
   Span.prototype = Object.create(Embed && Embed.prototype);
   Span.prototype.constructor = Span;
-    console.log("Span.prototype is ", Span.prototype);
   extend(Span, Embed);
 
   Span.create = function create(value) {
@@ -152,7 +150,7 @@ export default {
     methods: {
         keyHandle(event) {
             if(event.code == "Enter" && !event.ctrlKey) {
-                this.ssendMsg();
+                this.sendMsg();
             }
             else if(event.code == "Enter" && event.ctrlKey) {
                 var range = this.editor.getSelection();
@@ -217,6 +215,7 @@ export default {
                         var curPath = fileList[i].path;
                         var fileType = fileList[i].type;
                         var fileSize = fileList[i].size;
+                        var fileName = getFileNameInPath(fileList[i].path)
                         if(fileType.split("/")[0] == "image"){
                             // Image
                             reader.readAsDataURL(fileList[i]);
@@ -251,16 +250,8 @@ export default {
         },
         insertPic: function() {
             // File
-            var range = this.editor.getSelection();
-            var curIndex = range==null ? 0 : range.index;
-            var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
-            console.log("=========", complexSpan.innerHTML)
-            complexSpan.innerHTML = 'wenxue'
-
-            this.editor.insertEmbed(curIndex, 'span', complexSpan, {localPath: "======", src: "0000000000", fileType: "file", fileHeight: 46, fileSize: 576, style:"vertical-align:middle;"});
-            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-            // ipcRenderer.send('open-directory-dialog', 'openFile');
-            // ipcRenderer.on('selectedItem', this.nHandleFiles);
+            ipcRenderer.send('open-directory-dialog', 'openFile');
+            ipcRenderer.on('selectedItem', this.nHandleFiles);
         },
         insertFiles: function() {
             ipcRenderer.send('open-directory-dialog', 'openFile');
@@ -286,6 +277,7 @@ export default {
                         var showfileObj = showfu.GetUploadfileobj();
                         var fileType = showfu.GetMimename();
                         var fileExt = showfu.GetExtname();
+                        var fileName = showfu.GetFilename()
 
                         if(fileType.split("/")[0] == "image"){
                             // Image
@@ -304,15 +296,20 @@ export default {
                         }
                         else {
                             // File
-                            var iconPath = getIconPath(fileExt);
-                            var showfu = new FileUtil(iconPath);
-                            let showfileObj = showfu.GetUploadfileobj();
-                            let reader = new FileReader();
-                            reader.readAsDataURL(showfileObj);
-                            reader.onloadend = () => {
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: 123, style:"vertical-align:middle;"})
-                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                            }
+                            var iconPath = '/' + getIconPath(fileExt);
+                            var range = this.editor.getSelection();
+                            var curIndex = range==null ? 0 : range.index;
+                            var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
+                            complexSpan.id = generalGuid();
+                            complexSpan.innerHTML = fileName;
+                            var indexTemp = this.constStyle.indexOf("background-image: url(") + "background-image: url(".length;
+                            var distStyle = insertStr(this.constStyle, indexTemp, iconPath);
+                            // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
+                            complexSpan.style = distStyle;
+                            this.idToPath[complexSpan.id] = fileList[i];
+
+                            this.editor.insertEmbed(curIndex, 'span', complexSpan);
+                            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                         }
                     }
                     console.log("finished")
@@ -359,94 +356,154 @@ export default {
         // Send msg demo
         ssendMsg: function() {
             // Send Test Interface
+            
             let varcontent = this.editor.getContents();
-            console.log(varcontent)
-            // if(varcontent == null || varcontent.length == 0) {
-            //     // toDo To Deal The \n
-            //     alert("不能发送空白信息。")
-            // }
-            // else{
-            //     var ingnor = varcontent.ops[varcontent.ops.length-1]
-            //     var ingnor_split = ingnor.insert.split('\n')
-            //     if(ingnor_split.length == 2 && ingnor_split[0].trim().length == 0 && ingnor_split[1].trim() == 0){
-            //         console.log("Yes you are right.")
-            //     }
-            //     console.log("the length is ", varcontent.ops.length)
-            //     for(var i=0;i<varcontent.ops.length;i++){
-            //         let curMsgItem = varcontent.ops[i].insert;
-            //         let curTimeSeconds = new Date().getTime();
-            //         if(curMsgItem.hasOwnProperty("fileBlot")){
-            //             if(curMsgItem.fileBlot.type == "image"){
-            //                 let sendingMsgContentType = 102;
-            //                 let picUrl = curMsgItem.fileBlot.src;
-            //                 let filePath = curMsgItem.fileBlot.localPath;
-            //                 let ext = filePath.split(".").pop();
-            //                 let fileSize = curMsgItem.fileBlot.fileSize;
-            //                 let fileName = getFileNameInPath(filePath);
-            //                 let willSendMsgContent = {
-            //                     "ext":ext,
-            //                     "fileName":fileName,
-            //                     "url":"",
-            //                     "middleImage":"",
-            //                     "thumbnailImage": picUrl,
-            //                     "imgWidth": "",
-            //                     "imgHeight": "",
-            //                     "fileSize": fileSize
-            //                 }
-            //                 let guid = generalGuid();
-            //                 let willSendMsg = {
-            //                     "content": willSendMsgContent,
-            //                     "fromId": this.$store.state.userInfo.id,
-            //                     "groupId": this.chat.group.groupId,
-            //                     "timestamp": curTimeSeconds,
-            //                     "msgContentType": sendingMsgContentType,
-            //                     "msgId": guid,
-            //                     };
-            //                 this.cleanEditor();
-            //             }
-            //             else{
-            //                 let sendingMsgContentType = 103;
-            //                 let picUrl = curMsgItem.fileBlot.src;
-            //                 let filePath = curMsgItem.fileBlot.localPath;
-            //                 let fileSize = curMsgItem.fileBlot.fileSize;
-            //                 let fileName = getFileNameInPath(filePath);
-            //                 let ext = filePath.split(".").pop();
-            //                 let willSendMsgContent = {
-            //                     "ext":ext,
-            //                     "fileName":fileName,
-            //                     "url":"",
-            //                     "fileSize": fileSize
-            //                 }
-            //                 let guid = generalGuid();
-            //                 let willSendMsg = {
-            //                     "content": willSendMsgContent,
-            //                     "fromId": this.$store.state.userInfo.id,
-            //                     "groupId": this.chat.group.groupId,
-            //                     "timestamp": curTimeSeconds,
-            //                     "msgContentType": sendingMsgContentType,
-            //                     "msgId": guid,
-            //                     };
-            //                 this.cleanEditor();
-            //             }
-            //         }
-            //         else{
-            //             // Text
-            //             let sendingMsgContentType = 101;
-            //             let msgContent = varcontent.ops[i].insert;
-            //             let willSendMsgContent = {"text": msgContent};
-            //             let guid = generalGuid();
-            //             let willSendMsg = {
-            //                 "content": willSendMsgContent,
-            //                 "fromId": this.$store.state.userInfo.id,
-            //                 "groupId": this.chat.group.groupId,
-            //                 "timestamp": curTimeSeconds,
-            //                 "msgContentType": sendingMsgContentType,
-            //                 "msgId": guid,
-            //                 };
-            //             this.cleanEditor();
-            //         }
-            //     }
-            // }
+            console.log("varcontent is ", varcontent);
+            if(varcontent == null || varcontent.length == 0) {
+                // toDo To Deal The \n
+                alert("不能发送空白信息。")
+            }
+            else{
+                var uid = this.getDistUidThroughUids(this.chat.contain_user_ids);
+                var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
+                for(var i=0;i<varcontent.ops.length;i++){
+                    let curMsgItem = varcontent.ops[i].insert;
+                    let curTimeSeconds = new Date().getTime();
+                    
+                    if(curMsgItem.hasOwnProperty("fileBlot")){
+                        if(curMsgItem.fileBlot.type == "image"){
+                            let sendingMsgContentType = 102;
+                            let picUrl = curMsgItem.fileBlot.src;
+                            let filePath = curMsgItem.fileBlot.localPath;
+                            let fileHeight = curMsgItem.fileBlot.fileHeight;
+                            let fileSize = curMsgItem.fileBlot.fileSize;
+                            let fileName = getFileNameInPath(filePath);
+                            let ext = filePath.split(".").pop();
+                            let willShowMsgContent = JsonMsgContentToString({
+                                "ext":ext,
+                                "fileName":fileName,
+                                "url":"",
+                                "middleImage":"",
+                                "thumbnailImage": filePath,
+                                "imgWidth": "",
+                                "imgHeight": fileHeight,
+                                "fileSize": fileSize
+                            });
+                            var guid = generalGuid();
+                            let willSendMsg = {
+                                "message_content": willShowMsgContent,
+                                "message_from_id": this.curUserInfo.id,
+                                "group_id": gorupId,
+                                "message_timestamp": curTimeSeconds,
+                                "message_type": sendingMsgContentType,
+                                "message_id": guid,
+                                };
+                            this.messageList.push(willSendMsg);
+                            this.existingMsgId.push(willSendMsg.message_id);
+
+                            let div = document.getElementById("message-show");
+                            setTimeout(() => {
+                                if(div) {
+                                    this.$nextTick(() => {
+                                        div.scrollTop = div.scrollHeight;
+                                    })
+                                }
+                            }, 0)
+                            
+                            this.sendingMsgIdList.push(willSendMsg);
+                            this.cleanEditor();
+                        }
+                    }
+                    else if(curMsgItem.hasOwnProperty("span")){
+                        var fileSpan = curMsgItem.span;
+                        var sendingMsgContentType = 103;
+                        var pathId = fileSpan.id;
+                        console.log("fileSpan.id = ", fileSpan.id);
+                        var filePath = this.idToPath[pathId];
+                        console.log("this.idToPath is ", this.idToPath)
+                        var showfu = new FileUtil(filePath);
+                        var fileName = showfu.GetFilename();
+                        var fileSize = showfu.size;
+                        var ext = showfu.GetExtname();
+
+                        console.log("chat file name is ", fileName)
+                        // let ext = filePath.split(".").pop();
+                        let willShowMsgContent = JsonMsgContentToString({
+                            "ext":ext,
+                            "fileName":fileName,
+                            "url":"",
+                            "fileSize": fileSize
+                        })
+                        let guid = generalGuid();
+                        let willSendMsg = {
+                            "message_content": willShowMsgContent,
+                            "message_from_id": this.curUserInfo.id,
+                            "group_id": gorupId,
+                            "message_timestamp": curTimeSeconds,
+                            "message_type": sendingMsgContentType,
+                            "message_id": guid,
+                            };
+                        this.messageList.push(willSendMsg);
+                        console.log("willsendmsg is ", willSendMsg);
+                        this.existingMsgId.push(willSendMsg.message_id);
+
+                        let div = document.getElementById("message-show");
+                        setTimeout(() => {
+                            if(div) {
+                                this.$nextTick(() => {
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
+                        }, 0)
+                        
+                        this.sendingMsgIdList.push(guid);
+                        this.cleanEditor();
+                    }
+                    else{
+                        // Text
+                        // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
+                        curMsgItem = sliceReturnsOfString(curMsgItem);
+                        if(curMsgItem.length == 0){
+                            return;
+                        }
+                        let sendingMsgContentType = 101;
+                        let msgContent = curMsgItem;
+                        var msgContentJson = {
+                            "text": msgContent
+                        };
+                        var willShowMsgContent = JsonMsgContentToString(msgContentJson);
+                        let willSendMsgContent = {"text": msgContent};
+                        console.log("will send msg content ", willSendMsgContent)
+                        console.log("will send msg uid ", uid)
+                        let guid = generalGuid();
+                        let willSendMsg = {
+                            "message_content": willShowMsgContent,
+                            "message_from_id": this.curUserInfo.id,
+                            "group_id": gorupId,
+                            "message_timestamp": curTimeSeconds,
+                            "message_type": sendingMsgContentType,
+                            "message_id": guid,
+                            };
+                        this.messageList.push(willSendMsg);
+                        this.existingMsgId.push(willSendMsg.message_id);
+                        
+                        let div = document.getElementById("message-show");
+                        setTimeout(() => {
+                            if(div) {
+                                this.$nextTick(() => {
+                                    console.log("div scrolltop is ", div.scrollHeight)
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
+                        }, 0)
+                        
+                        this.sendingMsgIdList.push(guid);
+                        this.cleanEditor();
+                        willSendMsg.content = willSendMsgContent;
+                        console.log("willSendMsg is ", willSendMsg);
+                    }
+                }
+            }
         },
         sendMsg: function() {
             let varcontent = this.editor.getContents();
@@ -570,102 +627,107 @@ export default {
                                         })
                                 })
                         }
-                        else{
-                            let sendingMsgContentType = 103;
-                            let picUrl = curMsgItem.fileBlot.src;
-                            let filePath = curMsgItem.fileBlot.localPath;
-                            let fileSize = curMsgItem.fileBlot.fileSize;
-                            let fileName = getFileNameInPath(filePath);
-                            console.log("chat file name is ", fileName)
-                            let ext = filePath.split(".").pop();
-                            let willShowMsgContent = JsonMsgContentToString({
-                                "ext":ext,
-                                "fileName":fileName,
-                                "url":"",
-                                "fileSize": fileSize
-                            })
-                            let guid = generalGuid();
-                            let willSendMsg = {
-                                "message_content": willShowMsgContent,
-                                "message_from_id": this.curUserInfo.id,
-                                "group_id": gorupId,
-                                "message_timestamp": curTimeSeconds,
-                                "message_type": sendingMsgContentType,
-                                "message_id": guid,
-                                };
-                            this.messageList.push(willSendMsg);
-                            this.existingMsgId.push(willSendMsg.message_id);
+                    }
+                    else if(curMsgItem.hasOwnProperty("span")) {
+                        var fileSpan = curMsgItem.span;
+                        var sendingMsgContentType = 103;
+                        var pathId = fileSpan.id;
+                        var filePath = this.idToPath[pathId];
+                        var showfu = new FileUtil(filePath);
+                        console.log("showfu ", showfu);
+                        var fileName = showfu.GetFilename();
+                        var fileSize = showfu.GetFileSize();
+                        var ext = showfu.GetExtname();
 
-                            let div = document.getElementById("message-show");
-                            setTimeout(() => {
-                                if(div) {
-                                    this.$nextTick(() => {
-                                        div.scrollTop = div.scrollHeight;
-                                    })
-                                }
-                            }, 0)
-                            
-                            this.sendingMsgIdList.push(guid);
-                            this.cleanEditor();
+                        // let ext = filePath.split(".").pop();
+                        let willShowMsgContent = JsonMsgContentToString({
+                            "ext":ext,
+                            "fileName":fileName,
+                            "url":"",
+                            "fileSize": fileSize
+                        })
+                        let guid = generalGuid();
+                        let willSendMsg = {
+                            "message_content": willShowMsgContent,
+                            "message_from_id": this.curUserInfo.id,
+                            "group_id": gorupId,
+                            "message_timestamp": curTimeSeconds,
+                            "message_type": sendingMsgContentType,
+                            "message_id": guid,
+                            };
+                        this.messageList.push(willSendMsg);
+                        console.log("willsendmsg is ", willSendMsg);
+                        this.existingMsgId.push(willSendMsg.message_id);
 
-                            // this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
-                            services.common.uploadFile(pathDeal(filePath))
-                                .then((ret) => {
-                                    // ToDo Failed List
-                                    console.log("UploadFile response ", ret);
-                                    var uploadRetData = ret.data.obj;
-                                    let willSendMsgContent = {};
-                                    willSendMsgContent.ext = uploadRetData.ext;
-                                    willSendMsgContent.fileName = uploadRetData.fileName;
-                                    willSendMsgContent.url = uploadRetData.url;
-                                    willSendMsgContent.fileSize = uploadRetData.fileSize;
-
-                                    // this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
-                                    services.common.sendNewMessage(
-                                            guid, 
-                                            sendingMsgContentType, 
-                                            this.curUserInfo.id, 
-                                            gorupId, 
-                                            uid, 
-                                            curTimeSeconds, 
-                                            willSendMsgContent)
-                                        .then((ret) => {
-                                            console.log("send img message ret ", ret)
-                                            if(ret == undefined) {
-                                                for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                                    if(this.sendingMsgIdList[i].guid == guid){
-                                                        this.sendingMsgIdList.splice(i, 1);
-                                                        break;
-                                                    }
-                                                }
-                                                this.failedList.push(willSendMsg);
-                                            }
-                                            else {
-                                                for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                                    if(this.sendingMsgIdList[i].message_id == guid){
-                                                        this.sendingMsgIdList.splice(i, 1);
-                                                        break;
-                                                    }
-                                                }
-                                                for(var i=0;i<this.failedList.length;i++){
-                                                    if(this.failedList[i].message_id == guid){
-                                                        this.failedList.splice(i, 1);
-                                                        break;
-                                                    }
-                                                }
-                                                for(var i=0;i<this.messageList.length;i++){
-                                                    if(this.messageList[i].message_id == guid){
-                                                        this.messageList[i] = ret;
-                                                        break;
-                                                    }
-                                                }
-                                                // this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', ret);
-
-                                            }
-                                        })
+                        let div = document.getElementById("message-show");
+                        setTimeout(() => {
+                            if(div) {
+                                this.$nextTick(() => {
+                                    div.scrollTop = div.scrollHeight;
                                 })
-                        }
+                            }
+                        }, 0)
+                        
+                        this.sendingMsgIdList.push(guid);
+                        this.cleanEditor();
+
+                        // this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
+                        services.common.uploadFile(pathDeal(filePath))
+                            .then((ret) => {
+                                // ToDo Failed List
+                                console.log("UploadFile response ", ret);
+                                var uploadRetData = ret.data.obj;
+                                let willSendMsgContent = {};
+                                willSendMsgContent.ext = uploadRetData.ext;
+                                willSendMsgContent.fileName = uploadRetData.fileName;
+                                willSendMsgContent.url = uploadRetData.url;
+                                willSendMsgContent.fileSize = uploadRetData.fileSize;
+
+                                // this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
+                                services.common.sendNewMessage(
+                                        guid, 
+                                        sendingMsgContentType, 
+                                        this.curUserInfo.id, 
+                                        gorupId, 
+                                        uid, 
+                                        curTimeSeconds, 
+                                        willSendMsgContent)
+                                    .then((ret) => {
+                                        console.log("send img message ret ", ret)
+                                        if(ret == undefined) {
+                                            for(var i=0;i<this.sendingMsgIdList.length;i++){
+                                                if(this.sendingMsgIdList[i].guid == guid){
+                                                    this.sendingMsgIdList.splice(i, 1);
+                                                    break;
+                                                }
+                                            }
+                                            this.failedList.push(willSendMsg);
+                                        }
+                                        else {
+                                            for(var i=0;i<this.sendingMsgIdList.length;i++){
+                                                if(this.sendingMsgIdList[i].message_id == guid){
+                                                    this.sendingMsgIdList.splice(i, 1);
+                                                    break;
+                                                }
+                                            }
+                                            for(var i=0;i<this.failedList.length;i++){
+                                                if(this.failedList[i].message_id == guid){
+                                                    this.failedList.splice(i, 1);
+                                                    break;
+                                                }
+                                            }
+                                            for(var i=0;i<this.messageList.length;i++){
+                                                if(this.messageList[i].message_id == guid){
+                                                    this.messageList[i] = ret;
+                                                    break;
+                                                }
+                                            }
+                                            // this.$store.commit("updateChatGroup", obj.message);
+                                            this.$emit('updateChatList', ret);
+
+                                        }
+                                    })
+                            })
                     }
                     else{
                         // Text
@@ -1054,6 +1116,8 @@ export default {
             showUserInfoTips: false,
             tipInfos: {},
             existingMsgId: [],
+            idToPath: {},
+            constStyle: 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url();background-size: contain;line-height: 46px;text-indent:50px;'
         }
     },
     mounted: function() {
