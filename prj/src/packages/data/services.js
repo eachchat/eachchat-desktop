@@ -574,7 +574,9 @@ const common = {
       groupmodel.save()
       this.data.group.push(groupmodel)
     }
-    sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
+    await sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
+    let maxSequenceId = await sqliteutil.FindMaxSequenceIDFromGroup();
+    await await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, maxSequenceId);
     this.data.selfuser.group_max_updatetime = updateTime;
   },
 

@@ -183,7 +183,21 @@ const sqliteutil = {
             group.un_read_count = 0;
             group.save();
         }
-    } 
+    },
+
+    async FindMaxSequenceIDFromGroup(){
+        let groups = await(await models.Groups).find(
+            {
+                $order: {
+                    by: 'sequence_id',
+                    reverse: true
+                    },
+                $size: 1
+            }
+        );
+        let sequenceID = groups[0].sequence_id;
+        return sequenceID;
+    }
 }
 
 export{
