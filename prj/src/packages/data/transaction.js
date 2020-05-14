@@ -9,9 +9,6 @@ class APITransaction {
     // 聊天、收藏、组织、认证、文件、安全、邮件
     // 公共服务
     this.commonApi = new net.HTTP(hostname, port);
-
-    // 本地服务
-    this.localApi = new net.HTTP("localhost", 9080);
   }
 
   parseStatus(response) {
@@ -34,18 +31,6 @@ class APITransaction {
     });
 
     return response;
-  }
-
-  async getAllDepartmentInfo() {
-    console.debug("getAllDepartment");
-    var response = await this.localApi.get("/static/department.json");
-    return this.parseStatus(response);
-  }
-
-  async getAllUserInfo() {
-    console.debug("getAllUser");
-    var response = await this.localApi.get("/static/user.json");
-    return this.parseStatus(response);
   }
 
   async login(username, password) {
