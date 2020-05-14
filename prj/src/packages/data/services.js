@@ -283,6 +283,11 @@ const common = {
     await this.AllDepartmentInfo();
     await this.listAllGroup();
     //await this.ReveiveNewMessage(0, 0);
+    
+  },
+
+  async dumpEncryptDB(){
+    await models.dumpEncryptDB();
   },
 
   async InitDbData()
@@ -989,6 +994,7 @@ const common = {
           find.values = collectionModel.values;
           find.save();
         }
+        sequenceId = collectionModel.sequence_id;
       }
     }
   },

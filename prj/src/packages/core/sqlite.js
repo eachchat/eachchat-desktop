@@ -5,11 +5,16 @@
  */
 
 import fs from 'fs';
+import {environment} from '../data/environment.js';
+import {SqliteEncrypt} from './aes.js';
 
 class Sqlite {
   constructor(filename) {
     this.db = undefined;
     this.filename = filename;
+
+    this.basePath = environment.path.base;
+    this.sqliteEncrypt = new SqliteEncrypt()
   }
 
   async init() {
@@ -47,9 +52,9 @@ class Sqlite {
     } else {
       if (fs.existsSync(filename)) {
         try {
-          fileBuffer = fs.readFileSync(filename);
+          let encryptBuffer = fs.readFileSync(filename);
           console.log('read buffer ok');
-
+          fileBuffer = this.sqliteEncrypt.decrypt(encryptBuffer);
         } catch(e) {
           console.log(e);
           fileBuffer = undefined;
@@ -124,8 +129,39 @@ class Sqlite {
     try {
       var data = this.db.export();
       var buffer = Buffer.from(data, 'binary');
-      fs.writeFileSync(this.filename, buffer);
+      let tmpFilepath = this.basePath + "/tmp.db";
+      fs.writeFileSync(tmpFilepath, buffer);
 
+      /*
+      if(buffer.length != 0){
+        let encryptBuf = this.sqliteEncrypt.encrypt(buffer);
+        if(encryptBuf != undefined){
+          fs.writeFileSync(this.filename, encryptBuf);
+        }
+      }
+      */
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  dumpEncryptDB(){
+    if (typeof this.db === 'undefined') {
+      return;
+    }
+
+    try {
+      var data = this.db.export();
+      var buffer = Buffer.from(data, 'binary');
+      let tmpFilepath = this.basePath + "/tmp.db";
+      fs.writeFileSync(tmpFilepath, buffer);
+
+      if(buffer.length != 0){
+        let encryptBuf = this.sqliteEncrypt.encrypt(buffer);
+        if(encryptBuf != undefined){
+          fs.writeFileSync(this.filename, encryptBuf);
+        }
+      }
     } catch (e) {
       console.log(e);
     }

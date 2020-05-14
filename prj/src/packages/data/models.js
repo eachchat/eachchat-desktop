@@ -21,6 +21,10 @@ var models = {
     this.storage.sqlite = this._initSqliteStorage();
   },
 
+  dumpEncryptDB(){
+    this.storage.sqlite.dumpEncryptDB();
+  },
+
   _initSqliteStorage() {
     if (typeof environment.path.sqlite == "undefined") {
       return undefined;
