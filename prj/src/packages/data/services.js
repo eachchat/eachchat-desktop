@@ -900,12 +900,12 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadFile(sequenceId) {
-    return await this.api.downloadFile(this.data.login.access_token, sequenceId)
+  async downloadFile(timelineId) {
+    return await this.api.downloadFile(this.data.login.access_token, timelineId)
   },
 
-  async downloadTumbnail(type, sequenceId) {
-    return await this.api.downloadTumbnail(this.data.login.access_token, type, sequenceId)
+  async downloadTumbnail(type, timelineId) {
+    return await this.api.downloadTumbnail(this.data.login.access_token, type, timelineId)
   },
   
   async CreateGroup(groupNameValue, groupUsersArray){

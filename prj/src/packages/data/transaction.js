@@ -325,9 +325,9 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async downloadFile(accessToken, sequenceId) {
+  async downloadFile(accessToken, timelineId) {
     var response = await this.commonApi.get(
-      "/api/services/file/v1/dfs/download/" + String(sequenceId),
+      "/api/services/file/v1/dfs/download/" + String(timelineId),
       {
         Authorization: "Bearer " + accessToken
       },
@@ -338,11 +338,11 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async downloadTumbnail(accessToken, type, sequenceId) {
+  async downloadTumbnail(accessToken, type, timelineId) {
     var path = "/api/services/file/v1/dfs/thumbnail/"
       + String(type)
       + "/"
-      + String(sequenceId);
+      + String(timelineId);
 
     var response = await this.commonApi.get(
       path,
