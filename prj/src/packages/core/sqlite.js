@@ -52,9 +52,10 @@ class Sqlite {
     } else {
       if (fs.existsSync(filename)) {
         try {
-          let encryptBuffer = fs.readFileSync(filename);
+          fileBuffer = fs.readFileSync(filename);
+          //let encryptBuffer = fs.readFileSync(filename);
           console.log('read buffer ok');
-          fileBuffer = this.sqliteEncrypt.decrypt(encryptBuffer);
+          //fileBuffer = this.sqliteEncrypt.decrypt(encryptBuffer);
         } catch(e) {
           console.log(e);
           fileBuffer = undefined;
@@ -130,7 +131,9 @@ class Sqlite {
       var data = this.db.export();
       var buffer = Buffer.from(data, 'binary');
       let tmpFilepath = this.basePath + "/tmp.db";
-      fs.writeFileSync(tmpFilepath, buffer);
+      //fs.writeFileSync(tmpFilepath, buffer);
+      fs.writeFileSync(this.filename, buffer);
+
 
       /*
       if(buffer.length != 0){
