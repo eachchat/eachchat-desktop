@@ -87,17 +87,15 @@ function getElementTop(element) {
     //     actTop += current.offsetTop;
     //     current = current.offsetParent;
     // }
+    // return actTop;
     var actTop = element.offsetTop;
     var current = element.offsetParent;
     while(current !== null){
         actTop += current.offsetTop;
         current = current.offsetParent;
     }
-    if (document.compatMode == 'BackCompat') {
-        var scrollTop = document.body.scrollTop;
-    } else {
-        var scrollTop = document.documentElement.scrollTop;
-    }
+    var msgListElement = document.getElementById("message-show-list");
+    var scrollTop = msgListElement.scrollTop;
     return actTop - scrollTop;
 }
 
