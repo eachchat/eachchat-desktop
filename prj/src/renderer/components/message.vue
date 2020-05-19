@@ -14,10 +14,7 @@
                     <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" alt="图片" :height="imageHeight">
-                        <!-- <div class="msg-image-loading" id="msg-image-loading-id" v-show="imageLoading">
-                            <i class="el-icon-loading" style="line-height:100px"></i>
-                        </div> -->
+                        <img class="msg-image" :id="msg.message_id" src="/static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -40,10 +37,7 @@
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" alt="图片" :height="imageHeight">
-                        <!-- <div class="msg-image-loading" id="msg-image-loading-id" v-show="imageLoading">
-                            <i class="el-icon-loading" style="line-height:100px"></i>
-                        </div> -->
+                        <img class="msg-image" :id="msg.message_id" src="/static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -172,7 +166,6 @@ export default {
         },
         checkAndLoadImg: function(distPath) {
             var checkingPath = distPath;
-            console.log("checkpath si ", checkingPath)
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
             var msg_id = this.msg.message_id;
             var imgMsgImgElement = document.getElementById(msg_id);
@@ -191,13 +184,8 @@ export default {
                             this.imageHeight = imageHeight;
                             imgMsgImgElement.setAttribute("src", reader.result);
                             imgMsgImgElement.setAttribute("height", imageHeight);
+                            imgMsgImgElement.setAttribute("style", "");
                         }
-                        this.imageLoading = false;
-                        this.imageShow = true;
-                        // this.$nextTick(() => {
-                        //     var needHideElement = document.getElementById("msg-image-loading-id");
-                        //     needHideElement.style = "display:none";
-                        // })
                         return;
                     }
                     checking();
@@ -231,9 +219,8 @@ export default {
                 var targetPath = targetDir + '\\' + targetFileName;
                 var needOpen = false;
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
+                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;")
                 if(fs.existsSync(targetPath)){
-                    this.imageLoading = false;
-                    this.imageShow = true;
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                     var showfu = new FileUtil(targetPath);
                     let showfileObj = showfu.GetUploadfileobj();
@@ -247,6 +234,7 @@ export default {
                         this.imageHeight = imageHeight;
                         imgMsgImgElement.setAttribute("src", reader.result);
                         imgMsgImgElement.setAttribute("height", imageHeight);
+                        imgMsgImgElement.setAttribute("style", "");
                     }
                 }
                 else{
@@ -398,15 +386,13 @@ export default {
             fileName: '',
             fileIcon: '',
             fileSize: 0,
-            imageHeight: 46,
+            imageHeight: 100,
             editorOption : {
                 placeholder: "",
                 theme:'bubble',
             },
             userIconElement: null,
             userInfo: null,
-            imageLoading: true,
-            imageShow: false,
         }
     },
     mounted: async function() {
@@ -590,12 +576,6 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
-    }
-
-    .msg-image-loading {
-        height: 100px;
-        text-align: center;
-        border: 1px solid rgb(245,246,247);
     }
 
     .chat-msg-content-others-file {
