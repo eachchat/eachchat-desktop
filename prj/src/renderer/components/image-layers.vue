@@ -8,9 +8,10 @@
 </template>
 
 <script>
-import {downloadGroupAvatar, strMsgContentToJson} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
+import * as fs from 'fs-extra'
 export default {
     name: 'ImageLayers',
     props: ['imgSrcInfo', 'access_token'],
@@ -25,6 +26,7 @@ export default {
     },
     methods: {
         Close: function() {
+            this.imgSrcInfo = "";
             this.$emit("closeImageOfMessage");
         },
         calcImgPosition: function() {
@@ -84,25 +86,46 @@ export default {
             if(this.imgSrcInfo == "") {
                 return;
             }
-            
-            var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
-            this.imgHeight = msgContent.imgHeight;
-            this.imgWidth = msgContent.imgWidth;
-            if(this.imgHeight > 400) {
-                this.imgHeight = 400;
+
+            if(fs.existsSync(this.imgSrcInfo.targetPath)){
+                var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
+                var showfu = new FileUtil(this.imgSrcInfo.targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                this.imgHeight = msgContent.imgHeight;
+                this.imgWidth = msgContent.imgWidth;
+                if(this.imgHeight > 400) {
+                    this.imgHeight = 400;
+                }
+                var showPosition = this.calcImgPosition();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    this.ImgElement.setAttribute("src", reader.result);
+                    this.ImgElement.setAttribute("height", this.imgHeight);
+                    this.ImgElement.style.left = showPosition.left.toString() + "px";
+                    this.ImgElement.style.top = showPosition.top.toString() + "px";
+                }
             }
-            var showPosition = this.calcImgPosition();
-            this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.imgSrcInfo.time_line_id)
-                .then((ret) => {
-                    let reader = new FileReader();
-                    reader.readAsDataURL(ret.data);
-                    reader.onloadend = () => {
-                        this.ImgElement.setAttribute("src", reader.result);
-                        this.ImgElement.setAttribute("height", this.imgHeight);
-                        this.ImgElement.style.left = showPosition.left.toString() + "px";
-                        this.ImgElement.style.top = showPosition.top.toString() + "px";
-                    }
-                })
+            else{
+                var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
+                this.imgHeight = msgContent.imgHeight;
+                this.imgWidth = msgContent.imgWidth;
+                if(this.imgHeight > 400) {
+                    this.imgHeight = 400;
+                }
+                var showPosition = this.calcImgPosition();
+                this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.imgSrcInfo.time_line_id)
+                    .then((ret) => {
+                        let reader = new FileReader();
+                        reader.readAsDataURL(ret.data);
+                        reader.onloadend = () => {
+                            this.ImgElement.setAttribute("src", reader.result);
+                            this.ImgElement.setAttribute("height", this.imgHeight);
+                            this.ImgElement.style.left = showPosition.left.toString() + "px";
+                            this.ImgElement.style.top = showPosition.top.toString() + "px";
+                        }
+                    })
+            }
         }
     }
 }

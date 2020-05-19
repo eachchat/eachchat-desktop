@@ -869,8 +869,13 @@ export default {
                 {
                     var invitees = chatGroupMsgContent.userInfos;
                     var inviteeNames = "";
-                    for(var i=0;i<invitees.length;i++) {
-                        inviteeNames = inviteeNames + "、" + invitees[i].userName
+                    if(invitees.length == 1){
+                        inviteeNames = invitees[0].userName
+                    }
+                    else{
+                        for(var i=0;i<invitees.length;i++) {
+                            inviteeNames = inviteeNames + "、" + invitees[i].userName
+                        }
                     }
                     var inviter = chatGroupMsgContent.userName;
                     return inviter + " 邀请 " + inviteeNames + " 加入群聊";

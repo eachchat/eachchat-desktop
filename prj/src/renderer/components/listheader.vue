@@ -7,7 +7,7 @@
             <i class="el-icon-circle-plus-outline"></i>
             <el-dropdown-menu class="new-chat-content" slot="dropdown">
                 <el-dropdown-item class="create-new-group" icon="el-icon-connection" @click.native="showCreateGroup">
-                创建群聊
+                发起群聊
                 </el-dropdown-item>
                 <!-- <el-dropdown-item class="create-new-secret" icon="el-icon-lock">
                 进入密聊

@@ -1,4 +1,6 @@
-import { app, BrowserWindow, Menu, dialog} from 'electron'
+import { app, BrowserWindow, Menu, dialog, shell} from 'electron'
+import axios from "axios"
+import fs from 'fs'
 
 /**
  * Set `__static` path to static files in production
@@ -28,6 +30,115 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
   openDevToolsInDevelopment(mainPageWindow);
+});
+
+ipcMain.on("download-file", function(event, arg) {
+  var hostname = arg[2];
+  var baseURL = "http://" + hostname;
+  var port = arg[3];
+  var timelineID = arg[0];
+  var token = arg[1];
+  var distPath = arg[4];
+  var needOpen = arg[5];
+
+  if (typeof port == "number") {
+    port = port;
+  }
+
+  var sender = axios.create({
+    baseURL: baseURL + ":" + String(port)
+  });
+
+  var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
+  var headers = {
+    Authorization: "Bearer " + token
+  };
+  var appendix = {
+    timeout: 35000,
+    responseType: "stream"
+  };
+
+  var config = Object.assign({
+    headers: headers,
+  }, appendix);
+
+  sender.get(path, config)
+    .then(function (ret) {
+      console.log("sender get is ", ret);
+      ret.data.pipe(fs.createWriteStream(distPath));
+      if(needOpen) {
+        shell.openExternal(distPath);
+      }
+    });
+});
+
+ipcMain.on("download-avarar", function(event, arg) {
+  var baseURL = arg[0];
+  var token = arg[1];
+  var distPath = arg[2];
+  var distTemp = distPath + "_tmp";
+
+  var headers = {
+    Authorization: "Bearer " + token
+  };
+  var appendix = {
+    timeout: 35000,
+    responseType: "stream"
+  };
+
+  var config = Object.assign({
+    headers: headers,
+  }, appendix);
+
+  sender.get(baseURL, config)
+    .then(function (ret) {
+      ret.data.pipe(fs.createWriteStream(distTemp)
+        .on('finish', function() {
+          fs.rename(distTemp, distPath);
+        }));
+    });
+});
+
+ipcMain.on("download-image", function(event, arg) {
+  var hostname = arg[2];
+  var baseURL = "http://" + hostname;
+  var port = arg[3];
+  var timelineID = arg[0];
+  var token = arg[1];
+  var distPath = arg[4];
+  var distTemp = distPath + "_tmp";
+  var thumbType = arg[5];
+  var needOpen = arg[5];
+
+  if (typeof port == "number") {
+    port = port;
+  }
+
+  var sender = axios.create({
+    baseURL: baseURL + ":" + String(port)
+  });
+
+  var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
+  var headers = {
+    Authorization: "Bearer " + token
+  };
+  var appendix = {
+    timeout: 35000,
+    responseType: "stream"
+  };
+
+  var config = Object.assign({
+    headers: headers,
+  }, appendix);
+
+  sender.get(path, config)
+    .then(function (ret) {
+      console.log("sender get is ", ret);
+      ret.data.pipe(fs.createWriteStream(distTemp)
+        .on('finish', function() {
+          fs.rename(distTemp, distPath);
+        }));
+    });
 });
 
 ipcMain.on('open-directory-dialog', function(event, arg) {

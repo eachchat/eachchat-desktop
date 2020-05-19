@@ -5,6 +5,7 @@ import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
 import { sqliteutil } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
+import store from '../../renderer/store/index.js';
 
 const mqtt = require('mqtt')
 
@@ -276,6 +277,7 @@ const common = {
       currentlogin.save();
       this.data.login = currentlogin;
     }    
+    store.commit("setUserId", selfuser.id);
   },
 
   async InitServiceData(){
@@ -475,6 +477,8 @@ const common = {
 
     this.data.login.access_token = result.headers["access-token"];
     this.data.login.save()
+
+    store.commit("setUserId", this.data.login.user_id);
     return ret;
   },
 
