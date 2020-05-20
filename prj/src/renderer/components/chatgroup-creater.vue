@@ -439,7 +439,16 @@ export default {
         }
         for (var i = 0; i < this.allUsers.length; i ++) {
             var user = this.allUsers[i];
-            if (user.department_id == tempRootDepartment.department_id) {
+            var disabled = false;
+            for(var j = 0; j < this.disableUsers.length; j ++){
+                var disableUser = this.disableUsers[j];
+                if (user.id == disableUser.user_id){
+                    disabled = true;
+                    break;
+                }
+            }
+            
+            if (user.department_id == tempRootDepartment.department_id && !disabled) {
                 tempUsers.push(user);
             }
         }
