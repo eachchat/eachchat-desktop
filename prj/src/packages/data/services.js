@@ -48,6 +48,11 @@ const common = {
       return;
     }
     this.data.login = foundlogin[0];
+
+    if(!await this.tokenValid())
+    {
+      await this.refreshToken();
+    }
     return this.data.login;
   },
 
@@ -622,8 +627,12 @@ const common = {
     return await this.api.getNewVersion(this.data.login.access_token)
   },
 
-  async tokenValid(accessToken) {
-    return await this.api.tokenValid(this.data.login.access_token)
+  async tokenValid() {
+    let result = await this.api.tokenValid(this.data.login.access_token)
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return true;
   },
 
   async clientIncrement(name,
@@ -1060,6 +1069,14 @@ const common = {
       return false;
     }
     await sqliteutil.DeleteItemFromCollectionByCollectionIdID(gorupID)
+  },
+
+  async updateGroup(groupID, groupName){
+    let result = await this.api.updateGroup(this.data.login.access_token, groupID, groupName);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    console.log(result)
   }
   
 };

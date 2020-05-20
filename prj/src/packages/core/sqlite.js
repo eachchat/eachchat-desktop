@@ -6,7 +6,7 @@
 
 import fs from 'fs';
 import {environment} from '../data/environment.js';
-import {SqliteEncrypt} from './aes.js';
+//import {SqliteEncrypt} from './aes.js';
 
 class Sqlite {
   constructor(filename) {
@@ -14,7 +14,7 @@ class Sqlite {
     this.filename = filename;
 
     this.basePath = environment.path.base;
-    this.sqliteEncrypt = new SqliteEncrypt()
+    //this.sqliteEncrypt = new SqliteEncrypt()
   }
 
   async init() {

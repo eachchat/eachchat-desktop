@@ -422,6 +422,20 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async updateGroup(accessToken, groupID, groupName){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group",
+      {
+        groupId: groupID,
+	      groupName: groupName
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
 }
 
 class MQTTTransaction {}
