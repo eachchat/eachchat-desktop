@@ -49,11 +49,18 @@ const common = {
     }
     this.data.login = foundlogin[0];
 
+    var ret = {
+      "state": true,
+      "msg": ""
+    };
     if(!await this.tokenValid())
     {
-      await this.refreshToken();
+      ret = await this.refreshToken();
+      if(ret.state == false){
+        return ret;
+      }
     }
-    return this.data.login;
+    return ret;
   },
 
   async GetSelfUserModel(){
@@ -299,13 +306,17 @@ const common = {
 
   async InitDbData()
   {
-    await this.GetLoginModel();
+    let ret = await this.GetLoginModel();
+    if(ret.state == false){
+      return ret;
+    }
     await this.GetSelfUserModel();
     await this.UpdateGroups();
     await this.UpdateUserinfo();
     await this.UpdateDepartment();
     await this.UpdateMessages();
     await this.ListAllCollections();
+    return ret;
   },
 
   async UpdateDepartment(){
