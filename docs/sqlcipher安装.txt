@@ -1,0 +1,20 @@
+1 cnmp install sqlite3 --save-dev
+
+2 下载sqlcipher并编译，window参考 
+https://github.com/sqlitebrowser/sqlitebrowser/wiki/Win64-setup-%E2%80%94-Compiling-SQLCipher
+
+2 切换到node_modules/sqlite3目录,修改binding.gyp,
+参考https://www.cnblogs.com/NKnife/p/10515662.html
+
+
+3 执行命令：
+node-gyp configure --module_name=node_sqlite3 --module_path=../lib/binding/electron-v2.0-win32-x64
+
+4 执行命令：
+node-gyp rebuild --target=2.0.4 --arch=x64 --target_platform=win32 --dist-url=https://atom.io/download/electron --module_name=node_sqlite3 --sqlite_libname=sqlcipher --module_path=../lib/binding/electron-v2.0-win32-x64 --runtime=electron
+
+因为window下编译出来的是动态库，然后将libcrypto-1_1-x64.dll和sqlcipher.dll放到node_modules/sqlite3/lib/binding/electron-b2.0-win32-x64目录下。
+
+
+
+
