@@ -1113,7 +1113,7 @@ const common = {
   async DeleteGroup(groupID){
     let result = await this.api.DeleteGroup(this.data.login.access_token, groupID);
     if (!result.ok || !result.success) {
-      return false;
+      return result;
     }
     await sqliteutil.DeleteGroupByGroupID(groupID)
   }

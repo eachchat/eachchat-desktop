@@ -483,6 +483,19 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async UpdateGroupNotice(accessToken, groupID, notice){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group/notice",
+      {
+        groupId: groupID,
+	      notice: notice
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}
