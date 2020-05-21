@@ -49,10 +49,12 @@ const common = {
     }
     this.data.login = foundlogin[0];
 
+    /*
     if(!await this.tokenValid())
     {
       await this.refreshToken();
     }
+    */
     return this.data.login;
   },
 
