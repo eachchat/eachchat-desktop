@@ -1071,12 +1071,13 @@ const common = {
     await sqliteutil.DeleteItemFromCollectionByCollectionIdID(gorupID)
   },
 
-  async updateGroup(groupID, groupName){
-    let result = await this.api.updateGroup(this.data.login.access_token, groupID, groupName);
+  async UpdateGroupName(groupID, groupName){
+    let result = await this.api.UpdateGroupName(this.data.login.access_token, groupID, groupName);
     if (!result.ok || !result.success) {
       return false;
     }
-    console.log(result)
+    //let groupModel = await servicemodels.IncrementGroupModel(result.data.obj);
+    //await sqliteutil.UpdateGroupName(groupID, groupName)
   }
   
 };

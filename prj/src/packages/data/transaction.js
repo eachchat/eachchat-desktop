@@ -423,7 +423,7 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async updateGroup(accessToken, groupID, groupName){
+  async UpdateGroupName(accessToken, groupID, groupName){
     var response = await this.commonApi.put(
       "/api/apps/im/v1/group",
       {

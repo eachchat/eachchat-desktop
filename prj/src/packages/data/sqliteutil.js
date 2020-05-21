@@ -197,6 +197,17 @@ const sqliteutil = {
         );
         let sequenceID = groups[0].sequence_id;
         return sequenceID;
+    },
+
+    async UpdateGroupName(groupID, groupName){
+        let groups = await (await models.Groups).find({
+            group_id: groupID
+        });
+        if(groups.length != 0){
+            let group = groups[0]
+            group.group_name = groupName;
+            group.save();
+        }
     }
 }
 
