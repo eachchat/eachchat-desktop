@@ -1092,10 +1092,15 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
+  },
+
+  async DeleteHistoryMessage(groupID, sequenceID){
+    let result = await this.api.DeleteHistoryMessage(this.data.login.access_token, groupID, sequenceID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await sqliteutil.ClearMessageByGroupID(groupID)
   }
-
-
-  
 };
 
 const cache = {

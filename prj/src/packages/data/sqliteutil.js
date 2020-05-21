@@ -208,6 +208,17 @@ const sqliteutil = {
             group.group_name = groupName;
             group.save();
         }
+    },
+
+    async ClearMessageByGroupID(groupID){
+        let msgs = await (await models.Message).find({
+            group_id: groupID
+        }); 
+        if(msgs.length != 0){
+            for(let item in msgs){
+                msgs[item].destroy();
+            }
+        }
     }
 }
 

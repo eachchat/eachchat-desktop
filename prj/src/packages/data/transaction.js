@@ -462,6 +462,19 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async DeleteHistoryMessage(accessToken, groupID, sequenceID){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/message/history",
+      {
+        groupId: groupID,
+	      sequenceId: sequenceID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
 }
 
 class MQTTTransaction {}
