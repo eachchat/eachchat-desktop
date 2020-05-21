@@ -1078,7 +1078,23 @@ const common = {
     }
     //let groupModel = await servicemodels.IncrementGroupModel(result.data.obj);
     //await sqliteutil.UpdateGroupName(groupID, groupName)
+  },
+
+  async DeleteGroupUsers(groupID, userIDs){
+    let result = await this.api.DeleteGroupUsers(this.data.login.access_token, groupID, userIDs);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+  },
+
+  async AddGroupUsers(groupID, userIDs){
+    let result = await this.api.AddGroupUsers(this.data.login.access_token, groupID, userIDs);
+    if (!result.ok || !result.success) {
+      return false;
+    }
   }
+
+
   
 };
 

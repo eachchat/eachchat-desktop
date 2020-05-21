@@ -436,6 +436,32 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async DeleteGroupUsers(accessToken, groupID, userIDs){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/user/del",
+      {
+        groupId: groupID,
+	      userIds: userIDs
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async AddGroupUsers(accessToken, groupID, userIDs){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/user/add",
+      {
+        groupId: groupID,
+	      userIds: userIDs
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
 }
 
 class MQTTTransaction {}
