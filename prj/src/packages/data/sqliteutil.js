@@ -42,7 +42,7 @@ const sqliteutil = {
             id: userid
           });
         if(foundUsers.length == 0){
-        return;
+            return;
         }
         foundUsers[0].group_max_updatetime = updatetime;
         foundUsers[0].save();
@@ -218,6 +218,15 @@ const sqliteutil = {
             for(let item in msgs){
                 msgs[item].destroy();
             }
+        }
+    },
+
+    async DeleteGroupByGroupID(groupID){
+        let groups = await (await models.Groups).find({
+            group_id: groupID
+        });
+        if(groups.length != 0){
+            groups[0].destroy();
         }
     }
 }

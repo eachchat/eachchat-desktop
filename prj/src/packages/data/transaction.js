@@ -475,6 +475,14 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async DeleteGroup(accessToken, groupID){
+    var response = await this.commonApi.delete(
+      "/api/apps/im/v1/group/" + groupID,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

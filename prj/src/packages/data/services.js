@@ -582,8 +582,11 @@ const common = {
       {
         continue
       }
-      groupmodel.save()
-      this.data.group.push(groupmodel)
+      if(groupModel.status[5] != 1){
+        groupmodel.save()
+        this.data.group.push(groupmodel)
+      }
+      
     }
     await sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
     let maxSequenceId = await sqliteutil.FindMaxSequenceIDFromGroup();
@@ -690,6 +693,9 @@ const common = {
         groupModel = await servicemodels.IncrementGroupModel(groupItem);
       }
       groupModel.save();
+      if(groupModel.status[5] == 1){
+        await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
+      }
     }
     sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, groupModel.updatetime)
     this.data.selfuser.group_max_updatetime = groupModel.updatetime;
@@ -1102,6 +1108,14 @@ const common = {
       return false;
     }
     await sqliteutil.ClearMessageByGroupID(groupID)
+  },
+
+  async DeleteGroup(groupID){
+    let result = await this.api.DeleteGroup(this.data.login.access_token, groupID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await sqliteutil.DeleteGroupByGroupID(groupID)
   }
 };
 
