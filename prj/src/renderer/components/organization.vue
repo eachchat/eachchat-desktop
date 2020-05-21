@@ -7,16 +7,16 @@
             <div class="list-content">
                 <div class="organization-view">
                     <div class="item" @click="organizationMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Image/organization_list@2x.png">
+                        <img class="item-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
                         <div class="item-info">
                             <p class="item-title">组织架构</p>
                         </div>
                         <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
+                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </div>
                 </div>
-                <div class="recentUsers-view">
+                <!-- <div class="recentUsers-view">
                     <div class="item" @click="recentUsersMenuItemClicked()">
                         <img class="item-icon" src="../../../static/Image/recentUsers_list@2x.png">
                         <div class="item-info">
@@ -37,7 +37,7 @@
                             </div>
                         </li>
                     </ul>
-                </div>
+                </div> -->
                     
 <!-- 
 
@@ -101,7 +101,7 @@ export default {
             usersSelected: [],
             recentUsers: [],
             showRecentUsersMenuItem: false,
-            arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
+            //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
     methods: {

@@ -11,7 +11,7 @@
         <div class="userAction-view">
             <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img class="userChatIcon" src="../../../static/Image/userInfoChat_icon@2x.png">
+            <img class="userChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png">
         </div>
         <div class="userOrganizationInfo-view" v-show="showOrganizationView">
             <div class="userOrganization-header">
