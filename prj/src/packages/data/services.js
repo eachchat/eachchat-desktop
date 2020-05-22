@@ -1137,6 +1137,28 @@ const common = {
     if (!result.ok || !result.success) {
       return result;
     }
+  },
+
+  async SetFilePath(msgID, filePath){
+    let value = {
+      message_id : msgID,
+      file_path : filePath
+    }
+    let paths = await (await models.FilePath).find({
+      message_id: msgID
+    });
+    if(paths.length == 0)
+    {
+      let filepathModel = await new(await models.FilePath)(value);
+      filepathModel.save();
+    }
+  },
+
+  async GetFilePath(msgID){
+    let paths = await (await models.FilePath).find({
+      message_id: msgID
+    });
+    return paths;
   }
 };
 
