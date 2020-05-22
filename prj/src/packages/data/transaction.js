@@ -502,13 +502,11 @@ class APITransaction {
     let file = fu.GetUploadfileobj();
     var formData = new FormData();
     formData.append('file', file);
+    formData.append('groupId', groupID);
 
     var response = await this.commonApi.post(
       "/api/apps/im/v1/group/avatar",
-      {
-        formData,
-        groupId: groupID
-      },
+      formData,
       {
         Authorization: "Bearer " + accessToken,
         "Content-Type": fu.GetMimename()
