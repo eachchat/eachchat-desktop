@@ -1133,10 +1133,11 @@ const common = {
 
   async GroupStatus(groupID, userID, stickFlag, disturbFlag){
     let result = await this.api.GroupStatus(this.data.login.access_token, groupID, userID, stickFlag, disturbFlag);
-    console.log(result)
     if (!result.ok || !result.success) {
       return result;
     }
+    let status = result.data.obj.status;
+    await sqliteutil.UpdateGroupStatus(groupID, status)
   },
 
   async SetFilePath(msgID, filePath){
