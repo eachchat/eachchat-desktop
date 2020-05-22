@@ -1123,9 +1123,7 @@ const common = {
   },
 
   async UpdateGroupAvatar(groupID, filePath){
-    console.log(filePath)
     let result = await this.api.UpdateGroupAvatar(this.data.login.access_token, groupID, filePath);
-    console.log(result)
     if (!result.ok || !result.success) {
       return result;
     }
@@ -1160,6 +1158,13 @@ const common = {
       message_id: msgID
     });
     return paths;
+  },
+
+  async QuitGroup(groupID){
+    let result = await this.api.QuitGroup(this.data.login.access_token, groupID);
+    if (!result.ok || !result.success) {
+      return result;
+    }
   }
 };
 
