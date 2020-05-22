@@ -496,6 +496,43 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async UpdateGroupAvatar(accessToken, groupID, filePath){
+    var fu = new FileUtil(filePath);
+    let file = fu.GetUploadfileobj();
+    var formData = new FormData();
+    formData.append('file', file);
+
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/avatar",
+      {
+        formData,
+        groupId: groupID
+      },
+      {
+        Authorization: "Bearer " + accessToken,
+        "Content-Type": fu.GetMimename()
+      },
+      {
+        timeout: 15000
+      });
+    return this.parseStatus(response);
+  }
+
+  async GroupStatus(accessToken, groupID, userID, stickFlag, disturbFlag){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group/status",
+      {
+        groupId:      groupID,
+        userId:       userID,
+        stickFlag:    stickFlag,
+        disturbFlag:  disturbFlag
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

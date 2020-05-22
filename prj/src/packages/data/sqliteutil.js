@@ -133,6 +133,15 @@ const sqliteutil = {
         }
         return collections[0].sequence_id;
     },
+    
+    async FindCollectionByType(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type,
+            }
+        );
+        return collections;
+    },
 
     async ExistCollection(collectionId){
         let collections = await(await models.Collection).find(
