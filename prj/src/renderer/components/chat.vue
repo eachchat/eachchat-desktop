@@ -3,7 +3,7 @@
         <div class="chat-title">
             <p class="chat-name" id="chat-group-name"></p>
             <div class="chat-tools">
-                <div class="chat-tool-more" @click="More()">
+                <div class="chat-tool-more" @click="More()" style="display:none">
                     <i class="el-icon-more"></i>
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
@@ -35,7 +35,7 @@
                         <div class="chat-input-file" @click="insertFiles()">
                             <img class="el-icon-files" src="/static/Img/Chat/file@3x.png">
                         </div>
-                        <div class="chat-input-more" @click="ShowMore()">
+                        <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="/static/Img/Chat/chat_more@3x.png">
                         </div>
                     </div>
@@ -52,7 +52,7 @@
                 </div>
             </div>
         </div>
-        <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos"></userInfoTip>
+        <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
@@ -158,6 +158,11 @@ export default {
                 this.editor.insertText(curIndex, '\n');
             }
         },
+        getCreateGroupInfo(groupInfo) {
+            console.log("chat get create group info is ", groupInfo);
+            this.$emit('getCreateGroupInfo', groupInfo);
+            this.showUserInfoTips = false;
+        },
         showImageOfMessage(imgSrcInfo) {
             this.$emit('showImageOfMessage', imgSrcInfo);
         },
@@ -165,9 +170,11 @@ export default {
             this.tipInfos = tipInfos;
             this.showUserInfoTips = true;
         },
-        closeUserInfoTip(){
-            this.tipInfos = {};
-            this.showUserInfoTips = false;
+        closeUserInfoTip(e){
+            var userInfoTipElement = document.getElementById("userInfoTipId");
+            if(!userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img"){
+                this.showUserInfoTips = false;
+            }
         },
         showExpression: function() {
             this.showFace = !this.showFace;
@@ -257,10 +264,13 @@ export default {
             ipcRenderer.send('open-directory-dialog', 'openFile');
             ipcRenderer.on('selectedItem', this.nHandleFiles);
         },
+        insertImg: function() {
+            console.log("============== this is ", this);
+        },
         nHandleFiles: function(e, paths) {
             // Select Same File Failed.
             var fileList = paths;
-            console.log("======", fileList)
+            // console.log("======", fileList)
             if(fileList === null || fileList.length === 0) {
                 alert("请选择一个文件/文件夹。");
             }
@@ -270,33 +280,50 @@ export default {
                     console.log("filelist[i] = ", fileList[i])
                     if(this.waitForSendingFiles.indexOf(fileList[i] != -1)) {
                         var range = this.editor.getSelection();
-                        console.log("this. editor is ", this.editor)
                         var curIndex = range==null ? 0 : range.index;
 
                         var showfu = new FileUtil(fileList[i]);
                         var showfileObj = showfu.GetUploadfileobj();
+                        var imgurl = URL.createObjectURL(showfileObj)
                         var fileType = showfu.GetMimename();
                         var fileExt = showfu.GetExtname();
                         var fileName = showfu.GetFilename()
 
                         if(fileType.split("/")[0] == "image"){
                             // Image
-                            let reader = new FileReader();
-                            reader.readAsDataURL(showfileObj);
-                            reader.onloadend = () => {
-                                var img = new Image();
-                                img.src = reader.result;
-                                img.onload = function(){
-                                    let srcHeight = img.height;
-                                    console.log("this.editor is ", this.editor)
-                                }
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", fileHeight: 46});
+                            var img = new Image();
+                            img.src = fileList[i];
+                            img.onload = () => {
+                                var imgHeight = 46;
+                                var imgWidth = img.width * (46/img.height);
+                                var range = this.editor.getSelection();
+                                var curIndex = range==null ? 0 : range.index;
+                                var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
+                                complexSpan.id = generalGuid();
+                                complexSpan.innerHTML = " ";
+                                var indexUrl = this.imgConstStyle.indexOf("background-image: url(") + "background-image: url(".length;
+                                var distStyle = insertStr(this.imgConstStyle, indexUrl, imgurl);
+                                var indexWidth = this.imgConstStyle.indexOf(";width:") + ";width:".length;
+                                distStyle = insertStr(distStyle, indexWidth, imgWidth.toString() + "px");
+                                // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
+                                complexSpan.style = distStyle;
+                                let msgInfo = {
+                                    "path": curPath,
+                                    "type": "image",
+                                    "height": img.height,
+                                    "width": img.width
+                                };
+                                this.idToPath[complexSpan.id] = msgInfo;
+
+                                this.editor.insertEmbed(curIndex, 'span', complexSpan);
                                 this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                                this.editor.insertText(curIndex + 1, " ");
                             }
                         }
                         else {
                             // File
-                            var iconPath = '/' + getIconPath(fileExt);
+                            var iconPath = getIconPath(fileExt);
+                            console.log("iconpath is ", iconPath)
                             var range = this.editor.getSelection();
                             var curIndex = range==null ? 0 : range.index;
                             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
@@ -305,11 +332,19 @@ export default {
                             var indexTemp = this.constStyle.indexOf("background-image: url(") + "background-image: url(".length;
                             var distStyle = insertStr(this.constStyle, indexTemp, iconPath);
                             // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
+                            console.log("diststyle is ", distStyle);
                             complexSpan.style = distStyle;
-                            this.idToPath[complexSpan.id] = fileList[i];
+                            let msgInfo = {
+                                "path": curPath,
+                                "type": "file",
+                                "height": 0,
+                                "width": 0
+                            };
+                            this.idToPath[complexSpan.id] = msgInfo;
 
                             this.editor.insertEmbed(curIndex, 'span', complexSpan);
                             this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                            this.editor.insertText(curIndex + 1, " ");
                         }
                     }
                     console.log("finished")
@@ -387,7 +422,7 @@ export default {
                                 "thumbnailImage": filePath,
                                 "imgWidth": "",
                                 "imgHeight": fileHeight,
-                                "fileSize": fileSize
+                                "fileSize": fileSize,
                             });
                             var guid = generalGuid();
                             let willSendMsg = {
@@ -419,8 +454,10 @@ export default {
                         var sendingMsgContentType = 103;
                         var pathId = fileSpan.id;
                         console.log("fileSpan.id = ", fileSpan.id);
-                        var filePath = this.idToPath[pathId];
+                        var msgInfo = this.idToPath[pathId];
                         console.log("this.idToPath is ", this.idToPath)
+                        var filePath = msgInfo.path;
+                        var fileType = msgInfo.type;
                         var showfu = new FileUtil(filePath);
                         var fileName = showfu.GetFilename();
                         var fileSize = showfu.size;
@@ -518,14 +555,112 @@ export default {
                     let curMsgItem = varcontent.ops[i].insert;
                     let curTimeSeconds = new Date().getTime();
                     
-                    if(curMsgItem.hasOwnProperty("fileBlot")){
-                        if(curMsgItem.fileBlot.type == "image"){
+                    if(curMsgItem.hasOwnProperty("span")) {
+                        var fileSpan = curMsgItem.span;
+                        var pathId = fileSpan.id;
+                        var msgInfo = this.idToPath[pathId];
+                        console.log("this.idToPath is ", this.idToPath)
+                        var filePath = msgInfo.path;
+                        var fileType = msgInfo.type;
+                        var showfu = new FileUtil(filePath);
+                        console.log("showfu ", showfu);
+                        var fileName = showfu.GetFilename();
+                        var fileSize = showfu.GetFileSize();
+                        var ext = showfu.GetExtname();
+                        if(fileType == "file"){
+                            let sendingMsgContentType = 103;
+                            // let ext = filePath.split(".").pop();
+                            let willShowMsgContent = JsonMsgContentToString({
+                                "ext":ext,
+                                "fileName":fileName,
+                                "url":"",
+                                "fileSize": fileSize
+                            })
+                            let guid = generalGuid();
+                            let willSendMsg = {
+                                "message_content": willShowMsgContent,
+                                "message_from_id": this.curUserInfo.id,
+                                "group_id": gorupId,
+                                "message_timestamp": curTimeSeconds,
+                                "message_type": sendingMsgContentType,
+                                "message_id": guid,
+                                };
+                            this.messageList.push(willSendMsg);
+                            console.log("willsendmsg is ", willSendMsg);
+                            this.existingMsgId.push(willSendMsg.message_id);
+
+                            let div = document.getElementById("message-show");
+                            setTimeout(() => {
+                                if(div) {
+                                    this.$nextTick(() => {
+                                        div.scrollTop = div.scrollHeight;
+                                    })
+                                }
+                            }, 0)
+                            
+                            this.sendingMsgIdList.push(guid);
+                            this.cleanEditor();
+
+                            services.common.uploadFile(pathDeal(filePath))
+                                .then((ret) => {
+                                    // ToDo Failed List
+                                    console.log("UploadFile response ", ret);
+                                    var uploadRetData = ret.data.obj;
+                                    let willSendMsgContent = {};
+                                    willSendMsgContent.ext = uploadRetData.ext;
+                                    willSendMsgContent.fileName = uploadRetData.fileName;
+                                    willSendMsgContent.url = uploadRetData.url;
+                                    willSendMsgContent.fileSize = uploadRetData.fileSize;
+
+                                    services.common.sendNewMessage(
+                                            guid, 
+                                            sendingMsgContentType, 
+                                            this.curUserInfo.id, 
+                                            gorupId, 
+                                            uid, 
+                                            curTimeSeconds, 
+                                            willSendMsgContent)
+                                        .then((ret) => {
+                                            console.log("send img message ret ", ret)
+                                            if(ret == undefined) {
+                                                for(var i=0;i<this.sendingMsgIdList.length;i++){
+                                                    if(this.sendingMsgIdList[i].guid == guid){
+                                                        this.sendingMsgIdList.splice(i, 1);
+                                                        break;
+                                                    }
+                                                }
+                                                this.failedList.push(willSendMsg);
+                                            }
+                                            else {
+                                                for(var i=0;i<this.sendingMsgIdList.length;i++){
+                                                    if(this.sendingMsgIdList[i].message_id == guid){
+                                                        this.sendingMsgIdList.splice(i, 1);
+                                                        break;
+                                                    }
+                                                }
+                                                for(var i=0;i<this.failedList.length;i++){
+                                                    if(this.failedList[i].message_id == guid){
+                                                        this.failedList.splice(i, 1);
+                                                        break;
+                                                    }
+                                                }
+                                                for(var i=0;i<this.messageList.length;i++){
+                                                    if(this.messageList[i].message_id == guid){
+                                                        this.messageList[i] = ret;
+                                                        break;
+                                                    }
+                                                }
+                                                // this.$store.commit("updateChatGroup", obj.message);
+                                                this.$emit('updateChatList', ret);
+
+                                            }
+                                        })
+                                })
+                        }
+                        else {
                             let sendingMsgContentType = 102;
-                            let picUrl = curMsgItem.fileBlot.src;
-                            let filePath = curMsgItem.fileBlot.localPath;
-                            let fileHeight = curMsgItem.fileBlot.fileHeight;
-                            let fileSize = curMsgItem.fileBlot.fileSize;
-                            let fileName = getFileNameInPath(filePath);
+                            let fileHeight = msgInfo.height;
+                            let fileWidth = msgInfo.width;
                             let ext = filePath.split(".").pop();
                             let willShowMsgContent = JsonMsgContentToString({
                                 "ext":ext,
@@ -533,9 +668,9 @@ export default {
                                 "url":"",
                                 "middleImage":"",
                                 "thumbnailImage": filePath,
-                                "imgWidth": "",
+                                "imgWidth": fileWidth,
                                 "imgHeight": fileHeight,
-                                "fileSize": fileSize
+                                "fileSize": 0,
                             });
                             var guid = generalGuid();
                             let willSendMsg = {
@@ -561,7 +696,6 @@ export default {
                             this.sendingMsgIdList.push(willSendMsg);
                             this.cleanEditor();
 
-                            // this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
                             services.common.uploadFile(pathDeal(filePath))
                                 .then((ret) => {
                                     // ToDo Failed List
@@ -577,7 +711,6 @@ export default {
                                     willSendMsgContent.imgHeight = uploadRetData.imgHeight;
                                     willSendMsgContent.fileSize = uploadRetData.fileSize;
 
-                                    // this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
                                     services.common.sendNewMessage(
                                             guid, 
                                             sendingMsgContentType, 
@@ -628,107 +761,6 @@ export default {
                                 })
                         }
                     }
-                    else if(curMsgItem.hasOwnProperty("span")) {
-                        var fileSpan = curMsgItem.span;
-                        var sendingMsgContentType = 103;
-                        var pathId = fileSpan.id;
-                        var filePath = this.idToPath[pathId];
-                        var showfu = new FileUtil(filePath);
-                        console.log("showfu ", showfu);
-                        var fileName = showfu.GetFilename();
-                        var fileSize = showfu.GetFileSize();
-                        var ext = showfu.GetExtname();
-
-                        // let ext = filePath.split(".").pop();
-                        let willShowMsgContent = JsonMsgContentToString({
-                            "ext":ext,
-                            "fileName":fileName,
-                            "url":"",
-                            "fileSize": fileSize
-                        })
-                        let guid = generalGuid();
-                        let willSendMsg = {
-                            "message_content": willShowMsgContent,
-                            "message_from_id": this.curUserInfo.id,
-                            "group_id": gorupId,
-                            "message_timestamp": curTimeSeconds,
-                            "message_type": sendingMsgContentType,
-                            "message_id": guid,
-                            };
-                        this.messageList.push(willSendMsg);
-                        console.log("willsendmsg is ", willSendMsg);
-                        this.existingMsgId.push(willSendMsg.message_id);
-
-                        let div = document.getElementById("message-show");
-                        setTimeout(() => {
-                            if(div) {
-                                this.$nextTick(() => {
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
-                        }, 0)
-                        
-                        this.sendingMsgIdList.push(guid);
-                        this.cleanEditor();
-
-                        // this.serverapi.uploadFile(this.$store.state.accesstoken, pathDeal(filePath))
-                        services.common.uploadFile(pathDeal(filePath))
-                            .then((ret) => {
-                                // ToDo Failed List
-                                console.log("UploadFile response ", ret);
-                                var uploadRetData = ret.data.obj;
-                                let willSendMsgContent = {};
-                                willSendMsgContent.ext = uploadRetData.ext;
-                                willSendMsgContent.fileName = uploadRetData.fileName;
-                                willSendMsgContent.url = uploadRetData.url;
-                                willSendMsgContent.fileSize = uploadRetData.fileSize;
-
-                                // this.serverapi.sendNewMessage(this.$store.state.accesstoken, guid, sendingMsgContentType, this.$store.state.userInfo.id, this.chat.group.groupId, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
-                                services.common.sendNewMessage(
-                                        guid, 
-                                        sendingMsgContentType, 
-                                        this.curUserInfo.id, 
-                                        gorupId, 
-                                        uid, 
-                                        curTimeSeconds, 
-                                        willSendMsgContent)
-                                    .then((ret) => {
-                                        console.log("send img message ret ", ret)
-                                        if(ret == undefined) {
-                                            for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                                if(this.sendingMsgIdList[i].guid == guid){
-                                                    this.sendingMsgIdList.splice(i, 1);
-                                                    break;
-                                                }
-                                            }
-                                            this.failedList.push(willSendMsg);
-                                        }
-                                        else {
-                                            for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                                if(this.sendingMsgIdList[i].message_id == guid){
-                                                    this.sendingMsgIdList.splice(i, 1);
-                                                    break;
-                                                }
-                                            }
-                                            for(var i=0;i<this.failedList.length;i++){
-                                                if(this.failedList[i].message_id == guid){
-                                                    this.failedList.splice(i, 1);
-                                                    break;
-                                                }
-                                            }
-                                            for(var i=0;i<this.messageList.length;i++){
-                                                if(this.messageList[i].message_id == guid){
-                                                    this.messageList[i] = ret;
-                                                    break;
-                                                }
-                                            }
-                                            // this.$store.commit("updateChatGroup", obj.message);
-                                            this.$emit('updateChatList', ret);
-
-                                        }
-                                    })
-                            })
-                    }
                     else{
                         // Text
                         // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
@@ -741,6 +773,7 @@ export default {
                         var msgContentJson = {
                             "text": msgContent
                         };
+                        console.log("final cur msg item is ", msgContent.length)
                         var willShowMsgContent = JsonMsgContentToString(msgContentJson);
                         let willSendMsgContent = {"text": msgContent};
                         console.log("will send msg content ", willSendMsgContent)
@@ -772,7 +805,6 @@ export default {
                         willSendMsg.content = willSendMsgContent;
                         console.log("willSendMsg is ", willSendMsg);
 
-                        // this.serverapi.sendNewMessage(this.loginInfo.access_token, guid, sendingMsgContentType, this.$store.state.userId, this.chat.group.group_id, this.$store.state.userId, curTimeSeconds, willSendMsgContent)
                         services.common.sendNewMessage(
                                 guid, 
                                 sendingMsgContentType, 
@@ -1009,7 +1041,6 @@ export default {
                                 var messageListTmp = ret;
                                 for(var i=0;i<messageListTmp.length;i++){
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
-                                        console.log("+============= push")
                                         this.messageList.unshift(messageListTmp[i]);
                                         this.existingMsgId.push(messageListTmp[i].message_id);
                                     }
@@ -1025,10 +1056,9 @@ export default {
         getHistoryMessage: function() {
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then((ret) => {
-                    console.log("getHistoryMessage historyMessage ret is ", ret)
+                    // console.log("getHistoryMessage historyMessage ret is ", ret)
                     var messageListTmp = ret;
                     this.messageList = [];
-                    
                     for(var i=0;i<messageListTmp.length;i++){
                         if(this.existingMsgId.indexOf(messageListTmp.message_id) == -1) {
                             this.messageList.unshift(messageListTmp[i]);
@@ -1052,7 +1082,7 @@ export default {
                     }
                     else{
                         if(this.chat.message_content != null){
-                            console.log("this.chat.message_content is ", this.chat.message_content)
+                            // console.log("this.chat.message_content is ", this.chat.message_content)
                             let messageFromGroup = {};
                             messageFromGroup.message_type = this.chat.message_content_type;
                             messageFromGroup.message_content = this.chat.message_content;
@@ -1065,7 +1095,7 @@ export default {
                                 this.existingMsgId.push(messageFromGroup.message_id);
                             }
                         }
-                        console.log("this.messagelist is ", this.messageList)
+                        // console.log("this.messagelist is ", this.messageList)
                     }
                     setTimeout(() => {
                         this.$nextTick(() => {
@@ -1077,7 +1107,7 @@ export default {
                             }
                             this.isRefreshing = false;
                         })
-                    }, 100)
+                    }, 1000)
                 })
         },
         callback(msg) {
@@ -1122,7 +1152,8 @@ export default {
             tipInfos: {},
             existingMsgId: [],
             idToPath: {},
-            constStyle: 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url();background-size: contain;line-height: 46px;text-indent:50px;'
+            constStyle: 'display:inline-block;border-radius: 2px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;',
+            imgConstStyle: 'display:inline-block;border: 0px;width: ;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;'
         }
     },
     mounted: function() {
@@ -1137,23 +1168,15 @@ export default {
                 this.showGroupName(this.chat);
             })
         }, 0)
+        document.addEventListener('click',this.closeUserInfoTip)
     },
     created: async function() {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
 
         services.common.initmqtt();
         services.common.handlemessage(this.callback);
 
-        document.addEventListener('click',function(e){
-            if(e.target.className!='userInfo-view' && e.target.className!='userInfo-Top' & e.target.className!='msg-info-user-img'){
-                // console.log("cur class  is ", e.target.className);
-                // console.log("showUserInfoTips is ", this.showUserInfoTips);
-                this.tipInfos = {};
-                this.showUserInfoTips = false;
-            }
-        })
     },
     computed: {
         messageListShow: {
@@ -1200,18 +1223,17 @@ export default {
         border-radius: 10px;
     }
     
-    .complex {
-        display: inline-block;
-        border-radius: 5px;
-        border: 1px solid rgb(218,218,221);
-        width: 200px;
-        height: 46px;
-        background-repeat: no-repeat;
-        background-image: url("/static/Img/Chat/doc@2x.png");
-        background-size: contain;
-        line-height: 46px;
-        text-indent:20px;
-    }
+    // .complex {
+    //     display: inline-block;
+    //     border-radius: 5px;
+    //     border: 1px solid rgb(218,218,221);
+    //     width: 200px;
+    //     height: 46px;
+    //     background-repeat: no-repeat;
+    //     background-image: url("/static/Img/Chat/doc@2x.png");
+    //     background-size: contain;
+    //     line-height: 46px;
+    // }
     
     .chat-page {
         width: 100%;
@@ -1226,7 +1248,6 @@ export default {
         border-bottom: 1px solid rgb(242, 242, 246);
         -webkit-app-region: drag;
         * {
-            
             -webkit-app-region: no-drag;
         }
     }
@@ -1424,12 +1445,15 @@ export default {
         padding: 11px 11px 11px 11px;
     }
 
-    // .quill-editor {
-    //     margin: 0px;
-    //     padding: 0px;
-    // }
+    .quill-editor {
+        margin: 0px;
+        padding: 0px;
+        height: 150px;
+        width: 100%;
+    }
 
-    .ql-bubble .ql-editor{
+    // .ql-bubble .ql-editor{
+    .ql-bubble{
         height: 100%;
         margin: 0px;
         padding: 0px;
@@ -1437,18 +1461,30 @@ export default {
         font-family: 'Microsoft YaHei';
     }
 
+    .ql-editor{
+        cursor: text;
+    }
+
     .text-input {
         border: 0px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         height: 150px;
+        max-height: 150px;
+        width: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+
     }
 
     .text-input:focus {
         outline: none;
+        height: 150px;
+        max-height: 150px;
         width: 100%;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
-        height: 55px;
+        overflow-y: scroll;
+        overflow-x: hidden;
     }
 </style>

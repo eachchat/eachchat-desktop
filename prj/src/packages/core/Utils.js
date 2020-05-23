@@ -41,27 +41,22 @@ function getFileNameInPath(filePath) {
     var m_filename = dealedPath.substring(pos + 1);
     return m_filename;
 }
+// https://blog.csdn.net/qq_33729889/article/details/55510648
+function trim(originalStr) {
+    return originalStr.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
+}
 
-function sliceReturnsOfString (originalStr) {
-    if(originalStr == "" || originalStr == undefined) {
+function sliceReturnsOfString(originalStr) {
+    if(originalStr == undefined) {
         return "";
     }
-    var finalStr = originalStr;
-    var str_split = originalStr.split('\n');
-    if(str_split.length == 0) {
-        return finalStr;
+    var finalStr = trim(originalStr);
+    while(finalStr[finalStr.length-1] == '\n') {
+        let finalIndex = finalStr.length - 3;
+        finalStr = finalStr.substring(0, finalIndex-2);
     }
-    var modified = false;
-    if(str_split[0] != undefined && str_split[0].length == 0){
-        modified = true;
-        str_split = str_split.slice(1, str_split.length);
-    }
-    if(str_split[str_split.length - 1] != undefined && str_split[str_split.length - 1].length == 0) {
-        modified = true;
-        str_split = str_split.slice(0, str_split.length-1);
-    }
-    if(modified) {
-        finalStr = str_split.join('\n');
+    if(finalStr.length == 0) {
+        return "";
     }
     return finalStr;
 }
@@ -801,7 +796,7 @@ function uncodeUtf16(str){
  }
 
 function getIconPath(ext) {
-    var iconDirPath = './static/Img/Chat/';
+    var iconDirPath = './static/Img/Chat';
     var distExt = '';
     var distIconPath = '';
     for (var key in iconMap) {

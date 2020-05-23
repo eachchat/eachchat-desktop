@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import {downloadGroupAvatar, strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
+import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'

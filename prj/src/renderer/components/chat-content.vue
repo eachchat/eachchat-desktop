@@ -30,10 +30,10 @@
           </div>
         </div>
         <div class="chat">
-          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage"></ChatPage>
+          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo"></ChatPage>
         </div>
       </div>
-      <imageLayer :imgSrcInfo="imageLayersSrcInfo" :access_token="loginInfo.access_token" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
+      <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
     </div>
 </template>
 
@@ -74,11 +74,9 @@ export default {
       needUpdate: 1,
       curindex: 0,
       searchKey: '',
-      loginInfo: '',
       normalGroupList: [],
       encryptGroupList: [],
       showGroupList: [],
-      isSqlite: true,
       showImageLayers: false,
       imageLayersSrcInfo: '',
       clickedGroupList: [],
@@ -92,7 +90,7 @@ export default {
     showGroupIcon() {
       for(var i=0;i<this.showGroupList.length;i++) {
         let elementImg = document.getElementById(this.showGroupList[i].group_id);
-        downloadGroupAvatar(this.showGroupList[i].group_avarar, this.loginInfo.access_token)
+        services.common.getGroupAvatar(this.showGroupList[i].group_avarar)
           .then((ret) => {
               elementImg.setAttribute("src", URL.createObjectURL(ret.data));
               elementImg.onload = () => {
@@ -352,7 +350,6 @@ export default {
       this.curChat.un_read_count = 0;
     },
     getGroupList: async function(updateCurPage=false) {
-      if(this.isSqlite) {
         var ret = await services.common.GetAllGroups()
         console.log("sql getGroupList is ", ret)
         this.showGroupList = ret;
@@ -363,21 +360,6 @@ export default {
           console.log("getgrouplist the cur group is ", curGroup)
           this.showChat(curGroup, 0);
         }
-      }
-      else {
-        this.serverapi.listAllGroup(this.loginInfo.access_token)
-          .then((response) => {
-              //console.log(response)
-              var ret_data = response.data;
-              var ret_list = ret_data.results;
-              console.log("this.serverapi.listAllGroup ", ret_list)
-              this.showGroupList = [];
-              for(var i=0;i<ret_list.length;i++) {
-                this.showGroupList[i] = ret_list[i];
-              }
-              this.$store.commit("setChatGroup", ret_list);
-          })
-      }
     },
     compare: function() {
       return function(a, b)
@@ -400,15 +382,6 @@ export default {
       }, 0)
   },
   created: async function() {
-    this.serverapi = new APITransaction('139.198.15.253', 8888)
-    // To GetSelfUserModel Must Do GetLoginModel Firstly?
-    this.loginInfo = await services.common.GetLoginModel();
-    var curUserInfo = await services.common.GetSelfUserModel();
-    this.$store.commit("setUserId", curUserInfo.id);
-
-    // services.common.initmqtt();
-    // services.common.handlemessage(this.callback);
-
     this.getGroupList(true);
   }
 };

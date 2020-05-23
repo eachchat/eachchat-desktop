@@ -128,8 +128,6 @@ export default {
                 this.dialogVisible = false;
             }
             else {
-                // this.serverapi.createGroup(this.$store.state.accesstoken, groupName, groupUserIds)
-
                 services.common.CreateGroup(groupName, groupUserIds)
                     .then((ret) => {
                         if(ret == undefined) {
@@ -176,7 +174,6 @@ export default {
         eSearch
     },
     created: async function () {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
     }

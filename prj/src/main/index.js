@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Menu, dialog, shell} from 'electron'
 import axios from "axios"
 import fs from 'fs'
+import {services } from '../packages/data/index.js';
 
 /**
  * Set `__static` path to static files in production
@@ -32,14 +33,17 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   openDevToolsInDevelopment(mainPageWindow);
 });
 
+const downloadingList = [];
+
 ipcMain.on("download-file", function(event, arg) {
-  var hostname = arg[2];
-  var baseURL = "http://" + hostname;
-  var port = arg[3];
+  // [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath]
   var timelineID = arg[0];
   var token = arg[1];
+  var hostname = arg[2];
+  var port = arg[3];
   var distPath = arg[4];
-  var needOpen = arg[5];
+  var needOpen = arg[5]; 
+  var baseURL = "http://" + hostname;
 
   if (typeof port == "number") {
     port = port;
@@ -74,41 +78,48 @@ ipcMain.on("download-file", function(event, arg) {
 
 ipcMain.on("download-avarar", function(event, arg) {
   var baseURL = arg[0];
+  console.log("downloadingList is ", downloadingList);
+  if(downloadingList.indexOf(baseURL) != -1){
+    return;
+  }
   var token = arg[1];
   var distPath = arg[2];
   var distTemp = distPath + "_tmp";
+  console.log("distPath is ", distPath);
 
-  var headers = {
-    Authorization: "Bearer " + token
-  };
+  var headers={Authorization:"Bearer " + token};
   var appendix = {
-    timeout: 35000,
-    responseType: "stream"
-  };
-
+          timeout: 35000,
+          responseType: "stream"
+      };
   var config = Object.assign({
     headers: headers,
   }, appendix);
-
-  sender.get(baseURL, config)
+  downloadingList.push(baseURL);
+  axios.get(baseURL,config)
     .then(function (ret) {
       ret.data.pipe(fs.createWriteStream(distTemp)
         .on('finish', function() {
+          if(!fs.existsSync(distTemp)) {
+            return;
+          }
           fs.rename(distTemp, distPath);
+          var index = downloadingList.indexOf(baseURL);
+          downloadingList.splice(index, 1);
         }));
     });
 });
 
 ipcMain.on("download-image", function(event, arg) {
-  var hostname = arg[2];
-  var baseURL = "http://" + hostname;
-  var port = arg[3];
+  //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
   var timelineID = arg[0];
   var token = arg[1];
+  var hostname = arg[2];
+  var port = arg[3];
   var distPath = arg[4];
   var distTemp = distPath + "_tmp";
   var thumbType = arg[5];
-  var needOpen = arg[5];
+  var baseURL = "http://" + hostname;
 
   if (typeof port == "number") {
     port = port;

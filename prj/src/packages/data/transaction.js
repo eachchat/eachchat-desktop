@@ -341,6 +341,19 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async downloadGroupAvatar(url, accessToken) {
+    var headers={Authorization:"Bearer " + accessToken};
+
+    return this.commonApi.get(url,
+      {
+        Authorization: "Bearer " + accessToken
+      },
+      {
+        timeout: 35000,
+        responseType: "blob"
+      })
+  }
+
   async MessageRead(accessToken, groupid, sequenceid){
     var response = await this.commonApi.put(
       "/api/apps/im/v1/message/reader",

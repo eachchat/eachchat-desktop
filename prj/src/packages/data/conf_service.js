@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import {environment} from './environment.js';
-import store from '../../renderer/store/index.js';
 import {Appendzero} from '../core/Utils.js';
 
 class ConfService {
@@ -33,10 +32,9 @@ class ConfService {
         this.imageMDirName = 'MImage';
         this.imageODirName = 'OImage';
         this.base = environment.path.base;
-        this.uid = store.state.userId;
-        this.init();
+        // this.init();
     }
-    init() {
+    init(uid="") {
         this.documentsPath = this.getDocumentsPath();
         this.appdataPath = this.getAppDataPath();
         // For Conf No Mac
@@ -54,6 +52,7 @@ class ConfService {
         if(!fs.existsSync(this.filesPath)){
             fs.ensureDirSync(this.filesPath);
         }
+        this.uid = uid;
     }
     getDocumentsPath() {
         var documentsPath = '';

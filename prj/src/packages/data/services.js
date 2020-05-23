@@ -5,7 +5,7 @@ import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
 import { sqliteutil } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
-import store from '../../renderer/store/index.js';
+import {ipcRenderer} from 'electron';
 
 const mqtt = require('mqtt')
 
@@ -106,6 +106,13 @@ const common = {
     return this.data.useremail = allItems;
   },
 
+  async GetDistUserEmail(uid){
+    let distItem = await(await models.UserEmail).find({
+      owner_user_id: uid
+    });
+    return distItem[0];
+  },
+
   async GetAllUserAddress(){
     let allItems = await(await models.UserAddress).find({
       $reverse: true
@@ -118,6 +125,13 @@ const common = {
       $reverse: true
     });
     return this.data.userphone = allItems;
+  },
+
+  async GetDistUserPhone(uid){
+    let distItem = await(await models.UserPhone).find({
+      owner_user_id: uid
+    });
+    return distItem[0];
   },
 
   async GetAllUserIm(){
@@ -283,8 +297,7 @@ const common = {
       currentlogin.refresh_token = login.refresh_token
       currentlogin.save();
       this.data.login = currentlogin;
-    }    
-    store.commit("setUserId", selfuser.id);
+    }
   },
 
   async InitServiceData(){
@@ -365,6 +378,7 @@ const common = {
     let userid = this.data.selfuser.id;
     let services = this;
     await this.mqttclient.on('message', async function(topic, message){
+      console.log("handle message get topic ", topic)
       console.log("handle message get sth ", JSON.parse(message.toString()))
       if(topic != userid)
       {
@@ -485,7 +499,6 @@ const common = {
     this.data.login.access_token = result.headers["access-token"];
     this.data.login.save()
 
-    store.commit("setUserId", this.data.login.user_id);
     return ret;
   },
 
@@ -921,12 +934,20 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadFile(timelineId) {
-    return await this.api.downloadFile(this.data.login.access_token, timelineId)
+  async downloadFile(timelineId, targetPath, needOpen) {
+    ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
   },
 
-  async downloadTumbnail(type, timelineId) {
-    return await this.api.downloadTumbnail(this.data.login.access_token, type, timelineId)
+  async downloadTumbnail(timelineId, targetPath, thumbnailType) {
+    ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType]);
+  },
+  
+  async downloadGroupAvatar(url, targetPath) {
+    ipcRenderer.send('download-avarar', [url, this.data.login.access_token, targetPath]);
+  },
+  
+  async getGroupAvatar(url) {
+    return await this.api.downloadGroupAvatar(url, this.data.login.access_token);
   },
   
   async CreateGroup(groupNameValue, groupUsersArray){

@@ -1,6 +1,6 @@
 <template>
     <div class="userInfo-view" id="userInfoTipId">
-        <div class="userInfo-Top"></div>
+        <!-- <div class="userInfo-Top"></div> -->
         <div class="userBaseInfo-view">
             <div class="user-baseInfo">
                 <p class="user-name">{{ userInfo.user_display_name }}</p>
@@ -11,7 +11,7 @@
         <div class="userAction-view">
             <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img class="userChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png">
+            <img class="userChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" @click="jumpToChat">
         </div>
         <div class="userOrganizationInfo-view" v-show="showOrganizationView">
             <div class="userOrganization-header">
@@ -35,23 +35,26 @@
             <ul class="userContact-list">
                 <li v-show="showPhone">
                     <p class="userInfo-key">手机号</p>
-                    <p class="userInfo-phone-value">9527</p>
+                    <p class="userInfo-phone-value">{{ userInfo.phone == undefined ? "" : userInfo.phone.phone_value }}</p>
                 </li>
-                <li v-show="showPhone">
+                <!-- <li v-show="showPhone">
                     <p class="userInfo-key">固话</p>
                     <p class="userInfo-phone-value">t00</p>
-                </li>
+                </li> -->
                 <li v-show="showEmail">
                     <p class="userInfo-key">电子邮箱</p>
-                    <p class="userInfo-value">{{ userInfo.user_name }}</p>
+                    <p class="userInfo-value">{{ userInfo.email == undefined ? "" : userInfo.email.email_value }}</p>
                 </li>
             </ul>
         </div>
     </div>
 </template>
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import { services } from '../../packages/data'
-import {downloadGroupAvatar} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
 export default {
     name: 'user-info',
     data() {
@@ -91,7 +94,8 @@ export default {
             return true;
         },
         showEmail: function() {
-            return !this.isEmpty(this.userInfo.user_name);
+            // return !this.isEmpty(this.userInfo.email.email_value);
+            return true;
         },
         showDepartment: function() {
             if(this.departmentName){
@@ -104,8 +108,55 @@ export default {
         }
     },
     methods: {
+        jumpToChat: async function() {
+            console.log("JumpToChat")
+            var groupItem = {};
+            console.log("userInfos is ", this.userInfo);
+            var chatAvater = this.userInfo.avatar_t_url;
+            var chatName = this.userInfo.user_display_name;
+            var groupCheck = await services.common.GetGroupByName(chatName)
+            console.log("groupCheck is ", groupCheck)
+            if(groupCheck.length == 0) {
+                groupItem["contain_user_ids"] = [this.curUserInfo.user_id, this.userInfo.user_id];
+                groupItem["group_avarar"] = chatAvater;
+                groupItem["group_name"] = chatName;
+                groupItem["group_type"] = 101;
+                groupItem["last_message_time"] = 0;
+                groupItem["message_content"] = null;
+                groupItem["message_content_type"] = 101;
+                groupItem["message_from_id"] = this.curUserInfo.id;
+                groupItem["message_id"] = '';
+                groupItem["owner"] = null;
+                groupItem["sequence_id"] = 0;
+                groupItem["status"] = 0;
+                groupItem["un_read_count"] = 0;
+                groupItem["updatetime"] = new Date().getTime();
+                groupItem["user_id"] = this.userInfo.user_id;
+    
+                let groupvalue = {
+                    group_id:           undefined,
+                    contain_user_ids:   [this.curUserInfo.user_id, this.userInfo.user_id],
+                    group_name:         chatName,
+                    group_avarar:       chatAvater,
+                    group_type :        101,
+                    status:             0,
+                    owner:              undefined,
+                    group_notice:       undefined,
+                    notice_time:        undefined,
+                    notice_userId:      undefined,
+                    updatetime:         new Date().getTime()
+                    }
+            }
+            else {
+                groupItem = groupCheck[0];
+            }
+            console.log("userinfotip emit groupitem is ", groupItem);
+            this.$emit('getCreateGroupInfo', groupItem);
+            this.dialogVisible = false;
+        },
         getUserImg(){
-            if(this.userInfo == undefined || this.userInfo == null) {
+            console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            if(this.userInfo.user_id == undefined || this.userInfo == null) {
                 return "";
             }
             
@@ -113,15 +164,35 @@ export default {
             if(this.userIconElement == undefined) {
                 return;
             }
+            var targetDir = confservice.getFilePath();
+            var targetFileName = this.userInfo.user_id + ".png";
+            var targetPath = path.join(targetDir, targetFileName);
             var distTAvarar = this.userInfo.avatar_t_url;
 
-            downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
-            .then((ret) => {
-                this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
-                this.userIconElement.onload = () => {
-                    URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
+            // downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
+            console.log("getuserimage is ", targetPath);
+            if(!fs.existsSync(targetPath)){
+                services.common.getGroupAvatar(distTAvarar)
+                .then((ret) => {
+                    this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
+                    this.userIconElement.onload = () => {
+                        URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
+                    }
+                })
+                setTimeout(() => {
+                    services.common.downloadGroupAvatar(distTAvarar, targetPath);
+                }, 1000)
+            }
+            else{
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    this.userIconElement.setAttribute("src", reader.result);
                 }
-            })
+                return;
+            }
         },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){
@@ -145,6 +216,8 @@ export default {
     },
     async created () {
         this.loginInfo = await services.common.GetLoginModel();
+        console.log("userinfo-tip login info is ", this.loginInfo);
+        this.curUserInfo = await services.common.GetSelfUserModel();
     },
     mounted() {
         setTimeout(() => {
@@ -163,10 +236,10 @@ export default {
             // if(this.holdElement == null) {
             //     this.holdElement = document.getElementById("userInfo-Top");
             // }
-            if(this.tipInfos == "" || this.wholeTipElement == null) {
+            if(this.tipInfos.userInfo == undefined || this.wholeTipElement == null) {
                 return;
             }
-            console.log("this.tipInfos is ", this.tipInfos)
+            console.log("this.tipInfos is ", this.tipInfos.userInfo)
             this.userInfo = this.tipInfos.userInfo;
             this.absoluteTop = this.tipInfos.absoluteTop;
             this.absoluteLeft = this.tipInfos.absoluteLeft;
@@ -178,6 +251,9 @@ export default {
             }
             this.wholeTipElement.style.top = this.absoluteTop.toString() + "px";
             
+            console.log("this.wholeTipElement.style.top is ", this.wholeTipElement.style.top)
+            console.log("this.wholeTipElement.style.left is ", this.wholeTipElement.style.left)
+
             // this.holdElement.style.left = (this.absoluteLeft - this.wholeTipElement.offsetWidth).toString() + "px";
             // this.holdElement.style.top = this.absoluteTop.toString() + "px";
         }
