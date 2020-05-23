@@ -133,6 +133,15 @@ const sqliteutil = {
         }
         return collections[0].sequence_id;
     },
+    
+    async FindCollectionByType(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type,
+            }
+        );
+        return collections;
+    },
 
     async ExistCollection(collectionId){
         let collections = await(await models.Collection).find(
@@ -227,6 +236,17 @@ const sqliteutil = {
         });
         if(groups.length != 0){
             groups[0].destroy();
+        }
+    },
+
+    async UpdateGroupStatus(groupID, status){
+        let groups = await (await models.Groups).find({
+            group_id: groupID
+        });
+        if(groups.length != 0){
+            let group = groups[0]
+            group.status = status;
+            group.save();
         }
     }
 }

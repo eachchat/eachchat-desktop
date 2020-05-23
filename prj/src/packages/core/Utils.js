@@ -658,6 +658,8 @@ class FileUtil
     {
         if(this.m_externname != '')
             return this.m_externname;
+        if(this.m_filename == "")
+            this.m_filename = this.GetFilename();
         let tmp = this.m_filename.split('').reverse().join('');
         this.m_externname = tmp.substring(0,tmp.search(/\./)).split('').reverse().join('');
         return this.m_externname;

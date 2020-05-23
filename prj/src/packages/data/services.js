@@ -49,12 +49,12 @@ const common = {
     }
     this.data.login = foundlogin[0];
 
-    /*
+    
     if(!await this.tokenValid())
     {
       await this.refreshToken();
     }
-    */
+    
     return this.data.login;
   },
 
@@ -320,7 +320,7 @@ const common = {
     await this.UpdateUserinfo();
     await this.UpdateDepartment();
     await this.UpdateMessages();
-    await this.ListAllCollections();
+    //await this.ListAllCollections();
   },
 
   async UpdateDepartment(){
@@ -988,24 +988,24 @@ const common = {
   },
 
   async ListMessageCollections(){
-    await this.ListCollectionByType([101]);
+    return await this.ListCollectionByType([101]);
   },
 
   async ListPictureCollections(){
-    await this.ListCollectionByType([102]);
+    return await this.ListCollectionByType([102]);
   },
   
   async ListFileCollections(){
-    await this.ListCollectionByType([103]);
+    return await this.ListCollectionByType([103]);
   },
 
   async ListGroupCollections(){
-    await this.ListCollectionByType([104]);
+    return await this.ListCollectionByType([104]);
 
   },
 
   async ListTopicCollections(){
-    await this.ListCollectionByType([106]);
+    return await this.ListCollectionByType([106]);
   },
   
   async ListCollectionByType(type){
@@ -1013,6 +1013,7 @@ const common = {
     let bNext = true;
     let item;
     let collectionModel;
+    let collections;
     let sequenceId = await sqliteutil.FindMaxCollectionSequenceID(type[0]);
 
     while(bNext){
@@ -1022,7 +1023,7 @@ const common = {
                                                   10,
                                                   1);
       if (!result.ok || !result.success) {
-        return false;
+        break;
       }
       bNext = result.data.hasNext;
 
@@ -1041,6 +1042,9 @@ const common = {
         sequenceId = collectionModel.sequence_id;
       }
     }
+    collections = await sqliteutil.FindCollectionByType(type[0])
+    console.log(collections)
+    return collections;
   },
 
   async CollectMessage(timelineIDs){
@@ -1134,9 +1138,54 @@ const common = {
   async DeleteGroup(groupID){
     let result = await this.api.DeleteGroup(this.data.login.access_token, groupID);
     if (!result.ok || !result.success) {
-      return false;
+      return result;
     }
     await sqliteutil.DeleteGroupByGroupID(groupID)
+  },
+
+  async UpdateGroupAvatar(groupID, filePath){
+    let result = await this.api.UpdateGroupAvatar(this.data.login.access_token, groupID, filePath);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+  },
+
+  async GroupStatus(groupID, userID, stickFlag, disturbFlag){
+    let result = await this.api.GroupStatus(this.data.login.access_token, groupID, userID, stickFlag, disturbFlag);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    let status = result.data.obj.status;
+    await sqliteutil.UpdateGroupStatus(groupID, status)
+  },
+
+  async SetFilePath(msgID, filePath){
+    let value = {
+      message_id : msgID,
+      file_path : filePath
+    }
+    let paths = await (await models.FilePath).find({
+      message_id: msgID
+    });
+    if(paths.length == 0)
+    {
+      let filepathModel = await new(await models.FilePath)(value);
+      filepathModel.save();
+    }
+  },
+
+  async GetFilePath(msgID){
+    let paths = await (await models.FilePath).find({
+      message_id: msgID
+    });
+    return paths;
+  },
+
+  async QuitGroup(groupID){
+    let result = await this.api.QuitGroup(this.data.login.access_token, groupID);
+    if (!result.ok || !result.success) {
+      return result;
+    }
   }
 };
 

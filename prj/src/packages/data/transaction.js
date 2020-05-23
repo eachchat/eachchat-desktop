@@ -496,6 +496,63 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async UpdateGroupNotice(accessToken, groupID, notice){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group/notice",
+      {
+        groupId: groupID,
+	      notice: notice
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async UpdateGroupAvatar(accessToken, groupID, filePath){
+    var fu = new FileUtil(filePath);
+    let file = fu.GetUploadfileobj();
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('groupId', groupID);
+
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/avatar",
+      formData,
+      {
+        Authorization: "Bearer " + accessToken,
+        "Content-Type": fu.GetMimename()
+      },
+      {
+        timeout: 15000
+      });
+    return this.parseStatus(response);
+  }
+
+  async GroupStatus(accessToken, groupID, userID, stickFlag, disturbFlag){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group/status",
+      {
+        groupId:      groupID,
+        userId:       userID,
+        stickFlag:    stickFlag,
+        disturbFlag:  disturbFlag
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async QuitGroup(accessToken, groupID){
+    var response = await this.commonApi.delete(
+      "/api/apps/imv1/group/quit/" + groupID,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}
