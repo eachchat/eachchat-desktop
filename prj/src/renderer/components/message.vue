@@ -229,7 +229,7 @@ export default {
             this.messageContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
@@ -333,8 +333,17 @@ export default {
                 else if(chatGroupMsgContent.type === "deleteGroupUser")
                 {
                     var owner = chatGroupMsgContent.userName;
-                    var bybyer = chatGroupMsgContent.userInfos.userName;
-                    return owner + " 将 " + bybyer + " 移出了群聊";
+                    var deletedNames = "";
+                    var deletedUsers = chatGroupMsgContent.userInfos;
+                    if(deletedUsers.length == 1){
+                        deletedNames = deletedUsers[0].userName
+                    }
+                    else{
+                        for(var i=0;i<deletedUsers.length;i++) {
+                            deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                        }
+                    }
+                    return owner + " 将 " + deletedNames + " 移出了群聊";
                 }
                 else
                 {

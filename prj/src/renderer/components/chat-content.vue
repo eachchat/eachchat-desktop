@@ -137,7 +137,7 @@ export default {
       this.imageLayersSrc = '';
       this.showImageLayers = false;
     },
-    updateChatList(newMsg) {
+    updateChatList(newMsg, updateList=true) {
       // ++this.needUpdate;
       console.log("newMsg is ", newMsg)
       for(var i=0;i<this.showGroupList.length;i++) {
@@ -149,9 +149,13 @@ export default {
           this.showGroupList[i].message_from_id = newMsg.message_from_id;
           this.showGroupList[i].message_id = newMsg.message_id;
           this.showGroupList[i].sequence_id = newMsg.sequence_id;
-          this.showGroupList[i].un_read_count += 1;
-          this.curindex = i;
-          this.curChat = this.showGroupList[i];
+          if(newMsg.message_from_id != this.curUserInfo.id) {
+            this.showGroupList[i].un_read_count += 1;
+          }
+          if(updateList) {
+            this.curindex = i;
+            // this.curChat = this.showGroupList[i];
+          }
           break;
         }
       }
@@ -325,9 +329,18 @@ export default {
         }
         else if(chatGroupMsgContent.type === "deleteGroupUser")
         {
-          var owner = chatGroupMsgContent.userName;
-          var bybyer = chatGroupMsgContent.userInfos.userName;
-          return owner + " 将 " + bybyer + " 移出了群聊";
+            var owner = chatGroupMsgContent.userName;
+            var deletedNames = "";
+            var deletedUsers = chatGroupMsgContent.userInfos;
+            if(deletedUsers.length == 1){
+                deletedNames = deletedUsers[0].userName
+            }
+            else{
+                for(var i=0;i<deletedUsers.length;i++) {
+                    deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                }
+            }
+            return owner + " 将 " + deletedNames + " 移出了群聊";
         }
         else
         {
@@ -345,6 +358,7 @@ export default {
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
+      services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat = chatGroup;
       this.curindex = index;
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
@@ -374,8 +388,9 @@ export default {
       console.log("chat content callback msg is ", msg);
     },
   },
-  mounted: function() {
+  mounted: async function() {
       // When Mounting Can Not Get The Element. Here Need SetTimeout
+      await this.getGroupList(true);
       setTimeout(() => {
           this.$nextTick(() => {
             this.showGroupIcon();
@@ -383,7 +398,9 @@ export default {
       }, 0)
   },
   created: async function() {
-    this.getGroupList(true);
+    this.loginInfo = await services.common.GetLoginModel();
+    this.curUserInfo = await services.common.GetSelfUserModel();
+
   }
 };
 </script>

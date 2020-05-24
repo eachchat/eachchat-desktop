@@ -157,6 +157,27 @@ export default {
                 var curIndex = range == null ? 0 : range.index;
                 this.editor.insertText(curIndex, '\n');
             }
+            else if(event.code == "Backspace") {
+                var content = this.editor.getContents();
+                if(content.ops.length >= 2) {
+                    // console.log("content.ops[content.ops.length-2].insert.span ", content.ops[content.ops.length-2].insert.span);
+                    // console.log("content.ops[content.ops.length-1].insert.span ", content.ops[content.ops.length-1].insert);
+                     if(content.ops[content.ops.length-2].insert.span != undefined && content.ops[content.ops.length-1].insert == '\n') {
+                        //  console.log("========================")
+                        content.ops.splice(content.ops.length-2, 2);
+                        //  console.log("final content is ", content)
+                        this.editor.setContents(content);
+                        this.editor.setSelection(500);
+                     }
+                     else if(content.ops[content.ops.length-1].insert.span != undefined) {
+                        content.ops.splice(content.ops.length-1, 1);
+                        // console.log("insert content is ", content);
+                        this.editor.setContents(content);
+                        this.editor.setSelection(500);
+                     }
+                }
+                return true;
+            }
         },
         getCreateGroupInfo(groupInfo) {
             console.log("chat get create group info is ", groupInfo);
@@ -356,9 +377,6 @@ export default {
                     console.log("finished")
                 }
             }
-        },
-        updateChatList: function() {
-            this.$store.state.chatGroup[0].message = this.messageList[-1];
         },
         // Sending message need to show sending circle.
         MsgIsSending: function(curMsg) {
@@ -659,7 +677,7 @@ export default {
                                                     }
                                                 }
                                                 // this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', ret);
+                                                this.$emit('updateChatList', ret, false);
 
                                             }
                                         })
@@ -763,7 +781,7 @@ export default {
                                                 // console.log("Send Image msg list is ", this.messageList)
                                                 // console.log("Send Image msg list content is ", strMsgContentToJson(this.messageList.message_content))
                                                 // this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', ret);
+                                                this.$emit('updateChatList', ret, false);
                                             }
                                         })
                                 })
@@ -856,7 +874,7 @@ export default {
                                         }
                                     }
                                     // this.$store.commit("updateChatGroup", obj.message);
-                                    this.$emit('updateChatList', ret);
+                                    this.$emit('updateChatList', ret, false);
 
                                 }
                             })
@@ -934,8 +952,17 @@ export default {
                 else if(chatGroupMsgContent.type === "deleteGroupUser")
                 {
                     var owner = chatGroupMsgContent.userName;
-                    var bybyer = chatGroupMsgContent.userInfos.userName;
-                    return owner + " 将 " + bybyer + " 移出了群聊";
+                    var deletedNames = "";
+                    var deletedUsers = chatGroupMsgContent.userInfos;
+                    if(deletedUsers.length == 1){
+                        deletedNames = deletedUsers[0].userName
+                    }
+                    else{
+                        for(var i=0;i<deletedUsers.length;i++) {
+                            deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                        }
+                    }
+                    return owner + " 将 " + deletedNames + " 移出了群聊";
                 }
                 else
                 {
@@ -1121,18 +1148,22 @@ export default {
         callback(msg) {
             // console.log("chat callback msg is ", msg);
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
-            if(msg.group_id == this.chat.group_id && msg.message_from_id != this.curUserInfo.id) {
+            var forceUpdate = true;
+            if(msg.message_from_id != this.curUserInfo.id) {
                 if(this.existingMsgId.indexOf(msg.message_id) == -1){
-                    this.messageList.push(msg);
-                    this.existingMsgId.push(msg.message_id);
-                    console.log("emit updatechatlist");
-                    this.$emit('updateChatList', msg);
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        this.$nextTick(() => {
-                            div.scrollTop = div.scrollHeight;
-                        })
+                    if(this.chat.group_id == msg.group_id){
+                        forceUpdate = false;
+                        this.messageList.push(msg);
+                        this.existingMsgId.push(msg.message_id);
+                        let div = document.getElementById("message-show-list");
+                        if(div) {
+                            this.$nextTick(() => {
+                                div.scrollTop = div.scrollHeight;
+                            })
+                        }
                     }
+                    console.log("emit updatechatlist ", forceUpdate);
+                    this.$emit('updateChatList', msg, forceUpdate);
                 }
             }
         }
@@ -1191,13 +1222,16 @@ export default {
         messageListShow: {
             get: function() {
                 var final = this.messageList.sort(this.compare());
-                console.log("final msglist is ", final);
+                // console.log("final msglist is ", final);
                 return final;
             }
         }
     },
     watch: {
         chat: function() {
+            if(this.chat == undefined) {
+                return;
+            }
             if(this.curGroupId != this.chat.group_id) {
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
@@ -1472,9 +1506,9 @@ export default {
         font-family: 'Microsoft YaHei';
     }
 
-    .ql-editor{
-        cursor: text;
-    }
+    // .ql-editor{
+    //     cursor: text;
+    // }
 
     .text-input {
         border: 0px;
