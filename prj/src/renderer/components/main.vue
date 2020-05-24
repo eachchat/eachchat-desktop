@@ -2,7 +2,7 @@
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
             <div class="User">
-                <img class="login-logo" :src="userIco" id="userHead">
+                <img class="login-logo" id="userHead">
             </div>
             <el-menu
                 class="nav-menu">
@@ -39,7 +39,6 @@ export default {
     name: 'mainpage',
     data () {
         return {
-            userIco: '',
             curindex: 0,
             curView: 'ChatContent',
             serverapi: new ServerApi('http', '139.198.15.253'),
@@ -157,6 +156,7 @@ export default {
             var targetDir = confservice.getFilePath();
             var targetFileName = this.selfUserInfo.id + ".png";
             var targetPath = path.join(targetDir, targetFileName);
+            console.log("targetPath is ", targetPath);
             if(fs.existsSync(targetPath)){
                 //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                 var showfu = new FileUtil(targetPath);
@@ -195,7 +195,6 @@ export default {
         })
     },
     created: async function () {
-        // this.userIco = this.$store.getters.getUserIcon(false);
         await this.getAppBaseData();
     },
 }

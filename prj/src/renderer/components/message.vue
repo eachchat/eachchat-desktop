@@ -114,6 +114,9 @@ export default {
             var targetPath = path.join(targetDir, targetFileName);
             if(msgType === 102)
             {
+                if(msgContent.thumbnailImage != undefined && fs.existsSync(msgContent.thumbnailImage)){
+                    targetPath = msgContent.thumbnailImage;
+                }
                 if(fs.existsSync(targetPath)){
                     this.msg["targetPath"] = targetPath;
                     this.$emit('showImageOfMessage', this.msg);
@@ -128,6 +131,9 @@ export default {
                 var targetDir = confservice.getFilePath();
                 var targetFileName = this.msg.message_id.toString() + "." + ext;
                 var targetPath = path.join(targetDir, targetFileName);
+                if(msgContent.fileLocalPath != undefined && fs.existsSync(msgContent.fileLocalPath)){
+                    targetPath = msgContent.fileLocalPath;
+                }
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
                     console.log("targetPath is exist");
@@ -240,7 +246,7 @@ export default {
                 var targetDir = confservice.getFilePath();
                 var targetFileName = this.msg.message_id.toString() + "." + chatGroupMsgContent.ext;
                 var targetPath = path.join(targetDir, targetFileName);
-                if(fs.existsSync(chatGroupMsgContent.thumbnailImage)){
+                if(chatGroupMsgContent.thumbnailImage != undefined && fs.existsSync(chatGroupMsgContent.thumbnailImage)){
                     targetPath = chatGroupMsgContent.thumbnailImage;
                 }
                 var needOpen = false;
@@ -274,6 +280,9 @@ export default {
                 var targetDir = confservice.getFilePath();
                 var targetFileName = this.msg.message_id.toString() + "." + chatGroupMsgContent.ext;
                 var targetPath = path.join(targetDir, targetFileName);
+                if(chatGroupMsgContent.fileLocalPath != undefined && fs.existsSync(chatGroupMsgContent.fileLocalPath)){
+                    targetPath = chatGroupMsgContent.fileLocalPath;
+                }
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
                     // ipcRenderer.send('download-file', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, false]);

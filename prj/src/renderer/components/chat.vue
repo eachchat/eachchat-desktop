@@ -258,11 +258,17 @@ export default {
         insertPic: function() {
             // File
             ipcRenderer.send('open-directory-dialog', 'openFile');
-            ipcRenderer.on('selectedItem', this.nHandleFiles);
+            if(!this.ipcInited){
+                this.ipcInited = true;
+                ipcRenderer.on('selectedItem', this.nHandleFiles);
+            }
         },
         insertFiles: function() {
             ipcRenderer.send('open-directory-dialog', 'openFile');
-            ipcRenderer.on('selectedItem', this.nHandleFiles);
+            if(!this.ipcInited){
+                this.ipcInited = true;
+                ipcRenderer.on('selectedItem', this.nHandleFiles);
+            }
         },
         insertImg: function() {
             console.log("============== this is ", this);
@@ -328,7 +334,7 @@ export default {
                             var curIndex = range==null ? 0 : range.index;
                             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
                             complexSpan.id = generalGuid();
-                            complexSpan.innerHTML = fileName;
+                            complexSpan.innerHTML = "            " + fileName;
                             var indexTemp = this.constStyle.indexOf("background-image: url(") + "background-image: url(".length;
                             var distStyle = insertStr(this.constStyle, indexTemp, iconPath);
                             // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
@@ -549,6 +555,7 @@ export default {
                 alert("不能发送空白信息。")
             }
             else{
+                console.log("varcontent is ", varcontent);
                 var uid = this.getDistUidThroughUids(this.chat.contain_user_ids);
                 var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
                 for(var i=0;i<varcontent.ops.length;i++){
@@ -574,6 +581,7 @@ export default {
                                 "ext":ext,
                                 "fileName":fileName,
                                 "url":"",
+                                "fileLocalPath": filePath,
                                 "fileSize": fileSize
                             })
                             let guid = generalGuid();
@@ -589,7 +597,7 @@ export default {
                             console.log("willsendmsg is ", willSendMsg);
                             this.existingMsgId.push(willSendMsg.message_id);
 
-                            let div = document.getElementById("message-show");
+                            let div = document.getElementById("message-show-list");
                             setTimeout(() => {
                                 if(div) {
                                     this.$nextTick(() => {
@@ -672,7 +680,7 @@ export default {
                                 "imgHeight": fileHeight,
                                 "fileSize": 0,
                             });
-                            var guid = generalGuid();
+                            let guid = generalGuid();
                             let willSendMsg = {
                                 "message_content": willShowMsgContent,
                                 "message_from_id": this.curUserInfo.id,
@@ -684,7 +692,7 @@ export default {
                             this.messageList.push(willSendMsg);
                             this.existingMsgId.push(willSendMsg.message_id);
 
-                            let div = document.getElementById("message-show");
+                            let div = document.getElementById("message-show-list");
                             setTimeout(() => {
                                 if(div) {
                                     this.$nextTick(() => {
@@ -766,18 +774,18 @@ export default {
                         // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
                         curMsgItem = sliceReturnsOfString(curMsgItem);
                         if(curMsgItem.length == 0){
-                            return;
+                            continue;
                         }
                         let sendingMsgContentType = 101;
                         let msgContent = curMsgItem;
                         var msgContentJson = {
                             "text": msgContent
                         };
-                        console.log("final cur msg item is ", msgContent.length)
+                        // console.log("final cur msg item is ", msgContent.length)
                         var willShowMsgContent = JsonMsgContentToString(msgContentJson);
                         let willSendMsgContent = {"text": msgContent};
-                        console.log("will send msg content ", willSendMsgContent)
-                        console.log("will send msg uid ", uid)
+                        // console.log("will send msg content ", willSendMsgContent)
+                        // console.log("will send msg uid ", uid)
                         let guid = generalGuid();
                         let willSendMsg = {
                             "message_content": willShowMsgContent,
@@ -790,7 +798,7 @@ export default {
                         this.messageList.push(willSendMsg);
                         this.existingMsgId.push(willSendMsg.message_id);
                         
-                        let div = document.getElementById("message-show");
+                        let div = document.getElementById("message-show-list");
                         setTimeout(() => {
                             if(div) {
                                 this.$nextTick(() => {
@@ -803,7 +811,7 @@ export default {
                         this.sendingMsgIdList.push(guid);
                         this.cleanEditor();
                         willSendMsg.content = willSendMsgContent;
-                        console.log("willSendMsg is ", willSendMsg);
+                        // console.log("willSendMsg is ", willSendMsg);
 
                         services.common.sendNewMessage(
                                 guid, 
@@ -814,7 +822,7 @@ export default {
                                 curTimeSeconds, 
                                 willSendMsgContent)
                             .then((ret) => {
-                                console.log("sendNewMessage ret is ", ret);
+                                // console.log("sendNewMessage ret is ", ret);
 
                                 if(ret == undefined) {
                                     for(var i=0;i<this.sendingMsgIdList.length;i++){
@@ -1020,8 +1028,8 @@ export default {
         compare: function(){
             return function(a, b)
             {
-                var value1 = a.sequence_id;
-                var value2 = b.sequence_id;
+                var value1 = a.message_timestamp;
+                var value2 = b.message_timestamp;
                 return value1 - value2;
             }
         },
@@ -1041,7 +1049,7 @@ export default {
                                 var messageListTmp = ret;
                                 for(var i=0;i<messageListTmp.length;i++){
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
-                                        this.messageList.unshift(messageListTmp[i]);
+                                        this.messageList.push(messageListTmp[i]);
                                         this.existingMsgId.push(messageListTmp[i].message_id);
                                     }
                                 }
@@ -1061,7 +1069,7 @@ export default {
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
                         if(this.existingMsgId.indexOf(messageListTmp.message_id) == -1) {
-                            this.messageList.unshift(messageListTmp[i]);
+                            this.messageList.push(messageListTmp[i]);
                             this.existingMsgId.push(messageListTmp[i].message_id);
                         }
                     }
@@ -1113,7 +1121,7 @@ export default {
         callback(msg) {
             // console.log("chat callback msg is ", msg);
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
-            if(msg.group_id == this.chat.group_id) {
+            if(msg.group_id == this.chat.group_id && msg.message_from_id != this.curUserInfo.id) {
                 if(this.existingMsgId.indexOf(msg.message_id) == -1){
                     this.messageList.push(msg);
                     this.existingMsgId.push(msg.message_id);
@@ -1131,6 +1139,7 @@ export default {
     },
     data() {
         return {
+            ipcInited: false,
             editor:null,
             messageList: [],
             sendingMsgIdList: [],
@@ -1152,8 +1161,8 @@ export default {
             tipInfos: {},
             existingMsgId: [],
             idToPath: {},
-            constStyle: 'display:inline-block;border-radius: 2px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;',
-            imgConstStyle: 'display:inline-block;border: 0px;width: ;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;'
+            constStyle: 'display:inline-block;outline:none;border-radius: 2px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;',
+            imgConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;'
         }
     },
     mounted: function() {
@@ -1181,7 +1190,9 @@ export default {
     computed: {
         messageListShow: {
             get: function() {
-                return this.messageList;
+                var final = this.messageList.sort(this.compare());
+                console.log("final msglist is ", final);
+                return final;
             }
         }
     },

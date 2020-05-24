@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron'
 export default {
     name: 'winHeadbar',
     data () {
@@ -25,8 +26,10 @@ export default {
     },
     methods: {
         Min:function() {
+            ipcRenderer.send("win-min");
         },
         Close: function() {
+            ipcRenderer.send("win-close");
         }
     },
     components: {

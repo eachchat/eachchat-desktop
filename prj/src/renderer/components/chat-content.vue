@@ -72,7 +72,7 @@ export default {
       //需要展示的用户群组
       curChat: {},
       needUpdate: 1,
-      curindex: 0,
+      curindex: -1,
       searchKey: '',
       normalGroupList: [],
       encryptGroupList: [],
@@ -90,6 +90,7 @@ export default {
     showGroupIcon() {
       for(var i=0;i<this.showGroupList.length;i++) {
         let elementImg = document.getElementById(this.showGroupList[i].group_id);
+        console.log("groupavatar is ", this.showGroupList[i].group_avarar);
         services.common.getGroupAvatar(this.showGroupList[i].group_avarar)
           .then((ret) => {
               elementImg.setAttribute("src", URL.createObjectURL(ret.data));
@@ -358,7 +359,7 @@ export default {
           chatGroupVar = this.showGroupList.sort(this.compare());
           let curGroup = chatGroupVar[0];
           console.log("getgrouplist the cur group is ", curGroup)
-          this.showChat(curGroup, 0);
+          // this.showChat(curGroup, 0);
         }
     },
     compare: function() {

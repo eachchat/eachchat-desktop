@@ -31,6 +31,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
   openDevToolsInDevelopment(mainPageWindow);
+  mainWindow = mainPageWindow;
 });
 
 const downloadingList = [];
@@ -73,6 +74,7 @@ ipcMain.on("download-file", function(event, arg) {
       if(needOpen) {
         shell.openExternal(distPath);
       }
+      event.returnValue = distPath;
     });
 });
 
@@ -156,10 +158,18 @@ ipcMain.on('open-directory-dialog', function(event, arg) {
   dialog.showOpenDialog({
     properties: [arg, 'multiSelections']
   },function(files) {
-    if(files.length != 0) {
+    if(files && files.length > 0) {
       event.sender.send('selectedItem', files);
     }
   })
+});
+
+ipcMain.on('win-close', function(event, arg) {
+  mainWindow.close();
+});
+
+ipcMain.on('win-min', function(event, arg) {
+  mainWindow.minimize();
 });
 
 function createWindow () {
