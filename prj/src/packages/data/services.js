@@ -595,7 +595,7 @@ const common = {
       {
         continue
       }
-      if(groupModel.status[5] != 1){
+      if(groupmodel.status[5] != 1){
         groupmodel.save()
         this.data.group.push(groupmodel)
       }

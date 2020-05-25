@@ -14,7 +14,7 @@
                     <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" src="/static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -29,15 +29,15 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" src="/static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -230,6 +230,7 @@ export default {
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
             console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            console.log("chatGroupMsgType is ", chatGroupMsgType)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
@@ -352,11 +353,11 @@ export default {
             }
             else if(chatGroupMsgType === 105)
             {
-                return "[语音]";
+                this.messageContent = "[语音]";
             }
             else if(chatGroupMsgType === 106)
             {
-                return "[聊天记录]";
+                this.messageContent = "[聊天记录]";
             }
             else {
                 return this.messageContent = "不支持的消息类型，请升级客户端。"

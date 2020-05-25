@@ -16,7 +16,7 @@
                   @click="showChat(chatGroupItem, index)"
                   :class="{active: index===curindex}"
                   >
-                <img class="group-ico" :id="getChatElementId(chatGroupItem)"/>
+                <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
                 <div class="group-info">
                   <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
                   <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>

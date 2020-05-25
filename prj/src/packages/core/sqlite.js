@@ -6,6 +6,7 @@
 
 import fs from 'fs';
 import {environment} from '../data/environment.js';
+import initSqlJs from 'sql.js';
 //import {SqliteEncrypt} from './aes.js';
 
 class Sqlite {
@@ -25,18 +26,18 @@ class Sqlite {
       return this;
     }
 
-    var initSqlJs;
+    // var initSqlJs;
 
-    if (typeof window == "undefined") {
-      initSqlJs = require('sql.js');
+    // if (typeof window == "undefined") {
+    //   initSqlJs = require('sql.js');
 
-    } else if (typeof window == "object") {
-      initSqlJs = window.initSqlJs;
-    }
+    // } else if (typeof window == "object") {
+    //   initSqlJs = window.initSqlJs;
+    // }
 
-    if (typeof initSqlJs == "undefined") {
-      return this;
-    }
+    // if (typeof initSqlJs == "undefined") {
+    //   return this;
+    // }
 
     var SQL = await initSqlJs();
 

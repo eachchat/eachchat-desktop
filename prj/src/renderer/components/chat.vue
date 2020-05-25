@@ -27,16 +27,16 @@
                     <div class="chat-input-tool">
                         <Faces v-show="showFace"  @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
                         <div class="chat-input-expression" @click="showExpression()">
-                            <img class="el-icon-emoji" src="/static/Img/Chat/emoji@3x.png">
+                            <img class="el-icon-emoji" src="../../../static/Img/Chat/emoji@3x.png">
                         </div>
                         <div class="chat-input-picture" @click="insertPic()">
-                            <img class="el-icon-picture" src="/static/Img/Chat/pic@3x.png">
+                            <img class="el-icon-picture" src="../../../static/Img/Chat/pic@3x.png">
                         </div>
                         <div class="chat-input-file" @click="insertFiles()">
-                            <img class="el-icon-files" src="/static/Img/Chat/file@3x.png">
+                            <img class="el-icon-files" src="../../../static/Img/Chat/file@3x.png">
                         </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
-                            <img class="el-icon-more" src="/static/Img/Chat/chat_more@3x.png">
+                            <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
                     </div>
                     <div class="chat-send" @click="sendMsg()" v-show="false">
@@ -415,7 +415,10 @@ export default {
         // Send msg demo
         ssendMsg: function() {
             // Send Test Interface
-            
+            if(this.chat.group_id == undefined) {
+                alert("请选择一个群组。")
+                return;
+            }
             let varcontent = this.editor.getContents();
             console.log("varcontent is ", varcontent);
             if(varcontent == null || varcontent.length == 0) {
@@ -567,6 +570,10 @@ export default {
             }
         },
         sendMsg: function() {
+            if(this.chat.group_id == undefined) {
+                alert("请选择一个群组。")
+                return;
+            }
             let varcontent = this.editor.getContents();
             if(varcontent == null || varcontent.length == 0) {
                 // toDo To Deal The \n

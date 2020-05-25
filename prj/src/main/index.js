@@ -12,26 +12,26 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
+let mainPageWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
-  mainWindow.close();
-  let mainPageWindow = new BrowserWindow({
+  mainPageWindow = new BrowserWindow({
     height: 600,
     useContentSize: true,
     width:960,
     webPreferences: {webSecurity:false},
     frame:false
   })
+  mainWindow.close();
   const mainPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
   openDevToolsInDevelopment(mainPageWindow);
-  mainWindow = mainPageWindow;
 });
 
 const downloadingList = [];
@@ -165,11 +165,11 @@ ipcMain.on('open-directory-dialog', function(event, arg) {
 });
 
 ipcMain.on('win-close', function(event, arg) {
-  mainWindow.close();
+  mainPageWindow.close();
 });
 
 ipcMain.on('win-min', function(event, arg) {
-  mainWindow.minimize();
+  mainPageWindow.minimize();
 });
 
 function createWindow () {
