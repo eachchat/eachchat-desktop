@@ -19,30 +19,7 @@ var models = {
     }
 
     this.storage.sqlite = this._initSqliteStorage();
-  },
-
-  dumpEncryptDB(){
-    this.storage.sqlite.dumpEncryptDB();
-  },
-
-  _initSqliteStorage() {
-    if (typeof environment.path.sqlite == "undefined") {
-      return undefined;
-    }
-
-    var sqlite = new storage.SQLiteStorage({
-      filename: environment.path.sqlite
-    });
-
-    if (typeof sqlite == "undefined") {
-      return undefined;
-    }
-
-    return sqlite;
-  },
-
-  get User() {
-    return (async () => {
+    this.user = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'users',
@@ -70,10 +47,8 @@ var models = {
         primaryKey: 'id'
       });
     })();
-  },
 
-  get Login() {
-    return (async () => {
+    this.login = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'login',
@@ -86,10 +61,8 @@ var models = {
         primaryKey: 'user_id'
       });
     })();
-  },
 
-  get Department() {
-    return (async () => {
+    this.department = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'department',
@@ -107,10 +80,8 @@ var models = {
         primaryKey: "department_id"
       });
     })();
-  },
 
-  get UserInfo() {
-    return (async () => {
+    this.userInfo = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'userinfo',
@@ -142,10 +113,8 @@ var models = {
         primaryKey: "user_id"
       });
     })();
-  },
 
-  get UserEmail() {
-    return (async () => {
+    this.userEmail = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'useremail',
@@ -159,10 +128,8 @@ var models = {
         primaryKey: "id"
       });
     })();
-  },
 
-  get UserAddress() {
-    return (async () => {
+    this.userAddress = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'useraddress',
@@ -176,10 +143,8 @@ var models = {
         primaryKey: "id"
       });
     })();
-  },
 
-  get UserPhone() {
-    return (async () => {
+    this.userPhone = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'userphone',
@@ -192,10 +157,8 @@ var models = {
         primaryKey: "id"
       });
     })();
-  },
 
-  get UserIm() {
-    return (async () => {
+    this.userIM = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "userim",
@@ -207,10 +170,8 @@ var models = {
         primaryKey: "id"
       });
     })();
-  },
 
-  get Groups() {
-    return (async () => {
+    this.group = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "group",
@@ -239,10 +200,8 @@ var models = {
         primaryKey: "group_id"
       });
     })();
-  },
 
-  get Message(){
-    return (async () => {
+    this.message = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "message",
@@ -262,10 +221,8 @@ var models = {
         primaryKey: "message_id"
       });
     })();
-  },
 
-  get Collection(){
-    return (async () => {
+    this.collection = (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "collection",
@@ -281,6 +238,70 @@ var models = {
         primaryKey: "favourite_id"
       });
     })();
+  },
+
+  dumpEncryptDB(){
+    this.storage.sqlite.dumpEncryptDB();
+  },
+
+  _initSqliteStorage() {
+    if (typeof environment.path.sqlite == "undefined") {
+      return undefined;
+    }
+
+    var sqlite = new storage.SQLiteStorage({
+      filename: environment.path.sqlite
+    });
+
+    if (typeof sqlite == "undefined") {
+      return undefined;
+    }
+
+    return sqlite;
+  },
+
+  get User() {
+    return this.user;
+  },
+
+  get Login() {
+    return this.login;
+  },
+
+  get Department() {
+    return this.department;
+  },
+
+  get UserInfo() {
+    return this.userInfo;
+  },
+
+  get UserEmail() {
+    return this.userEmail;
+  },
+
+  get UserAddress() {
+    return this.userAddress;
+  },
+
+  get UserPhone() {
+    return this.userPhone;
+  },
+
+  get UserIm() {
+    return this.userIM;
+  },
+
+  get Groups() {
+    return this.group;
+  },
+
+  get Message(){
+    return this.message;
+  },
+
+  get Collection(){
+    return this.collection;
   }
 }
 
