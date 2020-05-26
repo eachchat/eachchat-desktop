@@ -11,7 +11,18 @@ function generalGuid() {
         return v.toString(16);
     });
 }
-
+function strFavoriteContentToJson(strFavContent) {
+    if(strFavContent == "") {
+        return "";
+    }
+    var favoriteContent = {};
+    try{
+        favoriteContent = JSON.parse(JSON.stringify(unescape(strFavContent)));
+    } catch (e) {
+        console.log("Favorite Content Json parse Failed.", strFavContent);
+    }
+    return favoriteContent;
+}
 function strMsgContentToJson(strMsgContent) {
     if(strMsgContent == "") {
         return "";
@@ -948,6 +959,6 @@ const iconMap = {
     txt: ['txt', 'log', 'xml']
   }
   
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, strFavoriteContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

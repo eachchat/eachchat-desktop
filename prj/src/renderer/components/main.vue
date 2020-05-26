@@ -28,6 +28,7 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
+import favourite from './favourite.vue'
 import {services} from '../../packages/data/index.js'
 import {ServerApi} from '../server/serverapi.js'
 import {downloadGroupAvatar} from '../../packages/core/Utils.js'
@@ -57,9 +58,9 @@ export default {
                 },
                 {
                     text: "收藏",
-                    name: "favorites",
-                    // link: "/favorites",
-                    // view: "favorites"
+                    name: "favourite",
+                    link: "/favourite",
+                    view: "favourite"
                 },
                 // {
                 //     text: "更多",
@@ -185,7 +186,8 @@ export default {
     },
     components: {
         organization,
-        ChatContent
+        ChatContent,
+        favourite
     },
     mounted: async function() {
         await services.common.GetLoginModel();
