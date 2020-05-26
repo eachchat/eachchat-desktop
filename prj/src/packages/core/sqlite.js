@@ -31,7 +31,7 @@ class Sqlite {
     return this;
   }
 
-  get(sql){
+  async exec(sql) {
     if (typeof this.db === 'undefined') {
       return undefined;
     }
@@ -52,54 +52,19 @@ class Sqlite {
       sql += ";";
     }
 
-    let res = [];
-    try {
-      this.db.each(sql,  (err, data) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-        res.push(data);
-      });
-      return res;
-    } catch (e) {
-      console.log(e);
-    }
 
-    return undefined;
+    let res;
+    res = await this.SyncAll(sql)
+    return res;
   }
 
-  exec(sql) {
-    if (typeof this.db === 'undefined') {
-      return undefined;
-    }
-
-    if (sql instanceof Sql) {
-      sql = sql.sql;
-    }
-
-    if (typeof sql != "string") {
-      return undefined;
-    }
-
-    if (sql.length < 1) {
-      return undefined;
-    }
-
-    if (sql[sql.length - 1] != ";") {
-      sql += ";";
-    }
-
-    try {
-      let res = this.db.exec(sql);
-      console.log(res)
-      return res;
-
-    } catch (e) {
-      console.log(e);
-    }
-
-    return undefined;
+  SyncAll(sql){
+    return new Promise((resolve, reject)=>
+    {
+      this.db.all(sql, function(err, data){
+        resolve(data);
+      })
+    })
   }
 
   close() {
