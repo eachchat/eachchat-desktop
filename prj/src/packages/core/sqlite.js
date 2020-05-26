@@ -4,9 +4,9 @@
  * @date 2020/03/04
  */
 
-import fs from 'fs';
 import {environment} from '../data/environment.js';
-import {SqliteEncrypt} from './aes.js';
+var sqlite3 = require('sqlite3');
+
 
 class Sqlite {
   constructor(filename) {
@@ -14,68 +14,59 @@ class Sqlite {
     this.filename = filename;
 
     this.basePath = environment.path.base;
-    this.sqliteEncrypt = new SqliteEncrypt()
   }
 
   async init() {
     var filename = this.filename;
-    var fileBuffer;
-
     if (typeof this.db != "undefined") {
       return this;
     }
-
-    var initSqlJs;
-
-    if (typeof window == "undefined") {
-      initSqlJs = require('sql.js');
-
-    } else if (typeof window == "object") {
-      initSqlJs = window.initSqlJs;
-    }
-
-    if (typeof initSqlJs == "undefined") {
-      return this;
-    }
-
-    var SQL = await initSqlJs();
-
-    if (typeof filename == "undefined") {
-      try {
-        this.db = new SQL.Database();
-        // console.log('new db');
-
-      } catch (e) {
-        console.log(e);
-      }
-
-    } else {
-      if (fs.existsSync(filename)) {
-        try {
-          fileBuffer = fs.readFileSync(filename);
-          //let encryptBuffer = fs.readFileSync(filename);
-          console.log('read buffer ok');
-          //fileBuffer = this.sqliteEncrypt.decrypt(encryptBuffer);
-        } catch(e) {
-          console.log(e);
-          fileBuffer = undefined;
-        }
-      }
-
-      if (typeof fileBuffer == "undefined") {
-        this.db = new SQL.Database();
-        // console.log('new db');
-
-      } else {
-        console.log('load ' + filename);
-        this.db = new SQL.Database(fileBuffer);
-        console.log('ok');
-      }
-    }
-
-    this.dump();
-
+    console.log('load ' + filename);
+    this.db = new sqlite3.Database(this.filename);
+    this.db.serialize(() => {
+      this.db.run("PRAGMA KEY = 'secret'")
+      this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
+    })
+    console.log('ok');
     return this;
+  }
+
+  get(sql){
+    if (typeof this.db === 'undefined') {
+      return undefined;
+    }
+
+    if (sql instanceof Sql) {
+      sql = sql.sql;
+    }
+
+    if (typeof sql != "string") {
+      return undefined;
+    }
+
+    if (sql.length < 1) {
+      return undefined;
+    }
+
+    if (sql[sql.length - 1] != ";") {
+      sql += ";";
+    }
+
+    let res = [];
+    try {
+      this.db.each(sql,  (err, data) => {
+        if (err) {
+          console.error(err)
+          return
+        }
+        res.push(data);
+      });
+      return res;
+    } catch (e) {
+      console.log(e);
+    }
+
+    return undefined;
   }
 
   exec(sql) {
@@ -100,7 +91,9 @@ class Sqlite {
     }
 
     try {
-      return this.db.exec(sql);
+      let res = this.db.exec(sql);
+      console.log(res)
+      return res;
 
     } catch (e) {
       console.log(e);
@@ -123,50 +116,11 @@ class Sqlite {
   }
 
   dump() {
-    if (typeof this.db === 'undefined') {
-      return;
-    }
-
-    try {
-      var data = this.db.export();
-      var buffer = Buffer.from(data, 'binary');
-      let tmpFilepath = this.basePath + "/tmp.db";
-      //fs.writeFileSync(tmpFilepath, buffer);
-      fs.writeFileSync(this.filename, buffer);
-
-
-      /*
-      if(buffer.length != 0){
-        let encryptBuf = this.sqliteEncrypt.encrypt(buffer);
-        if(encryptBuf != undefined){
-          fs.writeFileSync(this.filename, encryptBuf);
-        }
-      }
-      */
-    } catch (e) {
-      console.log(e);
-    }
   }
 
   dumpEncryptDB(){
     if (typeof this.db === 'undefined') {
       return;
-    }
-
-    try {
-      var data = this.db.export();
-      var buffer = Buffer.from(data, 'binary');
-      let tmpFilepath = this.basePath + "/tmp.db";
-      fs.writeFileSync(tmpFilepath, buffer);
-
-      if(buffer.length != 0){
-        let encryptBuf = this.sqliteEncrypt.encrypt(buffer);
-        if(encryptBuf != undefined){
-          fs.writeFileSync(this.filename, encryptBuf);
-        }
-      }
-    } catch (e) {
-      console.log(e);
     }
   }
 

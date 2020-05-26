@@ -341,15 +341,9 @@ class SQLiteStorage extends Storage {
     sql.select(index);
     this.appendSearch(sql, search);
 
-    // console.log(index, search);
+    var result = database.get(sql);
 
-    // console.log(sql);
-
-    var result = database.exec(sql);
-
-    this.sql = sql;
-
-    return this.resultToList(result);
+    return result;
   }
 
   _getLastInsert(database, index) {
