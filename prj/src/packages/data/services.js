@@ -1160,17 +1160,21 @@ const common = {
   },
 
   async SetFilePath(msgID, filePath){
-    let value = {
-      message_id : msgID,
-      file_path : filePath
-    }
     let paths = await (await models.FilePath).find({
       message_id: msgID
     });
     if(paths.length == 0)
     {
+      let value = {
+        message_id : msgID,
+        file_path : filePath
+      }
       let filepathModel = await new(await models.FilePath)(value);
       filepathModel.save();
+    }
+    else{
+      paths[0].file_path = filePath;
+      paths[0].save();
     }
   },
 
