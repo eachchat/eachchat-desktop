@@ -1160,29 +1160,25 @@ const common = {
   },
 
   async SetFilePath(msgID, filePath){
-    let paths = await (await models.FilePath).find({
+    let msgs = await (await models.Message).find({
       message_id: msgID
     });
-    if(paths.length == 0)
+    if(msgs.length == 1)
     {
-      let value = {
-        message_id : msgID,
-        file_path : filePath
-      }
-      let filepathModel = await new(await models.FilePath)(value);
-      filepathModel.save();
+      msgs[0].file_local_path = filePath;
+      msgs[0].save();
+      return true;
     }
-    else{
-      paths[0].file_path = filePath;
-      paths[0].save();
-    }
+    return false;
   },
 
   async GetFilePath(msgID){
-    let paths = await (await models.FilePath).find({
+    let msgs = await (await models.Message).find({
       message_id: msgID
     });
-    return paths;
+    if(msgs.length == 1){
+      return msgs[0].file_local_path; 
+    }
   },
 
   async QuitGroup(groupID){

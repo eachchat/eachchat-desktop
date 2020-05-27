@@ -281,20 +281,6 @@ var models = {
         primaryKey: "collection_id"
       });
     })();
-  },
-
-  get FilePath(){
-    return (async () => {
-      return await model.Model.create({
-        storage: this.storage.sqlite,
-        index: "filepath",
-        fields: {
-          message_id:         types.string,
-          file_path:          types.string
-        },
-        primaryKey: "message_id"
-      });
-    })();
   }
 }
 
