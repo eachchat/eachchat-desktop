@@ -69,7 +69,8 @@ export default {
                 //     view: "organization"
                 // }
             ],
-            elementImg: null
+            elementImg: null,
+            ipcInited: false,
         }
     },
     methods: {
@@ -151,16 +152,27 @@ export default {
             }
             checking();
         },
-        showCurUserIcon() {
+        updateUserHeadImage: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+
+            var elementImg = document.getElementById("userHead");
+            var showfu = new FileUtil(localPath);
+            let showfileObj = showfu.GetUploadfileobj();
+            let reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onloadend = () => {
+                elementImg.setAttribute("src", reader.result);
+            }
+        },
+        showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");
             // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
 
-            var targetDir = confservice.getFilePath();
-            var targetFileName = this.selfUserInfo.id + ".png";
-            var targetPath = path.join(targetDir, targetFileName);
-            console.log("targetPath is ", targetPath);
-            if(fs.existsSync(targetPath)){
-                //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+            var targetPath = "";
+            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.selfUserInfo.id))) {
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
@@ -168,21 +180,34 @@ export default {
                 reader.onloadend = () => {
                     elementImg.setAttribute("src", reader.result);
                 }
+                return;
             }
-            else{
-                // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
-                console.log("message downloag group avatar target path is ", this.curUserInfo.avatar_minimal);
-                services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal, targetPath);
-                this.checkAndLoadUserImage(targetPath);
+            else {
+                if(!ipcInited) {
+                    ipcRenderer.on('updateUserHeadImage', this.updateUserHeadImage);
+                    ipcInited = true;
+                }
             }
-
-            // services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal)
-            // .then((ret) => {
-            //     elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-            //     elementImg.onload = () => {
-            //         URL.revokeObjectURL(elementImg.getAttribute("src"))
+            // var targetDir = confservice.getFilePath();
+            // var targetFileName = this.selfUserInfo.id + ".png";
+            // var targetPath = path.join(targetDir, targetFileName);
+            // console.log("targetPath is ", targetPath);
+            // if(fs.existsSync(targetPath)){
+            //     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+            //     var showfu = new FileUtil(targetPath);
+            //     let showfileObj = showfu.GetUploadfileobj();
+            //     let reader = new FileReader();
+            //     reader.readAsDataURL(showfileObj);
+            //     reader.onloadend = () => {
+            //         elementImg.setAttribute("src", reader.result);
             //     }
-            // })
+            // }
+            // else{
+            //     // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
+            //     console.log("message downloag group avatar target path is ", this.curUserInfo.avatar_minimal);
+            //     services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal, targetPath);
+            //     this.checkAndLoadUserImage(targetPath);
+            // }
         }
     },
     components: {
