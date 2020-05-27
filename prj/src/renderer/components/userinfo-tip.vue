@@ -67,6 +67,7 @@ export default {
             userInfo: {},
             absoluteTop: 0,
             absoluteLeft: 0,
+            ipcInited: false,
         }
     },
     props: {
@@ -154,7 +155,22 @@ export default {
             this.$emit('getCreateGroupInfo', groupItem);
             this.dialogVisible = false;
         },
-        getUserImg(){
+        updateUserTipImage(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+
+            var showfu = new FileUtil(localPath);
+            let showfileObj = showfu.GetUploadfileobj();
+            let reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onloadend = () => {
+                this.userIconElement.setAttribute("src", reader.result);
+            }
+            return;
+        },
+        getUserImg: async function (){
             console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(this.userInfo.user_id == undefined || this.userInfo == null) {
                 return "";
@@ -164,26 +180,9 @@ export default {
             if(this.userIconElement == undefined) {
                 return;
             }
-            var targetDir = confservice.getFilePath();
-            var targetFileName = this.userInfo.user_id + ".png";
-            var targetPath = path.join(targetDir, targetFileName);
-            var distTAvarar = this.userInfo.avatar_t_url;
-
-            // downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
-            console.log("getuserimage is ", targetPath);
-            if(!fs.existsSync(targetPath)){
-                services.common.getGroupAvatar(distTAvarar)
-                .then((ret) => {
-                    this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
-                    this.userIconElement.onload = () => {
-                        URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
-                    }
-                })
-                setTimeout(() => {
-                    services.common.downloadGroupAvatar(distTAvarar, targetPath);
-                }, 1000)
-            }
-            else{
+            
+            var targetPath = "";
+            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.userInfo.avatar_t_url, this.userInfo.user_id))) {
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
@@ -193,6 +192,37 @@ export default {
                 }
                 return;
             }
+            else {
+                if(!ipcInited) {
+                    ipcRenderer.on('updateUserTipImage', this.updateUserTipImage);
+                    ipcInited = true;
+                }
+            }
+
+            // downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
+            // console.log("getuserimage is ", targetPath);
+            // if(!fs.existsSync(targetPath)){
+            //     services.common.getGroupAvatar(distTAvarar)
+            //     .then((ret) => {
+            //         this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
+            //         this.userIconElement.onload = () => {
+            //             URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
+            //         }
+            //     })
+            //     setTimeout(() => {
+            //         services.common.downloadGroupAvatar(distTAvarar, targetPath);
+            //     }, 1000)
+            // }
+            // else{
+            //     var showfu = new FileUtil(targetPath);
+            //     let showfileObj = showfu.GetUploadfileobj();
+            //     let reader = new FileReader();
+            //     reader.readAsDataURL(showfileObj);
+            //     reader.onloadend = () => {
+            //         this.userIconElement.setAttribute("src", reader.result);
+            //     }
+            //     return;
+            // }
         },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){

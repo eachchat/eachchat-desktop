@@ -46,6 +46,35 @@ function JsonMsgContentToString (jsonMsgContent) {
     return chatGroupMsgContent;
 }
 
+function makeFlieNameForConflict(checkPath) {
+    return new Promise((resolve, reject) => {
+      try {
+        fs.readdir(path.dirname(checkPath), (err, files) => {
+          let name = path.basename(checkPath)
+          let extName = path.extname(name)
+          let exp = new RegExp(`(.*)(${extName}$)`)
+          if (files.indexOf(name) < 0) {
+            resolve(checkPath)
+          }
+          for (let i = 0; i < files.length; i++) {
+            let newName = ''
+            newName = name.replace(exp, `$1 (${i + 2})${extName}`)
+            if (files.indexOf(newName) < 0) {
+              resolve(path.join(path.dirname(checkPath), newName))
+            }
+          }
+          resolve(
+            path.join(
+              path.dirname(checkPath),
+              name.replace(exp, `$1 (${files.length + 1})${extName}`)
+            )
+          )
+        })
+      } catch (error) {
+        reject(checkPath)
+      }
+    })
+  }
 function getFileNameInPath(filePath) {
     var dealedPath = filePath.replace("/", "\\");
     var pos = dealedPath.lastIndexOf('\\');
@@ -959,6 +988,6 @@ const iconMap = {
     txt: ['txt', 'log', 'xml']
   }
   
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, strFavoriteContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, strFavoriteContentToJson};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

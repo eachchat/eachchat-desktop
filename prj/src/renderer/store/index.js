@@ -26,8 +26,12 @@ export default new Vuex.Store({
     latestSequenceId: "",
     earliestSequenceId: "",
     Services: null,
+    msgIpcInited: false,
   },
   mutations: {
+    setMsgIpcInited(state) {
+      state.msgIpcInited = true;
+    },
     setLatestSequenceId(state, sequenceId) {
       state.latestSequenceId = sequenceId;
     },
@@ -351,7 +355,7 @@ export default new Vuex.Store({
   },
   modules,
   plugins: [
-    createPersistedState(),
+    // createPersistedState(),
     //createSharedMutations()
   ],
   strict: process.env.NODE_ENV !== 'production'

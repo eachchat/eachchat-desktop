@@ -6,6 +6,10 @@ import { clientIncrementRouter } from './clientincrementrouter.js';
 import { sqliteutil } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
+import confservice from './conf_service.js'
+import * as path from 'path'
+import * as fs from 'fs-extra'
+import { makeFlieNameForConflict } from '../core/Utils.js'
 
 const mqtt = require('mqtt')
 
@@ -934,12 +938,77 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadFile(timelineId, targetPath, needOpen) {
-    ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
+  async downloadFile(timelineId, message_time, fileName, needOpen) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getFilePath(message_time);
+    var targetPath = path.join(targetDir, fileName);
+    console.log("targetPath is ", targetPath);
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      targetPath = await makeFlieNameForConflict(targetPath);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
+      return ret;
+    }
   },
 
-  async downloadTumbnail(timelineId, targetPath, thumbnailType) {
-    ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType]);
+  async downloadMsgTTumbnail(timelineId, message_time, fileName, needOpen) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getThumbImagePath(message_time);
+    var targetPath = path.join(targetDir, fileName);
+    console.log("targetPath is ", targetPath);
+    if(fs.existsSync(targetPath)) {
+      console.log("return targetPath ", targetPath)
+      return targetPath;
+    }
+    else {
+      targetPath = await makeFlieNameForConflict(targetPath);
+      ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, "T", needOpen]);
+      return ret;
+    }
+  },
+  
+  async downloadMsgOTumbnail(timelineId, message_time, fileName, needOpen) {
+    console.log("downloadMsgOTumbnail")
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getOImagePath(message_time);
+    var targetPath = path.join(targetDir, fileName);
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      targetPath = await makeFlieNameForConflict(targetPath);
+      console.log("downloadMsgOTumbnail targetPath is ", targetPath);
+      ipcRenderer.send('download-mgs-oimage', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, "M", needOpen]);
+      return ret;
+    }
+  },
+  
+  async downloadUserTAvatar(url, userId) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getUserThumbHeadPath();
+    var targetPath = path.join(targetDir, userId + '.png');
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      ipcRenderer.send('download-user-avarar', [url, userId, this.data.login.access_token, targetPath]);
+      return ret;
+    }
+  },
+  
+  async downloadUserOAvatar(url, userId) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getUserThumbHeadPath();
+    var targetPath = path.join(targetDir, userId + '.png');
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      ipcRenderer.send('download-user-avarar', [url, userId, this.data.login.access_token, targetPath]);
+      return ret;
+    }
   },
   
   async downloadGroupAvatar(url, targetPath) {
@@ -1173,9 +1242,11 @@ const common = {
   },
 
   async GetFilePath(msgID){
+    console.log("getfilepath the msgID ls ", msgID)
     let msgs = await (await models.Message).find({
       message_id: msgID
     });
+    console.log("getfilepath the return ls ", msgs)
     if(msgs.length == 1){
       return msgs[0].file_local_path; 
     }

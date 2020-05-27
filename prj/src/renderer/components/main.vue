@@ -83,6 +83,7 @@ export default {
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
+            this.$store.commit("setUserId", this.curUserInfo.id);
             confservice.init(this.curUserInfo.id);
             console.log("lognInfo is ", this.loginInfo);
             // Get data from server and set in database

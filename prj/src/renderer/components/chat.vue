@@ -3,7 +3,7 @@
         <div class="chat-title">
             <p class="chat-name" id="chat-group-name"></p>
             <div class="chat-tools">
-                <div class="chat-tool-more" @click="More()" style="display:none">
+                <div class="chat-tool-more" @click="More()">
                     <i class="el-icon-more"></i>
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
@@ -56,6 +56,7 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
+        <groupInfoTip v-show="showGroupInfoTips" :memberList="groupContainUserIds"></groupInfoTip>
     </div>
 </template>
 
@@ -72,7 +73,7 @@ import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
 import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
-
+import groupInfoTip from './group-info.vue'
 
 function extend(target, base) {
     console.log("base is ", base);
@@ -145,6 +146,7 @@ export default {
         imessage,
         Faces,
         userInfoTip,
+        groupInfoTip
     },
     props: ['chat'],
     methods: {
@@ -193,7 +195,7 @@ export default {
         },
         closeUserInfoTip(e){
             var userInfoTipElement = document.getElementById("userInfoTipId");
-            if(!userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img"){
+            if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img"){
                 this.showUserInfoTips = false;
             }
         },
@@ -292,7 +294,7 @@ export default {
             }
         },
         insertImg: function() {
-            console.log("============== this is ", this);
+            // console.log("============== this is ", this);
         },
         nHandleFiles: function(e, paths) {
             // Select Same File Failed.
@@ -606,7 +608,6 @@ export default {
                                 "ext":ext,
                                 "fileName":fileName,
                                 "url":"",
-                                "fileLocalPath": filePath,
                                 "fileSize": fileSize
                             })
                             let guid = generalGuid();
@@ -617,6 +618,7 @@ export default {
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
+                                "file_local_path": filePath
                                 };
                             this.messageList.push(willSendMsg);
                             console.log("willsendmsg is ", willSendMsg);
@@ -700,7 +702,7 @@ export default {
                                 "fileName":fileName,
                                 "url":"",
                                 "middleImage":"",
-                                "thumbnailImage": filePath,
+                                "thumbnailImage": "",
                                 "imgWidth": fileWidth,
                                 "imgHeight": fileHeight,
                                 "fileSize": 0,
@@ -713,6 +715,7 @@ export default {
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
+                                "file_local_path": filePath
                                 };
                             this.messageList.push(willSendMsg);
                             this.existingMsgId.push(willSendMsg.message_id);
@@ -1056,8 +1059,11 @@ export default {
         Call: function() {
             console.log("make a call");
         },
-        More: function() {
-            console.log("show more");
+        More: async function() {
+            console.log("more more more ", this.chat.contain_user_ids.split(","))
+            var idsList = this.chat.contain_user_ids.split(",");
+            this.groupContainUserIds = idsList;
+            this.showGroupInfoTips = true;
         },
         compare: function(){
             return function(a, b)
@@ -1177,7 +1183,9 @@ export default {
     },
     data() {
         return {
+            groupContainUserIds: [],
             ipcInited: false,
+            showGroupInfoTips: false,
             editor:null,
             messageList: [],
             sendingMsgIdList: [],

@@ -60,10 +60,6 @@ export default {
       }
       var chatGroupVar = [];
       chatGroupVar = this.showGroupList.sort(this.compare());
-      if(chatGroupVar[0].sequence_id > this.$store.state.latestSequenceId) {
-        // Update latest message's sequenceId
-        this.$store.commit("setLatestSequenceId", chatGroupVar[0].sequence_id);
-      }
       return chatGroupVar
     }
   },
