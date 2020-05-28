@@ -133,6 +133,19 @@ const sqliteutil = {
         }
         return collections[0].sequence_id;
     },
+
+    async ClearCollectionByType(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type
+            }
+        );
+        for(let index in collections){
+            console.log("delete :" + collections[index]);
+            collections[index].destroy();
+        }
+        
+    },
     
     async FindCollectionByType(type){
         let collections = await(await models.Collection).find(
@@ -173,9 +186,9 @@ const sqliteutil = {
         }
     },
 
-    async FindItemByCollectionID(collectionID){
+    async FindItemByFavouriteID(favouriteID){
         let collections = await (await models.Collection).find({
-            collection_id: collectionID
+            favourite_id: favouriteID
         });
         if(collections.length != 0){
             return collections[0];
