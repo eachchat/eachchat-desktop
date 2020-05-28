@@ -152,12 +152,12 @@ export default {
             }
             checking();
         },
-        updateUserHeadImage: function(e, args) {
+        updateUserImage: function(e, args) {
             var state = args[0];
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
-
+            // console.log("=============================")
             var elementImg = document.getElementById("userHead");
             var showfu = new FileUtil(localPath);
             let showfileObj = showfu.GetUploadfileobj();
@@ -172,6 +172,7 @@ export default {
             // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
 
             var targetPath = "";
+            // console.log("===========this.curUserInfo.avatar_minimal ", this.curUserInfo.avatar_minimal)
             if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.selfUserInfo.id))) {
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
@@ -183,9 +184,10 @@ export default {
                 return;
             }
             else {
-                if(!ipcInited) {
-                    ipcRenderer.on('updateUserHeadImage', this.updateUserHeadImage);
-                    ipcInited = true;
+                if(!this.ipcInited) {
+                    // console.log("===========this.ipcInited ", this.ipcInited)
+                    ipcRenderer.on('updateUserImage', this.updateUserImage);
+                    this.ipcInited = true;
                 }
             }
             // var targetDir = confservice.getFilePath();

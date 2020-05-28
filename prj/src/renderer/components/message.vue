@@ -370,7 +370,10 @@ export default {
                 }
                 else{
                     services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
-                    ipcRenderer.on('updateMsgImage', this.updateMsgImage);
+                    if(!this.ipcInited) {
+                        ipcRenderer.on('updateMsgImage', this.updateMsgImage);
+                        this.ipcInited = true;
+                    }
                     // this.checkAndLoadImg(targetPath);
                 }
             }
@@ -387,7 +390,9 @@ export default {
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
-                    ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                    if(!ipcInited) {
+                        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                    }
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
@@ -465,7 +470,9 @@ export default {
                 if(!fs.existsSync(targetPath)){
                     // ipcRenderer.send('download-file', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, false]);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
-                    ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                    if(!ipcInited) {
+                        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                    }
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 console.log("fileMsgImgElement ia ", fileMsgImgElement);
@@ -539,7 +546,9 @@ export default {
                 console.log("message downloag group avatar target path is ", targetPath);
                 services.common.downloadUserTAvatar(distTAvarar, this.userInfo.user_id);
                 // this.checkAndLoadUserImage(targetPath);
-                ipcRenderer.on('updateUserImage', this.updateUserImage);
+                if(!ipcInited) {
+                    ipcRenderer.on('updateUserImage', this.updateUserImage);
+                }
             }
 
             // downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
@@ -590,6 +599,7 @@ export default {
             },
             userIconElement: null,
             userInfo: null,
+            ipcInited: false,
         }
     },
     mounted: async function() {
