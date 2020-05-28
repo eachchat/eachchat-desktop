@@ -278,7 +278,7 @@ var models = {
           timeline_id:           types.string,
           timestamp:             types.integer
         },
-        primaryKey: "collection_id"
+        primaryKey: "favourite_id"
       });
     })();
   }

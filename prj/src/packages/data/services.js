@@ -1082,17 +1082,23 @@ const common = {
     let bNext = true;
     let item;
     let collectionModel;
-    let collections;
-    let sequenceId = await sqliteutil.FindMaxCollectionSequenceID(type[0]);
+    let collections = [];
+    let bFirst = true;
+    let sequenceID = 0;
 
     while(bNext){
       result = await this.api.ListAllCollections(this.data.login.access_token,
                                                   type,
-                                                  sequenceId,
+                                                  sequenceID,
                                                   10,
                                                   1);
       if (!result.ok || !result.success) {
         break;
+      }
+      if(bFirst)
+      {
+        await sqliteutil.ClearCollectionByType(type[0]);
+        bFirst = false;
       }
       bNext = result.data.hasNext;
 
@@ -1100,19 +1106,18 @@ const common = {
         item = result.data.results[index];
         collectionModel = await servicemodels.CollectionModel(item);
 
-        let find = await sqliteutil.FindItemByCollectionID(item.collectionId)
+        let find = await sqliteutil.FindItemByFavouriteID(item.favoriteId)
         if(find == undefined){
           collectionModel.save();
         }
         else{
           find.values = collectionModel.values;
           find.save();
-        }
-        sequenceId = collectionModel.sequence_id;
+        } 
       }
+      sequenceID = await sqliteutil.FindMaxCollectionSequenceID(type[0])
     }
     collections = await sqliteutil.FindCollectionByType(type[0])
-    console.log(collections)
     return collections;
   },
 
