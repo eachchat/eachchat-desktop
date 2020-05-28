@@ -4,7 +4,7 @@
         <div :class="maskClass" @click="closeByMask()"></div>
         <div :class="mainClass" :style="mainStyle" class="main" >
             <div class="close-button" v-show="closable">
-                <img class = "close-icon" src="../../../static/Image/close_icon@2x.png"
+                <img class = "close-icon" src="../../../static/Img/Organization/Common/close_icon@2x.png"
                     @click="closeByButton()">
             </div>
             <slot/>

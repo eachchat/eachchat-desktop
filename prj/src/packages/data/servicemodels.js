@@ -445,7 +445,8 @@ const servicemodels = {
         "owner": "owner",             
         "groupNotice": "group_notice",     
         "noticeTime": "notice_time",       
-        "noticeUserId": "notice_userId"
+        "noticeUserId": "notice_userId",
+        "updateTime": "updatetime"
       }
       return this.UpdateGroup(groupmodel, groupvalue, groupmap);
     },

@@ -341,6 +341,19 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async downloadGroupAvatar(url, accessToken) {
+    var headers={Authorization:"Bearer " + accessToken};
+
+    return this.commonApi.get(url,
+      {
+        Authorization: "Bearer " + accessToken
+      },
+      {
+        timeout: 35000,
+        responseType: "blob"
+      })
+  }
+
   async MessageRead(accessToken, groupid, sequenceid){
     var response = await this.commonApi.put(
       "/api/apps/im/v1/message/reader",
@@ -417,6 +430,124 @@ class APITransaction {
       {
         favoriteIds: array
       },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async UpdateGroupName(accessToken, groupID, groupName){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group",
+      {
+        groupId: groupID,
+	      groupName: groupName
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteGroupUsers(accessToken, groupID, userIDs){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/user/del",
+      {
+        groupId: groupID,
+	      userIds: userIDs
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async AddGroupUsers(accessToken, groupID, userIDs){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/user/add",
+      {
+        groupId: groupID,
+	      userIds: userIDs
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteHistoryMessage(accessToken, groupID, sequenceID){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/message/history",
+      {
+        groupId: groupID,
+	      sequenceId: sequenceID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteGroup(accessToken, groupID){
+    var response = await this.commonApi.delete(
+      "/api/apps/im/v1/group/" + groupID,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async UpdateGroupNotice(accessToken, groupID, notice){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group/notice",
+      {
+        groupId: groupID,
+	      notice: notice
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async UpdateGroupAvatar(accessToken, groupID, filePath){
+    var fu = new FileUtil(filePath);
+    let file = fu.GetUploadfileobj();
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('groupId', groupID);
+
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/avatar",
+      formData,
+      {
+        Authorization: "Bearer " + accessToken,
+        "Content-Type": fu.GetMimename()
+      },
+      {
+        timeout: 15000
+      });
+    return this.parseStatus(response);
+  }
+
+  async GroupStatus(accessToken, groupID, userID, stickFlag, disturbFlag){
+    var response = await this.commonApi.put(
+      "/api/apps/im/v1/group/status",
+      {
+        groupId:      groupID,
+        userId:       userID,
+        stickFlag:    stickFlag,
+        disturbFlag:  disturbFlag
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async QuitGroup(accessToken, groupID){
+    var response = await this.commonApi.delete(
+      "/api/apps/imv1/group/quit/" + groupID,
       {
         Authorization: "Bearer " + accessToken
       });

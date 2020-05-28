@@ -16,7 +16,7 @@
                   @click="showChat(chatGroupItem, index)"
                   :class="{active: index===curindex}"
                   >
-                <img class="group-ico" :id="getChatElementId(chatGroupItem)"/>
+                <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
                 <div class="group-info">
                   <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
                   <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
@@ -30,10 +30,10 @@
           </div>
         </div>
         <div class="chat">
-          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage"></ChatPage>
+          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo"></ChatPage>
         </div>
       </div>
-      <imageLayer :imgSrcInfo="imageLayersSrcInfo" :access_token="loginInfo.access_token" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
+      <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
     </div>
 </template>
 
@@ -72,13 +72,11 @@ export default {
       //需要展示的用户群组
       curChat: {},
       needUpdate: 1,
-      curindex: 0,
+      curindex: -1,
       searchKey: '',
-      loginInfo: '',
       normalGroupList: [],
       encryptGroupList: [],
       showGroupList: [],
-      isSqlite: true,
       showImageLayers: false,
       imageLayersSrcInfo: '',
       clickedGroupList: [],
@@ -92,7 +90,8 @@ export default {
     showGroupIcon() {
       for(var i=0;i<this.showGroupList.length;i++) {
         let elementImg = document.getElementById(this.showGroupList[i].group_id);
-        downloadGroupAvatar(this.showGroupList[i].group_avarar, this.loginInfo.access_token)
+        console.log("groupavatar is ", this.showGroupList[i].group_avarar);
+        services.common.getGroupAvatar(this.showGroupList[i].group_avarar)
           .then((ret) => {
               elementImg.setAttribute("src", URL.createObjectURL(ret.data));
               elementImg.onload = () => {
@@ -138,7 +137,7 @@ export default {
       this.imageLayersSrc = '';
       this.showImageLayers = false;
     },
-    updateChatList(newMsg) {
+    updateChatList(newMsg, updateList=true) {
       // ++this.needUpdate;
       console.log("newMsg is ", newMsg)
       for(var i=0;i<this.showGroupList.length;i++) {
@@ -150,9 +149,13 @@ export default {
           this.showGroupList[i].message_from_id = newMsg.message_from_id;
           this.showGroupList[i].message_id = newMsg.message_id;
           this.showGroupList[i].sequence_id = newMsg.sequence_id;
-          this.showGroupList[i].un_read_count += 1;
-          this.curindex = i;
-          this.curChat = this.showGroupList[i];
+          if(newMsg.message_from_id != this.curUserInfo.id) {
+            this.showGroupList[i].un_read_count += 1;
+          }
+          if(updateList) {
+            this.curindex = i;
+            // this.curChat = this.showGroupList[i];
+          }
           break;
         }
       }
@@ -326,9 +329,18 @@ export default {
         }
         else if(chatGroupMsgContent.type === "deleteGroupUser")
         {
-          var owner = chatGroupMsgContent.userName;
-          var bybyer = chatGroupMsgContent.userInfos.userName;
-          return owner + " 将 " + bybyer + " 移出了群聊";
+            var owner = chatGroupMsgContent.userName;
+            var deletedNames = "";
+            var deletedUsers = chatGroupMsgContent.userInfos;
+            if(deletedUsers.length == 1){
+                deletedNames = deletedUsers[0].userName
+            }
+            else{
+                for(var i=0;i<deletedUsers.length;i++) {
+                    deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                }
+            }
+            return owner + " 将 " + deletedNames + " 移出了群聊";
         }
         else
         {
@@ -346,13 +358,13 @@ export default {
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
+      services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat = chatGroup;
       this.curindex = index;
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat.un_read_count = 0;
     },
     getGroupList: async function(updateCurPage=false) {
-      if(this.isSqlite) {
         var ret = await services.common.GetAllGroups()
         console.log("sql getGroupList is ", ret)
         this.showGroupList = ret;
@@ -361,23 +373,8 @@ export default {
           chatGroupVar = this.showGroupList.sort(this.compare());
           let curGroup = chatGroupVar[0];
           console.log("getgrouplist the cur group is ", curGroup)
-          this.showChat(curGroup, 0);
+          // this.showChat(curGroup, 0);
         }
-      }
-      else {
-        this.serverapi.listAllGroup(this.loginInfo.access_token)
-          .then((response) => {
-              //console.log(response)
-              var ret_data = response.data;
-              var ret_list = ret_data.results;
-              console.log("this.serverapi.listAllGroup ", ret_list)
-              this.showGroupList = [];
-              for(var i=0;i<ret_list.length;i++) {
-                this.showGroupList[i] = ret_list[i];
-              }
-              this.$store.commit("setChatGroup", ret_list);
-          })
-      }
     },
     compare: function() {
       return function(a, b)
@@ -391,8 +388,9 @@ export default {
       console.log("chat content callback msg is ", msg);
     },
   },
-  mounted: function() {
+  mounted: async function() {
       // When Mounting Can Not Get The Element. Here Need SetTimeout
+      await this.getGroupList(true);
       setTimeout(() => {
           this.$nextTick(() => {
             this.showGroupIcon();
@@ -400,16 +398,9 @@ export default {
       }, 0)
   },
   created: async function() {
-    this.serverapi = new APITransaction('139.198.15.253', 8888)
-    // To GetSelfUserModel Must Do GetLoginModel Firstly?
     this.loginInfo = await services.common.GetLoginModel();
-    var curUserInfo = await services.common.GetSelfUserModel();
-    this.$store.commit("setUserId", curUserInfo.id);
+    this.curUserInfo = await services.common.GetSelfUserModel();
 
-    // services.common.initmqtt();
-    // services.common.handlemessage(this.callback);
-
-    this.getGroupList(true);
   }
 };
 </script>

@@ -5,6 +5,7 @@ import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
 import { sqliteutil } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
+import {ipcRenderer} from 'electron';
 
 const mqtt = require('mqtt')
 
@@ -47,6 +48,13 @@ const common = {
       return;
     }
     this.data.login = foundlogin[0];
+
+    
+    if(!await this.tokenValid())
+    {
+      await this.refreshToken();
+    }
+    
     return this.data.login;
   },
 
@@ -98,6 +106,13 @@ const common = {
     return this.data.useremail = allItems;
   },
 
+  async GetDistUserEmail(uid){
+    let distItem = await(await models.UserEmail).find({
+      owner_user_id: uid
+    });
+    return distItem[0];
+  },
+
   async GetAllUserAddress(){
     let allItems = await(await models.UserAddress).find({
       $reverse: true
@@ -110,6 +125,13 @@ const common = {
       $reverse: true
     });
     return this.data.userphone = allItems;
+  },
+
+  async GetDistUserPhone(uid){
+    let distItem = await(await models.UserPhone).find({
+      owner_user_id: uid
+    });
+    return distItem[0];
   },
 
   async GetAllUserIm(){
@@ -275,7 +297,7 @@ const common = {
       currentlogin.refresh_token = login.refresh_token
       currentlogin.save();
       this.data.login = currentlogin;
-    }    
+    }
   },
 
   async InitServiceData(){
@@ -298,7 +320,7 @@ const common = {
     await this.UpdateUserinfo();
     await this.UpdateDepartment();
     await this.UpdateMessages();
-    await this.ListAllCollections();
+    //await this.ListAllCollections();
   },
 
   async UpdateDepartment(){
@@ -356,6 +378,7 @@ const common = {
     let userid = this.data.selfuser.id;
     let services = this;
     await this.mqttclient.on('message', async function(topic, message){
+      console.log("handle message get topic ", topic)
       console.log("handle message get sth ", JSON.parse(message.toString()))
       if(topic != userid)
       {
@@ -475,6 +498,7 @@ const common = {
 
     this.data.login.access_token = result.headers["access-token"];
     this.data.login.save()
+
     return ret;
   },
 
@@ -571,8 +595,11 @@ const common = {
       {
         continue
       }
-      groupmodel.save()
-      this.data.group.push(groupmodel)
+      if(groupmodel.status[5] != 1){
+        groupmodel.save()
+        this.data.group.push(groupmodel)
+      }
+      
     }
     await sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
     let maxSequenceId = await sqliteutil.FindMaxSequenceIDFromGroup();
@@ -618,8 +645,12 @@ const common = {
     return await this.api.getNewVersion(this.data.login.access_token)
   },
 
-  async tokenValid(accessToken) {
-    return await this.api.tokenValid(this.data.login.access_token)
+  async tokenValid() {
+    let result = await this.api.tokenValid(this.data.login.access_token)
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return true;
   },
 
   async clientIncrement(name,
@@ -675,6 +706,9 @@ const common = {
         groupModel = await servicemodels.IncrementGroupModel(groupItem);
       }
       groupModel.save();
+      if(groupModel.status[5] == 1){
+        await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
+      }
     }
     sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, groupModel.updatetime)
     this.data.selfuser.group_max_updatetime = groupModel.updatetime;
@@ -900,12 +934,20 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadFile(timelineId) {
-    return await this.api.downloadFile(this.data.login.access_token, timelineId)
+  async downloadFile(timelineId, targetPath, needOpen) {
+    ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
   },
 
-  async downloadTumbnail(type, timelineId) {
-    return await this.api.downloadTumbnail(this.data.login.access_token, type, timelineId)
+  async downloadTumbnail(timelineId, targetPath, thumbnailType) {
+    ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType]);
+  },
+  
+  async downloadGroupAvatar(url, targetPath) {
+    ipcRenderer.send('download-avarar', [url, this.data.login.access_token, targetPath]);
+  },
+  
+  async getGroupAvatar(url) {
+    return await this.api.downloadGroupAvatar(url, this.data.login.access_token);
   },
   
   async CreateGroup(groupNameValue, groupUsersArray){
@@ -946,24 +988,24 @@ const common = {
   },
 
   async ListMessageCollections(){
-    await this.ListCollectionByType([101]);
+    return await this.ListCollectionByType([101]);
   },
 
   async ListPictureCollections(){
-    await this.ListCollectionByType([102]);
+    return await this.ListCollectionByType([102]);
   },
   
   async ListFileCollections(){
-    await this.ListCollectionByType([103]);
+    return await this.ListCollectionByType([103]);
   },
 
   async ListGroupCollections(){
-    await this.ListCollectionByType([104]);
+    return await this.ListCollectionByType([104]);
 
   },
 
   async ListTopicCollections(){
-    await this.ListCollectionByType([106]);
+    return await this.ListCollectionByType([106]);
   },
   
   async ListCollectionByType(type){
@@ -971,6 +1013,7 @@ const common = {
     let bNext = true;
     let item;
     let collectionModel;
+    let collections;
     let sequenceId = await sqliteutil.FindMaxCollectionSequenceID(type[0]);
 
     while(bNext){
@@ -980,7 +1023,7 @@ const common = {
                                                   10,
                                                   1);
       if (!result.ok || !result.success) {
-        return false;
+        break;
       }
       bNext = result.data.hasNext;
 
@@ -999,6 +1042,9 @@ const common = {
         sequenceId = collectionModel.sequence_id;
       }
     }
+    collections = await sqliteutil.FindCollectionByType(type[0])
+    console.log(collections)
+    return collections;
   },
 
   async CollectMessage(timelineIDs){
@@ -1056,8 +1102,91 @@ const common = {
       return false;
     }
     await sqliteutil.DeleteItemFromCollectionByCollectionIdID(gorupID)
+  },
+
+  async UpdateGroupName(groupID, groupName){
+    let result = await this.api.UpdateGroupName(this.data.login.access_token, groupID, groupName);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    //let groupModel = await servicemodels.IncrementGroupModel(result.data.obj);
+    //await sqliteutil.UpdateGroupName(groupID, groupName)
+  },
+
+  async DeleteGroupUsers(groupID, userIDs){
+    let result = await this.api.DeleteGroupUsers(this.data.login.access_token, groupID, userIDs);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+  },
+
+  async AddGroupUsers(groupID, userIDs){
+    let result = await this.api.AddGroupUsers(this.data.login.access_token, groupID, userIDs);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+  },
+
+  async DeleteHistoryMessage(groupID, sequenceID){
+    let result = await this.api.DeleteHistoryMessage(this.data.login.access_token, groupID, sequenceID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await sqliteutil.ClearMessageByGroupID(groupID)
+  },
+
+  async DeleteGroup(groupID){
+    let result = await this.api.DeleteGroup(this.data.login.access_token, groupID);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    await sqliteutil.DeleteGroupByGroupID(groupID)
+  },
+
+  async UpdateGroupAvatar(groupID, filePath){
+    let result = await this.api.UpdateGroupAvatar(this.data.login.access_token, groupID, filePath);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+  },
+
+  async GroupStatus(groupID, userID, stickFlag, disturbFlag){
+    let result = await this.api.GroupStatus(this.data.login.access_token, groupID, userID, stickFlag, disturbFlag);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    let status = result.data.obj.status;
+    await sqliteutil.UpdateGroupStatus(groupID, status)
+  },
+
+  async SetFilePath(msgID, filePath){
+    let msgs = await (await models.Message).find({
+      message_id: msgID
+    });
+    if(msgs.length == 1)
+    {
+      msgs[0].file_local_path = filePath;
+      msgs[0].save();
+      return true;
+    }
+    return false;
+  },
+
+  async GetFilePath(msgID){
+    let msgs = await (await models.Message).find({
+      message_id: msgID
+    });
+    if(msgs.length == 1){
+      return msgs[0].file_local_path; 
+    }
+  },
+
+  async QuitGroup(groupID){
+    let result = await this.api.QuitGroup(this.data.login.access_token, groupID);
+    if (!result.ok || !result.success) {
+      return result;
+    }
   }
-  
 };
 
 const cache = {

@@ -42,7 +42,7 @@ const sqliteutil = {
             id: userid
           });
         if(foundUsers.length == 0){
-        return;
+            return;
         }
         foundUsers[0].group_max_updatetime = updatetime;
         foundUsers[0].save();
@@ -133,6 +133,15 @@ const sqliteutil = {
         }
         return collections[0].sequence_id;
     },
+    
+    async FindCollectionByType(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type,
+            }
+        );
+        return collections;
+    },
 
     async ExistCollection(collectionId){
         let collections = await(await models.Collection).find(
@@ -197,6 +206,48 @@ const sqliteutil = {
         );
         let sequenceID = groups[0].sequence_id;
         return sequenceID;
+    },
+
+    async UpdateGroupName(groupID, groupName){
+        let groups = await (await models.Groups).find({
+            group_id: groupID
+        });
+        if(groups.length != 0){
+            let group = groups[0]
+            group.group_name = groupName;
+            group.save();
+        }
+    },
+
+    async ClearMessageByGroupID(groupID){
+        let msgs = await (await models.Message).find({
+            group_id: groupID
+        }); 
+        if(msgs.length != 0){
+            for(let item in msgs){
+                msgs[item].destroy();
+            }
+        }
+    },
+
+    async DeleteGroupByGroupID(groupID){
+        let groups = await (await models.Groups).find({
+            group_id: groupID
+        });
+        if(groups.length != 0){
+            groups[0].destroy();
+        }
+    },
+
+    async UpdateGroupStatus(groupID, status){
+        let groups = await (await models.Groups).find({
+            group_id: groupID
+        });
+        if(groups.length != 0){
+            let group = groups[0]
+            group.status = status;
+            group.save();
+        }
     }
 }
 

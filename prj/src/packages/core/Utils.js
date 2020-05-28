@@ -11,7 +11,18 @@ function generalGuid() {
         return v.toString(16);
     });
 }
-
+function strFavoriteContentToJson(strFavContent) {
+    if(strFavContent == "") {
+        return "";
+    }
+    var favoriteContent = {};
+    try{
+        favoriteContent = JSON.parse(JSON.stringify(unescape(strFavContent)));
+    } catch (e) {
+        console.log("Favorite Content Json parse Failed.", strFavContent);
+    }
+    return favoriteContent;
+}
 function strMsgContentToJson(strMsgContent) {
     if(strMsgContent == "") {
         return "";
@@ -41,27 +52,22 @@ function getFileNameInPath(filePath) {
     var m_filename = dealedPath.substring(pos + 1);
     return m_filename;
 }
+// https://blog.csdn.net/qq_33729889/article/details/55510648
+function trim(originalStr) {
+    return originalStr.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
+}
 
-function sliceReturnsOfString (originalStr) {
-    if(originalStr == "" || originalStr == undefined) {
+function sliceReturnsOfString(originalStr) {
+    if(originalStr == undefined) {
         return "";
     }
-    var finalStr = originalStr;
-    var str_split = originalStr.split('\n');
-    if(str_split.length == 0) {
-        return finalStr;
+    var finalStr = trim(originalStr);
+    while(finalStr[finalStr.length-1] == '\n') {
+        let finalIndex = finalStr.length - 3;
+        finalStr = finalStr.substring(0, finalIndex-2);
     }
-    var modified = false;
-    if(str_split[0] != undefined && str_split[0].length == 0){
-        modified = true;
-        str_split = str_split.slice(1, str_split.length);
-    }
-    if(str_split[str_split.length - 1] != undefined && str_split[str_split.length - 1].length == 0) {
-        modified = true;
-        str_split = str_split.slice(0, str_split.length-1);
-    }
-    if(modified) {
-        finalStr = str_split.join('\n');
+    if(finalStr.length == 0) {
+        return "";
     }
     return finalStr;
 }
@@ -87,17 +93,15 @@ function getElementTop(element) {
     //     actTop += current.offsetTop;
     //     current = current.offsetParent;
     // }
+    // return actTop;
     var actTop = element.offsetTop;
     var current = element.offsetParent;
     while(current !== null){
         actTop += current.offsetTop;
         current = current.offsetParent;
     }
-    if (document.compatMode == 'BackCompat') {
-        var scrollTop = document.body.scrollTop;
-    } else {
-        var scrollTop = document.documentElement.scrollTop;
-    }
+    var msgListElement = document.getElementById("message-show-list");
+    var scrollTop = msgListElement.scrollTop;
     return actTop - scrollTop;
 }
 
@@ -665,6 +669,8 @@ class FileUtil
     {
         if(this.m_externname != '')
             return this.m_externname;
+        if(this.m_filename == "")
+            this.m_filename = this.GetFilename();
         let tmp = this.m_filename.split('').reverse().join('');
         this.m_externname = tmp.substring(0,tmp.search(/\./)).split('').reverse().join('');
         return this.m_externname;
@@ -688,6 +694,12 @@ function fileTypeFromMIME(mimeName){
     var ext = "";
     ext = findKey(mimestruct, mimeName);
     return ext;
+}
+
+function fileMIMEFromType(ext){
+    var mine = "";
+    mine = mimestruct[ext];
+    return mine;
 }
 
 const faceUtils = {
@@ -797,7 +809,7 @@ function uncodeUtf16(str){
  }
 
 function getIconPath(ext) {
-    var iconDirPath = './static/Img/Chat/';
+    var iconDirPath = './static/Img/Chat';
     var distExt = '';
     var distIconPath = '';
     for (var key in iconMap) {
@@ -946,158 +958,7 @@ const iconMap = {
     word: ['doc', 'docx', 'wps', 'wpt', 'rtf', 'dot', 'dotm', 'docm', 'dotx'],
     txt: ['txt', 'log', 'xml']
   }
-class ConfService {
-    // 放弃，梁杰有替代方案
-    // 配置和数据库放在%localappdata%/Workly/EachChat
-    // 缓存参照微信，放在用户文档中的EachChatFiles中，目录结构：
-        // 用户ID命名的文件夹：
-        //     Files：聊天中的文档，按月分文件夹
-        //     General：头像和高清头像
-                    // HeadImage为头像缩略图
-                    // HDHeadImage为头像原图
-        //     Image：聊天中的图片，按月分文件夹，参照teams和飞书，不支持聊天内图片的同时预览
-                    // Thumb放置缩略图
-                    // MImage放置M Size图片
-                    // OImage放置原图
-
-    constructor() {
-        this.appName = 'EachChat';
-        this.companyName = 'Workly';
-        this.productName = 'EachChat';
-        this.localAnyBoxDirName = 'AnyBoxSpaces';
-        this.filesDirName = 'EachChatFiles';
-        this.filesFilesDirName = 'Files';
-        this.headImageDirName = 'General';
-        this.headThumbDirName = 'HeadImage';
-        this.headHDDirName = 'HDHeadImage';
-        this.imagesDirName = 'Image';
-        this.imageThumbDirName = 'Thumb';
-        this.imageMDirName = 'MImage';
-        this.imageODirName = 'OImage';
-        this.init();
-    }
-    init() {
-        this.documentsPath = this.getDocumentsPath();
-        this.appdataPath = this.getAppDataPath();
-        // For Conf
-        this.companyPath = path.join(this.appdataPath, this.companyName);
-        if(!fs.existsSync(this.companyPath)) {
-            fs.ensureDir(this.companyPath);
-        }
-        this.productPath = path.join(this.companyPath, this.productName);
-        if(!fs.existsSync(this.productPath)){
-            fs.ensureDirSync(this.productPath);
-        }
-
-        // For Files
-        this.filesPath = path.join(this.documentsPath, this.filesDirName);
-        if(!fs.existsSync(this.filesPath)){
-            fs.ensureDirSync(this.filesPath);
-        }
-    }
-    getDocumentsPath() {
-        var documentsPath = '';
-        let { app } = require('electron').remote;
-        documentsPath = path.join(app.getPath('documents'));
-        return documentsPath
-    }
-    getAppDataPath() {
-        var appDatePath = '';
-        let { app } = require('electron').remote;
-        appDatePath = path.join(app.getPath('appData'));
-        return appDatePath;
-    }
-    getConfPath(userId){
-        var userPath = path.join(this.productPath, userId);
-        if(!fs.existsSync(userPath)){
-            fs.ensureDirSync(userPath);
-        }
-        return userPath;
-    }
-    getFilePath(userId) {
-        let curDate = new Date();
-        let curYeat = curDate.getFullYear();
-        let curMonth = curDate.getMonth();
-        var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userFilesPath = path.join(this.filesPath, userId);
-        if(!fs.existsSync(userFilesPath)){
-            fs.ensureDirSync(userFilesPath);
-        }
-        var userCurFilesPath = path.join(userFilesPath, this.filesFilesDirName, YearMonth);
-        if(!fs.existsSync(userCurFilesPath)){
-            fs.ensureDirSync(userCurFilesPath);
-        }
-        return userCurFilesPath;
-    }
-    getUserThumbHeadPath(userId) {
-        var userFilesPath = path.join(this.filesPath, userId);
-        if(!fs.existsSync(userFilesPath)){
-            fs.ensureDirSync(userFilesPath);
-        }
-        var userCurHeadPath = path.join(userFilesPath, this.headImageDirName, this.headThumbDirName);
-        if(!fs.existsSync(userCurHeadPath)){
-            fs.ensureDirSync(userCurHeadPath);
-        }
-        return userCurHeadPath;
-    }
-    getUserHDHeadPath(userId) {
-        var userFilesPath = path.join(this.filesPath, userId);
-        if(!fs.existsSync(userFilesPath)){
-            fs.ensureDirSync(userFilesPath);
-        }
-        var userCurHeadPath = path.join(userFilesPath, this.headImageDirName, this.headHDDirName);
-        if(!fs.existsSync(userCurHeadPath)){
-            fs.ensureDirSync(userCurHeadPath);
-        }
-        return userCurHeadPath;
-    }
-    getImagePath(userId) {
-        let curDate = new Date();
-        let curYeat = curDate.getFullYear();
-        let curMonth = curDate.getMonth();
-        var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userImagePath = path.join(this.filesPath, userId);
-        if(!fs.existsSync(userImagePath)){
-            fs.ensureDirSync(userImagePath);
-        }
-        var userCurFilesPath = path.join(userImagePath, this.imagesDirName, YearMonth, this.imageODirName);
-        if(!fs.existsSync(userCurFilesPath)){
-            fs.ensureDirSync(userCurFilesPath);
-        }
-        return userCurFilesPath;
-    }
-    getThumbImagePath(userId) {
-        let curDate = new Date();
-        let curYeat = curDate.getFullYear();
-        let curMonth = curDate.getMonth();
-        var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userImagePath = path.join(this.filesPath, userId);
-        if(!fs.existsSync(userImagePath)){
-            fs.ensureDirSync(userImagePath);
-        }
-        var userCurFilesPath = path.join(userImagePath, this.imagesDirName, YearMonth, this.imageThumbDirName);
-        if(!fs.existsSync(userCurFilesPath)){
-            fs.ensureDirSync(userCurFilesPath);
-        }
-        return userCurFilesPath;
-    }
-    getMImagePath(userId) {
-        let curDate = new Date();
-        let curYeat = curDate.getFullYear();
-        let curMonth = curDate.getMonth();
-        var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userImagePath = path.join(this.filesPath, userId);
-        if(!fs.existsSync(userImagePath)){
-            fs.ensureDirSync(userImagePath);
-        }
-        var userCurFilesPath = path.join(userImagePath, this.imagesDirName, YearMonth, this.imageMDirName);
-        if(!fs.existsSync(userCurFilesPath)){
-            fs.ensureDirSync(userCurFilesPath);
-        }
-        return userCurFilesPath;
-    }
-}
-const confservice = new ConfService();
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, confservice, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr};
+  
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, strFavoriteContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

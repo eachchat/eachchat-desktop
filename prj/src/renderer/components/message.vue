@@ -14,7 +14,7 @@
                     <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -29,15 +29,15 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='/static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -69,10 +69,12 @@
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell} from 'electron'
+import {ipcRenderer} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, confservice, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 
 export default {
     components: {
@@ -107,14 +109,39 @@ export default {
             console.log("open image proxy ", this.msg)
             let msgType = this.msg.message_type;
             let msgContent = strMsgContentToJson(this.msg.message_content);
+            var targetDir = confservice.getFilePath();
+            var targetFileName = this.msg.message_id.toString() + "." + msgContent.ext;
+            var targetPath = path.join(targetDir, targetFileName);
             if(msgType === 102)
             {
-                this.$emit('showImageOfMessage', this.msg);
-                // shell.openExternal("C:\\Users\\wangx\\Pictures\\1-1Z919202U1519.jpg");
+                if(msgContent.thumbnailImage != undefined && fs.existsSync(msgContent.thumbnailImage)){
+                    targetPath = msgContent.thumbnailImage;
+                }
+                if(fs.existsSync(targetPath)){
+                    this.msg["targetPath"] = targetPath;
+                    this.$emit('showImageOfMessage', this.msg);
+                }
+                else {
+                    this.$emit('showImageOfMessage', this.msg);
+                }
             }
             else if(msgType === 103)
             {
-                shell.openExternal("C:\\Users\\wangx\\Downloads\\服务端API文档.docx");
+                var ext = msgContent.ext;
+                var targetDir = confservice.getFilePath();
+                var targetFileName = this.msg.message_id.toString() + "." + ext;
+                var targetPath = path.join(targetDir, targetFileName);
+                if(msgContent.fileLocalPath != undefined && fs.existsSync(msgContent.fileLocalPath)){
+                    targetPath = msgContent.fileLocalPath;
+                }
+                var needOpen = true;
+                if(fs.existsSync(targetPath)){
+                    console.log("targetPath is exist");
+                    shell.openExternal(targetPath);
+                }
+                else{
+                    services.common.downloadFile(this.msg.time_line_id, targetPath, false);
+                }
             }
         },
         MsgIsFailed: function() {
@@ -143,6 +170,58 @@ export default {
                 return false;
             }
         },
+        checkAndLoadImg: function(distPath) {
+            var checkingPath = distPath;
+            var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
+            var msg_id = this.msg.message_id;
+            var imgMsgImgElement = document.getElementById(msg_id);
+            var checking = function () {
+                setTimeout(function () {
+                    if(fs.existsSync(checkingPath)){
+                        var showfu = new FileUtil(checkingPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        let reader = new FileReader();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            let imageHeight = 100;
+                            if(chatGroupMsgContent.imgHeight < 100){
+                                imageHeight = chatGroupMsgContent.imgHeight;
+                            }
+                            this.imageHeight = imageHeight;
+                            imgMsgImgElement.setAttribute("src", reader.result);
+                            imgMsgImgElement.setAttribute("height", imageHeight);
+                            imgMsgImgElement.setAttribute("style", "");
+                        }
+                        return;
+                    }
+                    checking();
+                }, 200)
+            }
+            checking();
+        },
+        checkAndLoadUserImage: function(distPath) {
+            var checkingPath = distPath;
+            
+            var userIconElementId = this.getUserIconId();
+            var userIconElement = document.getElementById(userIconElementId);
+                
+            var checking = function () {
+                setTimeout(function () {
+                    if(fs.existsSync(checkingPath)){
+                        var showfu = new FileUtil(checkingPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        let reader = new FileReader();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            userIconElement.setAttribute("src", reader.result);
+                        }
+                        return;
+                    }
+                    checking();
+                }, 200)
+            }
+            checking();
+        },
         MsgContent: function(is_mine=false) {
             if(this.msg === null) {
                 return '';
@@ -150,7 +229,8 @@ export default {
             this.messageContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            console.log("chatGroupMsgType is ", chatGroupMsgType)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
@@ -164,12 +244,18 @@ export default {
             }
             else if(chatGroupMsgType === 102)
             {
+                var targetDir = confservice.getFilePath();
+                var targetFileName = this.msg.message_id.toString() + "." + chatGroupMsgContent.ext;
+                var targetPath = path.join(targetDir, targetFileName);
+                if(chatGroupMsgContent.thumbnailImage != undefined && fs.existsSync(chatGroupMsgContent.thumbnailImage)){
+                    targetPath = chatGroupMsgContent.thumbnailImage;
+                }
+                var needOpen = false;
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                if(fs.existsSync(chatGroupMsgContent.thumbnailImage)){
+                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;")
+                if(fs.existsSync(targetPath)){
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                    var thumb_local_path = chatGroupMsgContent.thumbnailImage;
-                    console.log("thumb_local_path is ", thumb_local_path);
-                    var showfu = new FileUtil(thumb_local_path);
+                    var showfu = new FileUtil(targetPath);
                     let showfileObj = showfu.GetUploadfileobj();
                     let reader = new FileReader();
                     reader.readAsDataURL(showfileObj);
@@ -181,29 +267,28 @@ export default {
                         this.imageHeight = imageHeight;
                         imgMsgImgElement.setAttribute("src", reader.result);
                         imgMsgImgElement.setAttribute("height", imageHeight);
+                        imgMsgImgElement.setAttribute("style", "");
                     }
                 }
                 else{
-                    services.cache.download([this.msg.sequence_id], services.common.downloadTumbnail, services.common)
-                    // this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.msg.time_line_id)
-                        .then((ret) => {
-                            console.log("this.services.cache.download ret ", ret);
-                            let reader = new FileReader();
-                            reader.readAsDataURL(ret.data);
-                            reader.onloadend = () => {
-                                let imageHeight = 100;
-                                if(chatGroupMsgContent.imgHeight < 100){
-                                    imageHeight = chatGroupMsgContent.imgHeight;
-                                }
-                                this.imageHeight = imageHeight;
-                                imgMsgImgElement.setAttribute("src", reader.result);
-                                imgMsgImgElement.setAttribute("height", imageHeight);
-                            }
-                        })
+                    // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
+                    services.common.downloadTumbnail(this.msg.time_line_id, targetPath, "T");
+                    this.checkAndLoadImg(targetPath);
                 }
             }
             else if(chatGroupMsgType === 103)
             {
+                var targetDir = confservice.getFilePath();
+                var targetFileName = this.msg.message_id.toString() + "." + chatGroupMsgContent.ext;
+                var targetPath = path.join(targetDir, targetFileName);
+                if(chatGroupMsgContent.fileLocalPath != undefined && fs.existsSync(chatGroupMsgContent.fileLocalPath)){
+                    targetPath = chatGroupMsgContent.fileLocalPath;
+                }
+                var needOpen = false;
+                if(!fs.existsSync(targetPath)){
+                    // ipcRenderer.send('download-file', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, false]);
+                    services.common.downloadFile(this.msg.time_line_id, targetPath, false);
+                }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
                 var showfu = new FileUtil(iconPath);
@@ -216,6 +301,7 @@ export default {
                     fileMsgImgElement.setAttribute("src", reader.result);
                     fileMsgImgElement.setAttribute("height", 46);
                 }
+                
             }
             else if(chatGroupMsgType === 104)
             {
@@ -223,8 +309,13 @@ export default {
                 {
                     var invitees = chatGroupMsgContent.userInfos;
                     var inviteeNames = "";
-                    for(var i=0;i<invitees.length;i++) {
-                        inviteeNames = inviteeNames + "、" + invitees[i].userName
+                    if(invitees.length == 1){
+                        inviteeNames = invitees[0].userName
+                    }
+                    else{
+                        for(var i=0;i<invitees.length;i++) {
+                            inviteeNames = inviteeNames + "、" + invitees[i].userName
+                        }
                     }
                     var inviter = chatGroupMsgContent.userName;
                     return inviter + " 邀请 " + inviteeNames + " 加入群聊";
@@ -243,8 +334,17 @@ export default {
                 else if(chatGroupMsgContent.type === "deleteGroupUser")
                 {
                     var owner = chatGroupMsgContent.userName;
-                    var bybyer = chatGroupMsgContent.userInfos.userName;
-                    return owner + " 将 " + bybyer + " 移出了群聊";
+                    var deletedNames = "";
+                    var deletedUsers = chatGroupMsgContent.userInfos;
+                    if(deletedUsers.length == 1){
+                        deletedNames = deletedUsers[0].userName
+                    }
+                    else{
+                        for(var i=0;i<deletedUsers.length;i++) {
+                            deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                        }
+                    }
+                    return owner + " 将 " + deletedNames + " 移出了群聊";
                 }
                 else
                 {
@@ -253,11 +353,11 @@ export default {
             }
             else if(chatGroupMsgType === 105)
             {
-                return "[语音]";
+                this.messageContent = "[语音]";
             }
             else if(chatGroupMsgType === 106)
             {
-                return "[聊天记录]";
+                this.messageContent = "[聊天记录]";
             }
             else {
                 return this.messageContent = "不支持的消息类型，请升级客户端。"
@@ -294,14 +394,36 @@ export default {
             }
             // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
             var distTAvarar = this.userInfo.avatar_t_url;
+            var targetDir = confservice.getFilePath();
+            var targetFileName = this.userInfo.user_id + ".png";
+            var targetPath = path.join(targetDir, targetFileName);
+            // console.log("msg target path is ", targetPath);
 
-            downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
-            .then((ret) => {
-                this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
-                this.userIconElement.onload = () => {
-                    URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
+            if(fs.existsSync(targetPath)){
+                //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    this.userIconElement.setAttribute("src", reader.result);
                 }
-            })
+            }
+            else{
+                // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
+                console.log("message downloag group avatar target path is ", targetPath);
+                services.common.downloadGroupAvatar(distTAvarar, targetPath);
+                this.checkAndLoadUserImage(targetPath);
+            }
+
+            // downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
+            // .then((ret) => {
+            //     console.log("group avatar is ", ret.data)
+            //     this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
+            //     this.userIconElement.onload = () => {
+            //         URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
+            //     }
+            // })
         },
         msgUserInfo: async function() {
             // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
@@ -315,6 +437,8 @@ export default {
             }
 
             this.userInfo = userInfos[0];
+            this.userInfo.phone = await services.common.GetDistUserPhone(this.msg.message_from_id);
+            this.userInfo.email = await services.common.GetDistUserEmail(this.msg.message_from_id);
             // console.log("this.userInfo is ", this.userInfo)
         },
         compare: function(){
@@ -332,7 +456,7 @@ export default {
             fileName: '',
             fileIcon: '',
             fileSize: 0,
-            imageHeight: 46,
+            imageHeight: 100,
             editorOption : {
                 placeholder: "",
                 theme:'bubble',
@@ -343,6 +467,12 @@ export default {
     },
     mounted: async function() {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
+        await this.msgUserInfo();
+        var userIconElementId = this.getUserIconId();
+        if(this.userIconElement == undefined) {
+            this.userIconElement = document.getElementById(userIconElementId);
+        }
+        this.MsgBelongUserImg();
         setTimeout(() => {
             this.$nextTick(() => {
                 if(this.MsgIsMine()) {
@@ -351,23 +481,21 @@ export default {
                 else {
                     this.MsgContent(false);
                 }
-                
-                var userIconElementId = this.getUserIconId();
-                if(this.userIconElement == undefined) {
-                    this.userIconElement = document.getElementById(userIconElementId);
-                }
-                this.MsgBelongUserImg();
             })
         }, 0)
-        await this.msgUserInfo();
     },
     created: async function() {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
     },
     watch: {
-        msg: function() {
+        msg: async function() {
+            await this.msgUserInfo();
+            var userIconElementId = this.getUserIconId();
+            if(this.userIconElement == undefined) {
+                this.userIconElement = document.getElementById(userIconElementId);
+            }
+            this.MsgBelongUserImg();
             this.$nextTick(() => {
                 setTimeout(() => {
                     this.$nextTick(() => {
@@ -377,8 +505,6 @@ export default {
                         else {
                             this.MsgContent(false);
                         }
-                        this.msgUserInfo();
-                        this.MsgBelongUserImg();
                     })
                 }, 0)
             })

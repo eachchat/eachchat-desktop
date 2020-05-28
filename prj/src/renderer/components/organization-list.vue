@@ -18,12 +18,12 @@
                             v-for="(department, index) in departments"
                             @click="departmentMenuItemClicked(department.department_id, department.display_name)" 
                             :key="index">
-                            <img class="department-icon" src="../../../static/Image/department_list@2x.png">
+                            <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                             <div class="department-info">
                                 <p class="department-name">{{ department.display_name }}</p>
                             </div>
                             <div align="center" class="item-arrow">
-                                <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
+                                <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                             </div>
                         </li>
                     </ul>

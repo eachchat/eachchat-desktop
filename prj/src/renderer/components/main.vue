@@ -2,7 +2,7 @@
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
             <div class="User">
-                <img class="login-logo" :src="userIco" id="userHead">
+                <img class="login-logo" id="userHead">
             </div>
             <el-menu
                 class="nav-menu">
@@ -24,17 +24,22 @@
 </template>
 
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
+import favourite from './favourite.vue'
 import {services} from '../../packages/data/index.js'
 import {ServerApi} from '../server/serverapi.js'
 import {downloadGroupAvatar} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
+import {ipcRenderer} from 'electron'
+import {FileUtil} from '../../packages/core/Utils.js'
 
 export default {
     name: 'mainpage',
     data () {
         return {
-            userIco: '',
             curindex: 0,
             curView: 'ChatContent',
             serverapi: new ServerApi('http', '139.198.15.253'),
@@ -53,17 +58,18 @@ export default {
                 },
                 {
                     text: "收藏",
-                    name: "favorites",
-                    // link: "/favorites",
-                    // view: "favorites"
+                    name: "favourite",
+                    link: "/favourite",
+                    view: "favourite"
                 },
-                {
-                    text: "更多",
-                    name: "contact list",
-                    link: "/organization",
-                    view: "organization"
-                }
-            ]
+                // {
+                //     text: "更多",
+                //     name: "contact list",
+                //     link: "/organization",
+                //     view: "organization"
+                // }
+            ],
+            elementImg: null
         }
     },
     methods: {
@@ -77,17 +83,18 @@ export default {
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
+            confservice.init(this.curUserInfo.id);
             console.log("lognInfo is ", this.loginInfo);
             // Get data from server and set in database
             // UserInfo
-            await services.common.AllUserinfo();
+            // await services.common.AllUserinfo();
             // var userInfos = await services.common.GetAllUserinfo();
             // for (var i = 0; i < userInfos.length; i++) {
             //     console.log(userInfos[i].user_name);
             // }
             
             // DepartmentInfo
-            await services.common.AllDepartmentInfo();
+            // await services.common.AllDepartmentInfo();
             // var departmentInfos = await services.common.GetAllDepartmentsModel();
             // for (var i = 0; i < departmentInfos.length; i++) {
             //     console.log(departmentInfos[i].displayName);
@@ -121,29 +128,76 @@ export default {
                 return "el-icon-more-outline" + endding
             }
         },
+        checkAndLoadUserImage: function(distPath) {
+            var checkingPath = distPath;
+            var elementImg = document.getElementById("userHead");
+            
+            var checking = function () {
+                setTimeout(function () {
+                    if(fs.existsSync(checkingPath)){
+                        var showfu = new FileUtil(checkingPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        let reader = new FileReader();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            console.log("checkAndLoadUserImage this is ", this)
+                            elementImg.setAttribute("src", reader.result);
+                        }
+                        return;
+                    }
+                    checking();
+                }, 200)
+            }
+            checking();
+        },
         showCurUserIcon() {
-            let elementImg = document.getElementById("userHead");
-            downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
-            .then((ret) => {
-                elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-                elementImg.onload = () => {
-                    URL.revokeObjectURL(elementImg.getAttribute("src"))
+            var elementImg = document.getElementById("userHead");
+            // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
+
+            var targetDir = confservice.getFilePath();
+            var targetFileName = this.selfUserInfo.id + ".png";
+            var targetPath = path.join(targetDir, targetFileName);
+            console.log("targetPath is ", targetPath);
+            if(fs.existsSync(targetPath)){
+                //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
                 }
-            })
+            }
+            else{
+                // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
+                console.log("message downloag group avatar target path is ", this.curUserInfo.avatar_minimal);
+                services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal, targetPath);
+                this.checkAndLoadUserImage(targetPath);
+            }
+
+            // services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal)
+            // .then((ret) => {
+            //     elementImg.setAttribute("src", URL.createObjectURL(ret.data));
+            //     elementImg.onload = () => {
+            //         URL.revokeObjectURL(elementImg.getAttribute("src"))
+            //     }
+            // })
         }
     },
     components: {
         organization,
-        ChatContent
+        ChatContent,
+        favourite
     },
-    mounted: function() {
-    },
-    created: async function () {
-        // this.userIco = this.$store.getters.getUserIcon(false);
-        await this.getAppBaseData();
+    mounted: async function() {
+        await services.common.GetLoginModel();
+        this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
             this.showCurUserIcon();
         })
+    },
+    created: async function () {
+        await this.getAppBaseData();
     },
 }
 </script>

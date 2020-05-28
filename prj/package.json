@@ -1,5 +1,5 @@
 {
-  "name": "yiqiliao",
+  "name": "EachChat",
   "version": "1.0.0",
   "author": "wangxin.ai <wangxin.ai@yunify.com>",
   "description": "Worklyai YiQiLiao",
@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "yiqiliao",
+    "productName": "EachChat",
     "appId": "worklyai.com",
     "directories": {
       "output": "build"
@@ -95,7 +95,6 @@
     "node-loader": "^0.6.0",
     "node-sass": "^4.9.2",
     "sass-loader": "^7.0.3",
-    "sql.js": "^1.1.0",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.4",

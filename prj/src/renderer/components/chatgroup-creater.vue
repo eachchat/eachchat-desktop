@@ -4,12 +4,12 @@
                 <div class="list-content" v-show="!showBreadCrumbs">
                     <div class="organization-view">
                         <div class="item" @click="organizationMenuItemClicked()">
-                            <img class="item-icon" src="../../../static/Image/organization_list@2x.png">
+                            <img class="item-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
                             <div class="item-info">
                                 <p class="item-title">组织架构</p>
                             </div>
                             <div class="item-arrow">
-                                <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
+                                <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                             </div>
                         </div>
                         <ul class="organization-menu-list" v-show="showOrganizationMenuItem">
@@ -17,19 +17,19 @@
                             v-for="(department, index) in departments"
                             @click="departmentMenuItemClicked(department.department_id, department.display_name)" 
                             :key="index">
-                            <img class="department-icon" src="../../../static/Image/department_list@2x.png">
+                            <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                             <div class="department-info">
                                 <p class="department-name">{{ department.display_name }}</p>
                             </div>
                             <div align="center" class="item-arrow">
-                                <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
+                                <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                             </div>
                         </li>
                         </ul>
                     </div>
                     <div class="recentUsers-view">
                         <div class="item" @click="recentUsersMenuItemClicked()">
-                            <img class="item-icon" src="../../../static/Image/recentUsers_list@2x.png">
+                            <img class="item-icon" src="../../../static/Img/Organization/Navigate/recentUsers_list@2x.png">
                             <div class="item-info">
                                 <p class="item-title">常用联系人</p>
                             </div>
@@ -69,12 +69,12 @@
                         <ul class="department-list" v-show="departments.length">
                             <li class="department" v-for="(item, index) in departments" 
                             @click="departmentMenuItemClicked(item.department_id, item.display_name)" :key="index"> 
-                            <img class="department-icon" src="../../../static/Image/department_list@2x.png">
+                            <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                             <div class="department-info">
                                 <p class="department-name">{{ item.display_name }}</p>
                             </div>
                             <div align="center" class="item-arrow">
-                                <img class="right-arrow"  src="../../../static/Image/right_arrow@2x.png">
+                                <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                             </div>
                             </li>
                         </ul>
@@ -161,7 +161,7 @@
                                 <p class="user-name">{{ item.displayName }}</p>
                             </div>
                             <div class="item-arrow">
-                                <img class="close-icon" src="../../../static/Image/close_icon@2x.png" 
+                                <img class="close-icon" src="../../../static/Img/Organization/Common/right_arrow@2x.png" 
                                     @click="selectedUserMenuItemClicked(item.id, item.displayName)" :key="index">
                             </div>
                             </li>
@@ -189,7 +189,7 @@ export default {
             departments: [],
             showOrganizationMenuItem: false,
             showRecentUsersMenuItem: false,
-            arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
+            //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
     props: {
@@ -370,7 +370,7 @@ export default {
         recentUsersMenuItemClicked:async function() {
             
             if (this.showRecentUsersMenuItem) {
-                this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
+                //this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
             }else {
                 var tempRecentUserModels = await services.common.GetRecentUsers();
                 var tempRecentUsers = [];
@@ -383,7 +383,7 @@ export default {
                     }
                 }
                 this.users = tempRecentUsers;
-                this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
+                //this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
             }
             this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
         },
@@ -439,7 +439,16 @@ export default {
         }
         for (var i = 0; i < this.allUsers.length; i ++) {
             var user = this.allUsers[i];
-            if (user.department_id == tempRootDepartment.department_id) {
+            var disabled = false;
+            for(var j = 0; j < this.disableUsers.length; j ++){
+                var disableUser = this.disableUsers[j];
+                if (user.id == disableUser.user_id){
+                    disabled = true;
+                    break;
+                }
+            }
+            
+            if (user.department_id == tempRootDepartment.department_id && !disabled) {
                 tempUsers.push(user);
             }
         }
