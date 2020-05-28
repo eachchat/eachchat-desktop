@@ -239,7 +239,7 @@ export default {
         },
         MsgIsVoice: function() {
             let chatGroupMsgType = this.msg.message_type;
-            console.log("chatGroupMsgType is ", chatGroupMsgType)
+            // console.log("chatGroupMsgType is ", chatGroupMsgType)
             if(chatGroupMsgType == 105){
                 return true;
             }
@@ -327,8 +327,8 @@ export default {
             this.messageContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
-            console.log("this. msg is ", this.msg)
+            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
@@ -390,8 +390,9 @@ export default {
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
-                    if(!ipcInited) {
+                    if(!this.ipcInited) {
                         ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                        this.ipcInited = true;
                     }
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
@@ -470,12 +471,13 @@ export default {
                 if(!fs.existsSync(targetPath)){
                     // ipcRenderer.send('download-file', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, false]);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
-                    if(!ipcInited) {
+                    if(!this.ipcInited) {
                         ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                        this.ipcInited = true;
                     }
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
-                console.log("fileMsgImgElement ia ", fileMsgImgElement);
+                // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 var showfu = new FileUtil("./static/Img/Chat/voiceAudio@3x.png");
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
@@ -546,8 +548,9 @@ export default {
                 console.log("message downloag group avatar target path is ", targetPath);
                 services.common.downloadUserTAvatar(distTAvarar, this.userInfo.user_id);
                 // this.checkAndLoadUserImage(targetPath);
-                if(!ipcInited) {
+                if(!this.ipcInited) {
                     ipcRenderer.on('updateUserImage', this.updateUserImage);
+                    this.ipcInited = true;
                 }
             }
 

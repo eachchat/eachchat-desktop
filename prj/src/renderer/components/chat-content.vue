@@ -86,7 +86,7 @@ export default {
     showGroupIcon() {
       for(var i=0;i<this.showGroupList.length;i++) {
         let elementImg = document.getElementById(this.showGroupList[i].group_id);
-        console.log("groupavatar is ", this.showGroupList[i].group_avarar);
+        // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
         services.common.getGroupAvatar(this.showGroupList[i].group_avarar)
           .then((ret) => {
               elementImg.setAttribute("src", URL.createObjectURL(ret.data));

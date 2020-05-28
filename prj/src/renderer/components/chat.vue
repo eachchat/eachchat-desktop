@@ -56,7 +56,7 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :memberList="groupContainUserIds"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache"></groupInfoTip>
     </div>
 </template>
 
@@ -197,6 +197,12 @@ export default {
             var userInfoTipElement = document.getElementById("userInfoTipId");
             if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img"){
                 this.showUserInfoTips = false;
+            }
+            var groupInfoElement = document.getElementById("groupInfoTipId");
+            console.log("e.target.classname ", e.target.className)
+            if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more" && e.target.className != "el-icon-more") {
+                this.showGroupInfoTips = false;
+                this.cleanCache = true;
             }
         },
         showExpression: function() {
@@ -1060,10 +1066,22 @@ export default {
             console.log("make a call");
         },
         More: async function() {
-            console.log("more more more ", this.chat.contain_user_ids.split(","))
             var idsList = this.chat.contain_user_ids.split(",");
-            this.groupContainUserIds = idsList;
+            var groupInfoObj = {
+                "memberList": idsList,
+                "groupName": this.chat.group_name,
+                "groupAvarar": this.chat.group_avarar,
+                "groupNotice": this.chat.group_notice,
+                "groupId": this.chat.group_id
+            }
+            this.groupInfo = groupInfoObj;
+            // console.log("more more more ", this.chat.contain_user_ids.split(","))
+            // var idsList = this.chat.contain_user_ids.split(",");
+            // this.groupContainUserIds = idsList;
+            // console.log("this.chat.group_name is ", this.chat.group_name);
             this.showGroupInfoTips = true;
+            this.cleanCache = false;
+            console.log("more more more ", this.showGroupInfoTips)
         },
         compare: function(){
             return function(a, b)
@@ -1183,6 +1201,8 @@ export default {
     },
     data() {
         return {
+            cleanCache: false,
+            groupInfo: {},
             groupContainUserIds: [],
             ipcInited: false,
             showGroupInfoTips: false,

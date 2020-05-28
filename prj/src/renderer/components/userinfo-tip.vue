@@ -155,7 +155,7 @@ export default {
             this.$emit('getCreateGroupInfo', groupItem);
             this.dialogVisible = false;
         },
-        updateUserTipImage(e, args) {
+        updateUserImage(e, args) {
             var state = args[0];
             var stateInfo = args[1];
             var id = args[2];
@@ -193,9 +193,9 @@ export default {
                 return;
             }
             else {
-                if(!ipcInited) {
-                    ipcRenderer.on('updateUserTipImage', this.updateUserTipImage);
-                    ipcInited = true;
+                if(!this.ipcInited) {
+                    ipcRenderer.on('updateUserImage', this.updateUserImage);
+                    this.ipcInited = true;
                 }
             }
 
