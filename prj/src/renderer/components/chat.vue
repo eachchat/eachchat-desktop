@@ -56,7 +56,16 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache" @showAddMembers="showAddMembers"></groupInfoTip>
+        <el-dialog title="发起聊天" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
+            <div class="el-dialog-content">
+                <chatGroupCreater :disable-users="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
+                </chatGroupCreater>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button class="dialog-confirm-button" type="primary" @click="AddNewMembers()">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -74,6 +83,7 @@ import userInfoTip from './userinfo-tip.vue'
 import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
+import chatGroupCreater from './chatgroup-creater'
 
 function extend(target, base) {
     console.log("base is ", base);
@@ -146,10 +156,27 @@ export default {
         imessage,
         Faces,
         userInfoTip,
-        groupInfoTip
+        groupInfoTip,
+        chatGroupCreater,
     },
     props: ['chat'],
     methods: {
+        getUsersSelected(usersSelected) {
+            this.usersSelected = usersSelected;
+        },
+        showAddMembers: function(existedMembers){
+            this.disabledusers = existedMembers;
+            this.dialogVisible = true;
+        },
+        AddNewMembers: function() {
+            console.log("add member s ", this.usersSelected);
+            var addUids = [];
+            for(var i=0;i<this.usersSelected.length;i++) {
+                addUids.push(this.usersSelected[i].id)
+            }
+            services.common.AddGroupUsers(this.chat.group_id, addUids);
+            this.dialogVisible = false;
+        },
         keyHandle(event) {
             if(event.code == "Enter" && !event.ctrlKey) {
                 this.sendMsg();
@@ -199,7 +226,7 @@ export default {
                 this.showUserInfoTips = false;
             }
             var groupInfoElement = document.getElementById("groupInfoTipId");
-            console.log("e.target.classname ", e.target.className)
+            // console.log("e.target.classname ", e.target.className)
             if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more" && e.target.className != "el-icon-more") {
                 this.showGroupInfoTips = false;
                 this.cleanCache = true;
@@ -1179,8 +1206,9 @@ export default {
         callback(msg) {
             // console.log("chat callback msg is ", msg);
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
+            console.log("chat callback msg is ", msg)
             var forceUpdate = true;
-            if(msg.message_from_id != this.curUserInfo.id) {
+            if(msg.message_from_id != this.curUserInfo.id || (msg.message_type != 101)) {
                 if(this.existingMsgId.indexOf(msg.message_id) == -1){
                     if(this.chat.group_id == msg.group_id){
                         forceUpdate = false;
@@ -1202,6 +1230,8 @@ export default {
     data() {
         return {
             cleanCache: false,
+            dialogVisible: false,
+            disabledusers: [],
             groupInfo: {},
             groupContainUserIds: [],
             ipcInited: false,
@@ -1567,4 +1597,5 @@ export default {
         overflow-y: scroll;
         overflow-x: hidden;
     }
+
 </style>

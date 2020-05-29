@@ -4,14 +4,14 @@
             <ul class="groupMember-list">
                 <li class="addMember">
                     <div class="memberAddImg">
-                        <img class="memberImg" src="../../../static/Img/Chat/emoji@3x.png" height=40px >
+                        <img class="memberImg" src="../../../static/Img/Chat/emoji@3x.png" height=40px  @click="showAddMembers">
                     </div>
                     <div class="memberName">添加
                     </div>
                 </li>
                 <li v-for="(item, index) in memberListShow" class="memberInfo">
                     <div class="memberImg">
-                        <img :id="getIdThroughMemberUid(item.user_id)" src="../../../static/Img/User/user.jpeg" height=40px >
+                        <img :id="getIdThroughMemberUid(item.user_id)" src="../../../static/Img/User/user.jpeg" height=40px>
                     </div>
                     <div class="memberName">{{item.user_display_name}}
                     </div>
@@ -24,7 +24,7 @@
         <div class="groupInfo-view">
             <div class="groupInfoNameDiv">
                 <label class="groupInfoNameLabel" for="群聊名称">群聊名称</label>
-                <input class="groupInfoNameInput" type="text" v-model="newGroupName" :placeholder="this.groupName" @blur="updateGroupName()" @keyup="keyUpdateGroupName($event)"/>
+                <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @blur="updateGroupName()" @keyup="keyUpdateGroupName($event)"/>
             </div>
             <div class="groupInfoImageDiv">
                 <label class="groupInfoImageLabel">群聊头像</label>
@@ -32,7 +32,7 @@
             </div>
             <div class="groupInfoNoticeDiv">
                 <label class="groupInfoNoticeLabel" for="群公告">群公告</label>
-                <input class="groupInfoNoticeInput" type="text" name="groupInfoNotice" :placeholder="this.groupNotice"/>
+                <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" name="groupInfoNotice" :placeholder="this.groupNotice" @blur="updateGroupNotice()" @keyup="keyUpdateGroupNotice($event)"/>
             </div> 
         </div>
         <div class="groupSetting-view">
@@ -94,8 +94,10 @@ export default {
             groupId: '',
         }
     },
+    components: {
+    },
     props: {
-        "showGroupInfo": {
+        "showGroupInfo": { 
             type:Object,
             default:{}
         },
@@ -107,12 +109,31 @@ export default {
     computed: {
     },
     methods: {
+        showAddMembers: function() {
+            this.$emit("showAddMembers", this.memberList);
+        },
         keyUpdateGroupName: function(event) {
             if(event.code == "Enter") {
+                var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
+                updateGroupNameInputElement.blur();
                 services.common.UpdateGroupName(this.groupId, this.newGroupName);
             }
         },
         updateGroupName: function() {
+            var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
+            updateGroupNameInputElement.blur();
+            services.common.UpdateGroupName(this.groupId, this.newGroupName);
+        },
+        keyUpdateGroupNotice: function(event) {
+            if(event.code == "Enter") {
+                var updateGroupNameInputElement = document.getElementById("groupInfoNoticeInputId")
+                updateGroupNameInputElement.blur();
+                services.common.UpdateGroupName(this.groupId, this.newGroupName);
+            }
+        },
+        updateGroupNotice: function() {
+            var updateGroupNameInputElement = document.getElementById("groupInfoNoticeInputId")
+            updateGroupNameInputElement.blur();
             services.common.UpdateGroupName(this.groupId, this.newGroupName);
         },
         Close: function() {
@@ -355,6 +376,7 @@ export default {
 .groupInfoNameInput:focus {
     width: 100%;
     border: 0px;
+    outline: none;
     font-family:Microsoft Yahei;
     font-size: 13px;
     border: 0px;
@@ -400,6 +422,7 @@ export default {
 .groupInfoNoticeInput:focus {
     width: 100%;
     border: 0px;
+    outline: none;
     font-family:Microsoft Yahei;
     font-size: 13px;
 }
