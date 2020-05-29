@@ -286,6 +286,7 @@ const common = {
       console.log('New account login ok!');
     }
 
+    await (await models.Login).truncate()
     let foundlogin = await(await models.Login).find({
       user_id: selfuser.id
     })
@@ -511,11 +512,14 @@ const common = {
     let result;
     let departmentitem;
     let departmentmodel;
+    let maxUpdatetime = 0;
+    let tmpUpdatetime = 0;
+
     this.data.department = []
     await(await models.Department).truncate()
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
-      if (!result.ok || !result.success) {
+      if (result == undefined || !result.success || !result.ok) {
         return undefined;
       }
 
@@ -528,9 +532,15 @@ const common = {
         departmentitem = result.data.results[item]
         departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
         this.data.department.push(departmentmodel)
-        departmentmodel.save();        
+        departmentmodel.save();   
+        tmpUpdatetime = departmentmodel.updatetime;
+        if(maxUpdatetime < tmpUpdatetime)
+          maxUpdatetime = tmpUpdatetime;
+        
       }
     }while(result.data.total > index);  
+    sqliteutil.UpdateMaxDepartmentUpdatetime(this.data.selfuser.id, maxUpdatetime);
+
   },
 
   async getDepartmentInfo(filters,
@@ -1215,6 +1225,13 @@ const common = {
       return result;
     }
     await sqliteutil.DeleteGroupByGroupID(groupID)
+  },
+
+  async UpdateGroupNotice(groupID, notice){
+    let result = await this.api.UpdateGroupNotice(this.data.login.access_token, groupID, notice);
+    if (!result.ok || !result.success) {
+      return result;
+    }
   },
 
   async UpdateGroupAvatar(groupID, filePath){
