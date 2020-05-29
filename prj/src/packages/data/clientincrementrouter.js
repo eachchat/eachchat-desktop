@@ -75,6 +75,8 @@ class DepartmentIncrement extends BaseIncrement{
             let departments = await (await models.Department).find({
                 department_id: departmentModel.department_id
             })
+            if(departmentModel.del == 1)
+                return;
             if(departments.length == 0)
             {
                 departmentModel.save();
