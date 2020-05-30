@@ -14,7 +14,7 @@
                 </el-dropdown-item> -->
             </el-dropdown-menu>
         </el-dropdown>
-        <el-dialog title="发起聊天" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
+        <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater :disable-users="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
                 </chatGroupCreater>
@@ -22,7 +22,7 @@
             <span slot="footer" class="dialog-footer">
                 <el-button class="dialog-confirm-button" type="primary" @click="createGroup()">确 定</el-button>
             </span>
-        </el-dialog>        
+        </el-dialog>
     </div>
 </template>
 
@@ -218,7 +218,7 @@ export default {
     }
 
     .el-dialog {
-        height: 250px;
+        height: 400px;
         overflow: none;
     }
 

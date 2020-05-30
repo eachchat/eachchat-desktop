@@ -84,6 +84,7 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell} from 'electron'
 import {ipcRenderer} from 'electron'
+import BenzAMRRecorder from 'benz-amr-recorder'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -93,7 +94,7 @@ import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sli
 export default {
     components: {
     },
-    props: ['msg'],
+    props: ['msg', 'playingMsgId'],
     methods: {
         showUserInfoTip: function() {
             if(this.userIconElement == undefined) {
@@ -171,22 +172,7 @@ export default {
             // var targetPath = path.join(targetDir, targetFileName);
             if(msgType === 102)
             {
-                // var targetFileName = msgContent.fileName;
-                // var checkpath = "";
-                // if(fs.existsSync(checkpath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false))) {
-                //     console.log("------------------------- checkPath ", checkpath);
-                // }
-                // var targetPath = await services.common.GetFilePath(this.msg.message_id);
-                // if(msgContent.thumbnailImage != undefined && fs.existsSync(msgContent.thumbnailImage)){
-                //     targetPath = msgContent.thumbnailImage;
-                // }
-                // if(fs.existsSync(targetPath)){
-                    this.$emit('showImageOfMessage', this.msg);
-                // }
-                // else {
-                //     services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
-                //     // this.checkAndLoadImg(targetPath);
-                // }
+                this.$emit('showImageOfMessage', this.msg);
             }
             else if(msgType === 103)
             {
@@ -208,7 +194,25 @@ export default {
                 }
             }
             else if(msgType == 105) {
-                
+                var targetFileName = msgContent.fileName;
+                var targetPath = await services.common.GetFilePath(this.msg.message_id);
+                if(this.amr == null){
+                    this.amr = new BenzAMRRecorder();
+                }
+                if(this.amr.isPlaying()) {
+                    console.log("stop")
+                    this.amr.stop();
+                }
+                if(this.amr.isInit()) {
+                    console.log("play")
+                    this.amr.play();
+                }
+                else {
+                    this.amr.initWithUrl(targetPath).then(() => {
+                        this.amr.play();
+                    })
+                }
+                this.$emit('playAudioOfMessage', this.msg.message_id);
             }
         },
         MsgIsFailed: function() {
@@ -603,6 +607,7 @@ export default {
             userIconElement: null,
             userInfo: null,
             ipcInited: false,
+            amr: null,
         }
     },
     mounted: async function() {
@@ -648,6 +653,13 @@ export default {
                     })
                 }, 0)
             })
+        },
+        playingMsgId: function() {
+            if(this.amr != null && this.playingMsgId != this.msg.message_id) {
+                console.log("this.playingMsgId is ", this.playingMsgId);
+                console.log("this.msg.id is ", this.msg.message_id);
+                this.amr.stop();
+            }
         }
     }
 }

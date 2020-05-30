@@ -18,7 +18,7 @@
                         :class="ChatLeftOrRightClassName(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
-                        <imessage :msg="item" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip"></imessage>
+                        <imessage :msg="item" :playingMsgId="playingMsgId" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage"></imessage>
                     </li>
                 </ul>
             </div>
@@ -56,7 +56,7 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache" @showAddMembers="showAddMembers"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip"></groupInfoTip>
         <el-dialog title="发起聊天" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater :disable-users="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
@@ -216,7 +216,11 @@ export default {
         showImageOfMessage(imgSrcInfo) {
             this.$emit('showImageOfMessage', imgSrcInfo);
         },
+        playAudioOfMessage(audioMsgId) {
+            this.playingMsgId = audioMsgId;
+        },
         openUserInfoTip(tipInfos) {
+            console.log("tip inso if ", tipInfos);
             this.tipInfos = tipInfos;
             this.showUserInfoTips = true;
         },
@@ -1230,6 +1234,7 @@ export default {
     data() {
         return {
             cleanCache: false,
+            playingMsgId: '',
             dialogVisible: false,
             disabledusers: [],
             groupInfo: {},

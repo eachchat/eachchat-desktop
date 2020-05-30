@@ -10,7 +10,7 @@
                     </div>
                 </li>
                 <li v-for="(item, index) in memberListShow" class="memberInfo">
-                    <div class="memberImg">
+                    <div class="memberImg" :id="getIdThroughMemberUid2(item.user_id)" @click="showUserInfoTip">
                         <img :id="getIdThroughMemberUid(item.user_id)" src="../../../static/Img/User/user.jpeg" height=40px>
                     </div>
                     <div class="memberName">{{item.user_display_name}}
@@ -24,7 +24,7 @@
         <div class="groupInfo-view">
             <div class="groupInfoNameDiv">
                 <label class="groupInfoNameLabel" for="群聊名称">群聊名称</label>
-                <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @blur="updateGroupName()" @keyup="keyUpdateGroupName($event)"/>
+                <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)"/>
             </div>
             <div class="groupInfoImageDiv">
                 <label class="groupInfoImageLabel">群聊头像</label>
@@ -32,7 +32,7 @@
             </div>
             <div class="groupInfoNoticeDiv">
                 <label class="groupInfoNoticeLabel" for="群公告">群公告</label>
-                <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" name="groupInfoNotice" :placeholder="this.groupNotice" @blur="updateGroupNotice()" @keyup="keyUpdateGroupNotice($event)"/>
+                <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @keyup="keyUpdateGroupNotice($event)"/>
             </div> 
         </div>
         <div class="groupSetting-view">
@@ -76,11 +76,13 @@ import {services} from '../../packages/data/index.js'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer} from 'electron'
+import {getElementTop, getElementLeft} from '../../packages/core/Utils.js'
 export default {
     name: 'group-info',
     data() {
         return {
             newGroupName: '',
+            newGroupNotice: '',
             memberListShow: [],
             absoluteTop: 0,
             absoluteLeft: 0,
@@ -109,32 +111,69 @@ export default {
     computed: {
     },
     methods: {
+        showUserInfoTip: async function(e) {
+            console.log("e ", e);
+            var elementId = e.target.id;
+            var uid = this.getUidThroughElementId(elementId);
+
+            var curAbsoluteTop = e.target.offsetTop;
+            var curAbsoluteLeft = e.target.offsetLeft;
+            var isMine = uid == this.curUserInfo.id;
+
+            var curUserInfo = services.common.GetDistUserinfo(uid);
+            var tipInfos = {
+                "userInfo": curUserInfo[0],
+                "absoluteTop": curAbsoluteTop,
+                "absoluteLeft": curAbsoluteLeft,
+                "isMine": isMine,
+            }
+            console.log("emit absoluteTop ", curAbsoluteTop);
+            console.log("emit absoluteLeft ", curAbsoluteLeft);
+            console.log("emit openUserInfoTip ", tipInfos);
+            this.$emit("openUserInfoTip", tipInfos);
+        },
         showAddMembers: function() {
             this.$emit("showAddMembers", this.memberList);
         },
         keyUpdateGroupName: function(event) {
             if(event.code == "Enter") {
+                if(this.newGroupName == this.groupName){
+                    return;
+                }
                 var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
                 updateGroupNameInputElement.blur();
                 services.common.UpdateGroupName(this.groupId, this.newGroupName);
+                this.groupName = this.newGroupName;
             }
         },
         updateGroupName: function() {
+            if(this.newGroupName == this.groupName){
+                return;
+            }
             var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
             updateGroupNameInputElement.blur();
             services.common.UpdateGroupName(this.groupId, this.newGroupName);
+            this.groupName = this.newGroupName;
         },
         keyUpdateGroupNotice: function(event) {
             if(event.code == "Enter") {
-                var updateGroupNameInputElement = document.getElementById("groupInfoNoticeInputId")
-                updateGroupNameInputElement.blur();
-                services.common.UpdateGroupName(this.groupId, this.newGroupName);
+                if(this.newGroupNotice == this.groupNotice){
+                    return;
+                }
+                var updateGroupNoticeInputElement = document.getElementById("groupInfoNoticeInputId")
+                updateGroupNoticeInputElement.blur();
+                services.common.UpdateGroupNotice(this.groupId, this.newGroupNotice);
+                this.groupNotice == this.newGroupNotice;
             }
         },
         updateGroupNotice: function() {
-            var updateGroupNameInputElement = document.getElementById("groupInfoNoticeInputId")
-            updateGroupNameInputElement.blur();
-            services.common.UpdateGroupName(this.groupId, this.newGroupName);
+            if(this.newGroupNotice == this.groupNotice){
+                return;
+            }
+            var updateGroupNoticeInputElement = document.getElementById("groupInfoNoticeInputId")
+            updateGroupNoticeInputElement.blur();
+            services.common.UpdateGroupNotice(this.groupId, this.newGroupNotice);
+            this.groupNotice == this.newGroupNotice;
         },
         Close: function() {
             this.$emit("closeGroupInfo");
@@ -168,6 +207,13 @@ export default {
         },
         getIdThroughMemberUid: function(memberUid) {
             return "member-img-id-" + memberUid;
+        },
+        getIdThroughMemberUid2: function(memberUid) {
+            return "member-img-div-id-" + memberUid;
+        },
+        getUidThroughElementId: function(elementId) {
+            var uid = elementId.slice("member-img-div-id-".length, elementId.length);
+            return uid;
         },
         getMemberImage: async function() {
             for(var i=0; i < this.memberListShow.length; i++) {

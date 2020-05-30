@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "benz-amr-recorder": "^1.1.2",
     "element-ui": "^2.4.9",
     "mqtt": "^3.0.0",
     "quill": "^1.3.7",
