@@ -160,6 +160,24 @@ export default {
                 if(fs.existsSync(localPath)){
                     services.common.SetFilePath(this.msg.message_id, localPath);
                     // Update message localpath throuth messageId
+                    if(this.msg.message_type = 105) {
+                        if(this.amr == null){
+                            this.amr = new BenzAMRRecorder();
+                        }
+                        if(this.amr.isPlaying()) {
+                            console.log("stop")
+                            this.amr.stop();
+                        }
+                        if(this.amr.isInit()) {
+                            console.log("play")
+                            this.amr.play();
+                        }
+                        else {
+                            this.amr.initWithUrl(targetPath).then(() => {
+                                this.amr.play();
+                            })
+                        }
+                    }
                 }
             }
         },
@@ -196,21 +214,26 @@ export default {
             else if(msgType == 105) {
                 var targetFileName = msgContent.fileName;
                 var targetPath = await services.common.GetFilePath(this.msg.message_id);
-                if(this.amr == null){
-                    this.amr = new BenzAMRRecorder();
-                }
-                if(this.amr.isPlaying()) {
-                    console.log("stop")
-                    this.amr.stop();
-                }
-                if(this.amr.isInit()) {
-                    console.log("play")
-                    this.amr.play();
-                }
-                else {
-                    this.amr.initWithUrl(targetPath).then(() => {
+                if(fs.existsSync(targetPath)){
+                    if(this.amr == null){
+                        this.amr = new BenzAMRRecorder();
+                    }
+                    if(this.amr.isPlaying()) {
+                        console.log("stop")
+                        this.amr.stop();
+                    }
+                    if(this.amr.isInit()) {
+                        console.log("play")
                         this.amr.play();
-                    })
+                    }
+                    else {
+                        this.amr.initWithUrl(targetPath).then(() => {
+                            this.amr.play();
+                        })
+                    }
+                }
+                else{
+                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
                 }
                 this.$emit('playAudioOfMessage', this.msg.message_id);
             }
