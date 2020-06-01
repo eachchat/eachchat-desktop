@@ -21,7 +21,7 @@
                 更多.....
             </div>
         </div>
-        <div class="groupInfo-view">
+        <div class="groupInfo-view" v-show="isGroup">
             <div class="groupInfoNameDiv">
                 <label class="groupInfoNameLabel" for="群聊名称">群聊名称</label>
                 <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)"/>
@@ -46,8 +46,8 @@
                 <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
                 </el-switch>
             </div>
-            <div class="groupSettingFavouriteDiv">
-                <label class="groupSettingFavouriteLabel">置顶聊天</label>
+            <div class="groupSettingFavouriteDiv" v-show="isGroup">
+                <label class="groupSettingFavouriteLabel">保存到收藏</label>
                 <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
                 </el-switch>
             </div> 
@@ -57,12 +57,12 @@
                 清空聊天记录
             </p>
         </div>
-        <div class="groupLeave-view">
+        <div class="groupLeave-view" v-show="isGroup">
             <p class="groupLeaveDiv" @click="leave()">
                 退出群聊
             </p>
         </div>
-        <div class="groupDismiss-view">
+        <div class="groupDismiss-view" v-show="isGroup">
             <p class="groupDismissDiv" @click="dismiss()">
                 解散群聊
             </p>
@@ -94,6 +94,7 @@ export default {
             groupTopState: true,
             groupFavouriteState: true,
             groupId: '',
+            isGroup: true,
         }
     },
     components: {
@@ -180,9 +181,7 @@ export default {
         },
         showMore: function() {
             this.memberListShow = this.allMemberList
-            this.$nextTick(() => {
-                this.getMemberImage();
-            })
+            this.getMemberImage();
         },
         leave: function() {
             console.log("leave all");
@@ -193,11 +192,19 @@ export default {
         clearAll: function() {
             console.log("clear all");
         },
-        slienceStateChange: function(state){
-            console.log("slienceStateChange ", state)
+        slienceStateChange: async function(state){
+            services.common.GroupStatus(this.groupId, this.groupTopState, this.slienceState)
+                .then((ret) => {
+                    this.$emit("updateChatGroupStatus", this.groupId, ret, "slience");
+                    console.log("slienceStateChange ", ret);
+                })
         },
-        groupTopStateChange: function(state){
-            console.log("groupTopStateChange ", state)
+        groupTopStateChange: async function(state){
+            services.common.GroupStatus(this.groupId, this.groupTopState, this.slienceState)
+                .then((ret) => {
+                    this.$emit("updateChatGroupStatus", this.groupId, ret, 'top');
+                    console.log("groupTopStateChange ", ret);
+                })
         },
         groupFavouriteStateChange: function(state){
             console.log("groupFavouriteStateChange ", state)
@@ -218,7 +225,7 @@ export default {
         getMemberImage: async function() {
             for(var i=0; i < this.memberListShow.length; i++) {
                 var distUserInfo = this.memberListShow[i];
-                // console.log("distuserinfo.uid ", distUserInfo.user_id);
+                console.log("distuserinfo.uid ", distUserInfo.user_id);
                 var targetPath = '';
                 if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
                     var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.user_id));
@@ -237,6 +244,7 @@ export default {
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
+            console.log("group info updateuserimage args ", args)
 
             var distElement = document.getElementById(this.getIdThroughMemberUid(id));
             distElement.setAttribute("src", localPath);
@@ -259,10 +267,10 @@ export default {
         showGroupInfo: async function() {
             if(this.wholeTipElement == null) {
                 this.wholeTipElement = document.getElementById("groupInfoTipId");
-                console.log("this.wholeTipElement ", this.wholeTipElement)
+                // console.log("this.wholeTipElement ", this.wholeTipElement)
             }
-            console.log("this.showGroupInfo ", this.showGroupInfo)
-            console.log("this.wholeTipElement ", this.wholeTipElement)
+            // console.log("this.showGroupInfo ", this.showGroupInfo)
+            // console.log("this.wholeTipElement ", this.wholeTipElement)
             if(this.showGroupInfo == undefined || this.wholeTipElement == null) {
                 return;
             }
@@ -271,6 +279,11 @@ export default {
             this.groupAvarar = this.showGroupInfo.groupAvarar;
             this.groupNotice = this.showGroupInfo.groupNotice;
             this.groupId = this.showGroupInfo.groupId;
+            this.isGroup = this.showGroupInfo.isGroup;
+            this.slienceState = this.showGroupInfo.isSlience;
+            this.groupTopState = this.showGroupInfo.isTop;
+            // console.log("this.groupTopState ", this.groupTopState)
+            // console.log("this.slienceState ", this.slienceState)
             for(var i=0;i<this.memberList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
                 this.allMemberList.push(memberInfoTmp[0]);
@@ -278,7 +291,7 @@ export default {
                     this.memberListShow.push(memberInfoTmp[0]);
                 }
             }
-            console.log("watch memberListShow is ", this.memberListShow);
+            // console.log("watch memberListShow is ", this.memberListShow);
             this.$nextTick(() => {
                 this.getMemberImage();
             })
@@ -286,7 +299,7 @@ export default {
             this.wholeTipElement.style.top = "42px";
 
             let elementImg = document.getElementById("groupInfoImageId");
-            console.log("elementImg is ", elementImg);
+            // console.log("elementImg is ", elementImg);
             services.common.getGroupAvatar(this.groupAvarar)
             .then((ret) => {
                 elementImg.setAttribute("src", URL.createObjectURL(ret.data));

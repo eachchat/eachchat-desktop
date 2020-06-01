@@ -13,7 +13,8 @@
                     @click="menuClicked(index, tabitem.name, tabitem.link, tabitem.view)"
                     :class="{active: index===curindex}"
                     >
-                    <i :class="getCurNavIcon(index)"></i>
+                    <p :class="getCurNavIcon(index)"></p>
+                    <!-- <i :class="getCurNavIcon(index)"></i> -->
                 </el-menu-item>
             </el-menu>
         </el-aside>
@@ -117,17 +118,17 @@ export default {
             }
             if(cur_index === 0)
             {
-                return "el-icon-s-comment" + endding
+                return "NavChatting" + endding;
             }
             else if(cur_index === 1)
             {
-                return "el-icon-share" + endding
+                return "NavOrganization" + endding;
                 
             } else if (cur_index === 2) {
-                return "el-icon-star-off" + endding
+                return "NavFavourite" + endding;
             }
             else{
-                return "el-icon-more-outline" + endding
+                return "NavMore";
             }
         },
         checkAndLoadUserImage: function(distPath) {
@@ -241,13 +242,13 @@ export default {
         width: 64px;
         height: 100%;
         padding: 0px;
-        margin: 0px;
-        background: rgb(61, 62, 73);
+        margin-top: 36px;
+        background: rgba(74, 76, 91, 1);
     }
 
     .navigate-panel {
         height: 100%;
-        background: rgb(61, 62, 73);
+        background: rgba(74, 76, 91, 1);
         overflow: hidden;
         -webkit-app-region: drag;
     }
@@ -261,7 +262,7 @@ export default {
         height: 40px;
         text-align: center;
         line-height: 40px;
-        margin: 20px 0px 10px 0px;
+        margin: 40px 0px 10px 0px;
     }
 
     .login-logo {
@@ -270,61 +271,88 @@ export default {
     }
 
     .nav-item {
-        height: 60px;
+        height: 50px;
         text-align: center;
-        line-height: 60px;
-        background-color: rgb(61, 62, 73);
+        line-height: 50px;
+        background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item.active {
-        height: 60px;
+        height: 50px;
         text-align: center;
         color: rgba(255, 255, 255, 1);
-        line-height: 60px;
-        background-color: rgb(61, 62, 73);
+        line-height: 50px;
+        background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item:hover {
-        height: 60px;
+        height: 50px;
         text-align: center;
-        line-height: 60px;
-        background-color: rgb(61, 62, 73);
+        line-height: 50px;
+        background-color: rgba(74, 76, 91, 1);;
     }
 
-    .el-icon-s-comment.active {
-        color:rgba(255, 255, 255, 1);
+    .NavChatting {
+        border: 1px red;
+        background-image: url("../../../static/Img/Navigate/chat-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-s-comment:hover {
-        color:rgba(255, 255, 255, 1);
+    .NavChatting:hover {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/chathover-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-s-comment {
-        color:rgba(255, 255, 255, 0.3);
+    .NavChatting.active {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/chatselected-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-share {
-        color:rgba(255, 255, 255, 0.3);
+    .NavOrganization {
+        border: 1px red;
+        background-image: url("../../../static/Img/Navigate/org-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-share.active {
-        color:rgba(255, 255, 255, 1);
+    .NavOrganization:hover {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/orghover-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-share:hover {
-        color:rgba(255, 255, 255, 1);
+    .NavOrganization.active {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/orgselected-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-more-outline {
-        color:rgba(255, 255, 255, 0.3);
+    .NavFavourite {
+        border: 1px red;
+        background-image: url("../../../static/Img/Navigate/fav-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-more-outline:hover {
-        color:rgba(255, 255, 255, 1);
+    .NavFavourite:hover {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/favhover-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-more-outline.active {
-        color:rgba(255, 255, 255, 1);
+    .NavFavourite.active {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/favselected-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
     .tabcontainer {

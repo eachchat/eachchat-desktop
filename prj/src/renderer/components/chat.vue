@@ -56,7 +56,7 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus"></groupInfoTip>
         <el-dialog title="发起聊天" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater :disable-users="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
@@ -1096,14 +1096,41 @@ export default {
         Call: function() {
             console.log("make a call");
         },
+        groupIsSlience(groupInfo) {
+            console.log("========groupIsSlience status ", (groupInfo.status))
+            console.log("========groupIsSlience ", (Number(groupInfo.status) & Number("00000001")) != 0)
+            if((Number(groupInfo.status) & Number("00000001")) != 0) {
+                // console.log("groupIsSlience grou name is ", groupInfo.group_name)
+                // console.log("group state is ", groupInfo.status)
+                return true;
+            }
+            return false;
+        },
+        groupIsTop(groupInfo) {
+            console.log("========groupIsTop status ", groupInfo.status)
+            console.log("========groupIsTop ", (Number(groupInfo.status) & Number("00000010"))!= 0)
+            if((Number(groupInfo.status) & Number("00000010")) != 0) {
+                // console.log("top grou name is ", groupInfo.group_name)
+                // console.log("group state is ", groupInfo.status)
+                return true;
+            }
+            return false;
+        },
         More: async function() {
+            var isGroup = this.chat.group_type == 101 ? true : false;
             var idsList = this.chat.contain_user_ids.split(",");
+            console.log("this.chat ", this.chat);
+            console.log("this.isTop ", this.groupIsTop(this.chat))
+            console.log("this.isSlience ", this.groupIsSlience(this.chat))
             var groupInfoObj = {
                 "memberList": idsList,
                 "groupName": this.chat.group_name,
                 "groupAvarar": this.chat.group_avarar,
                 "groupNotice": this.chat.group_notice,
-                "groupId": this.chat.group_id
+                "groupId": this.chat.group_id,
+                "isGroup": isGroup,
+                "isTop": this.groupIsTop(this.chat),
+                "isSlience": this.groupIsSlience(this.chat),
             }
             this.groupInfo = groupInfoObj;
             // console.log("more more more ", this.chat.contain_user_ids.split(","))
@@ -1206,6 +1233,10 @@ export default {
                         })
                     }, 1000)
                 })
+        },
+        updateChatGroupStatus(groupId, groupStatus, updateType) {
+            console.log("======== ");
+            this.$emit("updateChatGroupStatus", groupId, groupStatus, updateType);
         },
         callback(msg) {
             // console.log("chat callback msg is ", msg);

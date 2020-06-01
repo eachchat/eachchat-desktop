@@ -999,6 +999,7 @@ const common = {
     var ret = "FILE_DOWNLOADING";
     var targetDir = confservice.getUserThumbHeadPath();
     var targetPath = path.join(targetDir, userId + '.png');
+    console.log("downloadUserTAvatar targetPath is ", targetPath);
     if(fs.existsSync(targetPath)) {
       return targetPath;
     }
@@ -1241,13 +1242,14 @@ const common = {
     }
   },
 
-  async GroupStatus(groupID, userID, stickFlag, disturbFlag){
-    let result = await this.api.GroupStatus(this.data.login.access_token, groupID, userID, stickFlag, disturbFlag);
+  async GroupStatus(groupID, stickFlag, disturbFlag){
+    let result = await this.api.GroupStatus(this.data.login.access_token, groupID, this.data.selfuser.user_id, stickFlag, disturbFlag);
     if (!result.ok || !result.success) {
       return result;
     }
     let status = result.data.obj.status;
     await sqliteutil.UpdateGroupStatus(groupID, status)
+    return status
   },
 
   async SetFilePath(msgID, filePath){
