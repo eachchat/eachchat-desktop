@@ -141,7 +141,6 @@ const sqliteutil = {
             }
         );
         for(let index in collections){
-            console.log("delete :" + collections[index]);
             collections[index].destroy();
         }
         
