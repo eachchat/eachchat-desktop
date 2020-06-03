@@ -27,8 +27,13 @@ export default new Vuex.Store({
     earliestSequenceId: "",
     Services: null,
     msgIpcInited: false,
+    showGroupList: [],
   },
   mutations: {
+    setShowGroupList(state, showList) {
+      console.log("set list is ", showList);
+      state.showGroupList = showList;
+    },
     setMsgIpcInited(state) {
       state.msgIpcInited = true;
     },
@@ -187,6 +192,10 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getGroupList: state=> () => {
+      var tmp = state.showGroupList.slice();
+      return tmp;
+    },
     getServices: state => () => {
       return state.Services;
     },

@@ -11,11 +11,12 @@
                 </div>
             </div>
         </div>
-        <div class="chat-main">
+        <div class="chat-main" id="chat-main">
             <div class="chat-main-message" id="message-show">
                 <ul class="msg-list" id="message-show-list">
                     <li v-for="(item, index) in messageListShow"
-                        :class="ChatLeftOrRightClassName(item)">
+                        :class="ChatLeftOrRightClassName(item)"
+                        @contextmenu="rightClick(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <imessage :msg="item" :playingMsgId="playingMsgId" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage"></imessage>
@@ -52,6 +53,7 @@
                 </div>
             </div>
         </div>
+        <transmit v-show="showTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs" @closeTransmitDlg="closeTransmitDlg"></transmit>
         <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -74,7 +76,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, remote} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -84,6 +86,9 @@ import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, 
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
+import transmit from './transmit.vue'
+
+const {Menu, MenuItem} = remote;
 
 function extend(target, base) {
     console.log("base is ", base);
@@ -158,9 +163,31 @@ export default {
         userInfoTip,
         groupInfoTip,
         chatGroupCreater,
+        transmit,
     },
     props: ['chat'],
     methods: {
+        rightClick(msgItem) {
+            console.log("msgitem is ", msgItem)
+            this.menu = new Menu();
+            this.menu.append(new MenuItem({
+                label: "转发",
+                click: () => {
+                    this.transMit(msgItem)
+                }
+            }))
+            this.menu.popup(remote.getCurrentWindow());
+        },
+        transMit(msg) {
+            this.showTransmitDlg = true;
+            this.updateTransmit = !this.updateTransmit;
+            this.selectedMsgs.push(msg);
+            this.transmitTogether = false;
+        },
+        closeTransmitDlg() {
+            this.showTransmitDlg = false;
+            this.selectedMsgs = [];
+        },
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
         },
@@ -1243,7 +1270,7 @@ export default {
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
             console.log("chat callback msg is ", msg)
             var forceUpdate = true;
-            if(msg.message_from_id != this.curUserInfo.id || (msg.message_type != 101)) {
+            if(msg.message_from_id != this.curUserInfo.id || (msg.message_type != 101) || (this.chat.groupId != msg.group_id)) {
                 if(this.existingMsgId.indexOf(msg.message_id) == -1){
                     if(this.chat.group_id == msg.group_id){
                         forceUpdate = false;
@@ -1264,6 +1291,7 @@ export default {
     },
     data() {
         return {
+            menu: null,
             cleanCache: false,
             playingMsgId: '',
             dialogVisible: false,
@@ -1272,6 +1300,10 @@ export default {
             groupContainUserIds: [],
             ipcInited: false,
             showGroupInfoTips: false,
+            showTransmitDlg: false,
+            updateTransmit: false,
+            transmitTogether: false,
+            selectedMsgs: [],
             editor:null,
             messageList: [],
             sendingMsgIdList: [],

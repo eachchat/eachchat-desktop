@@ -3,7 +3,7 @@
       <div class="win-header">
         <winHeaderBar v-show="isWindows"></winHeaderBar>
       </div>
-      <div class="chat-panel">
+      <div class="chat-panel" id="chat-panel-id">
         <div class="chat-list">
           <div class="list-header">
             <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
@@ -66,7 +66,6 @@ export default {
       }
       var chatGroupVar = [];
       var topGroupVar = [];
-      console.log("============================")
       for(var i=0;i<this.showGroupList.length;i++) {
         if(this.groupIsTop(this.showGroupList[i])) {
           topGroupVar.push(this.showGroupList[i]);
@@ -80,6 +79,7 @@ export default {
       chatGroupVar = chatGroupVar.sort(this.compare());
       console.log("chatGroupVar is ", chatGroupVar)
       chatGroupVar = topGroupVar.concat(chatGroupVar);
+      this.$store.commit("setShowGroupList", chatGroupVar);
       return chatGroupVar
     }
   },
@@ -559,9 +559,14 @@ export default {
     height: 60px;
   }
 
+  .group:hover {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+  }
+
   .group.active {
-    height: 64px;
-    background-color: rgb(245, 246, 247);
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
   }
 
   .group-ico {
