@@ -1,21 +1,29 @@
-const CryptoJS = require('crypto-js');
-const Base64 = require('js-base64').Base64;
-
+/*
+const {JSDOM} = require("jsdom")
+const jsdom = JSDOM('<!doctype html><html><body></body></html>')
+const window = jsdom;
+global.window = window;
+global.document = window.document;
+global.navigator = {
+    userAgent: 'node.js'
+}
+*/
+//const JSEncrypt = require('jsencrypt');
+import JSEncrypt from 'jsencrypt'
+const fs = require('fs');
 class SqliteEncrypt{
-    constructor(){
-        this.iv = "qlwk291j4h58903u";
-        this.key = "ququwiqiqmwnmsewkdueekrenrbtkcofditm";
+    constructor(path){
+        this.path = path;
     }
 
     decrypt(crypted){
-        let realKey = Base64.encode(this.key);
-        if(!realKey){
-            alert("未知错误");
-            return;
-        }
-        let strCrypted = this.uint8ToString(crypted);
-        var decryptedStr = this.getDAesString(strCrypted, realKey, this.iv);
-        return decryptedStr;
+        var decrypt = new JSEncrypt();
+        
+        let privateKey = fs.readFileSync(this.path + "/private", "utf-8");;
+
+        decrypt.setPrivateKey(privateKey);
+        var encrypted = decrypt.decrypt(crypted);
+        return encrypted;
         
         /*
         crypted = new Buffer(crypted, 'base64').toString('binary');
@@ -26,13 +34,18 @@ class SqliteEncrypt{
         */
     }
 
-    encrypt(data){
-        let realKey = Base64.encode(this.key);
-        let strData = this.uint8ToString(data);
+    encrypt(data){        
+        let pubkeyOriginal = fs.readFileSync(this.path + "/public", "utf-8");
+        
+        //let pubKey = pubkeyOriginal.replace(/[\r\n]/g,"");
 
-        var encrypted = this.getAesString(strData, realKey, this.iv); //密文
+        let jsencrypt = new JSEncrypt();
+        //jsencrypt.setPublicKey('-----BEGIN PUBLIC KEY----- ' + pubkeyOriginal + ' -----END PUBLIC KEY-----');
+        jsencrypt.setPublicKey(pubkeyOriginal);
+
+        var encrypted = jsencrypt.encrypt(data);
         return encrypted;
-
+        
         /*
         var cipher = crypto.createCipheriv('aes-128-cbc', pubkey, this.iv);
         var crypted = cipher.update(data, 'utf8', 'binary');

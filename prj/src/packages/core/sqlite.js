@@ -6,14 +6,16 @@
 
 import {environment} from '../data/environment.js';
 var sqlite3 = require('sqlite3');
+import {SqliteEncrypt} from "./encrypt.js"
+const fs = require('fs');
 
 
 class Sqlite {
   constructor(filename) {
     this.db = undefined;
     this.filename = filename;
-
     this.basePath = environment.path.base;
+    this.encryption = new SqliteEncrypt(this.basePath);
   }
 
   async init() {
@@ -21,10 +23,14 @@ class Sqlite {
     if (typeof this.db != "undefined") {
       return this;
     }
+
+    let sourcePassword = fs.readFileSync(this.basePath + "/password.txt", "utf-8");;
+    let password = this.encryption.decrypt(sourcePassword);
+
     console.log('load ' + filename);
     this.db = new sqlite3.Database(this.filename);
     this.db.serialize(() => {
-      this.db.run("PRAGMA KEY = 'secret'")
+      this.db.run("PRAGMA KEY = " + password)
       this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
     })
     console.log('ok');
