@@ -14,10 +14,12 @@ import { makeFlieNameForConflict } from '../core/Utils.js'
 const mqtt = require('mqtt')
 
 const commonConfig = {
-  hostname: undefined,
-  apiPort: undefined,
-  username: undefined,
-  password: undefined
+  hostname:       undefined,
+  apiPort:        undefined,
+  username:       undefined,
+  password:       undefined,
+  identityType:   undefined,
+  identityValue:  undefined
 }; // config info
 
 const commonData = {
@@ -248,6 +250,14 @@ const common = {
       this.config.password = config.password;
     }
 
+    if("identityType" in config){
+      this.config.identityType = config.identityType;
+    }
+
+    if("identityValue" in config){
+      this.config.identityValue = config.identityValue;
+    }
+
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
     models.init();
   },
@@ -257,7 +267,7 @@ const common = {
     var config = this.config;
     var data = this.data;
 
-    let result = await this.api.login(config.username, config.password);
+    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue);
 
     if (!result.ok || !result.success) {
       return result.data;
