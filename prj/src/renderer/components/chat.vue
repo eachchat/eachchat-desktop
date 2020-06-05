@@ -1,7 +1,11 @@
 <template>
     <div class="chat-page">
         <div class="chat-title">
-            <p class="chat-name" id="chat-group-name"></p>
+            <div class="chatInfo">
+                <img class="chat-img" id="chat-group-img">
+                <p class="chat-name" id="chat-group-name"></p>
+                <p class="chat-name-state" id="chat-group-state"></p>
+            </div>
             <div class="chat-tools">
                 <div class="chat-tool-more" @click="More()">
                     <i class="el-icon-more"></i>
@@ -19,22 +23,25 @@
                         @contextmenu="rightClick(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
-                        <imessage :msg="item" :playingMsgId="playingMsgId" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage"></imessage>
+                        <div class="msgContent">
+                            <input class="multiSelectCheckbox" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage"></imessage>
+                        </div>
                     </li>
                 </ul>
             </div>
-            <div class="chat-input">
+            <div class="chat-input" v-show="!multiSelect">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
                         <Faces v-show="showFace"  @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
                         <div class="chat-input-expression" @click="showExpression()">
-                            <img class="el-icon-emoji" src="../../../static/Img/Chat/emoji@3x.png">
+                            <img class="el-icon-emoji" src="../../../static/Img/Chat/emoji@2x.png">
                         </div>
                         <div class="chat-input-picture" @click="insertPic()">
-                            <img class="el-icon-picture" src="../../../static/Img/Chat/pic@3x.png">
+                            <img class="el-icon-picture" src="../../../static/Img/Chat/pic@2x.png">
                         </div>
                         <div class="chat-input-file" @click="insertFiles()">
-                            <img class="el-icon-files" src="../../../static/Img/Chat/file@3x.png">
+                            <img class="el-icon-files" src="../../../static/Img/Chat/file@2x.png">
                         </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
@@ -52,13 +59,19 @@
                     </quillEditor>
                 </div>
             </div>
+            <div class="multiSelectTools" v-show="multiSelect">
+                <img class="multiSelectTransmit" src="../../../static/Img/Favorite/Detail/transmit@2x.png" @click="multiTransMit">
+                <img class="multiSelectFav" src="../../../static/Img/Navigate/fav-24px@2x.png" @click="multiFav" v-show="false">
+                <img class="multiSelectDel" src="../../../static/Img/Favorite/Detail/delete@2x.png" @click="multiDel" v-show="false">
+                <img class="multiSelectToolClose" src="../../../static/Img/Navigate/close-20px@2x.png" @click="multiToolsClose">
+            </div>
         </div>
         <transmit v-show="showTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs" @closeTransmitDlg="closeTransmitDlg"></transmit>
         <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus"></groupInfoTip>
         <el-dialog title="发起聊天" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater :disable-users="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
@@ -72,6 +85,8 @@
 </template>
 
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
@@ -175,7 +190,13 @@ export default {
                 click: () => {
                     this.transMit(msgItem)
                 }
-            }))
+            }));
+            this.menu.append(new MenuItem({
+                label: "多选",
+                click: () => {
+                    this.msgMultiSelect(msgItem);
+                }
+            }));
             this.menu.popup(remote.getCurrentWindow());
         },
         transMit(msg) {
@@ -184,9 +205,50 @@ export default {
             this.selectedMsgs.push(msg);
             this.transmitTogether = false;
         },
+        multiTransMit() {
+            this.showTransmitDlg = true;
+            this.updateTransmit = !this.updateTransmit;
+            this.transmitTogether = true;
+        },
+        multiFav() {
+
+        },
+        multiDel() {
+
+        },
+        multiToolsClose() {
+            this.multiSelect = false;
+        },
+        showCheckboxOrNot(curMsg) {
+            if(this.multiSelect && !this.showNoticeOrNot(curMsg)) {
+                return true;
+            }
+            return false;
+        },
+        msgMultiSelect(msg) {
+            console.log("multitransmit msg is ", msg);
+            this.multiSelect = true;
+        },
+        selectChanged: function(curMsg) {
+            if(curMsg == null){
+                return false;
+            }
+            var hasSelected = false;
+            for(let i=0;i<this.selectedMsgs.length;i++) {
+                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                    this.selectedMsgs.splice(i, 1);
+                    hasSelected = true;
+                    break;
+                }
+            }
+            if(!hasSelected) {
+                this.selectedMsgs.push(curMsg);
+            }
+        },
         closeTransmitDlg() {
             this.showTransmitDlg = false;
             this.selectedMsgs = [];
+            this.multiSelect = false;
         },
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
@@ -266,11 +328,13 @@ export default {
         showExpression: function() {
             this.showFace = !this.showFace;
         },
-        showGroupName(chatGroupItem) {
-            var groupNameElement = document.getElementById("chat-group-name");
-            if(chatGroupItem === null){
+        showGroupName: async function(chatGroupItem) {
+            if(chatGroupItem.group_id == null || chatGroupItem.group_id == undefined){
                 return "";
             }
+            var groupNameElement = document.getElementById("chat-group-name");
+            var groupIcoElement = document.getElementById("chat-group-img");
+            var groupStateElement = document.getElementById("chat-group-state");
             console.log("getShowGroupName is ", chatGroupItem.group_id)
             var groupName = chatGroupItem.group_name;
             if(groupName.length == 0) {
@@ -286,6 +350,20 @@ export default {
                 groupName = groupUidNameList.join(",");
             }
             groupNameElement.innerHTML = groupName;
+            
+            var targetPath = "";
+            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, chatGroupItem.group_id))){
+                groupIcoElement.setAttribute("src", targetPath);
+            }
+
+            var groupState = "";
+            if(chatGroupItem.group_type == 102) {
+                console.log("================")
+                var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
+                groupState = ownerInfo[0].status_description;
+                console.log("================ ", ownerInfo)
+            }
+            groupStateElement.innerHTML = groupState;
         },
         insertFace: function(item) {
             var range = this.editor.getSelection();
@@ -1120,12 +1198,29 @@ export default {
                 return "message-left";
             }
         },
+        msgSelectOrNotClassName: function(curMsg) {
+            //class="msgContent"
+            var hasSelected = false;
+            for(let i=0;i<this.selectedMsgs.length;i++) {
+                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                    this.selectedMsgs.splice(i, 1);
+                    hasSelected = true;
+                    break;
+                }
+            }
+            if(hasSelected) {
+                return "msgContentActive";
+            }
+            else {
+                return "msgContent";
+            }
+        },
         Call: function() {
             console.log("make a call");
         },
         groupIsSlience(groupInfo) {
-            console.log("========groupIsSlience status ", (groupInfo.status))
-            console.log("========groupIsSlience ", (Number(groupInfo.status) & Number("00000001")) != 0)
+            // console.log("========groupIsSlience status ", (groupInfo.status))
+            // console.log("========groupIsSlience ", (Number(groupInfo.status) & Number("00000001")) != 0)
             if((Number(groupInfo.status) & Number("00000001")) != 0) {
                 // console.log("groupIsSlience grou name is ", groupInfo.group_name)
                 // console.log("group state is ", groupInfo.status)
@@ -1181,6 +1276,7 @@ export default {
             if(uldiv) {
                 if(uldiv.scrollTop < 100){
                     var curTime = new Date().getTime();
+                    console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
                         let lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
@@ -1191,6 +1287,7 @@ export default {
                                 this.isRefreshing = false;
                                 var messageListTmp = ret;
                                 for(var i=0;i<messageListTmp.length;i++){
+                                    console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
                                         this.messageList.push(messageListTmp[i]);
                                         this.existingMsgId.push(messageListTmp[i].message_id);
@@ -1287,13 +1384,24 @@ export default {
                     this.$emit('updateChatList', msg, forceUpdate);
                 }
             }
-        }
+        },
+        updateMsgFile(e, args) {
+            console.log("updateMsgfile ", args);
+            this.updateMsg = args;
+        },
+        updateUserImage(e, args) {
+            console.log("updateUserImage ", args);
+            this.updateUser = args;
+        },
     },
     data() {
         return {
+            updateUser:[],
+            updateMsg: {},
             menu: null,
             cleanCache: false,
             playingMsgId: '',
+            multiSelect: false,
             dialogVisible: false,
             disabledusers: [],
             groupInfo: {},
@@ -1333,6 +1441,9 @@ export default {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
         setTimeout(() => {
             this.$nextTick(() => {
+                console.log("==============ipc on")
+                ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                ipcRenderer.on('updateUserImage', this.updateUserImage);
                 this.editor = this.$refs.chatQuillEditor.quill;
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
@@ -1346,7 +1457,7 @@ export default {
     created: async function() {
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
-
+        console.log("===============mqttinit")
         services.common.initmqtt();
         services.common.handlemessage(this.callback);
 
@@ -1368,6 +1479,8 @@ export default {
             if(this.curGroupId != this.chat.group_id) {
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
+
+                this.existingMsgId = [];
                 
                 this.getHistoryMessage();
                 this.showGroupName(this.chat);
@@ -1421,9 +1534,10 @@ export default {
     .chat-title {
         display: float;
         width: 100%;
-        height: 42px;
+        height: 32px;
         background-color: rgb(255, 255, 255);
-        border-bottom: 1px solid rgb(242, 242, 246);
+        border-bottom: 0px solid rgb(242, 242, 246);
+        margin-bottom: 12px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -1431,13 +1545,37 @@ export default {
     }
 
     .chat-name {
-        margin:10px 30px 20px 30px;
+        height: 32px;
+        line-height: 32px;
+        margin:0px 12px 0px 0px;
         float: left;
         white-space: nowrap;
         text-overflow: ellipsis;
-        font-size: 16px;
+        font-size: 14px;
         font-family: 'Microsoft YaHei';
         font-weight: 590;
+    }
+
+    .chat-img {
+        margin:0px 8px 0px 16px;
+        height: 32px;
+        width: 32px;
+        float: left;
+        border: 0px solid rgba(0, 0, 0, 0);
+    }
+    
+    .chat-name-state {
+        height: 32px;
+        line-height: 32px;
+        margin:0px 12px 0px 0px;
+        max-width: 100px;
+        float: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 12px;
+        font-family: 'Microsoft YaHei';
+        font-weight: 590;
+        color: rgba(153, 153, 153, 1);
     }
 
     .chat-tools {
@@ -1450,9 +1588,10 @@ export default {
     .chat-tool-more {
         display: inline-block;
         float: right;
-        width: 40px;
+        width: 32px;
+        height: 32px;
         line-height: 100%;
-        padding: 12px 0px 22px 0px;
+        padding: 0px 10px 0px 10px;
         margin: 0px;
     }
 
@@ -1470,13 +1609,13 @@ export default {
         width: 100%;
         height: calc(100% - 60px);
         font-size: 18px;
-        margin-top: -2px;
+        margin-top: 0px;
     }
 
     .chat-main-message {
         width: 100%;
         height: calc(100% - 150px);
-        border-bottom: 1px solid rgb(242, 242, 246);
+        border-bottom: 0px solid rgb(242, 242, 246);
         display: flex;
         flex-direction: column;
         list-style: none;
@@ -1510,7 +1649,7 @@ export default {
         text-align: center;
         font-size: 12px;
         font-family: 'Microsoft YaHei';
-        color: rgb(153, 153, 153);
+        color: rgba(187, 187, 187, 1);
         margin: 5px 10px 5px 10px;
     }
 
@@ -1519,7 +1658,7 @@ export default {
         text-align: center;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
-        color: rgb(153, 153, 153);
+        color: rgba(187, 187, 187, 1);
         margin: 10px 10px 10px 10px;
     }
 
@@ -1537,11 +1676,78 @@ export default {
         margin-bottom: 8px;
     }
 
+    .msgContent {
+        width: 100%;
+        height: auto;
+    }
+
+    .msgContentActive {
+        width: 100%;
+        background: rgba(221, 221, 221, 1);
+    }
+
+    .multiSelectCheckbox {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin-top: 12px;
+        float: left;
+    }
+
+    .multiSelectTools {
+        width: 100%;
+        height: 170px;
+        font-family: 'Microsoft YaHei';
+        font-size: 14px;
+    }
+
     .chat-input {
         width: 100%;
         height: 170px;
         font-family: 'Microsoft YaHei';
         font-size: 14px;
+    }
+
+    .multiSelectTools {
+        width: 100%;
+        height: 170px;
+        text-align: center;
+    }
+
+    .multiSelectTransmit {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .multiSelectFav {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .multiSelectDel {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .multiSelectToolClose {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
     .chat-input-operate {
@@ -1571,8 +1777,8 @@ export default {
     }
 
     .el-icon-emoji {
-        width: 18px;
-        height: 18px;
+        width: 24px;
+        height: 24px;
         margin: 0px;
         padding: 0px;
     }
@@ -1583,8 +1789,8 @@ export default {
     }
 
     .el-icon-more {
-        width: 18px;
-        height: 18px;
+        width: 24px;
+        height: 24px;
         margin: 0px;
         padding: 0px;
     }
@@ -1596,8 +1802,8 @@ export default {
     }
 
     .el-icon-picture {
-        width: 20px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
         margin: 0px;
         padding: 0px;
     }
@@ -1609,8 +1815,8 @@ export default {
     }
 
     .el-icon-files {
-        width: 20px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
         margin: 0px;
         padding: 0px;
     }
@@ -1650,7 +1856,7 @@ export default {
         height: 150px;
         max-height: 150px;
         width: 100%;
-        overflow-y: scroll;
+        overflow-y: hidden;
         overflow-x: hidden;
 
     }

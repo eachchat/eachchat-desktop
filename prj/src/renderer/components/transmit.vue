@@ -25,7 +25,7 @@
                     </li>
                     <li class="selected-group"
                         v-for="(chatGroupItem, index) in selectedChat">
-                    <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
+                    <img class="group-ico" :id="getSelectedChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
                     <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
                     <img class="disSelected" @click="disSelected(chatGroupItem)" src="../../../static/Img/Navigate/close-20px.png">
                     </li>
@@ -41,6 +41,9 @@
 
 <script>
 import { services } from '../../packages/data/index.js';
+import * as path from 'path'
+import * as fs from 'fs-extra'
+import {ipcRenderer} from 'electron'
 import { strMsgContentToJson, sliceReturnsOfString, generalGuid } from '../../packages/core/Utils.js'
 export default {
     name: 'transmit-group',
@@ -87,13 +90,15 @@ export default {
 
             this.transDlgElement.style.left = "-100" + "px";
             this.transDlgElement.style.top = top.toString() + "px";
+            this.$nextTick(() => {
+                this.showGroupIcon();
+            })
         },
         selectedChat:function() {
             this.$emit('getChatSelected', this.selectedChat);
         },
         distMsgs: function() {
             console.log("dist msg is ", this.distMsgs);
-            console.log("dist msg content is ", strMsgContentToJson(this.distMsgs[0].message_content));
         },
         curChat: function() {
             console.log("curchat is ", this.curChat);
@@ -127,6 +132,47 @@ export default {
             }
             return curChat.checkState;
         },
+        updateGroupImg(e, arg) {
+            var state = arg[0];
+            var stateInfo = arg[1];
+            var id = arg[2];
+            var localPath = arg[3];
+
+            for(var i=0;i<this.groupList.length;i++) {
+                if(this.groupList[i].group_id == id) {
+                    let elementId = this.getChatElementId(this.groupList[i]);
+                    let elementImg = document.getElementById(elementId);
+                    elementImg.setAttribute("src", localPath);
+                    break;
+                }
+            }
+        },
+        showGroupIcon: async function(e, arg) {
+            for(var i=0;i<this.groupList.length;i++) {
+                let elementId = this.getChatElementId(this.groupList[i]);
+                console.log("elememt id is ", elementId)
+                let elementImg = document.getElementById(elementId);
+                console.log("elementImg is ", elementImg)
+                // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
+                var targetPath = "";
+                if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupList[i].group_avarar, this.groupList[i].group_id))){
+                    elementImg.setAttribute("src", targetPath);
+                }
+            }
+        },
+        showSelectedGroupIcon: async function(e, arg) {
+            for(var i=0;i<this.selectedChat.length;i++) {
+                let elementId = this.getSelectedChatElementId(this.selectedChat[i]);
+                console.log("elememt id is ", elementId)
+                let elementImg = document.getElementById(elementId);
+                console.log("elementImg is ", elementImg)
+                // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
+                var targetPath = "";
+                if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.selectedChat[i].group_avarar, this.selectedChat[i].group_id))){
+                    elementImg.setAttribute("src", targetPath);
+                }
+            }
+        },
         selectChanged: function(curChat) {
             if(curChat == null){
                 return false;
@@ -140,10 +186,16 @@ export default {
                 this.disSelected(curChat);
             }
             console.log("selectedChat is ", this.selectedChat);
+            this.$nextTick(() => {
+                this.showSelectedGroupIcon();
+            })
             return curChat.checkState;
         },
         getChatElementId: function(curChat) {
             return "transmit-" + curChat.group_id;
+        },
+        getSelectedChatElementId: function(curChat) {
+            return "transmit-" + curChat.group_id + "-selected";
         },
         selectChat: function(item) {
             for(var i=0;i<this.groupList.length;i++) {
@@ -154,6 +206,9 @@ export default {
                     break;
                 }
             }
+            this.$nextTick(() => {
+                this.showSelectedGroupIcon();
+            })
         },
         disSelected: function(item) {
             console.log("disselected is ", item);
@@ -173,7 +228,21 @@ export default {
                 }
             }
         },
-        getShowGroupName(chatGroupItem) {
+        getShowGroupName: function(chatGroupItem) {
+            async function getUserNameFromDb(distUid) {
+                var nameTemp = '';
+                var userInfos = await services.common.GetDistUserinfo(distUid);
+                console.log("var userinfo si ", userInfos)
+                if(userInfos.length == 0) {
+                    return nameTemp;
+                }
+                var distUserInfo = userInfos[0];
+                if(distUserInfo != undefined){
+                    nameTemp = distUserInfo.user_display_name;
+                }
+                console.log("nameTemp si ", nameTemp)
+                return nameTemp;
+            }
             if(chatGroupItem === null){
                 return "";
             }
@@ -182,32 +251,20 @@ export default {
                 var aboutUids = chatGroupItem.contain_user_ids.split(",");
                 var groupUidNameList = [];
                 for(var i=0;i<aboutUids.length;i++) {
-                var userName = this.getUserNameFromDb(aboutUids[i]);
-                userName.then((ret) => {
-                    if(ret.length != 0){
+                    var nameTemp = '';
+                    nameTemp = getUserNameFromDb(aboutUids[i]);
+                    console.log("transmit get show gorup name si ", nameTemp)
+                    if(nameTemp.length != 0){
                     // let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
-                    groupUidNameList.unshift(ret);
+                        groupUidNameList.unshift(nameTemp);
                     }
-                })
-                if(i > 3) {
-                    break;
-                }
+                    if(i > 3) {
+                        break;
+                    }
                 }
                 groupName = groupUidNameList.join("、");
             }
             return groupName
-        },
-        getUserNameFromDb: async function(distUid) {
-            var nameTemp = '';
-            var userInfos = await services.common.GetDistUserinfo(distUid);
-            if(userInfos.length == 0) {
-                return nameTemp;
-            }
-            var distUserInfo = userInfos[0];
-            if(distUserInfo != undefined){
-                nameTemp = distUserInfo.user_display_name;
-            }
-            return nameTemp;
         },
         getMsgContent: async function(msg) {
             if(this.msg === null) {
@@ -216,23 +273,32 @@ export default {
             var messageContent = '';
             let chatGroupMsgType = msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(msg.message_content);
-            var aboutUserName = await this.getUserNameFromDb(msg.message_from_id);
-            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+
+            var nameTemp = '';
+            var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
+            var distUserInfo = userInfos[0];
+            if(distUserInfo != undefined){
+                nameTemp = distUserInfo.user_display_name;
+            }
+
+            console.log("chatGroupMsgContent is ", nameTemp)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
-                messageContent = aboutUserName + ":" + chatGroupMsgContent.text;
+                messageContent = nameTemp + ":" + chatGroupMsgContent.text;
+                console.log("aboutUserName ",nameTemp);
+                console.log("getMsgContent ",messageContent);
                 return messageContent;
             }
             else if(chatGroupMsgType === 102)
             {
-                messageContent = aboutUserName + ":" + "[图片]:" + chatGroupMsgContent.fileName;
+                messageContent = nameTemp + ":" + "[图片]:" + chatGroupMsgContent.fileName;
                 return messageContent;
             }
             else if(chatGroupMsgType === 103)
             {
-                messageContent = aboutUserName + ":" + "[文件}:" + chatGroupMsgContent.fileName;   
+                messageContent = nameTemp + ":" + "[文件}:" + chatGroupMsgContent.fileName;   
                 return messageContent;
             }
             else if(chatGroupMsgType === 106)
@@ -246,29 +312,41 @@ export default {
         getTogetherMsgContent: async function(msgs) {
             var contentTitle = "";
             var contentText = "";
-            var gorupId = this.curChat.group_id;
+            var groupId = this.curChat.group_id;
             var msgIds = [];
             var fromId = this.curUserInfo.id;
-            if(this.curChat.group_type == 101) {
-                let distUser = this.getUserNameFromDb(this.curChat.user_id)
-                contentTitle = this.curUserInfo.name + "与" + distUser[0].user_display_name + "的聊天记录";
+            console.log("this.curchat is ", this.curChat.group_type);
+            if(this.curChat.group_type == 102) {
+
+                var nameTemp = '';
+                var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
+                var distUserInfo = userInfos[0];
+                if(distUserInfo != undefined){
+                    nameTemp = distUserInfo.user_display_name;
+                }
+
+                contentTitle = this.curUserInfo.name + "与" + nameTemp + "的聊天记录";
+            }
+            else {
+                contentTitle = this.curChat.group_name;
             }
             for(let i=0;i<msgs.length;i++) {
                 if(i < 4) {
                     if(i == 3) {
-                        contentText = contentText + getMsgContent(msgs[i]);
+                        contentText = contentText + await this.getMsgContent(msgs[i]);
                     }
                     else {
-                        contentText = contentText + getMsgContent(msgs[i]) + "\n";
+                        contentText = contentText + await this.getMsgContent(msgs[i]) + "\n";
                     }
                 }
                 msgIds.push(msgs[i].time_line_id);
             }
+            console.log("contentText is ", contentText);
 
             var togetherMsgContent = {
                 "title": contentTitle,
                 "text": contentText,
-                "gorupId": groupId,
+                "groupId": groupId,
                 "msgIds": msgIds,
                 "fromId": fromId,
             };
@@ -292,11 +370,11 @@ export default {
             }
         },
         sendTogetherMsg: async function(distGroups, msgs) {
-            var msgContent = this.getTogetherMsgContent(msgs);
-            console.log("varcontent is ", varcontent);
+            var msgContent = await this.getTogetherMsgContent(msgs);
+            console.log("varcontent is ", msgContent);
             for(var i=0;i<distGroups.length;i++){
                 var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                var gorupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
+                var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                 let curTimeSeconds = new Date().getTime();
                 
                 let sendingMsgContentType = 106;
@@ -307,12 +385,12 @@ export default {
                         guid, 
                         sendingMsgContentType, 
                         this.curUserInfo.id, 
-                        gorupId, 
+                        groupId, 
                         uid, 
                         curTimeSeconds, 
                         willSendMsgContent)
                     .then((ret) => {
-                        console.log("sendNewMessage ret is ", ret);
+                        console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
                     })
             }
         },
@@ -324,7 +402,7 @@ export default {
                     console.log("curMsgCintent is ", curMsgContent);
 
                     var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                    var gorupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
+                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                     let curTimeSeconds = new Date().getTime();
                     
                     let sendingMsgContentType = curMsg.message_type;
@@ -335,7 +413,7 @@ export default {
                             guid, 
                             sendingMsgContentType, 
                             this.curUserInfo.id, 
-                            gorupId, 
+                            groupId, 
                             uid, 
                             curTimeSeconds, 
                             willSendMsgContent)
@@ -345,14 +423,21 @@ export default {
                 }
             }
         },
-        sendMsg: function(distGroups, msgs) {
+        sendMsg: async function(distGroups, msgs) {
             if(this.transmitTogether) {
-                this.sendTogetherMsg(distGroups, msgs);
+                await this.sendTogetherMsg(distGroups, msgs);
             }
             else {
-                this.sendSingleMsg(distGroups, msgs);
+                await this.sendSingleMsg(distGroups, msgs);
             }
         },
+    },
+    mounted: async function() {
+        setTimeout(() => {
+            this.$nextTick(() => {
+                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
+            })
+        }, 0)
     },
     created: async function() {
         this.loginInfo = await services.common.GetLoginModel();

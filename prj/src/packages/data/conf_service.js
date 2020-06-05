@@ -54,6 +54,13 @@ class ConfService {
         }
         this.uid = uid;
     }
+    getEachChatFilesDir() {
+        this.filesPath = path.join(this.base, this.filesDirName);
+        if(!fs.existsSync(this.filesPath)){
+            fs.ensureDirSync(this.filesPath);
+        }
+        return this.filesPath;
+    }
     getDocumentsPath() {
         var documentsPath = '';
         let { app } = require('electron').remote;

@@ -85,9 +85,8 @@ export default {
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
-            this.$store.commit("setUserId", this.curUserInfo.id);
-            confservice.init(this.curUserInfo.id);
             console.log("lognInfo is ", this.loginInfo);
+            this.showCurUserIcon();
             // Get data from server and set in database
             // UserInfo
             // await services.common.AllUserinfo();
@@ -153,20 +152,16 @@ export default {
             }
             checking();
         },
-        updateUserImage: function(e, args) {
+        updateSelfImage: function(e, args) {
             var state = args[0];
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
-            // console.log("=============================")
-            var elementImg = document.getElementById("userHead");
-            var showfu = new FileUtil(localPath);
-            let showfileObj = showfu.GetUploadfileobj();
-            let reader = new FileReader();
-            reader.readAsDataURL(showfileObj);
-            reader.onloadend = () => {
-                elementImg.setAttribute("src", reader.result);
+            if(id != this.curUserInfo.id) {
+                return;
             }
+            var elementImg = document.getElementById("userHead");
+            elementImg.setAttribute("src", localPath);
         },
         showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");
@@ -174,43 +169,10 @@ export default {
 
             var targetPath = "";
             // console.log("===========this.curUserInfo.avatar_minimal ", this.curUserInfo.avatar_minimal)
-            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.selfUserInfo.id))) {
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
-                return;
+            // targetPath = path.join(confservice.getEachChatFilesDir(), this.curUserInfo.id);
+            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.curUserInfo.id, targetPath))) {
+                elementImg.setAttribute("src", targetPath);
             }
-            else {
-                if(!this.ipcInited) {
-                    // console.log("===========this.ipcInited ", this.ipcInited)
-                    ipcRenderer.on('updateUserImage', this.updateUserImage);
-                    this.ipcInited = true;
-                }
-            }
-            // var targetDir = confservice.getFilePath();
-            // var targetFileName = this.selfUserInfo.id + ".png";
-            // var targetPath = path.join(targetDir, targetFileName);
-            // console.log("targetPath is ", targetPath);
-            // if(fs.existsSync(targetPath)){
-            //     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-            //     var showfu = new FileUtil(targetPath);
-            //     let showfileObj = showfu.GetUploadfileobj();
-            //     let reader = new FileReader();
-            //     reader.readAsDataURL(showfileObj);
-            //     reader.onloadend = () => {
-            //         elementImg.setAttribute("src", reader.result);
-            //     }
-            // }
-            // else{
-            //     // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
-            //     console.log("message downloag group avatar target path is ", this.curUserInfo.avatar_minimal);
-            //     services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal, targetPath);
-            //     this.checkAndLoadUserImage(targetPath);
-            // }
         }
     },
     components: {
@@ -222,10 +184,12 @@ export default {
         await services.common.GetLoginModel();
         this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
-            this.showCurUserIcon();
+            // this.showCurUserIcon();
         })
     },
     created: async function () {
+        confservice.init(this.$store.state.userId);
+        ipcRenderer.on('updateUserImage', this.updateSelfImage);
         await this.getAppBaseData();
     },
 }

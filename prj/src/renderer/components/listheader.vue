@@ -93,7 +93,7 @@ export default {
                     groupItem["contain_user_ids"] = groupUserIds;
                     groupItem["group_avarar"] = chatAvater;
                     groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 101;
+                    groupItem["group_type"] = 102;
                     groupItem["last_message_time"] = 0;
                     groupItem["message_content"] = null;
                     groupItem["message_content_type"] = 101;

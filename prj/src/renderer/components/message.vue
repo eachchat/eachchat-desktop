@@ -28,8 +28,13 @@
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
                         <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
-                            <p class="file-length">{{this.voiceLenth}} s</p>
+                            <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
+                    </div>
+                    <div class="chat-msg-content-mine-transmit"
+                        v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
+                        <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
+                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
@@ -94,7 +99,7 @@ import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sli
 export default {
     components: {
     },
-    props: ['msg', 'playingMsgId'],
+    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser'],
     methods: {
         showUserInfoTip: function() {
             if(this.userIconElement == undefined) {
@@ -119,67 +124,6 @@ export default {
         },
         getUserIconId: function() {
             return this.msg.message_id + "-usericon"
-        },
-        updateMsgImage: function(e, args) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            var needOpen = args[4];
-            if(id == this.msg.time_line_id) {
-                var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-                var msg_id = this.msg.message_id;
-                var imgMsgImgElement = document.getElementById(msg_id);
-                if(fs.existsSync(localPath)){
-                    services.common.SetFilePath(this.msg.message_id, localPath);
-                    var showfu = new FileUtil(localPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("src", reader.result);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                        imgMsgImgElement.setAttribute("style", "");
-                    }
-                    return;
-                }
-            }
-        },
-        updateMsgFile: function(e, args) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            if(id == this.msg.time_line_id) {
-                console.log("update msg file path to ", localPath);
-                if(fs.existsSync(localPath)){
-                    services.common.SetFilePath(this.msg.message_id, localPath);
-                    // Update message localpath throuth messageId
-                    if(this.msg.message_type = 105) {
-                        if(this.amr == null){
-                            this.amr = new BenzAMRRecorder();
-                        }
-                        if(this.amr.isPlaying()) {
-                            console.log("stop")
-                            this.amr.stop();
-                        }
-                        if(this.amr.isInit()) {
-                            console.log("play")
-                            this.amr.play();
-                        }
-                        else {
-                            this.amr.initWithUrl(targetPath).then(() => {
-                                this.amr.play();
-                            })
-                        }
-                    }
-                }
-            }
         },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
@@ -274,6 +218,16 @@ export default {
                 return false;
             }
         },
+        MsgIsTransmit: function() {
+            let chatGroupMsgType = this.msg.message_type;
+            // console.log("chatGroupMsgType is ", chatGroupMsgType)
+            if(chatGroupMsgType == 106){
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
         checkAndLoadImg: function(distPath) {
             var checkingPath = distPath;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
@@ -303,27 +257,6 @@ export default {
             }
             checking();
         },
-        updateUserImage: function(e, args) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-
-            if(id == this.userInfo.user_id) {
-                var userIconElementId = this.getUserIconId();
-                var userIconElement = document.getElementById(userIconElementId);
-                if(fs.existsSync(localPath)){
-                    var showfu = new FileUtil(localPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        userIconElement.setAttribute("src", reader.result);
-                    }
-                    return;
-                }
-            }
-        },
         checkAndLoadUserImage: function(distPath) {
             var checkingPath = distPath;
             
@@ -352,6 +285,8 @@ export default {
                 return '';
             }
             this.messageContent = '';
+            this.transmitMsgTitle = '';
+            this.transmitMsgContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
@@ -359,7 +294,6 @@ export default {
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
-                var textMsgImgElement = document.getElementById(this.msg.message_id);
                 this.messageContent = sliceReturnsOfString(chatGroupMsgContent.text);
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
@@ -380,27 +314,18 @@ export default {
                 imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;")
                 if(fs.existsSync(targetPath)){
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                    var showfu = new FileUtil(targetPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("src", reader.result);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                        imgMsgImgElement.setAttribute("style", "");
+                    let imageHeight = 100;
+                    if(chatGroupMsgContent.imgHeight < 100){
+                        imageHeight = chatGroupMsgContent.imgHeight;
                     }
+                    this.imageHeight = imageHeight;
+                    imgMsgImgElement.setAttribute("src", targetPath);
+                    imgMsgImgElement.setAttribute("height", imageHeight);
+                    imgMsgImgElement.setAttribute("style", "");
                 }
                 else{
+                    console.log("download msg t thumnail args is ", this.msg)
                     services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
-                    if(!this.ipcInited) {
-                        ipcRenderer.on('updateMsgImage', this.updateMsgImage);
-                        this.ipcInited = true;
-                    }
                     // this.checkAndLoadImg(targetPath);
                 }
             }
@@ -417,24 +342,14 @@ export default {
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
-                    if(!this.ipcInited) {
-                        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
-                        this.ipcInited = true;
-                    }
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
                 console.log("icon path is ", iconPath);
-                var showfu = new FileUtil(iconPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
                     this.fileName = chatGroupMsgContent.fileName;
                     this.fileSize = (chatGroupMsgContent.fileSize/1024).toFixed(2);
-                    fileMsgImgElement.setAttribute("src", reader.result);
-                    fileMsgImgElement.setAttribute("height", 46);
-                }
+                    fileMsgImgElement.setAttribute("src", iconPath);
+                    fileMsgImgElement.setAttribute("height", 40);
                 
             }
             else if(chatGroupMsgType === 104)
@@ -498,26 +413,18 @@ export default {
                 if(!fs.existsSync(targetPath)){
                     // ipcRenderer.send('download-file', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, false]);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
-                    if(!this.ipcInited) {
-                        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
-                        this.ipcInited = true;
-                    }
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
-                var showfu = new FileUtil("./static/Img/Chat/voiceAudio@3x.png");
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    this.voiceLenth = chatGroupMsgContent.length;
-                    this.fileSize = (chatGroupMsgContent.fileSize/1024).toFixed(2);
-                    fileMsgImgElement.setAttribute("src", reader.result);
-                    fileMsgImgElement.setAttribute("height", 12);
-                }
+                this.voiceLenth = chatGroupMsgContent.length;
+                this.fileSize = (chatGroupMsgContent.fileSize/1024).toFixed(2);
+                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/voiceAudio@3x.png");
+                fileMsgImgElement.setAttribute("height", 12);
             }
             else if(chatGroupMsgType === 106)
             {
+                this.transmitMsgTitle = chatGroupMsgContent.title;
+                this.transmitMsgContent = chatGroupMsgContent.text;
                 this.messageContent = "[聊天记录]";
             }
             else {
@@ -575,10 +482,6 @@ export default {
                 console.log("message downloag group avatar target path is ", targetPath);
                 services.common.downloadUserTAvatar(distTAvarar, this.userInfo.user_id);
                 // this.checkAndLoadUserImage(targetPath);
-                if(!this.ipcInited) {
-                    ipcRenderer.on('updateUserImage', this.updateUserImage);
-                    this.ipcInited = true;
-                }
             }
 
             // downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
@@ -618,6 +521,8 @@ export default {
     data() {
         return {
             messageContent: '',
+            transmitMsgContent: '',
+            transmitMsgTitle: '',
             fileName: '',
             fileIcon: '',
             fileSize: 0,
@@ -683,12 +588,93 @@ export default {
                 console.log("this.msg.id is ", this.msg.message_id);
                 this.amr.stop();
             }
-        }
+        },
+        updateMsg: function() {
+            if(this.updateMsg.length == 0) {
+                return;
+            }
+
+            var state = this.updateMsg[0];
+            var stateInfo = this.updateMsg[1];
+            var id = this.updateMsg[2];
+            var localPath = this.updateMsg[3];
+            var needOpen = this.updateMsg[4];
+
+            if(id != this.msg.time_line_id) {
+                return;
+            }
+
+            console.log("update msg file path to ", localPath);
+            if(fs.existsSync(localPath)){
+                services.common.SetFilePath(this.msg.message_id, localPath);
+                // Update message localpath throuth messageId
+                if(this.msg.message_type == 102) {
+                    var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
+                    // console.log("message chatGroupMsgContent ", chatGroupMsgContent);
+                    var msg_id = this.msg.message_id;
+                    var imgMsgImgElement = document.getElementById(msg_id);
+                        services.common.SetFilePath(this.msg.message_id, localPath);
+                        var showfu = new FileUtil(localPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        let reader = new FileReader();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            let imageHeight = 100;
+                            if(chatGroupMsgContent.imgHeight < 100){
+                                imageHeight = chatGroupMsgContent.imgHeight;
+                            }
+                            this.imageHeight = imageHeight;
+                            imgMsgImgElement.setAttribute("src", reader.result);
+                            imgMsgImgElement.setAttribute("height", imageHeight);
+                            imgMsgImgElement.setAttribute("style", "");
+                        }
+                }
+                else if(this.msg.message_type = 105 && needOpen) {
+                    if(this.amr == null){
+                        this.amr = new BenzAMRRecorder();
+                    }
+                    if(this.amr.isPlaying()) {
+                        console.log("stop")
+                        this.amr.stop();
+                    }
+                    if(this.amr.isInit()) {
+                        console.log("play")
+                        this.amr.play();
+                    }
+                    else {
+                        this.amr.initWithUrl(localPath).then(() => {
+                            this.amr.play();
+                        })
+                    }
+                }
+            }
+        },
+        updateUser: function() {
+            var state = this.updateUser[0];
+            var stateInfo = this.updateUser[1];
+            var id = this.updateUser[2];
+            var localPath = this.updateUser[3];
+
+            if(id == this.userInfo.user_id) {
+                var userIconElementId = this.getUserIconId();
+                var userIconElement = document.getElementById(userIconElementId);
+                if(fs.existsSync(localPath)){
+                    var showfu = new FileUtil(localPath);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        userIconElement.setAttribute("src", reader.result);
+                    }
+                    return;
+                }
+            }
+        },
     }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .message {
         font-size: 15px;
     }
@@ -715,15 +701,15 @@ export default {
     .msg-info-user-img {
         display: inline-block;
         vertical-align: top;
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
     }
 
     .msg-info-user-img:hover {
         display: inline-block;
         vertical-align: top;
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         cursor: pointer;
     }
 
@@ -755,7 +741,7 @@ export default {
     
     .chat-msg-content-others-txt-div {
         float: left;
-        background-color: rgb(245,246,247);
+        background-color: rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -827,7 +813,7 @@ export default {
 
     .chat-msg-content-others-file {
         float: left;
-        background-color: rgb(245,246,247);
+        background-color: rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -841,7 +827,7 @@ export default {
 
     .chat-msg-content-others-voice {
         float: left;
-        background-color: rgb(245,246,247);
+        background-color: rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -885,6 +871,7 @@ export default {
 
     .voice-info {
         min-height: 16px;
+        max-height: 23px;
         display: inline-block;
         vertical-align: top;
     }
@@ -917,7 +904,7 @@ export default {
 
     .chat-msg-content-mine-txt-div {
         float:right;
-        background-color: rgb(220,244,233);
+        background-color: rgba(233, 247, 240, 1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -989,7 +976,7 @@ export default {
 
     .chat-msg-content-mine-file {
         float:right;
-        background-color: rgb(220,244,233);
+        background-color: rgba(233, 247, 240, 1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -1017,7 +1004,7 @@ export default {
     
     .chat-msg-content-mine-voice {
         float:right;
-        background-color: rgb(220,244,233);
+        background-color: rgba(233, 247, 240, 1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -1027,6 +1014,52 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+    }
+
+    .chat-msg-content-mine-transmit {
+        float:right;
+        background-color: rgba(233, 247, 240, 1);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 7px 12px 7px 12px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        cursor: pointer;
+    }
+
+    .transmit-title {
+        display: block;
+        background-color: rgba(1,1,1,0);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        border-bottom: 1px solid rgba(221, 221, 221, 1);
+        padding-bottom: 10px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .transmit-content {
+        display: block;
+        float:right;
+        background-color: rgba(1,1,1,0);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        padding-top: 10px;
+        font-size: 11px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
     }
     
     .imageTip {

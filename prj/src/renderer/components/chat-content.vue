@@ -42,12 +42,15 @@
 </template>
 
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services, environment} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
 import winHeaderBar from './win-header.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
+import {ipcRenderer} from 'electron'
 // import listItem from './list-item.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
 
@@ -103,28 +106,23 @@ export default {
       return environment.os.isWindows;
     },
     // Download thumb and show in dist id element
-    showGroupIcon() {
-      // for(var i=0;i<this.topGroupList.length;i++) {
-      //   let elementImg = document.getElementById(this.topGroupList[i].group_id);
-      //   // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
-      //   services.common.getGroupAvatar(this.topGroupList[i].group_avarar)
-      //     .then((ret) => {
-      //         elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-      //         elementImg.onload = () => {
-      //           URL.revokeObjectURL(elementImg.getAttribute("src"))
-      //         }
-      //     })
-      // }
+    updateGroupImg(e, arg) {
+      var state = arg[0];
+      var stateInfo = arg[1];
+      var id = arg[2];
+      var localPath = arg[3];
+
+      let elementImg = document.getElementById(id);
+      elementImg.setAttribute("src", localPath);
+    },
+    showGroupIcon: async function() {
       for(var i=0;i<this.showGroupList.length;i++) {
         let elementImg = document.getElementById(this.showGroupList[i].group_id);
         // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
-        services.common.getGroupAvatar(this.showGroupList[i].group_avarar)
-          .then((ret) => {
-              elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-              elementImg.onload = () => {
-                URL.revokeObjectURL(elementImg.getAttribute("src"))
-              }
-          })
+        var targetPath = "";
+        if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
+            elementImg.setAttribute("src", targetPath);
+        }
       }
     },
     groupIsSlience(groupInfo) {
@@ -188,7 +186,11 @@ export default {
         }
       }
       if(updateType == "top") {
+        console.log("top")
         this.showGroupList = groupListTmp;
+        this.$nextTick(() => {
+          this.showGroupIcon()
+        })
       }
       // ++this.needUpdate;
     },
@@ -325,14 +327,15 @@ export default {
           userName.then((ret) => {
             if(ret.length != 0){
               // let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
-              groupUidNameList.unshift(ret);
+              groupName = groupName + "," + ret;
+              // groupUidNameList.unshift(ret);
             }
           })
           if(i > 3) {
             break;
           }
         }
-        groupName = groupUidNameList.join("、");
+        groupName = groupUidNameList.toString();
       }
       return groupName
     },
@@ -449,6 +452,7 @@ export default {
       await this.getGroupList(false);
       setTimeout(() => {
           this.$nextTick(() => {
+            ipcRenderer.on('updateGroupImg', this.updateGroupImg);
             this.showGroupIcon();
           })
       }, 0)

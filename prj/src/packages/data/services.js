@@ -1005,11 +1005,13 @@ const common = {
     }
   },
   
-  async downloadUserTAvatar(url, userId) {
+  async downloadUserTAvatar(url, userId, targetPath="") {
     var ret = "FILE_DOWNLOADING";
-    var targetDir = confservice.getUserThumbHeadPath();
-    var targetPath = path.join(targetDir, userId + '.png');
-    console.log("downloadUserTAvatar targetPath is ", targetPath);
+    if(targetPath.length == 0) {
+      var targetDir = confservice.getUserThumbHeadPath();
+      targetPath = path.join(targetDir, userId + '.png');
+      console.log("downloadUserTAvatar targetPath is ", targetPath);
+    }
     if(fs.existsSync(targetPath)) {
       return targetPath;
     }
@@ -1032,8 +1034,17 @@ const common = {
     }
   },
   
-  async downloadGroupAvatar(url, targetPath) {
-    ipcRenderer.send('download-avarar', [url, this.data.login.access_token, targetPath]);
+  async downloadGroupAvatar(url, groupId) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getUserThumbHeadPath();
+    var targetPath = path.join(targetDir, groupId + '.png');
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      ipcRenderer.send('download-avarar', [url, groupId, this.data.login.access_token, targetPath]);
+      return ret;
+    }
   },
   
   async getGroupAvatar(url) {

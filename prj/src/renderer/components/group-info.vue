@@ -4,7 +4,7 @@
             <ul class="groupMember-list">
                 <li class="addMember">
                     <div class="memberAddImg">
-                        <img class="memberImg" src="../../../static/Img/Chat/emoji@3x.png" height=40px  @click="showAddMembers">
+                        <img class="memberImg" src="../../../static/Img/Chat/emoji@2x.png" height=40px  @click="showAddMembers">
                     </div>
                     <div class="memberName">添加
                     </div>
@@ -107,6 +107,10 @@ export default {
         "cleanCache": {
             type: Boolean,
             default: false
+        },
+        'updateUser': {
+            type: Array,
+            default: []
         }
     },
     computed: {
@@ -231,12 +235,6 @@ export default {
                     var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.user_id));
                     distElement.setAttribute("src", targetPath);
                 }
-                else {
-                    if(!this.ipcInited) {
-                        ipcRenderer.on('updateUserImage', this.updateUserImage);
-                        this.ipcInited = true;
-                    }
-                }
             }
         },
         updateUserImage: function(e, args) {
@@ -322,7 +320,21 @@ export default {
                 this.groupAvarar = '';
                 this.groupNotice = '';
             }
-        }
+        },
+        updateUser: function() {
+            var state = this.updateUser[0];
+            var stateInfo = this.updateUser[1];
+            var id = this.updateUser[2];
+            var localPath = this.updateUser[3];
+
+            console.log("group info updateuserimage args ", this.updateUser)
+
+            var distElement = document.getElementById(this.getIdThroughMemberUid(id));
+            if(distElement == null) {
+                return
+            }
+            distElement.setAttribute("src", localPath);
+        },
     }
 }
 </script>

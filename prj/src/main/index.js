@@ -80,12 +80,13 @@ ipcMain.on("download-file", function(event, arg) {
 
 ipcMain.on("download-avarar", function(event, arg) {
   var baseURL = arg[0];
+  var groupId = arg[1];
   // console.log("downloadingList is ", downloadingList);
   if(downloadingList.indexOf(baseURL) != -1){
     return;
   }
-  var token = arg[1];
-  var distPath = arg[2];
+  var token = arg[2];
+  var distPath = arg[3];
   var distTemp = distPath + "_tmp";
   // console.log("distPath is ", distPath);
 
@@ -108,6 +109,7 @@ ipcMain.on("download-avarar", function(event, arg) {
           // fs.rename(distTemp, distPath);
           var index = downloadingList.indexOf(baseURL);
           downloadingList.splice(index, 1);
+          event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
         }));
     });
 });
@@ -187,8 +189,8 @@ ipcMain.on("download-image", function(event, arg) {
       ret.data.pipe(fs.createWriteStream(distPath)
         .on('finish', function() {
           // fs.rename(distTemp, distPath);
-          // console.log("distpath get is ", distPath);
-          event.sender.send('updateMsgImage', [true, '', timelineID, distPath, needOpen]);
+          console.log("distpath get is ", distPath);
+          event.sender.send('updateMsgFile', [true, '', timelineID, distPath, needOpen]);
         }));
     });
 });
