@@ -1254,13 +1254,15 @@ const common = {
     if (!result.ok || !result.success) {
       return result;
     }
+    return result;
   },
 
-  async UpdateGroupAvatar(groupID, filePath){
+  async UpdateGroupAvatar(groupID, filePath, url){
     let result = await this.api.UpdateGroupAvatar(this.data.login.access_token, groupID, filePath);
     if (!result.ok || !result.success) {
       return result;
     }
+    return result;
   },
 
   async GroupStatus(groupID, stickFlag, disturbFlag){

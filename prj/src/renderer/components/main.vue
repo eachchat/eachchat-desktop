@@ -85,6 +85,8 @@ export default {
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
+            console.log("the init user id is ,", this.curUserInfo.id)
+            confservice.init(this.curUserInfo.id);
             console.log("lognInfo is ", this.loginInfo);
             this.showCurUserIcon();
             // Get data from server and set in database
@@ -188,7 +190,6 @@ export default {
         })
     },
     created: async function () {
-        confservice.init(this.$store.state.userId);
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
         await this.getAppBaseData();
     },

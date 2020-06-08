@@ -1,61 +1,57 @@
 <template>
     <div class="groupInfo" id="groupInfoTipId">
+        <div class="groupInfoTitleDiv">
+            <p class="groupInfoTitle">设置</p>
+        </div>
+        <div class="groupInfo-view">
+            <div class="groupInfoImageDiv">
+                <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user.jpeg">
+                <img id="groupInfoImageChangeId" class="groupInfoImageChange" src="../../../static/Img/Chat/updateHeadImg-24px@2x.png" @click="updateGroupImg" v-show="isOwner">
+            </div>
+            <div class="groupInfoNoticeAndName">
+                <div class="groupInfoName">
+                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)" @mouseenter="showNameEdit" @mouseout="hideNameEdit"/>
+                    <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
+                </div>
+                <div class="groupInfoNotice" @click="updateGroupNotice">
+                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mouseenter="showNoticeEdit" @mouseout="hideNoticeEdit"/>
+                    <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId" v-show="isOwner"></p>
+                </div>
+            </div>
+        </div>
+        <div class="groupSettingSilenceDiv">
+            <label class="groupSettingSlienceLabel">消息免打扰</label>
+            <el-switch class="groupSettingSlienceSwitch" v-model="slienceState" @change="slienceStateChange(slienceState)">
+            </el-switch>
+        </div>
+        <div class="groupSettingTopDiv">
+            <label class="groupSettingTopLabel">置顶聊天</label>
+            <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
+            </el-switch>
+        </div>
+        <div class="groupSettingFavouriteDiv" v-show="isGroup">
+            <label class="groupSettingFavouriteLabel">保存到收藏</label>
+            <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
+            </el-switch>
+        </div>
+        <div class="groupSettingOwnerTransferDiv" v-show="isGroup">
+            <label class="groupSettingOwnerTransferLabel">群组转让</label>
+            <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
+        </div>
+        <div class="groupMemberAddDiv" v-show="isGroup">
+            <label class="groupMemberAddDivLabel">群成员</label>
+            <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png">
+        </div>
         <div class="groupMember-view">
             <ul class="groupMember-list">
-                <li class="addMember">
-                    <div class="memberAddImg">
-                        <img class="memberImg" src="../../../static/Img/Chat/emoji@2x.png" height=40px  @click="showAddMembers">
+                <li v-for="(item, index) in memberListShow" class="memberItem">
+                    <div class="groupMemberInfoDiv">
+                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" @click="showUserInfoTip">
+                        <label class="groupMemberInfoLabel">{{item.user_display_name}}</label>
                     </div>
-                    <div class="memberName">添加
-                    </div>
-                </li>
-                <li v-for="(item, index) in memberListShow" class="memberInfo">
-                    <div class="memberImg" :id="getIdThroughMemberUid2(item.user_id)" @click="showUserInfoTip">
-                        <img :id="getIdThroughMemberUid(item.user_id)" src="../../../static/Img/User/user.jpeg" height=40px>
-                    </div>
-                    <div class="memberName">{{item.user_display_name}}
-                    </div>
+                    <img class="groupMemberClickOut" src="../../../static/Img/Chat/delete-20px@2x.png">
                 </li>
             </ul>
-            <div class="addMore" v-show="isShowMore()" @click="showMore()">
-                更多.....
-            </div>
-        </div>
-        <div class="groupInfo-view" v-show="isGroup">
-            <div class="groupInfoNameDiv">
-                <label class="groupInfoNameLabel" for="群聊名称">群聊名称</label>
-                <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)"/>
-            </div>
-            <div class="groupInfoImageDiv">
-                <label class="groupInfoImageLabel">群聊头像</label>
-                <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user.jpeg" height="40px">
-            </div>
-            <div class="groupInfoNoticeDiv">
-                <label class="groupInfoNoticeLabel" for="群公告">群公告</label>
-                <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @keyup="keyUpdateGroupNotice($event)"/>
-            </div> 
-        </div>
-        <div class="groupSetting-view">
-            <div class="groupSettingSilenceDiv">
-                <label class="groupSettingSlienceLabel">消息免打扰</label>
-                <el-switch class="groupSettingSlienceSwitch" v-model="slienceState" @change="slienceStateChange(slienceState)">
-                </el-switch>
-            </div>
-            <div class="groupSettingTopDiv">
-                <label class="groupSettingTopLabel">置顶聊天</label>
-                <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
-                </el-switch>
-            </div>
-            <div class="groupSettingFavouriteDiv" v-show="isGroup">
-                <label class="groupSettingFavouriteLabel">保存到收藏</label>
-                <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
-                </el-switch>
-            </div> 
-        </div>
-        <div class="groupClear-view">
-            <p class="groupClearDiv" @click="clearAll()">
-                清空聊天记录
-            </p>
         </div>
         <div class="groupLeave-view" v-show="isGroup">
             <p class="groupLeaveDiv" @click="leave()">
@@ -75,8 +71,8 @@ import * as fs from 'fs-extra'
 import {services} from '../../packages/data/index.js'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
-import {ipcRenderer} from 'electron'
-import {getElementTop, getElementLeft} from '../../packages/core/Utils.js'
+import {ipcRenderer, remote} from 'electron'
+import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 export default {
     name: 'group-info',
     data() {
@@ -86,7 +82,6 @@ export default {
             memberListShow: [],
             absoluteTop: 0,
             absoluteLeft: 0,
-            allMemberList: [],
             groupName: '',
             groupAvarar: '',
             groupNotice: '',
@@ -95,6 +90,9 @@ export default {
             groupFavouriteState: true,
             groupId: '',
             isGroup: true,
+            isOwner: false,
+            nameEditElement: null,
+            noticeEditElement: null,
         }
     },
     components: {
@@ -111,11 +109,88 @@ export default {
         'updateUser': {
             type: Array,
             default: []
+        },
+        "updateNotice": {
+            type: String,
+            default: ""
         }
     },
     computed: {
     },
     methods: {
+        showNameEdit: function(e) {
+            console.log("show name edit ", e)
+            if(this.nameEditElement == null) {
+                this.nameEditElement = document.getElementById("groupInfoNameEditId");
+            }
+            this.nameEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;background-size: auto 100%;background-image: url('../../../static/Img/Chat/edit-20px@2x.png');background-repeat: no-repeat;"
+        },
+        hideNameEdit: function(e) {
+            console.log("show name edit ", e)
+            if(this.nameEditElement == null) {
+                this.nameEditElement = document.getElementById("groupInfoNameEditId");
+            }
+            this.nameEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
+        },
+        showNoticeEdit: function(e) {
+            console.log("show name edit ", e)
+            if(this.noticeEditElement == null) {
+                this.noticeEditElement = document.getElementById("groupInfoNoticeEditId");
+            }
+            this.noticeEditElement.style = "width: 20px;height: 20px;float: right;margin: 0px;padding: 0px;background-size: auto 100%;background-image: url('../../../static/Img/Chat/arrow-20px@2x.png');background-repeat: no-repeat;"
+        },
+        hideNoticeEdit: function(e) {
+            console.log("show name edit ", e)
+            if(this.noticeEditElement == null) {
+                this.noticeEditElement = document.getElementById("groupInfoNoticeEditId");
+            }
+            this.noticeEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
+        },
+        updateGroupImg: function(e, args) {
+            if(args != undefined && args.length != 0) {
+                var state = args[0];
+                var stateInfo = args[1];
+                var id = args[2];
+                var localPath = args[3];
+                if(id != this.groupId) {
+                    return;
+                }
+                let elementImg = document.getElementById("groupInfoImageId");
+                elementImg.setAttribute("src", "");
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                var reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
+            }
+            else {
+                remote.dialog.showOpenDialog({
+                        defaultPath: 'c:/',
+                        filters: [
+                                { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
+                            ],
+                        properties: ['multiSelections']
+                    }, async (files) => {
+                    if(files && files.length > 0) {
+                        var targetDir = confservice.getUserThumbHeadPath();
+                        var targetPath = path.join(targetDir, this.groupId + '.png');
+                        if(fs.existsSync(targetPath)) {
+                            fs.unlinkSync(targetPath);
+                        }
+                        var distFilePath = pathDeal(files[0]);
+                        
+                        var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
+                        console.log("ret is ", ret);
+                        // if(ret.ok == true && ret.success == true) {
+                        //     ipcRenderer.send('modifyGroupInfo', [this.groupId, distFilePath]);
+                        // }
+                        
+                    }
+                })
+            }
+        },
         showUserInfoTip: async function(e) {
             console.log("e ", e);
             var elementId = e.target.id;
@@ -160,32 +235,11 @@ export default {
             services.common.UpdateGroupName(this.groupId, this.newGroupName);
             this.groupName = this.newGroupName;
         },
-        keyUpdateGroupNotice: function(event) {
-            if(event.code == "Enter") {
-                if(this.newGroupNotice == this.groupNotice){
-                    return;
-                }
-                var updateGroupNoticeInputElement = document.getElementById("groupInfoNoticeInputId")
-                updateGroupNoticeInputElement.blur();
-                services.common.UpdateGroupNotice(this.groupId, this.newGroupNotice);
-                this.groupNotice == this.newGroupNotice;
-            }
-        },
-        updateGroupNotice: function() {
-            if(this.newGroupNotice == this.groupNotice){
-                return;
-            }
-            var updateGroupNoticeInputElement = document.getElementById("groupInfoNoticeInputId")
-            updateGroupNoticeInputElement.blur();
-            services.common.UpdateGroupNotice(this.groupId, this.newGroupNotice);
-            this.groupNotice == this.newGroupNotice;
+        updateGroupNotice: function(event) {
+            this.$emit("updateChatGroupNotice", this.groupId, this.groupNotice);
         },
         Close: function() {
             this.$emit("closeGroupInfo");
-        },
-        showMore: function() {
-            this.memberListShow = this.allMemberList
-            this.getMemberImage();
         },
         leave: function() {
             console.log("leave all");
@@ -247,12 +301,6 @@ export default {
             var distElement = document.getElementById(this.getIdThroughMemberUid(id));
             distElement.setAttribute("src", localPath);
         },
-        isShowMore: function() {
-            if(this.memberListShow.length == this.allMemberList.length) {
-                return false;
-            }
-            return true;
-        }
     },
     async created () {
         this.loginInfo = await services.common.GetLoginModel();
@@ -260,6 +308,11 @@ export default {
         this.curUserInfo = await services.common.GetSelfUserModel();
     },
     mounted() {
+        setTimeout(() => {
+            this.$nextTick(() => {
+                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
+            })
+        }, 0)
     },
     watch: {
         showGroupInfo: async function() {
@@ -275,36 +328,38 @@ export default {
             this.memberList = this.showGroupInfo.memberList;
             this.groupName = this.showGroupInfo.groupName;
             this.groupAvarar = this.showGroupInfo.groupAvarar;
-            this.groupNotice = this.showGroupInfo.groupNotice;
+            // this.groupNotice = this.showGroupInfo.groupNotice;
             this.groupId = this.showGroupInfo.groupId;
             this.isGroup = this.showGroupInfo.isGroup;
             this.slienceState = this.showGroupInfo.isSlience;
             this.groupTopState = this.showGroupInfo.isTop;
+            this.isOwner = this.showGroupInfo.isOwner;
             // console.log("this.groupTopState ", this.groupTopState)
             // console.log("this.slienceState ", this.slienceState)
             for(var i=0;i<this.memberList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
-                this.allMemberList.push(memberInfoTmp[0]);
-                if(i < 11) {
-                    this.memberListShow.push(memberInfoTmp[0]);
-                }
+                this.memberListShow.push(memberInfoTmp[0]);
             }
             // console.log("watch memberListShow is ", this.memberListShow);
             this.$nextTick(() => {
                 this.getMemberImage();
             })
             this.wholeTipElement.style.right = "0px";
-            this.wholeTipElement.style.top = "42px";
+            this.wholeTipElement.style.top = "0px";
 
             let elementImg = document.getElementById("groupInfoImageId");
             // console.log("elementImg is ", elementImg);
-            services.common.getGroupAvatar(this.groupAvarar)
-            .then((ret) => {
-                elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-                elementImg.onload = () => {
-                    URL.revokeObjectURL(elementImg.getAttribute("src"))
-                }
-            })
+            var targetPath = "";
+            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupAvarar, this.groupId))){
+                elementImg.setAttribute("src", targetPath);
+            }
+            // services.common.downloadGroupAvatar(this.groupAvarar, this.groupId);
+            // .then((ret) => {
+            //     elementImg.setAttribute("src", URL.createObjectURL(ret.data));
+            //     elementImg.onload = () => {
+            //         URL.revokeObjectURL(elementImg.getAttribute("src"))
+            //     }
+            // })
 
             if(this.groupNotice.length == 0) {
                 this.groupNotice = "未设置"
@@ -314,7 +369,6 @@ export default {
             console.log("cleancache is ", this.cleanCache)
             if(this.cleanCache) {
                 this.memberList = [];
-                this.allMemberList = [];
                 this.memberListShow = [];
                 this.groupName = '';
                 this.groupAvarar = '';
@@ -335,26 +389,29 @@ export default {
             }
             distElement.setAttribute("src", localPath);
         },
+        updateNotice: function() {
+            this.groupNotice = this.updateNotice;
+        },
     }
 }
 </script>
 
 <style lang="scss" scoped>
 .groupInfo {
-    height: calc(100% - 66px);
-    width: 220px;
-    padding: 10px;
-    border: 1.5px solid rgb(242, 242, 246);
-    box-shadow: 2px 2px 5px rgb(219,219,219);
-    background:  rgb(245,246,247);
+    height: 100%;
+    width: 280px;
+    padding: 0px;
+    border-radius: 2px;
+    background:rgba(255, 255, 255, 1);
     position: absolute;
     cursor: default;
-    overflow-y: scroll;
+    overflow-y: hidden;
+    box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
 }
 
-.groupMember-view {
-    max-height: 260px;
-    width: 220px;
+.groupInfoTitleDiv {
+    height: 56px;
+    width: 280px;
     padding: 0px;
     margin: 0px;
     border: 0px;
@@ -362,381 +419,350 @@ export default {
     cursor: default;
 }
 
+.groupInfoTitle {
+    font-size: 16px;
+    font-weight: 590;
+    height: 56px;
+    line-height: 56px;
+    margin: 0 0 0 16px;
+}
+
+.groupMember-view {
+    max-height: 144px;
+    width: 100%;
+    padding: 0px;
+    border: 0px;
+    background: rgba(255, 255, 255, 1);
+    cursor: default;
+    border-bottom: 1 solid rgba(221, 221, 221, 1);
+}
+
 .groupMember-list {
     list-style: none;
-    max-height: 260px;
+    max-height: 144px;
     margin: 0;
     padding: 0;
     display: block;
-    flex-direction: column;
     list-style: none;
-    // height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
-
-    & > li {
-        border: 1px solid rgb(242, 242, 246);
-        width: 40px !important;
-        height: 40px !important;
-        text-align: center;
-        display: inline-block;
-        line-height: 40px;
-        margin: 4px;
-        cursor: pointer;
-        & > img {
-        width: 100%;
-        height: 100%;
-        }
-    }
 }
 
-.memberImg {
-    width: 40px;
-    height: 40px;
+.memberItem {
+    width: 248px;
+    height: 48px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
-.memberAddImg {
-    width: 40px;
-    height: 40px;
+.groupMemberInfoDiv {
+    width: calc(100% - 48px);
+    height: 48px;
+    margin: 0px;
+    display: inline-block;
 }
 
-.memberName {
-    width: 40px;
-    height: 20px;
-    max-width: 40px;
-    max-height: 20px;
-    font-size: 12px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+.groupMemberInfoImage {
+    display: inline-block;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    width: 32px;
+    height: 32px;
 }
 
-.addMore {
-    width: 200px;
-    margin-top: 20px;
-    text-align: center;
+.groupMemberInfoLabel {
+    display: inline-block;
+    width: calc(100% - 68px);
+    height: 48px;
+    line-height: 48px;
+    vertical-align: top;
     font-size: 14px;
-    cursor: pointer;
-}
-
-.groupInfo-view {
-    margin-top: 15px;
-    padding: 5px 5px 5px 5px;
-    background: rgba(255, 255, 255, 1);
-    border-top: 1px solid rgb(245,246,247);
-}
-
-.groupInfoNameDiv {
-    width: 100%;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-.groupInfoNameLabel{
-    width: 100%;
-    font-size: 13px;
     font-family:Microsoft Yahei;
+    padding-left: 8px;
 }
 
-.groupInfoNameInput {
-    width: 100%;
-    border: 0px;
-    font-family:Microsoft Yahei;
-    font-size: 13px;
-}
-
-.groupInfoNameInput:focus {
-    width: 100%;
-    border: 0px;
-    outline: none;
-    font-family:Microsoft Yahei;
-    font-size: 13px;
-    border: 0px;
-}
-
-.groupInfoImageDiv {
-    width: 100%;
-    height: 40px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-.groupInfoImageLabel {
-    height: 40px;
-    font-size: 13px;
-    line-height: 40px;
-    font-family:Microsoft Yahei;
-}
-
-.groupInfoImage {
+.groupMemberClickOut {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    height: 20px;
+    width: 20px;
     float: right;
 }
 
-.groupInfoNoticeDiv {
-    width: 100%;
-    margin-top: 5px;
-    margin-bottom: 5px;
+.groupInfo-view {
+    background: rgba(255, 255, 255, 1);
+    height: 48px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
-.groupInfoNoticeLabel {
-    width: 100%;
-    font-size: 13px;
-    font-family:Microsoft Yahei;
+.groupInfoImageDiv {
+    width: 48px;
+    height: 48px;
+    margin: 0px;
+    display: inline-block;
+    position: relative;
 }
 
-.groupInfoNoticeInput {
+.groupInfoImage {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.groupInfoImageChange {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+
+.groupInfoNoticeAndName {
+    width: calc(100% - 56px);
+    height: 48px;
+    margin: 0px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.groupInfoName {
     width: 100%;
+    display: inline-block;
+}
+
+.groupInfoNameInput {
+    width: calc(100% - 30px);
     border: 0px;
     font-family:Microsoft Yahei;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: bold;
 }
 
-.groupInfoNoticeInput:focus {
-    width: 100%;
+.groupInfoNameInput:focus {
+    width: calc(100% - 30px);
     border: 0px;
     outline: none;
     font-family:Microsoft Yahei;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: bold;
+    border: 0px;
 }
 
-.groupSetting-view {
-    margin-top: 15px;
-    padding: 5px 5px 5px 5px;
-    background: rgba(255, 255, 255, 1);
-    border-top: 1px solid rgb(245,246,247);
+.groupInfoNameEdit {
+    width: 21px;
+    height: 21px;
+    float: right;
+    margin: 0px;
+    padding: 0px;
+}
+
+.groupInfoNameEdit:hover {
+    width: 21px;
+    height: 21px;
+    float: right;
+    margin: 0px;
+    padding: 0px;
+    background-size: auto 100%;
+    background-image: url("../../../static/Img/Chat/edit-20px@2x.png");
+    background-repeat: no-repeat;
+}
+
+.groupInfoNotice {
+    width: 100%;
+    display: inline-block;
+}
+
+.groupInfoNoticeInput {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family:Microsoft Yahei;
+    font-size: 12px;
+    color: rgba(103, 103, 103, 0.24);
+}
+
+.groupInfoNoticeInput:focus {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family:Microsoft Yahei;
+    font-size: 12px;
+    color: rgba(103, 103, 103, 0.24);
+}
+
+.groupInfoNoticeEdit {
+    width: 20px;
+    height: 20px;
+    float: right;
 }
 
 .groupSettingSilenceDiv {
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 1);
+    height: 48px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .groupSettingSlienceLabel {
-    font-size: 13px;
+    height: 48px;
+    line-height: 48px;
+    width: calc(100% - 68px);
+    font-size: 14px;
     font-family:Microsoft Yahei;
 }
 
 .groupSettingSlienceSwitch {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    height: 20px;
+    width: 32px;
     float: right;
 }
 
 .groupSettingTopDiv {
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 1);
+    height: 48px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .groupSettingTopLabel {
-    font-size: 13px;
+    height: 48px;
+    line-height: 48px;
+    width: calc(100% - 68px);
+    font-size: 14px;
     font-family:Microsoft Yahei;
 }
 
 .groupSettingTopSwitch {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    height: 20px;
+    width: 32px;
     float: right;
 }
 
 .groupSettingFavouriteDiv {
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 1);
+    height: 48px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .groupSettingFavouriteLabel {
-    font-size: 13px;
+    height: 48px;
+    line-height: 48px;
+    width: calc(100% - 68px);
+    font-size: 14px;
     font-family:Microsoft Yahei;
 }
 
 .groupSettingFavouriteSwitch {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    height: 20px;
+    width: 32px;
     float: right;
 }
 
-.groupClear-view{
-    margin-top: 15px;
-    padding: 5px 5px 5px 5px;
+.groupSettingOwnerTransferDiv {
     background: rgba(255, 255, 255, 1);
-    border-top: 1px solid rgb(245,246,247);
+    height: 48px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
-.groupClearDiv{
-    margin-top: 5px;
-    margin-bottom: 5px;
-    width: 100%;
-    border: 0px;
+.groupSettingOwnerTransferLabel {
+    height: 48px;
+    line-height: 48px;
+    width: calc(100% - 68px);
+    font-size: 14px;
     font-family:Microsoft Yahei;
-    font-size: 13px;
-    color: red;
-    text-align: center;
+}
+
+.groupSettingOwnerTransferImage {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    height: 20px;
+    width: 20px;
+    float: right;
+    cursor: pointer;
+}
+
+.groupMemberAddDiv {
+    background: rgba(255, 255, 255, 1);
+    height: 48px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.groupMemberAddDivLabel {
+    height: 48px;
+    line-height: 48px;
+    width: calc(100% - 68px);
+    font-size: 14px;
+    font-family:Microsoft Yahei;
+}
+
+.groupMemberAddDivImage {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    height: 20px;
+    width: 20px;
+    float: right;
+    cursor: pointer;
 }
 
 .groupLeave-view{
-    margin-top: 15px;
-    padding: 5px 5px 5px 5px;
+    height: 48px;
+    padding: 0px;
     background: rgba(255, 255, 255, 1);
-    border-top: 1px solid rgb(245,246,247);
+    border: 0px solid rgba(221, 221, 221, 1)
 }
 
 .groupLeaveDiv{
-    margin-top: 5px;
-    margin-bottom: 5px;
+    height: 48px;
     width: 100%;
     border: 0px;
+    padding: 0px;
+    margin: 0px;
     font-family:Microsoft Yahei;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: bold;
     color: red;
     text-align: center;
 }
 
 .groupDismiss-view{
-    margin-top: 15px;
-    padding: 5px 5px 5px 5px;
+    height: 48px;
+    padding: 0px;
     background: rgba(255, 255, 255, 1);
-    border-top: 1px solid rgb(245,246,247);
+    border: 0px;
 }
 
 .groupDismissDiv{
     margin-top: 5px;
     margin-bottom: 5px;
+    padding: 0px;
+    margin: 0px;
     width: 100%;
     border: 0px;
     font-family:Microsoft Yahei;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: bold;
     color: red;
     text-align: center;
 }
 
-.members {
-    width: 100%;
-    float:right;
-    margin-top: 8px;
-    margin-bottom: 8px;
-}
-
-.user-icon {
-    width: 56px;
-    height: 56px;
-    display: inline-block;
-    margin: 0px;
-    border-radius: 4px;
-}
-
-.user-baseInfo {
-    display: inline-block;
-    vertical-align: top;
-    height: 100%;
-    width: calc(100% - 72px);
-}
-
-.user-name {
-    height: 20px;
-    margin-top: 6px;
-    margin-bottom: 6px;
-    margin-left: 16px;
-    font-size: 16px;
-    line-height: 20px;
-}
-
-.user-title {
-    height: 18px;
-    margin-top: 0px;
-    margin-left: 16px;
-    font-size: 12px;
-    line-height: 18px;
-    color: rgb(153, 153, 153);
-}
-
-.userAction-view {
-    height: 54px;
-    width: 100%;
-    margin: 0px;
-    display: inline-block;
-    vertical-align: top;
-    border-bottom: 1px solid rgb(221, 221, 221);
-    margin-bottom: 8px;
-}
-
-.userAudioIcon {
-    height: 28px;
-    width: 28px;
-    margin-top: 13px;
-    margin-left: 0px;
-}
-
-.userVideoIcon {
-    height: 28px;
-    width: 28px;
-    margin-top: 13px;
-    margin-left: 14px;
-}
-
-.userChatIcon {
-    height: 28px;
-    width: 28px;
-    margin-top: 13px;
-    margin-left: 14px;
-}
-
-.userState-view {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-.userState-list {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-
-}
-
-.userOrganization-list {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-
-}
-
-.userContact-list {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
-
-.li {
-    height: 34px;
-    line-height: 34px;
-    width: 100%;
-}
-
-.userInfo-key {
-    display:inline-block;
-    line-height: 18px;
-    width: 48px;
-    font-size: 12px;
-    color: rgb(153, 153, 153);
-}
-
-.userInfo-value {
-    display:inline-block;
-    line-height: 18px;
-    width: 216px;
-    font-size: 12px;
-    padding-left: 20px;
-    cursor: pointer;
-}
-
-.userInfo-phone-value{
-    display:inline-block;
-    line-height: 18px;
-    width: 216px;
-    font-size: 12px;
-    padding-left: 20px;
-    color: rgb(62, 180, 240);
-    
-}
-
-.userOrganizationInfo-view {
-    width: 100%;
-    margin-bottom: 10px;
-}
 </style>

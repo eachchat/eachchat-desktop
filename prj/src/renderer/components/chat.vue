@@ -7,8 +7,11 @@
                 <p class="chat-name-state" id="chat-group-state"></p>
             </div>
             <div class="chat-tools">
-                <div class="chat-tool-more" @click="More()">
-                    <i class="el-icon-more"></i>
+                <div class="chat-tool-more-div" @click="More()">
+                    <img class="chat-tool-more-img" src="../../../static/Img/Chat/more@2x.png">
+                </div>
+                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
+                    <img class="chat-tool-invite-img" src="../../../static/Img/Chat/addMember@2x.png">
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
@@ -71,16 +74,17 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus"></groupInfoTip>
-        <el-dialog title="发起聊天" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice"></groupInfoTip>
+        <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
             <div class="el-dialog-content">
-                <chatGroupCreater :disable-users="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
+                <chatGroupCreater ref="chatGroupCreater" :disableUsers="disabledusers" @getCreateGroupUsersSelected="getUsersSelected">
                 </chatGroupCreater>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button class="dialog-confirm-button" type="primary" @click="AddNewMembers()">确 定</el-button>
             </span>
         </el-dialog>
+        <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
     </div>
 </template>
 
@@ -102,6 +106,7 @@ import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
 import transmit from './transmit.vue'
+import noticeEditDlg from './noticeEditDlg.vue'
 
 const {Menu, MenuItem} = remote;
 
@@ -179,9 +184,29 @@ export default {
         groupInfoTip,
         chatGroupCreater,
         transmit,
+        noticeEditDlg
     },
     props: ['chat'],
     methods: {
+        updateGroupImg: function(e, args) {
+            console.log("argsd is ", args);
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            if(id != this.chat.group_id) {
+                return;
+            }
+            let elementImg = document.getElementById("chat-group-img");
+            elementImg.setAttribute("src", "");
+            var showfu = new FileUtil(localPath);
+            let showfileObj = showfu.GetUploadfileobj();
+            var reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onloadend = () => {
+                elementImg.setAttribute("src", reader.result);
+            }
+        },
         rightClick(msgItem) {
             console.log("msgitem is ", msgItem)
             this.menu = new Menu();
@@ -253,8 +278,15 @@ export default {
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
         },
+        showAddMembersPrepare: function() {
+            var memeberList = this.chat.contain_user_ids.split(",");
+            this.showAddMembers(memeberList);
+        },
         showAddMembers: function(existedMembers){
+            this.groupCreaterTitle = "添加成员"
+            console.log("showaddmembers is ", this.disabledusers)
             this.disabledusers = existedMembers;
+            console.log("showaddmembers is ", this.disabledusers)
             this.dialogVisible = true;
         },
         AddNewMembers: function() {
@@ -320,7 +352,7 @@ export default {
             }
             var groupInfoElement = document.getElementById("groupInfoTipId");
             // console.log("e.target.classname ", e.target.className)
-            if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more" && e.target.className != "el-icon-more") {
+            if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more-div" && e.target.className != "chat-tool-more-img") {
                 this.showGroupInfoTips = false;
                 this.cleanCache = true;
             }
@@ -338,7 +370,7 @@ export default {
             console.log("getShowGroupName is ", chatGroupItem.group_id)
             var groupName = chatGroupItem.group_name;
             if(groupName.length == 0) {
-                var aboutUids = chatGroupItem.contain_user_ids;
+                var aboutUids = chatGroupItem.contain_user_ids.split(",");
                 var groupUidNameList = [];
                 for(var i=0;i<aboutUids.length;i++) {
                     let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
@@ -1229,8 +1261,8 @@ export default {
             return false;
         },
         groupIsTop(groupInfo) {
-            console.log("========groupIsTop status ", groupInfo.status)
-            console.log("========groupIsTop ", (Number(groupInfo.status) & Number("00000010"))!= 0)
+            // console.log("========groupIsTop status ", groupInfo.status)
+            // console.log("========groupIsTop ", (Number(groupInfo.status) & Number("00000010"))!= 0)
             if((Number(groupInfo.status) & Number("00000010")) != 0) {
                 // console.log("top grou name is ", groupInfo.group_name)
                 // console.log("group state is ", groupInfo.status)
@@ -1241,9 +1273,11 @@ export default {
         More: async function() {
             var isGroup = this.chat.group_type == 101 ? true : false;
             var idsList = this.chat.contain_user_ids.split(",");
+            var isOwner = (this.chat.owner == this.curUserInfo.id ? true : false);
             console.log("this.chat ", this.chat);
             console.log("this.isTop ", this.groupIsTop(this.chat))
             console.log("this.isSlience ", this.groupIsSlience(this.chat))
+            console.log("this.isOwner ", isOwner)
             var groupInfoObj = {
                 "memberList": idsList,
                 "groupName": this.chat.group_name,
@@ -1251,9 +1285,11 @@ export default {
                 "groupNotice": this.chat.group_notice,
                 "groupId": this.chat.group_id,
                 "isGroup": isGroup,
+                "isOwner": isOwner,
                 "isTop": this.groupIsTop(this.chat),
                 "isSlience": this.groupIsSlience(this.chat),
             }
+            this.updateNotice = this.chat.group_notice;
             this.groupInfo = groupInfoObj;
             // console.log("more more more ", this.chat.contain_user_ids.split(","))
             // var idsList = this.chat.contain_user_ids.split(",");
@@ -1362,6 +1398,23 @@ export default {
             console.log("======== ");
             this.$emit("updateChatGroupStatus", groupId, groupStatus, updateType);
         },
+        updateChatGroupNotice(groupId, originalNotice) {
+            console.log("==========")
+            this.noticeDialogVisible = true;
+            this.groupNoticeInfo = {};
+            this.groupNoticeInfo.originalNotice = originalNotice;
+            this.groupNoticeInfo.groupId = groupId;
+        },
+        closeNoticeDlg(content) {
+            if(content.length == 0) {
+                this.noticeDialogVisible = false;
+                this.groupNoticeInfo = {};
+            }
+            else {
+                this.noticeDialogVisible = false;
+                this.updateNotice = content;
+            }
+        },
         callback(msg) {
             // console.log("chat callback msg is ", msg);
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
@@ -1396,13 +1449,17 @@ export default {
     },
     data() {
         return {
+            groupCreaterTitle: '发起群聊',
+            groupNoticeInfo: {},
             updateUser:[],
+            updateNotice: "",
             updateMsg: {},
             menu: null,
             cleanCache: false,
             playingMsgId: '',
             multiSelect: false,
             dialogVisible: false,
+            noticeDialogVisible: false,
             disabledusers: [],
             groupInfo: {},
             groupContainUserIds: [],
@@ -1450,6 +1507,7 @@ export default {
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
                 this.showGroupName(this.chat);
+                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
             })
         }, 0)
         document.addEventListener('click',this.closeUserInfoTip)
@@ -1585,14 +1643,38 @@ export default {
         width: 200px;
     }
 
-    .chat-tool-more {
+    .chat-tool-more-div {
         display: inline-block;
         float: right;
         width: 32px;
         height: 32px;
         line-height: 100%;
-        padding: 0px 10px 0px 10px;
+        padding: 0px 6px 0px 6px;
         margin: 0px;
+    }
+
+    .chat-tool-more-img {
+        width: 24px;
+        height: 24px;
+        margin: 4px 0px 4px 0px;
+        padding: 0px;
+    }
+
+    .chat-tool-invite-div {
+        display: inline-block;
+        float: right;
+        width: 32px;
+        height: 32px;
+        line-height: 100%;
+        padding: 0px 6px 0px 6px;
+        margin: 0px;
+    }
+
+    .chat-tool-invite-img {
+        width: 24px;
+        height: 24px;
+        margin: 4px 0px 4px 0px;
+        padding: 0px;
     }
 
     .chat-tool-call {
@@ -1789,8 +1871,8 @@ export default {
     }
 
     .el-icon-more {
-        width: 24px;
-        height: 24px;
+        width: 32px;
+        height: 32px;
         margin: 0px;
         padding: 0px;
     }
@@ -1870,6 +1952,51 @@ export default {
         font-family: 'Microsoft YaHei';
         overflow-y: scroll;
         overflow-x: hidden;
+    }
+
+    .el-dialog__body {
+        padding-top: 0px;
+        padding-left: 32px;
+        padding-right: 32px;
+        padding-bottom: 0px;
+    }
+
+    .groupNotice {
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-indent: 10px;
+        width:376px;
+        height:280px;
+        background:rgba(255,255,255,1);
+        border-radius:4px 0px 0px 4px;
+        border:1px solid rgba(221,221,221,1);
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .groupNotice:focus {
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-indent: 10px;
+        width:376px;
+        height:280px;
+        background:rgba(255,255,255,1);
+        border-radius:4px 0px 0px 4px;
+        border:1px solid rgba(221,221,221,1);
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .notice-dialog-footer {
+        text-align: center;
+    }
+
+    .dialog-confirm-button {
+        width: 100px;
+        height: 32px;
+    }
+
+    .dialog-cancle-button {
+        width: 100px;
+        height: 32px;
     }
 
 </style>

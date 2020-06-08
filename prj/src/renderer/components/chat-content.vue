@@ -52,7 +52,7 @@ import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer} from 'electron'
 // import listItem from './list-item.vue'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil} from '../../packages/core/Utils.js'
 
 export default {
   components: {
@@ -113,7 +113,15 @@ export default {
       var localPath = arg[3];
 
       let elementImg = document.getElementById(id);
-      elementImg.setAttribute("src", localPath);
+
+      elementImg.setAttribute("src", "");
+      var showfu = new FileUtil(localPath);
+      let showfileObj = showfu.GetUploadfileobj();
+      var reader = new FileReader();
+      reader.readAsDataURL(showfileObj);
+      reader.onloadend = () => {
+          elementImg.setAttribute("src", reader.result);
+      }
     },
     showGroupIcon: async function() {
       for(var i=0;i<this.showGroupList.length;i++) {
@@ -561,16 +569,19 @@ export default {
 
   .group {
     height: 60px;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group:hover {
     height: 60px;
     background-color: rgba(221, 221, 221, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group.active {
     height: 60px;
     background-color: rgba(221, 221, 221, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-ico {

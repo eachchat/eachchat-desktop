@@ -252,6 +252,12 @@ ipcMain.on('open-directory-dialog', function(event, arg) {
   })
 });
 
+ipcMain.on('modifyGroupImg', function(event, arg) {
+  var groupId = arg[0];
+  var distPath = arg[1];
+  event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
+});
+
 ipcMain.on('win-close', function(event, arg) {
   mainPageWindow.close();
 });

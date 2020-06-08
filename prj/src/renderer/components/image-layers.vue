@@ -187,11 +187,11 @@ export default {
 
 <style lang="scss" scoped>
     .ImageLayers {
-        height: calc(100% - 20px);
-        width: calc(100% - 64px);
-        position: absolute;
-        top:20px;
-        left:64px;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        top:0px;
+        left:0px;
         background: rgba(0, 0, 0, 0.6);
     }
 
