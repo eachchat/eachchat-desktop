@@ -74,7 +74,7 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
         <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater ref="chatGroupCreater" :disableUsers="disabledusers" @getCreateGroupUsersSelected="getUsersSelected">
@@ -85,6 +85,7 @@
             </span>
         </el-dialog>
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
+        <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
     </div>
 </template>
 
@@ -107,6 +108,7 @@ import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
 import transmit from './transmit.vue'
 import noticeEditDlg from './noticeEditDlg.vue'
+import ownerTransferDlg from './ownerTransfer.vue'
 
 const {Menu, MenuItem} = remote;
 
@@ -184,10 +186,14 @@ export default {
         groupInfoTip,
         chatGroupCreater,
         transmit,
-        noticeEditDlg
+        noticeEditDlg,
+        ownerTransferDlg
     },
     props: ['chat'],
     methods: {
+        handleDialogClose() {
+            this.$refs.chatGroupCreater.initData();
+        },
         updateGroupImg: function(e, args) {
             console.log("argsd is ", args);
             var state = args[0];
@@ -352,9 +358,10 @@ export default {
             }
             var groupInfoElement = document.getElementById("groupInfoTipId");
             // console.log("e.target.classname ", e.target.className)
-            if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more-div" && e.target.className != "chat-tool-more-img") {
+            if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more-div" && e.target.className != "chat-tool-more-img" && e.target.className != "groupMemberSearchImage" && e.target.className != "searchMemberCancel") {
                 this.showGroupInfoTips = false;
                 this.cleanCache = true;
+                this.groupInfo = {};
             }
         },
         showExpression: function() {
@@ -1288,6 +1295,7 @@ export default {
                 "isOwner": isOwner,
                 "isTop": this.groupIsTop(this.chat),
                 "isSlience": this.groupIsSlience(this.chat),
+                "ownerId": this.chat.owner,
             }
             this.updateNotice = this.chat.group_notice;
             this.groupInfo = groupInfoObj;
@@ -1415,6 +1423,14 @@ export default {
                 this.updateNotice = content;
             }
         },
+        showOwnerTransferDlg() {
+            this.ownerTransferDialogVisible = true;
+            this.ownerTransferchat = this.chat;
+        },
+        closeOwnerTransferDlg() {
+            this.ownerTransferDialogVisible = false;
+            this.ownerTransferchat = {};
+        },
         callback(msg) {
             // console.log("chat callback msg is ", msg);
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
@@ -1460,6 +1476,8 @@ export default {
             multiSelect: false,
             dialogVisible: false,
             noticeDialogVisible: false,
+            ownerTransferDialogVisible: false,
+            ownerTransferchat: {},
             disabledusers: [],
             groupInfo: {},
             groupContainUserIds: [],

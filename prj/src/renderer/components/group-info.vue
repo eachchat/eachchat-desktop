@@ -10,11 +10,11 @@
             </div>
             <div class="groupInfoNoticeAndName">
                 <div class="groupInfoName">
-                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)" @mouseenter="showNameEdit" @mouseout="hideNameEdit"/>
+                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
                 </div>
                 <div class="groupInfoNotice" @click="updateGroupNotice">
-                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mouseenter="showNoticeEdit" @mouseout="hideNoticeEdit"/>
+                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
                     <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId" v-show="isOwner"></p>
                 </div>
             </div>
@@ -24,7 +24,7 @@
             <el-switch class="groupSettingSlienceSwitch" v-model="slienceState" @change="slienceStateChange(slienceState)">
             </el-switch>
         </div>
-        <div class="groupSettingTopDiv">
+        <div class="groupSettingTopDiv" v-show="isOwner">
             <label class="groupSettingTopLabel">置顶聊天</label>
             <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
             </el-switch>
@@ -34,22 +34,29 @@
             <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
             </el-switch>
         </div>
-        <div class="groupSettingOwnerTransferDiv" v-show="isGroup">
-            <label class="groupSettingOwnerTransferLabel">群组转让</label>
+        <div class="groupSettingOwnerTransferDiv" v-show="isGroup" @click="ownerTransfer">
+            <label class="groupSettingOwnerTransferLabel">转让群主</label>
             <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
         </div>
-        <div class="groupMemberAddDiv" v-show="isGroup">
-            <label class="groupMemberAddDivLabel">群成员</label>
-            <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png">
+        <div class="groupMemberDiv" v-show="isGroup">
+            <div class="groupMemberSearchDiv" v-if="isSearch">
+                <input type="text" class="searchMemberInput" v-model="searchKey" @input="searchMember">
+                <p class="searchMemberCancel" @click="showAdd">取消</p>
+            </div>
+            <div class="groupMemberAddDiv" v-else>
+                <label class="groupMemberAddDivLabel">群成员</label>
+                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px.png" @click="showSearch">
+                <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
+            </div>
         </div>
-        <div class="groupMember-view">
+        <div class="groupMember-view" v-show="isOwner">
             <ul class="groupMember-list">
-                <li v-for="(item, index) in memberListShow" class="memberItem">
+                <li v-for="(item, index) in memberListShow" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
                     <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" @click="showUserInfoTip">
                         <label class="groupMemberInfoLabel">{{item.user_display_name}}</label>
                     </div>
-                    <img class="groupMemberClickOut" src="../../../static/Img/Chat/delete-20px@2x.png">
+                    <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)">
                 </li>
             </ul>
         </div>
@@ -58,7 +65,7 @@
                 退出群聊
             </p>
         </div>
-        <div class="groupDismiss-view" v-show="isGroup">
+        <div class="groupDismiss-view" v-show="isGroup && isOwner">
             <p class="groupDismissDiv" @click="dismiss()">
                 解散群聊
             </p>
@@ -80,6 +87,7 @@ export default {
             newGroupName: '',
             newGroupNotice: '',
             memberListShow: [],
+            memberListShowOriginal: [],
             absoluteTop: 0,
             absoluteLeft: 0,
             groupName: '',
@@ -93,6 +101,10 @@ export default {
             isOwner: false,
             nameEditElement: null,
             noticeEditElement: null,
+            isSearch: false,
+            searchKey: "",
+            searchId: 0,
+            ownerId: '',
         }
     },
     components: {
@@ -118,33 +130,103 @@ export default {
     computed: {
     },
     methods: {
+        notOwner: function(distUser) {
+            if(distUser.user_id == this.ownerId) {
+                return false;
+            }
+            return true;
+        },
+        deleteMember: async function(distUser) {
+            var ret = await services.common.DeleteGroupUsers(this.groupId, [distUser.user_id]);
+            console.log("ret is ", ret);
+            if(ret) {
+                for(let i=0;i<this.memberListShow.length;i++) {
+                    if(this.memberListShow[i].user_id == distUser.user_id) {
+                        this.memberListShow.slice(i, 1);
+                        break;
+                    }
+                }
+                for(let i=0;i<this.memberListShowOriginal.length;i++) {
+                    if(this.memberListShowOriginal[i].user_id == distUser.user_id) {
+                        this.memberListShowOriginal.slice(i, 1);
+                        break;
+                    }
+                }
+            }
+        },
+        ownerTransfer: function() {
+            this.$emit("showOwnerTransferDlg");
+        },
+        searchMember: function() {
+            if(this.searchKey.length == 0) {
+                this.memberListShow = this.memberListShowOriginal;
+                this.getMemberImage();
+            }
+            var curSearchId = new Date().getTime();
+            console.log("searchkey is ", this.searchKey);
+            var searchResult = {
+                "id": curSearchId,
+                "searchList": []
+            };
+            this.searchId = curSearchId;
+            for(let i=0;i<this.memberListShowOriginal.length;i++) {
+                if(this.memberListShowOriginal[i].user_display_name.indexOf(this.searchKey) != -1) {
+                    searchResult.searchList.push(this.memberListShowOriginal[i]);
+                }
+            }
+
+            if(searchResult.id == this.searchId) {
+                this.memberListShow = searchResult.searchList;
+                this.getMemberImage();
+            }
+        },
+        showSearch: function() {
+            console.log("showsearch ");
+            this.isSearch = true;
+        },
+        showAdd: function() {
+            this.memberListShow = this.memberListShowOriginal;
+            this.isSearch = false;
+        },
         showNameEdit: function(e) {
-            console.log("show name edit ", e)
+            // console.log("show name edit ", e)
             if(this.nameEditElement == null) {
                 this.nameEditElement = document.getElementById("groupInfoNameEditId");
             }
             this.nameEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;background-size: auto 100%;background-image: url('../../../static/Img/Chat/edit-20px@2x.png');background-repeat: no-repeat;"
         },
         hideNameEdit: function(e) {
-            console.log("show name edit ", e)
+            // console.log("show name edit ", e)
             if(this.nameEditElement == null) {
                 this.nameEditElement = document.getElementById("groupInfoNameEditId");
             }
             this.nameEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
         },
         showNoticeEdit: function(e) {
-            console.log("show name edit ", e)
+            // console.log("show name edit ", e)
             if(this.noticeEditElement == null) {
                 this.noticeEditElement = document.getElementById("groupInfoNoticeEditId");
             }
             this.noticeEditElement.style = "width: 20px;height: 20px;float: right;margin: 0px;padding: 0px;background-size: auto 100%;background-image: url('../../../static/Img/Chat/arrow-20px@2x.png');background-repeat: no-repeat;"
         },
         hideNoticeEdit: function(e) {
-            console.log("show name edit ", e)
+            // console.log("hide name edit ", e)
             if(this.noticeEditElement == null) {
                 this.noticeEditElement = document.getElementById("groupInfoNoticeEditId");
             }
             this.noticeEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
+        },
+        showDeleteButton: function(distUser) {
+            // console.log("show name edit ", distUser)
+            var distId = this.getDeleteIdThroughMemberUid(distUser.user_id)
+            var userDeleteElement = document.getElementById(distId);
+            userDeleteElement.style.opacity = 1; 
+        },
+        hideDeleteButton: function(distUser) {
+            // console.log("hide name edit ", distUser)
+            var distId = this.getDeleteIdThroughMemberUid(distUser.user_id)
+            var userDeleteElement = document.getElementById(distId);
+            userDeleteElement.style.opacity = 0; 
         },
         updateGroupImg: function(e, args) {
             if(args != undefined && args.length != 0) {
@@ -241,11 +323,11 @@ export default {
         Close: function() {
             this.$emit("closeGroupInfo");
         },
-        leave: function() {
-            console.log("leave all");
+        leave: async function() {
+            var ret = await services.common.QuitGroup(this.groupId);
         },
-        dismiss: function() {
-            console.log("leave all");
+        dismiss: async function() {
+            var ret = await services.common.DeleteGroup(this.groupId);
         },
         clearAll: function() {
             console.log("clear all");
@@ -273,8 +355,8 @@ export default {
         getIdThroughMemberUid: function(memberUid) {
             return "member-img-id-" + memberUid;
         },
-        getIdThroughMemberUid2: function(memberUid) {
-            return "member-img-div-id-" + memberUid;
+        getDeleteIdThroughMemberUid: function(memberUid) {
+            return "delete-member-id-" + memberUid;
         },
         getUidThroughElementId: function(elementId) {
             var uid = elementId.slice("member-img-div-id-".length, elementId.length);
@@ -322,7 +404,7 @@ export default {
             }
             // console.log("this.showGroupInfo ", this.showGroupInfo)
             // console.log("this.wholeTipElement ", this.wholeTipElement)
-            if(this.showGroupInfo == undefined || this.wholeTipElement == null) {
+            if(this.showGroupInfo.groupNotice == undefined || this.wholeTipElement == null) {
                 return;
             }
             this.memberList = this.showGroupInfo.memberList;
@@ -334,11 +416,13 @@ export default {
             this.slienceState = this.showGroupInfo.isSlience;
             this.groupTopState = this.showGroupInfo.isTop;
             this.isOwner = this.showGroupInfo.isOwner;
+            this.ownerId = this.showGroupInfo.ownerId;
             // console.log("this.groupTopState ", this.groupTopState)
             // console.log("this.slienceState ", this.slienceState)
             for(var i=0;i<this.memberList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
                 this.memberListShow.push(memberInfoTmp[0]);
+                this.memberListShowOriginal.push(memberInfoTmp[0]);
             }
             // console.log("watch memberListShow is ", this.memberListShow);
             this.$nextTick(() => {
@@ -370,6 +454,7 @@ export default {
             if(this.cleanCache) {
                 this.memberList = [];
                 this.memberListShow = [];
+                this.memberListShowOriginal = [];
                 this.groupName = '';
                 this.groupAvarar = '';
                 this.groupNotice = '';
@@ -487,6 +572,7 @@ export default {
     height: 20px;
     width: 20px;
     float: right;
+    opacity: 0;
 }
 
 .groupInfo-view {
@@ -549,6 +635,7 @@ export default {
     font-size: 15px;
     font-weight: bold;
     border: 0px;
+    outline: none;
 }
 
 .groupInfoNameEdit {
@@ -589,6 +676,7 @@ export default {
     font-family:Microsoft Yahei;
     font-size: 12px;
     color: rgba(103, 103, 103, 0.24);
+    outline: none;
 }
 
 .groupInfoNoticeEdit {
@@ -698,7 +786,7 @@ export default {
     cursor: pointer;
 }
 
-.groupMemberAddDiv {
+.groupMemberDiv {
     background: rgba(255, 255, 255, 1);
     height: 48px;
     padding-top: 0px;
@@ -707,10 +795,72 @@ export default {
     padding-right: 16px;
 }
 
+.groupMemberSearchDiv {
+    height: 48px;
+    width: 100%;
+}
+
+.searchMemberInput {
+    display: inline-block;
+    height: 24px;
+    line-height: 24px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    width: calc(100% - 56px);
+    font-size: 14px;
+    font-family:Microsoft Yahei;
+    padding: 0px;
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 2px;
+}
+
+.searchMemberInput:focus {
+    display: inline-block;
+    height: 24px;
+    line-height: 24px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    width: calc(100% - 56px);
+    font-size: 14px;
+    font-family:Microsoft Yahei;
+    padding: 0px;
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 2px;
+    outline: none;
+}
+
+.searchMemberCancel {
+    display: inline-block;
+    padding-right: 6px;
+    margin: 0px;
+    height: 48px;
+    line-height: 48px;
+    float: right;
+    font-size: 14px;
+    cursor: pointer;
+    color: rgba(153, 153, 153, 1);
+}
+
+.searchMemberCancel:hover {
+    display: inline-block;
+    padding-right: 6px;
+    margin: 0px;
+    height: 48px;
+    line-height: 48px;
+    float: right;
+    font-size: 14px;
+    cursor: pointer;
+    color: rgba(36, 179, 107, 1);
+}
+
+.groupMemberAddDiv {
+    height: 48px;
+}
+
 .groupMemberAddDivLabel {
     height: 48px;
     line-height: 48px;
-    width: calc(100% - 68px);
+    width: calc(100% - 136px);
     font-size: 14px;
     font-family:Microsoft Yahei;
 }
@@ -718,6 +868,17 @@ export default {
 .groupMemberAddDivImage {
     padding-top: 14px;
     padding-bottom: 14px;
+    padding-right: 6px;
+    height: 20px;
+    width: 20px;
+    float: right;
+    cursor: pointer;
+}
+
+.groupMemberSearchImage {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 6px;
     height: 20px;
     width: 20px;
     float: right;
