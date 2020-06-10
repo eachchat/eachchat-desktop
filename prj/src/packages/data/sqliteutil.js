@@ -285,8 +285,17 @@ const Department = {
         let departments = await (await models.Department).find({
             department_id: departmentID
         });
-        if(departments.length != 0){
+        if(departments.length == 1){
             return departments[0].admin_id;
+        }
+    },
+
+    async GetDepartmentInfo(departmentID){
+        let departments = await (await models.Department).find({
+            department_id: departmentID
+        });
+        if(departments.length == 1){
+            return departments[0];
         }
     }
 };
@@ -295,6 +304,13 @@ const UserInfo = {
     async GetUserinfoByDepartmentID(departmentID){
         let userinfos = await(await models.UserInfo).find({
             belong_to_department_id: departmentID
+        })
+        return userinfos;
+    },
+
+    async GetDepartmentByUserID(userID){
+        let userinfos = await(await models.UserInfo).find({
+            user_id: userID
         })
         return userinfos;
     },
