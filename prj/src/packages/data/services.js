@@ -706,7 +706,7 @@ const common = {
     }
   },
 
-  async groupIncrement(updateTime, notification){
+  async groupIncrement(updateTime, notification, callback = undefined){
     let result = await this.api.groupIncrement(this.data.login.access_token, updateTime, notification);
 
     if (!result.ok || !result.success) {
@@ -730,6 +730,9 @@ const common = {
         groupModel = await servicemodels.IncrementGroupModel(groupItem);
       }
       groupModel.save();
+      if(callback != undefined){
+        callback(groupModel);
+      }
       if(groupModel.status[5] == 1){
         await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
       }
