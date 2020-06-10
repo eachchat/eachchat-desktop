@@ -1304,6 +1304,13 @@ const common = {
     if (!result.ok || !result.success) {
       return result;
     }
+  },
+
+  async TransferGroup(groupID, toUserID){
+    let result = await this.api.TransferGroup(this.data.login.access_token, groupID, toUserID);
+    if (!result.ok || !result.success) {
+      return result;
+    }
   }
 };
 

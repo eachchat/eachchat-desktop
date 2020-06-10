@@ -571,6 +571,19 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async TransferGroup(accessToken, groupID, toUserID){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/transfer",
+      {
+        "gropuId" : groupID,
+        "toUserId" : toUserID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}
