@@ -290,7 +290,13 @@ const Department = {
         }
     },
 
-    async GetDepartmentInfo(departmentID){
+    async GetDepartmentInfoByUserID(userID){
+        let userinfo = await UserInfo.GetUserInfo(userID);
+        if(userinfo != undefined)
+            return await this.GetDepartmentInfoByDepartmentID(userinfo.belong_to_department_id);
+    },
+
+    async GetDepartmentInfoByDepartmentID(departmentID){
         let departments = await (await models.Department).find({
             department_id: departmentID
         });
@@ -308,11 +314,12 @@ const UserInfo = {
         return userinfos;
     },
 
-    async GetDepartment(userID){
+    async GetUserInfo(userID){
         let userinfos = await(await models.UserInfo).find({
             user_id: userID
         })
-        return userinfos;
+        if(userinfos.length != 0)
+            return userinfos[0];
     },
     
     async GetUserAddress(userID){
