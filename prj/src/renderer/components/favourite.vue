@@ -99,7 +99,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 ::-webkit-scrollbar {
 /*隐藏滚轮*/
 display: none;
@@ -125,77 +125,28 @@ display: none;
     // border-top: 1px solid rgb(221, 221, 221);
     // border-bottom: 1px solid rgb(221, 221, 221);
 }
-.recentUsers-view {
-    width: 100%;
-    height: 70%;
-    padding: 0;
-    margin: 0;
-}
-.recentUsers-menu-list {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    overflow: scroll;
-}
-.user {
-    height: 64px;
+.item {
+    height: 60px;
     cursor: pointer;
     //border-bottom: 1px solid rgb(221, 221, 221);
-}
-.user-icon {
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    margin-left: 36px;
-    margin-top: 12px;
-    margin-right: 0px;
-    margin-bottom: 12px;
-    border-radius: 4px;
-}
-.user-info {
-    display: inline-block;
-    vertical-align: top;
-    height: 100%;
-    width: calc(100% - 108px);
-}
-.user-name {
-    height: 20px;
-    width: 100%;
-    margin-top: 12px;
-    margin-bottom: 2px;;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-}
-.user-title {
-    height: 20px;
-    width: 100%;
-    margin-top: 0px;
-    margin-bottom: 12px;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-}
-
-.item {
-    height: 64px;
-    cursor: pointer;
-    border-bottom: 1px solid rgb(221, 221, 221);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
     background-color: white;
 }
-
-.item:hover {
-    height: 64px;
-    //background-color:red;
+.item:hover{
+    height: 60px;
+    background:rgba(243,244,247,1);
 }
+.item:active {
+    height: 60px;
+    background:rgba(243,244,247,1);
+}
+
 .item-icon {
-    width: 40px;
-    height: 40px;
+    width: 24px;
+    height: 24px;
     display: inline-block;
-    margin-left: 16px;
-    margin-top: 12px;
+    margin-left: 24px;
+    margin-top: 18px;
     margin-right: 0px;
     margin-bottom: 12px;
     border-radius: 4px;
@@ -210,10 +161,13 @@ display: none;
     text-align: left;
     height: 40%;
     width: 70%;
-    margin-top: 21px;
-    margin-left: 16px;
+    margin-top: 19px;
+    margin-left: 12px;
     font-size: 14px;
-    line-height: 22px;
+    font-weight:400;
+    color:rgba(0,0,0,1);
+    line-height:20px;
+    letter-spacing:1px;
 }
 .item-arrow {
     display: inline-block;
@@ -223,25 +177,12 @@ display: none;
 }
 .right-arrow {
     margin-left: 6.5px;
-    margin-top: 25.5px;
+    margin-top: 23.5px;
     margin-right: 0px;
     margin-bottom: 0px;
     width: 7px;
     height: 13px;
 }
-.organization {
-    width:100%;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    margin: 0px;
-}
-
-.el-dialog {
-    height: 250px;
-    overflow: none;
-}
-
 
 .el-container {
     width: auto;
