@@ -263,6 +263,26 @@ const sqliteutil = {
     }
 }
 
+const Department = {
+    async GetRoot(){
+        let departments = await (await models.Department).find({
+        });
+        for(let index in departments){
+            if(departments[index].parent_id == "")
+                return departments[index];
+        }        
+    },
+
+    async GetSubDepartment(departmentID){
+        let departments = await (await models.Department).find({
+            parent_id: departmentID
+        });
+        return departments
+         
+    }
+};
+
 export{
-    sqliteutil
+    sqliteutil,
+    Department
 }

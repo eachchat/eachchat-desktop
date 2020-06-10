@@ -6,10 +6,10 @@
 
 import * as services from './services.js'
 import {environment} from './environment.js'
-import * as tabelmethod from "./tabelmethod.js"
+import * as sqliteutil from "./sqliteutil.js"
 
 export {
   services,
   environment,
-  tabelmethod
+  sqliteutil
 }
