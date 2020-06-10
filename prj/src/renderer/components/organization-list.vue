@@ -1,6 +1,6 @@
 <template>
     <el-container>
-        <el-header height="55px" class="organization-header">
+        <el-header height="56px" class="organization-header">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item v-for="(item, index) in breadCrumbs" :key="index">
                     <a href="javascript:void(0)" 
@@ -37,10 +37,12 @@
                             v-for="(manager, index) in managers"
                             @click="userMenuItemClicked(manager.user_id)" 
                             :key="index">
-                            <img class="manager-icon" :src="manager.avatar_t_url">
+                            <img class="manager-icon" :id="manager.user_id" :src="getUserImg(manager)">
+                            <!-- <img class="manager-icon" :src="manager.avatar_t_url"> -->
                             <div class="manager-info">
                                 <p class="manager-name">{{ manager.user_display_name }}</p>
                                 <p class="manager-title">{{ manager.user_title }}</p>
+                                <!-- <p>{{ userAvatarPaths[manager.user_id] }}</p> -->
                             </div>
                         </li>
                     </ul>
@@ -54,7 +56,7 @@
                             v-for="(manager, index) in users"
                             @click="userMenuItemClicked(manager.user_id)" 
                             :key="index">
-                            <img class="manager-icon" :src="manager.avatar_t_url">
+                            <img class="manager-icon" :id="manager.user_id" :src="getUserImg(manager)">
                             <div class="manager-info">
                                 <p class="manager-name">{{ manager.user_display_name }}</p>
                                 <p class="manager-title">{{ manager.user_title }}</p>
@@ -73,6 +75,11 @@
     </el-container>
 </template>
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
+//import { services } from '../../packages/data'
+import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
@@ -95,6 +102,7 @@ export default {
             managers: [],
             userInfo: {},
             showUserInfoDrawer: false,
+            userAvatarPaths:{},
         }
     },
     methods: {
@@ -137,6 +145,7 @@ export default {
             for (var i = 0; i < this.allUsers.length; i ++) {
                 var user = this.allUsers[i];
                 if (user.belong_to_department_id == id) {
+                    //this.setLocalUserAvatarPath(user);
                     tempUsers.push(user);
                     if (user.manager) {
                         tempManagers.push(user);
@@ -198,6 +207,63 @@ export default {
             }
             this.userInfo = tempUserInfo;
             this.showUserInfoDrawer = true;
+        },
+        setLocalUserAvatarPath(userInfo){
+            var userId = userInfo.user_id;
+            var userAvatarUrl = userInfo.acatar_t_url;
+            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            if(fs.existsSync(localPath)){
+                this.userAvatarPaths[userId] = localPath;
+            }
+            else{
+                this.userAvatarPaths[userId] = '../../../static/Img/User/user.jpeg';
+                this.getUserImg(userInfo);
+            }
+
+        },
+        getUserImg: async function (userInfo){
+            console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            if(userInfo.user_id == undefined || userInfo == null) {
+                return "";
+            }
+            // var userId = userInfo.user_id;
+            // var userAvatarUrl = userInfo.acatar_t_url;
+            // var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            // let userIconElement = document.getElementById(userInfo.user_id);
+            // if(fs.existsSync(localPath)){
+                
+            //     userIconElement.setAttribute("src", localPath);
+            //     var showfu = new FileUtil(localPath);
+            //     let showfileObj = showfu.GetUploadfileobj();
+            //     let reader = new FileReader();
+            //     reader.readAsDataURL(showfileObj);
+            //     reader.onloadend = () => {
+            //         userIconElement.setAttribute("src", reader.result);
+            //     }
+            // }
+            // else{
+            //     userIconElement.setAttribute("src", "../../../static/Img/User/user.jpeg");
+            // }
+            var targetPath = "";
+            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id))) {
+                let userIconElement = document.getElementById(userInfo.user_id);
+                userIconElement.setAttribute("src", targetPath);
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    userIconElement.setAttribute("src", reader.result);
+                }
+                //this.setLocalUserAvatarPath(userInfo);
+                return;
+            }
+            // else {
+            //     if(!this.ipcInited) {
+            //         ipcRenderer.on('updateUserTipImage', this.updateUserTipImage);
+            //         this.ipcInited = true;
+            //     }
+            // }
         },
         getAppBaseData:async function() {
             this.allDepartments = await services.common.GetAllDepartmentsModel();
@@ -329,21 +395,16 @@ display: none;
 .organization-header {
     display: float;
     width: 100%;
-    height: 55px;
+    height: 56px;
     background-color: rgb(255, 255, 255);
-    border-bottom: 1px solid rgb(221, 221, 221);
+    //border-bottom: 1px solid rgb(221, 221, 221);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
     //-webkit-app-region: drag;
     // * {            
     //     -webkit-app-region: no-drag;
     // }
 }
-.organization-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-    margin: -16px;
-}
+
 .organization-view {
     width: 100%;
     height: 100%;
@@ -357,11 +418,6 @@ display: none;
     // }
     margin: 0px;
     cursor: pointer;
-}
-.empty-content {
-    width: 100%;
-    height: auto;
-    //background-color: orange;
 }
 .departments-view {
     width: 100%;
@@ -383,11 +439,11 @@ display: none;
 }
 .managers-header {
     width: 100%;
-    height: 28px;
+    height: 32px;
     padding-top: 10px;
     padding-left: 16px;
-    background-color: rgb(239, 240, 241);
-    font-size: 13px;
+    background:rgba(247,248,250,1);
+    font-size: 12px;
     line-height: 18px;
     letter-spacing: 1px;
 }
@@ -396,8 +452,8 @@ display: none;
     height: 28px;
     padding-top: 10px;
     padding-left: 16px;
-    background-color: rgb(239, 240, 241);
-    font-size: 13px;
+    background:rgba(247,248,250,1);
+    font-size: 12px;
     line-height: 18px;
     letter-spacing: 1px;
 }
@@ -418,34 +474,42 @@ display: none;
     //border-top: 1px solid rgb(221, 221, 221);
 }
 .department {
-    height: 64px;
+    height: 60px;
     border-bottom: 1px solid rgb(221, 221, 221);
     
-    
+}
+.department:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
 }
 .manager {
-    height: 64px;
+    height: 60px;
     border-bottom: 1px solid rgb(221, 221, 221);
     
 }
-
+.manager:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+}
 .department-icon {
     width: 40px;
     height: 40px;
     display: inline-block;
     margin-left: 16px;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-right: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .manager-icon {
     width: 40px;
     height: 40px;
     display: inline-block;
     margin-left: 16px;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-right: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     border-radius: 4px;
 }
 .manager-info {
@@ -457,20 +521,26 @@ display: none;
 .manager-name {
     height: 20px;
     width: 100%;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-bottom: 2px;;
     margin-left: 12px;
     font-size: 14px;
     line-height: 20px;
+    font-weight:400;
+    letter-spacing:1px;
+    color:rgba(0,0,0,1);
 }
 .manager-title {
-    height: 20px;
+    height: 18px;
     width: 100%;
     margin-top: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight:400;
+    color:rgba(153,153,153,1);
+    letter-spacing:1px;
 }
 .department-info {
     display: inline-block;
@@ -482,10 +552,11 @@ display: none;
     text-align: left;
     height: 40%;
     width: 70%;
-    margin-top: 21px;
-    margin-left: 16px;
+    margin-top: 20px;
+    margin-left: 12px;
     font-size: 14px;
-    line-height: 22px;
+    line-height: 20px;
+    letter-spacing: 1px;
 }
 .item-arrow {
     display: inline-block;
@@ -512,7 +583,7 @@ display: none;
     .el-breadcrumb {
         display: block;
         margin-left: 16px;
-        padding-top: 18px;
+        padding-top: 16px;
         font-size: 14px;
         line-height: 20px;
         padding-left: 0px;
