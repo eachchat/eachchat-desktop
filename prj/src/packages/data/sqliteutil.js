@@ -279,10 +279,57 @@ const Department = {
         });
         return departments
          
+    },
+
+    async GetAdminId(departmentID){
+        let departments = await (await models.Department).find({
+            department_id: departmentID
+        });
+        if(departments.length != 0){
+            return departments[0].admin_id;
+        }
     }
 };
 
+const UserInfo = {
+    async GetUserinfoByDepartmentID(departmentID){
+        let userinfos = await(await models.UserInfo).find({
+            belong_to_department_id: departmentID
+        })
+        return userinfos;
+    },
+    
+    async GetUserAddressByUserID(userID){
+        let address = await(await models.UserAddress).find({
+            owner_user_id: userID
+        })
+        return address;
+    },
+
+    async GetUserImByUserID(userID){
+        let im = await(await models.UserIm).find({
+            owner_user_id: userID
+        })
+        return im;
+    },
+
+    async GetUserEmailByUserID(userID){
+        let email = await(await models.UserEmail).find({
+            owner_user_id: userID
+        })
+        return email;
+    },
+
+    async GetUserPhoneByUserID(userID){
+        let phone = await(await models.UserPhone).find({
+            owner_user_id: userID
+        })
+        return phone;
+    }
+}
+
 export{
     sqliteutil,
-    Department
+    Department,
+    UserInfo
 }
