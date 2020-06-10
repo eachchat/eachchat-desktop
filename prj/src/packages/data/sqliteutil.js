@@ -301,28 +301,28 @@ const Department = {
 };
 
 const UserInfo = {
-    async GetUserinfoByDepartmentID(departmentID){
+    async GetSubUserinfo(departmentID){
         let userinfos = await(await models.UserInfo).find({
             belong_to_department_id: departmentID
         })
         return userinfos;
     },
 
-    async GetDepartmentByUserID(userID){
+    async GetDepartment(userID){
         let userinfos = await(await models.UserInfo).find({
             user_id: userID
         })
         return userinfos;
     },
     
-    async GetUserAddressByUserID(userID){
+    async GetUserAddress(userID){
         let address = await(await models.UserAddress).find({
             owner_user_id: userID
         })
         return address;
     },
 
-    async GetUserImByUserID(userID){
+    async GetUserIm(userID){
         let im = await(await models.UserIm).find({
             owner_user_id: userID
         })
