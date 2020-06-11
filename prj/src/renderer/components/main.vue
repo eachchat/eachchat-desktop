@@ -1,6 +1,7 @@
 <template>
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
+            <mac-window-header class="macWindowHeader" v-if="showMacWindowHeader"></mac-window-header>
             <div class="User">
                 <img class="login-logo" id="userHead">
             </div>
@@ -27,23 +28,24 @@
 <script>
 import * as path from 'path'
 import * as fs from 'fs-extra'
+import macWindowHeader from './macWindowHeader.vue'
 import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
 import favourite from './favourite.vue'
 import {services} from '../../packages/data/index.js'
-import {ServerApi} from '../server/serverapi.js'
+//import {ServerApi} from '../server/serverapi.js'
 import {downloadGroupAvatar} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
-
+import {environment} from '../../packages/data/environment.js'
 export default {
     name: 'mainpage',
     data () {
         return {
             curindex: 0,
             curView: 'ChatContent',
-            serverapi: new ServerApi('http', '139.198.15.253'),
+            //serverapi: new ServerApi('http', '139.198.15.253'),
             Navigate:[
                 {    
                     text: "聊天",
@@ -72,6 +74,7 @@ export default {
             ],
             elementImg: null,
             ipcInited: false,
+            showMacWindowHeader:false
         }
     },
     methods: {
@@ -180,7 +183,8 @@ export default {
     components: {
         organization,
         ChatContent,
-        favourite
+        favourite,
+        macWindowHeader
     },
     mounted: async function() {
         await services.common.GetLoginModel();
@@ -188,10 +192,14 @@ export default {
         this.$nextTick(() => {
             // this.showCurUserIcon();
         })
+        
     },
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
         await this.getAppBaseData();
+        if(environment.os.isOSX) {
+            this.showMacWindowHeader = true;
+        }
     },
 }
 </script>
@@ -329,5 +337,9 @@ export default {
         overflow-y:hidden;
         overflow-x: hidden;
     }
-
+.macWindowHeader {
+    padding: 0px;
+    margin: 0px;
+    width: 64px;
+}
 </style>
