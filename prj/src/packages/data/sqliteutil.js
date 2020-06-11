@@ -351,8 +351,22 @@ const UserInfo = {
     }
 }
 
+const Message = {
+    async DeleteMessage(messageID){
+        let msg = await(await models.Message).find({
+            message_id: messageID
+        })
+        for(let index in msg)
+        {
+            msg[index].destroy();
+        }
+    }
+}
+
+
 export{
     sqliteutil,
     Department,
-    UserInfo
+    UserInfo,
+    Message
 }
