@@ -14,7 +14,9 @@
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "postinstall": ""
+    "postinstall": "",
+    "test": "npm run unit",
+    "unit": "karma start test/unit/karma.conf.js"
   },
   "build": {
     "productName": "EachChat",
@@ -53,7 +55,10 @@
   "dependencies": {
     "axios": "^0.18.0",
     "benz-amr-recorder": "^1.1.2",
+    "chai": "^4.2.0",
     "element-ui": "^2.4.9",
+    "karma": "^5.0.9",
+    "mocha": "^8.0.1",
     "mqtt": "^3.0.0",
     "quill": "^1.3.7",
     "sql.js": "^1.3.0",
@@ -91,6 +96,13 @@
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
     "js-base64": "^2.5.2",
+    "karma-chai": "^0.1.0",
+    "karma-coverage": "^2.0.2",
+    "karma-electron": "^6.3.0",
+    "karma-mocha": "^2.0.1",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-webpack": "^4.0.2",
     "mini-css-extract-plugin": "0.4.0",
     "multispinner": "^0.2.1",
     "node-loader": "^0.6.0",
