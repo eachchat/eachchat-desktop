@@ -12,14 +12,13 @@
                 <ul class="message-list">
                     <li class="message"
                         v-for="(message, index) in favourites" 
-                        @click="messageListClicked(message)"
                         :key=index>
-                        <p class="message-text">{{ message.collection_content.text }}</p>
+                        <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.text }}</p>
                         <p class="message-sender">{{ message.collection_content.fromUserName }}</p>
                         <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                         <div class="favourite-action">
                             <img class="transmit-img" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <img class="delete-img" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                            <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                         </div>
                     </li>
                 </ul>
@@ -28,15 +27,14 @@
                 <ul class="image-list">
                     <li class="image"
                         v-for="(image, index) in favourites" 
-                        @click="imageListClicked(image)"
-                        :key=index>
-                        <img class="image-content" :id="image.collection_id" src="../../../static/Img/Chat/loading.gif" alt= "图片">
                         
+                        :key=index>
+                        <img class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Chat/loading.gif" alt= "图片">
                         <p class="image-sender">{{ image.collection_content.fromUserName }}</p>
                         <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
                         <div class="favourite-action">
                             <img class="transmit-img" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <img class="delete-img" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                            <img class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                         </div>
                     </li>
                 </ul>
@@ -45,41 +43,42 @@
                 <ul class="file-list">
                     <li class="file"
                         v-for="(file, index) in favourites"
-                        @click="fileListClicked(file)"
+                        
                         :key="index">
-                        <p class="file-name">{{ file.collection_content.fileName }}</p>
+                        <div class="file-content" >
+                            <img class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
+                            <div class="file-info" @click="fileListClicked(file)">
+                                <p class="file-name">{{ file.collection_content.fileName }}</p>
+                                <p class="file-size">{{ file.collection_content.fileSize }}</p>
+                            </div>
+                            <img class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
+                        </div>
                         <p class="file-sender">{{ file.collection_content.fromUserName }}</p>
-                        <p class="file-time">{{ formatTimeFilter(file.timestamp) }}</p>
+                        <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
+                        <div class="favourite-action">
+                            <img class="transmit-img" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <img class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                        </div>
+
                     </li>
                 </ul>
             </div>
             <div class="group-view" v-if="showGroupList">
-                <ul class="file-list">
-                    <li class="file"
+                <ul class="group-list">
+                    <li class="group"
                         v-for="(group, index) in favourites"
-                        @click="fileListClicked(file)"
                         :key="index">
-                        <p class="group-name">{{ group.collection_content.groupName }}</p>
-                        <p class="group-sender">{{ group.collection_content.fromUserName }}</p>
-                        <p class="group-time">{{ formatTimeFilter(group.timestamp) }}</p>
+                        <img class="group-icon" :id="group.collection_content.groupId" src="../../../static/Img/Chat/loading.gif" alt= "头像">
+                        <div class="group-name">{{ group.collection_content.groupName }}
+                        </div>
+                        <div class="favourite-group-action">
+                            <img class="message-img" src="../../../static/Img/Favorite/Group/message@2x.png">
+                            <img class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
+                        </div>
                     </li>
                 </ul>
             </div>
             </div>
-            <!-- <div class="favourite-detail" v-if="showFavouriteDetail">
-                <div class="message-detail-view">
-                    <p class="message-detail-sender">{{ favouriteDetail.collection_content.fromUserName }}
-                    <p class="message-time">{{ formatTimeFilter(favouriteDetail.timestamp) }}</p>
-                    <p class="message-detail-text">{{ favouriteDetail.collection_content.text }}</p>
-                    
-                </div>
-                <div class="image-detail-view">
-                </div>
-                <div class="file-detail-view">
-                </div>
-                <div class="group-detail-view">
-                </div>
-            </div> -->
             </el-container>
         </el-main>
     </el-container>
@@ -88,8 +87,10 @@
 import {services} from '../../packages/data/index.js';
 import * as path from 'path'
 import * as fs from 'fs-extra'
+import {shell} from 'electron'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import { bool } from '../../packages/core/types';
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 
 export default {
     name: 'favourite-list',
@@ -146,6 +147,101 @@ export default {
         imageListClicked(image) {
 
         },
+        fileListClicked:async function(file) {
+            if(!this.getFileExist(file)){
+                console.log("download start");
+                await services.common.downloadFile(file.timeline_id, file.timestamp, file.collection_content.fileName, false);
+                shell.openItem(targetPath);
+            }
+            var targetDir = confservice.getFilePath(file.timestamp);
+            var targetPath = path.join(targetDir, file.collection_content.fileName);
+            shell.openItem(targetPath);
+        },
+        fileActionClicked:async function(file) {
+            if(this.getFileExist(file)){
+                var targetDir = confservice.getFilePath(file.timestamp);
+                var targetPath = path.join(targetDir, file.collection_content.fileName);
+                shell.showItemInFolder(targetPath);
+                
+            }else{
+                console.log("download start");
+                await services.common.downloadFile(file.timeline_id, file.timestamp, file.collection_content.fileName, false);
+                this.updateFileCollectionList();
+            }
+        },
+        updateFileCollectionList() {
+            var tempFiles = [];
+            for(var i = 0; i < this.favourites.length; i ++){
+                    var file = this.favourites[i];
+                    file.local_exist = this.getFileExist(file);
+                    //file.collection_content.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
+                    tempFiles[i] = file;
+            }
+            this.favourites = tempFiles;
+        },
+        getFileStateSourceImage(file) {
+            if(this.getFileExist(file)){
+                return "../../../static/Img/Favorite/File/directory@2x.png";
+            }else{
+                return "../../../static/Img/Favorite/File/download@2x.png";
+            }
+
+        },
+        deleteMessageCollectionClicked:async function(message) {
+            await services.common.DeleteCollectionMessage(message.favourite_id);
+            var messageCollectionModel = await services.common.ListMessageCollections();
+            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
+            console.log(this.favourites);
+        },
+        deleteImageCollectionClicked: async function(image) {
+            await services.common.DeleteCollectionMessage(image.favourite_id);
+            var imageCollectionModel = await services.common.ListPictureCollections();
+            this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
+            console.log(this.favourites);
+            this.$nextTick(function(){
+                for(var i = 0; i < this.favourites.length; i ++){
+                    this.getImageCollectionContent(this.favourites[i]);
+                }
+            });
+        },  
+        deleteFileCollectionClicked: async function(file) {
+            await services.common.DeleteCollectionMessage(file.favourite_id);
+            var fileCollectionModel = await services.common.ListFileCollections();
+            this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
+            var tempFiles = [];
+            for(var i = 0; i < this.favourites.length; i ++){
+                    var file = this.favourites[i];
+                    file.local_exist = this.getFileExist(file);
+                    file.collection_content.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
+                    tempFiles[i] = file;
+            }
+            this.favourites = tempFiles;
+        },
+        deleteGroupCollectionClicked:async function(group) {
+            await services.common.DeleteCollectionGroup(group.collection_content.groupId);
+            var groupCollectionModel = await services.common.ListGroupCollections();
+            this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
+            console.log(this.favourites);
+            this.$nextTick(function(){
+                for(var i = 0; i < this.favourites.length; i ++){
+                    this.getGroupAvatarContent(this.favourites[i]);
+                }
+            });
+        },
+        getFileIconThroughExt(ext) {
+            var iconPath = getIconPath(ext);
+            return iconPath;
+        },
+        getFileExist(file) {
+            var targetDir = confservice.getFilePath(file.timestamp);
+            var targetPath = path.join(targetDir, file.collection_content.fileName);
+            console.log("file collection targetPath is ", targetPath);
+            if(fs.existsSync(targetPath)) {
+                return true;
+            }
+            return false;
+        },
+
         getImageCollectionContent:async function(image){
 
             var targetDir = confservice.getThumbImagePath(image.timestamp);
@@ -171,6 +267,27 @@ export default {
                 // this.checkAndLoadImg(targetPath);
             }
         },
+        getGroupAvatarContent:async function(group) {
+            var targetDir = confservice.getUserThumbHeadPath();
+            var targetPath = path.join(targetDir, group.collection_content.groupId + '.png');
+            var groupAvatarElement = document.getElementById(group.collection_content.groupId);
+            if(fs.existsSync(targetPath)) {
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    groupAvatarElement.setAttribute("src", reader.result);
+                }
+            }
+            else{
+                console.log("download group avatar", group);
+                await services.common.downloadGroupAvatar(group.collection_content.groupAvatar, group.collection_content.groupId);
+                await this.getGroupAvatarContent(group);
+            }
+
+        },
+
         getObjectFromCollectionModel(collectionModels) {
             var favourites = [];
             for(var i = 0; i < collectionModels.length; i ++){
@@ -254,11 +371,26 @@ export default {
             this.headerTitle = '文件';
             var fileCollectionModel = await services.common.ListFileCollections();
             this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
+            var tempFiles = [];
+            for(var i = 0; i < this.favourites.length; i ++){
+                    var file = this.favourites[i];
+                    file.local_exist = this.getFileExist(file);
+                    file.collection_content.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
+                    tempFiles[i] = file;
+            }
+            this.favourites = tempFiles;
+
             console.log(this.favourites);
         }else if(this.favouriteType == 'group'){
             this.headerTitle = '群组';
             var groupCollectionModel = await services.common.ListGroupCollections();
             this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
+            this.$nextTick(function(){
+                for(var i = 0; i < this.favourites.length; i ++){
+                    this.getGroupAvatarContent(this.favourites[i]);
+                }
+            });
+
             console.log(this.favourites);
         }
         
@@ -320,8 +452,13 @@ display: none;
     margin-left: 16px;
     margin-right: 16px;
     margin-top: 0px;
+    .file-action{
+        display: none;
+    }
+
     .favourite-action {
         display: none;
+        font-size: 0px;
         vertical-align: top;
         padding-top: 10px;
         padding-right: 0px;
@@ -331,14 +468,16 @@ display: none;
             display: inline-block;
             width: 20px;
             height: 20px;
-            padding-left: 25px;
-            padding-right: 8px;
+            padding-left: 26px;
+            padding-right: 12px;
+            margin: 0px;
         }
         .delete-img {
             display: inline-block;
             width: 20px;
             height: 20px;
             padding: 0px;
+            margin: 0px;
         }
     }
 
@@ -454,4 +593,173 @@ display: none;
         }
     }
 }
+.file-list {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    
+    .file:hover{
+        .file-time {
+            display: none;
+        }
+        .favourite-action{
+            display: inline-block;
+        }
+
+        .file-action{
+            display: inline-block;
+        }
+    }
+
+    .file {
+        height: 102px;
+        margin: 0px;
+        padding: 0px;
+        cursor: pointer;
+        background-color: white;
+        .file-content {
+            width: 100%;
+            height: 60px;
+            margin-top: 16px;
+            padding-bottom: 0px;
+            background:rgba(247,248,250,1);
+            border-radius:4px;
+            display: block;
+            .file-icon {
+                width: 40px;
+                height: 40px;
+                margin: 0px;
+                object-fit: scale-down;
+                padding-left: 13px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                display: inline-block;
+            }
+            .file-action {
+                
+                height: 32px;
+                width: 32px;
+                margin: 0px;
+                padding-top: 14px;
+                padding-bottom: 14px;
+                
+            }
+            .file-info {
+                display: inline-block;
+                padding-left: 8px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                vertical-align: top;
+                width: calc(100% - 110px);
+                .file-name {
+                    height:20px;
+                    font-size:14px;
+                    margin-top: 0px;
+                    margin-bottom: 0px;
+                    font-weight:500;
+                    color:rgba(0,0,0,1);
+                    line-height:20px;
+                    letter-spacing:1px;
+                }
+                .file-size {
+                    height:18px;
+                    font-size:12px;
+                    margin-top: 2px;
+                    font-weight:400;
+                    color:rgba(153,153,153,1);
+                    line-height:18px;
+                    letter-spacing:1px;
+                }
+            }
+        }
+        .file-sender{
+            display: inline-block;
+            color: rgb(102, 102, 102);
+            font-size: 12px;
+            line-height: 18px;
+            width: calc(100% - 82px);
+            margin-top: 12px;
+            margin-bottom: 0px;
+        }
+        .file-time{
+            width: 78px;
+            display: inline-block;
+            font-size: 12px;
+            line-height: 18px;
+            font-weight:400;
+            color:rgba(153,153,153,1);
+            letter-spacing:1px;
+            //text-align: right;
+            margin-top: 8px;
+        }
+    }
+}
+.group-list {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    .group:hover{
+        .favourite-group-action{
+            display: inline-block;
+        }
+        background:rgba(247,248,250,1);
+    }
+    .group {
+        height: 64px;
+        margin: 0px;
+        padding: 0px;
+        cursor: pointer;
+        background-color: white;
+        .group-icon {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            padding-top: 12px;
+            padding-bottom:12px;
+            display: inline-block;
+            object-fit: scale-down;
+        }
+        .group-name{
+            vertical-align: top;
+            display: inline-block;
+            height:20px;
+            width: calc(100% - 144px);
+            font-size:14px;
+            font-weight:400;
+            color:rgba(0,0,0,1);
+            line-height:20px;
+            letter-spacing:1px;
+            padding-left: 12px;
+            padding-top: 22px;
+            padding-bottom: 22px;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+        .favourite-group-action {
+        font-size: 0px;
+        display: none;
+        vertical-align: top;
+        padding-top: 16px;
+        padding-right: 0px;
+        width: 76px;
+        height: 20px;
+        .message-img {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            padding-left: 0px;
+            padding-right: 12px;
+            margin: 0px;
+        }
+        .delete-img {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            padding: 0px;
+            margin: 0px;
+        }
+    }
+    }
+}
+
 </style>
