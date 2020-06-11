@@ -18,3 +18,43 @@ node-gyp rebuild --target=2.0.4 --arch=x64 --target_platform=win32 --dist-url=ht
 
 
 
+linux下bind.gyp配置：
+{
+  "includes": [ "deps/common-sqlite.gypi" ],
+  "variables": {
+      "sqlite%":"internal",
+      "sqlite_libname%":"sqlite3"
+  },
+  "targets": [
+    {
+      "target_name": "<(module_name)",
+      "include_dirs": ["<!(node -e \"require('nan')\")",
+			"/home/cf/Desktop/sqlcipher/tsrc"],
+       "libraries": [
+               "-lsqlcipher"
+            ],
+      
+      "sources": [
+        "src/backup.cc",
+        "src/database.cc",
+        "src/node_sqlite3.cc",
+        "src/statement.cc"
+      ]
+    },
+    {
+      "target_name": "action_after_build",
+      "type": "none",
+      "dependencies": [ "<(module_name)" ],
+      "copies": [
+          {
+            "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
+            "destination": "<(module_path)"
+          }
+      ]
+    }
+  ]
+}
+
+
+
+
