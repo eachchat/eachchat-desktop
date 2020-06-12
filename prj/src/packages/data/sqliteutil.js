@@ -358,6 +358,24 @@ const UserInfo = {
             owner_user_id: userID
         })
         return phone;
+    },
+
+    async GetLeaders(userID){
+        let array = [];
+        if(userID != ""){
+            let infos = await(await models.UserInfo).find({
+                user_id: userID
+            })
+            if(infos.length != 1){
+                return undefined;
+            }
+            array = infos;
+            if(infos[0].manager_id == "")
+                return array;
+            return array.concat(await this.GetLeader(infos[0].manager_id));
+        }
+        
+        
     }
 }
 
