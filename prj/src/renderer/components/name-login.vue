@@ -1,6 +1,14 @@
 <template>
     <div class="login">
-        <div class="login-panel" style="-webkit-app-region: no-drag">
+        <div class="welcome-panel" v-if="isCheckToken()">
+            <p class="welcome-zh-line1">您好，</p><p class="welcome-zh-line2">欢迎使用易企聊!</p>
+            <p class="welcome-en">Hello, welcome to user EachChat!</p>
+            <div class="welcome-loading">
+                <i class="el-icon-loading"></i><p class="welcome-loading-text">加载中，请稍后...</p>
+            </div>
+            <p class="copy-right">版权所有 2019-2020 workly.ai 保留所有权利</p>
+        </div>
+        <div class="login-panel" v-else style="-webkit-app-region: no-drag">
             <div class="title">
                 <div class="title-ico">
                     <img class="login-logo" src="../assets/Logo_Big.png">
@@ -28,16 +36,6 @@
 
 <script>
 import {services} from '../../packages/data/index.js'
-import {sqliteutil} from '../../packages/data/index.js'
-
-import {generalGuid} from '../../packages/core/Utils.js'
-import * as path from 'path'
-import { Base64 } from 'js-base64';
-//var sqlite3 = require('sqlite3');
-
-
-//const ref = require('ref')
-
 export default {
     name: 'login',
     data () {
@@ -49,9 +47,13 @@ export default {
             port: '',
             services: null,
             tokenExpired: false,
+            tokenRefreshing: true,
         }
     },
     methods: {
+        isCheckToken() {
+            return this.tokenRefreshing;
+        },
         clickUser () {
             location.reload()
         },
@@ -64,164 +66,144 @@ export default {
                 return true;
             }
         },
-
-        callback: function(msg){
-            console.log("mqtt:" + msg)
-        },
-        login:async function() {   
-            /*
-            var db = new sqlite3.Database('./test.db')
-            db.serialize(() => {
-                db.run("PRAGMA KEY = 'secret'")
-                db.run("PRAGMA CIPHER = 'aes-128-cbc'");
-                
-                db.run("CREATE TABLE messages(id INTEGER, user VARCHAR, msg TEXT)")
-                db.run("INSERT INTO messages(id, user, msg) VALUES (1, 'coolaj86', 'this is test message number one')")
-                
-            })
-            db.get("SELECT * FROM messages", (err, data) => {
-                    if (err) {
-                    console.error(err)
-                    return
-                    }
-                    console.log(data)
-                })
-            return;
-            */
-            /*
-            const ffi = require('ffi')
-            var dllPath = path.join(__dirname, '/sqlciphercpp.dll');
-            const Dll =new ffi.Library(dllPath, {
-                    // 第一个参数为返回值,第二个参数是参数
-                add: ['int', ['int','int']]
-            })
-            console.log(Dll.add);
-            console.log(Dll.add(1, 2));
-            console.log("login end")
-            
-            return;
-            */
-        
+        login:async function() {
             let config = {
-                hostname: '139.198.15.253',
-                apiPort: '8888',
-                username: 'chengfang.ai@yunify.com',
-                password: '12345678',
-                identityType: "password"
-            }
-            services.common.init(config)
-            //console.log(await services.common.GetLoginModel())
-            //console.log(await services.common.GetSelfUserModel())
-            //await services.common.downloadGroupAvatar()
-            if(1){
-                let ret = await services.common.login()
-                await services.common.InitServiceData();
-            }
-            else{
-                await services.common.InitDbData()  
-            }
-            //await services.common.ListAllCollections();
-            return;
+                hostname: "139.198.15.253",
+                apiPort: 8888,
+                username: this.username,
+                password: this.password
+            };
+            services.common.init(config);
             
-            //await services.common.logout()
-            //await services.common.refreshToken()
-            
-            //await services.common.dumpEncryptDB();
-
-            
-            //await services.common.CreateGroup("20200416test", ["e17423b05165a418614129254342fc17", "6cd80044ede9a6cd9bdad27480642fe1"])
-            
-            //let users = await services.common.GetGroupByName("程旺");
-            //console.log(users)
-            //let msgs = await services.common.historyMessage("5dd63d380a504164c80f081f", "27833", 10);
-            //console.log(msgs)
-
-            //let history;
-            //history = await services.common.historyMessage("5e815b92cc101019c46c2eea", "441995121408884740", 20) 
-            return;
-    
-            services.common.initmqtt()
-            await services.common.handlemessage(this.callback)
-            //await services.common.UpdateGroupName("5ec4fda7cc101002783bcb77", "77777777777")
-            
-            //await services.common.AddGroupUsers("5ec4fda7cc101002783bcb77", ["82dcc316dfc2a4992ac53ea884c9a3ac","d8501305b15cf84e2bb0260b7b1e3034, 568cd6fa3f7460e08d6fb6a9ff870d5e"])
-            
-            //await services.common.DeleteGroupUsers("5ec4fda7cc101002783bcb77", ["82dcc316dfc2a4992ac53ea884c9a3ac","d8501305b15cf84e2bb0260b7b1e3034, 568cd6fa3f7460e08d6fb6a9ff870d5e"])
-            
-            //await services.common.DeleteHistoryMessage("5ec4fda7cc101002783bcb77", "460862595424337900");           
-            //await services.common.DeleteGroup("5ec4fda7cc101002783bcb77");           
-            //await services.common.DeleteGroup("5ec62bfccc101002783bcc0c");           
-            //await services.common.UpdateGroupNotice("5ec4fda7cc101002783bcb77", ".).(}");           
-            //await services.common.UpdateGroupAvatar("5ec4fda7cc101002783bcb77", "D:\\文档\\anybox文档\\QingStor Box Desktop (PC App)\\preview\\page-1-setting_sync-copy.png")
-            //await services.common.GroupStatus("5ec4fda7cc101002783bcb77", undefined, "true", "true");
-
-            //await services.common.MessageRead("5e9ea897cc10101597c8959f", "451063225132793860");           
-            
-
-            //await services.common.CreateGroup("groupNameValue", ["8a93c2debb75bc4204f03c88c9dc11b1"])
-           // await services.common.CreateGroup("groupNameValue", ["eb69c200e11801906322203ad59ff885", "8a93c2debb75bc4204f03c88c9dc11b1"])
-            
-            //let groups = await services.common.GetGroupByName("测试员101")
-            //console.log(groups)
-            /*            
-            let guid = generalGuid();
-            let time = new Date()
-            let content = {
-                text: "测试："+ time
+            let response = await services.common.login();
+            console.log(response)
+            var ret_data = response;
+            if(response){
+                var msg = ret_data["message"];
+                var code = ret_data["code"];
+                if(code != 200)
+                    {
+                    console.log("code != 200")
+                    this.loginState = msg
+                    return
+                }
             }
             
-            services.common.sendNewMessage(guid, 
-                                            102, 
-                                            "25d4cb78d54840dfa70df0dfa847c024",
-                                            "",
-                                            "c17a0ac328a927d14ea9ee354692b496",
-                                            time,
-                                            content)
-            */
-            //services.common.ReveiveNewMessage("410244358794133500", 0)
-            //services.common.CollectMessage(["5dd77ca60a50413b93e8d380", "5dd77ca00a50413b93e8d37b"]);
-            //services.common.CollectMessage(["5dd77ca60a50413b93e8d380"]);
+            this.loginState = "登录成功"
 
-            //services.common.CollectGroup("5da072f20a50410ad607f33c");
-            //services.common.DeleteCollectionMessage("5eb50ee4cc101041736820df");
-            //services.common.DeleteCollectionGroup("5e9ea897cc10101597c8959f");
-
-
-            
-            return
-            console.log(response);
-        }
-    },
-    created: function () {
-    },
-    beforeCreate: async function() {
-        return;
-        console.log("before create ")
-        let config = {
-                hostname: '139.198.15.253',
-                apiPort: '8888',
-                username: 'chengfang.ai@yunify.com',
-                password: '12345678'
-            }
-        services.common.init(config)
-        var ret = await services.common.refreshToken();
-        if(ret == undefined) {
-            console.log("failed")
-        }
-        else{
-            return;
-            console.log("check token success ")
-            await services.common.InitDbData();
+            await services.common.InitServiceData();
             const ipcRenderer = require('electron').ipcRenderer;
             ipcRenderer.send('showMainPageWindow');
         }
-        
-        console.log("go out create ")
-    }
+    },
+    mounted: function() {
+        this.tokenRefreshing = true;
+        let config = {
+            hostname: "139.198.15.253",
+            apiPort: 8888,
+            username: "",
+            password: ""
+        };
+        setTimeout(() => {
+            this.$nextTick(async () => {
+                services.common.init(config);
+                try{
+                    await services.common.InitDbData();
+                }
+                catch(error){
+
+                }
+                var ret = await services.common.refreshToken();
+                if(ret.state) {
+                    const ipcRenderer = require('electron').ipcRenderer;
+                    ipcRenderer.send('showMainPageWindow');
+                }
+                else{
+                    if(ret.msg == "tokenExpired") {
+                        this.loginState = "认证已过期，请重新登录。"
+                    }
+                    this.tokenRefreshing = false;
+                }
+            })
+
+        }, 1000)
+    },
 }
 </script>
 
 <style lang="scss" scoped>
+    .login {
+        width: 100%;
+        height: 100%;
+    }
+
+    .welcome-panel {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .welcome-zh-line1 {
+        margin: 0px;
+        padding-top: 10%;
+        padding-left: 30px;
+        padding-bottom: 10px;
+        font-size: 24px;
+        font-family: 'Microsoft YaHei';
+    }
+
+    .welcome-zh-line2 {
+        margin: 0px;
+        padding-top: 0;
+        padding-left: 30px;
+        padding-bottom: 10px;
+        font-size: 24px;
+        font-family: 'Microsoft YaHei';
+    }
+
+    .welcome-en {
+        margin: 0px;
+        padding-left: 30px;
+        padding-bottom: 30px;
+        font-size: 15px;
+        font-family: 'Microsoft YaHei';
+        color: rgba(60, 60, 67, 0.6);
+    }
+    
+    .el-icon-loading {
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    .welcome-loading-text {
+        display: inline-block;
+        color:rgba(60, 60, 67, 0.9)
+    }
+
+    .welcome-loading {
+        width: 100%;;
+        font-size: 12px;
+        font-family: 'Microsoft YaHei';
+        text-align: center;
+        margin: 0px;
+        padding: 0px;
+        position: absolute;
+        bottom: 45px;
+        left: 0px;
+    }
+
+    .copy-right {
+        width: 100%;;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: center;
+        margin: 0px;
+        padding: 0px;
+        position: absolute;
+        bottom: 30px;
+        left: 0px;
+    }
+
     .login-panel {
         width: 480px;
         height: 210px;
