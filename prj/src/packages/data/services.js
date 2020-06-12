@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil } from './sqliteutil.js'
+import { sqliteutil, Group } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -1163,17 +1163,15 @@ const common = {
     }
     let item;
     let model;
-    for(let index in result.data.results){
-      item = result.data.results[index];
-      model = await servicemodels.CollectionModel(item);
-      let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
-      if(findmodel == undefined){
-        model.save();
-      }
-      else{
-        findmodel.values = model.values;
-        findmodel.save();
-      }
+    item = result.data.obj[index];
+    model = await servicemodels.CollectionModel(item);
+    let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+    if(findmodel == undefined){
+      model.save();
+    }
+    else{
+      findmodel.values = model.values;
+      findmodel.save();
     }
   },
 
@@ -1182,19 +1180,19 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
-    for(let index in result.data.results){
-      item = result.data.results[index];
-      model = await servicemodels.CollectionModel(item);
-      let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
-      if(findmodel == undefined){
-        model.save();
-      }
-      else{
-        findmodel.values = model.values;
-        findmodel.save();
-      }
+    let item;
+    let model;
+    item = result.data.obj;
+    model = await servicemodels.CollectionModel(item);
+    let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+    if(findmodel == undefined){
+      model.save();
     }
-    console.log(result)
+    else{
+      findmodel.values = model.values;
+      findmodel.save();
+    }
+    await Group.UpdateGroupStatus(item.groupId, item.status);
   },
 
   async DeleteCollectionMessage(favoriteID){

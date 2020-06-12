@@ -373,10 +373,23 @@ const Message = {
     }
 }
 
+const Group = {
+    async UpdateGroupStatus(groupID, status){
+        let groups = await(await models.Groups).find({
+            group_id: groupID
+        })
+        if(groups.length == 1){
+            groups[0].status = status;
+            groups[0].save();
+        }
+    }
+}
+
 
 export{
     sqliteutil,
     Department,
     UserInfo,
-    Message
+    Message,
+    Group
 }
