@@ -71,8 +71,7 @@
                 <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px.png" @click="multiToolsClose">
             </div>
         </div>
-        <transmit v-show="showTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs" @closeTransmitDlg="closeTransmitDlg"></transmit>
-        <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
+        <transmit v-show="showTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs" @closeTransmitDlg="closeTransmitDlg"></transmit>        
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
@@ -89,6 +88,7 @@
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
+        <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
     </div>
 </template>
 
@@ -200,6 +200,18 @@ export default {
     },
     props: ['chat'],
     methods: {
+        showScrollBar: function(e) {
+        if(this.messageListElement == null) {
+            this.messageListElement = document.getElementById("message-show-list");
+        }
+        this.messageListElement.style.overflowY = "overlay"
+        },
+        hideScrollBar: function(e) {
+        if(this.messageListElement == null) {
+            this.messageListElement = document.getElementById("message-show-list");
+        }
+        this.messageListElement.style.overflowY = "hidden"
+        },
         handleDialogClose() {
             this.$refs.chatGroupCreater.initData();
         },
@@ -664,9 +676,9 @@ export default {
             this.tipInfos = tipInfos;
             this.showUserInfoTips = true;
         },
-        closeUserInfoTip(e){
+        closeInfoTip(e){
             var userInfoTipElement = document.getElementById("userInfoTipId");
-            if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img"){
+            if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img" && e.target.className != "groupMemberInfoImage" && e.target.className != "groupMemberInfoLabel"){
                 this.showUserInfoTips = false;
             }
             var groupInfoElement = document.getElementById("groupInfoTipId");
@@ -1796,6 +1808,7 @@ export default {
     },
     data() {
         return {
+            messageListElement: null,
             checkClassName: ["chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
@@ -1870,7 +1883,7 @@ export default {
                 ipcRenderer.on('updateGroupImg', this.updateGroupImg);
             })
         }, 0)
-        document.addEventListener('click',this.closeUserInfoTip)
+        document.addEventListener('click',this.closeInfoTip)
     },
     created: async function() {
         this.loginInfo = await services.common.GetLoginModel();
@@ -1915,7 +1928,7 @@ export default {
     }
 
     ::-webkit-scrollbar {
-        width: 8px;
+        width: 7px;
         height: 12px;
     }
 

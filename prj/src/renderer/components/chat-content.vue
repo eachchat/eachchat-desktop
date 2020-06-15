@@ -9,12 +9,11 @@
             <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
           </div>
           <p class="chat-label">普通</p>
-          <div class="list-content" :key="needUpdate">
+          <div class="list-content" id="list-content-id" :key="needUpdate" @mousemove="showScrollBar" @mouseout="hideScrollBar">
             <ul class="group-list">
-              <li class="group"
+              <li :class="groupOrTopClassName(chatGroupItem, index)"
                   v-for="(chatGroupItem, index) in dealShowGroupList"
                   @click="showChat(chatGroupItem, index)"
-                  :class="{active: index===curindex}"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   >
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
@@ -104,9 +103,33 @@ export default {
       imageLayersSrcInfo: '',
       clickedGroupList: [],
       isEmpty: true,
+      groupListElement: null,
     };
   },
   methods: {
+    showScrollBar: function(e) {
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      this.groupListElement.style.overflowY = "overlay"
+    },
+    hideScrollBar: function(e) {
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      this.groupListElement.style.overflowY = "hidden"
+    },
+    groupOrTopClassName(item, index) {
+      if(index == this.curindex) {
+        return "group active";
+      }
+      if(this.groupIsTop(item)) {
+        return "group-top";
+      }
+      else {
+        return "group";
+      }
+    },
     isWindows() {
       return environment.os.isWindows;
     },
@@ -547,7 +570,7 @@ export default {
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 7px;
     height: 12px;
   }
 
@@ -634,7 +657,7 @@ export default {
 
   .list-content {
     height: 100%;
-    overflow-y: scroll;
+    overflow: hidden;
     
     ::-webkit-scrollbar-track {
       border-radius: 10px;
@@ -650,6 +673,24 @@ export default {
 
   .group {
     height: 60px;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .group-top {
+    height: 60px;
+    background-color: rgba(247, 248, 250, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .group-top:hover {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .group-top.active {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
@@ -729,7 +770,8 @@ export default {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: 64px;
+    width: 56px;
+    padding-right: 8px;
   }
 
   .group-time {
