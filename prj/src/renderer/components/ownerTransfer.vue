@@ -20,7 +20,7 @@
             </div>
             <div class="OwnerTransferFotter">
                 <button class="OwnerTransferCancleButton" @click="Close()">取消</button>
-                <button class="OwnerTransferConfirmButton" @click="UpdateNotice()">确认</button>
+                <button class="OwnerTransferConfirmButton" @click="TransferOwner()">确认</button>
             </div>
         </div>
     </div>
@@ -81,16 +81,10 @@ export default {
         Close: function() {
             this.$emit("closeOwnerTransferDlg", "");
         },
-        UpdateNotice: function() {
-            if(this.noticeContent.length == 0){
-                alert("公告内容不能为空");
-                return;
-            }
-            services.common.UpdateGroupNotice(this.groupId, this.noticeContent)
-                .then((ret) => {
-                    console.log("ret ", ret)
-                    this.$emit("closeNoticeDlg", this.noticeContent);
-                })
+        TransferOwner: function() {
+            console.log("transfer owner ", this.selectedUserId);
+            services.common.TransferGroup(this.groupId, this.selectedUserId);
+            this.$emit("closeOwnerTransferDlg", "");
         },
         calcImgPosition: function() {
             if(this.OwnerTransferDlgElement == null) {
@@ -196,6 +190,7 @@ export default {
             this.groupId = this.GroupInfo.group_id; 
 
             var showPosition = this.calcImgPosition();
+            console.log("showPositon is ", showPosition)
             this.OwnerTransferDlgElement.style.left = showPosition.left.toString() + "px";
             this.OwnerTransferDlgElement.style.top = showPosition.top.toString() + "px";
         }
@@ -282,7 +277,7 @@ export default {
         display: inline-block;
         position: absolute;
         text-indent: 10px;
-        width: calc(100%-32px);
+        width: 90%;
         padding: 0;
         margin: 0px;
         height: 32px;

@@ -10,21 +10,21 @@
             </div>
             <div class="groupInfoNoticeAndName">
                 <div class="groupInfoName">
-                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
+                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
                 </div>
                 <div class="groupInfoNotice" @click="updateGroupNotice">
-                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
-                    <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId" v-show="isOwner"></p>
+                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-show="isOwner" :disabled="!isOwner" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
+                    <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
                 </div>
             </div>
         </div>
-        <div class="groupSettingSilenceDiv">
+        <div class="groupSettingSilenceDiv" v-show="isGroup">
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch class="groupSettingSlienceSwitch" v-model="slienceState" @change="slienceStateChange(slienceState)">
             </el-switch>
         </div>
-        <div class="groupSettingTopDiv" v-show="isOwner">
+        <div class="groupSettingTopDiv">
             <label class="groupSettingTopLabel">置顶聊天</label>
             <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
             </el-switch>
@@ -34,7 +34,7 @@
             <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
             </el-switch>
         </div>
-        <div class="groupSettingOwnerTransferDiv" v-show="isGroup" @click="ownerTransfer">
+        <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
             <label class="groupSettingOwnerTransferLabel">转让群主</label>
             <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
         </div>
@@ -45,11 +45,11 @@
             </div>
             <div class="groupMemberAddDiv" v-else>
                 <label class="groupMemberAddDivLabel">群成员</label>
-                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px.png" @click="showSearch">
+                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px.png" @click="showSearch" v-show="isOwner">
                 <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
             </div>
         </div>
-        <div class="groupMember-view" v-show="isOwner">
+        <div class="groupMember-view" v-show="isGroup">
             <ul class="groupMember-list">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
                     <div class="groupMemberInfoDiv">
@@ -80,6 +80,7 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
+import { stat } from 'fs'
 export default {
     name: 'group-info',
     data() {
@@ -190,6 +191,9 @@ export default {
         },
         showNameEdit: function(e) {
             // console.log("show name edit ", e)
+            if(!this.isOwner) {
+                return;
+            }
             if(this.nameEditElement == null) {
                 this.nameEditElement = document.getElementById("groupInfoNameEditId");
             }
@@ -203,6 +207,9 @@ export default {
             this.nameEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
         },
         showNoticeEdit: function(e) {
+            if(!this.isOwner) {
+                return;
+            }
             // console.log("show name edit ", e)
             if(this.noticeEditElement == null) {
                 this.noticeEditElement = document.getElementById("groupInfoNoticeEditId");
@@ -217,6 +224,9 @@ export default {
             this.noticeEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
         },
         showDeleteButton: function(distUser) {
+            if(!this.isOwner) {
+                return;
+            }
             // console.log("show name edit ", distUser)
             var distId = this.getDeleteIdThroughMemberUid(distUser.user_id)
             var userDeleteElement = document.getElementById(distId);
@@ -229,6 +239,7 @@ export default {
             userDeleteElement.style.opacity = 0; 
         },
         updateGroupImg: function(e, args) {
+            console.log("group info updategroupimg args is ", args)
             if(args != undefined && args.length != 0) {
                 var state = args[0];
                 var stateInfo = args[1];
@@ -265,9 +276,9 @@ export default {
                         
                         var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
                         console.log("ret is ", ret);
-                        // if(ret.ok == true && ret.success == true) {
-                        //     ipcRenderer.send('modifyGroupInfo', [this.groupId, distFilePath]);
-                        // }
+                        if(ret.ok == true && ret.success == true) {
+                            ipcRenderer.send('modifyGroupImg', [this.groupId, distFilePath]);
+                        }
                         
                     }
                 })
@@ -318,6 +329,9 @@ export default {
             this.groupName = this.newGroupName;
         },
         updateGroupNotice: function(event) {
+            if(!this.isOwner) {
+                return;
+            }
             this.$emit("updateChatGroupNotice", this.groupId, this.groupNotice);
         },
         Close: function() {
@@ -347,7 +361,19 @@ export default {
                 })
         },
         groupFavouriteStateChange: function(state){
-            console.log("groupFavouriteStateChange ", state)
+            // console.log("fav state is ", state);
+            if(state) {
+                services.common.CollectGroup(this.groupId)
+                    .then((ret) => {
+                        console.log("CollectGroup ", ret);
+                    })
+            }
+            else {
+                services.common.DeleteCollectionGroup(this.groupId)
+                    .then((ret) => {
+                        console.log("DeleteCollectionGroup ", ret);
+                    })
+            }
         },
         getClassNameThroughMemberUid: function(memberUid) {
             return "member-img-class-" + memberUid;
@@ -415,6 +441,7 @@ export default {
             this.isGroup = this.showGroupInfo.isGroup;
             this.slienceState = this.showGroupInfo.isSlience;
             this.groupTopState = this.showGroupInfo.isTop;
+            this.groupFavouriteState = this.showGroupInfo.isFav;
             this.isOwner = this.showGroupInfo.isOwner;
             this.ownerId = this.showGroupInfo.ownerId;
             // console.log("this.groupTopState ", this.groupTopState)
@@ -435,7 +462,13 @@ export default {
             // console.log("elementImg is ", elementImg);
             var targetPath = "";
             if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupAvarar, this.groupId))){
-                elementImg.setAttribute("src", targetPath);
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
             }
             // services.common.downloadGroupAvatar(this.groupAvarar, this.groupId);
             // .then((ret) => {
@@ -482,6 +515,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  ::-webkit-scrollbar-track-piece {
+    background-color: #F1F1F1;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    height: 50px;
+    background-color: #C1C1C1;
+    border-radius: 5px;
+    outline: none;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    height: 50px;
+    background-color: #A8A8A8;
+    border-radius: 5px;
+  }
+
 .groupInfo {
     height: 100%;
     width: 280px;
@@ -514,6 +570,7 @@ export default {
 
 .groupMember-view {
     max-height: 144px;
+    height: 144px;
     width: 100%;
     padding: 0px;
     border: 0px;
@@ -525,6 +582,7 @@ export default {
 .groupMember-list {
     list-style: none;
     max-height: 144px;
+    height: 144px;
     margin: 0;
     padding: 0;
     display: block;
@@ -625,6 +683,19 @@ export default {
     font-family:Microsoft Yahei;
     font-size: 15px;
     font-weight: bold;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.groupInfoNameInput:disabled {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family:Microsoft Yahei;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: white;
 }
 
 .groupInfoNameInput:focus {
@@ -668,6 +739,19 @@ export default {
     font-family:Microsoft Yahei;
     font-size: 12px;
     color: rgba(103, 103, 103, 0.24);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.groupInfoNoticeInput:disabled {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family:Microsoft Yahei;
+    font-size: 12px;
+    color: rgba(103, 103, 103, 0.24);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: white;
 }
 
 .groupInfoNoticeInput:focus {
@@ -677,6 +761,8 @@ export default {
     font-size: 12px;
     color: rgba(103, 103, 103, 0.24);
     outline: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .groupInfoNoticeEdit {

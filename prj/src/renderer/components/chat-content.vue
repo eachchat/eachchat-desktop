@@ -15,6 +15,7 @@
                   v-for="(chatGroupItem, index) in dealShowGroupList"
                   @click="showChat(chatGroupItem, index)"
                   :class="{active: index===curindex}"
+                  @contextmenu="rightClick($event, chatGroupItem)"
                   >
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                 <div class="group-img">
@@ -105,6 +106,17 @@ export default {
     isWindows() {
       return environment.os.isWindows;
     },
+    rightClick(e, groupItem) {
+        console.log("e.target is ", e.target.className)
+        let distElement = document.getElementById(msgItem.message_id);
+        console.log("distElement is ", distElement.className);
+        if(this.checkClassName.indexOf(e.target.className) == -1) {
+            return;
+        }
+        this.menu = new Menu();
+
+        this.menu.popup(remote.getCurrentWindow());
+    },
     // Download thumb and show in dist id element
     updateGroupImg(e, arg) {
       var state = arg[0];
@@ -129,7 +141,13 @@ export default {
         // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
         var targetPath = "";
         if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-            elementImg.setAttribute("src", targetPath);
+            var showfu = new FileUtil(targetPath);
+            let showfileObj = showfu.GetUploadfileobj();
+            let reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onloadend = () => {
+                elementImg.setAttribute("src", reader.result);
+            }
         }
       }
     },
@@ -186,6 +204,7 @@ export default {
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
+      console.log("updatechatgroupstatus ", groupStatus);
       var groupListTmp = this.showGroupList;
       for(var i=0;i<groupListTmp.length;i++) {
         if(groupListTmp[i].group_id === groupId) {
@@ -202,8 +221,9 @@ export default {
       }
       // ++this.needUpdate;
     },
-    updateChatList(newMsg, updateList=true) {
+    updateChatList(newMsg, updateList=true, content) {
       // ++this.needUpdate;
+      var msgContent = strMsgContentToJson(newMsg.message_content);
       console.log("newMsg is ", newMsg)
       for(var i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_id === newMsg.group_id) {
@@ -217,7 +237,36 @@ export default {
           if(newMsg.message_from_id != this.curUserInfo.id) {
             this.showGroupList[i].un_read_count += 1;
           }
+          if(msgContent.type != undefined && msgContent.type == "updateGroupName") {
+            this.showGroupList[i].group_name = msgContent.text;
+          }
+          if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
+              let distUsers = msgContent.userInfos;
+              let distUserIds = [];
+              for(let i=0;i<distUsers.length;i++) {
+                distUserIds.push(distUsers[i].userId);
+              }
+              if(distUserIds.indexOf(this.curUserInfo.id) != -1) {
+                this.showGroupList.slice(i, 1);
+
+                var owner = msgContent.userName;
+                var deletedNames = "";
+                var deletedUsers = msgContent.userInfos;
+                if(deletedUsers.length == 1){
+                    deletedNames = deletedUsers[0].userName
+                }
+                else{
+                    for(var i=0;i<deletedUsers.length;i++) {
+                        deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                    }
+                }
+                var alertContent = "您被 " + owner + " 移出了群聊";
+
+                alert(alertContent);
+              }
+          }
           if(updateList) {
+            console.log("force udate")
             this.curindex = i;
             // this.curChat = this.showGroupList[i];
           }
@@ -364,20 +413,27 @@ export default {
       }
       else if(chatGroupMsgType === 102)
       {
-        return "[图片]";
+        return "[图片]:" + chatGroupMsgContent.fileName;
       }
       else if(chatGroupMsgType === 103)
       {
-        return "[文件]";
+        return "[文件]:" + chatGroupMsgContent.fileName;
       }
       else if(chatGroupMsgType === 104)
       {
         if(chatGroupMsgContent.type === "invitation")
         {
           var invitees = chatGroupMsgContent.userInfos;
+          var inviteeNameList = [];
           var inviteeNames = "";
-          for(var i=0;i<invitees.length;i++) {
-              inviteeNames = inviteeNames + "、" + invitees[i].userName
+          if(invitees.length == 1){
+              inviteeNames = invitees[0].userName
+          }
+          else{
+              for(var i=0;i<invitees.length;i++) {
+                  inviteeNameList.push(invitees[i].userName);
+              }
+              inviteeNames = inviteeNameList.join("、");
           }
           var inviter = chatGroupMsgContent.userName;
           return inviter + " 邀请 " + inviteeNames + " 加入群聊";
@@ -407,6 +463,12 @@ export default {
                 }
             }
             return owner + " 将 " + deletedNames + " 移出了群聊";
+        }
+        else if(chatGroupMsgContent.type == "groupTransfer") {
+            var originalOwner = chatGroupMsgContent.fromUserName;
+            var newOwner = chatGroupMsgContent.toUserName;
+            console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+            return originalOwner + " 将群主转让给 " + newOwner;
         }
         else
         {

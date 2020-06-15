@@ -90,6 +90,7 @@ export default {
             this.curUserInfo = await services.common.GetSelfUserModel();
             console.log("the init user id is ,", this.curUserInfo.id)
             confservice.init(this.curUserInfo.id);
+            this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
             this.showCurUserIcon();
             // Get data from server and set in database

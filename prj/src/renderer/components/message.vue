@@ -303,16 +303,33 @@ export default {
             }
             else if(chatGroupMsgType === 102)
             {
-                var targetDir = confservice.getFilePath();
-                var targetFileName = this.msg.message_id.toString() + "." + chatGroupMsgContent.ext;
+                // var targetDir = confservice.getFilePath();
+                var targetFileName = chatGroupMsgContent.fileName;
+                // var targetPath = path.join(targetDir, targetFileName);
                 var targetPath = this.msg.file_local_path;
+                // var targetDir = confservice.getFilePath();
+                // var targetFileName = this.msg.message_id.toString() + "." + chatGroupMsgContent.ext;
+                // var targetPath = this.msg.file_local_path;
                 // if(chatGroupMsgContent.thumbnailImage != undefined && fs.existsSync(chatGroupMsgContent.thumbnailImage)){
                 //     targetPath = chatGroupMsgContent.thumbnailImage;
                 // }
                 var needOpen = false;
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;")
-                if(fs.existsSync(targetPath)){
+                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
+                if(targetPath.length == 0) {
+                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false))) {
+                        //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+                        let imageHeight = 100;
+                        if(chatGroupMsgContent.imgHeight < 100){
+                            imageHeight = chatGroupMsgContent.imgHeight;
+                        }
+                        this.imageHeight = imageHeight;
+                        imgMsgImgElement.setAttribute("src", targetPath);
+                        imgMsgImgElement.setAttribute("height", imageHeight);
+                        imgMsgImgElement.setAttribute("style", "");
+                    }
+                }
+                else if(fs.existsSync(targetPath)){
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                     let imageHeight = 100;
                     if(chatGroupMsgContent.imgHeight < 100){
@@ -341,6 +358,7 @@ export default {
                 
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
+                    console.log("this.msg.timelineid is ", this.msg.time_line_id)
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
@@ -350,7 +368,6 @@ export default {
                     this.fileSize = (chatGroupMsgContent.fileSize/1024).toFixed(2);
                     fileMsgImgElement.setAttribute("src", iconPath);
                     fileMsgImgElement.setAttribute("height", 40);
-                
             }
             else if(chatGroupMsgType === 104)
             {
@@ -394,6 +411,12 @@ export default {
                         }
                     }
                     return owner + " 将 " + deletedNames + " 移出了群聊";
+                }
+                else if(chatGroupMsgContent.type == "groupTransfer") {
+                    var originalOwner = chatGroupMsgContent.fromUserName;
+                    var newOwner = chatGroupMsgContent.toUserName;
+                    console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+                    return originalOwner + " 将群主转让给 " + newOwner;
                 }
                 else
                 {

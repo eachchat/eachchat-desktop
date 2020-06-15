@@ -23,7 +23,7 @@
                 <ul class="msg-list" id="message-show-list">
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)"
-                        @contextmenu="rightClick(item)">
+                        @contextmenu="rightClick($event, item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
@@ -33,7 +33,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="chat-input" v-show="!multiSelect">
+            <div class="chat-input" id="chat-input-id" v-show="!multiSelect">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
                         <Faces v-show="showFace"  @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
@@ -58,15 +58,17 @@
                 <div class="text-input" @keyup="keyHandle($event)">
                     <quillEditor
                         ref="chatQuillEditor"
-                        :options="editorOption">
+                        :options="editorOption"
+                        @change="inputChanged">
                     </quillEditor>
                 </div>
             </div>
             <div class="multiSelectTools" v-show="multiSelect">
-                <img class="multiSelectTransmit" src="../../../static/Img/Favorite/Detail/transmit@2x.png" @click="multiTransMit">
-                <img class="multiSelectFav" src="../../../static/Img/Navigate/fav-24px@2x.png" @click="multiFav" v-show="false">
-                <img class="multiSelectDel" src="../../../static/Img/Favorite/Detail/delete@2x.png" @click="multiDel" v-show="false">
-                <img class="multiSelectToolClose" src="../../../static/Img/Navigate/close-20px@2x.png" @click="multiToolsClose">
+                <img class="multiSelectTransmit" src="../../../static/Img/Chat/transmit-44px.png" @click="multiTransMit">
+                <img class="multiSelectTransmitTogether" src="../../../static/Img/Chat/transmitTogether-44px.png" @click="multTtransMitTogether">
+                <img class="multiSelectFav" src="../../../static/Img/Chat/favourite-44px.png" @click="multiFav">
+                <img class="multiSelectDel" src="../../../static/Img/Chat/delete-44px.png" @click="multiDel">
+                <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px.png" @click="multiToolsClose">
             </div>
         </div>
         <transmit v-show="showTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs" @closeTransmitDlg="closeTransmitDlg"></transmit>
@@ -75,7 +77,7 @@
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
         <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
-        <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
+        <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater ref="chatGroupCreater" :disableUsers="disabledusers" @getCreateGroupUsersSelected="getUsersSelected">
                 </chatGroupCreater>
@@ -86,6 +88,7 @@
         </el-dialog>
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
+        <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
     </div>
 </template>
 
@@ -96,6 +99,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
+// import { ImageDrop } from 'quill-image-drop-module'
 import {ipcRenderer, remote} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
@@ -109,8 +113,12 @@ import chatGroupCreater from './chatgroup-creater'
 import transmit from './transmit.vue'
 import noticeEditDlg from './noticeEditDlg.vue'
 import ownerTransferDlg from './ownerTransfer.vue'
+import chatMemberDlg from './chatMemberList.vue'
 
-const {Menu, MenuItem} = remote;
+const {Menu, MenuItem, clipboard, nativeImage} = remote;
+
+// Quill.register('modules/imageDrop', ImageDrop);
+// Quill.register('modules/resizeImage', resizeImage);
 
 function extend(target, base) {
     console.log("base is ", base);
@@ -187,7 +195,8 @@ export default {
         chatGroupCreater,
         transmit,
         noticeEditDlg,
-        ownerTransferDlg
+        ownerTransferDlg,
+        chatMemberDlg
     },
     props: ['chat'],
     methods: {
@@ -213,22 +222,171 @@ export default {
                 elementImg.setAttribute("src", reader.result);
             }
         },
-        rightClick(msgItem) {
-            console.log("msgitem is ", msgItem)
+        rightClick(e, msgItem) {
+            console.log("e.target is ", e.target.className)
+            let distElement = document.getElementById(msgItem.message_id);
+            console.log("distElement is ", distElement.className);
+            if(this.checkClassName.indexOf(e.target.className) == -1) {
+                return;
+            }
             this.menu = new Menu();
-            this.menu.append(new MenuItem({
-                label: "转发",
-                click: () => {
-                    this.transMit(msgItem)
-                }
-            }));
-            this.menu.append(new MenuItem({
-                label: "多选",
-                click: () => {
-                    this.msgMultiSelect(msgItem);
-                }
-            }));
+            if(msgItem.message_type == 101) {
+                this.menu.append(new MenuItem({
+                    label: "复制",
+                    click: () => {
+                        this.menuCopy(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "转发",
+                    click: () => {
+                        this.transMit(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "收藏",
+                    click: () => {
+                        this.menuFav(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.menuDelete(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "多选",
+                    click: () => {
+                        this.msgMultiSelect(msgItem);
+                    }
+                }));
+            }
+            else if(msgItem.message_type == 102) {
+                this.menu.append(new MenuItem({
+                    label: "复制",
+                    click: () => {
+                        this.menuCopy(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "转发",
+                    click: () => {
+                        this.transMit(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "收藏",
+                    click: () => {
+                        this.menuFav(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.menuDelete(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "多选",
+                    click: () => {
+                        this.msgMultiSelect(msgItem);
+                    }
+                }));
+            }
+            else if(msgItem.message_type == 103) {
+                this.menu.append(new MenuItem({
+                    label: "转发",
+                    click: () => {
+                        this.transMit(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "收藏",
+                    click: () => {
+                        this.menuFav(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.menuDelete(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "多选",
+                    click: () => {
+                        this.msgMultiSelect(msgItem);
+                    }
+                }));
+            }
+            else if(msgItem.message_type == 105) {
+                this.menu.append(new MenuItem({
+                    label: "收藏",
+                    click: () => {
+                        this.menuFav(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.menuDelete(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "多选",
+                    click: () => {
+                        this.msgMultiSelect(msgItem);
+                    }
+                }));
+            }
+            else if(msgItem.message_type == 106) {
+                this.menu.append(new MenuItem({
+                    label: "转发",
+                    click: () => {
+                        this.transMit(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.menuDelete(msgItem)
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "多选",
+                    click: () => {
+                        this.msgMultiSelect(msgItem);
+                    }
+                }));
+            }
+
             this.menu.popup(remote.getCurrentWindow());
+        },
+        menuCopy(msg) {
+            var msgContent = strMsgContentToJson(msg.message_content);
+            if(msg.message_type == 101) {
+                clipboard.writeText(msgContent.text);
+            }
+            else if(msg.message_type == 102) {
+                var div = document.getElementById(msg.message_id);
+                var selection = window.getSelection();
+                var range = document.createRange();
+                range.selectNode(div);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                document.execCommand('copy');
+                selection.removeAllRanges();
+                // div.contentEditable = 'true';
+                // var controlRange;
+                // if(document.body.createControlRange) {
+                //     controlRange = document.body.createControlRange();
+                //     controlRange.addElement(div);
+                //     console.log("controlRange is ", controlRange);
+                //     controlRange.execCommand('Copy');
+                // }
+                // div.contentEditable = 'false';
+            }
         },
         transMit(msg) {
             this.showTransmitDlg = true;
@@ -236,10 +394,26 @@ export default {
             this.selectedMsgs.push(msg);
             this.transmitTogether = false;
         },
-        multiTransMit() {
+        multTtransMitTogether() {
             this.showTransmitDlg = true;
             this.updateTransmit = !this.updateTransmit;
             this.transmitTogether = true;
+        },
+        multiTransMit() {
+            this.showTransmitDlg = true;
+            this.updateTransmit = !this.updateTransmit;
+            this.transmitTogether = false;
+        },
+        async menuFav(msg) {
+            console.log("fav msg is ", msg);
+            console.log("cointent is ", strMsgContentToJson(msg.message_content));
+            var ret = await services.common.CollectMessage([msg.time_line_id]);
+            if(ret) {
+                //
+            }
+            else {
+                //
+            }
         },
         multiFav() {
 
@@ -249,6 +423,7 @@ export default {
         },
         multiToolsClose() {
             this.multiSelect = false;
+            this.selectedMsgs = [];
         },
         showCheckboxOrNot(curMsg) {
             if(this.multiSelect && !this.showNoticeOrNot(curMsg)) {
@@ -295,16 +470,87 @@ export default {
             console.log("showaddmembers is ", this.disabledusers)
             this.dialogVisible = true;
         },
-        AddNewMembers: function() {
+        AddNewMembers: async function() {
             console.log("add member s ", this.usersSelected);
             var addUids = [];
             for(var i=0;i<this.usersSelected.length;i++) {
                 addUids.push(this.usersSelected[i].id)
             }
-            services.common.AddGroupUsers(this.chat.group_id, addUids);
+            var ret = await services.common.AddGroupUsers(this.chat.group_id, addUids);
+            console.log("AddGroupUsers ret is ", ret);
             this.dialogVisible = false;
         },
+        inputChanged(content) {
+            this.curContent = content.text;
+            var atIndex = this.curContent.lastIndexOf("@", this.curInputIndex);
+            if(this.chatMemberDlgVisible) {
+                var getSearchKey = this.curContent.substring(atIndex + 1, this.curInputIndex + 1);
+                this.chatMemberSearchKey = getSearchKey;
+                console.log("inputchange this.chatmembersearchkey is ", this.chatMemberSearchKey);
+                // @ Dlg visialbe need update position.
+                var editorElement = document.getElementsByClassName("ql-editor")[0];
+                var parentElement = document.getElementById("chat-input-id");
+                var editorChild = editorElement.children;
+                var distItem = editorChild[editorChild.length - 1];
+                var distItemChild = distItem.childNodes;
+                var clientOffSet = distItem.clientHeight;
+                var offsetTop = parentElement.offsetTop + 40 + distItem.offsetTop + clientOffSet;
+
+                var clientOffLeft = distItem.offsetLeft;
+                for(let i=0;i<distItemChild.length;i++) {
+                    // console.log("distItemChild[i].text ", distItemChild[i].text);
+                    // console.log("distItemChild[i].clientWidth ", distItemChild[i].clientWidth);
+                    if(distItemChild[i].length != undefined) {
+                        clientOffLeft += distItemChild[i].length * 14;
+                    }
+                    else if(distItemChild[i].clientWidth != undefined) {
+                        clientOffLeft += distItemChild[i].clientWidth;
+                    }
+                }
+
+                console.log("top ", offsetTop)
+                console.log("left ", clientOffLeft);
+                this.cursorPosition = {};
+                this.cursorPosition = {
+                    "top": offsetTop,
+                    "left": clientOffLeft
+                }
+            }
+            else {
+                this.chatMemberSearchKey = null;
+            }
+            if(this.curContent.indexOf("@") == -1) {
+                this.chatMemberDlgVisible = false;
+                this.chatMemberSearchKey = null;
+                this.chatMemberDlgchat = {};
+            }
+        },
+        deleteDistContent() {
+            var content = this.editor.getContents();
+            var index = 0;
+            var distContent = "@" + this.chatMemberSearchKey;
+            for(var i=0;i<content.ops.length;i++) {
+                if(content.ops[i].insert.span == undefined) {
+                    console.log("content.ops[i].insert ", content.ops[i].insert);
+                    console.log("distContent ", distContent);
+                    content.ops[i].insert = content.ops[i].insert.replace(distContent, "");
+                    console.log("content.ops[i].insert ", content.ops[i].insert);
+                    this.editor.setContents(content);
+                    // this.editor.setSelection(500);
+                    console.log("curInputIndex is ", this.curInputIndex);
+                    console.log("cursor index is ", this.curInputIndex - distContent.length);
+                    this.curInputIndex = this.curInputIndex - distContent.length;
+                    break;
+                }
+            }
+        },
         keyHandle(event) {
+            // console.log("event ", event)
+            // console.log("clipboard ", clipboard.readImage())
+            var range = this.editor.getSelection();
+            this.curInputIndex = range==null ? 0 : range.index;
+            console.log("this.curInputIndex is ", this.curInputIndex);
+
             if(event.code == "Enter" && !event.ctrlKey) {
                 this.sendMsg();
             }
@@ -334,6 +580,73 @@ export default {
                 }
                 return true;
             }
+            else if(event.code == "Digit2") {
+                this.chatMemberDlgVisible = false;
+                // this.chatMemberDlgchat = {};
+                this.chatMemberSearchKey = null;
+
+                var editorElement = document.getElementsByClassName("ql-editor")[0];
+                var parentElement = document.getElementById("chat-input-id");
+                var editorChild = editorElement.children;
+                var distItem = editorChild[editorChild.length - 1];
+                var distItemChild = distItem.childNodes;
+                var clientOffSet = distItem.clientHeight;
+                var offsetTop = parentElement.offsetTop + 40 + distItem.offsetTop + clientOffSet;
+
+                var clientOffLeft = distItem.offsetLeft;
+                for(let i=0;i<distItemChild.length;i++) {
+                    // console.log("distItemChild[i].text ", distItemChild[i].text);
+                    // console.log("distItemChild[i].clientWidth ", distItemChild[i].clientWidth);
+                    if(distItemChild[i].length != undefined) {
+                        clientOffLeft += distItemChild[i].length * 14;
+                    }
+                    else if(distItemChild[i].clientWidth != undefined) {
+                        clientOffLeft += distItemChild[i].clientWidth;
+                    }
+                }
+
+                console.log("top ", offsetTop)
+                console.log("left ", clientOffLeft);
+
+                this.cursorPosition = {
+                    "top": offsetTop,
+                    "left": clientOffLeft
+                }
+                
+                this.chatMemberDlgVisible = true;
+                this.chatMemberDlgchat = this.chat;
+            }
+        },
+        atMember(atMemberInfo) {
+            // File
+            var iconPath = "";
+            this.deleteDistContent();
+            var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
+            complexSpan.id = generalGuid();
+            complexSpan.innerHTML = "@" + atMemberInfo.user_display_name;
+            var distStyle = this.atConstStyle
+            // 'display:inline-block;outline:none;border: 0px;font-size:14px;font-family:Microsoft YaHei',
+            console.log("diststyle is ", distStyle);
+            complexSpan.style = distStyle;
+            let msgInfo = {
+                "path": "",
+                "type": "at",
+                "height": 0,
+                "width": 0,
+                "atUid": atMemberInfo.user_id,
+                "atName": atMemberInfo.user_display_name,
+            };
+            this.idToPath[complexSpan.id] = msgInfo;
+            console.log("admember this.curinputindex is ", this.curInputIndex);
+            this.editor.insertEmbed(this.curInputIndex, 'span', complexSpan);
+            this.curInputIndex = this.curInputIndex + 1;
+            console.log("this.editor.selection.savedRange.index is ", this.editor.selection.savedRange.index);
+            this.editor.setSelection(this.curInputIndex);
+            this.editor.insertText(this.curInputIndex, " ");
+
+            this.chatMemberDlgVisible = false;
+            this.charMemberDlgChat = {};
+            this.chatMemberSearchKey = null;
         },
         getCreateGroupInfo(groupInfo) {
             console.log("chat get create group info is ", groupInfo);
@@ -362,6 +675,12 @@ export default {
                 this.showGroupInfoTips = false;
                 this.cleanCache = true;
                 this.groupInfo = {};
+            }
+            var chatMemberListElement = document.getElementById("atDlgId");
+            if(chatMemberListElement != null && !chatMemberListElement.contains(e.target) && e.target.className != "memberItem"){
+                this.chatMemberDlgVisible = false;
+                this.chatMemberSearchKey = null;
+                this.chatMemberDlgchat = {};
             }
         },
         showExpression: function() {
@@ -392,7 +711,13 @@ export default {
             
             var targetPath = "";
             if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, chatGroupItem.group_id))){
-                groupIcoElement.setAttribute("src", targetPath);
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    groupIcoElement.setAttribute("src", reader.result);
+                }
             }
 
             var groupState = "";
@@ -597,162 +922,8 @@ export default {
         },
         // Send msg demo
         ssendMsg: function() {
-            // Send Test Interface
-            if(this.chat.group_id == undefined) {
-                alert("请选择一个群组。")
-                return;
-            }
-            let varcontent = this.editor.getContents();
-            console.log("varcontent is ", varcontent);
-            if(varcontent == null || varcontent.length == 0) {
-                // toDo To Deal The \n
-                alert("不能发送空白信息。")
-            }
-            else{
-                var uid = this.getDistUidThroughUids(this.chat.contain_user_ids);
-                var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
-                for(var i=0;i<varcontent.ops.length;i++){
-                    let curMsgItem = varcontent.ops[i].insert;
-                    let curTimeSeconds = new Date().getTime();
-                    
-                    if(curMsgItem.hasOwnProperty("fileBlot")){
-                        if(curMsgItem.fileBlot.type == "image"){
-                            let sendingMsgContentType = 102;
-                            let picUrl = curMsgItem.fileBlot.src;
-                            let filePath = curMsgItem.fileBlot.localPath;
-                            let fileHeight = curMsgItem.fileBlot.fileHeight;
-                            let fileSize = curMsgItem.fileBlot.fileSize;
-                            let fileName = getFileNameInPath(filePath);
-                            let ext = filePath.split(".").pop();
-                            let willShowMsgContent = JsonMsgContentToString({
-                                "ext":ext,
-                                "fileName":fileName,
-                                "url":"",
-                                "middleImage":"",
-                                "thumbnailImage": filePath,
-                                "imgWidth": "",
-                                "imgHeight": fileHeight,
-                                "fileSize": fileSize,
-                            });
-                            var guid = generalGuid();
-                            let willSendMsg = {
-                                "message_content": willShowMsgContent,
-                                "message_from_id": this.curUserInfo.id,
-                                "group_id": gorupId,
-                                "message_timestamp": curTimeSeconds,
-                                "message_type": sendingMsgContentType,
-                                "message_id": guid,
-                                };
-                            this.messageList.push(willSendMsg);
-                            this.existingMsgId.push(willSendMsg.message_id);
-
-                            let div = document.getElementById("message-show");
-                            setTimeout(() => {
-                                if(div) {
-                                    this.$nextTick(() => {
-                                        div.scrollTop = div.scrollHeight;
-                                    })
-                                }
-                            }, 0)
-                            
-                            this.sendingMsgIdList.push(willSendMsg);
-                            this.cleanEditor();
-                        }
-                    }
-                    else if(curMsgItem.hasOwnProperty("span")){
-                        var fileSpan = curMsgItem.span;
-                        var sendingMsgContentType = 103;
-                        var pathId = fileSpan.id;
-                        console.log("fileSpan.id = ", fileSpan.id);
-                        var msgInfo = this.idToPath[pathId];
-                        console.log("this.idToPath is ", this.idToPath)
-                        var filePath = msgInfo.path;
-                        var fileType = msgInfo.type;
-                        var showfu = new FileUtil(filePath);
-                        var fileName = showfu.GetFilename();
-                        var fileSize = showfu.size;
-                        var ext = showfu.GetExtname();
-
-                        console.log("chat file name is ", fileName)
-                        // let ext = filePath.split(".").pop();
-                        let willShowMsgContent = JsonMsgContentToString({
-                            "ext":ext,
-                            "fileName":fileName,
-                            "url":"",
-                            "fileSize": fileSize
-                        })
-                        let guid = generalGuid();
-                        let willSendMsg = {
-                            "message_content": willShowMsgContent,
-                            "message_from_id": this.curUserInfo.id,
-                            "group_id": gorupId,
-                            "message_timestamp": curTimeSeconds,
-                            "message_type": sendingMsgContentType,
-                            "message_id": guid,
-                            };
-                        this.messageList.push(willSendMsg);
-                        console.log("willsendmsg is ", willSendMsg);
-                        this.existingMsgId.push(willSendMsg.message_id);
-
-                        let div = document.getElementById("message-show");
-                        setTimeout(() => {
-                            if(div) {
-                                this.$nextTick(() => {
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
-                        }, 0)
-                        
-                        this.sendingMsgIdList.push(guid);
-                        this.cleanEditor();
-                    }
-                    else{
-                        // Text
-                        // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
-                        curMsgItem = sliceReturnsOfString(curMsgItem);
-                        if(curMsgItem.length == 0){
-                            return;
-                        }
-                        let sendingMsgContentType = 101;
-                        let msgContent = curMsgItem;
-                        var msgContentJson = {
-                            "text": msgContent
-                        };
-                        var willShowMsgContent = JsonMsgContentToString(msgContentJson);
-                        let willSendMsgContent = {"text": msgContent};
-                        console.log("will send msg content ", willSendMsgContent)
-                        console.log("will send msg uid ", uid)
-                        let guid = generalGuid();
-                        let willSendMsg = {
-                            "message_content": willShowMsgContent,
-                            "message_from_id": this.curUserInfo.id,
-                            "group_id": gorupId,
-                            "message_timestamp": curTimeSeconds,
-                            "message_type": sendingMsgContentType,
-                            "message_id": guid,
-                            };
-                        this.messageList.push(willSendMsg);
-                        this.existingMsgId.push(willSendMsg.message_id);
-                        
-                        let div = document.getElementById("message-show");
-                        setTimeout(() => {
-                            if(div) {
-                                this.$nextTick(() => {
-                                    console.log("div scrolltop is ", div.scrollHeight)
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
-                        }, 0)
-                        
-                        this.sendingMsgIdList.push(guid);
-                        this.cleanEditor();
-                        willSendMsg.content = willSendMsgContent;
-                        console.log("willSendMsg is ", willSendMsg);
-                    }
-                }
-            }
         },
-        sendMsg: function() {
+        sendMsg: async function() {
             if(this.chat.group_id == undefined) {
                 alert("请选择一个群组。")
                 return;
@@ -777,11 +948,6 @@ export default {
                         console.log("this.idToPath is ", this.idToPath)
                         var filePath = msgInfo.path;
                         var fileType = msgInfo.type;
-                        var showfu = new FileUtil(filePath);
-                        console.log("showfu ", showfu);
-                        var fileName = showfu.GetFilename();
-                        var fileSize = showfu.GetFileSize();
-                        var ext = showfu.GetExtname();
                         if(fileType == "file"){
                             let sendingMsgContentType = 103;
                             // let ext = filePath.split(".").pop();
@@ -871,6 +1037,122 @@ export default {
 
                                             }
                                         })
+                                })
+                        }
+                        else if(fileType == "at") {
+                            let sendingMsgContentType = 101;
+                            let mentionUserId = msgInfo.atUid;
+                            let mentionUserName = msgInfo.atName;
+                            // let ext = filePath.split(".").pop();
+                            let willSendMsgContent = {
+                                "type":"mention",
+                                "text":"@"+mentionUserName,
+                                "mentions":[mentionUserId]
+                            }
+                            for(let j=i+1;j<varcontent.ops.length;j++) {
+                                console.log("====== varcontent j ", j)
+                                let nextMsgItem = varcontent.ops[j].insert;
+                                if(nextMsgItem.hasOwnProperty("span")) {
+                                    var nextFileSpan = nextMsgItem.span;
+                                    var nextPathId = nextFileSpan.id;
+                                    var nextMsgInfo = this.idToPath[nextPathId];
+                                    console.log("this.idToPath is ", this.idToPath)
+                                    var nextFilePath = nextMsgInfo.path;
+                                    var nextFileType = nextMsgInfo.type;
+                                    if(nextFileType == "at") {
+                                        let nextMentionUserId = nextMsgInfo.atUid;
+                                        let nextMentionUserName = nextMsgInfo.atName;
+                                        willSendMsgContent.text = willSendMsgContent.text + "@" + nextMentionUserName + " ";
+                                        willSendMsgContent.mentions.push(nextMentionUserId);
+                                        i += 1;
+                                    }
+                                }
+                                else {
+                                    if(nextMsgItem.length == 0){
+                                        continue;
+                                    }
+                                    console.log("nextMsgItem is ", nextMsgItem);
+                                    willSendMsgContent.text = willSendMsgContent.text + nextMsgItem;
+                                    i += 1;
+                                }
+                            }
+                            // @
+                            let willShowMsgContent = JsonMsgContentToString(willSendMsgContent);
+                            console.log("will send msg content ", willSendMsgContent)
+                            // console.log("will send msg uid ", uid)
+                            let guid = generalGuid();
+                            let willSendMsg = {
+                                "message_content": willShowMsgContent,
+                                "message_from_id": this.curUserInfo.id,
+                                "group_id": gorupId,
+                                "message_timestamp": curTimeSeconds,
+                                "message_type": sendingMsgContentType,
+                                "message_id": guid,
+                                };
+                            this.messageList.push(willSendMsg);
+                            this.existingMsgId.push(willSendMsg.message_id);
+                            
+                            let div = document.getElementById("message-show-list");
+                            setTimeout(() => {
+                                if(div) {
+                                    this.$nextTick(() => {
+                                        console.log("div scrolltop is ", div.scrollHeight)
+                                        div.scrollTop = div.scrollHeight;
+                                    })
+                                }
+                            }, 0)
+                            
+                            this.sendingMsgIdList.push(guid);
+                            this.cleanEditor();
+                            willSendMsg.content = willSendMsgContent;
+                            // console.log("willSendMsg is ", willSendMsg);
+
+                            services.common.sendNewMessage(
+                                    guid, 
+                                    sendingMsgContentType, 
+                                    this.curUserInfo.id, 
+                                    gorupId, 
+                                    uid, 
+                                    curTimeSeconds, 
+                                    willSendMsgContent)
+                                .then((ret) => {
+                                    // console.log("sendNewMessage ret is ", ret);
+
+                                    if(ret == undefined) {
+                                        for(var i=0;i<this.sendingMsgIdList.length;i++){
+                                            if(this.sendingMsgIdList[i].message_id == guid){
+                                                this.sendingMsgIdList.splice(i, 1);
+                                                break;
+                                            }
+                                        }
+                                        this.failedList.push(willSendMsg);
+                                    }
+                                    else {
+                                        for(var i=0;i<this.sendingMsgIdList.length;i++){
+                                            if(this.sendingMsgIdList[i].message_id == guid){
+                                                this.sendingMsgIdList.splice(i, 1);
+                                                break;
+                                            }
+                                        }
+                                        for(var i=0;i<this.failedList.length;i++){
+                                            if(this.failedList[i].message_id == guid){
+                                                this.failedList.splice(i, 1);
+                                                break;
+                                            }
+                                        }
+                                        for(var i=0;i<this.messageList.length;i++){
+                                            if(this.messageList[i].message_id == guid){
+                                                this.messageList[i] = ret;
+                                                if(this.existingMsgId.indexOf(ret.message_id) == -1) {
+                                                    this.existingMsgId.push(ret.message_id);
+                                                }
+                                                break;
+                                            }
+                                        }
+                                        // this.$store.commit("updateChatGroup", obj.message);
+                                        this.$emit('updateChatList', ret, false);
+
+                                    }
                                 })
                         }
                         else {
@@ -986,16 +1268,43 @@ export default {
                             continue;
                         }
                         let sendingMsgContentType = 101;
+                        
                         let msgContent = curMsgItem;
                         var msgContentJson = {
                             "text": msgContent
                         };
                         // console.log("final cur msg item is ", msgContent.length)
-                        var willShowMsgContent = JsonMsgContentToString(msgContentJson);
                         let willSendMsgContent = {"text": msgContent};
                         // console.log("will send msg content ", willSendMsgContent)
                         // console.log("will send msg uid ", uid)
                         let guid = generalGuid();
+                        // next is @
+                        for(let j=i+1;j<varcontent.ops.length;j++) {
+                            console.log("====== varcontent j ", j)
+                            let nextMsgItem = varcontent.ops[j].insert;
+                            if(nextMsgItem.hasOwnProperty("span")) {
+                                var nextFileSpan = nextMsgItem.span;
+                                var nextPathId = nextFileSpan.id;
+                                var nextMsgInfo = this.idToPath[nextPathId];
+                                console.log("this.idToPath is ", this.idToPath)
+                                var nextFilePath = nextMsgInfo.path;
+                                var nextFileType = nextMsgInfo.type;
+                                if(nextFileType == "at") {
+                                    let nextMentionUserId = nextMsgInfo.atUid;
+                                    let nextMentionUserName = nextMsgInfo.atName;
+                                    willSendMsgContent.type = "mention";
+                                    willSendMsgContent.text = willSendMsgContent.text + "@" + nextMentionUserName + " ";
+                                    willSendMsgContent.mentions = willSendMsgContent.mentions == undefined ? [nextMentionUserId] : willSendMsgContent.mentions.push(nextMentionUserId) ;
+                                    i += 1;
+                                }
+                            }
+                            else {
+                                willSendMsgContent.text = willSendMsgContent.text + " " + nextMsgItem;
+                                i += 1;
+                            }
+                        }
+                        
+                        var willShowMsgContent = JsonMsgContentToString(willSendMsgContent);
                         let willSendMsg = {
                             "message_content": willShowMsgContent,
                             "message_from_id": this.curUserInfo.id,
@@ -1004,6 +1313,7 @@ export default {
                             "message_type": sendingMsgContentType,
                             "message_id": guid,
                             };
+
                         this.messageList.push(willSendMsg);
                         this.existingMsgId.push(willSendMsg.message_id);
                         
@@ -1117,14 +1427,16 @@ export default {
                 if(chatGroupMsgContent.type === "invitation")
                 {
                     var invitees = chatGroupMsgContent.userInfos;
+                    var inviteeNameList = [];
                     var inviteeNames = "";
                     if(invitees.length == 1){
                         inviteeNames = invitees[0].userName
                     }
                     else{
                         for(var i=0;i<invitees.length;i++) {
-                            inviteeNames = inviteeNames + "、" + invitees[i].userName
+                            inviteeNameList.push(invitees[i].userName);
                         }
+                        inviteeNames = inviteeNameList.join("、");
                     }
                     var inviter = chatGroupMsgContent.userName;
                     return inviter + " 邀请 " + inviteeNames + " 加入群聊";
@@ -1154,6 +1466,12 @@ export default {
                         }
                     }
                     return owner + " 将 " + deletedNames + " 移出了群聊";
+                }
+                else if(chatGroupMsgContent.type == "groupTransfer") {
+                    var originalOwner = chatGroupMsgContent.fromUserName;
+                    var newOwner = chatGroupMsgContent.toUserName;
+                    console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+                    return originalOwner + " 将群主转让给 " + newOwner;
                 }
                 else
                 {
@@ -1230,7 +1548,7 @@ export default {
         },
         // Difference in css. Left of Right
         ChatLeftOrRightClassName: function (curMsg) {
-            if(curMsg.message_from_id === this.$store.state.userId) {
+            if(curMsg.message_from_id === this.curUserInfo.id) {
                 return "message-right";
             }
             else {
@@ -1257,6 +1575,16 @@ export default {
         Call: function() {
             console.log("make a call");
         },
+        groupIsInFavourite(groupInfo) {
+            // console.log("========groupIsInFavourite status ", (groupInfo.status))
+            // console.log("========groupIsInFavourite ", (Number(groupInfo.status) & Number("00000001")) != 0)
+            if((Number(groupInfo.status) & Number("00001000")) != 0) {
+                // console.log("groupIsInFavourite grou name is ", groupInfo.group_name)
+                // console.log("group state is ", groupInfo.status)
+                return true;
+            }
+            return false;
+        },
         groupIsSlience(groupInfo) {
             // console.log("========groupIsSlience status ", (groupInfo.status))
             // console.log("========groupIsSlience ", (Number(groupInfo.status) & Number("00000001")) != 0)
@@ -1269,7 +1597,7 @@ export default {
         },
         groupIsTop(groupInfo) {
             // console.log("========groupIsTop status ", groupInfo.status)
-            // console.log("========groupIsTop ", (Number(groupInfo.status) & Number("00000010"))!= 0)
+            console.log("========groupIsTop ", (Number(groupInfo.status) & Number("00000010"))!= 0)
             if((Number(groupInfo.status) & Number("00000010")) != 0) {
                 // console.log("top grou name is ", groupInfo.group_name)
                 // console.log("group state is ", groupInfo.status)
@@ -1284,7 +1612,7 @@ export default {
             console.log("this.chat ", this.chat);
             console.log("this.isTop ", this.groupIsTop(this.chat))
             console.log("this.isSlience ", this.groupIsSlience(this.chat))
-            console.log("this.isOwner ", isOwner)
+            console.log("this.isFav ", this.groupIsInFavourite(this.chat))
             var groupInfoObj = {
                 "memberList": idsList,
                 "groupName": this.chat.group_name,
@@ -1295,6 +1623,7 @@ export default {
                 "isOwner": isOwner,
                 "isTop": this.groupIsTop(this.chat),
                 "isSlience": this.groupIsSlience(this.chat),
+                "isFav": this.groupIsInFavourite(this.chat),
                 "ownerId": this.chat.owner,
             }
             this.updateNotice = this.chat.group_notice;
@@ -1310,9 +1639,9 @@ export default {
         compare: function(){
             return function(a, b)
             {
-                var value1 = a.message_timestamp;
-                var value2 = b.message_timestamp;
-                return value1 - value2;
+                var value1 = a.sequence_id;
+                var value2 = b.sequence_id;
+                return value2 - value1;
             }
         },
         handleScroll: function() {
@@ -1320,7 +1649,7 @@ export default {
             if(uldiv) {
                 if(uldiv.scrollTop < 100){
                     var curTime = new Date().getTime();
-                    console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
+                    // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
                         let lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
@@ -1329,11 +1658,11 @@ export default {
                         services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
                                 this.isRefreshing = false;
-                                var messageListTmp = ret;
+                                var messageListTmp = ret.sort(this.compare());
                                 for(var i=0;i<messageListTmp.length;i++){
                                     console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
-                                        this.messageList.push(messageListTmp[i]);
+                                        this.messageList.unshift(messageListTmp[i]);
                                         this.existingMsgId.push(messageListTmp[i].message_id);
                                     }
                                 }
@@ -1348,47 +1677,50 @@ export default {
         getHistoryMessage: function() {
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then((ret) => {
-                    // console.log("getHistoryMessage historyMessage ret is ", ret)
-                    var messageListTmp = ret;
+                    var messageListTmp = ret.sort(this.compare());
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
+                        // console.log("this.chat.sequence_id is ", this.chat.sequence_id);
+                        var chatGroupMsgContent = strMsgContentToJson(messageListTmp[i].message_content);
+                        // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+                        // console.log("getHistoryMessage messageListTmp [i] is ", messageListTmp[i].sequence_id);
                         if(this.existingMsgId.indexOf(messageListTmp.message_id) == -1) {
-                            this.messageList.push(messageListTmp[i]);
+                            this.messageList.unshift(messageListTmp[i]);
                             this.existingMsgId.push(messageListTmp[i].message_id);
                         }
                     }
-                    if(messageListTmp.length !=0){
-                        if(messageListTmp[0].sequence_id != this.chat.sequence_id){
-                            let messageFromGroup = {};
-                            messageFromGroup.message_type = this.chat.message_content_type;
-                            messageFromGroup.message_content = this.chat.message_content;
-                            messageFromGroup.message_from_id = this.chat.message_from_id;
-                            messageFromGroup.message_timestamp = this.chat.last_message_time;
-                            messageFromGroup.sequence_id = this.chat.sequence_id;
-                            messageFromGroup.message_id = this.chat.message_id;
-                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
-                                this.messageList.push(messageFromGroup);
-                                this.existingMsgId.push(messageFromGroup.message_id);
-                            }
-                        }
-                    }
-                    else{
-                        if(this.chat.message_content != null){
-                            // console.log("this.chat.message_content is ", this.chat.message_content)
-                            let messageFromGroup = {};
-                            messageFromGroup.message_type = this.chat.message_content_type;
-                            messageFromGroup.message_content = this.chat.message_content;
-                            messageFromGroup.message_from_id = this.chat.message_from_id;
-                            messageFromGroup.message_timestamp = this.chat.last_message_time;
-                            messageFromGroup.sequence_id = this.chat.sequence_id;
-                            messageFromGroup.message_id = this.chat.message_id;
-                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
-                                this.messageList.push(messageFromGroup);
-                                this.existingMsgId.push(messageFromGroup.message_id);
-                            }
-                        }
-                        // console.log("this.messagelist is ", this.messageList)
-                    }
+                    // if(messageListTmp.length !=0){
+                    //     if(messageListTmp[0].sequence_id != this.chat.sequence_id){
+                    //         let messageFromGroup = {};
+                    //         messageFromGroup.message_type = this.chat.message_content_type;
+                    //         messageFromGroup.message_content = this.chat.message_content;
+                    //         messageFromGroup.message_from_id = this.chat.message_from_id;
+                    //         messageFromGroup.message_timestamp = this.chat.last_message_time;
+                    //         messageFromGroup.sequence_id = this.chat.sequence_id;
+                    //         messageFromGroup.message_id = this.chat.message_id;
+                    //         if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
+                    //             this.messageList.unshift(messageFromGroup);
+                    //             this.existingMsgId.push(messageFromGroup.message_id);
+                    //         }
+                    //     }
+                    // }
+                    // else{
+                    //     if(this.chat.message_content != null){
+                    //         // console.log("this.chat.message_content is ", this.chat.message_content)
+                    //         let messageFromGroup = {};
+                    //         messageFromGroup.message_type = this.chat.message_content_type;
+                    //         messageFromGroup.message_content = this.chat.message_content;
+                    //         messageFromGroup.message_from_id = this.chat.message_from_id;
+                    //         messageFromGroup.message_timestamp = this.chat.last_message_time;
+                    //         messageFromGroup.sequence_id = this.chat.sequence_id;
+                    //         messageFromGroup.message_id = this.chat.message_id;
+                    //         if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
+                    //             this.messageList.unshift(messageFromGroup);
+                    //             this.existingMsgId.push(messageFromGroup.message_id);
+                    //         }
+                    //     }
+                    //     // console.log("this.messagelist is ", this.messageList)
+                    // }
                     setTimeout(() => {
                         this.$nextTick(() => {
                             let div = document.getElementById("message-show-list");
@@ -1435,24 +1767,23 @@ export default {
             // console.log("chat callback msg is ", msg);
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
             console.log("chat callback msg is ", msg)
+            var msgContent = strMsgContentToJson(msg.message_content);
             var forceUpdate = true;
-            if(msg.message_from_id != this.curUserInfo.id || (msg.message_type != 101) || (this.chat.groupId != msg.group_id)) {
-                if(this.existingMsgId.indexOf(msg.message_id) == -1){
-                    if(this.chat.group_id == msg.group_id){
-                        forceUpdate = false;
-                        this.messageList.push(msg);
-                        this.existingMsgId.push(msg.message_id);
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            this.$nextTick(() => {
-                                div.scrollTop = div.scrollHeight;
-                            })
-                        }
+
+            if(msg.group_id == this.chat.group_id) {
+                if(this.existingMsgId.indexOf(msg.message_id) == -1) {
+                    forceUpdate = false;
+                    this.messageList.push(msg);
+                    this.existingMsgId.push(msg.message_id);
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        this.$nextTick(() => {
+                            div.scrollTop = div.scrollHeight;
+                        })
                     }
-                    console.log("emit updatechatlist ", forceUpdate);
-                    this.$emit('updateChatList', msg, forceUpdate);
                 }
             }
+            this.$emit('updateChatList', msg, forceUpdate);
         },
         updateMsgFile(e, args) {
             console.log("updateMsgfile ", args);
@@ -1465,6 +1796,7 @@ export default {
     },
     data() {
         return {
+            checkClassName: ["chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
             updateUser:[],
@@ -1477,6 +1809,13 @@ export default {
             dialogVisible: false,
             noticeDialogVisible: false,
             ownerTransferDialogVisible: false,
+            chatMemberDlgVisible: false,
+            chatMemberSearchKey: null,
+            canCheckChatMemberSearch: false,
+            curInputIndex: 0,
+            curContent: '',
+            cursorPosition: {},
+            chatMemberDlgchat: {},
             ownerTransferchat: {},
             disabledusers: [],
             groupInfo: {},
@@ -1498,6 +1837,8 @@ export default {
                 theme:'bubble',
                 modules: {
                     toolbar: false,
+                    // imageDrop: true,
+                    // resizeImage: true,
                 }
             },
             showFace: false,
@@ -1509,7 +1850,8 @@ export default {
             existingMsgId: [],
             idToPath: {},
             constStyle: 'display:inline-block;outline:none;border-radius: 2px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;',
-            imgConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;'
+            imgConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;',
+            atConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;font-size:14px;font-family:Microsoft YaHei',
         }
     },
     mounted: function() {
@@ -1541,7 +1883,7 @@ export default {
     computed: {
         messageListShow: {
             get: function() {
-                var final = this.messageList.sort(this.compare());
+                var final = this.messageList;
                 // console.log("final msglist is ", final);
                 return final;
             }
@@ -1566,7 +1908,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     ::-webkit-scrollbar-track-piece {
         background-color: #F1F1F1;
         border-radius: 10px;
@@ -1788,10 +2130,49 @@ export default {
 
     .multiSelectCheckbox {
         display: inline-block;
-        width: 15px;
-        height: 15px;
-        margin-top: 12px;
+	    position:relative;
+        width: 20px;
+        height: 20px;
+        background-color: rgba(255, 255, 255, 1);
+        border: 1px solid rgb(221,221,221);
+        border-radius: 50%;
+        font-size: 10px;
+        margin-top: 14px;
+        margin-bottom: 14px;
+        vertical-align:top;
+        cursor: pointer;
+        -webkit-appearance:none;
+        -webkit-user-select:none;
+        user-select:none;
+        -webkit-transition:background-color ease 0.1s;
+        transition:background-color ease 0.1s;
         float: left;
+        outline: none;
+    }
+
+    .multiSelectCheckbox:checked {
+        background-color: rgb(36, 179, 107);
+        cursor: pointer;
+        outline: none;
+    }
+
+    .multiSelectCheckbox:checked::after {
+        content:'';
+        top:3px;
+        left:3px;
+        font-size: 10px;
+        position: absolute;
+        background:transparent;
+        border:#fff solid 2px;
+        border-top:none;
+        border-right:none;
+        height:6px;
+        width:10px;
+        -moz-transform:rotate(-45deg);
+        -ms-transform:rotate(-45deg);
+        -webkit-transform:rotate(-45deg);
+        transform:rotate(-45deg);
+        outline: none;
     }
 
     .multiSelectTools {
@@ -1815,21 +2196,30 @@ export default {
     }
 
     .multiSelectTransmit {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin-left: 130px;
+        margin-right: 15px;
+    }
+
+    .multiSelectTransmitTogether {
+        width: 44px;
+        height: 44px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 15px;
+        margin-right: 15px;
     }
 
     .multiSelectFav {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin-left: 15px;
+        margin-right: 15px;
     }
 
     .multiSelectDel {
@@ -1837,17 +2227,17 @@ export default {
         height: 40px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin-left: 15px;
+        margin-right: 15px;
     }
 
     .multiSelectToolClose {
-        width: 40px;
-        height: 40px;
-        margin-top: 60px;
-        margin-bottom: 60px;
-        margin-left: 20px;
-        margin-right: 20px;
+        width: 24px;
+        height: 24px;
+        margin-top: 68px;
+        margin-bottom: 68px;
+        margin-left: 15px;
+        margin-right: 58px;
     }
 
     .chat-input-operate {
@@ -2015,6 +2405,34 @@ export default {
     .dialog-cancle-button {
         width: 100px;
         height: 32px;
+    }
+
+    .el-dialog {
+        height: 400px;
+        overflow: none;
+    }
+
+    .el-container {
+        width: auto;
+        height: 100%; 
+        border:1px solid #eee;   
+        background-color: white; 
+        .el-aside {
+            width: 150px;
+            overflow: hidden;
+            border-right: 1px solid rgb(221, 221, 221);
+        }
+        .right-container {
+            width: 100%;
+            height: 100%;  
+            background-color: white; 
+            border: hidden;
+        }
+    }
+    .el-dialog-content {
+        height: 300px;
+        width: 600px;
+        overflow: hidden;
     }
 
 </style>

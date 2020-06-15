@@ -43,6 +43,7 @@ ipcMain.on("download-file", function(event, arg) {
   var hostname = arg[2];
   var port = arg[3];
   var distPath = arg[4];
+  var distTemp = distPath + "_tmp";
   var needOpen = arg[5]; 
   var baseURL = "http://" + hostname;
 
@@ -70,7 +71,8 @@ ipcMain.on("download-file", function(event, arg) {
   sender.get(path, config)
     .then(function (ret) {
       // console.log("sender get is ", ret);
-      ret.data.pipe(fs.createWriteStream(distPath));
+      ret.data.pipe(fs.createWriteStream(distTemp));
+      fs.renameSync(distTemp, distPath);
       if(needOpen) {
         shell.openExternal(distPath);
       }
@@ -101,12 +103,9 @@ ipcMain.on("download-avarar", function(event, arg) {
   downloadingList.push(baseURL);
   axios.get(baseURL,config)
     .then(function (ret) {
-      ret.data.pipe(fs.createWriteStream(distPath)
+      ret.data.pipe(fs.createWriteStream(distTemp)
         .on('finish', function() {
-          if(!fs.existsSync(distPath)) {
-            return;
-          }
-          // fs.rename(distTemp, distPath);
+          fs.renameSync(distTemp, distPath);
           var index = downloadingList.indexOf(baseURL);
           downloadingList.splice(index, 1);
           event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
@@ -123,6 +122,7 @@ ipcMain.on("download-user-avarar", function(event, arg) {
   var userId = arg[1];
   var token = arg[2];
   var distPath = arg[3];
+  var distTemp = distPath + "_tmp";
   // console.log("distPath is ", distPath);
 
   var headers={Authorization:"Bearer " + token};
@@ -136,12 +136,9 @@ ipcMain.on("download-user-avarar", function(event, arg) {
   downloadingList.push(baseURL);
   axios.get(baseURL,config)
     .then(function (ret) {
-      ret.data.pipe(fs.createWriteStream(distPath)
+      ret.data.pipe(fs.createWriteStream(distTemp)
         .on('finish', function() {
-          if(!fs.existsSync(distPath)) {
-            return;
-          }
-          // fs.rename(distTemp, distPath);
+          fs.renameSync(distTemp, distPath);
           var index = downloadingList.indexOf(baseURL);
           downloadingList.splice(index, 1);
           // console.log("sender is ", userId, distPath)
@@ -152,6 +149,7 @@ ipcMain.on("download-user-avarar", function(event, arg) {
 
 ipcMain.on("download-image", function(event, arg) {
   //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
+  console.log("download-image arg is ", arg);
   var timelineID = arg[0];
   var token = arg[1];
   var hostname = arg[2];
@@ -186,9 +184,9 @@ ipcMain.on("download-image", function(event, arg) {
   sender.get(path, config)
     .then(function (ret) {
       // console.log("sender get is ", ret);
-      ret.data.pipe(fs.createWriteStream(distPath)
+      ret.data.pipe(fs.createWriteStream(distTemp)
         .on('finish', function() {
-          // fs.rename(distTemp, distPath);
+          fs.renameSync(distTemp, distPath);
           console.log("distpath get is ", distPath);
           event.sender.send('updateMsgFile', [true, '', timelineID, distPath, needOpen]);
         }));
@@ -233,9 +231,9 @@ ipcMain.on("download-mgs-oimage", function(event, arg) {
   sender.get(path, config)
     .then(function (ret) {
       // console.log("sender get is ", ret);
-      ret.data.pipe(fs.createWriteStream(distPath)
+      ret.data.pipe(fs.createWriteStream(distTemp)
         .on('finish', function() {
-          // fs.rename(distTemp, distPath);
+          fs.renameSync(distTemp, distPath);
           // console.log("updateShowImage distpath ret is ", distPath);
           event.sender.send('updateShowImage', [true, '', timelineID, distPath, needOpen]);
         }));
