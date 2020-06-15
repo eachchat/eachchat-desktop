@@ -264,6 +264,15 @@ ipcMain.on('win-min', function(event, arg) {
   mainPageWindow.minimize();
 });
 
+ipcMain.on('win-max', function(event, arg) {
+  if(mainPageWindow.isMaximized()) {
+    mainPageWindow.unmaximize();
+  }
+  else {
+    mainPageWindow.maximize();
+  }
+});
+
 function createWindow () {
   /**
    * Initial window options

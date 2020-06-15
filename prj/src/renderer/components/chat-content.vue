@@ -34,8 +34,11 @@
             </ul>
           </div>
         </div>
-        <div class="chat">
+        <div class="chat" v-show="!isEmpty">
           <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
+        </div>
+        <div class="chat-empty" v-show="isEmpty">
+          <img class="chat-empty-bg" src="/static/Img/Chat/empty.png">
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -100,6 +103,7 @@ export default {
       showImageLayers: false,
       imageLayersSrcInfo: '',
       clickedGroupList: [],
+      isEmpty: true,
     };
   },
   methods: {
@@ -486,6 +490,7 @@ export default {
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
+      this.isEmpty = false;
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat = chatGroup;
       this.curindex = index;
@@ -573,6 +578,20 @@ export default {
     display: flex;
     flex-direction: row;
     margin: 0px;
+  }
+
+  .chat-empty {
+    width:100%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;  
+  }
+
+  .chat-empty-bg {
+    width: 168px;
+    height: 168px;
+    background-color: white;
   }
 
   .chat {

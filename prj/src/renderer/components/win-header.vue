@@ -4,13 +4,9 @@
         </div>
         <div class="header-chat">
             <div class="Buttons">
-                <i class="el-icon-close" @click="Close()">
-                </i>
-                <button class="header-btn-max" @click="Max()" v-show="false">
-                    <i class="el-icon-max"></i>
-                </button>
-                <i class="el-icon-minus" @click="Min()">
-                </i>
+                <img class="header-btn-close" src="/static/Img/Main/WinClose-20px.png" @click="Close()">
+                <img class="header-btn-max" src="/static/Img/Main/WinZoom-20px.png" @click="Max()">
+                <img class="header-btn-min" src="/static/Img/Main/WinMinimise-20px.png" @click="Min()">
             </div>
         </div>
     </div>
@@ -30,6 +26,9 @@ export default {
         },
         Close: function() {
             ipcRenderer.send("win-close");
+        },
+        Max: function() {
+            ipcRenderer.send("win-max");
         }
     },
     components: {
@@ -41,7 +40,7 @@ export default {
 
 <style lang="scss" scoped>
     .ChatHeaderBar {
-        height: 20px;
+        height: 24px;
         width: 100%;
     }
 
@@ -50,7 +49,7 @@ export default {
         margin:0;
         height: 20px;
         width: 280px;
-        border-right: 1px solid rgb(242, 242, 246);
+        // border-right: 1px solid rgb(242, 242, 246);
         -webkit-app-region: drag;
     }
     * {
@@ -61,7 +60,7 @@ export default {
     .header-chat {
         display: inline-block;
         margin:0;
-        height: 20px;
+        height: 24px;
         width: calc(100% - 288px);
         -webkit-app-region: drag;
     }
@@ -79,48 +78,71 @@ export default {
         width: 130px;
     }
 
-    .el-icon-minus {
+    .header-btn-min {
         display: inline-block;
         float: right;
         width: 20px;
-        height: 18px;
-        line-height: 18px;
-        margin: 1px 5px 1px 5px;
+        height: 20px;
+        line-height: 20px;
+        margin: 0px 6px 0px 6px;
         background-color: rgb(255, 255, 255);
         border: 0px;
     }
 
-    .el-icon-minus:hover {
+    .header-btn-min:hover {
         display: inline-block;
         float: right;
         width: 20px;
-        height: 18px;
-        line-height: 18px;
-        margin: 1px 5px 1px 5px;
+        height: 20px;
+        line-height: 20px;
+        margin: 0px 6px 0px 6px;
         color: red;
         background-color: rgb(255, 255, 255);
         border: 0px;
     }
 
-    .el-icon-close {
+    .header-btn-max {
         display: inline-block;
         float: right;
         width: 20px;
-        height: 18px;
-        line-height: 18px;
-        margin: 1px 5px 1px 5px;
+        height: 20px;
+        line-height: 20px;
+        margin: 0px 6px 0px 6px;
         background-color: rgb(255, 255, 255);
         border: 0px;
     }
 
-    .el-icon-close:hover {
+    .header-btn-max:hover {
         display: inline-block;
         float: right;
         width: 20px;
-        height: 18px;
-        line-height: 18px;
+        height: 20px;
+        line-height: 20px;
+        margin: 0px 6px 0px 6px;
         color: red;
-        margin: 1px 5px 1px 5px;
+        background-color: rgb(255, 255, 255);
+        border: 0px;
+    }
+
+    .header-btn-close {
+        display: inline-block;
+        float: right;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        margin: 0px 6px 0px 6px;
+        background-color: rgb(255, 255, 255);
+        border: 0px;
+    }
+
+    .header-btn-close:hover {
+        display: inline-block;
+        float: right;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        color: red;
+        margin: 0px 6px 0px 6px;
         background-color: rgb(255, 255, 255);
         border: 0px;
     }
