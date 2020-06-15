@@ -14,15 +14,15 @@
                 </el-dropdown-item> -->
             </el-dropdown-menu>
         </el-dropdown>
-        <el-dialog title="发起聊天" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
+        <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
-                <chatGroupCreater :disable-users="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
+                <chatGroupCreater :disableUsers="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
                 </chatGroupCreater>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button class="dialog-confirm-button" type="primary" @click="createGroup()">确 定</el-button>
             </span>
-        </el-dialog>        
+        </el-dialog>
     </div>
 </template>
 
@@ -93,7 +93,7 @@ export default {
                     groupItem["contain_user_ids"] = groupUserIds;
                     groupItem["group_avarar"] = chatAvater;
                     groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 101;
+                    groupItem["group_type"] = 102;
                     groupItem["last_message_time"] = 0;
                     groupItem["message_content"] = null;
                     groupItem["message_content_type"] = 101;
@@ -218,7 +218,7 @@ export default {
     }
 
     .el-dialog {
-        height: 250px;
+        height: 400px;
         overflow: none;
     }
 

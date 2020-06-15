@@ -12,6 +12,7 @@ import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
+import {ipcRenderer} from 'electron'
 export default {
     name: 'ImageLayers',
     props: ['imgSrcInfo', 'access_token'],
@@ -22,11 +23,11 @@ export default {
             LoadingElement: null,
             imgHeight: 400,
             imgWidth: 600,
+            ipcInited: false,
         }
     },
     methods: {
         Close: function() {
-            this.imgSrcInfo = "";
             this.$emit("closeImageOfMessage");
         },
         calcImgPosition: function() {
@@ -59,7 +60,32 @@ export default {
             }
 
             return ret;
-        }
+        },
+        updateShowImage: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var needOpen = args[4];
+
+            var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
+            var showfu = new FileUtil(localPath);
+            let showfileObj = showfu.GetUploadfileobj();
+            this.imgHeight = msgContent.imgHeight;
+            this.imgWidth = msgContent.imgWidth;
+            if(this.imgHeight > 400) {
+                this.imgHeight = 400;
+            }
+            var showPosition = this.calcImgPosition();
+            let reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onloadend = () => {
+                this.ImgElement.setAttribute("src", reader.result);
+                this.ImgElement.setAttribute("height", this.imgHeight);
+                this.ImgElement.style.left = showPosition.left.toString() + "px";
+                this.ImgElement.style.top = showPosition.top.toString() + "px";
+            }
+        },
     },
     components: {
     },
@@ -76,7 +102,7 @@ export default {
         }, 0)
     },
     watch: {
-        imgSrcInfo: function() {
+        imgSrcInfo: async function() {
             if(this.ImgElement == null) {
                 this.ImgElement = document.getElementById("imageLayersImage");
             }
@@ -87,9 +113,11 @@ export default {
                 return;
             }
 
-            if(fs.existsSync(this.imgSrcInfo.targetPath)){
-                var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
-                var showfu = new FileUtil(this.imgSrcInfo.targetPath);
+            var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
+            var targetFileName = msgContent.fileName;
+            var localPath = "";
+            if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, targetFileName, false))) {
+                var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 this.imgHeight = msgContent.imgHeight;
                 this.imgWidth = msgContent.imgWidth;
@@ -106,26 +134,52 @@ export default {
                     this.ImgElement.style.top = showPosition.top.toString() + "px";
                 }
             }
-            else{
-                var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
-                this.imgHeight = msgContent.imgHeight;
-                this.imgWidth = msgContent.imgWidth;
-                if(this.imgHeight > 400) {
-                    this.imgHeight = 400;
+            else {
+                if(!this.ipcInited) {
+                    ipcRenderer.on('updateShowImage', this.updateShowImage);
+                    this.ipcInited = true;
                 }
-                var showPosition = this.calcImgPosition();
-                this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.imgSrcInfo.time_line_id)
-                    .then((ret) => {
-                        let reader = new FileReader();
-                        reader.readAsDataURL(ret.data);
-                        reader.onloadend = () => {
-                            this.ImgElement.setAttribute("src", reader.result);
-                            this.ImgElement.setAttribute("height", this.imgHeight);
-                            this.ImgElement.style.left = showPosition.left.toString() + "px";
-                            this.ImgElement.style.top = showPosition.top.toString() + "px";
-                        }
-                    })
             }
+
+            // if(fs.existsSync(this.imgSrcInfo.targetPath)){
+            //     var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
+            //     var showfu = new FileUtil(this.imgSrcInfo.targetPath);
+            //     let showfileObj = showfu.GetUploadfileobj();
+            //     this.imgHeight = msgContent.imgHeight;
+            //     this.imgWidth = msgContent.imgWidth;
+            //     if(this.imgHeight > 400) {
+            //         this.imgHeight = 400;
+            //     }
+            //     var showPosition = this.calcImgPosition();
+            //     let reader = new FileReader();
+            //     reader.readAsDataURL(showfileObj);
+            //     reader.onloadend = () => {
+            //         this.ImgElement.setAttribute("src", reader.result);
+            //         this.ImgElement.setAttribute("height", this.imgHeight);
+            //         this.ImgElement.style.left = showPosition.left.toString() + "px";
+            //         this.ImgElement.style.top = showPosition.top.toString() + "px";
+            //     }
+            // }
+            // else{
+            //     var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
+            //     this.imgHeight = msgContent.imgHeight;
+            //     this.imgWidth = msgContent.imgWidth;
+            //     if(this.imgHeight > 400) {
+            //         this.imgHeight = 400;
+            //     }
+            //     var showPosition = this.calcImgPosition();
+            //     this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.imgSrcInfo.time_line_id)
+            //         .then((ret) => {
+            //             let reader = new FileReader();
+            //             reader.readAsDataURL(ret.data);
+            //             reader.onloadend = () => {
+            //                 this.ImgElement.setAttribute("src", reader.result);
+            //                 this.ImgElement.setAttribute("height", this.imgHeight);
+            //                 this.ImgElement.style.left = showPosition.left.toString() + "px";
+            //                 this.ImgElement.style.top = showPosition.top.toString() + "px";
+            //             }
+            //         })
+            // }
         }
     }
 }
@@ -133,11 +187,11 @@ export default {
 
 <style lang="scss" scoped>
     .ImageLayers {
-        height: calc(100% - 20px);
-        width: calc(100% - 64px);
-        position: absolute;
-        top:20px;
-        left:64px;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        top:0px;
+        left:0px;
         background: rgba(0, 0, 0, 0.6);
     }
 

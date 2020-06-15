@@ -133,6 +133,18 @@ const sqliteutil = {
         }
         return collections[0].sequence_id;
     },
+
+    async ClearCollectionByType(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type
+            }
+        );
+        for(let index in collections){
+            collections[index].destroy();
+        }
+        
+    },
     
     async FindCollectionByType(type){
         let collections = await(await models.Collection).find(
@@ -171,6 +183,16 @@ const sqliteutil = {
         if(collections.length != 0){
             collections[0].destroy();
         }
+    },
+
+    async FindItemByFavouriteID(favouriteID){
+        let collections = await (await models.Collection).find({
+            favourite_id: favouriteID
+        });
+        if(collections.length != 0){
+            return collections[0];
+        }
+        return undefined;
     },
 
     async FindItemByCollectionID(collectionID){
@@ -251,6 +273,141 @@ const sqliteutil = {
     }
 }
 
+const Department = {
+    async GetRoot(){
+        let departments = await (await models.Department).find({
+        });
+        for(let index in departments){
+            if(departments[index].parent_id == "")
+                return departments[index];
+        }        
+    },
+
+    async GetSubDepartment(departmentID){
+        let departments = await (await models.Department).find({
+            parent_id: departmentID
+        });
+        return departments
+         
+    },
+
+    async GetAdminId(departmentID){
+        let departments = await (await models.Department).find({
+            department_id: departmentID
+        });
+        if(departments.length == 1){
+            return departments[0].admin_id;
+        }
+    },
+
+    async GetDepartmentInfoByUserID(userID){
+        let userinfo = await UserInfo.GetUserInfo(userID);
+        if(userinfo != undefined)
+            return await this.GetDepartmentInfoByDepartmentID(userinfo.belong_to_department_id);
+    },
+
+    async GetDepartmentInfoByDepartmentID(departmentID){
+        let departments = await (await models.Department).find({
+            department_id: departmentID
+        });
+        if(departments.length == 1){
+            return departments[0];
+        }
+    }
+};
+
+const UserInfo = {
+    async GetSubUserinfo(departmentID){
+        let userinfos = await(await models.UserInfo).find({
+            belong_to_department_id: departmentID
+        })
+        return userinfos;
+    },
+
+    async GetUserInfo(userID){
+        let userinfos = await(await models.UserInfo).find({
+            user_id: userID
+        })
+        if(userinfos.length != 0)
+            return userinfos[0];
+    },
+    
+    async GetUserAddress(userID){
+        let address = await(await models.UserAddress).find({
+            owner_user_id: userID
+        })
+        return address;
+    },
+
+    async GetUserIm(userID){
+        let im = await(await models.UserIm).find({
+            owner_user_id: userID
+        })
+        return im;
+    },
+
+    async GetUserEmailByUserID(userID){
+        let email = await(await models.UserEmail).find({
+            owner_user_id: userID
+        })
+        return email;
+    },
+
+    async GetUserPhoneByUserID(userID){
+        let phone = await(await models.UserPhone).find({
+            owner_user_id: userID
+        })
+        return phone;
+    },
+
+    async GetLeaders(userID){
+        let array = [];
+        if(userID != ""){
+            let infos = await(await models.UserInfo).find({
+                user_id: userID
+            })
+            if(infos.length != 1){
+                return undefined;
+            }
+            array = infos;
+            if(infos[0].manager_id == "")
+                return array;
+            return array.concat(await this.GetLeaders(infos[0].manager_id));
+        }
+        
+        
+    }
+}
+
+const Message = {
+    async DeleteMessage(messageID){
+        let msg = await(await models.Message).find({
+            message_id: messageID
+        })
+        for(let index in msg)
+        {
+            msg[index].destroy();
+        }
+    }
+}
+
+const Group = {
+    async UpdateGroupStatus(groupID, status){
+        let groups = await(await models.Groups).find({
+            group_id: groupID
+        })
+        if(groups.length == 1){
+            groups[0].status = status;
+            groups[0].save();
+        }
+    }
+}
+
+
 export{
-    sqliteutil
+    sqliteutil,
+    Department,
+    UserInfo,
+    Message,
+    Group
 }

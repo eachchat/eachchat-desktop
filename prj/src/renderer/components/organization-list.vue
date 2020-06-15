@@ -1,6 +1,6 @@
 <template>
     <el-container>
-        <el-header height="55px" class="organization-header">
+        <el-header height="56px" class="organization-header">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item v-for="(item, index) in breadCrumbs" :key="index">
                     <a href="javascript:void(0)" 
@@ -28,7 +28,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="managers-view" v-show="managers.length">
+                <!-- <div class="managers-view" v-show="managers.length">
                     <div class="managers-header">
                         管理
                     </div>
@@ -37,14 +37,16 @@
                             v-for="(manager, index) in managers"
                             @click="userMenuItemClicked(manager.user_id)" 
                             :key="index">
-                            <img class="manager-icon" :src="manager.avatar_t_url">
+                            <img class="manager-icon" :id="manager.user_id" :src="getUserImg(manager)">
+                            
                             <div class="manager-info">
                                 <p class="manager-name">{{ manager.user_display_name }}</p>
                                 <p class="manager-title">{{ manager.user_title }}</p>
+                                
                             </div>
                         </li>
                     </ul>
-                </div>
+                </div> -->
                 <div class="users-view" v-show="users.length">
                     <div class="users-header">
                         成员
@@ -54,7 +56,7 @@
                             v-for="(manager, index) in users"
                             @click="userMenuItemClicked(manager.user_id)" 
                             :key="index">
-                            <img class="manager-icon" :src="manager.avatar_t_url">
+                            <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                             <div class="manager-info">
                                 <p class="manager-name">{{ manager.user_display_name }}</p>
                                 <p class="manager-title">{{ manager.user_title }}</p>
@@ -63,17 +65,23 @@
                     </ul>
                 </div>
             </div>
-            <div class="userInfo-view" v-show="showUserInfoDrawer">
+            <!-- <div class="userInfo-view" v-show="showUserInfoDrawer">
                 <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px" :closable="true">
                     <userInfoContent :userInfo = "userInfo"></userInfoContent>
                 </yidrawer>
-            </div>
+            </div> -->
             </el-container>
         </el-main>
     </el-container>
 </template>
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
+//import { services } from '../../packages/data'
+import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
+import {Department, UserInfo} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 export default {
@@ -85,67 +93,52 @@ export default {
     data () {
         return {
             breadCrumbs: [],
-            allDepartments: [],
-            allUsers: [],
-            allEmails: [],
-            allAddress: [],
-            allPhones: [],
             departments: [],
             users: [],
             managers: [],
             userInfo: {},
             showUserInfoDrawer: false,
+            userAvatarPaths:{},
+        }
+    },
+    props:{
+        parentInfo: {
+            type:Object
         }
     },
     methods: {
-        departmentBreadCrumbsClicked(id, name, index) {
+        departmentBreadCrumbsClicked:async function(id, name, index) {
             this.showUserInfoDrawer = false;
+            var departmentModels = await Department.GetSubDepartment(id);
+
             var tempDepartments = [];
-            for (var i = 0; i < this.allDepartments.length; i ++) {
-                var department = this.allDepartments[i];
-                if (department.parent_id == id) {
-                    tempDepartments[department.show_order] = department;
-                }
-            }
-            var tempManagers = [];
-            var tempUsers = [];
-            for (var i = 0; i < this.allUsers.length; i ++) {
-                var user = this.allUsers[i];
-                if (user.belong_to_department_id == id) {
-                    tempUsers.push(user);
-                    if (user.manager) {
-                        tempManagers.push(user);
-                    }
-                }
+            for(var i = 0; i < departmentModels.length; i ++){
+                tempDepartments[departmentModels[i].show_order] = departmentModels[i];
             }
             this.departments = tempDepartments;
-            this.users = tempUsers;
-            this.managers = tempManagers;
+            this.users = await UserInfo.GetSubUserinfo(id);
+            this.$nextTick(function(){
+                for(var i = 0; i < this.users.length; i ++){
+                    this.getUserImg(this.users[i]);
+                }
+            });
+
             this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
         },
-        departmentMenuItemClicked(id, name) {
+        departmentMenuItemClicked:async function(id, name) {
             this.showUserInfoDrawer = false;
+            var departmentModels = await Department.GetSubDepartment(id);
             var tempDepartments = [];
-            for (var i = 0; i < this.allDepartments.length; i ++) {
-                var department = this.allDepartments[i];
-                if (department.parent_id == id) {
-                    tempDepartments[department.show_order] = department;
-                }
-            }
-            var tempManagers = [];
-            var tempUsers = [];
-            for (var i = 0; i < this.allUsers.length; i ++) {
-                var user = this.allUsers[i];
-                if (user.belong_to_department_id == id) {
-                    tempUsers.push(user);
-                    if (user.manager) {
-                        tempManagers.push(user);
-                    }
-                }
+            for(var i = 0; i < departmentModels.length; i ++){
+                tempDepartments[departmentModels[i].show_order] = departmentModels[i];
             }
             this.departments = tempDepartments;
-            this.users = tempUsers;
-            this.managers = tempManagers;
+            this.users = await UserInfo.GetSubUserinfo(id);
+            this.$nextTick(function(){
+                for(var i = 0; i < this.users.length; i ++){
+                    this.getUserImg(this.users[i]);
+                }
+            });
             this.breadCrumbs.push({
                 name: name,
                 id: id
@@ -199,99 +192,53 @@ export default {
             this.userInfo = tempUserInfo;
             this.showUserInfoDrawer = true;
         },
+        getUserImg: async function (userInfo){
+            console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            if(userInfo.user_id == undefined || userInfo == null) {
+                return "";
+            }
+            var userId = userInfo.user_id;
+            var userAvatarUrl = userInfo.acatar_t_url;
+            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            let userIconElement = document.getElementById(userInfo.user_id);
+            if(fs.existsSync(localPath)){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    userIconElement.setAttribute("src", reader.result);
+                }
+            }else{
+                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+            }
+        },
         getAppBaseData:async function() {
-            this.allDepartments = await services.common.GetAllDepartmentsModel();
-            this.allUsers = await services.common.GetAllUserinfo();
-            this.allEmails = await services.common.GetAllUserEmail();
-            this.allPhones = await services.common.GetAllUserPhone();
-            this.allAddress = await services.common.GetAllUserAddress();
-
+            if (this.parentInfo.department_id == undefined){
+                return;
+            }
+            var departmentModels = await Department.GetSubDepartment(this.parentInfo.department_id);
             var tempDepartments = [];
-            var tempRootDepartment = [];
-            var tempManagers = [];
-            var tempUsers = [];
-
-            for (var i = 0; i < this.allDepartments.length; i ++){
-                var department = this.allDepartments[i];
-                if (!department.parent_id) {
-                    tempRootDepartment = department;
-                    break;
-                }
+            for(var i = 0; i < departmentModels.length; i ++){
+                tempDepartments[departmentModels[i].show_order] = departmentModels[i];
             }
-            for (var i = 0; i < this.allDepartments.length; i ++){
-                var department = this.allDepartments[i];
-                if (department.parent_id == tempRootDepartment.department_id) {
-                    tempDepartments[department.show_order] = department;
-                }
-            }
-            for (var i = 0; i < this.allUsers.length; i ++) {
-                var user = this.allUsers[i];
-                if (user.department_id == tempRootDepartment.department_id) {
-                    tempUsers.push(user);
-                    if (user.manager) {
-                        tempManagers.push(user);
-                    }
-                }
-            }
-                
             this.departments = tempDepartments;
-            this.managers = tempManagers;
-            this.users = tempUsers;
+            this.users = await UserInfo.GetSubUserinfo(this.parentInfo.department_id);
+
+            
             this.breadCrumbs.push({
-                name: "组织架构",
-                id: tempRootDepartment.department_id
+                name: this.parentInfo.display_name,
+                id: this.parentInfo.department_id
             });
         },
     },
     created: async function() {
         await this.getAppBaseData();
-        /*
-        this.serverApi.GetAllDepartmentInfo()
-        .then(function(res){
-            _this.allDepartments = res.data;
-            
-            var tempDepartments = [];
-            var tempRootDepartment = [];
-            var tempManagers = [];
-            var tempUsers = [];
-            for (var i = 0; i < _this.allDepartments.length; i ++){
-                var department = _this.allDepartments[i];
-                if (department.level == 1){
-                    tempDepartments[department.showOrder] = department;
-                }
-                if (department.level == 0) {
-                    tempRootDepartment = department;
-                }
+        this.$nextTick(function(){
+            for(var i = 0; i < this.users.length; i ++){
+                this.getUserImg(this.users[i]);
             }
-            _this.serverApi.GetAllUserInfo()
-            .then(function(res){
-                _this.allUsers = res.data;
-                
-                for (var i = 0; i < _this.allUsers.length; i ++) {
-                    var user = _this.allUsers[i];
-                    if (user.departmentId == tempRootDepartment.id) {
-                        tempUsers.push(user);
-                        if (user.manager) {
-                            tempManagers.push(user);
-                        }
-                    }
-                }
-                
-                _this.departments = tempDepartments;
-                _this.managers = tempManagers;
-                _this.users = tempUsers;
-                _this.breadCrumbs.push({
-                    name: "组织架构",
-                    id: tempRootDepartment.id
-                })
-            })
-            .catch(err=>{console.log(err)}
-            )
-        })
-        .catch(err=>{console.log(err)}
-        )
-        */
-        
+        });
     }
 }
 </script>
@@ -329,21 +276,16 @@ display: none;
 .organization-header {
     display: float;
     width: 100%;
-    height: 55px;
+    height: 56px;
     background-color: rgb(255, 255, 255);
-    border-bottom: 1px solid rgb(221, 221, 221);
+    //border-bottom: 1px solid rgb(221, 221, 221);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
     //-webkit-app-region: drag;
     // * {            
     //     -webkit-app-region: no-drag;
     // }
 }
-.organization-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-    margin: -16px;
-}
+
 .organization-view {
     width: 100%;
     height: 100%;
@@ -357,11 +299,6 @@ display: none;
     // }
     margin: 0px;
     cursor: pointer;
-}
-.empty-content {
-    width: 100%;
-    height: auto;
-    //background-color: orange;
 }
 .departments-view {
     width: 100%;
@@ -383,11 +320,11 @@ display: none;
 }
 .managers-header {
     width: 100%;
-    height: 28px;
+    height: 32px;
     padding-top: 10px;
     padding-left: 16px;
-    background-color: rgb(239, 240, 241);
-    font-size: 13px;
+    background:rgba(247,248,250,1);
+    font-size: 12px;
     line-height: 18px;
     letter-spacing: 1px;
 }
@@ -396,8 +333,8 @@ display: none;
     height: 28px;
     padding-top: 10px;
     padding-left: 16px;
-    background-color: rgb(239, 240, 241);
-    font-size: 13px;
+    background:rgba(247,248,250,1);
+    font-size: 12px;
     line-height: 18px;
     letter-spacing: 1px;
 }
@@ -418,34 +355,42 @@ display: none;
     //border-top: 1px solid rgb(221, 221, 221);
 }
 .department {
-    height: 64px;
+    height: 60px;
     border-bottom: 1px solid rgb(221, 221, 221);
     
-    
+}
+.department:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
 }
 .manager {
-    height: 64px;
+    height: 60px;
     border-bottom: 1px solid rgb(221, 221, 221);
     
 }
-
+.manager:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+}
 .department-icon {
     width: 40px;
     height: 40px;
     display: inline-block;
     margin-left: 16px;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-right: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .manager-icon {
     width: 40px;
     height: 40px;
     display: inline-block;
     margin-left: 16px;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-right: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     border-radius: 4px;
 }
 .manager-info {
@@ -457,20 +402,26 @@ display: none;
 .manager-name {
     height: 20px;
     width: 100%;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-bottom: 2px;;
     margin-left: 12px;
     font-size: 14px;
     line-height: 20px;
+    font-weight:400;
+    letter-spacing:1px;
+    color:rgba(0,0,0,1);
 }
 .manager-title {
-    height: 20px;
+    height: 18px;
     width: 100%;
     margin-top: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight:400;
+    color:rgba(153,153,153,1);
+    letter-spacing:1px;
 }
 .department-info {
     display: inline-block;
@@ -482,10 +433,11 @@ display: none;
     text-align: left;
     height: 40%;
     width: 70%;
-    margin-top: 21px;
-    margin-left: 16px;
+    margin-top: 20px;
+    margin-left: 12px;
     font-size: 14px;
-    line-height: 22px;
+    line-height: 20px;
+    letter-spacing: 1px;
 }
 .item-arrow {
     display: inline-block;
@@ -512,7 +464,7 @@ display: none;
     .el-breadcrumb {
         display: block;
         margin-left: 16px;
-        padding-top: 18px;
+        padding-top: 16px;
         font-size: 14px;
         line-height: 20px;
         padding-left: 0px;

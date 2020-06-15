@@ -50,6 +50,7 @@ function init(env) {
 
   } else if (osTypeString.includes("linux")) {
     env.os.type = osType.LINUX;
+    result = initForLinux(env);
 
   } else if (osTypeString.includes("darwin")) {
     env.os.type = osType.OSX;
@@ -58,6 +59,18 @@ function init(env) {
 
   return result;
 }
+
+function initForLinux(env){
+  let eachChatDir = os.homedir() + "/EachChat";
+
+  if (!fs.existsSync(eachChatDir)) {
+    fs.mkdirSync(eachChatDir);
+  }
+
+  env.path.base = eachChatDir;
+  env.path.sqlite = eachChatDir + "/eachchat.db";
+  return true;
+}  
 
 function initForWindows(env) {
   var appRoamingDir = os.homedir() + "\\AppData\\Roaming";

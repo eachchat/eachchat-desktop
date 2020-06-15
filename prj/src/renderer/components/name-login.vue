@@ -76,7 +76,6 @@ export default {
             services.common.init(config);
             
             let response = await services.common.login();
-            await services.common.InitServiceData();
             console.log(response)
             var ret_data = response;
             if(response){
@@ -92,6 +91,7 @@ export default {
             
             this.loginState = "登录成功"
 
+            await services.common.InitServiceData();
             const ipcRenderer = require('electron').ipcRenderer;
             ipcRenderer.send('showMainPageWindow');
         }

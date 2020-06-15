@@ -7,21 +7,22 @@
 import axios from "axios";
 
 class HTTP {
-  static MIME = {
-    plain: "text/plain",
-    html: "text/html",
-    jpeg: "image/jpeg",
-    png: "image/png",
-    gif: "image/gif",
-    mp4: "video/mp4",
-    json: "application/json",
-    stream: "application/octet-stream"
-  }
-
   constructor(hostname, port) {
     this.hostname = hostname;
     this.baseURL = "http://" + hostname;
     this.port = 80;
+    this.contentTypeChecker = undefined;
+
+    this.MIME = {
+      plain: "text/plain",
+      html: "text/html",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      gif: "image/gif",
+      mp4: "video/mp4",
+      json: "application/json",
+      stream: "application/octet-stream"
+    }
 
     if (typeof port == "number") {
       this.port = port;
@@ -30,31 +31,32 @@ class HTTP {
     this.sender = axios.create({
       baseURL: this.baseURL + ":" + String(port)
     });
+    this.contentTypeChecker = (function (mimeTypes) {
+      var typeCheck = {};
+  
+      for (var mimeType in mimeTypes) {
+        if (!mimeTypes.hasOwnProperty(mimeType)) {
+          continue;
+        }
+  
+        (function (checker, typeName, typeText) {
+          Object.defineProperty(checker, typeName, {
+            get() {
+              return this.type.includes(typeText);
+            }
+          });
+        })(typeCheck, mimeType, mimeTypes[mimeType]);
+      }
+  
+      return Object.freeze(typeCheck);
+    })(this.MIME);
+  
   }
 
-  static contentTypeChecker = (function (mimeTypes) {
-    var typeCheck = {};
-
-    for (var mimeType in mimeTypes) {
-      if (!mimeTypes.hasOwnProperty(mimeType)) {
-        continue;
-      }
-
-      (function (checker, typeName, typeText) {
-        Object.defineProperty(checker, typeName, {
-          get() {
-            return this.type.includes(typeText);
-          }
-        });
-      })(typeCheck, mimeType, mimeTypes[mimeType]);
-    }
-
-    return Object.freeze(typeCheck);
-  })(HTTP.MIME);
-
+  
   parseHeader(response) {
     var checker = Object.assign(
-      Object.create(HTTP.contentTypeChecker),
+      Object.create(this.contentTypeChecker),
       {
         type: "unknown"
       });

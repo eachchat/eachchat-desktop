@@ -2,6 +2,8 @@
 
 import { net } from '../core/index.js'
 import { FileUtil } from "../core/Utils.js"
+import { environment } from "./environment.js"
+
 //const {FileUtil} = require("./Utils.js")
 
 class APITransaction {
@@ -33,14 +35,30 @@ class APITransaction {
     return response;
   }
 
-  async login(username, password) {
-    console.debug("login");
+  async login(username, password, identityType, identityValue) {
+    let osType;
+    
+    if(environment.os.isWindows){
+      osType = "windows";
+    }
+    else if(environment.os.isOSX){
+      osType = "macos";
+    }
+    else if(environment.os.isLinux){
+      osType = "linux";
+    }
+    
     var response = await this.commonApi.post(
       "/api/services/auth/v1/login", {
         account: username,
         password: password,
         yqlVerCode: 6,
-        osType: "windows"
+        identity:
+        {
+          type: identityType,
+          value: identityValue,
+        },
+        osType: osType
       });
     return this.parseStatus(response);
   }
@@ -548,6 +566,19 @@ class APITransaction {
   async QuitGroup(accessToken, groupID){
     var response = await this.commonApi.delete(
       "/api/apps/imv1/group/quit/" + groupID,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async TransferGroup(accessToken, groupID, toUserID){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/transfer",
+      {
+        "gropuId" : groupID,
+        "toUserId" : toUserID
+      },
       {
         Authorization: "Bearer " + accessToken
       });

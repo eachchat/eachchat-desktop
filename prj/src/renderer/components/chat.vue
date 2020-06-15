@@ -1,39 +1,50 @@
 <template>
     <div class="chat-page">
         <div class="chat-title">
-            <p class="chat-name" id="chat-group-name"></p>
+            <div class="chatInfo">
+                <img class="chat-img" id="chat-group-img">
+                <p class="chat-name" id="chat-group-name"></p>
+                <p class="chat-name-state" id="chat-group-state"></p>
+            </div>
             <div class="chat-tools">
-                <div class="chat-tool-more" @click="More()" style="display:none">
-                    <i class="el-icon-more"></i>
+                <div class="chat-tool-more-div" @click="More()">
+                    <img class="chat-tool-more-img" src="../../../static/Img/Chat/more@2x.png">
+                </div>
+                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
+                    <img class="chat-tool-invite-img" src="../../../static/Img/Chat/addMember@2x.png">
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
             </div>
         </div>
-        <div class="chat-main">
+        <div class="chat-main" id="chat-main">
             <div class="chat-main-message" id="message-show">
                 <ul class="msg-list" id="message-show-list">
                     <li v-for="(item, index) in messageListShow"
-                        :class="ChatLeftOrRightClassName(item)">
+                        :class="ChatLeftOrRightClassName(item)"
+                        @contextmenu="rightClick(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
-                        <imessage :msg="item" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip"></imessage>
+                        <div class="msgContent">
+                            <input class="multiSelectCheckbox" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage"></imessage>
+                        </div>
                     </li>
                 </ul>
             </div>
-            <div class="chat-input">
+            <div class="chat-input" v-show="!multiSelect">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
                         <Faces v-show="showFace"  @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
                         <div class="chat-input-expression" @click="showExpression()">
-                            <img class="el-icon-emoji" src="../../../static/Img/Chat/emoji@3x.png">
+                            <img class="el-icon-emoji" src="../../../static/Img/Chat/emoji@2x.png">
                         </div>
                         <div class="chat-input-picture" @click="insertPic()">
-                            <img class="el-icon-picture" src="../../../static/Img/Chat/pic@3x.png">
+                            <img class="el-icon-picture" src="../../../static/Img/Chat/pic@2x.png">
                         </div>
                         <div class="chat-input-file" @click="insertFiles()">
-                            <img class="el-icon-files" src="../../../static/Img/Chat/file@3x.png">
+                            <img class="el-icon-files" src="../../../static/Img/Chat/file@2x.png">
                         </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
@@ -51,20 +62,41 @@
                     </quillEditor>
                 </div>
             </div>
+            <div class="multiSelectTools" v-show="multiSelect">
+                <img class="multiSelectTransmit" src="../../../static/Img/Favorite/Detail/transmit@2x.png" @click="multiTransMit">
+                <img class="multiSelectFav" src="../../../static/Img/Navigate/fav-24px@2x.png" @click="multiFav" v-show="false">
+                <img class="multiSelectDel" src="../../../static/Img/Favorite/Detail/delete@2x.png" @click="multiDel" v-show="false">
+                <img class="multiSelectToolClose" src="../../../static/Img/Navigate/close-20px@2x.png" @click="multiToolsClose">
+            </div>
         </div>
+        <transmit v-show="showTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs" @closeTransmitDlg="closeTransmitDlg"></transmit>
         <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
+        <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" height="100%" @close="handleDialogClose()">
+            <div class="el-dialog-content">
+                <chatGroupCreater ref="chatGroupCreater" :disableUsers="disabledusers" @getCreateGroupUsersSelected="getUsersSelected">
+                </chatGroupCreater>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button class="dialog-confirm-button" type="primary" @click="AddNewMembers()">确 定</el-button>
+            </span>
+        </el-dialog>
+        <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
+        <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
     </div>
 </template>
 
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, remote} from 'electron'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -72,7 +104,13 @@ import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
 import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
+import groupInfoTip from './group-info.vue'
+import chatGroupCreater from './chatgroup-creater'
+import transmit from './transmit.vue'
+import noticeEditDlg from './noticeEditDlg.vue'
+import ownerTransferDlg from './ownerTransfer.vue'
 
+const {Menu, MenuItem} = remote;
 
 function extend(target, base) {
     console.log("base is ", base);
@@ -145,9 +183,127 @@ export default {
         imessage,
         Faces,
         userInfoTip,
+        groupInfoTip,
+        chatGroupCreater,
+        transmit,
+        noticeEditDlg,
+        ownerTransferDlg
     },
     props: ['chat'],
     methods: {
+        handleDialogClose() {
+            this.$refs.chatGroupCreater.initData();
+        },
+        updateGroupImg: function(e, args) {
+            console.log("argsd is ", args);
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            if(id != this.chat.group_id) {
+                return;
+            }
+            let elementImg = document.getElementById("chat-group-img");
+            elementImg.setAttribute("src", "");
+            var showfu = new FileUtil(localPath);
+            let showfileObj = showfu.GetUploadfileobj();
+            var reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onloadend = () => {
+                elementImg.setAttribute("src", reader.result);
+            }
+        },
+        rightClick(msgItem) {
+            console.log("msgitem is ", msgItem)
+            this.menu = new Menu();
+            this.menu.append(new MenuItem({
+                label: "转发",
+                click: () => {
+                    this.transMit(msgItem)
+                }
+            }));
+            this.menu.append(new MenuItem({
+                label: "多选",
+                click: () => {
+                    this.msgMultiSelect(msgItem);
+                }
+            }));
+            this.menu.popup(remote.getCurrentWindow());
+        },
+        transMit(msg) {
+            this.showTransmitDlg = true;
+            this.updateTransmit = !this.updateTransmit;
+            this.selectedMsgs.push(msg);
+            this.transmitTogether = false;
+        },
+        multiTransMit() {
+            this.showTransmitDlg = true;
+            this.updateTransmit = !this.updateTransmit;
+            this.transmitTogether = true;
+        },
+        multiFav() {
+
+        },
+        multiDel() {
+
+        },
+        multiToolsClose() {
+            this.multiSelect = false;
+        },
+        showCheckboxOrNot(curMsg) {
+            if(this.multiSelect && !this.showNoticeOrNot(curMsg)) {
+                return true;
+            }
+            return false;
+        },
+        msgMultiSelect(msg) {
+            console.log("multitransmit msg is ", msg);
+            this.multiSelect = true;
+        },
+        selectChanged: function(curMsg) {
+            if(curMsg == null){
+                return false;
+            }
+            var hasSelected = false;
+            for(let i=0;i<this.selectedMsgs.length;i++) {
+                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                    this.selectedMsgs.splice(i, 1);
+                    hasSelected = true;
+                    break;
+                }
+            }
+            if(!hasSelected) {
+                this.selectedMsgs.push(curMsg);
+            }
+        },
+        closeTransmitDlg() {
+            this.showTransmitDlg = false;
+            this.selectedMsgs = [];
+            this.multiSelect = false;
+        },
+        getUsersSelected(usersSelected) {
+            this.usersSelected = usersSelected;
+        },
+        showAddMembersPrepare: function() {
+            var memeberList = this.chat.contain_user_ids.split(",");
+            this.showAddMembers(memeberList);
+        },
+        showAddMembers: function(existedMembers){
+            this.groupCreaterTitle = "添加成员"
+            console.log("showaddmembers is ", this.disabledusers)
+            this.disabledusers = existedMembers;
+            console.log("showaddmembers is ", this.disabledusers)
+            this.dialogVisible = true;
+        },
+        AddNewMembers: function() {
+            console.log("add member s ", this.usersSelected);
+            var addUids = [];
+            for(var i=0;i<this.usersSelected.length;i++) {
+                addUids.push(this.usersSelected[i].id)
+            }
+            services.common.AddGroupUsers(this.chat.group_id, addUids);
+            this.dialogVisible = false;
+        },
         keyHandle(event) {
             if(event.code == "Enter" && !event.ctrlKey) {
                 this.sendMsg();
@@ -187,28 +343,41 @@ export default {
         showImageOfMessage(imgSrcInfo) {
             this.$emit('showImageOfMessage', imgSrcInfo);
         },
+        playAudioOfMessage(audioMsgId) {
+            this.playingMsgId = audioMsgId;
+        },
         openUserInfoTip(tipInfos) {
+            console.log("tip inso if ", tipInfos);
             this.tipInfos = tipInfos;
             this.showUserInfoTips = true;
         },
         closeUserInfoTip(e){
             var userInfoTipElement = document.getElementById("userInfoTipId");
-            if(!userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img"){
+            if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img"){
                 this.showUserInfoTips = false;
+            }
+            var groupInfoElement = document.getElementById("groupInfoTipId");
+            // console.log("e.target.classname ", e.target.className)
+            if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more-div" && e.target.className != "chat-tool-more-img" && e.target.className != "groupMemberSearchImage" && e.target.className != "searchMemberCancel") {
+                this.showGroupInfoTips = false;
+                this.cleanCache = true;
+                this.groupInfo = {};
             }
         },
         showExpression: function() {
             this.showFace = !this.showFace;
         },
-        showGroupName(chatGroupItem) {
-            var groupNameElement = document.getElementById("chat-group-name");
-            if(chatGroupItem === null){
+        showGroupName: async function(chatGroupItem) {
+            if(chatGroupItem.group_id == null || chatGroupItem.group_id == undefined){
                 return "";
             }
+            var groupNameElement = document.getElementById("chat-group-name");
+            var groupIcoElement = document.getElementById("chat-group-img");
+            var groupStateElement = document.getElementById("chat-group-state");
             console.log("getShowGroupName is ", chatGroupItem.group_id)
             var groupName = chatGroupItem.group_name;
             if(groupName.length == 0) {
-                var aboutUids = chatGroupItem.contain_user_ids;
+                var aboutUids = chatGroupItem.contain_user_ids.split(",");
                 var groupUidNameList = [];
                 for(var i=0;i<aboutUids.length;i++) {
                     let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
@@ -220,6 +389,20 @@ export default {
                 groupName = groupUidNameList.join(",");
             }
             groupNameElement.innerHTML = groupName;
+            
+            var targetPath = "";
+            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, chatGroupItem.group_id))){
+                groupIcoElement.setAttribute("src", targetPath);
+            }
+
+            var groupState = "";
+            if(chatGroupItem.group_type == 102) {
+                console.log("================")
+                var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
+                groupState = ownerInfo[0].status_description;
+                console.log("================ ", ownerInfo)
+            }
+            groupStateElement.innerHTML = groupState;
         },
         insertFace: function(item) {
             var range = this.editor.getSelection();
@@ -292,7 +475,7 @@ export default {
             }
         },
         insertImg: function() {
-            console.log("============== this is ", this);
+            // console.log("============== this is ", this);
         },
         nHandleFiles: function(e, paths) {
             // Select Same File Failed.
@@ -606,7 +789,6 @@ export default {
                                 "ext":ext,
                                 "fileName":fileName,
                                 "url":"",
-                                "fileLocalPath": filePath,
                                 "fileSize": fileSize
                             })
                             let guid = generalGuid();
@@ -617,6 +799,7 @@ export default {
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
+                                "file_local_path": filePath
                                 };
                             this.messageList.push(willSendMsg);
                             console.log("willsendmsg is ", willSendMsg);
@@ -700,7 +883,7 @@ export default {
                                 "fileName":fileName,
                                 "url":"",
                                 "middleImage":"",
-                                "thumbnailImage": filePath,
+                                "thumbnailImage": "",
                                 "imgWidth": fileWidth,
                                 "imgHeight": fileHeight,
                                 "fileSize": 0,
@@ -713,6 +896,7 @@ export default {
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
+                                "file_local_path": filePath
                                 };
                             this.messageList.push(willSendMsg);
                             this.existingMsgId.push(willSendMsg.message_id);
@@ -1053,11 +1237,75 @@ export default {
                 return "message-left";
             }
         },
+        msgSelectOrNotClassName: function(curMsg) {
+            //class="msgContent"
+            var hasSelected = false;
+            for(let i=0;i<this.selectedMsgs.length;i++) {
+                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                    this.selectedMsgs.splice(i, 1);
+                    hasSelected = true;
+                    break;
+                }
+            }
+            if(hasSelected) {
+                return "msgContentActive";
+            }
+            else {
+                return "msgContent";
+            }
+        },
         Call: function() {
             console.log("make a call");
         },
-        More: function() {
-            console.log("show more");
+        groupIsSlience(groupInfo) {
+            // console.log("========groupIsSlience status ", (groupInfo.status))
+            // console.log("========groupIsSlience ", (Number(groupInfo.status) & Number("00000001")) != 0)
+            if((Number(groupInfo.status) & Number("00000001")) != 0) {
+                // console.log("groupIsSlience grou name is ", groupInfo.group_name)
+                // console.log("group state is ", groupInfo.status)
+                return true;
+            }
+            return false;
+        },
+        groupIsTop(groupInfo) {
+            // console.log("========groupIsTop status ", groupInfo.status)
+            // console.log("========groupIsTop ", (Number(groupInfo.status) & Number("00000010"))!= 0)
+            if((Number(groupInfo.status) & Number("00000010")) != 0) {
+                // console.log("top grou name is ", groupInfo.group_name)
+                // console.log("group state is ", groupInfo.status)
+                return true;
+            }
+            return false;
+        },
+        More: async function() {
+            var isGroup = this.chat.group_type == 101 ? true : false;
+            var idsList = this.chat.contain_user_ids.split(",");
+            var isOwner = (this.chat.owner == this.curUserInfo.id ? true : false);
+            console.log("this.chat ", this.chat);
+            console.log("this.isTop ", this.groupIsTop(this.chat))
+            console.log("this.isSlience ", this.groupIsSlience(this.chat))
+            console.log("this.isOwner ", isOwner)
+            var groupInfoObj = {
+                "memberList": idsList,
+                "groupName": this.chat.group_name,
+                "groupAvarar": this.chat.group_avarar,
+                "groupNotice": this.chat.group_notice,
+                "groupId": this.chat.group_id,
+                "isGroup": isGroup,
+                "isOwner": isOwner,
+                "isTop": this.groupIsTop(this.chat),
+                "isSlience": this.groupIsSlience(this.chat),
+                "ownerId": this.chat.owner,
+            }
+            this.updateNotice = this.chat.group_notice;
+            this.groupInfo = groupInfoObj;
+            // console.log("more more more ", this.chat.contain_user_ids.split(","))
+            // var idsList = this.chat.contain_user_ids.split(",");
+            // this.groupContainUserIds = idsList;
+            // console.log("this.chat.group_name is ", this.chat.group_name);
+            this.showGroupInfoTips = true;
+            this.cleanCache = false;
+            console.log("more more more ", this.showGroupInfoTips)
         },
         compare: function(){
             return function(a, b)
@@ -1072,6 +1320,7 @@ export default {
             if(uldiv) {
                 if(uldiv.scrollTop < 100){
                     var curTime = new Date().getTime();
+                    console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
                         let lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
@@ -1082,6 +1331,7 @@ export default {
                                 this.isRefreshing = false;
                                 var messageListTmp = ret;
                                 for(var i=0;i<messageListTmp.length;i++){
+                                    console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
                                         this.messageList.push(messageListTmp[i]);
                                         this.existingMsgId.push(messageListTmp[i].message_id);
@@ -1152,11 +1402,41 @@ export default {
                     }, 1000)
                 })
         },
+        updateChatGroupStatus(groupId, groupStatus, updateType) {
+            console.log("======== ");
+            this.$emit("updateChatGroupStatus", groupId, groupStatus, updateType);
+        },
+        updateChatGroupNotice(groupId, originalNotice) {
+            console.log("==========")
+            this.noticeDialogVisible = true;
+            this.groupNoticeInfo = {};
+            this.groupNoticeInfo.originalNotice = originalNotice;
+            this.groupNoticeInfo.groupId = groupId;
+        },
+        closeNoticeDlg(content) {
+            if(content.length == 0) {
+                this.noticeDialogVisible = false;
+                this.groupNoticeInfo = {};
+            }
+            else {
+                this.noticeDialogVisible = false;
+                this.updateNotice = content;
+            }
+        },
+        showOwnerTransferDlg() {
+            this.ownerTransferDialogVisible = true;
+            this.ownerTransferchat = this.chat;
+        },
+        closeOwnerTransferDlg() {
+            this.ownerTransferDialogVisible = false;
+            this.ownerTransferchat = {};
+        },
         callback(msg) {
             // console.log("chat callback msg is ", msg);
             console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
+            console.log("chat callback msg is ", msg)
             var forceUpdate = true;
-            if(msg.message_from_id != this.curUserInfo.id) {
+            if(msg.message_from_id != this.curUserInfo.id || (msg.message_type != 101) || (this.chat.groupId != msg.group_id)) {
                 if(this.existingMsgId.indexOf(msg.message_id) == -1){
                     if(this.chat.group_id == msg.group_id){
                         forceUpdate = false;
@@ -1173,11 +1453,40 @@ export default {
                     this.$emit('updateChatList', msg, forceUpdate);
                 }
             }
-        }
+        },
+        updateMsgFile(e, args) {
+            console.log("updateMsgfile ", args);
+            this.updateMsg = args;
+        },
+        updateUserImage(e, args) {
+            console.log("updateUserImage ", args);
+            this.updateUser = args;
+        },
     },
     data() {
         return {
+            groupCreaterTitle: '发起群聊',
+            groupNoticeInfo: {},
+            updateUser:[],
+            updateNotice: "",
+            updateMsg: {},
+            menu: null,
+            cleanCache: false,
+            playingMsgId: '',
+            multiSelect: false,
+            dialogVisible: false,
+            noticeDialogVisible: false,
+            ownerTransferDialogVisible: false,
+            ownerTransferchat: {},
+            disabledusers: [],
+            groupInfo: {},
+            groupContainUserIds: [],
             ipcInited: false,
+            showGroupInfoTips: false,
+            showTransmitDlg: false,
+            updateTransmit: false,
+            transmitTogether: false,
+            selectedMsgs: [],
             editor:null,
             messageList: [],
             sendingMsgIdList: [],
@@ -1207,12 +1516,16 @@ export default {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
         setTimeout(() => {
             this.$nextTick(() => {
+                console.log("==============ipc on")
+                ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                ipcRenderer.on('updateUserImage', this.updateUserImage);
                 this.editor = this.$refs.chatQuillEditor.quill;
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
                 this.showGroupName(this.chat);
+                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
             })
         }, 0)
         document.addEventListener('click',this.closeUserInfoTip)
@@ -1220,7 +1533,7 @@ export default {
     created: async function() {
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
-
+        console.log("===============mqttinit")
         services.common.initmqtt();
         services.common.handlemessage(this.callback);
 
@@ -1242,6 +1555,8 @@ export default {
             if(this.curGroupId != this.chat.group_id) {
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
+
+                this.existingMsgId = [];
                 
                 this.getHistoryMessage();
                 this.showGroupName(this.chat);
@@ -1295,9 +1610,10 @@ export default {
     .chat-title {
         display: float;
         width: 100%;
-        height: 42px;
+        height: 32px;
         background-color: rgb(255, 255, 255);
-        border-bottom: 1px solid rgb(242, 242, 246);
+        border-bottom: 0px solid rgb(242, 242, 246);
+        margin-bottom: 12px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -1305,13 +1621,37 @@ export default {
     }
 
     .chat-name {
-        margin:10px 30px 20px 30px;
+        height: 32px;
+        line-height: 32px;
+        margin:0px 12px 0px 0px;
         float: left;
         white-space: nowrap;
         text-overflow: ellipsis;
-        font-size: 16px;
+        font-size: 14px;
         font-family: 'Microsoft YaHei';
         font-weight: 590;
+    }
+
+    .chat-img {
+        margin:0px 8px 0px 16px;
+        height: 32px;
+        width: 32px;
+        float: left;
+        border: 0px solid rgba(0, 0, 0, 0);
+    }
+    
+    .chat-name-state {
+        height: 32px;
+        line-height: 32px;
+        margin:0px 12px 0px 0px;
+        max-width: 100px;
+        float: left;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 12px;
+        font-family: 'Microsoft YaHei';
+        font-weight: 590;
+        color: rgba(153, 153, 153, 1);
     }
 
     .chat-tools {
@@ -1321,13 +1661,38 @@ export default {
         width: 200px;
     }
 
-    .chat-tool-more {
+    .chat-tool-more-div {
         display: inline-block;
         float: right;
-        width: 40px;
+        width: 32px;
+        height: 32px;
         line-height: 100%;
-        padding: 12px 0px 22px 0px;
+        padding: 0px 6px 0px 6px;
         margin: 0px;
+    }
+
+    .chat-tool-more-img {
+        width: 24px;
+        height: 24px;
+        margin: 4px 0px 4px 0px;
+        padding: 0px;
+    }
+
+    .chat-tool-invite-div {
+        display: inline-block;
+        float: right;
+        width: 32px;
+        height: 32px;
+        line-height: 100%;
+        padding: 0px 6px 0px 6px;
+        margin: 0px;
+    }
+
+    .chat-tool-invite-img {
+        width: 24px;
+        height: 24px;
+        margin: 4px 0px 4px 0px;
+        padding: 0px;
     }
 
     .chat-tool-call {
@@ -1344,13 +1709,13 @@ export default {
         width: 100%;
         height: calc(100% - 60px);
         font-size: 18px;
-        margin-top: -2px;
+        margin-top: 0px;
     }
 
     .chat-main-message {
         width: 100%;
         height: calc(100% - 150px);
-        border-bottom: 1px solid rgb(242, 242, 246);
+        border-bottom: 0px solid rgb(242, 242, 246);
         display: flex;
         flex-direction: column;
         list-style: none;
@@ -1384,7 +1749,7 @@ export default {
         text-align: center;
         font-size: 12px;
         font-family: 'Microsoft YaHei';
-        color: rgb(153, 153, 153);
+        color: rgba(187, 187, 187, 1);
         margin: 5px 10px 5px 10px;
     }
 
@@ -1393,7 +1758,7 @@ export default {
         text-align: center;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
-        color: rgb(153, 153, 153);
+        color: rgba(187, 187, 187, 1);
         margin: 10px 10px 10px 10px;
     }
 
@@ -1411,11 +1776,78 @@ export default {
         margin-bottom: 8px;
     }
 
+    .msgContent {
+        width: 100%;
+        height: auto;
+    }
+
+    .msgContentActive {
+        width: 100%;
+        background: rgba(221, 221, 221, 1);
+    }
+
+    .multiSelectCheckbox {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin-top: 12px;
+        float: left;
+    }
+
+    .multiSelectTools {
+        width: 100%;
+        height: 170px;
+        font-family: 'Microsoft YaHei';
+        font-size: 14px;
+    }
+
     .chat-input {
         width: 100%;
         height: 170px;
         font-family: 'Microsoft YaHei';
         font-size: 14px;
+    }
+
+    .multiSelectTools {
+        width: 100%;
+        height: 170px;
+        text-align: center;
+    }
+
+    .multiSelectTransmit {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .multiSelectFav {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .multiSelectDel {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .multiSelectToolClose {
+        width: 40px;
+        height: 40px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
     .chat-input-operate {
@@ -1445,8 +1877,8 @@ export default {
     }
 
     .el-icon-emoji {
-        width: 18px;
-        height: 18px;
+        width: 24px;
+        height: 24px;
         margin: 0px;
         padding: 0px;
     }
@@ -1457,8 +1889,8 @@ export default {
     }
 
     .el-icon-more {
-        width: 18px;
-        height: 18px;
+        width: 32px;
+        height: 32px;
         margin: 0px;
         padding: 0px;
     }
@@ -1470,8 +1902,8 @@ export default {
     }
 
     .el-icon-picture {
-        width: 20px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
         margin: 0px;
         padding: 0px;
     }
@@ -1483,8 +1915,8 @@ export default {
     }
 
     .el-icon-files {
-        width: 20px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
         margin: 0px;
         padding: 0px;
     }
@@ -1524,7 +1956,7 @@ export default {
         height: 150px;
         max-height: 150px;
         width: 100%;
-        overflow-y: scroll;
+        overflow-y: hidden;
         overflow-x: hidden;
 
     }
@@ -1539,4 +1971,50 @@ export default {
         overflow-y: scroll;
         overflow-x: hidden;
     }
+
+    .el-dialog__body {
+        padding-top: 0px;
+        padding-left: 32px;
+        padding-right: 32px;
+        padding-bottom: 0px;
+    }
+
+    .groupNotice {
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-indent: 10px;
+        width:376px;
+        height:280px;
+        background:rgba(255,255,255,1);
+        border-radius:4px 0px 0px 4px;
+        border:1px solid rgba(221,221,221,1);
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .groupNotice:focus {
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-indent: 10px;
+        width:376px;
+        height:280px;
+        background:rgba(255,255,255,1);
+        border-radius:4px 0px 0px 4px;
+        border:1px solid rgba(221,221,221,1);
+        color: rgba(153, 153, 153, 1);
+    }
+
+    .notice-dialog-footer {
+        text-align: center;
+    }
+
+    .dialog-confirm-button {
+        width: 100px;
+        height: 32px;
+    }
+
+    .dialog-cancle-button {
+        width: 100px;
+        height: 32px;
+    }
+
 </style>

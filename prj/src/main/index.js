@@ -69,25 +69,26 @@ ipcMain.on("download-file", function(event, arg) {
 
   sender.get(path, config)
     .then(function (ret) {
-      console.log("sender get is ", ret);
+      // console.log("sender get is ", ret);
       ret.data.pipe(fs.createWriteStream(distPath));
       if(needOpen) {
         shell.openExternal(distPath);
       }
-      event.returnValue = distPath;
+      event.sender.send('updateMsgFile', [true, '', timelineID, distPath]);
     });
 });
 
 ipcMain.on("download-avarar", function(event, arg) {
   var baseURL = arg[0];
-  console.log("downloadingList is ", downloadingList);
+  var groupId = arg[1];
+  // console.log("downloadingList is ", downloadingList);
   if(downloadingList.indexOf(baseURL) != -1){
     return;
   }
-  var token = arg[1];
-  var distPath = arg[2];
+  var token = arg[2];
+  var distPath = arg[3];
   var distTemp = distPath + "_tmp";
-  console.log("distPath is ", distPath);
+  // console.log("distPath is ", distPath);
 
   var headers={Authorization:"Bearer " + token};
   var appendix = {
@@ -100,14 +101,51 @@ ipcMain.on("download-avarar", function(event, arg) {
   downloadingList.push(baseURL);
   axios.get(baseURL,config)
     .then(function (ret) {
-      ret.data.pipe(fs.createWriteStream(distTemp)
+      ret.data.pipe(fs.createWriteStream(distPath)
         .on('finish', function() {
-          if(!fs.existsSync(distTemp)) {
+          if(!fs.existsSync(distPath)) {
             return;
           }
-          fs.rename(distTemp, distPath);
+          // fs.rename(distTemp, distPath);
           var index = downloadingList.indexOf(baseURL);
           downloadingList.splice(index, 1);
+          event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
+        }));
+    });
+});
+
+ipcMain.on("download-user-avarar", function(event, arg) {
+  var baseURL = arg[0];
+  // console.log("downloadingList is ", downloadingList);
+  if(downloadingList.indexOf(baseURL) != -1){
+    return;
+  }
+  var userId = arg[1];
+  var token = arg[2];
+  var distPath = arg[3];
+  // console.log("distPath is ", distPath);
+
+  var headers={Authorization:"Bearer " + token};
+  var appendix = {
+          timeout: 35000,
+          responseType: "stream"
+      };
+  var config = Object.assign({
+    headers: headers,
+  }, appendix);
+  downloadingList.push(baseURL);
+  axios.get(baseURL,config)
+    .then(function (ret) {
+      ret.data.pipe(fs.createWriteStream(distPath)
+        .on('finish', function() {
+          if(!fs.existsSync(distPath)) {
+            return;
+          }
+          // fs.rename(distTemp, distPath);
+          var index = downloadingList.indexOf(baseURL);
+          downloadingList.splice(index, 1);
+          // console.log("sender is ", userId, distPath)
+          event.sender.send('updateUserImage', [true, '', userId, distPath]);
         }));
     });
 });
@@ -121,6 +159,7 @@ ipcMain.on("download-image", function(event, arg) {
   var distPath = arg[4];
   var distTemp = distPath + "_tmp";
   var thumbType = arg[5];
+  var needOpen = arg[6];
   var baseURL = "http://" + hostname;
 
   if (typeof port == "number") {
@@ -146,10 +185,59 @@ ipcMain.on("download-image", function(event, arg) {
 
   sender.get(path, config)
     .then(function (ret) {
-      console.log("sender get is ", ret);
-      ret.data.pipe(fs.createWriteStream(distTemp)
+      // console.log("sender get is ", ret);
+      ret.data.pipe(fs.createWriteStream(distPath)
         .on('finish', function() {
-          fs.rename(distTemp, distPath);
+          // fs.rename(distTemp, distPath);
+          console.log("distpath get is ", distPath);
+          event.sender.send('updateMsgFile', [true, '', timelineID, distPath, needOpen]);
+        }));
+    });
+});
+
+ipcMain.on("download-mgs-oimage", function(event, arg) {
+  // console.log("=============================")
+  //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
+  var timelineID = arg[0];
+  var token = arg[1];
+  var hostname = arg[2];
+  var port = arg[3];
+  var distPath = arg[4];
+  var distTemp = distPath + "_tmp";
+  var thumbType = arg[5];
+  var needOpen = arg[6];
+  var baseURL = "http://" + hostname;
+
+  if (typeof port == "number") {
+    port = port;
+  }
+
+  var sender = axios.create({
+    baseURL: baseURL + ":" + String(port)
+  });
+
+  var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
+  var headers = {
+    Authorization: "Bearer " + token
+  };
+  var appendix = {
+    timeout: 35000,
+    responseType: "stream"
+  };
+
+  var config = Object.assign({
+    headers: headers,
+  }, appendix);
+
+  // console.log("updateShowImage distpath get is ", distPath);
+  sender.get(path, config)
+    .then(function (ret) {
+      // console.log("sender get is ", ret);
+      ret.data.pipe(fs.createWriteStream(distPath)
+        .on('finish', function() {
+          // fs.rename(distTemp, distPath);
+          // console.log("updateShowImage distpath ret is ", distPath);
+          event.sender.send('updateShowImage', [true, '', timelineID, distPath, needOpen]);
         }));
     });
 });
@@ -162,6 +250,12 @@ ipcMain.on('open-directory-dialog', function(event, arg) {
       event.sender.send('selectedItem', files);
     }
   })
+});
+
+ipcMain.on('modifyGroupImg', function(event, arg) {
+  var groupId = arg[0];
+  var distPath = arg[1];
+  event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
 });
 
 ipcMain.on('win-close', function(event, arg) {

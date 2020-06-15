@@ -4,70 +4,27 @@
             <div class="list-header">
                 <listHeader></listHeader>
             </div>
-            <div class="list-content">
-                <div class="organization-view">
-                    <div class="item" @click="organizationMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">组织架构</p>
-                        </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
-                        </div>
-                    </div>
-                </div>
-                <!-- <div class="recentUsers-view">
-                    <div class="item" @click="recentUsersMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Image/recentUsers_list@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">常用联系人</p>
-                        </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" :src="arrowImageSrc">
-                        </div>
-                    </div>
-                    <ul class="recentUsers-menu-list" v-show="showRecentUsersMenuItem">
-                        <li class="user"
-                        v-for="(user, index) in recentUsers"
+            <div class="organization-view">
+                <ul class="departments-list">
+                    <li class="department"
+                        v-for="(department, index) in departments"
+                        @click="departmentMenuItemClicked(department)" 
                         :key="index">
-                            <img class="user-icon" :src="user.avatar_t_url">
-                            <div class="user-info">
-                                <p class="user-name">{{ user.user_display_name }}</p>
-                                <p class="user-title">{{ user.user_title }}</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div> -->
-                    
-<!-- 
-
-                <ul class="item-list">
-                    <li class="item" @click="organizationMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Image/organization_list@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">组织架构</p>
+                        <img class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
+                        <div class="department-info">
+                            <p class="department-name">{{ department.display_name }}</p>
                         </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
+                        <div align="center" class="item-arrow">
+                            <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </li>
-                    <li class="item" @click="recentMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Image/recentUsers_list@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">常用联系人</p>
-                        </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Image/right_arrow@2x.png">
-                        </div>
-
-                    </li>
-                </ul> -->
+                </ul>
             </div>
         </el-aside>
         <el-container class="right-container">
             
-                <component :is="curView"></component>
-            
+            <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
+
         </el-container>
         <el-dialog title="创建群聊天" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
@@ -82,6 +39,7 @@
 </template>
 <script>
 import {services} from '../../packages/data/index.js';
+import {Department} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
 import chatGroupCreater from './chatgroup-creater';
 import listHeader from './listheader';
@@ -89,33 +47,36 @@ export default {
     name: 'organization',
     data() {
         return {
-            curindex: 0,
-            curView: 'organizationList',
-            Navigate:[
-                {    
-                    link: "/organization-list",
-                    view: "organizaionList"
-                }
-            ],
+            departments: [],
+
             dialogVisible: false,
             usersSelected: [],
-            recentUsers: [],
-            showRecentUsersMenuItem: false,
+            currentDepartment: {},
+            organizationListTimer: '',
+
             //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
     methods: {
         
-        organizationMenuItemClicked() {
-            this.curindex = 0;
-            this.curView = "organizationList";
+        getOrganizationBaseData:async function() {
+            var rootDepartment = await Department.GetRoot();
+            console.log(rootDepartment);
+            var departments = await Department.GetSubDepartment(rootDepartment.department_id);
+            console.log(departments);
+            var tempDepartments = [];
+            for(var i = 0; i < departments.length; i ++){
+                tempDepartments[departments[i].show_order] = departments[i];
+            }
+            this.departments = tempDepartments;
+            this.currentDepartment = this.departments[0];
+            this.organizationListTimer = new Date().getTime();
         },
-        myChannelMenuItemClicked() {
-            
+        departmentMenuItemClicked(department) {
+            this.currentDepartment = department;
+            this.organizationListTimer = new Date().getTime();
         },
-        focusMenuItemClicked() {
 
-        },
         recentUsersMenuItemClicked:async function() {
             this.dialogVisible = true;
             /*
@@ -140,9 +101,9 @@ export default {
         chatGroupCreater,
         listHeader
     },
-    created() {
-        
-        console.log(this.recentUsers);
+    created:async function() {
+        await this.getOrganizationBaseData();
+
     }
 }
 </script>
@@ -184,106 +145,47 @@ display: none;
     display: block;
 }
 
-.list-content {
-    height: 100%;
-}
-.item-list {
+.departments-list {
     width: 100%;
     height: 100%;
-    padding: 0;
-    margin: 0;
-    // border-top: 1px solid rgb(221, 221, 221);
-    // border-bottom: 1px solid rgb(221, 221, 221);
-}
-.recentUsers-view {
-    width: 100%;
-    height: 70%;
-    padding: 0;
-    margin: 0;
-}
-.recentUsers-menu-list {
-    width: 100%;
-    height: 100%;
-    padding: 0;
+    padding: 0px;
     margin: 0;
     list-style: none;
-    overflow: scroll;
 }
-.user {
-    height: 64px;
-    cursor: pointer;
-    //border-bottom: 1px solid rgb(221, 221, 221);
-}
-.user-icon {
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    margin-left: 36px;
-    margin-top: 12px;
-    margin-right: 0px;
-    margin-bottom: 12px;
-    border-radius: 4px;
-}
-.user-info {
-    display: inline-block;
-    vertical-align: top;
-    height: 100%;
-    width: calc(100% - 108px);
-}
-.user-name {
-    height: 20px;
-    width: 100%;
-    margin-top: 12px;
-    margin-bottom: 2px;;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-}
-.user-title {
-    height: 20px;
-    width: 100%;
-    margin-top: 0px;
-    margin-bottom: 12px;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-}
-
-.item {
-    height: 64px;
-    cursor: pointer;
-    border-bottom: 1px solid rgb(221, 221, 221);
+.department {
+    height: 60px;
+    border-bottom: 1px solid rgba(221, 221, 221, 1);
     
 }
-
-.item.active {
-    height: 64px;
-    background-color: rgb(245, 246, 247);
+.department:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
 }
-.item-icon {
+.department-icon {
     width: 40px;
     height: 40px;
     display: inline-block;
     margin-left: 16px;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-right: 0px;
-    margin-bottom: 12px;
-    border-radius: 4px;
+    margin-bottom: 10px;
 }
-.item-info {
+.department-info {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 88px);
+    width: calc(100% - 92px);
 }
-.item-title {
+.department-name {
     text-align: left;
     height: 40%;
     width: 70%;
-    margin-top: 21px;
-    margin-left: 16px;
+    margin-top: 20px;
+    margin-left: 12px;
     font-size: 14px;
-    line-height: 22px;
+    line-height: 20px;
+    letter-spacing: 1px;
 }
 .item-arrow {
     display: inline-block;
@@ -299,14 +201,6 @@ display: none;
     width: 7px;
     height: 13px;
 }
-.organization {
-    width:100%;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    margin: 0px;
-}
-
 .el-dialog {
     height: 250px;
     overflow: none;

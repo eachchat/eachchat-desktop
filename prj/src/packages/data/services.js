@@ -3,17 +3,23 @@ import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil } from './sqliteutil.js'
+import { sqliteutil, Group } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
+import confservice from './conf_service.js'
+import * as path from 'path'
+import * as fs from 'fs-extra'
+import { makeFlieNameForConflict } from '../core/Utils.js'
 
 const mqtt = require('mqtt')
 
 const commonConfig = {
-  hostname: undefined,
-  apiPort: undefined,
-  username: undefined,
-  password: undefined
+  hostname:       undefined,
+  apiPort:        undefined,
+  username:       undefined,
+  password:       undefined,
+  identityType:   undefined,
+  identityValue:  undefined
 }; // config info
 
 const commonData = {
@@ -244,6 +250,14 @@ const common = {
       this.config.password = config.password;
     }
 
+    if("identityType" in config){
+      this.config.identityType = config.identityType;
+    }
+
+    if("identityValue" in config){
+      this.config.identityValue = config.identityValue;
+    }
+
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
     models.init();
   },
@@ -253,7 +267,7 @@ const common = {
     var config = this.config;
     var data = this.data;
 
-    let result = await this.api.login(config.username, config.password);
+    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue);
 
     if (!result.ok || !result.success) {
       return result.data;
@@ -282,6 +296,7 @@ const common = {
       console.log('New account login ok!');
     }
 
+    await (await models.Login).truncate()
     let foundlogin = await(await models.Login).find({
       user_id: selfuser.id
     })
@@ -507,11 +522,14 @@ const common = {
     let result;
     let departmentitem;
     let departmentmodel;
+    let maxUpdatetime = 0;
+    let tmpUpdatetime = 0;
+
     this.data.department = []
     await(await models.Department).truncate()
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
-      if (!result.ok || !result.success) {
+      if (result == undefined || !result.success || !result.ok) {
         return undefined;
       }
 
@@ -524,9 +542,15 @@ const common = {
         departmentitem = result.data.results[item]
         departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
         this.data.department.push(departmentmodel)
-        departmentmodel.save();        
+        departmentmodel.save();   
+        tmpUpdatetime = departmentmodel.updatetime;
+        if(maxUpdatetime < tmpUpdatetime)
+          maxUpdatetime = tmpUpdatetime;
+        
       }
     }while(result.data.total > index);  
+    sqliteutil.UpdateMaxDepartmentUpdatetime(this.data.selfuser.id, maxUpdatetime);
+
   },
 
   async getDepartmentInfo(filters,
@@ -682,7 +706,7 @@ const common = {
     }
   },
 
-  async groupIncrement(updateTime, notification){
+  async groupIncrement(updateTime, notification, callback = undefined){
     let result = await this.api.groupIncrement(this.data.login.access_token, updateTime, notification);
 
     if (!result.ok || !result.success) {
@@ -706,6 +730,9 @@ const common = {
         groupModel = await servicemodels.IncrementGroupModel(groupItem);
       }
       groupModel.save();
+      if(callback != undefined){
+        callback(groupModel);
+      }
       if(groupModel.status[5] == 1){
         await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
       }
@@ -934,16 +961,93 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadFile(timelineId, targetPath, needOpen) {
-    ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
+  async downloadFile(timelineId, message_time, fileName, needOpen) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getFilePath(message_time);
+    var targetPath = path.join(targetDir, fileName);
+    console.log("targetPath is ", targetPath);
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      targetPath = await makeFlieNameForConflict(targetPath);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
+      return ret;
+    }
   },
 
-  async downloadTumbnail(timelineId, targetPath, thumbnailType) {
-    ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType]);
+  async downloadMsgTTumbnail(timelineId, message_time, fileName, needOpen) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getThumbImagePath(message_time);
+    var targetPath = path.join(targetDir, fileName);
+    console.log("targetPath is ", targetPath);
+    if(fs.existsSync(targetPath)) {
+      console.log("return targetPath ", targetPath)
+      return targetPath;
+    }
+    else {
+      targetPath = await makeFlieNameForConflict(targetPath);
+      ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, "T", needOpen]);
+      return ret;
+    }
   },
   
-  async downloadGroupAvatar(url, targetPath) {
-    ipcRenderer.send('download-avarar', [url, this.data.login.access_token, targetPath]);
+  async downloadMsgOTumbnail(timelineId, message_time, fileName, needOpen) {
+    console.log("downloadMsgOTumbnail")
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getOImagePath(message_time);
+    var targetPath = path.join(targetDir, fileName);
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      targetPath = await makeFlieNameForConflict(targetPath);
+      console.log("downloadMsgOTumbnail targetPath is ", targetPath);
+      ipcRenderer.send('download-mgs-oimage', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, "M", needOpen]);
+      return ret;
+    }
+  },
+  
+  async downloadUserTAvatar(url, userId, targetPath="") {
+    var ret = "FILE_DOWNLOADING";
+    if(targetPath.length == 0) {
+      var targetDir = confservice.getUserThumbHeadPath();
+      targetPath = path.join(targetDir, userId + '.png');
+      console.log("downloadUserTAvatar targetPath is ", targetPath);
+    }
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      ipcRenderer.send('download-user-avarar', [url, userId, this.data.login.access_token, targetPath]);
+      return ret;
+    }
+  },
+  
+  async downloadUserOAvatar(url, userId) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getUserThumbHeadPath();
+    var targetPath = path.join(targetDir, userId + '.png');
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      ipcRenderer.send('download-user-avarar', [url, userId, this.data.login.access_token, targetPath]);
+      return ret;
+    }
+  },
+  
+  async downloadGroupAvatar(url, groupId) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getUserThumbHeadPath();
+    var targetPath = path.join(targetDir, groupId + '.png');
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      ipcRenderer.send('download-avarar', [url, groupId, this.data.login.access_token, targetPath]);
+      return ret;
+    }
   },
   
   async getGroupAvatar(url) {
@@ -1013,17 +1117,23 @@ const common = {
     let bNext = true;
     let item;
     let collectionModel;
-    let collections;
-    let sequenceId = await sqliteutil.FindMaxCollectionSequenceID(type[0]);
+    let collections = [];
+    let bFirst = true;
+    let sequenceID = 0;
 
     while(bNext){
       result = await this.api.ListAllCollections(this.data.login.access_token,
                                                   type,
-                                                  sequenceId,
+                                                  sequenceID,
                                                   10,
                                                   1);
       if (!result.ok || !result.success) {
         break;
+      }
+      if(bFirst)
+      {
+        await sqliteutil.ClearCollectionByType(type[0]);
+        bFirst = false;
       }
       bNext = result.data.hasNext;
 
@@ -1031,19 +1141,18 @@ const common = {
         item = result.data.results[index];
         collectionModel = await servicemodels.CollectionModel(item);
 
-        let find = await sqliteutil.FindItemByCollectionID(item.collectionId)
+        let find = await sqliteutil.FindItemByFavouriteID(item.favoriteId)
         if(find == undefined){
           collectionModel.save();
         }
         else{
           find.values = collectionModel.values;
           find.save();
-        }
-        sequenceId = collectionModel.sequence_id;
+        } 
       }
+      sequenceID = await sqliteutil.FindMaxCollectionSequenceID(type[0])
     }
     collections = await sqliteutil.FindCollectionByType(type[0])
-    console.log(collections)
     return collections;
   },
 
@@ -1054,17 +1163,15 @@ const common = {
     }
     let item;
     let model;
-    for(let index in result.data.results){
-      item = result.data.results[index];
-      model = await servicemodels.CollectionModel(item);
-      let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
-      if(findmodel == undefined){
-        model.save();
-      }
-      else{
-        findmodel.values = model.values;
-        findmodel.save();
-      }
+    item = result.data.obj[index];
+    model = await servicemodels.CollectionModel(item);
+    let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+    if(findmodel == undefined){
+      model.save();
+    }
+    else{
+      findmodel.values = model.values;
+      findmodel.save();
     }
   },
 
@@ -1073,19 +1180,19 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
-    for(let index in result.data.results){
-      item = result.data.results[index];
-      model = await servicemodels.CollectionModel(item);
-      let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
-      if(findmodel == undefined){
-        model.save();
-      }
-      else{
-        findmodel.values = model.values;
-        findmodel.save();
-      }
+    let item;
+    let model;
+    item = result.data.obj;
+    model = await servicemodels.CollectionModel(item);
+    let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+    if(findmodel == undefined){
+      model.save();
     }
-    console.log(result)
+    else{
+      findmodel.values = model.values;
+      findmodel.save();
+    }
+    await Group.UpdateGroupStatus(item.groupId, item.status);
   },
 
   async DeleteCollectionMessage(favoriteID){
@@ -1143,20 +1250,30 @@ const common = {
     await sqliteutil.DeleteGroupByGroupID(groupID)
   },
 
-  async UpdateGroupAvatar(groupID, filePath){
+  async UpdateGroupNotice(groupID, notice){
+    let result = await this.api.UpdateGroupNotice(this.data.login.access_token, groupID, notice);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    return result;
+  },
+
+  async UpdateGroupAvatar(groupID, filePath, url){
     let result = await this.api.UpdateGroupAvatar(this.data.login.access_token, groupID, filePath);
     if (!result.ok || !result.success) {
       return result;
     }
+    return result;
   },
 
-  async GroupStatus(groupID, userID, stickFlag, disturbFlag){
-    let result = await this.api.GroupStatus(this.data.login.access_token, groupID, userID, stickFlag, disturbFlag);
+  async GroupStatus(groupID, stickFlag, disturbFlag){
+    let result = await this.api.GroupStatus(this.data.login.access_token, groupID, this.data.selfuser.user_id, stickFlag, disturbFlag);
     if (!result.ok || !result.success) {
       return result;
     }
     let status = result.data.obj.status;
     await sqliteutil.UpdateGroupStatus(groupID, status)
+    return status
   },
 
   async SetFilePath(msgID, filePath){
@@ -1173,9 +1290,11 @@ const common = {
   },
 
   async GetFilePath(msgID){
+    console.log("getfilepath the msgID ls ", msgID)
     let msgs = await (await models.Message).find({
       message_id: msgID
     });
+    console.log("getfilepath the return ls ", msgs)
     if(msgs.length == 1){
       return msgs[0].file_local_path; 
     }
@@ -1183,6 +1302,13 @@ const common = {
 
   async QuitGroup(groupID){
     let result = await this.api.QuitGroup(this.data.login.access_token, groupID);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+  },
+
+  async TransferGroup(groupID, toUserID){
+    let result = await this.api.TransferGroup(this.data.login.access_token, groupID, toUserID);
     if (!result.ok || !result.success) {
       return result;
     }

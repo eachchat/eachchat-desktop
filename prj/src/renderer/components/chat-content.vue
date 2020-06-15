@@ -3,7 +3,7 @@
       <div class="win-header">
         <winHeaderBar v-show="isWindows"></winHeaderBar>
       </div>
-      <div class="chat-panel">
+      <div class="chat-panel" id="chat-panel-id">
         <div class="chat-list">
           <div class="list-header">
             <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
@@ -16,21 +16,25 @@
                   @click="showChat(chatGroupItem, index)"
                   :class="{active: index===curindex}"
                   >
-                <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
+                  <!-- <listItem @groupInfo="chatGroupItem"/> -->
+                <div class="group-img">
+                  <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
+                  <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
+                </div>
                 <div class="group-info">
                   <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
                   <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                 </div>
                 <div class="group-notice">
                   <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
-                  <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
+                  <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
                 </div>
               </li>
             </ul>
           </div>
         </div>
         <div class="chat">
-          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo"></ChatPage>
+          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -38,20 +42,25 @@
 </template>
 
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services, environment} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
 import winHeaderBar from './win-header.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString} from '../../packages/core/Utils.js'
+import {ipcRenderer} from 'electron'
+// import listItem from './list-item.vue'
+import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil} from '../../packages/core/Utils.js'
 
 export default {
   components: {
     ChatPage,
     listHeader,
     winHeaderBar,
-    imageLayer
+    imageLayer,
+    // listItem
   },
   computed: {
     dealShowGroupList: function() {
@@ -59,11 +68,21 @@ export default {
         return;
       }
       var chatGroupVar = [];
-      chatGroupVar = this.showGroupList.sort(this.compare());
-      if(chatGroupVar[0].sequence_id > this.$store.state.latestSequenceId) {
-        // Update latest message's sequenceId
-        this.$store.commit("setLatestSequenceId", chatGroupVar[0].sequence_id);
+      var topGroupVar = [];
+      for(var i=0;i<this.showGroupList.length;i++) {
+        if(this.groupIsTop(this.showGroupList[i])) {
+          topGroupVar.push(this.showGroupList[i]);
+        }
+        else {
+          chatGroupVar.push(this.showGroupList[i]);
+        }
       }
+      topGroupVar = topGroupVar.sort(this.compare());
+      console.log("topgroupvar is ", topGroupVar)
+      chatGroupVar = chatGroupVar.sort(this.compare());
+      console.log("chatGroupVar is ", chatGroupVar)
+      chatGroupVar = topGroupVar.concat(chatGroupVar);
+      this.$store.commit("setShowGroupList", chatGroupVar);
       return chatGroupVar
     }
   },
@@ -87,17 +106,45 @@ export default {
       return environment.os.isWindows;
     },
     // Download thumb and show in dist id element
-    showGroupIcon() {
+    updateGroupImg(e, arg) {
+      var state = arg[0];
+      var stateInfo = arg[1];
+      var id = arg[2];
+      var localPath = arg[3];
+
+      let elementImg = document.getElementById(id);
+
+      elementImg.setAttribute("src", "");
+      var showfu = new FileUtil(localPath);
+      let showfileObj = showfu.GetUploadfileobj();
+      var reader = new FileReader();
+      reader.readAsDataURL(showfileObj);
+      reader.onloadend = () => {
+          elementImg.setAttribute("src", reader.result);
+      }
+    },
+    showGroupIcon: async function() {
       for(var i=0;i<this.showGroupList.length;i++) {
         let elementImg = document.getElementById(this.showGroupList[i].group_id);
-        console.log("groupavatar is ", this.showGroupList[i].group_avarar);
-        services.common.getGroupAvatar(this.showGroupList[i].group_avarar)
-          .then((ret) => {
-              elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-              elementImg.onload = () => {
-                URL.revokeObjectURL(elementImg.getAttribute("src"))
-              }
-          })
+        // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
+        var targetPath = "";
+        if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
+            elementImg.setAttribute("src", targetPath);
+        }
+      }
+    },
+    groupIsSlience(groupInfo) {
+      if((Number(groupInfo.status) & Number("00000001")) != 0) {
+        // console.log("groupIsSlience grou name is ", groupInfo.group_name)
+        // console.log("group state is ", groupInfo.status)
+        return true;
+      }
+    },
+    groupIsTop(groupInfo) {
+      if((Number(groupInfo.status) & Number("00000010")) != 0) {
+        // console.log("top grou name is ", groupInfo.group_name)
+        // console.log("group state is ", groupInfo.status)
+        return true;
       }
     },
     getCreateGroupInfo(groupInfo) {
@@ -136,6 +183,24 @@ export default {
     closeImageOfMessage() {
       this.imageLayersSrc = '';
       this.showImageLayers = false;
+    },
+    updateChatGroupStatus(groupId, groupStatus, updateType) {
+      // ++this.needUpdate;
+      var groupListTmp = this.showGroupList;
+      for(var i=0;i<groupListTmp.length;i++) {
+        if(groupListTmp[i].group_id === groupId) {
+          groupListTmp[i].status = groupStatus;
+          break;
+        }
+      }
+      if(updateType == "top") {
+        console.log("top")
+        this.showGroupList = groupListTmp;
+        this.$nextTick(() => {
+          this.showGroupIcon()
+        })
+      }
+      // ++this.needUpdate;
     },
     updateChatList(newMsg, updateList=true) {
       // ++this.needUpdate;
@@ -270,14 +335,15 @@ export default {
           userName.then((ret) => {
             if(ret.length != 0){
               // let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
-              groupUidNameList.unshift(ret);
+              groupName = groupName + "," + ret;
+              // groupUidNameList.unshift(ret);
             }
           })
           if(i > 3) {
             break;
           }
         }
-        groupName = groupUidNameList.join("、");
+        groupName = groupUidNameList.toString();
       }
       return groupName
     },
@@ -368,6 +434,7 @@ export default {
         var ret = await services.common.GetAllGroups()
         console.log("sql getGroupList is ", ret)
         this.showGroupList = ret;
+        console.log("length is ", ret)
         if(updateCurPage){
           let chatGroupVar = [];
           chatGroupVar = this.showGroupList.sort(this.compare());
@@ -390,9 +457,10 @@ export default {
   },
   mounted: async function() {
       // When Mounting Can Not Get The Element. Here Need SetTimeout
-      await this.getGroupList(true);
+      await this.getGroupList(false);
       setTimeout(() => {
           this.$nextTick(() => {
+            ipcRenderer.on('updateGroupImg', this.updateGroupImg);
             this.showGroupIcon();
           })
       }, 0)
@@ -408,7 +476,7 @@ export default {
 <style lang="scss" scoped>
   ::-webkit-scrollbar-track-piece {
     background-color: #F1F1F1;
-    border-radius: 10px;
+    border-radius: 5px;
   }
 
   ::-webkit-scrollbar {
@@ -419,14 +487,14 @@ export default {
   ::-webkit-scrollbar-thumb {
     height: 50px;
     background-color: #C1C1C1;
-    border-radius: 10px;
+    border-radius: 5px;
     outline: none;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     height: 50px;
     background-color: #A8A8A8;
-    border-radius: 10px;
+    border-radius: 5px;
   }
 
   .chat-wind {
@@ -500,123 +568,161 @@ export default {
   }
 
   .group {
-    height: 64px;
+    height: 60px;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .group:hover {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group.active {
-    height: 64px;
-    background-color: rgb(245, 246, 247);
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-ico {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 40px;
+    height: 40px;
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+  }
+
+  .group-img {
+    position:relative;
     width: 40px;
     height: 40px;
     display: inline-block;
-    margin-left: 10px;
-    margin-top: 12px;
+    margin-left: 16px;
+    margin-top: 10px;
     margin-right: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   
   .group-info {
     display: inline-block;
-    vertical-align: top;
     height: 100%;
-    width: calc(100% - 120px);
+    width: calc(100% - 140px);
+    margin-left: 10px;;
   }
 
   .group-name {
-    width: calc(100% - 20px);
-    height: 40%;
+    width: 100%;
+    height: 20px;
     font-size: 14px;
-    font-weight: 550;
+    font-weight: medium;
     font-family:Microsoft Yahei;
-    color: rgb(51, 51, 51);
+    color: rgba(0, 0, 0, 1);
     overflow: hidden;
-    margin-left: 10px;
-    margin-top: 13px;
+    margin-left: 0px;
+    margin-top: 10px;
     margin-right: 0px;
-    margin-bottom: 2px;
+    margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
 
   .group-content {
+    width: 100%;
     font-size: 13px;
-    color: rgb(170, 179, 178);
+    color: rgba(153, 153, 153, 1);
     overflow: hidden;
-    margin-left: 10px;
-    margin-top: 0px;
-    margin-right: 10px;
-    margin-bottom: 5px;
+    margin-left: 0px;
+    margin-top: 2px;
+    margin-right: 0px;
+    margin-bottom: 10px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    height: 40%;
+    height: 18px;
   }
 
   .group-notice {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: 60px;
+    width: 64px;
   }
 
   .group-time {
     font-size: 12px;
-    color: rgb(200, 202, 204);
+    color: rgba(187, 187, 187, 1);
     margin-left: 0px;
-    margin-top: 13px;
+    margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 2px;
-    height: 40%;
+    height: 18px;
     text-align: right;
   }
 
   .group-unread {
-    font-size: 12px;
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    font-size: 10px;
+    font-family:Microsoft Yahei;
     float: right;
     color: rgb(255, 255, 255);
+    margin: 0px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 14px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+  }
+
+  .group-readall-selected {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    font-size: 10px;
+    font-family:Microsoft Yahei;
+    float: right;
+    color: rgb(255, 255, 255);
+    margin: 0px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 14px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 0);
+  }
+  
+  .group-readall-unselected {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    font-size: 10px;
+    font-family:Microsoft Yahei;
+    float: right;
+    color: rgb(255, 255, 255);
+    margin: 0px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 14px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 0);
+  }
+
+  .group-slience {
+    float: right;
+    color: rgb(255, 255, 255);
+    height: 20px;
+    width: 20px;
     margin-left: 0px;
     margin-top: 0px;
     margin-right: 0px;
     margin-bottom: 10px;
-    text-align: center;
-    height: 15px;
-    width: 15px;
-    line-height: 15px;
-    border-radius: 20px;
-    background-color: rgb(255, 59, 48);
-  }
-
-  .group-readall-selected {
-    font-size: 12px;
-    float: right;
-    color: rgb(255, 255, 255);
-    margin-left: 0px;
-    margin-top: 0px;
-    margin-right: 0px;
-    margin-bottom: 5px;
-    text-align: center;
-    height: 15px;
-    width: 15px;
-    line-height: 15px;
-    border-radius: 20px;
-    background-color: rgb(245, 246, 255);
-  }
-  
-  .group-readall-unselected {
-    font-size: 12px;
-    float: right;
-    color: rgb(255, 255, 255);
-    margin-left: 0px;
-    margin-top: 0px;
-    margin-right: 0px;
-    margin-bottom: 5px;
-    text-align: center;
-    height: 15px;
-    width: 15px;
-    line-height: 15px;
-    border-radius: 20px;
-    background-color: rgb(255, 255, 255);
+    background-color: rgba(228, 49, 43, 0);
+    background-image: url("../../../static/Img/Chat/slience-20px.png");
   }
 </style>

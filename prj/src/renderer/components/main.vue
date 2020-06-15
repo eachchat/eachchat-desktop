@@ -1,6 +1,7 @@
 <template>
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
+            <mac-window-header class="macWindowHeader" v-if="showMacWindowHeader"></mac-window-header>
             <div class="User">
                 <img class="login-logo" id="userHead">
             </div>
@@ -13,7 +14,8 @@
                     @click="menuClicked(index, tabitem.name, tabitem.link, tabitem.view)"
                     :class="{active: index===curindex}"
                     >
-                    <i :class="getCurNavIcon(index)"></i>
+                    <p :class="getCurNavIcon(index)"></p>
+                    <!-- <i :class="getCurNavIcon(index)"></i> -->
                 </el-menu-item>
             </el-menu>
         </el-aside>
@@ -26,23 +28,24 @@
 <script>
 import * as path from 'path'
 import * as fs from 'fs-extra'
+import macWindowHeader from './macWindowHeader.vue'
 import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
 import favourite from './favourite.vue'
 import {services} from '../../packages/data/index.js'
-import {ServerApi} from '../server/serverapi.js'
+//import {ServerApi} from '../server/serverapi.js'
 import {downloadGroupAvatar} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
-
+import {environment} from '../../packages/data/environment.js'
 export default {
     name: 'mainpage',
     data () {
         return {
             curindex: 0,
             curView: 'ChatContent',
-            serverapi: new ServerApi('http', '139.198.15.253'),
+            //serverapi: new ServerApi('http', '139.198.15.253'),
             Navigate:[
                 {    
                     text: "聊天",
@@ -69,7 +72,9 @@ export default {
                 //     view: "organization"
                 // }
             ],
-            elementImg: null
+            elementImg: null,
+            ipcInited: false,
+            showMacWindowHeader:false
         }
     },
     methods: {
@@ -83,8 +88,10 @@ export default {
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
+            console.log("the init user id is ,", this.curUserInfo.id)
             confservice.init(this.curUserInfo.id);
             console.log("lognInfo is ", this.loginInfo);
+            this.showCurUserIcon();
             // Get data from server and set in database
             // UserInfo
             // await services.common.AllUserinfo();
@@ -115,17 +122,17 @@ export default {
             }
             if(cur_index === 0)
             {
-                return "el-icon-s-comment" + endding
+                return "NavChatting" + endding;
             }
             else if(cur_index === 1)
             {
-                return "el-icon-share" + endding
+                return "NavOrganization" + endding;
                 
             } else if (cur_index === 2) {
-                return "el-icon-star-off" + endding
+                return "NavFavourite" + endding;
             }
             else{
-                return "el-icon-more-outline" + endding
+                return "NavMore";
             }
         },
         checkAndLoadUserImage: function(distPath) {
@@ -150,54 +157,49 @@ export default {
             }
             checking();
         },
-        showCurUserIcon() {
+        updateSelfImage: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            if(id != this.curUserInfo.id) {
+                return;
+            }
+            var elementImg = document.getElementById("userHead");
+            elementImg.setAttribute("src", localPath);
+        },
+        showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");
             // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
 
-            var targetDir = confservice.getFilePath();
-            var targetFileName = this.selfUserInfo.id + ".png";
-            var targetPath = path.join(targetDir, targetFileName);
-            console.log("targetPath is ", targetPath);
-            if(fs.existsSync(targetPath)){
-                //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
+            var targetPath = "";
+            // console.log("===========this.curUserInfo.avatar_minimal ", this.curUserInfo.avatar_minimal)
+            // targetPath = path.join(confservice.getEachChatFilesDir(), this.curUserInfo.id);
+            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.curUserInfo.id, targetPath))) {
+                elementImg.setAttribute("src", targetPath);
             }
-            else{
-                // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
-                console.log("message downloag group avatar target path is ", this.curUserInfo.avatar_minimal);
-                services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal, targetPath);
-                this.checkAndLoadUserImage(targetPath);
-            }
-
-            // services.common.downloadGroupAvatar(this.curUserInfo.avatar_minimal)
-            // .then((ret) => {
-            //     elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-            //     elementImg.onload = () => {
-            //         URL.revokeObjectURL(elementImg.getAttribute("src"))
-            //     }
-            // })
         }
     },
     components: {
         organization,
         ChatContent,
-        favourite
+        favourite,
+        macWindowHeader
     },
     mounted: async function() {
         await services.common.GetLoginModel();
         this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
-            this.showCurUserIcon();
+            // this.showCurUserIcon();
         })
+        
     },
     created: async function () {
+        ipcRenderer.on('updateUserImage', this.updateSelfImage);
         await this.getAppBaseData();
+        if(environment.os.isOSX) {
+            this.showMacWindowHeader = true;
+        }
     },
 }
 </script>
@@ -213,13 +215,13 @@ export default {
         width: 64px;
         height: 100%;
         padding: 0px;
-        margin: 0px;
-        background: rgb(61, 62, 73);
+        margin-top: 36px;
+        background: rgba(74, 76, 91, 1);
     }
 
     .navigate-panel {
         height: 100%;
-        background: rgb(61, 62, 73);
+        background: rgba(74, 76, 91, 1);
         overflow: hidden;
         -webkit-app-region: drag;
     }
@@ -233,7 +235,7 @@ export default {
         height: 40px;
         text-align: center;
         line-height: 40px;
-        margin: 20px 0px 10px 0px;
+        margin: 40px 0px 10px 0px;
     }
 
     .login-logo {
@@ -242,61 +244,88 @@ export default {
     }
 
     .nav-item {
-        height: 60px;
+        height: 50px;
         text-align: center;
-        line-height: 60px;
-        background-color: rgb(61, 62, 73);
+        line-height: 50px;
+        background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item.active {
-        height: 60px;
+        height: 50px;
         text-align: center;
         color: rgba(255, 255, 255, 1);
-        line-height: 60px;
-        background-color: rgb(61, 62, 73);
+        line-height: 50px;
+        background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item:hover {
-        height: 60px;
+        height: 50px;
         text-align: center;
-        line-height: 60px;
-        background-color: rgb(61, 62, 73);
+        line-height: 50px;
+        background-color: rgba(74, 76, 91, 1);;
     }
 
-    .el-icon-s-comment.active {
-        color:rgba(255, 255, 255, 1);
+    .NavChatting {
+        border: 1px red;
+        background-image: url("../../../static/Img/Navigate/chat-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-s-comment:hover {
-        color:rgba(255, 255, 255, 1);
+    .NavChatting:hover {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/chathover-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-s-comment {
-        color:rgba(255, 255, 255, 0.3);
+    .NavChatting.active {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/chatselected-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-share {
-        color:rgba(255, 255, 255, 0.3);
+    .NavOrganization {
+        border: 1px red;
+        background-image: url("../../../static/Img/Navigate/org-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-share.active {
-        color:rgba(255, 255, 255, 1);
+    .NavOrganization:hover {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/orghover-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-share:hover {
-        color:rgba(255, 255, 255, 1);
+    .NavOrganization.active {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/orgselected-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-more-outline {
-        color:rgba(255, 255, 255, 0.3);
+    .NavFavourite {
+        border: 1px red;
+        background-image: url("../../../static/Img/Navigate/fav-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-more-outline:hover {
-        color:rgba(255, 255, 255, 1);
+    .NavFavourite:hover {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/favhover-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
-    .el-icon-more-outline.active {
-        color:rgba(255, 255, 255, 1);
+    .NavFavourite.active {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/favselected-24px.png");
+        width: 24px;
+        height: 24px;
     }
 
     .tabcontainer {
@@ -308,5 +337,9 @@ export default {
         overflow-y:hidden;
         overflow-x: hidden;
     }
-
+.macWindowHeader {
+    padding: 0px;
+    margin: 0px;
+    width: 64px;
+}
 </style>
