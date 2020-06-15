@@ -1,5 +1,5 @@
-import { models } from './models.js';
-import { servicemodels } from './servicemodels.js';
+import { models } from './models.js'
+import { servicemodels } from './servicemodels.js'
 import { sqliteutil } from './sqliteutil.js'
 
 class BaseIncrement{
