@@ -10,21 +10,21 @@
             </div>
             <div class="groupInfoNoticeAndName">
                 <div class="groupInfoName">
-                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" v-model="newGroupName" :placeholder="this.groupName" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
+                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
                 </div>
                 <div class="groupInfoNotice" @click="updateGroupNotice">
-                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
-                    <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId" v-show="isOwner"></p>
+                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-show="isOwner" :disabled="!isOwner" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
+                    <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
                 </div>
             </div>
         </div>
-        <div class="groupSettingSilenceDiv">
+        <div class="groupSettingSilenceDiv" v-show="isGroup">
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch class="groupSettingSlienceSwitch" v-model="slienceState" @change="slienceStateChange(slienceState)">
             </el-switch>
         </div>
-        <div class="groupSettingTopDiv" v-show="isOwner">
+        <div class="groupSettingTopDiv">
             <label class="groupSettingTopLabel">置顶聊天</label>
             <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
             </el-switch>
@@ -34,7 +34,7 @@
             <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
             </el-switch>
         </div>
-        <div class="groupSettingOwnerTransferDiv" v-show="isGroup" @click="ownerTransfer">
+        <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
             <label class="groupSettingOwnerTransferLabel">转让群主</label>
             <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
         </div>
@@ -45,16 +45,16 @@
             </div>
             <div class="groupMemberAddDiv" v-else>
                 <label class="groupMemberAddDivLabel">群成员</label>
-                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px.png" @click="showSearch">
+                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px.png" @click="showSearch" v-show="isOwner">
                 <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
             </div>
         </div>
-        <div class="groupMember-view" v-show="isOwner">
+        <div class="groupMember-view" v-show="isGroup">
             <ul class="groupMember-list">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
                     <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" @click="showUserInfoTip">
-                        <label class="groupMemberInfoLabel">{{item.user_display_name}}</label>
+                        <label class="groupMemberInfoLabel" @click="showUserInfoTip">{{item.user_display_name}}</label>
                     </div>
                     <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)">
                 </li>
@@ -80,6 +80,7 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
+import { stat } from 'fs'
 export default {
     name: 'group-info',
     data() {
@@ -105,6 +106,8 @@ export default {
             searchKey: "",
             searchId: 0,
             ownerId: '',
+            cursorX: 0,
+            cursorY: 0,
         }
     },
     components: {
@@ -190,6 +193,9 @@ export default {
         },
         showNameEdit: function(e) {
             // console.log("show name edit ", e)
+            if(!this.isOwner) {
+                return;
+            }
             if(this.nameEditElement == null) {
                 this.nameEditElement = document.getElementById("groupInfoNameEditId");
             }
@@ -203,6 +209,9 @@ export default {
             this.nameEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
         },
         showNoticeEdit: function(e) {
+            if(!this.isOwner) {
+                return;
+            }
             // console.log("show name edit ", e)
             if(this.noticeEditElement == null) {
                 this.noticeEditElement = document.getElementById("groupInfoNoticeEditId");
@@ -217,6 +226,9 @@ export default {
             this.noticeEditElement.style = "width: 21px;height: 21px;float: right;margin: 0px;padding: 0px;";
         },
         showDeleteButton: function(distUser) {
+            if(!this.isOwner) {
+                return;
+            }
             // console.log("show name edit ", distUser)
             var distId = this.getDeleteIdThroughMemberUid(distUser.user_id)
             var userDeleteElement = document.getElementById(distId);
@@ -229,6 +241,7 @@ export default {
             userDeleteElement.style.opacity = 0; 
         },
         updateGroupImg: function(e, args) {
+            console.log("group info updategroupimg args is ", args)
             if(args != undefined && args.length != 0) {
                 var state = args[0];
                 var stateInfo = args[1];
@@ -265,32 +278,42 @@ export default {
                         
                         var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
                         console.log("ret is ", ret);
-                        // if(ret.ok == true && ret.success == true) {
-                        //     ipcRenderer.send('modifyGroupInfo', [this.groupId, distFilePath]);
-                        // }
+                        if(ret.ok == true && ret.success == true) {
+                            ipcRenderer.send('modifyGroupImg', [this.groupId, distFilePath]);
+                        }
                         
                     }
                 })
             }
         },
         showUserInfoTip: async function(e) {
-            console.log("e ", e);
+            console.log("e is ", e.target.id);
+            if(this.wholeTipElement == null) {
+                this.wholeTipElement = document.getElementById("groupInfoTipId");
+                // console.log("this.wholeTipElement ", this.wholeTipElement)
+            }
+            var wholeWinTop = this.wholeTipElement.offsetTop;
+            var wholeWinLeft = this.wholeTipElement.offsetLeft;
             var elementId = e.target.id;
             var uid = this.getUidThroughElementId(elementId);
 
             var curAbsoluteTop = e.target.offsetTop;
             var curAbsoluteLeft = e.target.offsetLeft;
-            var isMine = uid == this.curUserInfo.id;
+            var isMine = (uid == this.curUserInfo.id);
 
-            var curUserInfo = services.common.GetDistUserinfo(uid);
+            console.log("uid is ", uid);
+            var curUserInfo = await services.common.GetDistUserinfo(uid);
+            console.log("curuser inf os ", curUserInfo)
             var tipInfos = {
                 "userInfo": curUserInfo[0],
-                "absoluteTop": curAbsoluteTop,
-                "absoluteLeft": curAbsoluteLeft,
+                // "absoluteTop": curAbsoluteTop + wholeWinTop,
+                "absoluteTop": this.cursorY,
+                // "absoluteLeft": curAbsoluteLeft + wholeWinLeft,
+                "absoluteLeft": this.cursorX - 330,
                 "isMine": isMine,
             }
-            console.log("emit absoluteTop ", curAbsoluteTop);
-            console.log("emit absoluteLeft ", curAbsoluteLeft);
+            console.log("emit absoluteTop ", curAbsoluteTop + wholeWinTop);
+            console.log("emit absoluteLeft ", curAbsoluteLeft + wholeWinLeft);
             console.log("emit openUserInfoTip ", tipInfos);
             this.$emit("openUserInfoTip", tipInfos);
         },
@@ -318,6 +341,9 @@ export default {
             this.groupName = this.newGroupName;
         },
         updateGroupNotice: function(event) {
+            if(!this.isOwner) {
+                return;
+            }
             this.$emit("updateChatGroupNotice", this.groupId, this.groupNotice);
         },
         Close: function() {
@@ -347,7 +373,19 @@ export default {
                 })
         },
         groupFavouriteStateChange: function(state){
-            console.log("groupFavouriteStateChange ", state)
+            // console.log("fav state is ", state);
+            if(state) {
+                services.common.CollectGroup(this.groupId)
+                    .then((ret) => {
+                        console.log("CollectGroup ", ret);
+                    })
+            }
+            else {
+                services.common.DeleteCollectionGroup(this.groupId)
+                    .then((ret) => {
+                        console.log("DeleteCollectionGroup ", ret);
+                    })
+            }
         },
         getClassNameThroughMemberUid: function(memberUid) {
             return "member-img-class-" + memberUid;
@@ -359,7 +397,7 @@ export default {
             return "delete-member-id-" + memberUid;
         },
         getUidThroughElementId: function(elementId) {
-            var uid = elementId.slice("member-img-div-id-".length, elementId.length);
+            var uid = elementId.slice("member-img-id-".length, elementId.length);
             return uid;
         },
         getMemberImage: async function() {
@@ -383,6 +421,12 @@ export default {
             var distElement = document.getElementById(this.getIdThroughMemberUid(id));
             distElement.setAttribute("src", localPath);
         },
+        updateCursorPosition: function(e) {
+            console.log("client x ", e.clientX)
+            console.log("client y ", e.clientY)
+            this.cursorX = e.clientX;
+            this.cursorY = e.clientY;
+        }
     },
     async created () {
         this.loginInfo = await services.common.GetLoginModel();
@@ -395,6 +439,7 @@ export default {
                 ipcRenderer.on('updateGroupImg', this.updateGroupImg);
             })
         }, 0)
+        document.addEventListener('click', this.updateCursorPosition);
     },
     watch: {
         showGroupInfo: async function() {
@@ -415,6 +460,7 @@ export default {
             this.isGroup = this.showGroupInfo.isGroup;
             this.slienceState = this.showGroupInfo.isSlience;
             this.groupTopState = this.showGroupInfo.isTop;
+            this.groupFavouriteState = this.showGroupInfo.isFav;
             this.isOwner = this.showGroupInfo.isOwner;
             this.ownerId = this.showGroupInfo.ownerId;
             // console.log("this.groupTopState ", this.groupTopState)
@@ -435,7 +481,13 @@ export default {
             // console.log("elementImg is ", elementImg);
             var targetPath = "";
             if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupAvarar, this.groupId))){
-                elementImg.setAttribute("src", targetPath);
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
             }
             // services.common.downloadGroupAvatar(this.groupAvarar, this.groupId);
             // .then((ret) => {
@@ -448,6 +500,7 @@ export default {
             if(this.groupNotice.length == 0) {
                 this.groupNotice = "未设置"
             }
+            this.newGroupName = this.groupName;
         },
         cleanCache: function() {
             console.log("cleancache is ", this.cleanCache)
@@ -482,6 +535,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  ::-webkit-scrollbar-track-piece {
+    background-color: #F1F1F1;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    height: 50px;
+    background-color: #C1C1C1;
+    border-radius: 5px;
+    outline: none;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    height: 50px;
+    background-color: #A8A8A8;
+    border-radius: 5px;
+  }
+
 .groupInfo {
     height: 100%;
     width: 280px;
@@ -514,6 +590,7 @@ export default {
 
 .groupMember-view {
     max-height: 144px;
+    height: 144px;
     width: 100%;
     padding: 0px;
     border: 0px;
@@ -525,6 +602,7 @@ export default {
 .groupMember-list {
     list-style: none;
     max-height: 144px;
+    height: 144px;
     margin: 0;
     padding: 0;
     display: block;
@@ -553,6 +631,7 @@ export default {
     padding-bottom: 8px;
     width: 32px;
     height: 32px;
+    cursor: pointer;
 }
 
 .groupMemberInfoLabel {
@@ -564,6 +643,7 @@ export default {
     font-size: 14px;
     font-family:Microsoft Yahei;
     padding-left: 8px;
+    cursor: pointer;
 }
 
 .groupMemberClickOut {
@@ -573,6 +653,7 @@ export default {
     width: 20px;
     float: right;
     opacity: 0;
+    cursor: pointer;
 }
 
 .groupInfo-view {
@@ -624,7 +705,20 @@ export default {
     border: 0px;
     font-family:Microsoft Yahei;
     font-size: 15px;
-    font-weight: bold;
+    font-weight: 590;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.groupInfoNameInput:disabled {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family:Microsoft Yahei;
+    font-size: 15px;
+    font-weight: 590;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: white;
 }
 
 .groupInfoNameInput:focus {
@@ -633,7 +727,7 @@ export default {
     outline: none;
     font-family:Microsoft Yahei;
     font-size: 15px;
-    font-weight: bold;
+    font-weight: 590;
     border: 0px;
     outline: none;
 }
@@ -668,6 +762,21 @@ export default {
     font-family:Microsoft Yahei;
     font-size: 12px;
     color: rgba(103, 103, 103, 0.24);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.groupInfoNoticeInput:disabled {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family:Microsoft Yahei;
+    font-size: 12px;
+    color: rgba(103, 103, 103, 0.24);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: white;
+    cursor: pointer;
 }
 
 .groupInfoNoticeInput:focus {
@@ -677,12 +786,16 @@ export default {
     font-size: 12px;
     color: rgba(103, 103, 103, 0.24);
     outline: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
 }
 
 .groupInfoNoticeEdit {
     width: 20px;
     height: 20px;
     float: right;
+    cursor: pointer;
 }
 
 .groupSettingSilenceDiv {
@@ -767,6 +880,7 @@ export default {
     padding-bottom: 0px;
     padding-left: 16px;
     padding-right: 16px;
+    cursor: pointer;
 }
 
 .groupSettingOwnerTransferLabel {
@@ -894,6 +1008,7 @@ export default {
 
 .groupLeaveDiv{
     height: 48px;
+    line-height: 48px;
     width: 100%;
     border: 0px;
     padding: 0px;
@@ -903,6 +1018,7 @@ export default {
     font-weight: bold;
     color: red;
     text-align: center;
+    cursor: pointer;
 }
 
 .groupDismiss-view{
@@ -913,6 +1029,8 @@ export default {
 }
 
 .groupDismissDiv{
+    height: 48px;
+    line-height: 48px;
     margin-top: 5px;
     margin-bottom: 5px;
     padding: 0px;
@@ -924,6 +1042,7 @@ export default {
     font-weight: bold;
     color: red;
     text-align: center;
+    cursor: pointer;
 }
 
 </style>

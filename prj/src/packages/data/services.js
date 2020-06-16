@@ -1013,7 +1013,7 @@ const common = {
     if(targetPath.length == 0) {
       var targetDir = confservice.getUserThumbHeadPath();
       targetPath = path.join(targetDir, userId + '.png');
-      console.log("downloadUserTAvatar targetPath is ", targetPath);
+      // console.log("downloadUserTAvatar targetPath is ", targetPath);
     }
     if(fs.existsSync(targetPath)) {
       return targetPath;
@@ -1173,6 +1173,7 @@ const common = {
       findmodel.values = model.values;
       findmodel.save();
     }
+    return true;
   },
 
   async CollectGroup(grouID){
@@ -1225,6 +1226,7 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
+    return true;
   },
 
   async AddGroupUsers(groupID, userIDs){

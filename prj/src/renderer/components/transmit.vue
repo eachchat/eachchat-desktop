@@ -44,7 +44,7 @@ import { services } from '../../packages/data/index.js';
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import {ipcRenderer} from 'electron'
-import { strMsgContentToJson, sliceReturnsOfString, generalGuid } from '../../packages/core/Utils.js'
+import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
 export default {
     name: 'transmit-group',
     data () {
@@ -156,7 +156,13 @@ export default {
                 // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
                 var targetPath = "";
                 if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupList[i].group_avarar, this.groupList[i].group_id))){
-                    elementImg.setAttribute("src", targetPath);
+                    var showfu = new FileUtil(targetPath);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        elementImg.setAttribute("src", reader.result);
+                    }
                 }
             }
         },
@@ -169,7 +175,13 @@ export default {
                 // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
                 var targetPath = "";
                 if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.selectedChat[i].group_avarar, this.selectedChat[i].group_id))){
-                    elementImg.setAttribute("src", targetPath);
+                    var showfu = new FileUtil(targetPath);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        elementImg.setAttribute("src", reader.result);
+                    }
                 }
             }
         },
@@ -319,7 +331,7 @@ export default {
             if(this.curChat.group_type == 102) {
 
                 var nameTemp = '';
-                var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
+                var userInfos = await services.common.GetDistUserinfo(this.curChat.uid);
                 var distUserInfo = userInfos[0];
                 if(distUserInfo != undefined){
                     nameTemp = distUserInfo.user_display_name;
@@ -449,6 +461,29 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+  ::-webkit-scrollbar-track-piece {
+    background-color: #F1F1F1;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    height: 50px;
+    background-color: #C1C1C1;
+    border-radius: 5px;
+    outline: none;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    height: 50px;
+    background-color: #A8A8A8;
+    border-radius: 5px;
+  }
+
   .transmit-dlg {
     position: absolute;
     height: 500px;

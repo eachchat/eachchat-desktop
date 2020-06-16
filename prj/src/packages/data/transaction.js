@@ -576,7 +576,7 @@ class APITransaction {
     var response = await this.commonApi.post(
       "/api/apps/im/v1/group/transfer",
       {
-        "gropuId" : groupID,
+        "groupId" : groupID,
         "toUserId" : toUserID
       },
       {

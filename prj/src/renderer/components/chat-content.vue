@@ -9,12 +9,12 @@
             <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
           </div>
           <p class="chat-label">普通</p>
-          <div class="list-content" :key="needUpdate">
+          <div class="list-content" id="list-content-id" :key="needUpdate" @mousemove="showScrollBar" @mouseout="hideScrollBar">
             <ul class="group-list">
-              <li class="group"
+              <li :class="groupOrTopClassName(chatGroupItem, index)"
                   v-for="(chatGroupItem, index) in dealShowGroupList"
                   @click="showChat(chatGroupItem, index)"
-                  :class="{active: index===curindex}"
+                  @contextmenu="rightClick($event, chatGroupItem)"
                   >
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                 <div class="group-img">
@@ -33,8 +33,11 @@
             </ul>
           </div>
         </div>
-        <div class="chat">
+        <div class="chat" v-show="!isEmpty">
           <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
+        </div>
+        <div class="chat-empty" v-show="isEmpty">
+          <img class="chat-empty-bg" src="/static/Img/Chat/empty.png">
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -99,11 +102,47 @@ export default {
       showImageLayers: false,
       imageLayersSrcInfo: '',
       clickedGroupList: [],
+      isEmpty: true,
+      groupListElement: null,
     };
   },
   methods: {
+    showScrollBar: function(e) {
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      this.groupListElement.style.overflowY = "overlay"
+    },
+    hideScrollBar: function(e) {
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      this.groupListElement.style.overflowY = "hidden"
+    },
+    groupOrTopClassName(item, index) {
+      if(index == this.curindex) {
+        return "group active";
+      }
+      if(this.groupIsTop(item)) {
+        return "group-top";
+      }
+      else {
+        return "group";
+      }
+    },
     isWindows() {
       return environment.os.isWindows;
+    },
+    rightClick(e, groupItem) {
+        console.log("e.target is ", e.target.className)
+        let distElement = document.getElementById(msgItem.message_id);
+        console.log("distElement is ", distElement.className);
+        if(this.checkClassName.indexOf(e.target.className) == -1) {
+            return;
+        }
+        this.menu = new Menu();
+
+        this.menu.popup(remote.getCurrentWindow());
     },
     // Download thumb and show in dist id element
     updateGroupImg(e, arg) {
@@ -129,7 +168,13 @@ export default {
         // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
         var targetPath = "";
         if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-            elementImg.setAttribute("src", targetPath);
+            var showfu = new FileUtil(targetPath);
+            let showfileObj = showfu.GetUploadfileobj();
+            let reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onloadend = () => {
+                elementImg.setAttribute("src", reader.result);
+            }
         }
       }
     },
@@ -186,6 +231,7 @@ export default {
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
+      console.log("updatechatgroupstatus ", groupStatus);
       var groupListTmp = this.showGroupList;
       for(var i=0;i<groupListTmp.length;i++) {
         if(groupListTmp[i].group_id === groupId) {
@@ -202,8 +248,9 @@ export default {
       }
       // ++this.needUpdate;
     },
-    updateChatList(newMsg, updateList=true) {
+    updateChatList(newMsg, updateList=true, content) {
       // ++this.needUpdate;
+      var msgContent = strMsgContentToJson(newMsg.message_content);
       console.log("newMsg is ", newMsg)
       for(var i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_id === newMsg.group_id) {
@@ -217,7 +264,36 @@ export default {
           if(newMsg.message_from_id != this.curUserInfo.id) {
             this.showGroupList[i].un_read_count += 1;
           }
+          if(msgContent.type != undefined && msgContent.type == "updateGroupName") {
+            this.showGroupList[i].group_name = msgContent.text;
+          }
+          if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
+              let distUsers = msgContent.userInfos;
+              let distUserIds = [];
+              for(let i=0;i<distUsers.length;i++) {
+                distUserIds.push(distUsers[i].userId);
+              }
+              if(distUserIds.indexOf(this.curUserInfo.id) != -1) {
+                this.showGroupList.slice(i, 1);
+
+                var owner = msgContent.userName;
+                var deletedNames = "";
+                var deletedUsers = msgContent.userInfos;
+                if(deletedUsers.length == 1){
+                    deletedNames = deletedUsers[0].userName
+                }
+                else{
+                    for(var i=0;i<deletedUsers.length;i++) {
+                        deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                    }
+                }
+                var alertContent = "您被 " + owner + " 移出了群聊";
+
+                alert(alertContent);
+              }
+          }
           if(updateList) {
+            console.log("force udate")
             this.curindex = i;
             // this.curChat = this.showGroupList[i];
           }
@@ -364,20 +440,27 @@ export default {
       }
       else if(chatGroupMsgType === 102)
       {
-        return "[图片]";
+        return "[图片]:" + chatGroupMsgContent.fileName;
       }
       else if(chatGroupMsgType === 103)
       {
-        return "[文件]";
+        return "[文件]:" + chatGroupMsgContent.fileName;
       }
       else if(chatGroupMsgType === 104)
       {
         if(chatGroupMsgContent.type === "invitation")
         {
           var invitees = chatGroupMsgContent.userInfos;
+          var inviteeNameList = [];
           var inviteeNames = "";
-          for(var i=0;i<invitees.length;i++) {
-              inviteeNames = inviteeNames + "、" + invitees[i].userName
+          if(invitees.length == 1){
+              inviteeNames = invitees[0].userName
+          }
+          else{
+              for(var i=0;i<invitees.length;i++) {
+                  inviteeNameList.push(invitees[i].userName);
+              }
+              inviteeNames = inviteeNameList.join("、");
           }
           var inviter = chatGroupMsgContent.userName;
           return inviter + " 邀请 " + inviteeNames + " 加入群聊";
@@ -408,6 +491,12 @@ export default {
             }
             return owner + " 将 " + deletedNames + " 移出了群聊";
         }
+        else if(chatGroupMsgContent.type == "groupTransfer") {
+            var originalOwner = chatGroupMsgContent.fromUserName;
+            var newOwner = chatGroupMsgContent.toUserName;
+            console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+            return originalOwner + " 将群主转让给 " + newOwner;
+        }
         else
         {
           return "您收到一条短消息";
@@ -424,6 +513,7 @@ export default {
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
+      this.isEmpty = false;
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat = chatGroup;
       this.curindex = index;
@@ -480,7 +570,7 @@ export default {
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 7px;
     height: 12px;
   }
 
@@ -511,6 +601,20 @@ export default {
     display: flex;
     flex-direction: row;
     margin: 0px;
+  }
+
+  .chat-empty {
+    width:100%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;  
+  }
+
+  .chat-empty-bg {
+    width: 168px;
+    height: 168px;
+    background-color: white;
   }
 
   .chat {
@@ -553,7 +657,7 @@ export default {
 
   .list-content {
     height: 100%;
-    overflow-y: scroll;
+    overflow: hidden;
     
     ::-webkit-scrollbar-track {
       border-radius: 10px;
@@ -569,6 +673,24 @@ export default {
 
   .group {
     height: 60px;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .group-top {
+    height: 60px;
+    background-color: rgba(247, 248, 250, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .group-top:hover {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .group-top.active {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
@@ -648,7 +770,8 @@ export default {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: 64px;
+    width: 56px;
+    padding-right: 8px;
   }
 
   .group-time {
