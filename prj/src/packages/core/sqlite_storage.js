@@ -266,10 +266,10 @@ class SQLiteStorage extends Storage {
     return list;
   }
 
-  checkTable(database, index) {
+  async checkTable(database, index) {
     var sql = new Sql();
     sql.schema(index);
-    var schema = database.exec(sql);
+    var schema = await database.exec(sql);
 
     if (schema.length > 0) {
       return true;
@@ -278,24 +278,16 @@ class SQLiteStorage extends Storage {
     return false;
   }
 
-  getPrimaryKeys(database, index) {
+  async getPrimaryKeys(database, index) {
     var sql = new Sql();
     sql.schema(index);
-    var schema = database.exec(sql);
+    var values = await database.exec(sql);
 
-    if (schema.length == 0) {
+    if (values.length == 0) {
       return [];
     }
 
-    if (!("values" in schema[0])) {
-      return [];
-    }
-
-    var values = schema[0].values;
     var primaryKeys = [];
-
-    // console.log(values);
-
     for (var i = 0; i < values.length; i++) {
       var value = values[i];
 
@@ -303,8 +295,8 @@ class SQLiteStorage extends Storage {
         continue;
       }
 
-      if (value[5] > 0) {
-        primaryKeys.push(value[1]);
+      if (value.pk > 0) {
+        primaryKeys.push(value.name);
       }
     }
 
@@ -314,7 +306,7 @@ class SQLiteStorage extends Storage {
   async register(index, fields, primaryKeys) {
     var database = await this.getDatabase();
 
-    if (this.checkTable(database, index)) {
+    if (await this.checkTable(database, index)) {
       return;
     }
 
@@ -341,21 +333,15 @@ class SQLiteStorage extends Storage {
     sql.select(index);
     this.appendSearch(sql, search);
 
-    // console.log(index, search);
+    var result = await database.exec(sql);
 
-    // console.log(sql);
-
-    var result = database.exec(sql);
-
-    this.sql = sql;
-
-    return this.resultToList(result);
+    return result;
   }
 
-  _getLastInsert(database, index) {
+  async _getLastInsert(database, index) {
     var sql = new Sql();
     sql = sql.lastInsert();
-    var result = database.exec(sql);
+    var result = await database.exec(sql);
     var lastInsert = {};
 
     if (!(result instanceof Array) ||
@@ -392,7 +378,7 @@ class SQLiteStorage extends Storage {
       $size: 1
     });
 
-    return database.exec(sql);
+    return await database.exec(sql);
   }
 
   async add(index, data) {
@@ -403,24 +389,7 @@ class SQLiteStorage extends Storage {
 
     this.sql = sql;
 
-    var result = database.exec(sql);
-
-    if (typeof result == "undefined") {
-      return result;
-    }
-
-    result = this._getLastInsert(database, index);
-
-    database.dump();
-
-    result = this.resultToList(result);
-
-    if (result.length > 0) {
-      result = result[0];
-
-    } else {
-      result = undefined;
-    }
+    var result = await database.exec(sql);
 
     return result;
   }
@@ -428,7 +397,7 @@ class SQLiteStorage extends Storage {
   async update(index, data, search) {
     var sql = new Sql();
     var database = await this.getDatabase();
-    var primaryKeys = this.getPrimaryKeys(database, index);
+    var primaryKeys = await this.getPrimaryKeys(database, index);
     var primaryValues = {};
 
     for (var i = 0; i < primaryKeys.length; i++) {
@@ -442,7 +411,7 @@ class SQLiteStorage extends Storage {
     sql.update(index, data);
     this.appendSearch(sql, primaryValues);
 
-    var result = database.exec(sql);
+    var result = await database.exec(sql);
     database.dump();
 
     this.sql = sql;
@@ -453,7 +422,7 @@ class SQLiteStorage extends Storage {
   async drop(index, search) {
     var sql = new Sql();
     var database = await this.getDatabase();
-    var primaryKeys = this.getPrimaryKeys(database, index);
+    var primaryKeys = await this.getPrimaryKeys(database, index);
     var primaryValues = {};
 
     for (var i = 0; i < primaryKeys.length; i++) {
@@ -467,7 +436,7 @@ class SQLiteStorage extends Storage {
     sql.delete(index);
     this.appendSearch(sql, primaryValues);
 
-    var result = database.exec(sql);
+    var result = await database.exec(sql);
     database.dump();
 
     this.sql = sql;
@@ -479,7 +448,7 @@ class SQLiteStorage extends Storage {
     var database = await this.getDatabase();
 
     try {
-      return database.exec(sql);
+      return await database.exec(sql);
 
     } catch (e) {
       return e;
@@ -492,7 +461,7 @@ class SQLiteStorage extends Storage {
 
     sql.truncate(index);
 
-    var result = database.exec(sql);
+    var result = await database.exec(sql);
     database.dump();
 
     this.sql = sql;
