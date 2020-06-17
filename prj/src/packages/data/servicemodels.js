@@ -312,7 +312,7 @@ const servicemodels = {
       }
       var messagemap = {                   
         "userId": "user_id",    
-        "sequenceId": "sequence_id", 
+        "sequenceValue": "sequence_id", 
         "fromId":     "message_from_id",  
         "msgContentType":"message_content_type",
         "timestamp": "last_message_time",
@@ -382,7 +382,7 @@ const servicemodels = {
         "fromId" : "message_from_id",  
         "msgContentType": "message_content_type",        
         "msgId": "message_id",     
-        "sequenceId": "sequence_id",             
+        "sequenceValue": "sequence_id",             
         "timestamp": "last_message_time"   
       }
       for(let key in groupmap)
@@ -454,7 +454,7 @@ const servicemodels = {
     UpdateGroupMessage(groupmodel, messagevalue){
       var messagemap = {                   
         "userId": "user_id",    
-        "sequenceId": "sequence_id", 
+        "sequenceValue": "sequence_id", 
         "fromId":     "message_from_id",  
         "msgContentType":"message_content_type",
         "timestamp": "last_message_time",
@@ -511,7 +511,7 @@ const servicemodels = {
         "groupId": "group_id",
         "msgContentType": "message_type",
         "fromId": "message_from_id",
-        "sequenceId": "sequence_id",
+        "sequenceValue": "sequence_id",
         "timestamp": "message_timestamp",
         "content": "message_content"
       }
@@ -542,7 +542,7 @@ const servicemodels = {
         "collectionType": "collection_type",
         "content": "collection_content",
         "favoriteId": "favourite_id",
-        "sequenceId": "sequence_id",
+        "sequenceValue": "sequence_id",
         "timelineId": "timeline_id",
         "timestamp": "timestamp"
       }

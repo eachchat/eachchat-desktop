@@ -230,8 +230,8 @@ var models = {
           collection_id:         types.string,
           collection_type:       types.integer,
           collection_content:    types.string,
-          favourite_id:           types.string,
-          sequence_id:           types.integer,
+          favourite_id:          types.string,
+          sequence_id:           types.string,
           timeline_id:           types.string,
           timestamp:             types.integer
         },
