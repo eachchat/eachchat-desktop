@@ -486,7 +486,7 @@ const common = {
     }
     foundUsers[0].user_max_updatetime = updateTime;
     foundUsers[0].save();
-    true;
+    return true;
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
