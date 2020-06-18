@@ -270,8 +270,7 @@ class SQLiteStorage extends Storage {
     var sql = new Sql();
     sql.schema(index);
     var schema = await database.exec(sql);
-
-    if (schema.length > 0) {
+    if (schema != undefined && schema.length > 0) {
       return true;
     }
 
