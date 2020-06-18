@@ -313,6 +313,7 @@ const common = {
       currentlogin.save();
       this.data.login = currentlogin;
     }
+    return true;
   },
 
   async InitServiceData(){
@@ -439,11 +440,11 @@ const common = {
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
-        return undefined;
+        return result;
       }
 
       if (!("obj" in result.data)) {
-        return undefined;
+        return result;
       }
 
       updateTime = result.data.obj.updateTime;
@@ -481,10 +482,11 @@ const common = {
       id: this.data.login.user_id
     });
     if(foundUsers.length == 0){
-      return;
+      return true;
     }
     foundUsers[0].user_max_updatetime = updateTime;
     foundUsers[0].save();
+    true;
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){

@@ -79,7 +79,6 @@ class APITransaction {
                     perPage,
                     sortOrder,
                     sequenceId) {
-    console.debug("getUserInfo");
     var response = await this.commonApi.post(
       "/api/apps/org/v1/users",
       {
