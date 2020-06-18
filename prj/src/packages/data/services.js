@@ -532,11 +532,11 @@ const common = {
     do{
       result = await this.getDepartmentInfo(undefined, undefined, 1, index)
       if (result == undefined || !result.success || !result.ok) {
-        return undefined;
+        return result;
       }
 
       if (!("obj" in result.data)) {
-        return undefined;
+        return result;
       }
       for(var item in result.data.results)
       {
@@ -548,11 +548,10 @@ const common = {
         tmpUpdatetime = departmentmodel.updatetime;
         if(maxUpdatetime < tmpUpdatetime)
           maxUpdatetime = tmpUpdatetime;
-        
       }
     }while(result.data.total > index);  
     sqliteutil.UpdateMaxDepartmentUpdatetime(this.data.selfuser.id, maxUpdatetime);
-
+    return true;
   },
 
   async getDepartmentInfo(filters,
@@ -603,11 +602,11 @@ const common = {
 
     result = await this.api.listAllGroup(this.data.login.access_token, undefined)
     if (!result.ok || !result.success) {
-      return undefined;
+      return result;
     }
 
     if (!("obj" in result.data)) {
-      return undefined;
+      return result;
     }
 
     updateTime = result.data.obj.updateTime;
@@ -631,6 +630,7 @@ const common = {
     let maxSequenceId = await sqliteutil.FindMaxSequenceIDFromGroup();
     await await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, maxSequenceId);
     this.data.selfuser.group_max_updatetime = updateTime;
+    return true;
   },
 
   async updateUserWorkDescription(workDescription) 
