@@ -65,6 +65,44 @@ export default {
     imageLayer,
     // listItem
   },
+  props: ['distUserId'],
+  watch: {
+    distUserId: async function() {
+      console.log("in chat content distuserid is ", this.distUserId);
+      if(this.distUserId.length != 0) {
+        var groupItem = {};
+        var userInfos = await services.common.GetDistUserinfo(this.distUserId);
+        console.log("userInfos is ", userInfos);
+        var chatUserInfo = userInfos[0];
+        var chatAvater = chatUserInfo.avatar_t_url;
+        var chatName = chatUserInfo.user_display_name;
+        var groupCheck = await services.common.GetGroupByName(chatName);
+
+        if(groupCheck.length == 0) {
+            groupItem["contain_user_ids"] = groupUserIds;
+            groupItem["group_avarar"] = chatAvater;
+            groupItem["group_name"] = chatName;
+            groupItem["group_type"] = 102;
+            groupItem["last_message_time"] = 0;
+            groupItem["message_content"] = null;
+            groupItem["message_content_type"] = 101;
+            groupItem["message_from_id"] = this.curUserInfo.id;
+            groupItem["message_id"] = '';
+            groupItem["owner"] = null;
+            groupItem["sequence_id"] = 0;
+            groupItem["status"] = 0;
+            groupItem["un_read_count"] = 0;
+            groupItem["updatetime"] = new Date().getTime();
+            groupItem["user_id"] = selectedId.id;
+        }
+        else {
+            groupItem = groupCheck[0];
+        }
+
+        this.getCreateGroupInfo(groupItem)
+      }
+    }
+  },
   computed: {
     dealShowGroupList: function() {
       if(this.showGroupList.length == 0) {
@@ -213,8 +251,7 @@ export default {
       else {
         setTimeout(() => {
           this.$nextTick(() => {
-            this.curindex = groupIndex;
-            this.curChat = this.showGroupList[groupIndex];
+            this.showChat(this.showGroupList[groupIndex], groupIndex);
           })
         }, 500)
       }

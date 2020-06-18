@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import organization from '../components/organization.vue'
+import ChatContent from '../components/chat-content.vue'
+import favourite from '../components/favourite.vue'
 
 Vue.use(Router)
 
@@ -13,7 +16,24 @@ export default new Router({
     {
       path: '/main',
       name: 'main-page',
-      components: require('@/components/main.vue')
+      component: require('@/components/main.vue').default,
+      children: [
+        {
+          path: "ChatContent",
+          name: "ChatContent",
+          component: ChatContent
+        },
+        {
+          path: "organization",
+          name: "organization",
+          component: organization
+        },
+        {
+          path: "favourite",
+          name: "favourite",
+          component: favourite
+        },
+      ]
     },
     {
       path: '/index',

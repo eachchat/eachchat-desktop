@@ -734,10 +734,10 @@ export default {
 
             var groupState = "";
             if(chatGroupItem.group_type == 102) {
-                console.log("================")
+                // console.log("================")
                 var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
                 groupState = ownerInfo[0].status_description;
-                console.log("================ ", ownerInfo)
+                // console.log("================ ", ownerInfo)
             }
             groupStateElement.innerHTML = groupState;
         },
@@ -1747,11 +1747,11 @@ export default {
                 })
         },
         updateChatGroupStatus(groupId, groupStatus, updateType) {
-            console.log("======== ");
+            // console.log("======== ");
             this.$emit("updateChatGroupStatus", groupId, groupStatus, updateType);
         },
         updateChatGroupNotice(groupId, originalNotice) {
-            console.log("==========")
+            // console.log("==========")
             this.noticeDialogVisible = true;
             this.groupNoticeInfo = {};
             this.groupNoticeInfo.originalNotice = originalNotice;
@@ -1781,6 +1781,7 @@ export default {
             console.log("chat callback msg is ", msg)
             var msgContent = strMsgContentToJson(msg.message_content);
             var forceUpdate = true;
+            ipcRenderer.send("flashIcon");
 
             if(msg.group_id == this.chat.group_id) {
                 if(this.existingMsgId.indexOf(msg.message_id) == -1) {
@@ -1871,7 +1872,7 @@ export default {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
         setTimeout(() => {
             this.$nextTick(() => {
-                console.log("==============ipc on")
+                // console.log("==============ipc on")
                 ipcRenderer.on('updateMsgFile', this.updateMsgFile);
                 ipcRenderer.on('updateUserImage', this.updateUserImage);
                 this.editor = this.$refs.chatQuillEditor.quill;
@@ -1888,7 +1889,7 @@ export default {
     created: async function() {
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
-        console.log("===============mqttinit")
+        // console.log("===============mqttinit")
         services.common.initmqtt();
         services.common.handlemessage(this.callback);
 

@@ -145,6 +145,14 @@ export default {
             });
         },
         userMenuItemClicked(id) {
+            // 跳转路由设置
+            // this.$router.push(
+            //     {
+            //         name: 'ChatContent', 
+            //         params: {
+            //             user_id: id
+            //         }
+            //     })
             if (this.showUserInfoDrawer&&(this.userInfo.id == id)){
                 this.showUserInfoDrawer = false;
                 return;

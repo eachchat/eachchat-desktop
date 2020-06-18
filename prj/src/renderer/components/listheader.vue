@@ -105,20 +105,6 @@ export default {
                     groupItem["un_read_count"] = 0;
                     groupItem["updatetime"] = new Date().getTime();
                     groupItem["user_id"] = selectedId.id;
-        
-                    let groupvalue = {
-                        group_id:           undefined,
-                        contain_user_ids:   groupUserIds,
-                        group_name:         chatName,
-                        group_avarar:       chatAvater,
-                        group_type :        101,
-                        status:             0,
-                        owner:              undefined,
-                        group_notice:       undefined,
-                        notice_time:        undefined,
-                        notice_userId:      undefined,
-                        updatetime:         new Date().getTime()
-                        }
                 }
                 else {
                     groupItem = groupCheck[0];

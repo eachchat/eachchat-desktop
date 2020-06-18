@@ -1,6 +1,7 @@
-import { app, BrowserWindow, Menu, dialog, shell} from 'electron'
+import { app, BrowserWindow, Tray, Menu, dialog, shell} from 'electron'
 import axios from "axios"
 import fs from 'fs'
+import * as path from 'path'
 import {services } from '../packages/data/index.js';
 
 /**
@@ -13,6 +14,15 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let mainPageWindow
+let appIcon = null;
+let flashIconTimer = null;
+let iconPath = "/static/Img/Main/Close@3x.png";
+let emptyIconPath = "/static/Img/Main/Zoom@3x.png";
+if (process.env.NODE_ENV === "development") {
+  iconPath = "../../static/Img/Main/Close@3x.png";
+  emptyIconPath = "../../static/Img/Main/Zoom@3x.png";
+}
+
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
@@ -32,7 +42,54 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
   openDevToolsInDevelopment(mainPageWindow);
+  // 托盘
+  appIcon = new Tray(path.join(__dirname, iconPath));
+
+  let contextMenu = Menu.buildFromTemplate([
+    {
+      label: "退出",
+      click: function() {
+        mainPageWindow.close();
+      }
+    }
+  ]);
+
+  appIcon.setToolTip("EachChat");
+  appIcon.setContextMenu(contextMenu);
+
+  appIcon.on("click", function() {
+    showMain();
+  });
 });
+
+// 闪烁任务栏
+ipcMain.on("flashIcon", () => {
+  if (!mainPageWindow.isVisible()) {
+    clearFlashIconTimer();
+    let count = 0;
+    flashIconTimer = setInterval(function() {
+      count++;
+      if (count % 2 === 0) {
+        appIcon.setImage(path.join(__dirname, emptyIconPath));
+      } else {
+        appIcon.setImage(path.join(__dirname, iconPath));
+      }
+    }, 500);
+  }
+});
+
+function showMain() {
+  mainWindow.show();
+
+  clearFlashIconTimer();
+  appIcon.setImage(path.join(__dirname, iconPath));
+}
+
+function clearFlashIconTimer() {
+  if (flashIconTimer) {
+    clearInterval(flashIconTimer);
+  }
+}
 
 const downloadingList = [];
 

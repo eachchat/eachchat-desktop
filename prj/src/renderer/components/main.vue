@@ -20,7 +20,10 @@
             </el-menu>
         </el-aside>
         <el-main class="tabcontainer">
-            <component :is="curView"></component>
+            <!-- <component :is="curView"></component> -->
+            <keep-alive>
+                <router-view :distUserId="distUserId" />
+            </keep-alive>
         </el-main>
     </el-container>
 </template>
@@ -41,9 +44,21 @@ import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 export default {
     name: 'mainpage',
+    watch: {
+        '$route'(to, from){
+            console.log("========== to.params.user_id is ", to.params.user_id);
+            if(to.params.user_id != undefined) {
+                this.distUserId = to.params.user_id;
+            }
+            else {
+                this.distUserId = '';
+            }
+        }
+    },
     data () {
         return {
-            curindex: 0,
+            distUserId: '',
+            curindex: -1,
             curView: 'ChatContent',
             //serverapi: new ServerApi('http', '139.198.15.253'),
             Navigate:[
@@ -92,6 +107,8 @@ export default {
             confservice.init(this.curUserInfo.id);
             this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
+            this.$router.push("/main/ChatContent");
+            this.curindex = 0;
             this.showCurUserIcon();
             // Get data from server and set in database
             // UserInfo
@@ -107,14 +124,22 @@ export default {
             // for (var i = 0; i < departmentInfos.length; i++) {
             //     console.log(departmentInfos[i].displayName);
             // }
-
         },
         menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;
-            this.curView = cur_view;
+            // this.curView = cur_view;
             console.log(cur_index);
             console.log(cur_name);
             console.log(cur_link);
+            if(cur_name == "chat") {
+                this.$router.push("/main/ChatContent")
+            }
+            else if(cur_name == "contact list") {
+                this.$router.push("/main/organization")
+            }
+            else if(cur_name == "favourite") {
+                this.$router.push("/main/favourite")
+            }
         },
         getCurNavIcon (cur_index) {
             var endding = " active"
