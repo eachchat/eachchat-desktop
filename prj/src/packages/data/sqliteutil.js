@@ -400,6 +400,16 @@ const Group = {
             groups[0].status = status;
             groups[0].save();
         }
+    },
+
+    async GetGroupByTime(){
+        let groups = await(await models.Groups).find({
+            $order: {
+                by: 'last_message_time',
+                reverse: true
+              }
+        })
+        return groups;
     }
 }
 
