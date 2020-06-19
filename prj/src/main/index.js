@@ -79,7 +79,7 @@ ipcMain.on("flashIcon", () => {
 });
 
 function showMain() {
-  mainWindow.show();
+  mainPageWindow.show();
 
   clearFlashIconTimer();
   appIcon.setImage(path.join(__dirname, iconPath));
@@ -314,7 +314,7 @@ ipcMain.on('modifyGroupImg', function(event, arg) {
 });
 
 ipcMain.on('win-close', function(event, arg) {
-  mainPageWindow.close();
+  mainPageWindow.hide();
 });
 
 ipcMain.on('win-min', function(event, arg) {

@@ -105,26 +105,26 @@ export default {
   },
   computed: {
     dealShowGroupList: function() {
-      if(this.showGroupList.length == 0) {
+      if(this.originalGroupList.length == 0) {
         return;
       }
-      var chatGroupVar = [];
+      this.showGroupList = [];
       var topGroupVar = [];
-      for(var i=0;i<this.showGroupList.length;i++) {
-        if(this.groupIsTop(this.showGroupList[i])) {
-          topGroupVar.push(this.showGroupList[i]);
+      for(var i=0;i<this.originalGroupList.length;i++) {
+        if(this.groupIsTop(this.originalGroupList[i])) {
+          topGroupVar.push(this.originalGroupList[i]);
         }
         else {
-          chatGroupVar.push(this.showGroupList[i]);
+          this.showGroupList.push(this.originalGroupList[i]);
         }
       }
       topGroupVar = topGroupVar.sort(this.compare());
       console.log("topgroupvar is ", topGroupVar)
-      chatGroupVar = chatGroupVar.sort(this.compare());
-      console.log("chatGroupVar is ", chatGroupVar)
-      chatGroupVar = topGroupVar.concat(chatGroupVar);
-      this.$store.commit("setShowGroupList", chatGroupVar);
-      return chatGroupVar
+      this.showGroupList = this.showGroupList.sort(this.compare());
+      console.log("chatGroupVar is ", this.showGroupList)
+      this.showGroupList = topGroupVar.concat(this.showGroupList);
+      this.$store.commit("setShowGroupList", this.showGroupList);
+      return this.showGroupList
     }
   },
   data() {
@@ -136,6 +136,7 @@ export default {
       searchKey: '',
       normalGroupList: [],
       encryptGroupList: [],
+      originalGroupList: [],
       showGroupList: [],
       showImageLayers: false,
       imageLayersSrcInfo: '',
@@ -332,18 +333,7 @@ export default {
           if(updateList) {
             console.log("force udate")
             this.curindex = i;
-            // this.curChat = this.showGroupList[i];
           }
-          break;
-        }
-      }
-    },
-    updateChatListThroughGroupId(groupId, newMsgList) {
-      // ++this.needUpdate;
-      for(var i=0;i<this.showGroupList.length.length;i++) {
-        if(this.showGroupList[i].group_id === groupId) {
-          // this.$store.commit("addMessageLists", newMsgList);
-          this.curindex = i;
           break;
         }
       }
@@ -560,15 +550,15 @@ export default {
     getGroupList: async function(updateCurPage=false) {
         var ret = await services.common.GetAllGroups()
         console.log("sql getGroupList is ", ret)
-        this.showGroupList = ret;
+        this.originalGroupList = ret;
         console.log("length is ", ret)
-        if(updateCurPage){
-          let chatGroupVar = [];
-          chatGroupVar = this.showGroupList.sort(this.compare());
-          let curGroup = chatGroupVar[0];
-          console.log("getgrouplist the cur group is ", curGroup)
-          // this.showChat(curGroup, 0);
-        }
+        // if(updateCurPage){
+        //   let chatGroupVar = [];
+        //   chatGroupVar = this.showGroupList.sort(this.compare());
+        //   let curGroup = chatGroupVar[0];
+        //   console.log("getgrouplist the cur group is ", curGroup)
+        //   // this.showChat(curGroup, 0);
+        // }
     },
     compare: function() {
       return function(a, b)
