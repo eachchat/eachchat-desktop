@@ -171,7 +171,7 @@ export default {
             return;
         },
         getUserImg: async function (){
-            console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(this.userInfo.user_id == undefined || this.userInfo == null) {
                 return "";
             }
@@ -246,7 +246,7 @@ export default {
     },
     async created () {
         this.loginInfo = await services.common.GetLoginModel();
-        console.log("userinfo-tip login info is ", this.loginInfo);
+        //console.log("userinfo-tip login info is ", this.loginInfo);
         this.curUserInfo = await services.common.GetSelfUserModel();
     },
     mounted() {

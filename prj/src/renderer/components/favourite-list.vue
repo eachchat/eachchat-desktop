@@ -17,7 +17,7 @@
                         <p class="message-sender">{{ message.collection_content.fromUserName }}</p>
                         <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                         <div class="favourite-action">
-                            <img class="transmit-img" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <img class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                             <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                         </div>
                     </li>
@@ -33,7 +33,7 @@
                         <p class="image-sender">{{ image.collection_content.fromUserName }}</p>
                         <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
                         <div class="favourite-action">
-                            <img class="transmit-img" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <img class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                             <img class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                         </div>
                     </li>
@@ -43,7 +43,6 @@
                 <ul class="file-list">
                     <li class="file"
                         v-for="(file, index) in favourites"
-                        
                         :key="index">
                         <div class="file-content" >
                             <img class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
@@ -56,7 +55,7 @@
                         <p class="file-sender">{{ file.collection_content.fromUserName }}</p>
                         <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
                         <div class="favourite-action">
-                            <img class="transmit-img" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <img class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                             <img class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                         </div>
 
@@ -72,7 +71,7 @@
                         <div class="group-name">{{ group.collection_content.groupName }}
                         </div>
                         <div class="favourite-group-action">
-                            <img class="message-img" src="../../../static/Img/Favorite/Group/message@2x.png">
+                            <img class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
                             <img class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
                         </div>
                     </li>
@@ -81,17 +80,21 @@
             </div>
             </el-container>
         </el-main>
+        <el-container >
+            <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :key="transmitKey"></transmitDlg>
+        </el-container>
     </el-container>
+
 </template>
 <script>
 import {services} from '../../packages/data/index.js';
 import * as path from 'path'
 import * as fs from 'fs-extra'
-import {shell} from 'electron'
+import {shell, ipcRenderer} from 'electron'
 import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
 import { bool } from '../../packages/core/types';
-import confservice from '../../packages/data/conf_service.js'
-
+import confservice from '../../packages/data/conf_service.js';
+import transmitDlg from './transmitDlg.vue';
 export default {
     name: 'favourite-list',
     data() {
@@ -100,10 +103,17 @@ export default {
             favourites: [],
             favouriteDetail: {},
             showFavouriteList: true,
-            
+            showTransmitDlg: false,
+            transmitCollectionInfo: {},
+            transmitKey:1,
+            recentGroups:[],
         }
     },
+    components: {
+        transmitDlg,
+    },
     computed: {
+
         showMessageList: function() {
             if (this.favouriteType == 'message'){
                 return true;
@@ -141,11 +151,18 @@ export default {
         }
     },
     methods: {
+        closeTransmitDlg(content) {
+                this.showTransmitDlg = false;
+                
+        },
         messageListClicked(message) {
             // open new window and load
+            const ipcRender = require('electron').ipcRenderer;
+            ipcRenderer.send('showFavouriteDetailPageWindow',[message]);
+            ipcRenderer.send('loadFavouriteDetailData', [message]);
         },
         imageListClicked(image) {
-
+            
         },
         fileListClicked:async function(file) {
             if(!this.getFileExist(file)){
@@ -228,6 +245,19 @@ export default {
                 }
             });
         },
+        transmitMessageCollectionClicked:async function(message) {
+            this.showTransmitDlg = true;
+            this.transmitKey ++;
+        },
+        transmitImageCollectionClicked:async function(image) {
+
+        },
+        transmitFileCollectionClicked:async function(file) {
+
+        },
+        groupCollectionChatClicked:async function(group) {
+
+        },
         getFileIconThroughExt(ext) {
             var iconPath = getIconPath(ext);
             return iconPath;
@@ -263,7 +293,7 @@ export default {
 
                 console.log("download collection image ", image)
                 await services.common.downloadMsgTTumbnail(image.timeline_id, image.timestamp, image.collection_content.fileName, false);
-                await this.getImageCollectionContent(image);
+                //await this.getImageCollectionContent(image);
                 // this.checkAndLoadImg(targetPath);
             }
         },
@@ -283,7 +313,7 @@ export default {
             else{
                 console.log("download group avatar", group);
                 await services.common.downloadGroupAvatar(group.collection_content.groupAvatar, group.collection_content.groupId);
-                await this.getGroupAvatarContent(group);
+                //await this.getGroupAvatarContent(group);
             }
 
         },
@@ -351,6 +381,7 @@ export default {
     },
     created:async function() {
         this.showFavouriteList = true;
+        this.recentGroups = await services.common.GetAllGroups();
         if (this.favouriteType == 'message'){
 
             this.headerTitle = '消息';
@@ -390,8 +421,8 @@ export default {
                     this.getGroupAvatarContent(this.favourites[i]);
                 }
             });
-
-            console.log(this.favourites);
+        
+            console.log(this.recentGroups);
         }
         
     }

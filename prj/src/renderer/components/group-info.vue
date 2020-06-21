@@ -422,8 +422,8 @@ export default {
             distElement.setAttribute("src", localPath);
         },
         updateCursorPosition: function(e) {
-            console.log("client x ", e.clientX)
-            console.log("client y ", e.clientY)
+            //console.log("client x ", e.clientX)
+            //console.log("client y ", e.clientY)
             this.cursorX = e.clientX;
             this.cursorY = e.clientY;
         }

@@ -154,7 +154,7 @@ display: none;
 }
 .department {
     height: 60px;
-    border-bottom: 1px solid rgba(221, 221, 221, 1);
+    //border-bottom: 1px solid rgba(221, 221, 221, 1);
     
 }
 .department:hover {
