@@ -276,10 +276,9 @@ class Model {
       return this;
     }
 
-    for (var fieldKey in fields) {
-      if (!fields.hasOwnProperty(fieldKey)) {
-        continue;
-      }
+    
+    for (var fieldKey in attr) {
+      attr[fieldKey] = this.TransferValue(attr[fieldKey])
     }
 
     if (!this._commited) {
@@ -308,6 +307,13 @@ class Model {
     this._originAttr = Object.freeze(Object.assign({}, attr));
 
     return this;
+  }
+
+  TransferValue(sOriginValue){
+    if(typeof(sOriginValue)=='string')
+    {
+      return sOriginValue.replace(/'/g, "''");
+    }
   }
 
   async destroy() {
