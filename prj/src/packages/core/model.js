@@ -311,9 +311,9 @@ class Model {
 
   TransferValue(sOriginValue){
     if(typeof(sOriginValue)=='string')
-    {
       return sOriginValue.replace(/'/g, "''");
-    }
+    else
+      return sOriginValue;
   }
 
   async destroy() {
