@@ -1323,6 +1323,22 @@ const common = {
     if (!result.ok || !result.success) {
       return result;
     }
+  },
+
+  async ListGroupFiles(groupID, sequenceID){
+    let result = await this.api.ListGroupFiles(this.data.login.access_token, groupID, sequenceID);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    return result.data.results;
+  },
+
+  async SearchGroupFiles(groupID, sequenceID, keyword){
+    let result = await this.api.SearchGroupFiles(this.data.login.access_token, groupID, sequenceID, keyword);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    return result.data.results;
   }
 };
 

@@ -583,6 +583,37 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async ListGroupFiles(accessToken, groupID, sequenceID){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/files",
+      {
+        "sequenceId"  : sequenceID,
+        "perPage"     : 50,
+        "sortOrder"   : 1,
+        "groupId"     : groupID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async SearchGroupFiles(accessToken, groupID, sequenceID, keyword){
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/search/files",
+      {
+        "sequenceId"  : sequenceID,
+        "perPage"     : 50,
+        "sortOrder"   : 1,
+        "groupId"     : groupID,
+        "keyword"     : keyword
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}
