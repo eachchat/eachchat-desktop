@@ -388,6 +388,50 @@ const Message = {
         {
             msg[index].destroy();
         }
+    },
+
+    async GetBeforeMessage(groupId, sequenceID, count){
+        let condition;
+        condition = {
+            group_id: groupId,
+            sequence_id:{
+                lte: sequenceID
+            },
+            $order: {
+                by: 'sequence_id',
+                reverse: false
+            },
+            $size: count
+        };
+        return await (await models.Message).find(condition)
+    },
+
+    async GetAfterMessage(groupId, sequenceID, count){
+        let condition;
+        condition = {
+            group_id: groupId,
+            sequence_id:{
+                gt: sequenceID
+            },
+            $order: {
+                by: 'sequence_id',
+                reverse: false
+            },
+            $size: count
+        };
+        return await (await models.Message).find(condition)
+    },
+
+    async ExistMessageBySequenceID(sequenceID){
+        let msgs = await(await models.Message).find(
+            {
+                sequence_id: sequenceID
+            }
+        );
+        if(msgs.length == 0){
+            return false;
+        }
+        return true;
     }
 }
 
@@ -410,7 +454,17 @@ const Group = {
               }
         })
         return groups;
-    }
+    },
+
+    async FindItemFromGroupByGroupID(groupid){
+        var groups = await(await models.Groups).find({
+            group_id: groupid
+          });
+        if(groups.length == 0){
+            return undefined;
+        }
+        return groups[0];
+    },
 }
 
 

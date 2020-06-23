@@ -614,6 +614,22 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async BeforeAndAfterMessage(accessToken, groupID, sequenceID, beforeCount, afterCount){
+    var response = await this.commonApi.get(
+      "/api/apps/im/v1//message/group/" 
+      + groupID
+      + "/sequence/"
+      + sequenceID
+      + "/preNumber/"
+      + beforeCount
+      + "/backNumber/"
+      + afterCount,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

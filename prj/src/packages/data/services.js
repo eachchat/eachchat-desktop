@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group } from './sqliteutil.js'
+import { sqliteutil, Group, Message } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -156,13 +156,6 @@ const common = {
     }
     this.data.group = allItems;
     return this.data.group;
-  },
-
-  async GetDistGroups(groupId){
-    let distItems = await(await models.Groups).find({
-      group_id: groupId
-    });
-    return distItems[0];
   },
 
   async GetRecentUsers(){
@@ -761,23 +754,10 @@ const common = {
     let next = true;
     let message;
     let messagemodel;
-    this.data.historymessage = []
+    let historymessage = []
     let totalcount = 0;
 
-    let condition;
-    condition = {
-      group_id: groupId,
-      sequence_id:{
-        lte: sequenceId
-      },
-      $order: {
-        by: 'sequence_id',
-        reverse: true
-      },
-      $size: count
-      };
-
-    let items = await (await models.Message).find(condition)
+    let items = await Message.GetBeforeMessage(groupId, sequenceId, count);
     //sort items by sequenceId
     if(items.length != 0 && items.length == count)
     {
@@ -789,29 +769,32 @@ const common = {
 
     if(items.length != 0)
     {
-      sequenceId = items[items.length - 1].sequence_id
+      sequenceId = items[0].sequence_id
       for(let index in items)
       {
         totalcount++;
         items[index].message = JSON.parse(items[index].message_content);
-        this.data.historymessage.push(items[index]);
+        historymessage.push(items[index]);
       }
     }
 
     while(next){
       result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
       if (!result.ok || !result.success) {
-        return this.data.historymessage;
+        return historymessage;
       }
   
       if (!("results" in result.data)) {
-        return this.data.historymessage;
+        return historymessage;
       }
       resultvalues = result.data.results;
       next = result.data.hasNext;
+
+      let resultMessage = [];
+      let resultLenth = resultvalues.length;
       for(let item in resultvalues)
       {
-        message = resultvalues[item]
+        message = resultvalues[resultLenth - item - 1]
         if(await sqliteutil.ExistMsg(message.msgId)){
           next = false;
           console.log("historyMessage exist message");
@@ -826,11 +809,12 @@ const common = {
         if(totalcount++ < count)
         {
           messagemodel.message = JSON.parse(messagemodel.message_content);
-          this.data.historymessage.push(messagemodel)
+          resultMessage.push(messagemodel)
         }
       }
+      historymessage = resultMessage.concat(historymessage)
     }
-    return this.data.historymessage;
+    return historymessage;
   },
 
   async sendNewMessage(messageID, 
@@ -1346,6 +1330,42 @@ const common = {
       return result;
     }
     return result.data.results;
+  },
+
+  async AfterMessage(groupID, sequenceID, count){
+    return Message.GetAfterMessage(groupID, sequenceID, count);
+  },
+
+  async ListAllMessage(groupID, sequenceID){
+    let allMessage = {};
+    if(await Message.ExistMessageBySequenceID())    {
+      let history = await this.historyMessage(groupID, sequenceID, 20);
+      let after = await this.AfterMessage(groupID, sequenceID, 20);
+      allMessage.before = history;
+      allMessage.after = after;
+    }
+    else{
+      let result = await this.api.BeforeAndAfterMessage(this.data.login.access_token,
+        groupID,
+        sequenceID,
+        20,
+        20);
+      let items = result.data.results;
+      let before = [];
+      let after = [];
+      let msgModel;
+      for(let index in items){
+        msgModel = await servicemodels.MessageModel(items[index]);
+        msgModel.message = JSON.parse(msgModel.message_content);
+        if(msgModel.sequence_id <= sequenceID)
+          before.push(msgModel);
+        else
+          after.push(msgModel)
+      }  
+      allMessage.before = before;
+      allMessage.after = after;    
+    }
+    return allMessage;
   }
 };
 
