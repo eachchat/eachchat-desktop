@@ -93,17 +93,7 @@ const sqliteutil = {
         foundUsers[0].department_max_updatetime = updatetime;
         foundUsers[0].save();
     },
-
-    async FindItemFromGroupByGroupID(groupid){
-        var groups = await(await models.Groups).find({
-            group_id: groupid
-          });
-        if(groups.length == 0){
-            return undefined;
-        }
-        return groups[0];
-    },
-
+    
     async ExistMsg(msgid){
         let msgs = await(await models.Message).find(
             {

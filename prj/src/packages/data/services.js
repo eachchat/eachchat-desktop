@@ -846,7 +846,7 @@ const common = {
     await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, msgmodel.sequence_id)
     this.data.selfuser.msg_max_sequenceid = msgmodel.sequence_id
 
-    let group = await sqliteutil.FindItemFromGroupByGroupID(msgmodel.group_id);
+    let group = await Group.FindItemFromGroupByGroupID(msgmodel.group_id);
     if(group == undefined)
     {
       group = await servicemodels.MessageGroup(msg);
@@ -937,7 +937,7 @@ const common = {
             callback(tmpmodel);   
           }
         }
-        let group = await sqliteutil.FindItemFromGroupByGroupID(tmpmodel.group_id);
+        let group = await Group.FindItemFromGroupByGroupID(tmpmodel.group_id);
         if(group == undefined)
         {
           group = await servicemodels.MessageGroup(message_item);
