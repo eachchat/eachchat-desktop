@@ -151,7 +151,11 @@ const common = {
     let allItems = await(await models.Groups).find({
       $reverse: true
     });
-    return this.data.group = allItems;
+    for(let index in allItems){
+      allItems[index].message = JSON.parse(allItems[index].message_content);
+    }
+    this.data.group = allItems;
+    return this.data.group;
   },
 
   async GetRecentUsers(){
@@ -223,10 +227,14 @@ const common = {
   },
 
   async GetGroupByName(name){
-    return await(await models.Groups).find({
+    let groups = await(await models.Groups).find({
       group_name: name,
       group_type: 102 
     });
+    for(let index in groups){
+      groups[index].message = JSON.parse(groups[index].message_content);
+    }
+    return groups;
   },
 
   init(config) {
@@ -322,10 +330,6 @@ const common = {
     await this.listAllGroup();
     //await this.ReveiveNewMessage(0, 0);
     
-  },
-
-  async dumpEncryptDB(){
-    await models.dumpEncryptDB();
   },
 
   async InitDbData()
@@ -622,6 +626,7 @@ const common = {
       }
       if(groupmodel.status[5] != 1){
         groupmodel.save()
+        groupmodel.message = JSON.parse(groupmodel.message_content);
         this.data.group.push(groupmodel)
       }
       
@@ -769,6 +774,9 @@ const common = {
     //sort items by sequenceId
     if(items.length != 0 && items.length == count)
     {
+      for(let index in items){
+        items[index].message = JSON.parse(items[index].message_content);
+      }
       return items;
     }
 
@@ -778,6 +786,7 @@ const common = {
       for(let index in items)
       {
         totalcount++;
+        items[index].message = JSON.parse(items[index].message_content);
         this.data.historymessage.push(items[index]);
       }
     }
@@ -809,6 +818,7 @@ const common = {
         
         if(totalcount++ < count)
         {
+          messagemodel.message = JSON.parse(messagemodel.message_content);
           this.data.historymessage.push(messagemodel)
         }
       }
@@ -859,6 +869,7 @@ const common = {
       group = await servicemodels.UpdateGroupMessage(group, msg);
     }
     group.save();
+    msgmodel.message = JSON.parse(msgmodel.message_content);
     return msgmodel;
   },
 
@@ -922,10 +933,12 @@ const common = {
           if(findmsgs.length != 0){
             findmsgs[0].value = tmpmodel.value;
             findmsgs[0].save();
+            findmsgs[0].message = JSON.parse(findmsgs[0].message_content);
             msg_models.push(findmsgs[0])
           }    
           else{
-            tmpmodel.save()
+            tmpmodel.save();
+            tmpmodel.message = JSON.parse(tmpmodel.message_content);
             msg_models.push(tmpmodel)
           } 
           if(callback != undefined)
@@ -1155,6 +1168,9 @@ const common = {
       sequenceID = await sqliteutil.FindMaxCollectionSequenceID(type[0])
     }
     collections = await sqliteutil.FindCollectionByType(type[0])
+    for(let index in collections){
+      collections[index].collection = JSON.parse(collections[index].collection_content);
+    }
     return collections;
   },
 

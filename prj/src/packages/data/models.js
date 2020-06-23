@@ -39,7 +39,7 @@ var models = {
           is_active: types.integer,
           job: types.string,
           bio: types.string,
-          msg_max_sequenceid: types.integer,
+          msg_max_sequenceid: types.string,
           user_max_updatetime: types.integer,
           group_max_updatetime:types.integer,
           department_max_updatetime: types.integer
@@ -177,7 +177,7 @@ var models = {
         index: "group",
         fields: {
           group_id:              types.string,
-          sequence_id:           types.integer,
+          sequence_id:           types.string,
           contain_user_ids:      types.string,
           group_name:            types.string,
           group_avarar:          types.string,
@@ -213,7 +213,7 @@ var models = {
           message_direction:  types.integer,
           message_status:     types.integer,
           message_from_id:    types.string,
-          sequence_id:        types.integer,
+          sequence_id:        types.string,
           message_timestamp:  types.integer,
           message_content:    types.string,
           file_local_path:    types.string
@@ -238,10 +238,6 @@ var models = {
         primaryKey: "favourite_id"
       });
     })();
-  },
-
-  dumpEncryptDB(){
-    this.storage.sqlite.dumpEncryptDB();
   },
 
   _initSqliteStorage() {

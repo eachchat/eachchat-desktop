@@ -68,6 +68,11 @@ class Sqlite {
     return new Promise((resolve, reject)=>
     {
       this.db.all(sql, function(err, data){
+        if(err != undefined)
+        {
+          console.log(err);
+          console.log("sql is:"+sql)
+        }
         resolve(data);
       })
     })
@@ -89,11 +94,6 @@ class Sqlite {
   dump() {
   }
 
-  dumpEncryptDB(){
-    if (typeof this.db === 'undefined') {
-      return;
-    }
-  }
 
   static async connect(filename) {
     var connection = new Sqlite(filename);

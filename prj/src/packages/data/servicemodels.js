@@ -343,7 +343,7 @@ const servicemodels = {
       {
         groupvalue[messagemap[key]] = groupitem["message"][key];
       }
-      groupvalue["message_content"] = escape(JSON.stringify(groupitem["message"]["content"]));  
+      groupvalue["message_content"] = JSON.stringify(groupitem["message"]["content"]);  
 
       for(let key in objmap)
       {
@@ -389,7 +389,7 @@ const servicemodels = {
       {
         groupvalue[groupmap[key]] = value[key];
       }
-      groupvalue.message_content = escape(JSON.stringify(value.content));
+      groupvalue.message_content = JSON.stringify(value.content);
 
       let groupmodel = await new (await models.Groups)(groupvalue);
       return groupmodel;
@@ -469,7 +469,7 @@ const servicemodels = {
       {
         if(key == 'content')
         {
-          model[map[key]] = escape(JSON.stringify(value[key]));
+          model[map[key]] = JSON.stringify(value[key]);
         }
         else
         {
@@ -520,7 +520,7 @@ const servicemodels = {
       {  
         messagevalue[messagemap[key]] = message[key];
       }
-      messagevalue["message_content"] = escape(JSON.stringify(message["content"]));  
+      messagevalue["message_content"] = JSON.stringify(message["content"]);  
       messagemodel = await new(await models.Message)(messagevalue);
       return messagemodel;
     },
@@ -551,7 +551,7 @@ const servicemodels = {
       {  
         collectionvalue[collectionmap[key]] = value[key];
       }
-      collectionvalue["collection_content"] = escape(JSON.stringify(value["content"]));  
+      collectionvalue["collection_content"] = JSON.stringify(value["content"]);  
       collectionmodel = await new(await models.Collection)(collectionvalue);
       return collectionmodel; 
     }
