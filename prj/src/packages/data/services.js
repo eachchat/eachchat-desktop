@@ -1133,7 +1133,6 @@ const common = {
     let item;
     let collectionModel;
     let collections = [];
-    let bFirst = true;
     let sequenceID = 0;
 
     while(bNext){
@@ -1145,11 +1144,7 @@ const common = {
       if (!result.ok || !result.success) {
         break;
       }
-      if(bFirst)
-      {
-        await sqliteutil.ClearCollectionByType(type[0]);
-        bFirst = false;
-      }
+  
       bNext = result.data.hasNext;
 
       for(let index in result.data.results){
@@ -1160,10 +1155,6 @@ const common = {
         if(find == undefined){
           collectionModel.save();
         }
-        else{
-          find.values = collectionModel.values;
-          find.save();
-        } 
       }
       sequenceID = await sqliteutil.FindMaxCollectionSequenceID(type[0])
     }
