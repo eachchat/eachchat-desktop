@@ -467,11 +467,6 @@ class SQLiteStorage extends Storage {
 
     return result;
   }
-
-  async dumpEncryptDB(){
-    var database = await this.getDatabase();
-    database.dumpEncryptDB();
-  }
 }
 
 export {

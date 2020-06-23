@@ -94,11 +94,6 @@ class Sqlite {
   dump() {
   }
 
-  dumpEncryptDB(){
-    if (typeof this.db === 'undefined') {
-      return;
-    }
-  }
 
   static async connect(filename) {
     var connection = new Sqlite(filename);
