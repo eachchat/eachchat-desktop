@@ -14,6 +14,7 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let mainPageWindow
+let soloPage
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath = "/static/Img/Main/Close@3x.png";
@@ -60,6 +61,34 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon.on("click", function() {
     showMain();
   });
+});
+
+ipcMain.on('showAnotherWindow', function(event, groupId, path) {
+  soloPage = new BrowserWindow({
+    height: 468,
+    useContentSize: true,
+    resizable: false,
+    width:600,
+    webPreferences: {webSecurity:false},
+    frame:false
+  })
+  const sonPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/` + path
+  : `file://${__dirname}/index.html#` + path;
+  soloPage.loadURL(sonPageWinURL);
+  openDevToolsInDevelopment(soloPage);
+  soloPage.webContents.on('did-finish-load', function() {
+    soloPage.webContents.send("distGroupInfo", groupId);
+  });
+  soloPage.show();
+});
+
+ipcMain.on('AnotherClose', function(event, arg) {
+  soloPage.close();
+});
+
+ipcMain.on('AnotherMin', function(event, arg) {
+  soloPage.minimize();
 });
 
 // 闪烁任务栏

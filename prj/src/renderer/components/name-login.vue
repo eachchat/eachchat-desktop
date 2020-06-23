@@ -78,7 +78,7 @@ export default {
             let response = await services.common.login();
             console.log(response)
             var ret_data = response;
-            if(response){
+            if(!response){
                 var msg = ret_data["message"];
                 var code = ret_data["code"];
                 if(code != 200)
@@ -117,6 +117,7 @@ export default {
                 if(ret.state) {
                     const ipcRenderer = require('electron').ipcRenderer;
                     ipcRenderer.send('showMainPageWindow');
+                    // ipcRenderer.send('showSonWindow', '139.198.15.253');
                 }
                 else{
                     if(ret.msg == "tokenExpired") {
@@ -126,7 +127,10 @@ export default {
                 }
             })
 
-        }, 1000)
+        }, 1000);
+        ipcRenderer.on('dataJsonPort', function(event, message) { // 监听父页面定义的端口
+            console.log("wo cao shou dao le ");
+        });
     },
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
     <div class="chat-wind">
       <div class="win-header">
-        <winHeaderBar v-show="isWindows"></winHeaderBar>
+        <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
       </div>
       <div class="chat-panel" id="chat-panel-id">
         <div class="chat-list">
@@ -146,6 +146,15 @@ export default {
     };
   },
   methods: {
+    Close: function() {
+      ipcRenderer.send("win-close");
+    },
+    Min: function() {
+      ipcRenderer.send("win-min");
+    },
+    Max: function() {
+      ipcRenderer.send("win-max");
+    },
     showScrollBar: function(e) {
       if(this.groupListElement == null) {
         this.groupListElement = document.getElementById("list-content-id");

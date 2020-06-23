@@ -46,6 +46,9 @@
                         <div class="chat-input-file" @click="insertFiles()">
                             <img class="el-icon-files" src="../../../static/Img/Chat/file@2x.png">
                         </div>
+                        <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()">
+                            <img class="el-icon-historys" src="../../../static/Img/Chat/chatHistory-24px@2x.png">
+                        </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
@@ -89,6 +92,16 @@
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
         <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
+        <div class="history-dropdown-content" id="history-dropdown-content-id">
+            <div class="history-msg" @click="showHistoryMsgList()">
+                <img class="history-msg-img" src="/static/Img/Chat/chatHistoryMsg-20px@2x.png">
+                <span class="history-msg-label">聊天记录</span>
+            </div>
+            <div class="history-file" @click="showFileList()">
+                <img class="history-msg-img" src="/static/Img/Chat/chatHistoryFiles-20px@2x.png">
+                <span class="history-file-label">文件</span>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -200,17 +213,41 @@ export default {
     },
     props: ['chat'],
     methods: {
+        CloseFileListDlg: function() {
+            ipcRenderer.send("fileListDlg-close");
+        },
+        MinFileListDlg: function() {
+            ipcRenderer.send("fileListDlg-min");
+        },
+        showHistoryMsgList: function() {
+            ipcRenderer.send("showAnotherWindow", this.chat.group_id, "historyMsgList");
+        },
+        showFileList: function() {
+            console.log("showfilelist");
+            // this.showFileListInfo = true;
+            // this.fileListGroupInfo = this.chat;
+            ipcRenderer.send("showAnotherWindow", this.chat.group_id, "fileList");
+        },
+        showMsgHistoryOperate: function() {
+            var msgHistoryBtnElement = document.getElementById("chat-input-history-id");
+            var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
+            var top = msgHistoryBtnElement.offsetTop + msgHistoryBtnElement.offsetHeight - 11;
+            var left = msgHistoryBtnElement.offsetLeft + 11;
+            msgHistoryMenuElement.style.display = "block";
+            msgHistoryMenuElement.style.top = top + "px";
+            msgHistoryMenuElement.style.left = left + "px";
+        },
         showScrollBar: function(e) {
-        if(this.messageListElement == null) {
-            this.messageListElement = document.getElementById("message-show-list");
-        }
-        this.messageListElement.style.overflowY = "overlay"
+            if(this.messageListElement == null) {
+                this.messageListElement = document.getElementById("message-show-list");
+            }
+            this.messageListElement.style.overflowY = "overlay"
         },
         hideScrollBar: function(e) {
-        if(this.messageListElement == null) {
-            this.messageListElement = document.getElementById("message-show-list");
-        }
-        this.messageListElement.style.overflowY = "hidden"
+            if(this.messageListElement == null) {
+                this.messageListElement = document.getElementById("message-show-list");
+            }
+            this.messageListElement.style.overflowY = "hidden"
         },
         handleDialogClose() {
             this.$refs.chatGroupCreater.initData();
@@ -693,6 +730,11 @@ export default {
                 this.chatMemberDlgVisible = false;
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgchat = {};
+            }
+            var historyDropdownElement = document.getElementById("history-dropdown-content-id");
+            if(historyDropdownElement != null && !historyDropdownElement.contains(e.target) && e.target.className != "chat-input-history" && e.target.className != "el-icon-historys") {
+                var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
+                msgHistoryMenuElement.style.display = "none";
             }
         },
         showExpression: function() {
@@ -1689,6 +1731,7 @@ export default {
         getHistoryMessage: function() {
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then((ret) => {
+                    // console.log("oririnal ret is ", ret);
                     var messageListTmp = ret.sort(this.compare());
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
@@ -1701,6 +1744,8 @@ export default {
                             this.existingMsgId.push(messageListTmp[i].message_id);
                         }
                     }
+                    
+                    // console.log("this.messageList is ", this.messageList);
                     // if(messageListTmp.length !=0){
                     //     if(messageListTmp[0].sequence_id != this.chat.sequence_id){
                     //         let messageFromGroup = {};
@@ -1809,6 +1854,8 @@ export default {
     },
     data() {
         return {
+            fileListGroupInfo: {},
+            showFileListInfo: false,
             messageListElement: null,
             checkClassName: ["chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
@@ -2323,6 +2370,83 @@ export default {
         height: 24px;
         margin: 0px;
         padding: 0px;
+    }
+    
+    .chat-input-history {
+        display: inline-block;
+        margin: 0;
+        padding: 11px 11px 11px 11px;
+    }
+
+    .el-icon-historys {
+        width: 24px;
+        height: 24px;
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .history-dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0);
+        width: 128px;
+        height: 80px;
+        border-radius: 4px;
+        box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);
+        border:1px solid rgba(221,221,221,1);
+    }
+
+    .history-dropdown-content div:hover {
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+    }
+
+    .history-msg {
+        display: block;
+        width: 128px;
+        height: 40px;
+    }
+
+    .history-msg-img {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 10px 8px 10px 16px;
+        background-color: rgba(0, 0, 0, 0);
+    }
+    
+    .history-msg-label {
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'Microsoft YaHei';
+        vertical-align: top;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    .history-file {
+        display: block;
+        width: 128px;
+        height: 40px;
+    }
+
+    .history-file-img {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 10px 8px 10px 16px;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    .history-file-label {
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'Microsoft YaHei';
+        vertical-align: top;
+        background-color: rgba(0, 0, 0, 0);
     }
 
     .chat-send {

@@ -158,6 +158,13 @@ const common = {
     return this.data.group;
   },
 
+  async GetDistGroups(groupId){
+    let distItems = await(await models.Groups).find({
+      group_id: groupId
+    });
+    return distItems[0];
+  },
+
   async GetRecentUsers(){
     let recentGroups = [];
     let recentUsers = [];

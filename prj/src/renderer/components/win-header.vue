@@ -4,9 +4,9 @@
         </div>
         <div class="header-chat">
             <div class="Buttons">
-                <img class="header-btn-close" src="/static/Img/Main/WinClose-20px.png" @click="Close()">
-                <img class="header-btn-max" src="/static/Img/Main/WinZoom-20px.png" @click="Max()">
-                <img class="header-btn-min" src="/static/Img/Main/WinMinimise-20px.png" @click="Min()">
+                <img class="header-btn-close" src="/static/Img/Main/WinClose-20px.png" @click="Close()" v-show="showClose">
+                <img class="header-btn-max" src="/static/Img/Main/WinZoom-20px.png" @click="Max()" v-show="showMax">
+                <img class="header-btn-min" src="/static/Img/Main/WinMinimise-20px.png" @click="Min()" v-show="showMin">
             </div>
         </div>
     </div>
@@ -16,19 +16,47 @@
 import { ipcRenderer } from 'electron'
 export default {
     name: 'winHeadbar',
+    props: {
+        showClose: {
+            type: Boolean,
+            default: true
+        },
+        showMax: {
+            type: Boolean,
+            default: true
+        },
+        showMin: {
+            type: Boolean,
+            default: true
+        }
+    },
+    watch: {
+        showClose: function() {
+            console.log("this.showClose ", this.showClose);
+        },
+        showMax: function() {
+            console.log("this.showMax ", this.showMax);
+        },
+        showMin: function() {
+            console.log("this.showMin ", this.showMin);
+        }
+    },
     data () {
         return {
         }
     },
     methods: {
         Min:function() {
-            ipcRenderer.send("win-min");
+            this.$emit("Min");
+            // ipcRenderer.send("win-min");
         },
         Close: function() {
-            ipcRenderer.send("win-close");
+            this.$emit("Close");
+            // ipcRenderer.send("win-close");
         },
         Max: function() {
-            ipcRenderer.send("win-max");
+            this.$emit("Max");
+            // ipcRenderer.send("win-max");
         }
     },
     components: {
