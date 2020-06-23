@@ -1,75 +1,365 @@
 <template>
     <el-container>
         <el-header height="56px" class="organization-header">
-            <el-breadcrumb separator="/">
+            <p class="organization-header-title">{{ headerTitle }}</p>
+            <!-- <el-breadcrumb separator="/">
                 <el-breadcrumb-item v-for="(item, index) in breadCrumbs" :key="index">
                     <a href="javascript:void(0)" 
                     @click="departmentBreadCrumbsClicked(item.id, item.name, index)">
                     {{ item.name }}</a>
                 </el-breadcrumb-item>
-            </el-breadcrumb>
+            </el-breadcrumb> -->
         </el-header>
         <el-main>
-            <el-container>
-            <div class="organization-view">
-                <div class="departments-view">
-                    <ul class="departments-list">
-                        <li class="department"
-                            v-for="(department, index) in departments"
-                            @click="departmentMenuItemClicked(department.department_id, department.display_name)" 
-                            :key="index">
-                            <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
-                            <div class="department-info">
-                                <p class="department-name">{{ department.display_name }}</p>
+            <el-container class="bottom-container">
+                
+                    <div class="organization-view-one">
+                        <div class="departments-view" v-show="organizationList[0].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[0].departments"
+                                    @click="departmentMenuItemClicked(department, 0)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[0].users.length">
+                            <div class="users-header">
+                                成员
                             </div>
-                            <div align="center" class="item-arrow">
-                                <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <!-- <div class="managers-view" v-show="managers.length">
-                    <div class="managers-header">
-                        管理
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[0].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <ul class="managers-list">
-                        <li class="manager"
-                            v-for="(manager, index) in managers"
-                            @click="userMenuItemClicked(manager.user_id)" 
-                            :key="index">
-                            <img class="manager-icon" :id="manager.user_id" :src="getUserImg(manager)">
-                            
-                            <div class="manager-info">
-                                <p class="manager-name">{{ manager.user_display_name }}</p>
-                                <p class="manager-title">{{ manager.user_title }}</p>
-                                
+                
+                    <div>
+                    <div class="organization-view" v-if="showOrganizationLevelTwo">
+                        <div class="departments-view" >
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[1].departments"
+                                    @click="departmentMenuItemClicked(department, 1)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[1].users.length">
+                            <div class="users-header">
+                                成员
                             </div>
-                        </li>
-                    </ul>
-                </div> -->
-                <div class="users-view" v-show="users.length">
-                    <div class="users-header">
-                        成员
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[1].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <ul class="managers-list">
-                        <li class="manager"
-                            v-for="(manager, index) in users"
-                            @click="userMenuItemClicked(manager.user_id)" 
-                            :key="index">
-                            <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
-                            <div class="manager-info">
-                                <p class="manager-name">{{ manager.user_display_name }}</p>
-                                <p class="manager-title">{{ manager.user_title }}</p>
+                    </div>
+                <div>
+                    <div class="organization-view" v-if="showOrganizationLevelThree">
+                        <div class="departments-view" v-if="organizationList[2].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[2].departments"
+                                    @click="departmentMenuItemClicked(department, 2)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[2].users.length">
+                            <div class="users-header">
+                                成员
                             </div>
-                        </li>
-                    </ul>
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[2].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
+                                <div>
+                    <div class="organization-view" v-if="showOrganizationLevelFour">
+                        <div class="departments-view" v-if="organizationList[3].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[3].departments"
+                                    @click="departmentMenuItemClicked(department, 3)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[3].users.length">
+                            <div class="users-header">
+                                成员
+                            </div>
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[3].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                                <div>
+                    <div class="organization-view" v-if="showOrganizationLevelFive">
+                        <div class="departments-view" v-if="organizationList[4].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[4].departments"
+                                    @click="departmentMenuItemClicked(department, 4)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[4].users.length">
+                            <div class="users-header">
+                                成员
+                            </div>
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[4].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                                <div>
+                    <div class="organization-view" v-if="showOrganizationLevelSix">
+                        <div class="departments-view" v-if="organizationList[5].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[5].departments"
+                                    @click="departmentMenuItemClicked(department, 5)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[5].users.length">
+                            <div class="users-header">
+                                成员
+                            </div>
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[5].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                                <div>
+                    <div class="organization-view" v-if="showOrganizationLevelSeven">
+                        <div class="departments-view" v-if="organizationList[6].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[6].departments"
+                                    @click="departmentMenuItemClicked(department, 6)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[6].users.length">
+                            <div class="users-header">
+                                成员
+                            </div>
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[6].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                                <div>
+                    <div class="organization-view" v-if="showOrganizationLevelEight">
+                        <div class="departments-view" v-if="organizationList[7].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[7].departments"
+                                    @click="departmentMenuItemClicked(department, 7)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[7].users.length">
+                            <div class="users-header">
+                                成员
+                            </div>
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[7].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                                <div>
+                    <div class="organization-view" v-if="showOrganizationLevelNine">
+                        <div class="departments-view" v-if="organizationList[8].departments.length">
+                            <ul class="departments-list">
+                                <li class="department"
+                                    v-for="(department, index) in organizationList[8].departments"
+                                    @click="departmentMenuItemClicked(department, 8)" 
+                                    :key="index">
+                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <div class="department-info">
+                                        <p class="department-name">{{ department.display_name }}</p>
+                                    </div>
+                                    <div align="center" class="item-arrow">
+                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="users-view" v-if="organizationList[8].users.length">
+                            <div class="users-header">
+                                成员
+                            </div>
+                            <ul class="managers-list">
+                                <li class="manager"
+                                    v-for="(manager, index) in organizationList[8].users"
+                                    @click="userMenuItemClicked(manager.user_id)" 
+                                    
+                                    :key="index">
+                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ manager.user_display_name }}</p>
+                                        <p class="manager-title">{{ manager.user_title }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            <div class="userInfo-view" v-if="showUserInfoDrawer">
+                <userInfoContent :userInfo = "userInfo"></userInfoContent>
+                <!-- <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px" :closable="true">
+                    
+                </yidrawer> -->
             </div>
-            <!-- <div class="userInfo-view" v-show="showUserInfoDrawer">
-                <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px" :closable="true">
-                    <userInfoContent :userInfo = "userInfo"></userInfoContent>
-                </yidrawer>
-            </div> -->
             </el-container>
         </el-main>
     </el-container>
@@ -81,19 +371,21 @@ import * as fs from 'fs-extra'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
-import {Department, UserInfo} from '../../packages/data/sqliteutil.js'; 
+import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 export default {
     name: 'organizationList',
     components: {
         yidrawer,
-        userInfoContent
+        userInfoContent,
     },
     data () {
         return {
             breadCrumbs: [],
+            headerTitle: '',
             departments: [],
+            organizationList: [],
             users: [],
             managers: [],
             userInfo: {},
@@ -106,58 +398,148 @@ export default {
             type:Object
         }
     },
+    computed: {
+        showOrganizationLevelTwo: function(){
+            if (this.organizationList.length >= 2) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+        
+        showOrganizationLevelThree: function(){
+            if (this.organizationList.length >= 3) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+        showOrganizationLevelFour: function(){
+            if (this.organizationList.length >= 4) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+                showOrganizationLevelFive: function(){
+            if (this.organizationList.length >= 5) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+                showOrganizationLevelSix: function(){
+            if (this.organizationList.length >= 6) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+                showOrganizationLevelSeven: function(){
+            if (this.organizationList.length >= 7) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+                showOrganizationLevelEight: function(){
+            if (this.organizationList.length >= 8) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+                showOrganizationLevelNine: function(){
+            if (this.organizationList.length >= 9) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        },
+    },
     methods: {
-        departmentBreadCrumbsClicked:async function(id, name, index) {
-            this.showUserInfoDrawer = false;
-            var departmentModels = await Department.GetSubDepartment(id);
+        // departmentBreadCrumbsClicked:async function(id, name, index) {
+        //     this.showUserInfoDrawer = false;
+        //     var departmentModels = await Department.GetSubDepartment(id);
 
+        //     var tempDepartments = [];
+        //     for(var i = 0; i < departmentModels.length; i ++){
+        //         tempDepartments[departmentModels[i].show_order] = departmentModels[i];
+        //     }
+        //     this.departments = tempDepartments;
+        //     this.users = await UserInfo.GetSubUserinfo(id);
+        //     this.$nextTick(function(){
+        //         for(var i = 0; i < this.users.length; i ++){
+        //             this.getUserImg(this.users[i]);
+        //         }
+        //     });
+
+        //     this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
+        // },
+        departmentMenuItemClicked:async function(department, level) {
+
+
+
+            var id = department.department_id;
+            var name = department.display_name;
+
+            var departmentModels = await Department.GetSubDepartment(id);
             var tempDepartments = [];
             for(var i = 0; i < departmentModels.length; i ++){
                 tempDepartments[departmentModels[i].show_order] = departmentModels[i];
             }
-            this.departments = tempDepartments;
-            this.users = await UserInfo.GetSubUserinfo(id);
-            this.$nextTick(function(){
-                for(var i = 0; i < this.users.length; i ++){
-                    this.getUserImg(this.users[i]);
-                }
-            });
-
-            this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
-        },
-        departmentMenuItemClicked:async function(id, name) {
-            this.showUserInfoDrawer = false;
-            var departmentModels = await Department.GetSubDepartment(id);
-            var tempDepartments = [];
-            for(var i = 0; i < departmentModels.length; i ++){
-                tempDepartments[departmentModels[i].show_order] = departmentModels[i];
+            var organization = {};
+            organization.departments = tempDepartments;
+            organization.users = await UserInfo.GetSubUserinfo(id);
+            if (level == this.organizationList.length - 1) {
+                this.organizationList.push(organization);
+            }else {
+                this.organizationList.splice(level + 1, this.organizationList.length - level - 1);
+                this.organizationList.push(organization);
             }
-            this.departments = tempDepartments;
-            this.users = await UserInfo.GetSubUserinfo(id);
+            
             this.$nextTick(function(){
-                for(var i = 0; i < this.users.length; i ++){
-                    this.getUserImg(this.users[i]);
+                for(var i = 0; i < organization.users.length; i ++){
+                    this.getUserImg(organization.users[i]);
                 }
             });
-            this.breadCrumbs.push({
-                name: name,
-                id: id
-            });
+            
         },
-        userMenuItemClicked(id) {
-            // 跳转路由设置
-            // this.$router.push(
-            //     {
-            //         name: 'ChatContent', 
-            //         params: {
-            //             user_id: id
-            //         }
-            //     })
+        userMenuItemClicked:async function(id) {
             if (this.showUserInfoDrawer&&(this.userInfo.id == id)){
                 this.showUserInfoDrawer = false;
                 return;
             }
             var tempUserInfo = {};
+            //get userinfo
+            var user = await UserInfo.GetUserInfo(id);
+            tempUserInfo.id = user.user_id;
+                    tempUserInfo.avatarTUrl = user.avatar_t_url;
+                    tempUserInfo.displayName = user.user_display_name;
+                    tempUserInfo.title = user.user_title;
+                    tempUserInfo.statusDescription = user.status_description;
+                    tempUserInfo.workDescription = user.work_description;
+                    tempUserInfo.managerId = user.manager_id;
+                    tempUserInfo.departmentId = user.belong_to_department_id;
+            
+            //get department
+            var department = await Department.GetDepartmentInfoByUserID(id);
+            tempUserInfo.department = department;
+            //get email
+            var email = await UserInfo.GetUserEmailByUserID(id);
+            tempUserInfo.email = email;
+            //get phone
+            var phone = await UserInfo.GetUserPhoneByUserID(id);
+            tempUserInfo.phone = phone;
+/*
             for (var i = 0; i < this.users.length; i ++) {
                 var user = this.users[i];
                 if(user.user_id == id) {
@@ -196,12 +578,13 @@ export default {
                     tempUserInfo.phone = phone;
                     break;
                 }
-            }
+            }*/
             this.userInfo = tempUserInfo;
+
             this.showUserInfoDrawer = true;
         },
         getUserImg: async function (userInfo){
-            console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(userInfo.user_id == undefined || userInfo == null) {
                 return "";
             }
@@ -230,21 +613,24 @@ export default {
             for(var i = 0; i < departmentModels.length; i ++){
                 tempDepartments[departmentModels[i].show_order] = departmentModels[i];
             }
-            this.departments = tempDepartments;
-            this.users = await UserInfo.GetSubUserinfo(this.parentInfo.department_id);
-
             
-            this.breadCrumbs.push({
-                name: this.parentInfo.display_name,
-                id: this.parentInfo.department_id
-            });
+            var tempUsers = await UserInfo.GetSubUserinfo(this.parentInfo.department_id);
+
+            var organization = {};
+            organization.departments = tempDepartments;
+            organization.users = tempUsers;
+            this.organizationList.push(organization);
+            this.headerTitle = this.parentInfo.display_name;
+            console.log(this.organizationList);
+
         },
     },
     created: async function() {
         await this.getAppBaseData();
         this.$nextTick(function(){
-            for(var i = 0; i < this.users.length; i ++){
-                this.getUserImg(this.users[i]);
+            var users = this.organizationList[0].users;
+            for(var i = 0; i < users.length; i ++){
+                this.getUserImg(users[i]);
             }
         });
     }
@@ -277,10 +663,8 @@ export default {
 /*隐藏滚轮*/
 display: none;
 }
-.organization-list-panel {
-    width: 100%;
-    height: 100%;
-}
+
+
 .organization-header {
     display: float;
     width: 100%;
@@ -293,12 +677,52 @@ display: none;
     //     -webkit-app-region: no-drag;
     // }
 }
-
-.organization-view {
+.organization-header-title{
+    width:100%;
+    height:20px;
+    font-size:14px;
+    font-weight:500;
+    color:rgba(0,0,0,1);
+    line-height:20px;
+    letter-spacing:1px;
+    padding-left: 16px;
+    margin-top: 18px;
+    margin-bottom: 18px;
+}
+.organization-list {
+    overflow: scroll;
+    list-style: none;
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+    .organization {
+        display: inline-block;
+        width: 280px;
+        padding: 0px;
+    }
+}
+.organization-view-one {
     width: 100%;
     height: 100%;
-    display: flex;
+    min-width: 280px;
+    //display: flex;
     flex-direction: column;
+    border-right: 0.5px solid rgb(221, 221, 221);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    // ::-webkit-scrollbar-track {
+    //     border-radius: 10px;
+    // }
+    margin: 0px;
+    cursor: pointer;
+}
+.organization-view {
+    width: 280px;
+    height: 100%;
+    //display: flex;
+    flex-direction: column;
+    border-right: 0.5px solid rgb(221, 221, 221);
     //border-right: 1px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;
@@ -352,7 +776,7 @@ display: none;
     padding: 0;
     margin: 0;
     list-style: none;
-    border-top: 1px solid rgb(221, 221, 221);
+    //border-top: 1px solid rgb(221, 221, 221);
 }
 .departments-list {
     width: 100%;
@@ -364,7 +788,7 @@ display: none;
 }
 .department {
     height: 60px;
-    border-bottom: 1px solid rgb(221, 221, 221);
+    //border-bottom: 1px solid rgb(221, 221, 221);
     
 }
 .department:hover {
@@ -374,7 +798,7 @@ display: none;
 }
 .manager {
     height: 60px;
-    border-bottom: 1px solid rgb(221, 221, 221);
+    //border-bottom: 1px solid rgb(221, 221, 221);
     
 }
 .manager:hover {
@@ -480,9 +904,11 @@ display: none;
     .el-main {
         width: auto;
         height: 100%;
-        overflow: hidden;
+        overflow: scroll;
         padding: 0px;
-
+    .bottom-container {
+        overflow: scroll;
+    }
     }
     .avatarTUrl {
         width:40px;
