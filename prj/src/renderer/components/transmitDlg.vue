@@ -1,19 +1,20 @@
 <template>
-    <div class="TransmitLayers" id="TransmitLayersId">
+    <div class="TransmitLayers" id="TransmitLayersId" >
         <div :style="dlgPosition" class="TransmitDlg" id="TransmitDlgId">
             <div class="TransmitHeader">
-                <div class="TransmitHeaderTitle">转发</div>
+                <div class="TransmitHeaderTitle">{{ dialogTitle }}</div>
                 <img class="TransmitClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
-            <el-container class="TransmitContent">
+            
+            <el-container class="TransmitContent" v-show="!showCreateNewChat">
                 <el-aside class="ListView" width="280px">
                     <div class="search">
                         <input class="search-input" placeholder="搜索..." >
                         <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                     </div>
                     <div class="NewChatView">
-                        <img class="icon-chat-more" src="../../../static/Img/Chat/chat_more@2x.png" >
-                        <div class="createNewChatInfo">
+                        <img class="icon-chat-more" src="../../../static/Img/Chat/chat_more@2x.png" @click="createNewChatButtonClicked()">
+                        <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
                         <p class="createNewChatTitle">创建新聊天</p>
                         </div>
                     </div>
@@ -49,22 +50,84 @@
                     </div>
                 </el-main>
             </el-container>
-            <div class="TransmitFotter">
+            <el-container class="CreateNewChatContent" v-show="showCreateNewChat">
+                <el-aside class="ListView" width="280px">
+                    <div class="search">
+                        <input class="search-input" placeholder="搜索..." >
+                        <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                    </div>
+                    <div class="OrganizationRootView">
+                        <ul class="OrganizationRootDepartmetList">
+                            <li class="OrganizationRootDepartment">
+
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="OrganizationSubView">
+                        <div class="OrganizationSubViewHeader">
+                        </div>
+                        <div class="OrganizationSubViewContent">
+                        </div>
+                    </div>
+                    <!-- <div class="NewChatView">
+                        <img class="icon-chat-more" src="../../../static/Img/Chat/chat_more@2x.png" >
+                        <div class="createNewChatInfo">
+                        <p class="createNewChatTitle">创建新聊天</p>
+                        </div>
+                    </div>
+                    <div class="RecentChatHeader">
+                        最近聊天
+                    </div>
+                    <div class="RecentChatView">
+                            <ul class="recentChatList">
+                                <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
+                                    <input type="checkBox" class="group-checkBox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
+                                    <img class="group-icon" :id="group.group_id" src="../../../static/Img/User/user.jpeg">
+                                    <div class="group-info">
+                                        <p class="group-name">{{ group.group_name }}</p>
+                                    </div>
+                                </li>
+                            </ul>
+                    </div> -->
+                </el-aside>
+                <el-main class="selectedView">
+                    <!-- <div class="selectedHeader">
+                        已选:{{ selectedUsers.length }}
+                    </div>
+                    <div class="selectedContentView">
+                        <ul class="selectedGroupList">
+                            <li class="selectedGroup" v-for="(user,index) in selectedUsers" :key="index">
+                                <img class="group-icon" :src="user.user_t_avatar">
+                                <div class="group-info">
+                                    <p class="group-name">{{ user.display_name }}</p>
+                                </div>
+                                <img class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGeoups(group)">
+                            </li>
+                        </ul>
+                    </div> -->
+                </el-main>
+            </el-container>
+            <div class="TransmitFotter" v-show="!showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="confirmTransmitButtonClicked()">确认</button>
+                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确认</button>
+            </div>
+            <div class="TransmitFotter" v-show="showCreateNewChat">
+                <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
+                <button class="TransmitConfirmButton" @click="Transmit()">确认</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
+//import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
 import { object } from '../../packages/core/types'
 import confservice from '../../packages/data/conf_service';
+import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
 import * as path from 'path'
 export default {
     name: 'TransmitDlg',
@@ -80,6 +143,26 @@ export default {
             default: function () { 
                 return [];
             }
+        },
+        transmitCollection:{
+            type: Boolean,
+            default: false
+        },
+        transmitTogether: {
+            type: Boolean,
+            default: false
+        },
+        curChat:{
+            type: Object,
+            default: function () {
+                return {};
+            }
+        },
+        transmitMessages: {
+            type: Array,
+            default: function () {
+                return [];
+            }
         }
 
     },
@@ -93,10 +176,19 @@ export default {
                     return false;
                 }
             }
+        },
+        dialogTitle() {
+            if(this.showCreateNewChat) {
+                return "创建新聊天";
+            }
+            else {
+                return "转发";
+            }
         }
     },
     data () {
         return {
+            showCreateNewChat: false,
             TransmitDlgElement: null,
             TransmitLayersElement: null,
             imgHeight: 468,
@@ -106,16 +198,15 @@ export default {
             groupId: "",
             dlgPosition:{},
             selectedGroups: [],
+
+            curUserInfo:{},
         }
     },
     methods: {
-        confirmTransmitButtonClicked(){
-            services.common.sendNewMessage()
-        },
         closeDialog() {
             this.display = false;
             this.$emit("closeTransmitDlg", "");
-            this.$message('这是一条消息提示');
+            
         },
         deleteGroupFromSelectedGeoups(group){
             var index = this.selectedGroups.indexOf(group);
@@ -130,9 +221,12 @@ export default {
                 this.selectedGroups.push(group);
             }
         },
-        selectedGroupImageId(id) {
-            return "selected" + id;
+        createNewChatButtonClicked() {
+            this.showCreateNewChat = true;
         },
+        // selectedGroupImageId(id) {
+        //     return "selected" + id;
+        // },
         // UpdateTransmit: function() {
         //     if(this.TransmitContent.length == 0){
         //         alert("公告内容不能为空");
@@ -184,12 +278,226 @@ export default {
 
             return ret;
         },
+
+
+        //transmit relation methods
+        Transmit:async function() {
+            console.log("---------")
+            this.curUserInfo = await services.common.GetSelfUserModel();
+            if(this.transmitCollection){
+                await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
+                this.$emit("closeTransmitDlg", "");
+                this.$message('转发成功');
+                return;
+            }
+            await this.sendMsg(this.selectedGroups, this.transmitMessages);
+            // for(var i=0;i<this.groupList.length;i++) {
+            //     this.groupList[i].checkState = false;
+            // }
+            // this.selectedChat = [];
+            this.$emit("closeTransmitDlg", "");
+            this.$message('转发成功');
+        },
+        sendMsg: async function(distGroups, msgs) {
+            if(this.transmitTogether) {
+                await this.sendTogetherMsg(distGroups, msgs);
+            }
+            else {
+                await this.sendSingleMsg(distGroups, msgs);
+            }
+        },
+        sendTogetherMsg: async function(distGroups, msgs) {
+            var msgContent = await this.getTogetherMsgContent(msgs);
+            console.log("varcontent is ", msgContent);
+            for(var i=0;i<distGroups.length;i++){
+                var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
+                var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
+                let curTimeSeconds = new Date().getTime();
+                
+                let sendingMsgContentType = 106;
+                let willSendMsgContent = msgContent;
+                let guid = generalGuid();
+                var curUserInfo = await services.common.GetSelfUserModel();
+                services.common.sendNewMessage(
+                        guid, 
+                        sendingMsgContentType, 
+                        curUserInfo.id, 
+                        groupId, 
+                        uid, 
+                        curTimeSeconds, 
+                        willSendMsgContent)
+                    .then((ret) => {
+                        console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
+                    })
+            }
+        },
+        sendSingleCollectionMsg: function(distGroups, collection) {
+            for(var i=0;i<distGroups.length;i++){
+
+                
+                    var curMsg = collection;
+                    var curMsgContent = collection.collection_content;
+                    console.log("curMsgCintent is ", curMsgContent);
+
+                    var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
+                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
+                    let curTimeSeconds = new Date().getTime();
+                    
+                    let sendingMsgContentType = curMsg.collection_type;
+                    let willSendMsgContent = curMsgContent;
+                    let guid = generalGuid();
+                    
+
+                    services.common.sendNewMessage(
+                            guid, 
+                            sendingMsgContentType, 
+                            this.curUserInfo.id, 
+                            groupId, 
+                            uid, 
+                            curTimeSeconds, 
+                            willSendMsgContent)
+                        .then((ret) => {
+                            console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
+                        })
+                }
+        },
+        sendSingleMsg: function(distGroups, msgs) {
+            for(var i=0;i<distGroups.length;i++){
+                for(var j=0;j<msgs.length;j++) {
+                    var curMsg = msgs[j];
+                    var curMsgContent = strMsgContentToJson(curMsg.message_content);
+                    console.log("curMsgCintent is ", curMsgContent);
+
+                    var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
+                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
+                    let curTimeSeconds = new Date().getTime();
+                    
+                    let sendingMsgContentType = curMsg.message_type;
+                    let willSendMsgContent = curMsgContent;
+                    let guid = generalGuid();
+
+
+                    services.common.sendNewMessage(
+                            guid, 
+                            sendingMsgContentType, 
+                            this.curUserInfo.id, 
+                            groupId, 
+                            uid, 
+                            curTimeSeconds, 
+                            willSendMsgContent)
+                        .then((ret) => {
+                            console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
+                        })
+                }
+            }
+        },
+        getTogetherMsgContent: async function(msgs) {
+            var contentTitle = "";
+            var contentText = "";
+            var groupId = this.curChat.group_id;
+            var msgIds = [];
+            var fromId = this.curUserInfo.id;
+            console.log("this.curchat is ", this.curChat.group_type);
+            if(this.curChat.group_type == 102) {
+
+                var nameTemp = '';
+                var userInfos = await services.common.GetDistUserinfo(this.curChat.uid);
+                var distUserInfo = userInfos[0];
+                if(distUserInfo != undefined){
+                    nameTemp = distUserInfo.user_display_name;
+                }
+
+                contentTitle = this.curUserInfo.name + "与" + nameTemp + "的聊天记录";
+            }
+            else {
+                contentTitle = this.curChat.group_name;
+            }
+            for(let i=0;i<msgs.length;i++) {
+                if(i < 4) {
+                    if(i == 3) {
+                        contentText = contentText + await this.getMsgContent(msgs[i]);
+                    }
+                    else {
+                        contentText = contentText + await this.getMsgContent(msgs[i]) + "\n";
+                    }
+                }
+                msgIds.push(msgs[i].time_line_id);
+            }
+            console.log("contentText is ", contentText);
+
+            var togetherMsgContent = {
+                "title": contentTitle,
+                "text": contentText,
+                "groupId": groupId,
+                "msgIds": msgIds,
+                "fromId": fromId,
+            };
+
+            return togetherMsgContent;
+        },
+        getMsgContent: async function(msg) {
+            if(this.msg === null) {
+                return '';
+            }
+            var messageContent = '';
+            let chatGroupMsgType = msg.message_type;
+            var chatGroupMsgContent = strMsgContentToJson(msg.message_content);
+
+            var nameTemp = '';
+            var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
+            var distUserInfo = userInfos[0];
+            if(distUserInfo != undefined){
+                nameTemp = distUserInfo.user_display_name;
+            }
+
+            console.log("chatGroupMsgContent is ", nameTemp)
+            // console.log("this. msg is ", this.msg)
+            // 数据库缺省type = 0 
+            if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
+            {
+                messageContent = nameTemp + ":" + chatGroupMsgContent.text;
+                console.log("aboutUserName ",nameTemp);
+                console.log("getMsgContent ",messageContent);
+                return messageContent;
+            }
+            else if(chatGroupMsgType === 102)
+            {
+                messageContent = nameTemp + ":" + "[图片]:" + chatGroupMsgContent.fileName;
+                return messageContent;
+            }
+            else if(chatGroupMsgType === 103)
+            {
+                messageContent = nameTemp + ":" + "[文件}:" + chatGroupMsgContent.fileName;   
+                return messageContent;
+            }
+            else if(chatGroupMsgType === 106)
+            {
+                return messageContent = chatGroupMsgContent.title + ":" + "的聊天记录";
+            }
+            else {
+                return messageContent = "不支持的消息类型，请升级客户端。"
+            }
+        },
+        getDistUidThroughUids: function(uids) {
+            if(uids.length > 2) {
+                return "";
+            }
+            else if(uids.length == 1) {
+                return uids[0];
+            }
+            else {
+                if(uids[0] == this.curUserInfo.id) {
+                    return uids[1];
+                }
+                else {
+                    return uids[0];
+                }
+            }
+        },
     },
     components: {
     },
     created() {
-        this.serverapi = new APITransaction('139.198.15.253', 8888);
-        
             var showPosition = this.calcImgPosition();
             console.log(showPosition);
             this.dlgPosition.left = showPosition.left.toString() + "px";
@@ -516,8 +824,20 @@ display: none;
         display: inline-block;
         text-align: center;
     }
-
-    .TransmitConfirmButton {
+    .TransmitConfirmButton{
+        width: 100px;
+        height: 32px;
+        margin-left: 5px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-right: 110px;
+        background: rgba(36, 179, 107, 1);
+        border:1px solid rgba(221,221,221,1);
+        color: white;
+        border-radius:4px;
+    }
+ 
+    .TransmitConfirmButton:disabled{
         width: 100px;
         height: 32px;
         margin-left: 5px;

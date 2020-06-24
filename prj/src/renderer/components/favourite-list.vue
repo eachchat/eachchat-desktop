@@ -18,6 +18,7 @@
                         <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                         <div class="favourite-action">
                             <img class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
                             <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                         </div>
                     </li>
@@ -48,7 +49,7 @@
                             <img class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
                             <div class="file-info" @click="fileListClicked(file)">
                                 <p class="file-name">{{ file.collection_content.fileName }}</p>
-                                <p class="file-size">{{ file.collection_content.fileSize }}</p>
+                                <p class="file-size">{{ file.fileSize }}</p>
                             </div>
                             <img class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                         </div>
@@ -81,7 +82,12 @@
             </el-container>
         </el-main>
         <el-container >
-            <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :key="transmitKey"></transmitDlg>
+            <!-- <chatCreaterDlg v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="transmitKey">
+
+            </chatCreaterDlg> -->
+            <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :transmitCollection="true" :key="transmitKey">
+
+            </transmitDlg>
         </el-container>
     </el-container>
 
@@ -95,6 +101,9 @@ import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sli
 import { bool } from '../../packages/core/types';
 import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
+import chatCreaterDlg from './chatCreaterDlg.vue';
+import {Group, Department, UserInfo} from '../../packages/data/sqliteutil.js';
+
 export default {
     name: 'favourite-list',
     data() {
@@ -107,10 +116,15 @@ export default {
             transmitCollectionInfo: {},
             transmitKey:1,
             recentGroups:[],
+
+            chatCreaterDisableUsers:[],
+            chatCreaterDialogTitle:'',
+            chatCreaterDialogRootDepartments:[]
         }
     },
     components: {
         transmitDlg,
+        chatCreaterDlg,
     },
     computed: {
 
@@ -151,6 +165,23 @@ export default {
         }
     },
     methods: {
+        testChatCreaterDialog:async function() {
+            var self = await services.common.GetSelfUserModel();
+            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            var root = await Department.GetRoot();
+            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+            var temp = [];
+            for(var i = 0; i < rootDepartmentModels.length; i ++) {
+                var department = rootDepartmentModels[i];
+                temp[department.show_order] = department;
+            }
+            this.chatCreaterDialogRootDepartments =  temp;
+            
+            this.showTransmitDlg = true;
+            this.transmitKey ++;
+            this.chatCreaterDialogTitle = "创建";
+
+        },
         closeTransmitDlg(content) {
                 this.showTransmitDlg = false;
                 
@@ -248,12 +279,17 @@ export default {
         transmitMessageCollectionClicked:async function(message) {
             this.showTransmitDlg = true;
             this.transmitKey ++;
+            this.transmitCollectionInfo = message;
         },
         transmitImageCollectionClicked:async function(image) {
-
+            this.showTransmitDlg = true;
+            this.transmitKey ++;
+            this.transmitCollectionInfo = image;
         },
         transmitFileCollectionClicked:async function(file) {
-
+            this.showTransmitDlg = true;
+            this.transmitKey ++;
+            this.transmitCollectionInfo = file;
         },
         groupCollectionChatClicked:async function(group) {
 
@@ -330,6 +366,7 @@ export default {
                 tempFavourite.sequence_id = model.sequence_id;
                 tempFavourite.timeline_id = model.timeline_id;
                 tempFavourite.timestamp = model.timestamp;
+                
                 favourites.push(tempFavourite);
             }
             return favourites;
@@ -381,12 +418,14 @@ export default {
     },
     created:async function() {
         this.showFavouriteList = true;
-        this.recentGroups = await services.common.GetAllGroups();
+        this.recentGroups = await Group.GetGroupByTime();
+        console.log(this.recentGroups);
         if (this.favouriteType == 'message'){
 
             this.headerTitle = '消息';
             var messageCollectionModel = await services.common.ListMessageCollections();
-            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
+            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel,);
+            
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
             this.headerTitle = '图片';
@@ -406,7 +445,7 @@ export default {
             for(var i = 0; i < this.favourites.length; i ++){
                     var file = this.favourites[i];
                     file.local_exist = this.getFileExist(file);
-                    file.collection_content.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
+                    file.fileSize = getFileSizeByNumber(file.collection_content.fileSize);
                     tempFiles[i] = file;
             }
             this.favourites = tempFiles;
@@ -421,8 +460,6 @@ export default {
                     this.getGroupAvatarContent(this.favourites[i]);
                 }
             });
-        
-            console.log(this.recentGroups);
         }
         
     }
