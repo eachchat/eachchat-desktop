@@ -1366,6 +1366,22 @@ const common = {
       allMessage.after = after;    
     }
     return allMessage;
+  },
+
+  async SearchGroupMessage(groupID, keyword, perpageNum){
+    let result = await this.api.SearchGroupMessage(this.data.login.access_token, groupID, keyword, perpageNum);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    return result.data.results;
+  },
+
+  async SearchMessage(keyword, perpageNum){
+    let result = await this.api.SearchMessage(this.data.login.access_token, keyword, perpageNum);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    return result.data.results;
   }
 };
 

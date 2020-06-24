@@ -630,6 +630,32 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async SearchGroupMessage(accessToken, groupID, keyword, perPageNum){
+    var response = await this.commonApi.get(
+      "/api/apps/im/v1/message/search/"
+      + groupID
+      + "/keyword/" 
+      + keyword
+      + "/pagenumber/"
+      + perPageNum,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async SearchMessage(accessToken, keyword, perPageNum){
+    var response = await this.commonApi.get(
+      "/api/apps/im/v1/message/search/" 
+      + keyword
+      + "/pagenumber/"
+      + perPageNum,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}
