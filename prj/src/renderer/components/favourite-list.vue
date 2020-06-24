@@ -101,7 +101,7 @@ import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sli
 import { bool } from '../../packages/core/types';
 import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
-import chatCreaterDlg from './chatCreaterDlg.vue';
+//import chatCreaterDlg from './chatCreaterDlg.vue';
 import {Group, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 
 export default {

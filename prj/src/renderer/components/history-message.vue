@@ -34,6 +34,7 @@ import * as path from 'path'
 import {ipcRenderer, remote} from 'electron'
 import winHeaderBar from './win-header.vue'
 import confservice from '../../packages/data/conf_service.js'
+import { Group } from '../../packages/data/sqliteutil'
 export default {
     name: 'HistoryMsgDlg',
     data () {
@@ -64,7 +65,7 @@ export default {
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
-            this.GroupInfo = await services.common.GetDistGroups(this.groupId)
+            this.GroupInfo = await Group.FindItemFromGroupByGroupID(this.groupId);
             console.log("the init user id is ,", this.GroupInfo)
             confservice.init(this.curUserInfo.id);
             this.$store.commit("setUserId", this.curUserInfo.id)
