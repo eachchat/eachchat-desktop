@@ -38,6 +38,7 @@
 <script>
 import {strMsgContentToJson, FileUtil, getIconPath, Appendzero} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
+import { Group } from '../../packages/data/sqliteutil.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import {ipcRenderer, remote} from 'electron'
@@ -116,7 +117,7 @@ export default {
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
-            this.GroupInfo = await services.common.GetDistGroups(this.groupId, this.lastSequenceId);
+            this.GroupInfo = await Group.FindItemFromGroupByGroupID(this.groupId);
             this.fileListInfo = await services.common.ListGroupFiles(this.groupId, this.lastSequenceId);
             console.log("the fileListInfo is ,", this.fileListInfo)
             confservice.init(this.curUserInfo.id);
