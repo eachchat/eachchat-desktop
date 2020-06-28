@@ -33,7 +33,7 @@
         "stage-0"
       ],
       "plugins": ["istanbul"]
-    },
+    }
   },
   "plugins": [
     [
