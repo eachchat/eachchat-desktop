@@ -422,6 +422,14 @@ const Message = {
             return false;
         }
         return true;
+    },
+
+    async FindMessageBySequenceID(sequenceID){
+        return await(await models.Message).find(
+            {
+                sequence_id: sequenceID
+            }
+        );
     }
 }
 
