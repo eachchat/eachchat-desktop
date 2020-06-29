@@ -16,7 +16,7 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": "",
     "test": "npm run unit",
-    "e2e": "npm run pack && mocha test/e2e",
+    "e2e": "mocha test/e2e",
     "unit": "karma start test/unit/karma.conf.js"
   },
   "build": {
