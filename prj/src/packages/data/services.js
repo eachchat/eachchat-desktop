@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message } from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -1152,7 +1152,7 @@ const common = {
         item = result.data.results[index];
         collectionModel = await servicemodels.CollectionModel(item);
 
-        let find = await sqliteutil.FindItemByFavouriteID(item.favoriteId)
+        let find = await Collection.FindItemByFavouriteID(item.favoriteId)
         if(find == undefined){
           collectionModel.save();
         }
@@ -1175,7 +1175,7 @@ const common = {
     let model;
     item = result.data.obj[index];
     model = await servicemodels.CollectionModel(item);
-    let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+    let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
     if(findmodel == undefined){
       model.save();
     }
@@ -1195,7 +1195,7 @@ const common = {
     let model;
     item = result.data.obj;
     model = await servicemodels.CollectionModel(item);
-    let findmodel = await sqliteutil.FindItemByCollectionID(item.collectionId)
+    let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
     if(findmodel == undefined){
       model.save();
     }

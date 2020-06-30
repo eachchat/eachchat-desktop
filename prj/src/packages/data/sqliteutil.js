@@ -175,26 +175,6 @@ const sqliteutil = {
         }
     },
 
-    async FindItemByFavouriteID(favouriteID){
-        let collections = await (await models.Collection).find({
-            favourite_id: favouriteID
-        });
-        if(collections.length != 0){
-            return collections[0];
-        }
-        return undefined;
-    },
-
-    async FindItemByCollectionID(collectionID){
-        let collections = await (await models.Collection).find({
-            collection_id: collectionID
-        });
-        if(collections.length != 0){
-            return collections[0];
-        }
-        return undefined;
-    },
-
     async SetGroupMessageRead(groupID){
         let groups = await (await models.Groups).find({
             group_id: groupID
@@ -494,5 +474,6 @@ export{
     Department,
     UserInfo,
     Message,
-    Group
+    Group,
+    Collection
 }
