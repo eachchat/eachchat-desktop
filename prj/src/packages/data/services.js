@@ -1030,9 +1030,11 @@ const common = {
       // console.log("downloadUserTAvatar targetPath is ", targetPath);
     }
     if(fs.existsSync(targetPath)) {
+      // console.log(targetPath, " exit")
       return targetPath;
     }
     else {
+      // console.log(targetPath, " downloading")
       ipcRenderer.send('download-user-avarar', [url, userId, this.data.login.access_token, targetPath]);
       return ret;
     }
@@ -1364,6 +1366,7 @@ const common = {
       let msgModel;
       for(let index in items){
         msgModel = await servicemodels.MessageModel(items[index]);
+        // console.log("msgModel.message_content ", msgModel.message_content)
         msgModel.message = JSON.parse(msgModel.message_content);
         if(msgModel.sequence_id <= sequenceID)
           before.push(msgModel);

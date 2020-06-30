@@ -25,6 +25,17 @@ if (process.env.NODE_ENV === "development") {
   emptyIconPath = "../../static/Img/Main/Zoom@3x.png";
 }
 
+const Bobolink = require('bobolink');
+const queue = new Bobolink({
+  timeout: 2000,
+  retry: 3,
+  concurrency: 20,
+  retryPrior: true,
+  taskMode:Bobolink.TASK_MODE_FUNCTION,
+});
+let timeTmp = 0;
+let countTmp = 1;
+
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
@@ -68,7 +79,7 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   soloPage = new BrowserWindow({
     height: 468,
     useContentSize: true,
-    resizable: false,
+    // resizable: false,
     width:600,
     webPreferences: {webSecurity:false},
     frame:false
@@ -83,6 +94,12 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   });
   soloPage.show();
 });
+
+ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
+  console.log("=============== ", transmitInfoStr);
+  mainPageWindow.webContents.send("transmitFromSoloDlg", transmitInfoStr);
+  mainPageWindow.focus();
+})
 
 ipcMain.on('AnotherClose', function(event, arg) {
   soloPage.close();
@@ -150,208 +167,332 @@ function clearFlashIconTimer() {
 
 const downloadingList = [];
 
+function downloadFile(event, arg) {
+  return function f() {
+    return new Promise(resolve => {
+      // console.log("args is ", arg);
+      var timelineID = arg[0];
+      var token = arg[1];
+      var hostname = arg[2];
+      var port = arg[3];
+      var distPath = arg[4];
+      var distTemp = distPath + "_tmp";
+      var needOpen = arg[5]; 
+      var baseURL = "http://" + hostname;
+    
+      if (typeof port == "number") {
+        port = port;
+      }
+    
+      var sender = axios.create({
+        baseURL: baseURL + ":" + String(port)
+      });
+    
+      var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
+      var headers = {
+        Authorization: "Bearer " + token
+      };
+      var appendix = {
+        timeout: 35000,
+        responseType: "stream"
+      };
+    
+      var config = Object.assign({
+        headers: headers,
+      }, appendix);
+    
+      sender.get(path, config)
+        .then(function (ret) {
+          // console.log("sender get is ", ret);
+          ret.data.pipe(fs.createWriteStream(distTemp))
+          .on('finish', function() {
+            try{
+              if(fs.existsSync(distPath)) {
+                // fs.unlinkSync(distPath);
+                resolve(true);
+              }
+              fs.renameSync(distTemp, distPath);
+              if(needOpen) {
+                shell.openExternal(distPath);
+              }
+              // console.log("sender is ", event.sender);
+              // let a = (new Date()).getTime();
+              // console.log(countTmp + "~" + (a - timeTmp) + "： downloadFile distPath is ", distPath);
+              // timeTmp = a;
+              // countTmp += 1;
+              event.sender.send('updateMsgFile', [true, '', timelineID, distPath]);
+              resolve(true);
+            }
+            catch(e) {
+              console.log("rename file failed and details is ", e);
+            }
+          });
+        });
+    })
+  }
+}
+
 ipcMain.on("download-file", function(event, arg) {
   // [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath]
-  var timelineID = arg[0];
-  var token = arg[1];
-  var hostname = arg[2];
-  var port = arg[3];
-  var distPath = arg[4];
-  var distTemp = distPath + "_tmp";
-  var needOpen = arg[5]; 
-  var baseURL = "http://" + hostname;
-
-  if (typeof port == "number") {
-    port = port;
-  }
-
-  var sender = axios.create({
-    baseURL: baseURL + ":" + String(port)
-  });
-
-  var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
-  var headers = {
-    Authorization: "Bearer " + token
-  };
-  var appendix = {
-    timeout: 35000,
-    responseType: "stream"
-  };
-
-  var config = Object.assign({
-    headers: headers,
-  }, appendix);
-
-  sender.get(path, config)
-    .then(function (ret) {
-      // console.log("sender get is ", ret);
-      ret.data.pipe(fs.createWriteStream(distTemp));
-      fs.renameSync(distTemp, distPath);
-      if(needOpen) {
-        shell.openExternal(distPath);
-      }
-      event.sender.send('updateMsgFile', [true, '', timelineID, distPath]);
-    });
+  // console.log("get download file and put queue");
+  queue.put(downloadFile(event, arg));
 });
+
+function downloadAvarar(event, arg) {
+  return function f() {
+    return new Promise(resolve => {
+      // console.log("args is ", arg);
+      var baseURL = arg[0];
+      var groupId = arg[1];
+      // console.log("downloadingList is ", downloadingList);
+      var token = arg[2];
+      var distPath = arg[3];
+      var distTemp = distPath + "_tmp";
+      // console.log("distPath is ", distPath);
+    
+      if(downloadingList.indexOf(baseURL) != -1){
+        return;
+      }
+      downloadingList.push(baseURL);
+      var headers={Authorization:"Bearer " + token};
+      var appendix = {
+              timeout: 35000,
+              responseType: "stream"
+          };
+      var config = Object.assign({
+        headers: headers,
+      }, appendix);
+      axios.get(baseURL,config)
+        .then(function (ret) {
+          ret.data.pipe(fs.createWriteStream(distTemp)
+            .on('finish', function() {
+              try {
+                if(fs.existsSync(distPath)) {
+                  // fs.unlinkSync(distPath);
+                  resolve(true);
+                }
+                fs.renameSync(distTemp, distPath);
+                var index = downloadingList.indexOf(baseURL);
+                downloadingList.splice(index, 1);
+                // let a = (new Date()).getTime();
+                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadAvarar distPath is ", distPath);
+                // timeTmp = a;
+                // countTmp += 1;
+                event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
+                resolve(true);
+              }
+              catch(e) {
+                console.log("rename file failed and details is ", e);
+              }
+            }));
+        });
+    }).then(ret => {
+      console.log("====ret is ", ret);
+    });
+  };
+}
 
 ipcMain.on("download-avarar", function(event, arg) {
-  var baseURL = arg[0];
-  var groupId = arg[1];
-  // console.log("downloadingList is ", downloadingList);
-  if(downloadingList.indexOf(baseURL) != -1){
-    return;
-  }
-  var token = arg[2];
-  var distPath = arg[3];
-  var distTemp = distPath + "_tmp";
-  // console.log("distPath is ", distPath);
-
-  var headers={Authorization:"Bearer " + token};
-  var appendix = {
-          timeout: 35000,
-          responseType: "stream"
-      };
-  var config = Object.assign({
-    headers: headers,
-  }, appendix);
-  downloadingList.push(baseURL);
-  axios.get(baseURL,config)
-    .then(function (ret) {
-      ret.data.pipe(fs.createWriteStream(distTemp)
-        .on('finish', function() {
-          fs.renameSync(distTemp, distPath);
-          var index = downloadingList.indexOf(baseURL);
-          downloadingList.splice(index, 1);
-          event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
-        }));
-    });
+  let baseURL = arg[0];
+  queue.put(downloadAvarar(event, arg));
 });
+
+function downloadUserAvarar(event, arg) {
+  return function f() {
+    return new Promise(resolve => {
+      var baseURL = arg[0];
+      // console.log("downloadingList is ", downloadingList);
+      var userId = arg[1];
+      var token = arg[2];
+      var distPath = arg[3];
+      var distTemp = distPath + "_tmp";
+      // console.log("distPath is ", distPath);
+    
+      if(downloadingList.indexOf(baseURL) != -1){
+        return;
+      }
+      downloadingList.push(baseURL);
+      var headers={Authorization:"Bearer " + token};
+      var appendix = {
+              timeout: 35000,
+              responseType: "stream"
+          };
+      var config = Object.assign({
+        headers: headers,
+      }, appendix);
+      axios.get(baseURL,config)
+        .then(function (ret) {
+          ret.data.pipe(fs.createWriteStream(distTemp)
+            .on('finish', function() {
+              try{
+                if(fs.existsSync(distPath)) {
+                  // fs.unlinkSync(distPath);
+                  resolve(true);
+                }
+                fs.renameSync(distTemp, distPath);
+                var index = downloadingList.indexOf(baseURL);
+                downloadingList.splice(index, 1);
+                // let a = (new Date()).getTime();
+                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadUserAvarar distPath is ", distPath);
+                // timeTmp = a;
+                // countTmp += 1;
+                event.sender.send('updateUserImage', [true, '', userId, distPath]);
+                resolve(true);
+              }
+              catch(e) {
+                console.log("rename file failed and details is ", e);
+              }
+            }));
+        });
+    }).then(ret => {
+      console.log("====ret is ", ret);
+    });
+  };
+}
 
 ipcMain.on("download-user-avarar", function(event, arg) {
-  var baseURL = arg[0];
-  // console.log("downloadingList is ", downloadingList);
-  if(downloadingList.indexOf(baseURL) != -1){
-    return;
-  }
-  var userId = arg[1];
-  var token = arg[2];
-  var distPath = arg[3];
-  var distTemp = distPath + "_tmp";
-  // console.log("distPath is ", distPath);
-
-  var headers={Authorization:"Bearer " + token};
-  var appendix = {
-          timeout: 35000,
-          responseType: "stream"
-      };
-  var config = Object.assign({
-    headers: headers,
-  }, appendix);
-  downloadingList.push(baseURL);
-  axios.get(baseURL,config)
-    .then(function (ret) {
-      ret.data.pipe(fs.createWriteStream(distTemp)
-        .on('finish', function() {
-          fs.renameSync(distTemp, distPath);
-          var index = downloadingList.indexOf(baseURL);
-          downloadingList.splice(index, 1);
-          // console.log("sender is ", userId, distPath)
-          event.sender.send('updateUserImage', [true, '', userId, distPath]);
-        }));
-    });
+  let baseURL = arg[0];
+  queue.put(downloadUserAvarar(event, arg));
 });
+
+function downloadImage(event, arg) {
+  return function f() {
+    return new Promise(resolve => {
+      // console.log("download-image arg is ", arg);
+      var timelineID = arg[0];
+      var token = arg[1];
+      var hostname = arg[2];
+      var port = arg[3];
+      var distPath = arg[4];
+      var distTemp = distPath + "_tmp";
+      var thumbType = arg[5];
+      var needOpen = arg[6];
+      var baseURL = "http://" + hostname;
+    
+      if (typeof port == "number") {
+        port = port;
+      }
+    
+      var sender = axios.create({
+        baseURL: baseURL + ":" + String(port)
+      });
+    
+      var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
+      var headers = {
+        Authorization: "Bearer " + token
+      };
+      var appendix = {
+        timeout: 35000,
+        responseType: "stream"
+      };
+    
+      var config = Object.assign({
+        headers: headers,
+      }, appendix);
+    
+      sender.get(path, config)
+        .then(function (ret) {
+          // console.log("sender get is ", ret);
+          ret.data.pipe(fs.createWriteStream(distTemp)
+            .on('finish', function() {
+              try{
+                if(fs.existsSync(distPath)) {
+                  // fs.unlinkSync(distPath);
+                  resolve(true);
+                }
+                fs.renameSync(distTemp, distPath);
+                // let a = (new Date()).getTime();
+                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadImage distPath is ", distPath);
+                // timeTmp = a;
+                // countTmp += 1;
+                event.sender.send('updateMsgFile', [true, '', timelineID, distPath, needOpen]);
+                resolve(true);
+              }
+              catch(e) {
+                console.log("rename file failed and details is ", e);
+              }
+            }));
+        });
+    }).then(ret => {
+      console.log("====ret is ", ret);
+    });
+  };
+}
 
 ipcMain.on("download-image", function(event, arg) {
   //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
   console.log("download-image arg is ", arg);
-  var timelineID = arg[0];
-  var token = arg[1];
-  var hostname = arg[2];
-  var port = arg[3];
-  var distPath = arg[4];
-  var distTemp = distPath + "_tmp";
-  var thumbType = arg[5];
-  var needOpen = arg[6];
-  var baseURL = "http://" + hostname;
-
-  if (typeof port == "number") {
-    port = port;
-  }
-
-  var sender = axios.create({
-    baseURL: baseURL + ":" + String(port)
-  });
-
-  var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
-  var headers = {
-    Authorization: "Bearer " + token
-  };
-  var appendix = {
-    timeout: 35000,
-    responseType: "stream"
-  };
-
-  var config = Object.assign({
-    headers: headers,
-  }, appendix);
-
-  sender.get(path, config)
-    .then(function (ret) {
-      // console.log("sender get is ", ret);
-      ret.data.pipe(fs.createWriteStream(distTemp)
-        .on('finish', function() {
-          fs.renameSync(distTemp, distPath);
-          console.log("distpath get is ", distPath);
-          event.sender.send('updateMsgFile', [true, '', timelineID, distPath, needOpen]);
-        }));
-    });
+  queue.put(downloadImage(event, arg));
 });
+
+function downloadMsgOImage(event, arg) {
+  return function f() {
+    return new Promise(resolve => {
+      var timelineID = arg[0];
+      var token = arg[1];
+      var hostname = arg[2];
+      var port = arg[3];
+      var distPath = arg[4];
+      var distTemp = distPath + "_tmp";
+      var thumbType = arg[5];
+      var needOpen = arg[6];
+      var baseURL = "http://" + hostname;
+    
+      if (typeof port == "number") {
+        port = port;
+      }
+    
+      var sender = axios.create({
+        baseURL: baseURL + ":" + String(port)
+      });
+    
+      var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
+      var headers = {
+        Authorization: "Bearer " + token
+      };
+      var appendix = {
+        timeout: 35000,
+        responseType: "stream"
+      };
+    
+      var config = Object.assign({
+        headers: headers,
+      }, appendix);
+    
+      // console.log("updateShowImage distpath get is ", distPath);
+      sender.get(path, config)
+        .then(function (ret) {
+          // console.log("sender get is ", ret);
+          ret.data.pipe(fs.createWriteStream(distTemp)
+            .on('finish', function() {
+              try{
+                if(fs.existsSync(distPath)) {
+                  // fs.unlinkSync(distPath);
+                  resolve(true);
+                }
+                fs.renameSync(distTemp, distPath);
+                // let a = (new Date()).getTime();
+                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadMsgOImage distPath is ", distPath);
+                // timeTmp = a;
+                // countTmp += 1;
+                event.sender.send('updateShowImage', [true, '', timelineID, distPath, needOpen]);
+                resolve(true);
+              }
+              catch(e) {
+                console.log("rename file failed and details is ", e);
+              }
+            }));
+        });
+    }).then(ret => {
+      console.log("====ret is ", ret);
+    });
+  };
+}
 
 ipcMain.on("download-mgs-oimage", function(event, arg) {
   // console.log("=============================")
   //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
-  var timelineID = arg[0];
-  var token = arg[1];
-  var hostname = arg[2];
-  var port = arg[3];
-  var distPath = arg[4];
-  var distTemp = distPath + "_tmp";
-  var thumbType = arg[5];
-  var needOpen = arg[6];
-  var baseURL = "http://" + hostname;
-
-  if (typeof port == "number") {
-    port = port;
-  }
-
-  var sender = axios.create({
-    baseURL: baseURL + ":" + String(port)
-  });
-
-  var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
-  var headers = {
-    Authorization: "Bearer " + token
-  };
-  var appendix = {
-    timeout: 35000,
-    responseType: "stream"
-  };
-
-  var config = Object.assign({
-    headers: headers,
-  }, appendix);
-
-  // console.log("updateShowImage distpath get is ", distPath);
-  sender.get(path, config)
-    .then(function (ret) {
-      // console.log("sender get is ", ret);
-      ret.data.pipe(fs.createWriteStream(distTemp)
-        .on('finish', function() {
-          fs.renameSync(distTemp, distPath);
-          // console.log("updateShowImage distpath ret is ", distPath);
-          event.sender.send('updateShowImage', [true, '', timelineID, distPath, needOpen]);
-        }));
-    });
+  queue.put(downloadMsgOImage(event, arg));
 });
 
 ipcMain.on('open-directory-dialog', function(event, arg) {

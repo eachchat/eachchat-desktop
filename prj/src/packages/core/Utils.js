@@ -873,7 +873,7 @@ function getIconPath(ext) {
         distIconPath = iconDirPath + "/" + "voiceAudio@3x.png";
     }
     else if(distExt == "pdf"){
-        distIconPath = iconDirPath + "/" + "pdf@3x.png";
+        distIconPath = iconDirPath + "/" + "pdf@2x.png";
     }
     else if(distExt == "ppt"){
         distIconPath = iconDirPath + "/" + "ppt@3x.png";

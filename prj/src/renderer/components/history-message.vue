@@ -12,22 +12,26 @@
             </div>
             <ul class="HistoryMsg-list">
                 <li v-for="(item, index) in messageListShow" class="messageItem">
-                    <img class="messageOwnerImage" :src="getIcon(item)" @click="openFile(item)">
+                    <img class="messageOwnerImage" :id="getUserHeadImageId(item)" @click="openFile(item)">
                     <div class="messageInfoDiv">
                         <div class="messageOwnerTimeDiv">
-                            <label class="messageInfoOwnerNameLabel">{{MsgBelongUserName(item)}}</label>
+                            <label class="messageInfoOwnerNameLabel" :id="getUserNameId(item)"></label>
                             <label class="messageInfoTimeLabel">{{getMsgTime(item)}}</label>
                         </div>
                         <div class="messageInfoDetailLabel" v-html="msgContentHeightLight(item)"></div>
                     </div>
                 </li>
             </ul>
+            <div class="HistoryMsgEmpty" v-show="showEmpty">
+                <img class="HistoryMsgEmptyBg" src="/static/Img/MessageHistory/search-empty@2x.png">
+                <div class="HistoryMsgEmptyText">搜索会话中的消息</div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import {strMsgContentToJson, FileUtil, getIconPath, Appendzero} from '../../packages/core/Utils.js'
+import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, sliceReturnsOfString} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
@@ -44,10 +48,17 @@ export default {
             searchKey: '',
             GroupInfo: null,
             groupId: '',
-            originalMessageList: []
+            originalMessageList: [],
+            showEmpty: true,
         }
     },  
     methods: {
+        getUserNameId: function(curMsg) {
+            return "HistoryMsgListName-" + curMsg.sequenceId;
+        },
+        getUserHeadImageId: function(curMsg) {
+            return "HistoryMsgListImg-" + curMsg.sequenceId;
+        },
         Close: function() {
             console.log("=======")
             ipcRenderer.send("AnotherClose");
@@ -73,23 +84,27 @@ export default {
             
             this.updatePage();
         },
-        MsgBelongUserName: async function(curMsg) {
-            if(curMsg === null) {
-                return '';
-            }
-            else {
-                var userInfos = await services.common.GetDistUserinfo(curMsg.message_from_id);
-                var chatUserInfo = userInfos[0];
-                var chatName = chatUserInfo.user_display_name;
-                return chatName;
-            }
+        MsgBelongUserName: function(curMsg) {
+            // console.log(curMsg)
+            // var userId = curMsg.fromId;
+            // var distId = this.getUserNameId(curMsg);
+            // console.log("distId is ", distId)
+            // var distUserNameElement = document.getElementById(distId);
+            // console.log("distusernameelememt ", distUserNameElement)
+            
+            // services.common.GetDistUserinfo(userId)
+            //     .then((userInfos) => {
+            //         var distUser = userInfos[0];
+            //         var distUserName = distUser.user_display_name;
+            //         distUserNameElement.innerHTML = distUserName;
+            //     })
         },
         // Get formate message time
         MsgTime(curMsg) {
             if(curMsg === null) {
                 return "";
             }
-            var secondsTime = Number(curMsg.message_timestamp);
+            var secondsTime = Number(curMsg.timestamp);
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
             let cutTime = curDateSecond - secondsTime;
@@ -217,13 +232,35 @@ export default {
                 }
             }
 
+            for(let i=0;i<this.messageListShow.length;i++) {
+                var curItem = this.messageListShow[i];
+                var userId = curItem.fromId;
+                var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
+                var distUserNameElement = document.getElementById(this.getUserNameId(curItem));
+                
+                var userInfos = await services.common.GetDistUserinfo(userId)
+                var distUser = userInfos[0];
+                var distUserName = distUser.user_display_name;
+                distUserNameElement.innerHTML = distUserName;
+                var distTAvatar = distUser.avatar_t_url;
+                var targetPath = '';
+                console.log("cur item is ", curItem.sequenceId)
+                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, userId))){
+                    console.log("cur it is ", curItem.sequenceId)
+                    distUserImgElement.setAttribute("src", targetPath);
+                }
+            }
+
         },
         search: function() {
+            // console.log("this.searchKeylneth ", this.searchKey.length);
             if(this.searchKey.length == 0) {
                 this.messageListShow = []
                 this.messageListShow = this.originalMessageList;
-                console.log("this.messagelsitshow is ", this.messageListShow)
+                // console.log("this.messagelsitshow is ", this.messageListShow)
                 this.showGroupInfo();
+                this.showEmpty = true;
+                return
             }
             var curSearchId = new Date().getTime();
             console.log("searchkey is ", this.searchKey);
@@ -232,20 +269,39 @@ export default {
                 "searchList": []
             };
             this.searchId = curSearchId;
-            for(let i=0;i<this.originalMessageList.length;i++) {
-                var curMessageContent = strMsgContentToJson(this.originalMessageList[i].message_content);
-                if(curMessageContent.text != null && curMessageContent.text.indexOf(this.searchKey) != -1) {
-                    searchResult.searchList.push(this.originalMessageList[i]);
-                }
-            }
+            services.common.SearchGroupMessage(this.GroupInfo.group_id, this.searchKey, 0)
+                .then((ret) => {
+                    console.log("search ret is ", ret);
+                    if(ret.data != undefined) {
+                        this.messageListShow = []
+                        // this.messageListShow = this.originalMessageList;
+                        // console.log("this.messagelsitshow is ", this.messageListShow)
+                        this.showGroupInfo();
+                        this.showEmpty = true;
+                    }
+                    else {
+                        this.showEmpty = false;
+                        for(let i=0;i<ret.length;i++) {
+                            var curMessageContent = ret[i].content;
+                            // console.log("var curmsgcontnet is ", curMessageContent);
+                            if(curMessageContent.text != null && curMessageContent.text.indexOf(this.searchKey) != -1) {
+                                searchResult.searchList.push(ret[i]);
+                            }
+                        }
 
-            if(searchResult.id == this.searchId) {
-                this.messageListShow = searchResult.searchList;
-                this.showGroupInfo();
-            }
+                        if(searchResult.id == this.searchId) {
+                            this.messageListShow = searchResult.searchList;
+                            setTimeout(() => {
+                                this.$nextTick(() => {
+                                    this.showGroupInfo();
+                                })
+                            }, 500)
+                        }
+                    }
+                })
         },
         msgContentHeightLight: function(curMsg) {
-            var showContent = strMsgContentToJson(curMsg.message_content).text;
+            var showContent = curMsg.content.text;
             // showContent = showContent + ' ';
             if(this.searchKey.length == 0) {
                 return showContent
@@ -257,17 +313,29 @@ export default {
             }
         },
         MsgContent: function(curMsg) {
-            var tmpContent = strMsgContentToJson(curMsg.message_content);
+            var tmpContent = curMsg.content;
             return tmpContent.text;
         },
         getMsgTime: function(curMsg) {
             var fileDate = this.MsgTime(curMsg);
             return fileDate;
         },
-        getIcon: function(curMsg) {
-            var MsgContent = strMsgContentToJson(curMsg.message_content);
-            var iconPath = this.getFileIconThroughExt(MsgContent.ext);
-            return iconPath;
+        getUserHeadImg: function(curMsg) {
+            // var userId = curMsg.fromId;
+            // var distUserImgElement = document.getElementById(this.getUserHeadImageId(curMsg));
+            // console.log("distusernameelememt ", distUserImgElement)
+            
+            // services.common.GetDistUserinfo(userId)
+            //     .then((userInfos) => {
+            //         var distUser = userInfos[0];
+            //         var distTAvatar = distUser.avatar_t_url;
+            //         services.common.downloadUserTAvatar(distTAvatar, userId)
+            //             .then((ret) => {
+            //                 if(fs.existsSync(ret)) {
+            //                     distUserImgElement.setAttribute("src", ret);
+            //                 }
+            //             })
+            //     })
         },
         getHistoryMessage: function(groupInfo) {
             // console.log("gethistorymessage groupInfo is ", this.GroupInfo)
@@ -294,7 +362,13 @@ export default {
                 return;
             };
             
-            this.getHistoryMessage(this.GroupInfo);
+            // this.getHistoryMessage(this.GroupInfo);
+            if(this.searchKey.length == 0) {
+                this.showEmpty = true;
+            }
+            else{
+                this.showEmpty = false;
+            }
             this.showGroupInfo(this.GroupInfo);
         }
     },
@@ -415,6 +489,33 @@ export default {
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
+    }
+
+    .HistoryMsgEmpty {
+        width:100%;
+        height: 320px;
+        background-color: white;
+        display: flex;
+        flex-flow: column;
+        justify-content: center;
+        align-items: center;  
+    }
+
+    .HistoryMsgEmptyBg {
+        width: 84px;
+        height: 84px;
+        background-color: white;
+    }
+
+    .HistoryMsgEmptyText {
+        width:104px;
+        height:18px;
+        font-size:12px;
+        font-family:"Microsoft YaHei";
+        font-weight:400;
+        color:rgba(153,153,153,1);
+        line-height:18px;
+        letter-spacing:1px;
     }
 
     .HistoryMsg-list {

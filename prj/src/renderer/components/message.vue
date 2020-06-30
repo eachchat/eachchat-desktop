@@ -613,6 +613,7 @@ export default {
             }
         },
         updateMsg: function() {
+            // console.log("in message update message is ", this.updateMsg);
             if(this.updateMsg.length == 0) {
                 return;
             }

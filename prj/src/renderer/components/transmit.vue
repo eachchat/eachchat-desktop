@@ -150,9 +150,9 @@ export default {
         showGroupIcon: async function(e, arg) {
             for(var i=0;i<this.groupList.length;i++) {
                 let elementId = this.getChatElementId(this.groupList[i]);
-                console.log("elememt id is ", elementId)
+                // console.log("elememt id is ", elementId)
                 let elementImg = document.getElementById(elementId);
-                console.log("elementImg is ", elementImg)
+                // console.log("elementImg is ", elementImg)
                 // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
                 var targetPath = "";
                 if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupList[i].group_avarar, this.groupList[i].group_id))){

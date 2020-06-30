@@ -13,7 +13,7 @@
             <ul class="file-list">
                 <li v-for="(item, index) in fileListShow" class="fileItem">
                     <img class="fileImage" :src="getIcon(item)" @click="openFile(item)">
-                    <div class="fileInfoDiv">
+                    <div class="fileInfoDiv" @click="openFile(item)">
                         <label class="fileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
                         <label class="fileInfoDetailLabel">{{getFileInfo(item)}}</label>
                     </div>
@@ -36,14 +36,15 @@
 </template>
 
 <script>
-import {strMsgContentToJson, FileUtil, getIconPath, Appendzero} from '../../packages/core/Utils.js'
+import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, JsonMsgContentToString} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
-import { Group } from '../../packages/data/sqliteutil.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import {ipcRenderer, remote} from 'electron'
 import winHeaderBar from './win-header.vue'
 import confservice from '../../packages/data/conf_service.js'
+import {shell} from 'electron'
+import { Group } from '../../packages/data/sqliteutil.js'
 export default {
     name: 'FileListDlg',
     data () {
@@ -61,8 +62,57 @@ export default {
             originalFileList: [],
             lastSequenceId: 0,
         }
-    },  
+    }, 
     methods: {
+        transmit: function() {
+            var transmitInfo = {
+                "message_content": this.operatedItem.content,
+                "group_id": this.operatedItem.group_id,
+                "message_from_id": this.operatedItem.fromId,
+                "message_id": this.operatedItem.msgId,
+                "message_timestame": this.operatedItem.timestamp,
+                "message_type": this.operatedItem.msgContentType,
+                "sequence_id": this.operatedItem.sequenceId,
+                "time_line_id": this.operatedItem.timelineId,
+            }
+            var transmitInfoStr = JsonMsgContentToString(transmitInfo);
+            console.log("this.operatedItem.sequenceId ", transmitInfoStr);
+            ipcRenderer.send("transmitFromSoloDlg", transmitInfoStr);
+        },
+        showFile: function() {
+            console.log("this.operateItem is ", this.operatedItem);
+            var targetDir = confservice.getFilePath(this.operatedItem.timestamp);
+            shell.openExternal(targetDir);
+        },
+        updateMsgFile(e, args) {
+            var state = this.updateMsg[0];
+            var stateInfo = this.updateMsg[1];
+            var id = this.updateMsg[2];
+            var localPath = this.updateMsg[3];
+            var needOpen = this.updateMsg[4];
+
+            var distName = '';
+            for(let i=0;i<this.fileListShow.length;i++) {
+                var curItem = this.fileListShow[i];
+                if(curItem.timelineId == id) {
+                    distName = curItem.content.fileName;
+                }
+                this.$message(distName, '下载完成');
+            }
+        },
+        download: async function(curItem) {
+            // console.log(curItem);
+            var targetFileName = curItem.content.fileName;
+            await services.common.downloadFile(curItem.timelineId, curItem.timestamp, targetFileName, false)
+        },
+        openFile: async function(curItem) {
+            // console.log(curItem);
+            var targetPath = "";
+            var targetFileName = curItem.content.fileName;
+            if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, targetFileName, true))) {
+                shell.openExternal(targetPath);
+            }
+        },
         hideSth: function(event) {
             console.log("event is ", event)
             if(event.target.className != "fileOperate") {
@@ -84,7 +134,7 @@ export default {
             }
             var targetPath = "";
             if(targetPath.length == 0) {
-                var chatGroupMsgContent = strMsgContentToJson(operatedItem.content);
+                var chatGroupMsgContent = operatedItem.content;
                 console.log("chatGroupMsgContent ", chatGroupMsgContent)
                 var targetFileName = chatGroupMsgContent.fileName;
                 var targetDir = confservice.getFilePath(operatedItem.timestamp);
@@ -101,7 +151,7 @@ export default {
             console.log("showoperate this.operateMenuElement.ClientWidth is ", this.operateMenuElement.offsetWidth);
             var targetElement = event.target;
             var left = targetElement.offsetLeft + targetElement.clientWidth - dropDownWidth;
-            var top = targetElement.offsetTop + targetElement.clientHeight;
+            var top = targetElement.offsetTop + targetElement.clientHeight/2;
             this.operatedItem = operatedItem;
             this.operateMenuElement.style.top = top + "px";
             this.operateMenuElement.style.left = left + "px";
@@ -263,6 +313,7 @@ export default {
         await this.getAppBaseData();
     },
     mounted: function() {
+        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
         ipcRenderer.on("distGroupInfo", (event, groupId) => {
             this.groupId = groupId;
             this.lastSequenceId = 0;

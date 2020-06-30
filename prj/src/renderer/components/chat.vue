@@ -74,7 +74,9 @@
                 <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px.png" @click="multiToolsClose">
             </div>
         </div>
-        <transmit v-show="showTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs" @closeTransmitDlg="closeTransmitDlg"></transmit>        
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitInfo" :transmitCollection="true" :key="transmitKey">
+        </transmitDlg>
+        <!-- <transmit v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs"></transmit>         -->
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
@@ -127,6 +129,8 @@ import transmit from './transmit.vue'
 import noticeEditDlg from './noticeEditDlg.vue'
 import ownerTransferDlg from './ownerTransfer.vue'
 import chatMemberDlg from './chatMemberList.vue'
+import transmitDlg from './transmitDlg.vue'
+import { Group, Message } from '../../packages/data/sqliteutil.js'
 
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
@@ -209,7 +213,8 @@ export default {
         transmit,
         noticeEditDlg,
         ownerTransferDlg,
-        chatMemberDlg
+        chatMemberDlg,
+        transmitDlg,
     },
     props: ['chat'],
     methods: {
@@ -437,20 +442,34 @@ export default {
                 // div.contentEditable = 'false';
             }
         },
-        transMit(msg) {
+        async transmitFromSoloDlg(e, args) {
+            var transmitInfoStr = args;
+            var transmitInfo = strMsgContentToJson(transmitInfoStr);
+            // console.log("transmitfromsolodlg ", transmitInfo);
+            // var distMsg = await Message.FindMessageBySequenceID(transmitInfo.sequence_id);
+            // if(distMsg.length == 0) {
+            //     distMsg = transmitInfoStr;
+            // }
+            // console.log("transmitfromsolodlg ", distMsg);
+            this.transMit(transmitInfo);
+        },
+        async transMit(msg) {
+            this.recentGroups = await Group.GetGroupByTime();
+            this.transmitKey ++;
             this.showTransmitDlg = true;
-            this.updateTransmit = !this.updateTransmit;
             this.selectedMsgs.push(msg);
             this.transmitTogether = false;
         },
-        multTtransMitTogether() {
+        async multTtransMitTogether() {
+            this.recentGroups = await Group.GetGroupByTime();
+            this.transmitKey ++;
             this.showTransmitDlg = true;
-            this.updateTransmit = !this.updateTransmit;
             this.transmitTogether = true;
         },
-        multiTransMit() {
+        async multiTransMit() {
+            this.recentGroups = await Group.GetGroupByTime();
+            this.transmitKey ++;
             this.showTransmitDlg = true;
-            this.updateTransmit = !this.updateTransmit;
             this.transmitTogether = false;
         },
         async menuFav(msg) {
@@ -731,8 +750,8 @@ export default {
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgchat = {};
             }
-            var historyDropdownElement = document.getElementById("history-dropdown-content-id");
-            if(historyDropdownElement != null && !historyDropdownElement.contains(e.target) && e.target.className != "chat-input-history" && e.target.className != "el-icon-historys") {
+            
+            if(e.target.className != "chat-input-history" && e.target.className != "el-icon-historys") {
                 var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
                 msgHistoryMenuElement.style.display = "none";
             }
@@ -1729,9 +1748,11 @@ export default {
             }
         },
         getHistoryMessage: function() {
+            console.log("this groupid is ", this.chat.group_id);
+            console.log("this sequence_id is ", this.chat.sequence_id);
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
-                .then((ret) => {
-                    // console.log("oririnal ret is ", ret);
+                .then(async (ret) => {
+                    console.log("oririnal ret is ", ret);
                     var messageListTmp = ret.sort(this.compare());
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
@@ -1744,6 +1765,19 @@ export default {
                             this.existingMsgId.push(messageListTmp[i].message_id);
                         }
                     }
+                    if(this.chat.message_content != null){
+                        console.log("this.chat.message_content is ", this.chat.message_content)
+                        let messagesFromDB = await Message.FindMessageBySequenceID(this.chat.sequence_id);
+                        let messageFromGroup = {};
+                        messageFromGroup = messagesFromDB[0];
+                        console.log("message from group is ", messageFromGroup)
+                        if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
+                            // console.log("========push mes ")
+                            this.messageList.push(messageFromGroup);
+                            this.existingMsgId.push(messageFromGroup.message_id);
+                        }
+                    }
+                    // console.log("this.messageList is ", this.messageList);
                     
                     // console.log("this.messageList is ", this.messageList);
                     // if(messageListTmp.length !=0){
@@ -1884,7 +1918,9 @@ export default {
             ipcInited: false,
             showGroupInfoTips: false,
             showTransmitDlg: false,
-            updateTransmit: false,
+            transmitKey:1,
+            recentGroups:[],
+            transmitInfo: {},
             transmitTogether: false,
             selectedMsgs: [],
             editor:null,
@@ -1922,6 +1958,7 @@ export default {
                 // console.log("==============ipc on")
                 ipcRenderer.on('updateMsgFile', this.updateMsgFile);
                 ipcRenderer.on('updateUserImage', this.updateUserImage);
+                ipcRenderer.on('transmitFromSoloDlg', this.transmitFromSoloDlg);
                 this.editor = this.$refs.chatQuillEditor.quill;
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
@@ -1952,6 +1989,7 @@ export default {
     },
     watch: {
         chat: function() {
+            // console.log("============", this.chat);
             if(this.chat == undefined) {
                 return;
             }

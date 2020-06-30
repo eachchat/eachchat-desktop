@@ -471,14 +471,11 @@ export default {
                 this.memberListShowOriginal.push(memberInfoTmp[0]);
             }
             // console.log("watch memberListShow is ", this.memberListShow);
-            this.$nextTick(() => {
-                this.getMemberImage();
-            })
             this.wholeTipElement.style.right = "0px";
             this.wholeTipElement.style.top = "0px";
 
             let elementImg = document.getElementById("groupInfoImageId");
-            // console.log("elementImg is ", elementImg);
+            console.log("elementImg is ", elementImg);
             var targetPath = "";
             if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupAvarar, this.groupId))){
                 var showfu = new FileUtil(targetPath);
@@ -501,6 +498,11 @@ export default {
                 this.groupNotice = "未设置"
             }
             this.newGroupName = this.groupName;
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.getMemberImage();
+                })
+            }, 0)
         },
         cleanCache: function() {
             console.log("cleancache is ", this.cleanCache)
