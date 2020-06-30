@@ -5,7 +5,7 @@ import ChatContent from '../components/chat-content.vue'
 import favourite from '../components/favourite.vue'
 import fileList from '../components/file-list.vue'
 import historyMsg from '../components/history-message.vue';
-
+import favouriteDetail from '../components/favourite-detail.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -46,6 +46,14 @@ export default new Router({
       path: '/historyMsgList',
       name: "historyMsgDlg",
       component: historyMsg
+    },
+    {
+      path:'/favouriteDetail',
+      name: "favouriteDetail",
+      component: favouriteDetail,
+      meta: {
+        title: "收藏详情"
+      }
     },
     {
       path: '/index',

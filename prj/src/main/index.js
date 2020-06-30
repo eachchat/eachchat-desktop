@@ -15,6 +15,7 @@ if (process.env.NODE_ENV !== 'development') {
 let mainWindow
 let mainPageWindow
 let soloPage
+let favouriteDetailWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath = "/static/Img/Main/Close@3x.png";
@@ -90,7 +91,34 @@ ipcMain.on('AnotherClose', function(event, arg) {
 ipcMain.on('AnotherMin', function(event, arg) {
   soloPage.minimize();
 });
+// 收藏详情窗口
+ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
+  favouriteDetailWindow = new BrowserWindow({
+    height: 468,
+    resizable: false,
+    width:600,
+    webPreferences: {webSecurity:false},
+    //frame:false,
+    title:"收藏详情"
+  })
+  const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/` + 'favouriteDetail'
+  : `file://${__dirname}/index.html#` + 'favouriteDetail';
+  favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
+  openDevToolsInDevelopment(favouriteDetailWindow);
+  favouriteDetailWindow.webContents.on('did-finish-load', function() {
+    favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
+  });
+  favouriteDetailWindow.show();
+});
 
+ipcMain.on('favouriteDetailClose', function(event, arg) {
+  favouriteDetailWindow.close();
+});
+
+ipcMain.on('favouriteDetailMin', function(event, arg) {
+  favouriteDetailWindow.minimize();
+});
 // 闪烁任务栏
 ipcMain.on("flashIcon", () => {
   if (!mainPageWindow.isVisible()) {

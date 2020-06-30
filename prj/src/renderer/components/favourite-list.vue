@@ -12,14 +12,15 @@
                 <ul class="message-list">
                     <li class="message"
                         v-for="(message, index) in favourites" 
-                        :key=index>
+                        :key="index">
                         <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.text }}</p>
                         <p class="message-sender">{{ message.collection_content.fromUserName }}</p>
                         <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                         <div class="favourite-action">
                             <img class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                             <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
-                            <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                            <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                            <!-- <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
                         </div>
                     </li>
                 </ul>
@@ -27,9 +28,7 @@
             <div class="image-view" v-if="showImageList">
                 <ul class="image-list">
                     <li class="image"
-                        v-for="(image, index) in favourites" 
-                        
-                        :key=index>
+                        v-for="(image, index) in favourites" :key="index">
                         <img class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Chat/loading.gif" alt= "图片">
                         <p class="image-sender">{{ image.collection_content.fromUserName }}</p>
                         <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
@@ -82,9 +81,9 @@
             </el-container>
         </el-main>
         <el-container >
-            <!-- <chatCreaterDlg v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="transmitKey">
+            <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
 
-            </chatCreaterDlg> -->
+            </chatCreaterDlg>
             <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :transmitCollection="true" :key="transmitKey">
 
             </transmitDlg>
@@ -101,7 +100,7 @@ import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sli
 import { bool } from '../../packages/core/types';
 import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
-//import chatCreaterDlg from './chatCreaterDlg.vue';
+import chatCreaterDlg from './chatCreaterDlg.vue';
 import {Group, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 
 export default {
@@ -113,9 +112,12 @@ export default {
             favouriteDetail: {},
             showFavouriteList: true,
             showTransmitDlg: false,
+            showChatCreaterDlg: false,
             transmitCollectionInfo: {},
             transmitKey:1,
+            chatCreaterKey:1,
             recentGroups:[],
+            curUserInfo:{},
 
             chatCreaterDisableUsers:[],
             chatCreaterDialogTitle:'',
@@ -166,6 +168,7 @@ export default {
     },
     methods: {
         testChatCreaterDialog:async function() {
+            this.chatCreaterKey ++;
             var self = await services.common.GetSelfUserModel();
             this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
             var root = await Department.GetRoot();
@@ -177,23 +180,29 @@ export default {
             }
             this.chatCreaterDialogRootDepartments =  temp;
             
-            this.showTransmitDlg = true;
+            this.showChatCreaterDlg = true;
             this.transmitKey ++;
             this.chatCreaterDialogTitle = "创建";
 
         },
         closeTransmitDlg(content) {
-                this.showTransmitDlg = false;
+            this.showTransmitDlg = false;
                 
+        },
+        closeChatCreaterDlg(content) {
+            this.showChatCreaterDlg = false;
         },
         messageListClicked(message) {
             // open new window and load
+            message.curUserInfo = this.curUserInfo;
             const ipcRender = require('electron').ipcRenderer;
-            ipcRenderer.send('showFavouriteDetailPageWindow',[message]);
-            ipcRenderer.send('loadFavouriteDetailData', [message]);
+            ipcRenderer.send('showFavouriteDetailWindow', message);
+            
         },
         imageListClicked(image) {
-            
+            image.curUserInfo = this.curUserInfo;
+            const ipcRender = require('electron').ipcRenderer;
+            ipcRenderer.send('showFavouriteDetailWindow', image);
         },
         fileListClicked:async function(file) {
             if(!this.getFileExist(file)){
@@ -461,7 +470,7 @@ export default {
                 }
             });
         }
-        
+        this.curUserInfo = await services.common.GetSelfUserModel();
     }
 }
 </script>

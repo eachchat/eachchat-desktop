@@ -44,7 +44,7 @@
                                 <div class="group-info">
                                     <p class="group-name">{{ group.group_name }}</p>
                                 </div>
-                                <img class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGeoups(group)">
+                                <img class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
                             </li>
                         </ul>
                     </div>
@@ -208,7 +208,7 @@ export default {
             this.$emit("closeTransmitDlg", "");
             
         },
-        deleteGroupFromSelectedGeoups(group){
+        deleteGroupFromSelectedGroups(group){
             var index = this.selectedGroups.indexOf(group);
             this.selectedGroups.splice(index, 1);
         },
@@ -679,7 +679,8 @@ display: none;
             .selectedHeader{
                 width: 100%;
                 height: 48px;
-
+                padding-left: 16px;
+                padding-top: 14px;
             }
             .selectedContentView {
                 height: 292px;
