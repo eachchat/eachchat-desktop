@@ -9,11 +9,19 @@
             <el-container class="TransmitContent" v-show="!showCreateNewChat">
                 <el-aside class="ListView" width="280px">
                     <div class="search">
-                        <input class="search-input" placeholder="搜索..." >
-                        <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                    </div>
+                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                </div><div class="search-action">
+                        
+                        <div class="search-delete">
+                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            
+                        </div><div class="search-search">
+                    
+                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                        </div>
+                        </div>
                     <div class="NewChatView">
-                        <img class="icon-chat-more" src="../../../static/Img/Chat/chat_more@2x.png" @click="createNewChatButtonClicked()">
+                        <img class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
                         <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
                         <p class="createNewChatTitle">创建新聊天</p>
                         </div>
@@ -24,7 +32,7 @@
                     <div class="RecentChatView">
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
-                                    <input type="checkBox" class="group-checkBox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
+                                    <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
                                     <img class="group-icon" :id="group.group_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="group-info">
                                         <p class="group-name">{{ group.group_name }}</p>
@@ -50,63 +58,7 @@
                     </div>
                 </el-main>
             </el-container>
-            <el-container class="CreateNewChatContent" v-show="showCreateNewChat">
-                <el-aside class="ListView" width="280px">
-                    <div class="search">
-                        <input class="search-input" placeholder="搜索..." >
-                        <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                    </div>
-                    <div class="OrganizationRootView">
-                        <ul class="OrganizationRootDepartmetList">
-                            <li class="OrganizationRootDepartment">
-
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="OrganizationSubView">
-                        <div class="OrganizationSubViewHeader">
-                        </div>
-                        <div class="OrganizationSubViewContent">
-                        </div>
-                    </div>
-                    <!-- <div class="NewChatView">
-                        <img class="icon-chat-more" src="../../../static/Img/Chat/chat_more@2x.png" >
-                        <div class="createNewChatInfo">
-                        <p class="createNewChatTitle">创建新聊天</p>
-                        </div>
-                    </div>
-                    <div class="RecentChatHeader">
-                        最近聊天
-                    </div>
-                    <div class="RecentChatView">
-                            <ul class="recentChatList">
-                                <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
-                                    <input type="checkBox" class="group-checkBox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                    <img class="group-icon" :id="group.group_id" src="../../../static/Img/User/user.jpeg">
-                                    <div class="group-info">
-                                        <p class="group-name">{{ group.group_name }}</p>
-                                    </div>
-                                </li>
-                            </ul>
-                    </div> -->
-                </el-aside>
-                <el-main class="selectedView">
-                    <!-- <div class="selectedHeader">
-                        已选:{{ selectedUsers.length }}
-                    </div>
-                    <div class="selectedContentView">
-                        <ul class="selectedGroupList">
-                            <li class="selectedGroup" v-for="(user,index) in selectedUsers" :key="index">
-                                <img class="group-icon" :src="user.user_t_avatar">
-                                <div class="group-info">
-                                    <p class="group-name">{{ user.display_name }}</p>
-                                </div>
-                                <img class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGeoups(group)">
-                            </li>
-                        </ul>
-                    </div> -->
-                </el-main>
-            </el-container>
+            <chatCreaterContent ref="chatCreaterContent" v-if="showCreateNewChat" :rootDepartments="rootDepartments" :disableUsers="chatCreaterDisableUsers"></chatCreaterContent>
             <div class="TransmitFotter" v-show="!showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
                 <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确认</button>
@@ -129,8 +81,13 @@ import { object } from '../../packages/core/types'
 import confservice from '../../packages/data/conf_service';
 import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
 import * as path from 'path'
+import chatCreaterContent from './chatCreaterContent.vue';
+import {UserInfo, Department} from '../../packages/data/sqliteutil.js';
 export default {
     name: 'TransmitDlg',
+    components:{
+        chatCreaterContent,
+    },
     props: {
         collectionInfo: {
             type: Object,
@@ -200,6 +157,9 @@ export default {
             selectedGroups: [],
 
             curUserInfo:{},
+            rootDepartments:[],
+            chatCreaterDisableUsers:[],
+            searchKey:'',
         }
     },
     methods: {
@@ -207,6 +167,12 @@ export default {
             this.display = false;
             this.$emit("closeTransmitDlg", "");
             
+        },
+        search:function () {
+            
+        },
+        searchDeleteClicked(){
+            this.searchKey = '';
         },
         deleteGroupFromSelectedGroups(group){
             var index = this.selectedGroups.indexOf(group);
@@ -221,8 +187,20 @@ export default {
                 this.selectedGroups.push(group);
             }
         },
-        createNewChatButtonClicked() {
+        createNewChatButtonClicked:async function() {
+            
+            var self = await services.common.GetSelfUserModel();
+            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            var root = await Department.GetRoot();
+            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+            var temp = [];
+            for(var i = 0; i < rootDepartmentModels.length; i ++) {
+                var department = rootDepartmentModels[i];
+                temp[department.show_order] = department;
+            }
+            this.rootDepartments =  temp;
             this.showCreateNewChat = true;
+            
         },
         // selectedGroupImageId(id) {
         //     return "selected" + id;
@@ -282,7 +260,14 @@ export default {
 
         //transmit relation methods
         Transmit:async function() {
-            console.log("---------")
+            // get createNewChat Users
+            if(this.showCreateNewChat){
+                console.log(this.$refs.chatCreaterContent.getSelectedUsers());
+                this.$emit("closeTransmitDlg", "");
+                this.$message('转发成功');
+                return;
+            }
+            //
             this.curUserInfo = await services.common.GetSelfUserModel();
             if(this.transmitCollection){
                 await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
@@ -494,8 +479,6 @@ export default {
                 }
             }
         },
-    },
-    components: {
     },
     created() {
             var showPosition = this.calcImgPosition();
@@ -737,29 +720,59 @@ display: none;
         
     }
     .search {
-        margin: 12px 16px 12px 16px;
+        margin: 12px 0px -1px 16px;
         text-align: left;
-        width: calc(100% - 32px);
+        width: calc(100% - 86px);
         height: 32px;
         border: 1px solid rgb(221, 221, 221);
-        border-radius: 2px;
+        border-right: none;
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+        display: inline-block;
     }
-
+    .search-action{
+        border: 1px solid rgb(221, 221, 221);
+        border-left: none;
+        margin: 12px 16px 12px 0px;
+        text-align: left;
+        width: 52px;
+        height: 32px;
+        display: inline-block;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+    }
+    .search-delete{
+        display: inline-block;
+        height: 20px;
+        width: 20px;
+        font-size: 0px;
+        margin: 6px 0px 6px 0px;
+    }
+    .search-search{
+        display: inline-block;
+        height: 20px;
+        width: 30px;
+        font-size: 0px;
+        margin: 6px 0px 6px 0px;
+    }
+    .icon-delete{
+        display: inline-block;
+        float: right;
+        height: 20px;
+        line-height: 20px;
+        margin-right: 2px;
+    }
     .icon-search {
         display: inline-block;
         float: right;
         height: 20px;
         line-height: 20px;
-        margin: 6px 10px 6px 10px;
+        margin-right: 8px;
         color: rgb(51, 51, 51);
     }
     
     .icon-search:hover {
         display: inline-block;
-        float: right;
-        height: 20px;
-        line-height: 20px;
-        margin: 6px 10px 6px 10px;
         color: rgb(255,204,102);
     }
     
@@ -767,7 +780,7 @@ display: none;
         display: inline-block;
         position: absolute;
         text-indent: 10px;
-        width: 248px;
+        width: 194px;
         padding: 0;
         margin: 0px;
         height: 32px;
@@ -775,8 +788,13 @@ display: none;
         border: 0px;
         font-family: 'Microsoft YaHei';
         font-size: 12px;
-        color: rgb(102, 102, 102);
+        
         background-color: rgba(1, 1, 1, 0);
+
+        font-weight:400;
+        color:rgba(0,0,0,1);
+        line-height:18px;
+        letter-spacing:1px;
     }
     
 
@@ -862,5 +880,73 @@ display: none;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
     }
- 
+ .multiSelectCheckbox {
+        display: inline-block;
+        position:relative;
+        width: 20px;
+        height: 20px;
+        background-color: rgba(255, 255, 255, 1);
+        border: 1px solid rgb(221,221,221);
+        border-radius: 4px;
+        font-size: 10px;
+        margin-top: 14px;
+        margin-bottom: 14px;
+        vertical-align:top;
+        cursor: pointer;
+        -webkit-appearance:none;
+        -webkit-user-select:none;
+        user-select:none;
+        -webkit-transition:background-color ease 0.1s;
+        transition:background-color ease 0.1s;
+        float: left;
+        outline: none;
+    }
+
+    .multiSelectCheckbox:checked {
+        background-color: rgb(36, 179, 107);
+        cursor: pointer;
+        outline: none;
+    }
+    .multiSelectCheckbox:indeterminate {
+        background-color: rgb(36, 179, 107);
+        cursor: pointer;
+        outline: none;
+    }
+    .multiSelectCheckbox:indeterminate::after{
+        content:'';
+        top:7px;
+        left:4px;
+        font-size: 10px;
+        position: absolute;
+        background:transparent;
+        border:#fff solid 2px;
+        border-top:none;
+        border-right:none;
+        border-left: none;
+        height:1px;
+        width:10px;
+        // -moz-transform:rotate(-45deg);
+        // -ms-transform:rotate(-45deg);
+        // -webkit-transform:rotate(-45deg);
+        // transform:rotate(-45deg);
+        outline: none;
+    }
+    .multiSelectCheckbox:checked::after {
+        content:'';
+        top:3px;
+        left:3px;
+        font-size: 10px;
+        position: absolute;
+        background:transparent;
+        border:#fff solid 2px;
+        border-top:none;
+        border-right:none;
+        height:6px;
+        width:10px;
+        -moz-transform:rotate(-45deg);
+        -ms-transform:rotate(-45deg);
+        -webkit-transform:rotate(-45deg);
+        transform:rotate(-45deg);
+        outline: none;
+    }
 </style>

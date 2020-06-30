@@ -2,7 +2,18 @@
     <el-container>
         <el-aside width="280px">
             <div class="list-header">
-                <listHeader></listHeader>
+                <div class="search">
+                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                </div><div class="search-action">
+                        
+                        <div class="search-delete">
+                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            
+                        </div><div class="search-search">
+                    
+                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                        </div>
+                        </div>
             </div>
             <div class="list-content">
                 <div class="organization-view">
@@ -67,11 +78,18 @@ export default {
     data() {
         return {
             favouriteType:'message',
-            listKey:1
+            searchKey: '',
+            listKey: 1
         }
     },
 
     methods: {
+        search:function () {
+            
+        },
+        searchDeleteClicked(){
+            this.searchKey = '';
+        },
         messageMenuItemClicked() {
             this.favouriteType = 'message';
             this.listKey ++;
@@ -201,5 +219,81 @@ display: none;
         border: hidden;
     }
 }
+    .search {
+        margin: 12px 0px 0px 16px;
+        text-align: left;
+        width: calc(100% - 86px);
+        height: 32px;
+        border: 1px solid rgb(221, 221, 221);
+        border-right: none;
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+        display: inline-block;
+    }
+    .search-action{
+        border: 1px solid rgb(221, 221, 221);
+        border-left: none;
+        margin: 12px 16px 12px 0px;
+        text-align: left;
+        width: 52px;
+        height: 32px;
+        display: inline-block;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+    }
+    .search-delete{
+        display: inline-block;
+        height: 20px;
+        width: 20px;
+        font-size: 0px;
+        margin: 6px 0px 6px 0px;
+    }
+    .search-search{
+        display: inline-block;
+        height: 20px;
+        width: 30px;
+        font-size: 0px;
+        margin: 6px 0px 6px 0px;
+    }
+    .icon-delete{
+        display: inline-block;
+        float: right;
+        height: 20px;
+        line-height: 20px;
+        margin-right: 2px;
+    }
+    .icon-search {
+        display: inline-block;
+        float: right;
+        height: 20px;
+        line-height: 20px;
+        margin-right: 8px;
+        color: rgb(51, 51, 51);
+    }
+    
+    .icon-search:hover {
+        display: inline-block;
+        color: rgb(255,204,102);
+    }
+    
+    .search-input {
+        display: inline-block;
+        position: absolute;
+        text-indent: 10px;
+        width: 194px;
+        padding: 0;
+        margin: 0px;
+        height: 32px;
+        outline:none;
+        border: 0px;
+        font-family: 'Microsoft YaHei';
+        font-size: 12px;
+        
+        background-color: rgba(1, 1, 1, 0);
 
+        font-weight:400;
+        color:rgba(0,0,0,1);
+        line-height:18px;
+        letter-spacing:1px;
+    }
 </style>

@@ -431,13 +431,13 @@ export default {
         console.log(this.recentGroups);
         if (this.favouriteType == 'message'){
 
-            this.headerTitle = '消息';
+            this.headerTitle = '收藏';
             var messageCollectionModel = await services.common.ListMessageCollections();
             this.favourites = this.getObjectFromCollectionModel(messageCollectionModel,);
             
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
-            this.headerTitle = '图片';
+            this.headerTitle = '收藏';
             var imageCollectionModel = await services.common.ListPictureCollections();
             this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
@@ -447,7 +447,7 @@ export default {
                 }
             });
         }else if(this.favouriteType == 'file') {
-            this.headerTitle = '文件';
+            this.headerTitle = '收藏';
             var fileCollectionModel = await services.common.ListFileCollections();
             this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
             var tempFiles = [];
@@ -461,7 +461,7 @@ export default {
 
             console.log(this.favourites);
         }else if(this.favouriteType == 'group'){
-            this.headerTitle = '群组';
+            this.headerTitle = '收藏';
             var groupCollectionModel = await services.common.ListGroupCollections();
             this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
             this.$nextTick(function(){
