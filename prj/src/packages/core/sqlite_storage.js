@@ -105,6 +105,7 @@ class SQLiteStorage extends Storage {
 
       if (field[0] == "_") {
         isOr = true;
+        field = field.substring(1);
       }
 
       if (typeof value == "number") {
