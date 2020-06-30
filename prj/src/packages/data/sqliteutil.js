@@ -283,6 +283,13 @@ const Department = {
         if(departments.length == 1){
             return departments[0];
         }
+    },
+
+    async SearchByNameKey(key){
+        let departments = await (await models.Department).find({
+            display_name: "%"+key
+        });
+        return departments;
     }
 };
 
@@ -442,7 +449,7 @@ const Group = {
             return undefined;
         }
         return groups[0];
-    },
+    }
 }
 
 const Collection = {
