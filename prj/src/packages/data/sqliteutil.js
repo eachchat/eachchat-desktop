@@ -457,7 +457,15 @@ const Group = {
             return undefined;
         }
         return groups[0];
+    },
+
+    async SearchByNameKey(key){
+        let groups = await(await models.Groups).find({
+            group_name:  "%"+key
+        })
+        return groups;
     }
+
 }
 
 const Collection = {
