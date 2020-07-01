@@ -351,8 +351,16 @@ const UserInfo = {
                 return array;
             return array.concat(await this.GetLeaders(infos[0].manager_id));
         }
-        
-        
+    },
+
+    async SearchByNameKey(key){
+        let infos = await(await models.UserInfo).find({
+            user_display_name:  "%"+key,
+            _user_name:          "%"+key,
+            _user_title:         "%"+key,
+            _display_name_py:    "%"+key
+        })
+        return infos;
     }
 }
 
