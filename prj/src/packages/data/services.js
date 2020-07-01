@@ -467,16 +467,20 @@ const common = {
         this.data.userinfo.push(userInfoModel);
 
         userEmailModel = usermodel[1];
-        userEmailModel.save();
-        this.data.useremail.push(userEmailModel);
+        for(let index in userEmailModel){
+          userEmailModel[index].save();
+          this.data.useremail.push(userEmailModel[index]);
+        }
         userAddressModel = usermodel[2];
         userAddressModel.save();
         this.data.useraddress.push(userAddressModel);
         
         userPhoneModel = usermodel[3];
-        userPhoneModel.save();
-        this.data.userphone.push(userPhoneModel);
-
+        for(let index in userPhoneModel){
+          userPhoneModel[index].save();
+          this.data.userphone.push(userPhoneModel[index]);
+        }
+        
         userImModel = usermodel[4];
         userImModel.save();
         this.data.userim.push(userImModel);

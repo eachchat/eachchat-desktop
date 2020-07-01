@@ -154,14 +154,7 @@ const servicemodels = {
         "manager":            "manager",
         "managerId":          "manager_id",
         "updateTimestamp":    "updatetime"
-      }
-
-      var useremailvalue = {
-        owner_user_id: undefined,
-        email_value:    undefined,
-        email_type:    undefined,
-        email_primary: undefined
-      };
+      }      
 
       var useremailmap = {
         "id":       "owner_user_id",
@@ -184,12 +177,6 @@ const servicemodels = {
         "registrationId": "address_region"
       };
 
-      var userphonevalue = {
-        owner_user_id: undefined,
-        phone_value: undefined,
-        phone_type: undefined        
-      };
-
       var userphonemap = {
         "id":"owner_user_id",
         "value": "phone_value",
@@ -207,9 +194,7 @@ const servicemodels = {
       };
 
       let userinfomodel;
-      let useremailmodel;
       let useraddressmodel;
-      let userphonemodel;
       let userimmodel;
 
       let useritem_email = useritem.emails;
@@ -228,25 +213,40 @@ const servicemodels = {
         userinfovalue[userinfomap[infokey]] = useritem[infokey];
       }
 
+      let userEmailValues = [];
       for(var emailitem in useritem_email)
       {
+        var useremailvalue = {
+          owner_user_id: undefined,
+          email_value:    undefined,
+          email_type:    undefined,
+          email_primary: undefined
+        };
         for(var emailkey in useremailmap){
           useremailvalue[useremailmap[emailkey]] = useritem_email[emailitem][emailkey];
         }
         useremailvalue.owner_user_id = userinfovalue.user_id;
+        userEmailValues.push(useremailvalue);
       }  
 
       for( var addresskey in useraddressmap){
         useraddressvalue[useraddressmap[addresskey]] = useritem[addresskey];
       }
 
+      let userPhoneValues = [];
       for(var phoneitem in useritem_phone)
       {
+        var userphonevalue = {
+          owner_user_id: undefined,
+          phone_value: undefined,
+          phone_type: undefined        
+        };
         for(var phonekey in userphonemap)
         {
           userphonevalue[userphonemap[phonekey]] = useritem_phone[phoneitem][phonekey];
         }
         userphonevalue.owner_user_id = userinfovalue.user_id;
+        userPhoneValues.push(userphonevalue);
       }
 
       for(var imkey in userimmap)
@@ -256,19 +256,27 @@ const servicemodels = {
       const infoModel = await models.UserInfo;
       userinfomodel = await new infoModel(userinfovalue);
 
+      let userEmailModels = [];
       const emailModel = await models.UserEmail;
-      useremailmodel = await new emailModel(useremailvalue);
+      for(let index in userEmailValues){
+        let useremailmodel = await new emailModel(userEmailValues[index]);
+        userEmailModels.push(useremailmodel);
+      }
 
       const addressModel = await models.UserAddress;
       useraddressmodel = await new addressModel(useraddressvalue);
 
       const phoneModel = await models.UserPhone;
-      userphonemodel = await new phoneModel(userphonevalue);
+      let userPhoneModels = [];
+      for(let index in userPhoneValues){
+        let userphonemodel = await new phoneModel(userPhoneValues[index]);
+        userPhoneModels.push(userphonemodel);
+      }
     
       const imModel = await models.UserIm;
       userimmodel = await new imModel(userimvalue);
       
-      return [userinfomodel, useremailmodel, useraddressmodel, userphonemodel, userimmodel];
+      return [userinfomodel, userEmailModels, useraddressmodel, userPhoneModels, userimmodel];
     },
 
     async GroupsModel(groupitem)
