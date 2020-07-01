@@ -1266,6 +1266,14 @@ const common = {
     await sqliteutil.DeleteGroupByGroupID(groupID)
   },
 
+  async DeleteCollections(arrayFavourite){
+    let result = await this.api.DeleteCollectionMessages(this.data.login.access_token, arrayFavourite);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    return true;
+  },
+
   async UpdateGroupNotice(groupID, notice){
     let result = await this.api.UpdateGroupNotice(this.data.login.access_token, groupID, notice);
     if (!result.ok || !result.success) {
@@ -1397,6 +1405,57 @@ const common = {
       return result;
     }
     return result.data.results;
+  },
+
+  async SearchMessageCollection(key){
+    return await this.SearchCollection(101, key);
+  },
+
+  async SearchPictureCollecion(key){
+    return await this.SearchCollection(102, key);
+  },
+
+  async SearchFileCollecion(key){
+    return await this.SearchCollection(103, key);
+  },
+
+  async SearchGroupCollecion(key){
+    return await this.SearchCollection(104, key);
+  },
+
+  async SearchGroupCollecion(key){
+    return await this.SearchCollection(104, key);
+  },
+
+  async SearchVoiceCollecion(key){
+    return await this.SearchCollection(105, key);
+  },
+
+  async SearchPostCollecion(key){
+    return await this.SearchCollection(106, key);
+  },
+
+  async SearchCollection(type, keyword){
+    let sequenceID = "0";
+    let result;
+    let resArray = [];
+    let sortOrder = 1;
+    while(1){
+      result = await this.api.SearchCollection(this.data.login.access_token, type, sequenceID, 5, sortOrder, keyword);
+      if (!result.ok || !result.success) {
+        return result;
+      }
+      let tmpArray = result.data.results;
+      if(tmpArray.length != 0){
+        resArray = resArray.concat(tmpArray);
+        sequenceID = tmpArray[tmpArray.length - 1].sequenceValue;
+        sortOrder = 0;
+      } 
+      if(result.data.hasNext == false)
+        break;
+
+    }
+    return resArray;
   }
 };
 

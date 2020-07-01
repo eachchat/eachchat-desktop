@@ -656,6 +656,22 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async SearchCollection(accessToken, type, sequenceID, perPageNum, sortOrder, keyword){
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection/search",
+      {
+        "collectionType":type,
+        "sequenceId":sequenceID,
+        "perPage":perPageNum,
+        "sortOrder":sortOrder,
+        "keyword":keyword
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}
