@@ -1441,7 +1441,7 @@ const common = {
     let resArray = [];
     let sortOrder = 1;
     while(1){
-      result = await this.api.SearchCollection(this.data.login.access_token, type, sequenceID, 5, sortOrder, keyword);
+      result = await this.api.SearchCollection(this.data.login.access_token, type, sequenceID, 20, sortOrder, keyword);
       if (!result.ok || !result.success) {
         return result;
       }
