@@ -19,7 +19,9 @@ const commonConfig = {
   username:       undefined,
   password:       undefined,
   identityType:   undefined,
-  identityValue:  undefined
+  identityValue:  undefined,
+  model:          undefined,
+  deviceID:       undefined
 }; // config info
 
 const commonData = {
@@ -266,6 +268,13 @@ const common = {
       this.config.identityValue = config.identityValue;
     }
 
+    if("model" in config){
+      this.config.model = config.model;
+    }
+
+    if("deviceID" in config){
+      this.config.deviceID = config.deviceID;
+    }
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
     models.init();
   },
@@ -275,7 +284,7 @@ const common = {
     var config = this.config;
     var data = this.data;
 
-    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue);
+    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.model, config.deviceID);
 
     if (!result.ok || !result.success) {
       return result.data;
@@ -1456,6 +1465,14 @@ const common = {
 
     }
     return resArray;
+  },
+
+  async GetRecentDevice(){
+    let response = await this.api.GetRecentDevice(this.data.login.access_token);
+    if (!response.ok || !response.success) {
+      return response;
+    }
+    return response.data.results;
   }
 };
 

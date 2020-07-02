@@ -35,7 +35,7 @@ class APITransaction {
     return response;
   }
 
-  async login(username, password, identityType, identityValue) {
+  async login(username, password, identityType, identityValue, model, deviceID) {
     let osType;
     
     if(environment.os.isWindows){
@@ -58,7 +58,9 @@ class APITransaction {
           type: identityType,
           value: identityValue,
         },
-        osType: osType
+        osType: osType,
+        model:  model,
+        deviceId: deviceID
       });
     return this.parseStatus(response);
   }
@@ -667,6 +669,15 @@ class APITransaction {
         "sortOrder":sortOrder,
         "keyword":keyword
       },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async GetRecentDevice(accessToken){
+    var response = await this.commonApi.get(
+      "/api/apps/org/v1/log/login",
       {
         Authorization: "Bearer " + accessToken
       });
