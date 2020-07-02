@@ -688,13 +688,13 @@ const common = {
     return await this.api.updateUserPassword(this.data.login.access_token, password)
   },
 
-  async getNewVersion() {
-    if (typeof this.data.login == "undefined") {
-      console.debug("Please login first");
-      return undefined;
+  async GetNewVersion() {
+    let response = await this.api.getNewVersion(this.data.login.access_token);
+    if (!response.ok || !response.success) {
+      return false;
     }
 
-    return await this.api.getNewVersion(this.data.login.access_token)
+    return response.data.results;
   },
 
   async tokenValid() {
