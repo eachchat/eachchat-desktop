@@ -1432,10 +1432,6 @@ const common = {
     return await this.SearchCollection(104, key);
   },
 
-  async SearchGroupCollecion(key){
-    return await this.SearchCollection(104, key);
-  },
-
   async SearchVoiceCollecion(key){
     return await this.SearchCollection(105, key);
   },
