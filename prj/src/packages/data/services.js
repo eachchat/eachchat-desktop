@@ -1307,6 +1307,7 @@ const common = {
     if (!result.ok || !result.success) {
       return result;
     }
+    await Group.UpdateGroupAvatar(groupID, result.data.obj.groupAvatar)
     return result;
   },
 

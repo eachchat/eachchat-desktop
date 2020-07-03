@@ -478,7 +478,18 @@ const Group = {
     },
 
     async UpdateGroupAvatar(groupID, avatar){
+        var groups = await this.FindGroupByID(groupID);
+        if(groups.length == 1){
+            groups[0].group_avarar = avatar;
+            groups[0].save();
+        }
+    },
 
+    async FindGroupByID(groupID)
+    {
+        return await(await models.Groups).find({
+            group_id: groupID
+          });
     }
 }
 
