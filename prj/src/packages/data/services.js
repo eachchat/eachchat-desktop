@@ -666,7 +666,12 @@ const common = {
       return undefined;
     }
 
-    return await this.api.updateUserWorkDescription(this.data.login.access_token, workDescription)
+    let response = await this.api.updateUserWorkDescription(this.data.login.access_token, workDescription);
+    if (!response.ok || !response.success) {
+      return false;
+    }
+    await UserInfo.UpdateUserWorkDescription(this.data.selfuser.id, workDescription);
+    return response;
   },
 
   async updateUserStatusDescription(statusDescription) {
@@ -675,7 +680,12 @@ const common = {
       return undefined;
     }
 
-    return await this.api.updateUserStatusDescription(this.data.login.access_token, statusDescription)
+    let response = await this.api.updateUserStatusDescription(this.data.login.access_token, statusDescription)
+    if (!response.ok || !response.success) {
+      return false;
+    }
+    await UserInfo.UpdateUserStatusDescription(this.data.selfuser.id, statusDescription);
+    return response;
   },
 
 

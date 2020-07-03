@@ -307,6 +307,7 @@ const UserInfo = {
         })
         if(userinfos.length != 0)
             return userinfos[0];
+        return undefined;
     },
     
     async GetUserAddress(userID){
@@ -371,6 +372,22 @@ const UserInfo = {
             userinfo[0].avatar_o_url = oUrl;
             userinfo[0].avatar_t_url = tUrl;
             userinfo[0].save();
+        }
+    },
+
+    async UpdateUserWorkDescription(userID, description){
+        let user = await this.GetUserInfo(userID);
+        if(user != undefined){
+            user.work_description = description;
+            user.save();
+        }
+    },
+
+    async UpdateUserStatusDescription(userID, description){
+        let user = await this.GetUserInfo(userID);
+        if(user != undefined){
+            user.status_description = description;
+            user.save();
         }
     }
 }
