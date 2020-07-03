@@ -212,6 +212,25 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async UpdateUserAvatar(accessToken, filePath){
+    var fu = new FileUtil(filePath);
+    let file = fu.GetUploadfileobj();
+    var formData = new FormData();
+    formData.append('file', file);
+
+    var response = await this.commonApi.post(
+      "/api/apps/org/v1/user/avatar",
+      formData,
+      {
+        Authorization: "Bearer " + accessToken,
+        "Content-Type": "multipart/form-data"
+      },
+      {
+        timeout: 15000
+      });
+    return this.parseStatus(response);
+  }
+
   async getNewVersion(accessToken) {
     console.debug("GetNewVersion");
     var response = await this.commonApi.post(

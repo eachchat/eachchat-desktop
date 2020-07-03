@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection } from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -686,6 +686,17 @@ const common = {
     }
 
     return await this.api.updateUserPassword(this.data.login.access_token, password)
+  },
+
+  async UpdateUserAvatar(filePath){
+    let response = await this.api.UpdateUserAvatar(this.data.login.access_token, filePath);
+    if (!response.ok || !response.success) {
+      return false;
+    }
+    let oUrl = response.data.obj.originalUrl;
+    let tUrl = response.data.obj.thumbnailUrl;
+    await UserInfo.UpdateUserAvater(this.data.selfuser.id, oUrl, tUrl);
+    return true;
   },
 
   async GetNewVersion() {

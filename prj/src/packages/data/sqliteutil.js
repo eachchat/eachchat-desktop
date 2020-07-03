@@ -361,6 +361,17 @@ const UserInfo = {
             _display_name_py:    "%"+key
         })
         return infos;
+    },
+
+    async UpdateUserAvater(userID, oUrl, tUrl){
+        let userinfo = await(await models.UserInfo).find({
+            user_id: userID
+        })
+        if(userinfo.length == 1){
+            userinfo[0].avatar_o_url = oUrl;
+            userinfo[0].avatar_t_url = tUrl;
+            userinfo[0].save();
+        }
     }
 }
 
@@ -464,8 +475,11 @@ const Group = {
             group_name:  "%"+key
         })
         return groups;
-    }
+    },
 
+    async UpdateGroupAvatar(groupID, avatar){
+
+    }
 }
 
 const Collection = {
