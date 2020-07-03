@@ -16,6 +16,7 @@ let mainWindow
 let mainPageWindow
 let soloPage
 let favouriteDetailWindow
+let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath = "/static/Img/Main/Close@3x.png";
@@ -110,7 +111,7 @@ ipcMain.on('AnotherMin', function(event, arg) {
 });
 // 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
-  favouriteDetailWindow = new BrowserWindow({
+    favouriteDetailWindow = new BrowserWindow({
     height: 468,
     resizable: false,
     width:600,
@@ -135,6 +136,26 @@ ipcMain.on('favouriteDetailClose', function(event, arg) {
 
 ipcMain.on('favouriteDetailMin', function(event, arg) {
   favouriteDetailWindow.minimize();
+});
+// 汇报关系窗口
+ipcMain.on('showReportRelationWindow', function(event, leaders) {
+  reportRelationWindow = new BrowserWindow({
+    height: 340,
+    resizable: false,
+    width: 520,
+    webPreferences: {webSecurity:false},
+    //frame:false,
+    title:"汇报关系"
+  })
+  const reportRelationWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/` + 'reportRelationContent'
+  : `file://${__dirname}/index.html#` + 'reportRelationContent';
+  reportRelationWindow.loadURL(reportRelationWinURL);
+  openDevToolsInDevelopment(reportRelationWindow);
+  reportRelationWindow.webContents.on('did-finish-load', function() {
+    reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
+  });
+  reportRelationWindow.show();
 });
 // 闪烁任务栏
 ipcMain.on("flashIcon", () => {

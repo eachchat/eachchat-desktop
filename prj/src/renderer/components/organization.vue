@@ -15,8 +15,21 @@
                         </div>
                         </div>
             </div>
-            
-            <div class="organization-view">
+            <div class="search-view" v-show="showSearchView">
+                <ul class="managers-list">
+                    <li class="manager"
+                        v-for="(manager, index) in searchUsers"
+                        @click="searchUserMenuItemClicked(manager.user_id)" 
+                        :key="index">
+                        <img class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
+                        <div class="manager-info">
+                        <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
+                        <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="organization-view" v-show="!showSearchView">
                 <ul class="departments-list">
                     <li class="department"
                         v-for="(department, index) in departments"
@@ -38,23 +51,20 @@
             <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
 
         </el-container>
-        <el-dialog title="创建群聊天" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
-            <div class="el-dialog-content">
-                <chatGroupCreater ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
-                </chatGroupCreater>
-            </div>
-            <span slot="footer" class="dialog-footer">
-                <el-button class="dialog-confirm-button" type="primary" @click="dialogVisible = false">确 定</el-button>
-            </span>
-        </el-dialog>        
+        <userInfoContent :userInfo="searchUserInfo" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
     </el-container>
 </template>
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import {services} from '../../packages/data/index.js';
-import {Department} from '../../packages/data/sqliteutil.js';
+import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
+import {Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
 import chatGroupCreater from './chatgroup-creater';
 import listHeader from './listheader';
+import userInfoContent from './user-info';
 export default {
     name: 'organization',
     data() {
@@ -67,15 +77,113 @@ export default {
             organizationListTimer: '',
 
             searchKey:'',
+            searchUsers: [],
+            showSearchView: false,
+            showSearchUserInfoTips: false,
+            searchUserInfo:{},
+            searchUserInfoKey: 0,
+            searchUserInfoPosition:{},
             //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
     methods: {
         searchDeleteClicked(){
             this.searchKey = '';
+            this.showSearchView = false;
         },
-        search:function () {
+        search:async function () {
+            if (this.searchKey == ''){
+                this.showSearchView = false;
+                return;
+            }
+            var departmentResults = await Department.SearchByNameKey(this.searchKey);
+            console.log(departmentResults);
+            var userResults = await UserInfo.SearchByNameKey(this.searchKey);
+            console.log("yonghujieguo");
+            console.log(this.searchKey);
+            console.log(userResults);
+            this.searchUsers = userResults;
+            this.showSearchView = true;
+            this.$nextTick(function(){
+                var users = this.searchUsers;
+                for(var i = 0; i < this.searchUsers.length; i ++){
+                    this.getUserImg(this.searchUsers[i]);
+                }
+            });
+        },
+        getSearchUserIconId(id){
+            
+            return 'search' + id;
+        },
+        getUserImg: async function (userInfo){
+            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            if(userInfo.user_id == undefined || userInfo == null) {
+                return "";
+            }
+            var userId = userInfo.user_id;
+            var userAvatarUrl = userInfo.acatar_t_url;
+            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            let userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.user_id));
+            if(fs.existsSync(localPath)){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    userIconElement.setAttribute("src", reader.result);
+                }
+            }else{
+                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+            }
+        },
+        searchUserMenuItemClicked:async function(id) {
+            
+            if (this.showSearchUserInfoTips&&(this.searchUserInfo.id == id)){
+                this.showSearchUserInfoTips = false;
+                return;
+            }
+            var iconElement = document.getElementById(this.getSearchUserIconId(id));
+            this.searchUserInfoPosition.left = iconElement.getBoundingClientRect().left;
+            this.searchUserInfoPosition.top = iconElement.getBoundingClientRect().top;
+            console.log(iconElement.getBoundingClientRect());
+            var tempUserInfo = {};
+            //get userinfo
+            var user = await UserInfo.GetUserInfo(id);
+            tempUserInfo.id = user.user_id;
+            tempUserInfo.avatarTUrl = user.avatar_t_url;
+            tempUserInfo.displayName = user.user_display_name;
+            tempUserInfo.title = user.user_title;
+            tempUserInfo.statusDescription = user.status_description;
+            tempUserInfo.workDescription = user.work_description;
+            tempUserInfo.managerId = user.manager_id;
+            tempUserInfo.departmentId = user.belong_to_department_id;
+            
+            //get department
+            var department = await Department.GetDepartmentInfoByUserID(id);
+            tempUserInfo.department = department;
+            //get email
+            var email = await UserInfo.GetUserEmailByUserID(id);
+            tempUserInfo.email = email;
+            //get phone
+            var phone = await UserInfo.GetUserPhoneByUserID(id);
+            var tempPhone = {};
+            for (var i = 0; i < phone.length; i ++){
+                var temp = phone[i];
+                if(temp.phone_type == 'mobile'){
+                    tempPhone.mobile = temp.phone_value;
+                }else{
+                    tempPhone.work = temp.phone_value;
+                }
+            }
+            tempUserInfo.phone = tempPhone;
 
+
+            var leaders = await UserInfo.GetLeaders(id);
+            tempUserInfo.leaders = leaders;
+
+            this.searchUserInfo = tempUserInfo;
+            this.searchUserInfoKey ++;
+            this.showSearchUserInfoTips = true;
         },
         getOrganizationBaseData:async function() {
             var rootDepartment = await Department.GetRoot();
@@ -107,21 +215,38 @@ export default {
             this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
             */
         },
-        getUsersSelected(usersSelected) {
-            this.usersSelected = usersSelected;
+        msgContentHightLight: function(curMsg) {
+            var showContent = curMsg;
+            // showContent = showContent + ' ';
+            if(this.searchKey.length == 0) {
+                return showContent
+            }
+            if(showContent.indexOf(this.searchKey) != -1) {
+                let splitValue = showContent.split(this.searchKey);
+                let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                return newInnerHtml;
+            }else{
+                let splitValue = showContent.split('');
+                let newInnerHtml = splitValue.join('<span style="color:red;">' + '' + "</span>");
+                return newInnerHtml;
+            }
         },
-        handleDialogClose() {
-            this.$refs.chatGroupCreater.initData();
-        }
     },
     components: {
         organizationList,
         chatGroupCreater,
-        listHeader
+        listHeader,
+        userInfoContent
     },
     created:async function() {
         await this.getOrganizationBaseData();
-
+        var that = this;
+        document.addEventListener('click',function(e){
+            if(e.target.className.indexOf('userInfo') == -1){
+                that.showSearchUserInfoTips = false;
+            }
+            
+        });
     }
 }
 </script>
@@ -219,11 +344,70 @@ display: none;
     width: 7px;
     height: 13px;
 }
-.el-dialog {
-    height: 250px;
-    overflow: none;
+.search-view{
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: scroll;
+    .managers-list {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    //border-top: 1px solid rgb(221, 221, 221);
+    .manager {
+    height: 60px;
+    //border-bottom: 1px solid rgb(221, 221, 221);
+    .manager-icon {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    margin-left: 16px;
+    margin-top: 10px;
+    margin-right: 0px;
+    margin-bottom: 10px;
+    border-radius: 4px;
 }
-
+.manager-info {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 120px);
+}
+.manager-name {
+    height: 20px;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 2px;;
+    margin-left: 12px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight:400;
+    letter-spacing:1px;
+    color:rgba(0,0,0,1);
+}
+.manager-title {
+    height: 18px;
+    width: 100%;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-left: 12px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight:400;
+    color:rgba(153,153,153,1);
+    letter-spacing:1px;
+}
+}
+.manager:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+}
+}
+}
 
 .el-container {
     width: auto;
@@ -242,14 +426,7 @@ display: none;
         border: hidden;
     }
 }
-.el-dialog-content {
-    height: 300px;
-    width: 600px;
-    overflow: hidden;
-}
-.dialog-footer{
-    text-align: center;
-}
+
     .search {
         margin: 12px 0px 0px 16px;
         text-align: left;

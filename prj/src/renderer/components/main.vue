@@ -3,7 +3,7 @@
         <el-aside class="navigate-panel" width="64px">
             <mac-window-header class="macWindowHeader" v-if="showMacWindowHeader"></mac-window-header>
             <div class="User">
-                <img class="login-logo" id="userHead">
+                <img class="login-logo" id="userHead" @click="personalCenterClicked()">
             </div>
             <el-menu
                 class="nav-menu">
@@ -18,6 +18,7 @@
                     <!-- <i :class="getCurNavIcon(index)"></i> -->
                 </el-menu-item>
             </el-menu>
+        
         </el-aside>
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
@@ -25,6 +26,7 @@
                 <router-view :distUserId="distUserId" />
             </keep-alive>
         </el-main>
+        <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
     </el-container>
 </template>
 
@@ -42,6 +44,8 @@ import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
+import personalCenter from './personalCenter.vue'
+import {UserInfo} from '../../packages/data/sqliteutil.js';
 export default {
     name: 'mainpage',
     watch: {
@@ -89,7 +93,10 @@ export default {
             ],
             elementImg: null,
             ipcInited: false,
-            showMacWindowHeader:false
+            showMacWindowHeader:false,
+            selfUserInfo:{},
+            showPersonalCenter:false,
+            personalCenterKey: 0,
         }
     },
     methods: {
@@ -204,21 +211,37 @@ export default {
             if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.curUserInfo.id, targetPath))) {
                 elementImg.setAttribute("src", targetPath);
             }
-        }
+        },
+        personalCenterClicked:async function(){
+            if(this.showPersonalCenter){
+                this.showPersonalCenter = false;
+            }
+            var self = await services.common.GetSelfUserModel();
+            this.selfUserInfo = await UserInfo.GetUserInfo(self.id);
+            this.showPersonalCenter = true;
+            this.personalCenterKey ++;
+        },
+
     },
     components: {
         organization,
         ChatContent,
         favourite,
-        macWindowHeader
+        macWindowHeader,
+        personalCenter,
     },
     mounted: async function() {
         await services.common.GetLoginModel();
         this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
             // this.showCurUserIcon();
-        })
-        
+        }) 
+        var _this = this;
+        document.addEventListener('click',function(e){
+            if(e.target.className.indexOf('personalCenter') == -1){
+                _this.showPersonalCenter = false;
+            }
+        });
     },
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);

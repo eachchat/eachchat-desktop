@@ -354,12 +354,15 @@
                         </div>
                     </div>
                 </div>
-            <div class="userInfo-view" v-if="showUserInfoDrawer">
-                <userInfoContent :userInfo = "userInfo"></userInfoContent>
-                <!-- <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px" :closable="true">
+                <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-show="showUserInfoTips" :key="userInfoTipKey"></userInfoContent> 
+                <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="userInfo" :key="userInfoTipKey"></userInfoTip> -->
+            <!-- <div class="userInfo-view" v-if="showUserInfoDrawer">
+                
+                
+                <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px" :closable="true">
                     
-                </yidrawer> -->
-            </div>
+                </yidrawer>
+            </div> -->
             </el-container>
         </el-main>
     </el-container>
@@ -374,11 +377,13 @@ import {services} from '../../packages/data/index.js';
 import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
+import userInfoTip from './userinfo-tip';
 export default {
     name: 'organizationList',
     components: {
         yidrawer,
         userInfoContent,
+        userInfoTip,
     },
     data () {
         return {
@@ -389,8 +394,9 @@ export default {
             users: [],
             managers: [],
             userInfo: {},
-            showUserInfoDrawer: false,
-            userAvatarPaths:{},
+            showUserInfoTips: false,
+            userInfoTipKey: 1,
+            userInfoPosition: {}
         }
     },
     props:{
@@ -493,11 +499,11 @@ export default {
 
             var departmentModels = await Department.GetSubDepartment(id);
             var tempDepartments = [];
-            for(var i = 0; i < departmentModels.length; i ++){
-                tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-            }
+            // for(var i = 0; i < departmentModels.length; i ++){
+            //     tempDepartments[departmentModels[i].show_order] = departmentModels[i];
+            // }
             var organization = {};
-            organization.departments = tempDepartments;
+            organization.departments = departmentModels; //tempDepartments;
             organization.users = await UserInfo.GetSubUserinfo(id);
             if (level == this.organizationList.length - 1) {
                 this.organizationList.push(organization);
@@ -514,21 +520,26 @@ export default {
             
         },
         userMenuItemClicked:async function(id) {
-            if (this.showUserInfoDrawer&&(this.userInfo.id == id)){
-                this.showUserInfoDrawer = false;
+            
+            if (this.showUserInfoTips&&(this.userInfo.id == id)){
+                this.showUserInfoTips = false;
                 return;
             }
+            var iconElement = document.getElementById(id);
+            this.userInfoPosition.left = iconElement.getBoundingClientRect().left;
+            this.userInfoPosition.top = iconElement.getBoundingClientRect().top;
+            console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
             var user = await UserInfo.GetUserInfo(id);
             tempUserInfo.id = user.user_id;
-                    tempUserInfo.avatarTUrl = user.avatar_t_url;
-                    tempUserInfo.displayName = user.user_display_name;
-                    tempUserInfo.title = user.user_title;
-                    tempUserInfo.statusDescription = user.status_description;
-                    tempUserInfo.workDescription = user.work_description;
-                    tempUserInfo.managerId = user.manager_id;
-                    tempUserInfo.departmentId = user.belong_to_department_id;
+            tempUserInfo.avatarTUrl = user.avatar_t_url;
+            tempUserInfo.displayName = user.user_display_name;
+            tempUserInfo.title = user.user_title;
+            tempUserInfo.statusDescription = user.status_description;
+            tempUserInfo.workDescription = user.work_description;
+            tempUserInfo.managerId = user.manager_id;
+            tempUserInfo.departmentId = user.belong_to_department_id;
             
             //get department
             var department = await Department.GetDepartmentInfoByUserID(id);
@@ -538,7 +549,24 @@ export default {
             tempUserInfo.email = email;
             //get phone
             var phone = await UserInfo.GetUserPhoneByUserID(id);
-            tempUserInfo.phone = phone;
+            var tempPhone = {};
+            for (var i = 0; i < phone.length; i ++){
+                var temp = phone[i];
+                if(temp.phone_type == 'mobile'){
+                    tempPhone.mobile = temp.phone_value;
+                }else{
+                    tempPhone.work = temp.phone_value;
+                }
+            }
+            tempUserInfo.phone = tempPhone;
+
+
+            var leaders = await UserInfo.GetLeaders(id);
+            tempUserInfo.leaders = leaders;
+
+            this.userInfo = tempUserInfo;
+            this.userInfoTipKey ++;
+            this.showUserInfoTips = true;
 /*
             for (var i = 0; i < this.users.length; i ++) {
                 var user = this.users[i];
@@ -579,9 +607,7 @@ export default {
                     break;
                 }
             }*/
-            this.userInfo = tempUserInfo;
 
-            this.showUserInfoDrawer = true;
         },
         getUserImg: async function (userInfo){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
@@ -610,20 +636,21 @@ export default {
             }
             var departmentModels = await Department.GetSubDepartment(this.parentInfo.department_id);
             var tempDepartments = [];
-            for(var i = 0; i < departmentModels.length; i ++){
-                tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-            }
+            // for(var i = 0; i < departmentModels.length; i ++){
+            //     tempDepartments[departmentModels[i].show_order] = departmentModels[i];
+            // }
             
             var tempUsers = await UserInfo.GetSubUserinfo(this.parentInfo.department_id);
 
             var organization = {};
-            organization.departments = tempDepartments;
+            organization.departments = departmentModels;//tempDepartments;
             organization.users = tempUsers;
             this.organizationList.push(organization);
             this.headerTitle = this.parentInfo.display_name;
             console.log(this.organizationList);
 
         },
+
     },
     created: async function() {
         await this.getAppBaseData();
@@ -633,6 +660,13 @@ export default {
                 this.getUserImg(users[i]);
             }
         });
+        var that = this;
+        document.addEventListener('click',function(e){
+            if(e.target.className.indexOf('userInfo') == -1){
+                that.showUserInfoTips = false;
+            }
+            console.log(e.target.className);
+        })
     }
 }
 </script>

@@ -7,7 +7,7 @@
         </el-header>
         <el-main>
             <el-container>
-            <div class="favourite-list" v-if="showFavouriteList">
+            <div class="favourite-list" v-if="!showSearchView">
             <div class="message-view" v-if="showMessageList">
                 <ul class="message-list">
                     <li class="message"
@@ -19,8 +19,8 @@
                         <div class="favourite-action">
                             <img class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                             <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
-                            <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png">
-                            <!-- <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
+                            <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
+                            <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                         </div>
                     </li>
                 </ul>
@@ -78,12 +78,83 @@
                 </ul>
             </div>
             </div>
+            <div class="search-view" v-if="showSearchView">
+            <div class="message-view" v-if="showMessageList">
+                <ul class="message-list">
+                    <li class="message"
+                        v-for="(message, index) in searchResults.message" 
+                        :key="index">
+                        <p class="message-text" v-html="msgContentHightLight(message.collection_content.text)" @click="messageListClicked(message)">{{ message.collection_content.text }}</p>
+                        <p class="message-sender" v-html="msgContentHightLight(message.collection_content.fromUserName)">{{ message.collection_content.fromUserName }}</p>
+                        <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
+                        <div class="favourite-action">
+                            <img class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
+                            <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
+                            <img class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="image-view" v-if="showImageList">
+                <ul class="image-list">
+                    <li class="image"
+                        v-for="(image, index) in searchResults.image" :key="index">
+                        <img class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Chat/loading.gif" alt= "图片">
+                        <p class="image-sender" v-html="msgContentHightLight(image.collection_content.fromUserName)">{{ image.collection_content.fromUserName }}</p>
+                        <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
+                        <div class="favourite-action">
+                            <img class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <img class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="file-view" v-if="showFileList">
+                <ul class="file-list">
+                    <li class="file"
+                        v-for="(file, index) in searchResults.file"
+                        :key="index">
+                        <div class="file-content" >
+                            <img class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
+                            <div class="file-info" @click="fileListClicked(file)">
+                                <p class="file-name" v-html="msgContentHightLight(file.collection_content.fileName)">{{ file.collection_content.fileName }}</p>
+                                <p class="file-size">{{ file.fileSize }}</p>
+                            </div>
+                            <img class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
+                        </div>
+                        <p class="file-sender" v-html="msgContentHightLight(file.collection_content.fromUserName)">{{ file.collection_content.fromUserName }}</p>
+                        <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
+                        <div class="favourite-action">
+                            <img class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                            <img class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+            <div class="group-view" v-if="showGroupList">
+                <ul class="group-list">
+                    <li class="group"
+                        v-for="(group, index) in searchResults.group"
+                        :key="index">
+                        <img class="group-icon" :id="group.collection_content.groupId" src="../../../static/Img/Chat/loading.gif" alt= "头像">
+                        <div class="group-name" v-html="msgContentHightLight(group.collection_content.groupName)">{{ group.collection_content.groupName }}
+                        </div>
+                        <div class="favourite-group-action">
+                            <img class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
+                            <img class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            </div>
             </el-container>
         </el-main>
         <el-container >
-            <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+            <!-- <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
 
-            </chatCreaterDlg>
+            </chatCreaterDlg> -->
             <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :transmitCollection="true" :key="transmitKey">
 
             </transmitDlg>
@@ -121,7 +192,10 @@ export default {
 
             chatCreaterDisableUsers:[],
             chatCreaterDialogTitle:'',
-            chatCreaterDialogRootDepartments:[]
+            chatCreaterDialogRootDepartments:[],
+
+            //showFavouriteSearchView: false,
+            searchResults:{},
         }
     },
     components: {
@@ -131,6 +205,12 @@ export default {
     computed: {
 
         showMessageList: function() {
+            if (this.showSearchView){
+                if(this.searchResults.message){
+                    return true;
+                }
+                return false;
+            }
             if (this.favouriteType == 'message'){
                 return true;
             }else {
@@ -138,6 +218,12 @@ export default {
             }
         },
         showImageList: function() {
+            if (this.showSearchView){
+                if(this.searchResults.image){
+                    return true;
+                }
+                return false;
+            }
             if (this.favouriteType == 'image'){
                 return true;
             }else {
@@ -145,6 +231,12 @@ export default {
             }
         },
         showFileList: function() {
+            if (this.showSearchView){
+                if(this.searchResults.file){
+                    return true;
+                }
+                return false;
+            }
             if (this.favouriteType == 'file'){
                 return true;
             }else {
@@ -152,6 +244,12 @@ export default {
             }
         },
         showGroupList: function() {
+            if (this.showSearchView){
+                if(this.searchResults.group){
+                    return true;
+                }
+                return false;
+            }
             if (this.favouriteType == 'group'){
                 return true;
             }else {
@@ -161,10 +259,18 @@ export default {
 
         },
     props: {
-        "favouriteType": {
+        favouriteType: {
             type: String,
             default: 'message'
-        }
+        },
+        showSearchView:{
+            type:Boolean,
+            default: false
+        },
+        searchKey:{
+            type: String,
+            default: ''
+        },
     },
     methods: {
         testChatCreaterDialog:async function() {
@@ -196,13 +302,13 @@ export default {
             // open new window and load
             message.curUserInfo = this.curUserInfo;
             const ipcRender = require('electron').ipcRenderer;
-            ipcRenderer.send('showFavouriteDetailWindow', message);
+            ipcRender.send('showFavouriteDetailWindow', message);
             
         },
         imageListClicked(image) {
             image.curUserInfo = this.curUserInfo;
             const ipcRender = require('electron').ipcRenderer;
-            ipcRenderer.send('showFavouriteDetailWindow', image);
+            ipcRender.send('showFavouriteDetailWindow', image);
         },
         fileListClicked:async function(file) {
             if(!this.getFileExist(file)){
@@ -246,12 +352,21 @@ export default {
         },
         deleteMessageCollectionClicked:async function(message) {
             await services.common.DeleteCollectionMessage(message.favourite_id);
+            if(this.showSearchView){
+                await this.updateSearchCollectionResult(this.searchKey);
+                return;
+            }
+            
             var messageCollectionModel = await services.common.ListMessageCollections();
             this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
             console.log(this.favourites);
         },
         deleteImageCollectionClicked: async function(image) {
             await services.common.DeleteCollectionMessage(image.favourite_id);
+            if(this.showSearchView){
+                await this.updateSearchCollectionResult(this.searchKey);
+                return;
+            }
             var imageCollectionModel = await services.common.ListPictureCollections();
             this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
@@ -263,6 +378,10 @@ export default {
         },  
         deleteFileCollectionClicked: async function(file) {
             await services.common.DeleteCollectionMessage(file.favourite_id);
+            if(this.showSearchView){
+                await this.updateSearchCollectionResult(this.searchKey);
+                return;
+            }
             var fileCollectionModel = await services.common.ListFileCollections();
             this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
             var tempFiles = [];
@@ -276,6 +395,10 @@ export default {
         },
         deleteGroupCollectionClicked:async function(group) {
             await services.common.DeleteCollectionGroup(group.collection_content.groupId);
+            if(this.showSearchView){
+                await this.updateSearchCollectionResult(this.searchKey);
+                return;
+            }
             var groupCollectionModel = await services.common.ListGroupCollections();
             this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
             console.log(this.favourites);
@@ -423,17 +546,106 @@ export default {
                 return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
             }
         },
+        msgContentHightLight: function(curMsg) {
+            var showContent = curMsg;
+            // showContent = showContent + ' ';
+            if(this.searchKey.length == 0) {
+                return showContent
+            }
+            if(showContent.indexOf(this.searchKey) != -1) {
+                let splitValue = showContent.split(this.searchKey);
+                let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                return newInnerHtml;
+            }else{
+                let splitValue = showContent.split('');
+                let newInnerHtml = splitValue.join('<span style="color:red;">' + '' + "</span>");
+                return newInnerHtml;
+            }
+        },
+        getObjectFromServerCollectionModel(collectionModels) {
+            var favourites = [];
+            for(var i = 0; i < collectionModels.length; i ++){
+                var model = collectionModels[i];
+                var tempFavourite = {};
+                tempFavourite.collection_id = model.collectionId;
+                tempFavourite.collection_type = model.collectionType;
+                tempFavourite.favourite_id = model.favouriteId;
+                tempFavourite.collection_content = model.content;
+                tempFavourite.sequence_id = model.sequenceId;
+                tempFavourite.timeline_id = model.timelineId;
+                tempFavourite.timestamp = model.timestamp;
+                
+                favourites.push(tempFavourite);
+            }
+            return favourites;
+        },
+        getSearchCollectionResult:async function (key) {
+            var temp = {};
 
+            var messageSearch = await services.common.SearchMessageCollection(key);
+            var imageSearch = await services.common.SearchPictureCollecion(key);
+            var fileSearch = await services.common.SearchFileCollecion(key);
+            var groupSearch = await services.common.SearchGroupCollecion(key);
+            temp.searchKey = this.searchKey;
+            temp.message = messageSearch;
+            temp.image = imageSearch;
+            temp.file = fileSearch;
+            temp.group = groupSearch;
+            return temp;
+            console.log(temp);
+
+        },
+        updateSearchCollectionResult:async function(key){
+            var tempResult = await this.getSearchCollectionResult(key);
+            this.headerTitle = '收藏';
+            var temp = {};
+            
+            if(tempResult.message){
+                temp.message = this.getObjectFromServerCollectionModel(tempResult.message);
+
+            }
+            if(tempResult.image){
+                temp.image = this.getObjectFromServerCollectionModel(tempResult.image);
+            }
+            if(tempResult.file){
+                temp.file = this.getObjectFromServerCollectionModel(tempResult.file);
+                var tempFiles = [];
+                for(var i = 0; i < temp.file.length; i ++){
+                    var file = temp.file[i];
+                    file.local_exist = this.getFileExist(file);
+                    file.fileSize = getFileSizeByNumber(file.collection_content.fileSize);
+                    tempFiles[i] = file;
+                }
+                temp.file = tempFiles;
+            }
+            if(tempResult.group) {
+                temp.group = this.getObjectFromServerCollectionModel(tempResult.group);
+            }
+            this.searchResults = temp;
+            this.$nextTick(function(){
+                for(var i = 0; i < this.searchResults.image.length; i ++){
+                    this.getImageCollectionContent(this.searchResults.image[i]);
+                }
+                for(var i = 0; i < this.searchResults.group.length; i ++){
+                    this.getGroupAvatarContent(this.searchResults.group[i]);
+                }
+            });
+            return;
+        }
     },
     created:async function() {
-        this.showFavouriteList = true;
+
         this.recentGroups = await Group.GetGroupByTime();
-        console.log(this.recentGroups);
+        //console.log(this.recentGroups);
+        if(this.showSearchView){
+            await this.updateSearchCollectionResult(this.searchKey);
+            return;
+        }
         if (this.favouriteType == 'message'){
 
             this.headerTitle = '收藏';
             var messageCollectionModel = await services.common.ListMessageCollections();
-            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel,);
+            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
             
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
@@ -512,7 +724,23 @@ display: none;
     
     
 }
-
+.search-view{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    //border-right: 1px solid rgb(221, 221, 221);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    // ::-webkit-scrollbar-track {
+    //     border-radius: 10px;
+    // }
+    margin: 0px;
+    cursor: pointer;
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-top: 0px;
+}
 .favourite-list {
     width: 100%;
     height: 100%;
@@ -529,7 +757,8 @@ display: none;
     margin-left: 16px;
     margin-right: 16px;
     margin-top: 0px;
-    .file-action{
+}
+.file-action{
         display: none;
     }
 
@@ -556,8 +785,6 @@ display: none;
             padding: 0px;
             margin: 0px;
         }
-    }
-
 }
 .message-view {
     width: 100%;

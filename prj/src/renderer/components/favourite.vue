@@ -64,7 +64,7 @@
         </el-aside>
         <el-container class="right-container">
             
-                <favouriteList :favouriteType="favouriteType" :key="listKey"></favouriteList>
+                <favouriteList :favouriteType="favouriteType" :showSearchView="showSearchView" :searchKey="searchKey" :key="listKey"></favouriteList>
             
         </el-container>
     </el-container>
@@ -79,30 +79,51 @@ export default {
         return {
             favouriteType:'message',
             searchKey: '',
-            listKey: 1
+            listKey: 1,
+            showSearchView: false,
+            searchFavouriteInfo:{},
         }
     },
 
     methods: {
-        search:function () {
+        searchDeleteClicked(){
+            this.searchKey = '';
+            this.showSearchView = false;
+            this.favouriteType = 'message';
+            this.listKey ++;
+        },
+        search:async function () {
             
+            if(this.searchKey == ''){
+                this.showSearchView = false;
+                this.favouriteType = 'message';
+                this.listKey ++;
+                return;
+            }
+            this.showSearchView = true;
+            this.listKey ++;
         },
         searchDeleteClicked(){
             this.searchKey = '';
+            this.showSearchView = false;
         },
         messageMenuItemClicked() {
+            this.showSearchView = false;
             this.favouriteType = 'message';
             this.listKey ++;
         },
         imageMenuItemClicked() {
+            this.showSearchView = false;
             this.favouriteType = 'image';
             this.listKey ++;
         },
         fileMenuItemClicked() {
+            this.showSearchView = false;
             this.favouriteType = 'file';
             this.listKey ++;
         },
         groupMenuItemClicked() {
+            this.showSearchView = false;
             this.favouriteType = 'group';
             this.listKey ++;
         }
@@ -112,7 +133,9 @@ export default {
         favouriteList
     },
     created() {
-
+        this.showSearchView = false;
+        this.favouriteType = 'message';
+        listKey ++;
     }
 }
 </script>

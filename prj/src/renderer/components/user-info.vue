@@ -1,33 +1,51 @@
+
 <template>
-    <div class="userInfo-view">
-        <div class="userBaseInfo-view">
-            <img class="user-icon" :src="userInfo.avatarTUrl">
-            <div class="user-baseInfo">
-                <p class="user-name">{{ userInfo.displayName }}</p>
-                <p class="user-title">{{ userInfo.title }}</p>
+    <div class="userInfo-view" :style="pagePosition">
+        <div class="userInfoBaseInfo-view">
+            <img class="userInfo-icon" src="../../../static/Img/User/user.jpeg" :id="getUserInfoIconID(userInfo.id)">
+            <div class="userInfo-baseInfo">
+                <p class="userInfo-name">{{ userInfo.displayName }}</p>
+                <p class="userInfo-title">{{ userInfo.title }}</p>
             </div>
         </div>
-        <div class="userAction-view">
+        <div class="userInfoAction-view">
             <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img class="userChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png">
+            <img class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png">
         </div>
-        <div class="userState-view" v-show="showStateView">
-            <ul class="userState-list">
-                <li v-show="showStatusDescription">
-                    <p class="userInfo-key">状态</p>
+        <div class="userInfoState-view" >
+            <ul class="userInfoState-list">
+                <li v-show="showStatusDescription" class="userInfo-li">
+                    <p class="userInfo-key">个人状态</p>
                     <p class="userInfo-value">{{ userInfo.statusDescription }}</p>
                 </li>
                 <li v-show="showWorkDescription">
-                    <p class="userInfo-key">工作计划</p>
+                    <p class="userInfo-key">工作描述</p>
                     <p class="userInfo-value">{{ userInfo.workDescription }}</p>
+                </li>
+                <li v-show="showRelation">
+                    <p class="userInfo-key">汇报关系</p>
+                    <p class="userInfo-value" @click="reportRelationClicked()">查看</p>
+                </li>
+                <li v-show="showDepartment">
+                    <p class="userInfo-key">部门</p>
+                    <p class="userInfo-value">{{ userInfo.department.display_name }}</p>
+                </li>
+                <li v-show="showPhone">
+                    <p class="userInfo-key">手机</p>
+                    <p class="userInfo-phone-value">{{ userInfo.phone.mobile }}</p>
+                </li>
+                <li v-show="showTelephone">
+                    <p class="userInfo-key">座机</p>
+                    <p class="userInfo-phone-value">{{ userInfo.phone.work }}</p>
+                </li>
+                <li v-show="showEmail">
+                    <p class="userInfo-key">邮箱</p>
+                    <p class="userInfo-value">{{ userInfo.email[0].email_value }}</p>
                 </li>
             </ul>
         </div>
-        <div class="userOrganizationInfo-view" v-show="showOrganizationView">
-            <div class="userOrganization-header">
-                组织信息
-            </div>
+        <!-- <div class="userOrganizationInfo-view" v-show="showOrganizationView">
             <ul class="userOrganization-list">
                 <li v-show="showRelation">
                     <p class="userInfo-key">汇报关系</p>
@@ -38,11 +56,8 @@
                     <p class="userInfo-value">{{ userInfo.department.display_name }}</p>
                 </li>
             </ul>
-        </div>
-        <div class="userContact-view" v-show="showContractView">
-            <div class="userContact-header">
-                联系信息
-            </div>
+        </div> -->
+        <!-- <div class="userContact-view" v-show="showContractView">
             <ul class="userContact-list">
                 <li v-show="showPhone">
                     <p class="userInfo-key">手机号</p>
@@ -57,33 +72,37 @@
                     <p class="userInfo-value">{{ userInfo.email.email_value }}</p>
                 </li>
             </ul>
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
+//import { services } from '../../packages/data'
+import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
 export default {
     name: 'user-info',
     data() {
         return {
-            
+            pagePosition: {},
         }
     },
     props: {
-        "userInfo": {
+        userInfo: {
             type:Object,
-            default:{}
+            default:function () {
+                return {};
+            }
+        },
+        originPosition:{
+            type: Object,
+            default:function () {
+                return {};
+            }
         }
     },
     computed: {
-        showStateView: function() {
-            return this.showWorkDescription||this.showStatusDescription;
-        },
-        showOrganizationView: function() {
-            return this.showDepartment||this.showRelation;
-        },
-        showContractView: function() {
-            return this.showPhone||this.showEmail;
-        },
         showStatusDescription: function() {
             return !this.isEmpty(this.userInfo.statusDescription);
         },
@@ -91,10 +110,13 @@ export default {
             return !this.isEmpty(this.userInfo.workDescription);
         },
         showPhone: function() {
-            return !this.isEmpty(this.userInfo.phone.phone_value);
+            return !this.isEmpty(this.userInfo.phone.mobile);
+        },
+        showTelephone: function (){
+            return !this.isEmpty(this.userInfo.phone.work);
         },
         showEmail: function() {
-            return !this.isEmpty(this.userInfo.email.email_value);
+            return !this.isEmpty(this.userInfo.email[0].email_value);
         },
         showDepartment: function() {
             if(this.userInfo.department.display_name){
@@ -124,141 +146,212 @@ export default {
 
         },
         reportRelationClicked() {
+            const ipcRender = require('electron').ipcRenderer;
+            ipcRender.send('showReportRelationWindow', this.userInfo.leaders);
 
+        },
+        getPageHeight(){
+            var total = 448;
+            var count = 0;
+            if(!this.showStatusDescription){
+                count ++;
+            }
+            if(!this.showWorkDescription){
+                count ++;
+            }
+            if(!this.showRelation){
+                count ++;
+            }
+            if(!this.showDepartment){
+                count ++;
+            }
+            if(!this.showPhone){
+                count ++;
+            }
+            if(!this.showTelephone){
+                count ++;
+            }
+            if(!this.showEmail){
+                count ++;
+            }
+            return total - count * 36;
+        },
+        getUserImg: async function (userInfo){
+            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            if(userInfo.id == undefined || userInfo == null) {
+                return "";
+            }
+            var userId = userInfo.id;
+            
+            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            let userIconElement = document.getElementById(this.getUserInfoIconID(userId));
+            if(fs.existsSync(localPath)){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    userIconElement.setAttribute("src", reader.result);
+                }
+            }else{
+                services.common.downloadUserTAvatar(userInfo.avatarTUrl, userInfo.id);
+            }
+        },
+        getUserInfoIconID(id){
+            return "userInfo" + id;
         }
     },
     created () {
         console.log(this.userInfo);
+        var pageWidth = 280;
+        var pageHeight = this.getPageHeight();
+        var showScreenHeight = document.documentElement.clientHeight;
+        var showScreenWidth = document.documentElement.clientWidth;
+        var topPosition = this.originPosition.top + 20 - (pageHeight / 2);
+        if( topPosition < 20) {
+            topPosition = 20;
+        }
+        if((pageHeight + topPosition + 40) > showScreenHeight){
+            topPosition = showScreenHeight - pageHeight - 20;
+        }
+        this.originPosition.left += 45;
+        
+        this.pagePosition.left = this.originPosition.left.toString() + "px";
+        this.pagePosition.top = topPosition.toString() + "px";
+        this.$nextTick(function(){
+            this.getUserImg(this.userInfo);
+        });
     }
 }
 </script>
 <style lang="scss" scoped>
 .userInfo-view {
     height: auto;
-    width: 296px;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 0px;
-    margin-bottom: 18px;
+    width: 280px;
+    padding: 0px;
+    border: 1px solid rgb(242, 242, 246);
+    box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
+    background: rgba(255, 255, 255, 1);
+    border-radius: 4px;
+    position: absolute;
     cursor: default;
 }
-.userBaseInfo-view {
-    height: 56px;
+.userInfoBaseInfo-view {
+    height: 128px;
     margin: 0px;
 }
-.user-icon {
-    width: 56px;
-    height: 56px;
-    display: inline-block;
-    margin: 0px;
+.userInfo-icon {
+    width: 48px;
+    height: 48px;
+    
+    margin-top: 20px;
+    margin-left: 116px;
+    margin-bottom: 0px;
     border-radius: 4px;
 }
-.user-baseInfo {
-    display: inline-block;
-    vertical-align: top;
-    height: 100%;
-    width: calc(100% - 72px);
+.userInfo-baseInfo {
+    height: 60px;
+    width: 100%;
 }
-.user-name {
-    height: 20px;
-    margin-top: 6px;
-    margin-bottom: 6px;
-    margin-left: 16px;
+.userInfo-name {
+    height: 22px;
+    margin: 0px;
+    margin-top: 16px;
+    margin-bottom: 4px;
+    width: 100%;
+    text-align: center;
     font-size: 16px;
-    line-height: 20px;
+    font-weight:500;
+    color:rgba(0,0,0,1);
+    line-height:22px;
+    letter-spacing:2px;
 }
-.user-title {
+.userInfo-title {
     height: 18px;
-    margin-top: 0px;
-    margin-left: 16px;
+    margin: 0px;
+    font-weight: 400;
+    text-align: center;
     font-size: 12px;
     line-height: 18px;
+    letter-spacing: 1px;
     color: rgb(153, 153, 153);
 }
-.userAction-view {
-    height: 54px;
+.userInfoAction-view {
+    height: 48px;
     width: 100%;
     margin: 0px;
-    display: inline-block;
-    vertical-align: top;
-    border-bottom: 1px solid rgb(221, 221, 221);
-    margin-bottom: 8px;
 }
-.userAudioIcon {
+.userInfoAudioIcon {
     height: 28px;
     width: 28px;
     margin-top: 13px;
     margin-left: 0px;
 }
-.userVideoIcon {
+.userInfoVideoIcon {
     height: 28px;
     width: 28px;
     margin-top: 13px;
     margin-left: 14px;
 }
-.userChatIcon {
-    height: 28px;
-    width: 28px;
-    margin-top: 13px;
-    margin-left: 14px;
+.userInfoChatIcon {
+    height: 32px;
+    width: 32px;
+    margin-top: 8px;
+    margin-left: 124px;
 }
 
-.userState-view {
-    width: 100%;
-    margin-bottom: 10px;
+.userInfoState-view {
+    width: calc(100% - 40px);
+    margin-left: 20px;
+    margin-bottom: 12px;
 }
-.userState-list {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-
-}
-.userOrganization-list {
+.userInfoState-list {
     width: 100%;
     padding: 0;
     margin: 0;
     list-style: none;
 
-}
-.userContact-list {
-    padding: 0;
-    margin: 0;
-    list-style: none;
 }
 .li {
-    height: 34px;
-    line-height: 34px;
+    height: 36px;
+    vertical-align: top;
     width: 100%;
 }
 .userInfo-key {
     display:inline-block;
     line-height: 18px;
-    width: 48px;
+    width: 52px;
+    margin-top: 9px;
+    margin-bottom: 9px;
     font-size: 12px;
     color: rgb(153, 153, 153);
 }
 .userInfo-value {
     display:inline-block;
     line-height: 18px;
-    width: 216px;
+    width: 158px;
     font-size: 12px;
-    padding-left: 20px;
+    padding-left: 26px;
     cursor: pointer;
+    margin-top: 9px;
+    margin-bottom: 9px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
 }
 .userInfo-phone-value{
     display:inline-block;
     line-height: 18px;
-    width: 216px;
+    width: 158px;
     font-size: 12px;
-    padding-left: 20px;
+    padding-left: 26px;
+    margin-top: 9px;
+    margin-bottom: 9px;
     color: rgb(62, 180, 240);
     
 }
-.userOrganizationInfo-view {
-    width: 100%;
-    margin-bottom: 10px;
-}
+
 
 
 

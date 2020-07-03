@@ -6,6 +6,7 @@ import favourite from '../components/favourite.vue'
 import fileList from '../components/file-list.vue'
 import historyMsg from '../components/history-message.vue';
 import favouriteDetail from '../components/favourite-detail.vue'
+import reportRelationContent from '../components/reportRelationContent.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -51,9 +52,11 @@ export default new Router({
       path:'/favouriteDetail',
       name: "favouriteDetail",
       component: favouriteDetail,
-      meta: {
-        title: "收藏详情"
-      }
+    },    
+    {
+      path:'/reportRelationContent',
+      name: "reportRelationContent",
+      component: reportRelationContent,
     },
     {
       path: '/index',
