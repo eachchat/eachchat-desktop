@@ -275,6 +275,10 @@ const common = {
     if("deviceID" in config){
       this.config.deviceID = config.deviceID;
     }
+
+    if("desktopType" in config){
+      this.config.desktopType = config.desktopType;
+    }
     this.api = new APITransaction(this.config.hostname, this.config.apiPort);
     models.init();
   },
@@ -284,7 +288,7 @@ const common = {
     var config = this.config;
     var data = this.data;
 
-    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.model, config.deviceID);
+    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.model, config.deviceID, config.desktopType);
 
     if (!result.ok || !result.success) {
       return result.data;

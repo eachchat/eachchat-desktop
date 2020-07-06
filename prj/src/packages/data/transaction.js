@@ -35,7 +35,7 @@ class APITransaction {
     return response;
   }
 
-  async login(username, password, identityType, identityValue, model, deviceID) {
+  async login(username, password, identityType, identityValue, model, deviceID, desktopType) {
     let osType;
     
     if(environment.os.isWindows){
@@ -60,7 +60,8 @@ class APITransaction {
         },
         osType: osType,
         model:  model,
-        deviceId: deviceID
+        deviceId: deviceID,
+        desktopType: desktopType
       });
     return this.parseStatus(response);
   }
