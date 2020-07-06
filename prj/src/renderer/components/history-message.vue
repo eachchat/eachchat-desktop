@@ -187,7 +187,7 @@ export default {
             }
             else{
                 // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
-                console.log("message downloag group avatar target path is ", targetPath);
+                // console.log("message downloag group avatar target path is ", targetPath);
                 services.common.downloadUserTAvatar(distTAvarar, this.userInfo.user_id);
                 // this.checkAndLoadUserImage(targetPath);
             }

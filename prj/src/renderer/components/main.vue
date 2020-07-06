@@ -18,7 +18,9 @@
                     <!-- <i :class="getCurNavIcon(index)"></i> -->
                 </el-menu-item>
             </el-menu>
-        
+            <div class="NavSetUp" @click="showSetUpPage">
+                <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
+            </div>
         </el-aside>
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
@@ -85,10 +87,10 @@ export default {
                     view: "favourite"
                 },
                 // {
-                //     text: "更多",
-                //     name: "contact list",
-                //     link: "/organization",
-                //     view: "organization"
+                //     text: "设置",
+                //     name: "setUp",
+                //     link: "/setUp",
+                //     view: "setUp"
                 // }
             ],
             elementImg: null,
@@ -100,6 +102,10 @@ export default {
         }
     },
     methods: {
+        showSetUpPage: function() {
+            this.curindex = 3;
+            this.$router.push("/main/setup")
+        },
         getAppBaseData:async function() {
             // Init services
             let config = {
@@ -163,6 +169,8 @@ export default {
                 
             } else if (cur_index === 2) {
                 return "NavFavourite" + endding;
+            } else if (cur_index === 3) {
+                return "NavSetUp" + endding;
             }
             else{
                 return "NavMore";
@@ -270,6 +278,7 @@ export default {
 
     .navigate-panel {
         height: 100%;
+        width: 100%;
         background: rgba(74, 76, 91, 1);
         overflow: hidden;
         -webkit-app-region: drag;
@@ -373,6 +382,57 @@ export default {
     .NavFavourite.active {
         border: 0px;
         background-image: url("../../../static/Img/Navigate/favselected-24px.png");
+        width: 24px;
+        height: 24px;
+    }
+
+    .NavSetUp {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        background-color: rgba(74, 76, 91, 1);;
+    }
+
+    .NavSetUp.active {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        background-color: rgba(74, 76, 91, 1);;
+    }
+
+    .NavSetUp:hover {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        background-color: rgba(74, 76, 91, 1);;
+    }
+
+    .NavSetUpImg {
+        border: 1px red;
+        background-image: url("../../../static/Img/Navigate/setup-nor-24px.png");
+        width: 24px;
+        height: 24px;
+    }
+
+    .NavSetUpImg:hover {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/setup-hover-24px.png");
+        width: 24px;
+        height: 24px;
+    }
+
+    .NavSetUpImg.active {
+        border: 0px;
+        background-image: url("../../../static/Img/Navigate/setup-sel-24px.png");
         width: 24px;
         height: 24px;
     }

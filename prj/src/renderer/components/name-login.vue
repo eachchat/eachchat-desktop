@@ -71,7 +71,9 @@ export default {
                 hostname: "139.198.15.253",
                 apiPort: 8888,
                 username: this.username,
-                password: this.password
+                password: this.password,
+                model: "LAPTOP-D0BP0H",
+                deviceID: "18-1D-EA-14-72-CF"
             };
             services.common.init(config);
             

@@ -11,7 +11,7 @@
         <div class="userInfoAction-view">
             <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png">
+            <img class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" @click="jumpToChat">
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
@@ -78,7 +78,7 @@
 <script>
 import * as path from 'path'
 import * as fs from 'fs-extra'
-//import { services } from '../../packages/data'
+import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 export default {
@@ -129,6 +129,38 @@ export default {
         }
     },
     methods: {
+        jumpToChat: async function() {
+            console.log("JumpToChat")
+            var groupItem = {};
+            console.log("userInfos is ", this.userInfo);
+            var chatAvater = this.userInfo.avatarTUrl;
+            var chatName = this.userInfo.displayName;
+            var groupCheck = await services.common.GetGroupByName(chatName)
+            console.log("groupCheck is ", groupCheck)
+            if(groupCheck.length == 0) {
+                groupItem["contain_user_ids"] = [this.curUserInfo.id, this.userInfo.id];
+                groupItem["group_avarar"] = chatAvater;
+                groupItem["group_name"] = chatName;
+                groupItem["group_type"] = 101;
+                groupItem["last_message_time"] = 0;
+                groupItem["message_content"] = null;
+                groupItem["message_content_type"] = 101;
+                groupItem["message_from_id"] = this.curUserInfo.id;
+                groupItem["message_id"] = '';
+                groupItem["owner"] = null;
+                groupItem["sequence_id"] = 0;
+                groupItem["status"] = 0;
+                groupItem["un_read_count"] = 0;
+                groupItem["updatetime"] = new Date().getTime();
+                groupItem["user_id"] = this.userInfo.id;
+            }
+            else {
+                groupItem = groupCheck[0];
+            }
+            console.log("userinfotip emit groupitem is ", groupItem);
+            this.$emit('getCreateGroupInfo', groupItem);
+            this.dialogVisible = false;
+        },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){
                 return true;

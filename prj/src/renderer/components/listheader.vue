@@ -14,7 +14,7 @@
                 </el-dropdown-item> -->
             </el-dropdown-menu>
         </el-dropdown>
-        <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
+        <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater :disableUsers="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
                 </chatGroupCreater>
@@ -22,7 +22,9 @@
             <span slot="footer" class="dialog-footer">
                 <el-button class="dialog-confirm-button" type="primary" @click="createGroup()">确 定</el-button>
             </span>
-        </el-dialog>
+        </el-dialog> -->
+        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        </chatCreaterDlg>
     </div>
 </template>
 
@@ -34,20 +36,50 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import eSearch from './searchbar.vue'
 import {strMsgContentToJson} from '../../packages/core/Utils.js'
+import chatCreaterDlg from './chatCreaterDlg.vue'
+import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
 export default {
     name: 'listHeadbar',
     data () {
         return {
+            chatCreaterDisableUsers: [],
+            chatCreaterDialogRootDepartments:[],
+            chatCreaterKey:1,
+            chatCreaterDialogTitle: '',
+            showChatCreaterDlg: false,
             searchKey: '',
             dialogVisible: false,
             disabledusers: [],
         }
     },
     methods: {
-        showCreateGroup: function(){
-            this.disabledusers = [this.curUserInfo.id];
-            this.dialogVisible = true;
-            console.log("this disabledusers is ", this.disabledusers)
+        closeChatCreaterDlg(content) {
+            this.showChatCreaterDlg = false;
+        },
+        showCreateGroup: async function(){
+            // this.disabledusers = [this.curUserInfo.id];
+            // this.dialogVisible = true;
+            // console.log("this disabledusers is ", this.disabledusers)
+            /////////////////////////////////////////////////////////
+            var self = await services.common.GetSelfUserModel();
+            console.log("self is ", self);
+            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
+            var root = await Department.GetRoot();
+            console.log("root is ", root);
+            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+            console.log("rootDepartmentModels is ", rootDepartmentModels);
+            var temp = [];
+            for(var i = 0; i < rootDepartmentModels.length; i ++) {
+                var department = rootDepartmentModels[i];
+                temp[department.show_order] = department;
+            }
+            console.log("tempt is ", temp);
+            this.chatCreaterDialogRootDepartments =  temp;
+            
+            this.chatCreaterKey ++;
+            this.showChatCreaterDlg = true;
+            this.chatCreaterDialogTitle = "添加成员";
         },
         createGroup: async function() {
             var groupUserIds = [];
@@ -157,6 +189,7 @@ export default {
     },
     components: {
         chatGroupCreater,
+        chatCreaterDlg,
         eSearch
     },
     created: async function () {

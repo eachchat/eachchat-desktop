@@ -730,6 +730,53 @@ function fileMIMEFromType(ext){
     mine = mimestruct[ext];
     return mine;
 }
+/**
+ * https://www.cnblogs.com/cymhappy/p/4563548.html
+ * 获取指定目录内所有文件大小总和  单位为字节
+ * @param dir
+ * @param callback
+ */
+function getdirsize(dir,callback){
+    var size = 0;
+    fs.stat(dir,function(err,stats){
+        if(err) return callback(err);//如果出错
+        if(stats.isFile()) return callback(null,stats.size);//如果是文件
+
+        fs.readdir(dir,function(err,files){//如果是目录
+            if(err) return callback(err);//如果遍历目录出错
+            if(files.length==0) return callback(null,0);//如果目录是空的
+
+            var count = files.length;//哨兵变量
+            for(var i = 0;i<files.length;i++){
+                getdirsize(path.join(dir,files[i]),function(err,_size){
+                    if(err) return callback(err);
+                    size+=_size;
+                    if(--count<=0){//如果目录中所有文件(或目录)都遍历完成
+                        callback(null,size);
+                    }
+                });
+            }
+        });
+    });
+}
+
+/**
+ * https://blog.csdn.net/qq_30100043/java/article/details/52979714
+ */
+function deleteall(path) {
+	var files = [];
+	if(fs.existsSync(path)) {
+		files = fs.readdirSync(path);
+		files.forEach(function(file, index) {
+			var curPath = path + "/" + file;
+			if(fs.statSync(curPath).isDirectory()) { // recurse
+				deleteall(curPath);
+			} else { // delete file
+				fs.unlinkSync(curPath);
+			}
+		});
+	}
+};
 
 const faceUtils = {
     alt: [
@@ -1007,6 +1054,6 @@ const iconMap = {
     txt: ['txt', 'log', 'xml']
   }
   
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

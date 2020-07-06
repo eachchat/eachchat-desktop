@@ -66,7 +66,7 @@ export default {
     methods: {
         transmit: function() {
             var transmitInfo = {
-                "message_content": this.operatedItem.content,
+                "message_content": JsonMsgContentToString(this.operatedItem.content),
                 "group_id": this.operatedItem.group_id,
                 "message_from_id": this.operatedItem.fromId,
                 "message_id": this.operatedItem.msgId,

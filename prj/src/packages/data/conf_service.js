@@ -26,6 +26,7 @@ class ConfService {
         this.filesFilesDirName = 'Files';
         this.headImageDirName = 'General';
         this.headThumbDirName = 'HeadImage';
+        this.voiceFileDirName = 'voice';
         this.headHDDirName = 'HDHeadImage';
         this.imagesDirName = 'Image';
         this.imageThumbDirName = 'Thumb';
@@ -53,6 +54,13 @@ class ConfService {
             fs.ensureDirSync(this.filesPath);
         }
         this.uid = uid;
+    }
+    getCurFilesDir() {
+        var userFilesPath = path.join(this.filesPath, this.uid);
+        if(!fs.existsSync(userFilesPath)){
+            fs.ensureDirSync(userFilesPath);
+        }
+        return userFilesPath;
     }
     getEachChatFilesDir() {
         this.filesPath = path.join(this.base, this.filesDirName);
@@ -84,7 +92,7 @@ class ConfService {
         var curDate = new Date();
         var curYeat = curDate.getFullYear();
         var curMonth = curDate.getMonth() + 1;
-        if(fileTime == 0) {
+        if(fileTime != 0) {
             var secondsTime = Number(fileTime);
             var distdate = new Date(secondsTime);
             curYeat = distdate.getFullYear();
@@ -101,6 +109,17 @@ class ConfService {
             fs.ensureDirSync(userCurFilesPath);
         }
         return userCurFilesPath;
+    }
+    getVoiceFilePath() {
+        var userFilesPath = path.join(this.filesPath, this.uid);
+        if(!fs.existsSync(userFilesPath)){
+            fs.ensureDirSync(userFilesPath);
+        }
+        var userVoiceFilePath = path.join(userFilesPath, this.filesFilesDirName, this.voiceFileDirName);
+        if(!fs.existsSync(userVoiceFilePath)){
+            fs.ensureDirSync(userVoiceFilePath);
+        }
+        return userVoiceFilePath;
     }
     getUserThumbHeadPath() {
         var userFilesPath = path.join(this.filesPath, this.uid);

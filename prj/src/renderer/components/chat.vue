@@ -28,7 +28,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage"></imessage>
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" v-show="showMessageOrNot(item)" @loadedFinished="checkLoadFinished" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage"></imessage>
                         </div>
                     </li>
                 </ul>
@@ -74,14 +74,14 @@
                 <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px.png" @click="multiToolsClose">
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitInfo" :transmitCollection="true" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <!-- <transmit v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs"></transmit>         -->
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
         <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
-        <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
+        <!-- <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater ref="chatGroupCreater" :disableUsers="disabledusers" @getCreateGroupUsersSelected="getUsersSelected">
                 </chatGroupCreater>
@@ -89,11 +89,14 @@
             <span slot="footer" class="dialog-footer">
                 <el-button class="dialog-confirm-button" type="primary" @click="AddNewMembers()">确 定</el-button>
             </span>
-        </el-dialog>
+        </el-dialog> -->
+        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        </chatCreaterDlg>
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
-        <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip>
+        <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip> -->
+        <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">
                 <img class="history-msg-img" src="/static/Img/Chat/chatHistoryMsg-20px@2x.png">
@@ -130,7 +133,9 @@ import noticeEditDlg from './noticeEditDlg.vue'
 import ownerTransferDlg from './ownerTransfer.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
-import { Group, Message } from '../../packages/data/sqliteutil.js'
+import chatCreaterDlg from './chatCreaterDlg.vue'
+import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
+import userInfoContent from './user-info';
 
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
@@ -215,9 +220,66 @@ export default {
         ownerTransferDlg,
         chatMemberDlg,
         transmitDlg,
+        chatCreaterDlg,
+        userInfoContent,
     },
     props: ['chat'],
     methods: {
+        openUserInfoTip:async function(tipInfos) {
+            console.log("tip inso if ", tipInfos);
+            if(this.showUserInfoTips && tipInfos.userInfo == undefined) {
+                this.showUserInfoTips = false;
+                return;
+            }
+            var distUserInfo = tipInfos.userInfo;
+            var isMine = tipInfos.isMine;
+            // var iconElement = document.getElementById(id);
+            this.userInfoPosition.left = tipInfos.absoluteLeft;
+            this.userInfoPosition.top = tipInfos.absoluteLeft;
+            if(isMine) {
+                this.userInfoPosition.left = this.userInfoPosition.left - 280 - 45;
+            }
+            // console.log(iconElement.getBoundingClientRect());
+            var tempUserInfo = {};
+            //get userinfo
+            var user = await UserInfo.GetUserInfo(distUserInfo.user_id);
+            tempUserInfo.id = user.user_id;
+            tempUserInfo.avatarTUrl = user.avatar_t_url;
+            tempUserInfo.displayName = user.user_display_name;
+            tempUserInfo.title = user.user_title;
+            tempUserInfo.statusDescription = user.status_description;
+            tempUserInfo.workDescription = user.work_description;
+            tempUserInfo.managerId = user.manager_id;
+            tempUserInfo.departmentId = user.belong_to_department_id;
+            
+            //get department
+            var department = await Department.GetDepartmentInfoByUserID(distUserInfo.user_id);
+            tempUserInfo.department = department;
+            //get email
+            var email = await UserInfo.GetUserEmailByUserID(distUserInfo.user_id);
+            tempUserInfo.email = email;
+            //get phone
+            var phone = await UserInfo.GetUserPhoneByUserID(distUserInfo.user_id);
+            var tempPhone = {};
+            for (var i = 0; i < phone.length; i ++){
+                var temp = phone[i];
+                if(temp.phone_type == 'mobile'){
+                    tempPhone.mobile = temp.phone_value;
+                }else{
+                    tempPhone.work = temp.phone_value;
+                }
+            }
+            tempUserInfo.phone = tempPhone;
+
+
+            var leaders = await UserInfo.GetLeaders(distUserInfo.user_id);
+            tempUserInfo.leaders = leaders;
+            console.log("tetempUserInfo is ", tempUserInfo);
+
+            this.userInfo = tempUserInfo;
+            this.userInfoTipKey ++;
+            this.showUserInfoTips = true;
+        },
         CloseFileListDlg: function() {
             ipcRenderer.send("fileListDlg-close");
         },
@@ -445,7 +507,7 @@ export default {
         async transmitFromSoloDlg(e, args) {
             var transmitInfoStr = args;
             var transmitInfo = strMsgContentToJson(transmitInfoStr);
-            // console.log("transmitfromsolodlg ", transmitInfo);
+            console.log("transmitfromsolodlg ", transmitInfo);
             // var distMsg = await Message.FindMessageBySequenceID(transmitInfo.sequence_id);
             // if(distMsg.length == 0) {
             //     distMsg = transmitInfoStr;
@@ -471,6 +533,50 @@ export default {
             this.transmitKey ++;
             this.showTransmitDlg = true;
             this.transmitTogether = false;
+        },
+        showAddMembersPrepare: async function() {
+            // var memeberList = this.chat.contain_user_ids.split(",");
+            // this.showAddMembers(memeberList);
+            ////////////////////////////////////////////////////
+            var self = await services.common.GetSelfUserModel();
+            console.log("self is ", self);
+            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
+            var root = await Department.GetRoot();
+            console.log("root is ", root);
+            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+            console.log("rootDepartmentModels is ", rootDepartmentModels);
+            var temp = [];
+            for(var i = 0; i < rootDepartmentModels.length; i ++) {
+                var department = rootDepartmentModels[i];
+                temp[department.show_order] = department;
+            }
+            console.log("tempt is ", temp);
+            this.chatCreaterDialogRootDepartments =  temp;
+            
+            this.chatCreaterKey ++;
+            this.showChatCreaterDlg = true;
+            this.chatCreaterDialogTitle = "添加成员";
+        },
+        closeChatCreaterDlg(content) {
+            this.showChatCreaterDlg = false;
+        },
+        showAddMembers: function(existedMembers){
+            this.groupCreaterTitle = "添加成员"
+            console.log("showaddmembers is ", this.disabledusers)
+            this.disabledusers = existedMembers;
+            console.log("showaddmembers is ", this.disabledusers)
+            this.dialogVisible = true;
+        },
+        AddNewMembers: async function() {
+            console.log("add member s ", this.usersSelected);
+            var addUids = [];
+            for(var i=0;i<this.usersSelected.length;i++) {
+                addUids.push(this.usersSelected[i].id)
+            }
+            var ret = await services.common.AddGroupUsers(this.chat.group_id, addUids);
+            console.log("AddGroupUsers ret is ", ret);
+            this.dialogVisible = false;
         },
         async menuFav(msg) {
             console.log("fav msg is ", msg);
@@ -526,27 +632,6 @@ export default {
         },
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
-        },
-        showAddMembersPrepare: function() {
-            var memeberList = this.chat.contain_user_ids.split(",");
-            this.showAddMembers(memeberList);
-        },
-        showAddMembers: function(existedMembers){
-            this.groupCreaterTitle = "添加成员"
-            console.log("showaddmembers is ", this.disabledusers)
-            this.disabledusers = existedMembers;
-            console.log("showaddmembers is ", this.disabledusers)
-            this.dialogVisible = true;
-        },
-        AddNewMembers: async function() {
-            console.log("add member s ", this.usersSelected);
-            var addUids = [];
-            for(var i=0;i<this.usersSelected.length;i++) {
-                addUids.push(this.usersSelected[i].id)
-            }
-            var ret = await services.common.AddGroupUsers(this.chat.group_id, addUids);
-            console.log("AddGroupUsers ret is ", ret);
-            this.dialogVisible = false;
         },
         inputChanged(content) {
             this.curContent = content.text;
@@ -727,11 +812,10 @@ export default {
         playAudioOfMessage(audioMsgId) {
             this.playingMsgId = audioMsgId;
         },
-        openUserInfoTip(tipInfos) {
-            console.log("tip inso if ", tipInfos);
-            this.tipInfos = tipInfos;
-            this.showUserInfoTips = true;
-        },
+        // openUserInfoTip(tipInfos) {
+        //     console.log("tip inso if ", tipInfos);
+        //     this.showUserInfoTips = true;
+        // },
         closeInfoTip(e){
             var userInfoTipElement = document.getElementById("userInfoTipId");
             if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img" && e.target.className != "groupMemberInfoImage" && e.target.className != "groupMemberInfoLabel"){
@@ -751,8 +835,8 @@ export default {
                 this.chatMemberDlgchat = {};
             }
             
-            if(e.target.className != "chat-input-history" && e.target.className != "el-icon-historys") {
-                var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
+            var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
+            if(msgHistoryMenuElement != undefined && e.target.className != "chat-input-history" && e.target.className != "el-icon-historys") {
                 msgHistoryMenuElement.style.display = "none";
             }
         },
@@ -1719,18 +1803,19 @@ export default {
         },
         handleScroll: function() {
             let uldiv = document.getElementById("message-show-list");
+            console.log("=====scroll height is ", uldiv.scrollHeight);
             if(uldiv) {
                 if(uldiv.scrollTop < 100){
+                    console.log("to update msg")
                     var curTime = new Date().getTime();
                     // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
-                        let lastScrollHeight = uldiv.scrollHeight;
+                        this.lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
                         let lastSequenceId = this.messageList[0].sequence_id;
                         services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
-                                this.isRefreshing = false;
                                 var messageListTmp = ret.sort(this.compare());
                                 for(var i=0;i<messageListTmp.length;i++){
                                     console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
@@ -1738,16 +1823,29 @@ export default {
                                         this.messageList.unshift(messageListTmp[i]);
                                         this.existingMsgId.push(messageListTmp[i].message_id);
                                     }
+                                    // this.$nextTick(() => {
+                                        console.log("---------update croll top is ", uldiv.scrollHeight);
+                                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                    // })
                                 }
-                                this.$nextTick(() => {
-                                    uldiv.scrollTop = uldiv.scrollHeight - lastScrollHeight;
-                                })
+                                this.isRefreshing = false;
                             })
                     }
                 }
             }
         },
+        checkLoadFinished(msg) {
+            let uldiv = document.getElementById("message-show-list");
+            uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+            // console.log("+++++++++scroll height is ", uldiv.scrollHeight);
+        },
+        checkResize: function() {
+            console.log("++++++++++++++====")
+            let uldiv = document.getElementById("message-show-list");
+            // console.log("++++++++scroll height is ", uldiv.scrollHeight);
+        },
         getHistoryMessage: function() {
+            console.log("this chat is ", this.chat);
             console.log("this groupid is ", this.chat.group_id);
             console.log("this sequence_id is ", this.chat.sequence_id);
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
@@ -1819,6 +1917,7 @@ export default {
                                 div.scrollTop = div.scrollHeight;
                                 // The left msg get through scroll event
                                 div.addEventListener('scroll', this.handleScroll);
+                                div.addEventListener('onresize', this.checkResize);
                             }
                             this.isRefreshing = false;
                         })
@@ -1888,6 +1987,14 @@ export default {
     },
     data() {
         return {
+            userInfo: {},
+            userInfoPosition: {},
+            userInfoTipKey: 1,
+            chatCreaterDialogTitle: '',
+            showChatCreaterDlg: false,
+            chatCreaterDialogRootDepartments:[],
+            chatCreaterKey:1,
+            lastScrollHeight: 0,
             fileListGroupInfo: {},
             showFileListInfo: false,
             messageListElement: null,
@@ -1912,7 +2019,7 @@ export default {
             cursorPosition: {},
             chatMemberDlgchat: {},
             ownerTransferchat: {},
-            disabledusers: [],
+            chatCreaterDisableUsers: [],
             groupInfo: {},
             groupContainUserIds: [],
             ipcInited: false,
@@ -1920,7 +2027,6 @@ export default {
             showTransmitDlg: false,
             transmitKey:1,
             recentGroups:[],
-            transmitInfo: {},
             transmitTogether: false,
             selectedMsgs: [],
             editor:null,

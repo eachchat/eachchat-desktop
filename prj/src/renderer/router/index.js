@@ -1,13 +1,14 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import organization from '../components/organization.vue'
-import ChatContent from '../components/chat-content.vue'
-import favourite from '../components/favourite.vue'
-import fileList from '../components/file-list.vue'
+import Vue from 'vue';
+import Router from 'vue-router';
+import organization from '../components/organization.vue';
+import ChatContent from '../components/chat-content.vue';
+import favourite from '../components/favourite.vue';
+import fileList from '../components/file-list.vue';
 import historyMsg from '../components/history-message.vue';
-import favouriteDetail from '../components/favourite-detail.vue'
+import favouriteDetail from '../components/favourite-detail.vue';
+import setup from '../components/setup.vue';
+Vue.use(Router);
 import reportRelationContent from '../components/reportRelationContent.vue'
-Vue.use(Router)
 
 export default new Router({
   routes: [
@@ -35,6 +36,11 @@ export default new Router({
           path: "favourite",
           name: "favourite",
           component: favourite
+        },
+        {
+          path:'setup',
+          name: "setupPage",
+          component: setup,
         },
       ]
     },

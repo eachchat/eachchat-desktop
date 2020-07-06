@@ -230,7 +230,7 @@ function downloadFile(event, arg) {
             try{
               if(fs.existsSync(distPath)) {
                 // fs.unlinkSync(distPath);
-                resolve(true);
+                resolve(arg);
               }
               fs.renameSync(distTemp, distPath);
               if(needOpen) {
@@ -255,7 +255,7 @@ function downloadFile(event, arg) {
 
 ipcMain.on("download-file", function(event, arg) {
   // [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath]
-  // console.log("get download file and put queue");
+  // console.log("get download file and put queue ", arg);
   queue.put(downloadFile(event, arg));
 });
 

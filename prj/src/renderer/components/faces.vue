@@ -2,7 +2,8 @@
     <div>
         <ul class="faces">
             <li v-for="item in faceList">
-                <img :src="faceMap[item]" :alt="item" :title="item" @click="insertFace(item)"/>
+                <!-- <img :src="faceMap[item]" :alt="item" :title="item" @click="insertFace(item)"/> -->
+                <div v-html="item" :title="item" @click="insertFace(item)"></div>
             </li>
         </ul>
     </div>

@@ -407,8 +407,8 @@ const common = {
     let userid = this.data.selfuser.id;
     let services = this;
     await this.mqttclient.on('message', async function(topic, message){
-      console.log("handle message get topic ", topic)
-      console.log("handle message get sth ", JSON.parse(message.toString()))
+      // console.log("handle message get topic ", topic)
+      // console.log("handle message get sth ", JSON.parse(message.toString()))
       if(topic != userid)
       {
         return;
@@ -1013,7 +1013,23 @@ const common = {
     var ret = "FILE_DOWNLOADING";
     var targetDir = confservice.getFilePath(message_time);
     var targetPath = path.join(targetDir, fileName);
-    console.log("targetPath is ", targetPath);
+    // console.log("targetPath is ", targetPath);
+    if(fs.existsSync(targetPath)) {
+      return targetPath;
+    }
+    else {
+      targetPath = await makeFlieNameForConflict(targetPath);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
+      return ret;
+    }
+  },
+
+  async downloadVoiceFile(timelineId, message_time, fileName, needOpen) {
+    var ret = "FILE_DOWNLOADING";
+    // console.log("downloadFile fileName ", fileName);
+    var targetDir = confservice.getVoiceFilePath();
+    var targetPath = path.join(targetDir, fileName);
+    // console.log("targetPath is ", targetPath);
     if(fs.existsSync(targetPath)) {
       return targetPath;
     }
