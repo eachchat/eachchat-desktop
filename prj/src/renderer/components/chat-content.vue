@@ -1,8 +1,5 @@
 <template>
     <div class="chat-wind">
-      <div class="win-header">
-        <winHeaderBar v-show="isWindows" @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
-      </div>
       <div class="chat-panel" id="chat-panel-id">
         <div class="chat-list">
           <div class="list-header">
@@ -22,7 +19,7 @@
                   <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
                 </div>
                 <div class="group-info">
-                  <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
+                  <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                   <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                 </div>
                 <div class="group-notice">
@@ -33,11 +30,14 @@
             </ul>
           </div>
         </div>
-        <div class="chat" v-show="!isEmpty">
-          <ChatPage :chat="curChat" :updateMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
+        <div class="win-header">
+          <winHeaderBar v-show="isWindows" @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
         <div class="chat-empty" v-show="isEmpty">
           <img class="chat-empty-bg" src="../../../static/Img/Chat/empty.png">
+        </div>
+        <div class="chat" v-show="!isEmpty">
+          <ChatPage :chat="curChat" :newMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -375,6 +375,7 @@ export default {
         }
         else {
           this.originalGroupList.unshift(groupInfo);
+          this.curChat = groupInfo;
           setTimeout(() => {
             this.$nextTick(() => {
               this.showGroupIcon();
@@ -498,6 +499,17 @@ export default {
       }
       else if(uid == undefined) {
         return "chat-groupList-" + groupId;
+      }
+    },
+    getChatGroupNameElementId: function(groupId, uid) {
+      if(groupId != undefined && uid != undefined) {
+        return "chat-groupList-name-" + groupId + "-" + uid;
+      }
+      else if(groupId == undefined) {
+        return "chat-groupList-name-" + uid;
+      }
+      else if(uid == undefined) {
+        return "chat-groupList-name-" + groupId;
       }
     },
     getShowGroupName(chatGroupItem) {
@@ -661,7 +673,7 @@ export default {
       // console.log("chat callback msg is ", msg);
       console.log("chat callback msg content is ", msg.message_content);
       console.log("chat callback msg is ", msg)
-      var msgContent = msg.message_content;
+      var msgContent = strMsgContentToJson(msg.message_content);
       if(msgContent.type == undefined && msg.group_avarar != undefined) {
         this.mqttGroupVar.push(msg);
         return;
@@ -669,22 +681,37 @@ export default {
       ipcRenderer.send("flashIcon");
       var groupExist = false;
       for(let i=0;i<this.originalGroupList.length;i++) {
-        if((this.originalGroupList[i].group_id === msg.group_id) || this.originalGroupList[i].user_id ) {
+        if((this.originalGroupList[i].group_id === msg.group_id) || this.originalGroupList[i].group_type == 102) {
           this.originalGroupList[i].last_message_time = msg.message_timestamp;
           this.originalGroupList[i].message_content = msg.message_content;
           this.originalGroupList[i].message_content_type = msg.message_type;
           this.originalGroupList[i].message_from_id = msg.message_from_id;
           this.originalGroupList[i].message_id = msg.message_id;
           this.originalGroupList[i].sequence_id = msg.sequence_id;
+          if(this.originalGroupList[i].group_type == 102) {
+            this.originalGroupList[i].group_id = msg.group_id;
+          }
           if(msg.group_id == this.curChat.group_id) {
-            this.curChat = this.originalGroupList[i];
-            this.newMsg = msg;
+            if(msgContent.type == "updateGroupName") {
+              this.originalGroupList[i].group_name = msgContent.text;
+              let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+              var distElementId = this.getChatGroupNameElementId(msg.group_id, groupInfo.user_id);
+              var distElement = document.getElementById(distElementId);
+              if(distElement != undefined) {
+                distElement.innerHTML = msgContent.text;
+              }
+              this.newMsg = msg;
+            }
+            else{
+              this.curChat = this.originalGroupList[i];
+              this.newMsg = msg;
+            }
           }
-          if(msg.message_from_id != this.curUserInfo.id) {
-            this.originalGroupList[i].un_read_count += 1;
-          }
-          if(msgContent.type != undefined && msgContent.type == "updateGroupName") {
-            this.originalGroupList[i].group_name = msgContent.text;
+          if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {
+            let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+            if(!this.groupIsSlience(groupInfo)) {
+              this.originalGroupList[i].un_read_count += 1;
+            }
           }
           if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
               let distUsers = msgContent.userInfos;
@@ -717,7 +744,7 @@ export default {
         }
       }
       if(!groupExist) {
-          var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+          let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
           console.log("groupinfo is ", groupInfo);
           console.log("this.mqttGroupVar is ", this.mqttGroupVar);
           if(groupInfo == undefined) {
@@ -813,6 +840,7 @@ export default {
   ::-webkit-scrollbar {
     width: 7px;
     height: 12px;
+    display: none;
   }
 
   ::-webkit-scrollbar-thumb {

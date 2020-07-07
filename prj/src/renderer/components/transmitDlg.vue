@@ -484,6 +484,9 @@ export default {
             }
         },
         sendTogetherMsg: async function(distGroups, msgs) {
+            if(this.curUserInfo == undefined) {
+                this.curUserInfo = await services.common.GetSelfUserModel();
+            }
             var msgContent = await this.getTogetherMsgContent(msgs);
             console.log("varcontent is ", msgContent);
             for(var i=0;i<distGroups.length;i++){
@@ -507,10 +510,12 @@ export default {
                     })
             }
         },
-        sendSingleCollectionMsg: function(distGroups, collection) {
+        sendSingleCollectionMsg: async function(distGroups, collection) {
+            if(this.curUserInfo == undefined) {
+                this.curUserInfo = await services.common.GetSelfUserModel();
+            }
             for(var i=0;i<distGroups.length;i++){
 
-                
                     var curMsg = collection;
                     var curMsgContent = collection.collection_content;
                     console.log("curMsgCintent is ", curMsgContent);
@@ -536,7 +541,10 @@ export default {
                         })
                 }
         },
-        sendSingleMsg: function(distGroups, msgs) {
+        sendSingleMsg: async function(distGroups, msgs) {
+            if(this.curUserInfo == undefined) {
+                this.curUserInfo = await services.common.GetSelfUserModel();
+            }
             for(var i=0;i<distGroups.length;i++){
                 for(var j=0;j<msgs.length;j++) {
                     var curMsg = msgs[j];
@@ -566,6 +574,9 @@ export default {
             }
         },
         getTogetherMsgContent: async function(msgs) {
+            if(this.curUserInfo == undefined) {
+                this.curUserInfo = await services.common.GetSelfUserModel();
+            }
             var contentTitle = "";
             var contentText = "";
             var groupId = this.curChat.group_id;
@@ -652,7 +663,10 @@ export default {
                 return messageContent = "不支持的消息类型，请升级客户端。"
             }
         },
-        getDistUidThroughUids: function(uids) {
+        getDistUidThroughUids: async function(uids) {
+            if(this.curUserInfo == undefined) {
+                this.curUserInfo = await services.common.GetSelfUserModel();
+            }
             if(uids.length > 2) {
                 return "";
             }

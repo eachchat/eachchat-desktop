@@ -11,7 +11,7 @@
         <div class="login-panel" v-else style="-webkit-app-region: no-drag">
             <div class="title">
                 <div class="title-ico">
-                    <img class="login-logo" src="../assets/Logo_Big.png">
+                    <img class="login-logo" src="../../../static/Img/Main/logo.png">
                 </div>
                 <div class="tltle-content">
                     登录

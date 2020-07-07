@@ -142,6 +142,10 @@ export default {
                 if(this.groupList[i].group_id == id) {
                     let elementId = this.getChatElementId(this.groupList[i]);
                     let elementImg = document.getElementById(elementId);
+                    console.log("element img is ", elementImg)
+                    if(elementImg == undefined) {
+                        return;
+                    }
                     elementImg.setAttribute("src", localPath);
                     break;
                 }
@@ -152,6 +156,10 @@ export default {
                 let elementId = this.getChatElementId(this.groupList[i]);
                 // console.log("elememt id is ", elementId)
                 let elementImg = document.getElementById(elementId);
+                console.log("element img is ", elementImg)
+                if(elementImg == undefined) {
+                    return;
+                }
                 // console.log("elementImg is ", elementImg)
                 // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
                 var targetPath = "";

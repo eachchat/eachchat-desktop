@@ -90,13 +90,13 @@
                 <el-button class="dialog-confirm-button" type="primary" @click="AddNewMembers()">确 定</el-button>
             </span>
         </el-dialog> -->
-        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
-        </chatCreaterDlg>
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
         <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip> -->
         <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
+        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        </chatCreaterDlg>
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">
                 <img class="history-msg-img" src="../../../static/Img/Chat/chatHistoryMsg-20px@2x.png">
@@ -839,7 +839,7 @@ export default {
                 msgHistoryMenuElement.style.display = "none";
             }
 
-            // console.log("e.target.classname ", e.target.className)
+            console.log("e.target.classname ", e.target.className)
             if(e.target.className.indexOf('userInfo') == -1){
                 this.showUserInfoTips = false;
             }
@@ -848,7 +848,7 @@ export default {
             this.showFace = !this.showFace;
         },
         showGroupName: async function(chatGroupItem) {
-            if(chatGroupItem.group_id == null || chatGroupItem.group_id == undefined){
+            if(chatGroupItem.group_id == undefined && chatGroupItem.user_id == undefined){
                 return "";
             }
             var groupNameElement = document.getElementById("chat-group-name");
@@ -883,8 +883,13 @@ export default {
 
             var groupState = "";
             if(chatGroupItem.group_type == 102) {
-                // console.log("================")
-                var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
+                if(chatGroupItem.owner == null || chatGroupItem.owner == undefined) {
+                    var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.user_id);
+                }
+                else {
+                    var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
+                }
+                console.log("================ ownerInfo ", ownerInfo)
                 groupState = ownerInfo[0].status_description;
                 // console.log("================ ", ownerInfo)
             }
@@ -2107,11 +2112,11 @@ export default {
     },
     watch: {
         chat: function() {
-            // console.log("============", this.chat);
+            console.log("============", this.chat);
             if(this.chat == undefined) {
                 return;
             }
-            if(this.curGroupId != this.chat.group_id) {
+            if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
 

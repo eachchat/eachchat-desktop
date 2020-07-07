@@ -1,8 +1,5 @@
 <template>
     <el-container>
-        <div class="win-header">
-            <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
-        </div>
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
@@ -55,6 +52,9 @@
 
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
+        <div class="win-header">
+            <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+        </div>
     </el-container>
 </template>
 <script>

@@ -19,10 +19,10 @@ let favouriteDetailWindow
 let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
-let iconPath = "../../static/Img/Main/Close@3x.png";
-let emptyIconPath = "../../static/Img/Main/Zoom@3x.png";
+let iconPath = "/static/Img/Main/logo.png";
+let emptyIconPath = "/static/Img/Main/Zoom@3x.png";
 if (process.env.NODE_ENV === "development") {
-  iconPath = "../../static/Img/Main/Close@3x.png";
+  iconPath = "../../static/Img/Main/logo.png";
   emptyIconPath = "../../static/Img/Main/Zoom@3x.png";
 }
 
