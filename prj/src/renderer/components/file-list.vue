@@ -202,7 +202,7 @@ export default {
             return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
         },
         isWindows() {
-            return environment.os.isWindows;
+            return environment.os.isWindows();
         },
         getFileIconThroughExt: function(ext) {
             var iconPath = getIconPath(ext);

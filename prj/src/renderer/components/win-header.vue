@@ -1,14 +1,8 @@
 <template>
     <div class="ChatHeaderBar">
-        <div class="header-list">
-        </div>
-        <div class="header-chat">
-            <div class="Buttons">
-                <img class="header-btn-close" src="../../../static/Img/Main/WinClose-20px.png" @click="Close()" v-show="showClose">
-                <img class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px.png" @click="Max()" v-show="showMax">
-                <img class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px.png" @click="Min()" v-show="showMin">
-            </div>
-        </div>
+        <img class="header-btn-close" src="../../../static/Img/Main/WinClose-20px.png" @click="Close()" v-show="showClose">
+        <img class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px.png" @click="Max()" v-show="showMax">
+        <img class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px.png" @click="Min()" v-show="showMin">
     </div>
 </template>
 
@@ -69,41 +63,10 @@ export default {
 <style lang="scss" scoped>
     .ChatHeaderBar {
         height: 24px;
-        width: 100%;
-    }
-
-    .header-list {
-        display: inline-block;
-        margin:0;
-        height: 20px;
-        width: 280px;
-        // border-right: 1px solid rgb(242, 242, 246);
-        -webkit-app-region: drag;
-    }
-    * {
-        
-        -webkit-app-region: no-drag;
-    }
-
-    .header-chat {
-        display: inline-block;
-        margin:0;
-        height: 24px;
-        width: calc(100% - 288px);
-        -webkit-app-region: drag;
-    }
-    * {
-        
-        -webkit-app-region: no-drag;
-    }
-
-
-    .Buttons {
-        display: block;
-        margin:0;
-        float: right;
-        height: 100%;
-        width: 130px;
+        width: 96px;
+        position: absolute;
+        right: 0px;
+        top: 0px;
     }
 
     .header-btn-min {

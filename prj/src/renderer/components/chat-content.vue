@@ -183,7 +183,7 @@ export default {
       }
     },
     isWindows() {
-      return environment.os.isWindows;
+      return environment.os.isWindows();
     },
     rightClick(e, groupItem) {
         console.log("groupItem is ", groupItem)
@@ -812,6 +812,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;  
+    -webkit-app-region: drag;
   }
 
   .chat-empty-bg {
@@ -826,7 +827,12 @@ export default {
     display: flex;
     flex-direction: column;
     position: relative;
-    margin: 0px;
+    padding-top: 20px;
+    -webkit-app-region: drag;
+  }
+  * {
+      
+      -webkit-app-region: no-drag;
   }
 
   .chat-list {
@@ -835,6 +841,7 @@ export default {
     display: flex;
     flex-direction: column;
     border-right: 1px solid rgb(242, 242, 246);
+    -webkit-app-region: drag;
   }
 
   .list-header {
@@ -845,6 +852,7 @@ export default {
     border: 0px;
     margin: 0px 0px 0px 0px;
     display: block;
+    margin-top: 20px;
   }
 
   .chat-label {

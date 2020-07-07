@@ -70,10 +70,10 @@ export default {
             }
         },
         login:async function() {
-            var mac = environment.os.mac;
-            var hostname = environment.os.hostName;
-            // console.log("mac is ", environment.os);
-            // console.log("hostname is ", hostname);
+            var mac = environment.os.mac();
+            var hostname = environment.os.hostName();
+            console.log("mac is ", environment.os);
+            console.log("hostname is ", hostname);
             let config = {
                 hostname: "139.198.15.253",
                 apiPort: 8888,
@@ -107,8 +107,8 @@ export default {
     },
     mounted: function() {
         this.tokenRefreshing = true;
-        var mac = environment.os.mac;
-        var hostname = environment.os.hostName;
+        var mac = environment.os.mac();
+        var hostname = environment.os.hostName();
         // console.log("mac is ", mac);
         // console.log("hostname is ", hostname);
         let config = {

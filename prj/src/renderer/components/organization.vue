@@ -1,62 +1,58 @@
 <template>
     <el-container>
-        <el-header>
-            <div class="win-header">
-                <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
-            </div>
-        </el-header>
-        <el-container>
-            <el-aside width="280px">
-                <div class="list-header">
-                    <div class="search">
-                        <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                    </div><div class="search-action">
-                            
-                            <div class="search-delete">
-                                <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
-                                
-                            </div><div class="search-search">
+        <div class="win-header">
+            <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+        </div>
+        <el-aside width="280px">
+            <div class="list-header">
+                <div class="search">
+                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                </div><div class="search-action">
                         
-                                <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                            </div>
+                        <div class="search-delete">
+                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            
+                        </div><div class="search-search">
+                    
+                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                         </div>
-                </div>
-                <div class="search-view" v-show="showSearchView">
-                    <ul class="managers-list">
-                        <li class="manager"
-                            v-for="(manager, index) in searchUsers"
-                            @click="searchUserMenuItemClicked(manager.user_id)" 
-                            :key="index">
-                            <img class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
-                            <div class="manager-info">
-                            <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
-                            <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="organization-view" v-show="!showSearchView">
-                    <ul class="departments-list">
-                        <li class="department"
-                            v-for="(department, index) in departments"
-                            @click="departmentMenuItemClicked(department)" 
-                            :key="index">
-                            <img class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
-                            <div class="department-info">
-                                <p class="department-name">{{ department.display_name }}</p>
-                            </div>
-                            <div align="center" class="item-arrow">
-                                <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </el-aside>
-            <el-container class="right-container">
-                
-                <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
+                    </div>
+            </div>
+            <div class="search-view" v-show="showSearchView">
+                <ul class="managers-list">
+                    <li class="manager"
+                        v-for="(manager, index) in searchUsers"
+                        @click="searchUserMenuItemClicked(manager.user_id)" 
+                        :key="index">
+                        <img class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
+                        <div class="manager-info">
+                        <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
+                        <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="organization-view" v-show="!showSearchView">
+                <ul class="departments-list">
+                    <li class="department"
+                        v-for="(department, index) in departments"
+                        @click="departmentMenuItemClicked(department)" 
+                        :key="index">
+                        <img class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
+                        <div class="department-info">
+                            <p class="department-name">{{ department.display_name }}</p>
+                        </div>
+                        <div align="center" class="item-arrow">
+                            <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </el-aside>
+        <el-container class="right-container">
+            
+            <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
 
-            </el-container>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
     </el-container>
