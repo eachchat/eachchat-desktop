@@ -64,5 +64,15 @@ export default {
         padding-top: 7px;
     }
 }
-
+.window-header-bar:hover{
+    .close-image{
+        content: url('../../../static/Img/Main/Close-hover@2x.png');
+    }
+    .min-image{
+        content: url('../../../static/Img/Main/Minimise-hover@2x.png');
+    }
+    .zoom-image{
+        content: url('../../../static/Img/Main/zoom-hover@2x.png');
+    }
+}
 </style>

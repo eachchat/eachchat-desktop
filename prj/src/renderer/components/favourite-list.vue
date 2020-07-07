@@ -569,7 +569,7 @@ export default {
                 var tempFavourite = {};
                 tempFavourite.collection_id = model.collectionId;
                 tempFavourite.collection_type = model.collectionType;
-                tempFavourite.favourite_id = model.favouriteId;
+                tempFavourite.favourite_id = model.favoriteId;
                 tempFavourite.collection_content = model.content;
                 tempFavourite.sequence_id = model.sequenceId;
                 tempFavourite.timeline_id = model.timelineId;
@@ -711,6 +711,7 @@ display: none;
     height: 55px;
     background-color: rgb(255, 255, 255);
     border-bottom: 1px solid rgb(221, 221, 221);
+    -webkit-app-region: drag;
     .header-title {
         display: inline-block;
         padding-left: 0px;;
@@ -721,7 +722,7 @@ display: none;
         padding-left: 0px;
         width: calc(100% - 100px);
     }
-    
+
     
 }
 .search-view{

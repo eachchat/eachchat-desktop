@@ -19,17 +19,28 @@
                     
                             <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                         </div>
-                        </div>
-                    <div class="NewChatView">
+                    </div>
+                    <div class="searchView" v-if="showSearchView">
+                        <ul class="searchGroupList">
+                            <li class="searchGroup" v-for="(group, index) in searchGroup" :key="index">
+                                <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
+                                <img class="group-icon" :id="'search' + group.group_id" src="../../../static/Img/User/user.jpeg">
+                                <div class="group-info">
+                                    <p class="group-name">{{ group.group_name }}</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="NewChatView" v-show="!showSearchView">
                         <img class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
                         <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
                         <p class="createNewChatTitle">创建新聊天</p>
                         </div>
                     </div>
-                    <div class="RecentChatHeader">
+                    <div class="RecentChatHeader" v-show="!showSearchView">
                         最近聊天
                     </div>
-                    <div class="RecentChatView">
+                    <div class="RecentChatView" v-show="!showSearchView">
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
@@ -48,7 +59,7 @@
                     <div class="selectedContentView">
                         <ul class="selectedGroupList">
                             <li class="selectedGroup" v-for="(group,index) in selectedGroups" :key="index">
-                                <img class="group-icon" :src="group.group_avarar">
+                                <img class="group-icon" :id="'selected' + group.group_id" src="../../../static/Img/User/user.jpeg">
                                 <div class="group-info">
                                     <p class="group-name">{{ group.group_name }}</p>
                                 </div>
@@ -126,7 +137,7 @@ export default {
     computed: {
         groupChecked() {
             return function(group) {
-                if (this.selectedGroups.indexOf(group) != -1){
+                if (this.indexOfGroupInSelected(group) != -1){
                     return true;
                 }
                 else{
@@ -159,7 +170,10 @@ export default {
             curUserInfo:{},
             rootDepartments:[],
             chatCreaterDisableUsers:[],
+
             searchKey:'',
+            showSearchView: false,
+            searchGroup: [],
         }
     },
     methods: {
@@ -185,15 +199,32 @@ export default {
             this.$emit("closeTransmitDlg", "");
             
         },
-        search:function () {
-            
+        search:async function () {
+            if(this.searchKey == ''){
+                this.showSearchView = false;
+                return;
+            }
+            this.showSearchView = true;
+            this.searchGroup = await Group.SearchByNameKey(this.searchKey);
+
+            this.$nextTick(function(){
+                for(var i = 0; i < this.searchGroup.length; i ++){
+                    this.getGroupAvatarContent(this.searchGroup[i], 'search');
+                }
+            });
         },
         searchDeleteClicked(){
             this.searchKey = '';
+            this.showSearchView = false;
         },
         deleteGroupFromSelectedGroups(group){
             var index = this.selectedGroups.indexOf(group);
             this.selectedGroups.splice(index, 1);
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedGroups.length; i ++){
+                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
+                }
+            });
         },
         groupCheckBoxClicked(group){
             if(this.selectedGroups.indexOf(group) != -1){
@@ -203,6 +234,11 @@ export default {
             else{
                 this.selectedGroups.push(group);
             }
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedGroups.length; i ++){
+                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
+                }
+            });
         },
         createNewChatButtonClicked:async function() {
             
@@ -219,6 +255,17 @@ export default {
             this.showCreateNewChat = true;
             
         },
+        indexOfGroupInSelected(group){
+            var index = -1;
+            for(var i = 0; i < this.selectedGroups.length; i ++){
+                var id = group.group_id;
+                if(id == this.selectedGroups[i].group_id){
+                    index = i;
+                    break;
+                }
+            }
+            return index;
+        },
         // selectedGroupImageId(id) {
         //     return "selected" + id;
         // },
@@ -233,10 +280,10 @@ export default {
         //             this.$emit("closeTransmitDlg", this.TransmitContent);
         //         })
         // },
-        getGroupAvatarContent:async function(group) {
+        getGroupAvatarContent:async function(group, key='') {
             var targetDir = confservice.getUserThumbHeadPath();
             var targetPath = path.join(targetDir, group.group_id + '.png');
-            var groupAvatarElement = document.getElementById(group.group_id);
+            var groupAvatarElement = document.getElementById(key + group.group_id);
             if(groupAvatarElement == null) {
                 return;
             }
@@ -618,9 +665,9 @@ export default {
             }
         },
     },
-    async created() {
-            this.curUserInfo = await services.common.GetSelfUserModel();
-            console.log("this.curuser info is ", this.curUserInfo);
+    created() {
+            //this.curUserInfo = await services.common.GetSelfUserModel();
+            //console.log("this.curuser info is ", this.curUserInfo);
             var showPosition = this.calcImgPosition();
             console.log(showPosition);
             this.dlgPosition.left = showPosition.left.toString() + "px";
@@ -796,6 +843,58 @@ display: none;
                 }
                 
             }
+            .searchView {
+                height: 282px;
+                overflow: scroll;
+                .searchGroupList{
+                    list-style: none;
+                    margin: 0px;
+                    padding-left: 16px;
+                    .searchGroup{
+                        width: 248px;
+                        height: 48px;
+                        vertical-align: top;
+                        .group-checkBox{
+                            display: inline-block;
+                            width: 20px;
+                            height: 20px;
+                            margin-top: 14px;
+                            margin-bottom: 14px;
+                        }
+                        .group-icon{
+                            margin-top: 8px;
+                            margin-left: 6px;
+                            margin-bottom: 8px;
+                            width: 32px;
+                            height: 32px;
+                            display: inline-block;
+                            border-radius: 4px;
+
+                        }
+                        .group-info{
+                            display: inline-block;
+                            height: 48px;
+                        }
+                        .group-name{
+                            width:160px;
+                            height:20px;
+                            font-size:14px;
+                            margin-top: 14px;
+                            margin-bottom: 14px;
+                            font-weight:400;
+                            color:rgba(0,0,0,1);
+                            line-height:20px;
+                            letter-spacing:1px;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                            padding-left: 12px;
+                            text-align: left;
+                        }
+
+                    }
+                }
+                
+            }
         }
         .selectedView {
             
@@ -808,6 +907,11 @@ display: none;
                 height: 48px;
                 padding-left: 16px;
                 padding-top: 14px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
             }
             .selectedContentView {
                 height: 292px;

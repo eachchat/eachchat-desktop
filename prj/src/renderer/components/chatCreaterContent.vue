@@ -75,7 +75,7 @@
                     <div class="selectedContentView">
                         <ul class="selectedUserList">
                             <li class="selectedUser" v-for="(user,index) in selectedUsers" :key="index">
-                                <img class="user-icon" :src="user.avatar_t_url">
+                                <img class="user-icon" :id="'selected' + user.user_id" src="../../../static/Img/User/user.jpeg">
                                 <div class="user-info">
                                     <p class="user-name">{{ user.user_display_name }}</p>
                                 </div>
@@ -261,6 +261,11 @@ export default {
                     }
                 }
             }
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedUsers.length; i ++){
+                    this.getUserImg(this.selectedUsers[i], 'selected');
+                }
+            });
         },
         userCheckBoxClicked(user){
             console.log('haha');
@@ -271,6 +276,11 @@ export default {
             else{
                 this.selectedUsers.push(user);
             }
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedUsers.length; i ++){
+                    this.getUserImg(this.selectedUsers[i], 'selected');
+                }
+            });
         },
         indexOfUserInSelected(user){
             var index = -1;
@@ -302,11 +312,20 @@ export default {
                     }
                 }
             }
-            
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedUsers.length; i ++){
+                    this.getUserImg(this.selectedUsers[i], 'selected');
+                }
+            });
         },
         deleteUserFromSelectedUsers(user){
             var index = this.selectedUsers.indexOf(user);
             this.selectedUsers.splice(index, 1);
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedUsers.length; i ++){
+                    this.getUserImg(this.selectedUsers[i], 'selected');
+                }
+            });
         },
         rootDepartmentClicked:async function (department) {
             this.showRootDepartmentView = false;
@@ -396,11 +415,8 @@ export default {
             }
             return tempUsers;
         },
-        deleteUserFromSelectedUsers(user){
-            var index = this.selectedUsers.indexOf(user);
-            this.selectedUsers.splice(index, 1);
-        },
-        getUserImg: async function (userInfo){
+
+        getUserImg: async function (userInfo, key=''){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(userInfo.user_id == undefined || userInfo == null) {
                 return "";
@@ -408,7 +424,7 @@ export default {
             var userId = userInfo.user_id;
             var userAvatarUrl = userInfo.acatar_t_url;
             var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(userInfo.user_id);
+            let userIconElement = document.getElementById(key + userInfo.user_id);
             if(fs.existsSync(localPath)){
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();
@@ -605,7 +621,8 @@ display: none;
                     }
                     .checkBox-label{
                         display: inline-block;
-                        margin-left: 130px;
+                        
+                        width: 179px;
                         color: rgb(153, 153, 153);
                         font-size: 14px;
                         text-align: right;
@@ -801,9 +818,14 @@ display: none;
                 height: 48px;
                 padding-left: 16px;
                 padding-top: 14px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
             }
             .selectedContentView {
-                height: 292px;
+                height: 280px;
                 width: 100%;
             }
             .selectedUserList{

@@ -615,7 +615,7 @@ export default {
                 return "";
             }
             var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.acatar_t_url;
+            var userAvatarUrl = userInfo.avatar_t_url;
             var localPath = confservice.getUserThumbHeadLocalPath(userId);
             let userIconElement = document.getElementById(userInfo.user_id);
             if(fs.existsSync(localPath)){
@@ -665,8 +665,8 @@ export default {
             if(e.target.className.indexOf('userInfo') == -1){
                 that.showUserInfoTips = false;
             }
-            console.log(e.target.className);
-        })
+            
+        });
     }
 }
 </script>
@@ -742,10 +742,10 @@ display: none;
     min-width: 280px;
     //display: flex;
     flex-direction: column;
-    border-right: 0.5px solid rgb(221, 221, 221);
+    //border-right: 0.5px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;
-    // ::-webkit-scrollbar-track {
+    // ::-webkit-scrollbar-track {ß
     //     border-radius: 10px;
     // }
     margin: 0px;
@@ -756,7 +756,7 @@ display: none;
     height: 100%;
     //display: flex;
     flex-direction: column;
-    border-right: 0.5px solid rgb(221, 221, 221);
+    border-left: 0.5px solid rgb(221, 221, 221);
     //border-right: 1px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;
