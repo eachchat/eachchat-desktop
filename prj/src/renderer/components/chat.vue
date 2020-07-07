@@ -1791,6 +1791,7 @@ export default {
                 "isSlience": this.groupIsSlience(this.chat),
                 "isFav": this.groupIsInFavourite(this.chat),
                 "ownerId": this.chat.owner,
+                "groupType": this.chat.group_type,
             }
             this.updateNotice = this.chat.group_notice;
             this.groupInfo = groupInfoObj;
@@ -1814,7 +1815,7 @@ export default {
             let uldiv = document.getElementById("message-show-list");
             console.log("=====scroll height is ", uldiv.scrollHeight);
             console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
-            console.log("=====isRefreshing is ", isRefreshing);
+            console.log("=====isRefreshing is ", this.isRefreshing);
             if(uldiv) {
                 if(uldiv.scrollTop < 100){
                     console.log("to update msg")

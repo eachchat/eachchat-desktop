@@ -184,6 +184,10 @@ export default {
             var localPath = arg[3];
 
             let elementImg = document.getElementById(id);
+            console.log("element img is ", elementImg)
+            if(elementImg == undefined) {
+                return;
+            }
 
             elementImg.setAttribute("src", "");
             var showfu = new FileUtil(localPath);

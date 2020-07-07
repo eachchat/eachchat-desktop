@@ -198,7 +198,7 @@ export default {
           this.menu.append(new MenuItem({
               label: "标记已读",
               click: () => {
-                  this.menuCopy(msgItem)
+                  this.clesrUnread(msgItem)
               }
           }));
         }
@@ -214,7 +214,7 @@ export default {
           this.menu.append(new MenuItem({
               label: "消息免打扰",
               click: () => {
-                  this.transMit(msgItem)
+                  this.setSlience(msgItem)
               }
           }));
         }
@@ -222,7 +222,7 @@ export default {
           this.menu.append(new MenuItem({
               label: "取消收藏",
               click: () => {
-                  this.menuFav(msgItem)
+                  this.unFavouriteIt(msgItem)
               }
           }));
         }
@@ -230,30 +230,68 @@ export default {
           this.menu.append(new MenuItem({
               label: "收藏",
               click: () => {
-                  this.menuFav(msgItem)
+                  this.favouriteIt(msgItem)
               }
           }));
         }
         this.menu.append(new MenuItem({
             label: "删除",
             click: () => {
-                this.menuDelete(msgItem)
+                this.deleteGroup(msgItem)
             }
         }));
         this.menu.popup(remote.getCurrentWindow());
     },
+    deleteGroup(groupItem) {
+      sqliteutil.DeleteGroupByGroupID(groupItem.group_id);
+    },
+    favouriteIt: function(groupItem){
+        services.common.CollectGroup(this.groupId)
+            .then((ret) => {
+                console.log("CollectGroup ", ret);
+            })
+    },
+    unFavouriteIt: function(groupItem){
+        services.common.DeleteCollectionGroup(this.groupId)
+            .then((ret) => {
+                console.log("DeleteCollectionGroup ", ret);
+            })
+    },
+    setSlience: async function(groupItem){
+      var groupIsTop = this.groupIsTop(groupItem);
+      services.common.GroupStatus(this.groupId, groupIsTop, true)
+          .then((ret) => {
+              this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
+              console.log("slienceStateChange ", ret);
+          })
+    },
+    setUnSlience: async function(groupItem){
+      var groupIsTop = this.groupIsTop(groupItem);
+      services.common.GroupStatus(this.groupId, groupIsTop, false)
+          .then((ret) => {
+              this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
+              console.log("slienceStateChange ", ret);
+          })
+    },
+    clesrUnread(groupItem) {
+      this.isEmpty = false;
+      services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
+      services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
+      groupItem.un_read_count = 0;
+    },
     // Download thumb and show in dist id element
-    updateGroupImg(e, arg) {
+    async updateGroupImg(e, arg) {
       console.log("=======================updateGroupImg")
       var state = arg[0];
       var stateInfo = arg[1];
       var id = arg[2];
       var localPath = arg[3];
 
-      var groupInfoTmp = Group.FindItemFromGroupByGroupID(id);
+      var groupInfoTmp = await Group.FindItemFromGroupByGroupID(id);
       if(groupInfoTmp == undefined) {
         return;
       }
+      console.log("groupinfotmp is ", groupInfoTmp)
 
       var distId = this.getChatElementId(id, groupInfoTmp.user_id);
 

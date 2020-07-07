@@ -638,9 +638,15 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: row;
-    margin: 0px;
+    padding: 20px;
+    overflow-y: hidden;
+    -webkit-app-region: drag;
   }
 
+  * {
+      
+      -webkit-app-region: no-drag;
+  }
   .setup-list {
     height: 100%;
     width: 280px;

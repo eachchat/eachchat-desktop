@@ -355,28 +355,37 @@ export default {
     }
 
     .FileListDlgHeader {
-        width: 100%;
-        height: 72px;
+        width: calc(100% - 64px);
+        height: 52px;
+        padding-top: 20px;
+        padding-left: 12px;
         background: rgba(255, 255, 255, 1);
+        -webkit-app-region: drag;
+    }
+    * {
+        
+        -webkit-app-region: no-drag;
     }
 
     .FileListDlgHeaderImg {
         width: 32px;
         height: 32px;
-        margin: 20px 12px 20px 20px;
+        margin: 10px 12px 20px 10px;
         vertical-align: center;
         display: inline-block;
+        -webkit-app-region: drag;
     }
 
     .FileListDlgHeaderTitle {
         width: calc(100% - 80px);
-        height: 72px;
-        line-height: 72px;
+        height: 52px;
+        line-height: 52px;
         display: inline-block;
         margin-left: 0px;
         vertical-align: top;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
+        -webkit-app-region: drag;
     }
 
     .FileListDlgContent {

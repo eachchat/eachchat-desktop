@@ -266,7 +266,6 @@ export default {
                         filters: [
                                 { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
                             ],
-                        properties: ['multiSelections']
                     }, async (files) => {
                     if(files && files.length > 0) {
                         var targetDir = confservice.getUserThumbHeadPath();
@@ -461,7 +460,7 @@ export default {
             this.slienceState = this.showGroupInfo.isSlience;
             this.groupTopState = this.showGroupInfo.isTop;
             this.groupFavouriteState = this.showGroupInfo.isFav;
-            this.isOwner = this.showGroupInfo.group_type == 101 ? this.showGroupInfo.isOwner : false;
+            this.isOwner = this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
             this.ownerId = this.showGroupInfo.ownerId;
             // console.log("this.groupTopState ", this.groupTopState)
             // console.log("this.slienceState ", this.slienceState)
