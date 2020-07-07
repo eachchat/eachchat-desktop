@@ -1345,6 +1345,8 @@ const common = {
       return result;
     }
     await Group.UpdateGroupAvatar(groupID, result.data.obj.groupAvatar)
+    this.downloadGroupAvatar(result.data.obj.groupAvatar, groupID)
+
     return result;
   },
 

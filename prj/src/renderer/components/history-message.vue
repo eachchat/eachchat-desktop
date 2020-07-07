@@ -23,7 +23,7 @@
                 </li>
             </ul>
             <div class="HistoryMsgEmpty" v-show="showEmpty">
-                <img class="HistoryMsgEmptyBg" src="/static/Img/MessageHistory/search-empty@2x.png">
+                <img class="HistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
                 <div class="HistoryMsgEmptyText">搜索会话中的消息</div>
             </div>
         </div>

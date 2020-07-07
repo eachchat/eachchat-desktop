@@ -1,55 +1,62 @@
 <template>
     <el-container>
-        <el-aside width="280px">
-            <div class="list-header">
-                <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        
-                        <div class="search-delete">
-                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+        <el-header>
+            <div class="win-header">
+                <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+            </div>
+        </el-header>
+        <el-container>
+            <el-aside width="280px">
+                <div class="list-header">
+                    <div class="search">
+                        <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                    </div><div class="search-action">
                             
-                        </div><div class="search-search">
-                    
-                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            <div class="search-delete">
+                                <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                                
+                            </div><div class="search-search">
+                        
+                                <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            </div>
                         </div>
-                        </div>
-            </div>
-            <div class="search-view" v-show="showSearchView">
-                <ul class="managers-list">
-                    <li class="manager"
-                        v-for="(manager, index) in searchUsers"
-                        @click="searchUserMenuItemClicked(manager.user_id)" 
-                        :key="index">
-                        <img class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
-                        <div class="manager-info">
-                        <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
-                        <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="organization-view" v-show="!showSearchView">
-                <ul class="departments-list">
-                    <li class="department"
-                        v-for="(department, index) in departments"
-                        @click="departmentMenuItemClicked(department)" 
-                        :key="index">
-                        <img class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
-                        <div class="department-info">
-                            <p class="department-name">{{ department.display_name }}</p>
-                        </div>
-                        <div align="center" class="item-arrow">
-                            <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </el-aside>
-        <el-container class="right-container">
-            
-            <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
+                </div>
+                <div class="search-view" v-show="showSearchView">
+                    <ul class="managers-list">
+                        <li class="manager"
+                            v-for="(manager, index) in searchUsers"
+                            @click="searchUserMenuItemClicked(manager.user_id)" 
+                            :key="index">
+                            <img class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
+                            <div class="manager-info">
+                            <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
+                            <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="organization-view" v-show="!showSearchView">
+                    <ul class="departments-list">
+                        <li class="department"
+                            v-for="(department, index) in departments"
+                            @click="departmentMenuItemClicked(department)" 
+                            :key="index">
+                            <img class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
+                            <div class="department-info">
+                                <p class="department-name">{{ department.display_name }}</p>
+                            </div>
+                            <div align="center" class="item-arrow">
+                                <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </el-aside>
+            <el-container class="right-container">
+                
+                <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
 
+            </el-container>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
     </el-container>
@@ -57,7 +64,7 @@
 <script>
 import * as path from 'path'
 import * as fs from 'fs-extra'
-import {services} from '../../packages/data/index.js';
+import {services, environment} from '../../packages/data/index.js';
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {Department, UserInfo} from '../../packages/data/sqliteutil.js';
@@ -65,6 +72,8 @@ import organizationList from './organization-list';
 import chatGroupCreater from './chatgroup-creater';
 import listHeader from './listheader';
 import userInfoContent from './user-info';
+import winHeaderBar from './win-header.vue';
+import {ipcRenderer} from 'electron'
 export default {
     name: 'organization',
     data() {
@@ -87,6 +96,18 @@ export default {
         }
     },
     methods: {
+        Close: function() {
+            ipcRenderer.send("win-close");
+        },
+        Min: function() {
+            ipcRenderer.send("win-min");
+        },
+        Max: function() {
+            ipcRenderer.send("win-max");
+        },
+        isWindows() {
+            return environment.os.isWindows;
+        },
         searchDeleteClicked(){
             this.searchKey = '';
             this.showSearchView = false;
@@ -236,7 +257,8 @@ export default {
         organizationList,
         chatGroupCreater,
         listHeader,
-        userInfoContent
+        userInfoContent,
+        winHeaderBar,
     },
     created:async function() {
         await this.getOrganizationBaseData();
@@ -409,6 +431,11 @@ display: none;
 }
 }
 
+.el-header {
+    height: 24px !important;
+    padding: 0px;
+    line-height: 24px;
+}
 .el-container {
     width: auto;
     height: 100%; 
@@ -418,6 +445,7 @@ display: none;
         width: 150px;
         overflow: hidden;
         border-right: 1px solid rgb(221, 221, 221);
+        display: block;
     }
     .right-container {
         width: 100%;

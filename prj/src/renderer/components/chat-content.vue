@@ -1,7 +1,7 @@
 <template>
     <div class="chat-wind">
       <div class="win-header">
-        <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+        <winHeaderBar v-show="isWindows" @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
       </div>
       <div class="chat-panel" id="chat-panel-id">
         <div class="chat-list">
@@ -18,7 +18,7 @@
                   >
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                 <div class="group-img">
-                  <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
+                  <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user.jpeg"/>
                   <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
                 </div>
                 <div class="group-info">
@@ -34,10 +34,10 @@
           </div>
         </div>
         <div class="chat" v-show="!isEmpty">
-          <ChatPage :chat="curChat" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
+          <ChatPage :chat="curChat" :updateMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
         </div>
         <div class="chat-empty" v-show="isEmpty">
-          <img class="chat-empty-bg" src="/static/Img/Chat/empty.png">
+          <img class="chat-empty-bg" src="../../../static/Img/Chat/empty.png">
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -53,9 +53,11 @@ import ChatPage from './chat.vue'
 import winHeaderBar from './win-header.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, remote} from 'electron'
 // import listItem from './list-item.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil} from '../../packages/core/Utils.js'
+import { Group } from '../../packages/data/sqliteutil'
+const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
 export default {
   components: {
@@ -143,6 +145,8 @@ export default {
       clickedGroupList: [],
       isEmpty: true,
       groupListElement: null,
+      newMsg: {},
+      mqttGroupVar: [],
     };
   },
   methods: {
@@ -182,24 +186,78 @@ export default {
       return environment.os.isWindows;
     },
     rightClick(e, groupItem) {
+        console.log("groupItem is ", groupItem)
         console.log("e.target is ", e.target.className)
-        let distElement = document.getElementById(msgItem.message_id);
-        console.log("distElement is ", distElement.className);
-        if(this.checkClassName.indexOf(e.target.className) == -1) {
-            return;
-        }
+        // let distElement = document.getElementById(msgItem.message_id);
+        // console.log("distElement is ", distElement.className);
+        // if(this.checkClassName.indexOf(e.target.className) == -1) {
+        //     return;
+        // }
         this.menu = new Menu();
-
+        if(groupItem.un_read_count != 0) {
+          this.menu.append(new MenuItem({
+              label: "标记已读",
+              click: () => {
+                  this.menuCopy(msgItem)
+              }
+          }));
+        }
+        if(this.groupIsSlience(groupItem)) {
+          this.menu.append(new MenuItem({
+              label: "允许消息通知",
+              click: () => {
+                  this.transMit(msgItem)
+              }
+          }));
+        }
+        else {
+          this.menu.append(new MenuItem({
+              label: "消息免打扰",
+              click: () => {
+                  this.transMit(msgItem)
+              }
+          }));
+        }
+        if(this.groupIsInFavourite(groupItem)) {
+          this.menu.append(new MenuItem({
+              label: "取消收藏",
+              click: () => {
+                  this.menuFav(msgItem)
+              }
+          }));
+        }
+        else {
+          this.menu.append(new MenuItem({
+              label: "收藏",
+              click: () => {
+                  this.menuFav(msgItem)
+              }
+          }));
+        }
+        this.menu.append(new MenuItem({
+            label: "删除",
+            click: () => {
+                this.menuDelete(msgItem)
+            }
+        }));
         this.menu.popup(remote.getCurrentWindow());
     },
     // Download thumb and show in dist id element
     updateGroupImg(e, arg) {
+      console.log("=======================updateGroupImg")
       var state = arg[0];
       var stateInfo = arg[1];
       var id = arg[2];
       var localPath = arg[3];
 
-      let elementImg = document.getElementById(id);
+      var groupInfoTmp = Group.FindItemFromGroupByGroupID(id);
+      if(groupInfoTmp == undefined) {
+        return;
+      }
+
+      var distId = this.getChatElementId(id, groupInfoTmp.user_id);
+
+      let elementImg = document.getElementById(distId);
 
       elementImg.setAttribute("src", "");
       var showfu = new FileUtil(localPath);
@@ -211,20 +269,42 @@ export default {
       }
     },
     showGroupIcon: async function() {
-      for(var i=0;i<this.showGroupList.length;i++) {
-        let elementImg = document.getElementById(this.showGroupList[i].group_id);
-        // console.log("groupavatar is ", this.showGroupList[i].group_avarar);
+      console.log("=======================showGroupIcon")
+      for(var i=0;i<this.originalGroupList.length;i++) {
+        var distId = this.getChatElementId(this.originalGroupList[i].group_id, this.originalGroupList[i].user_id);
+        let elementImg = document.getElementById(distId);
+        // console.log("groupavatar is ", elementImg);
         var targetPath = "";
-        if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-            var showfu = new FileUtil(targetPath);
-            let showfileObj = showfu.GetUploadfileobj();
-            let reader = new FileReader();
-            reader.readAsDataURL(showfileObj);
-            reader.onloadend = () => {
-                elementImg.setAttribute("src", reader.result);
-            }
+        if(this.originalGroupList[i].group_name == "测试员36") {
+          console.log("info is ", this.originalGroupList[i]);
+        }
+        if(this.originalGroupList[i].group_id == undefined || this.originalGroupList[i].group_id.length == 0) {
+          if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.originalGroupList[i].avatar_t_url, this.originalGroupList[i].user_id))){
+              elementImg.setAttribute("src", targetPath);
+          }
+        }
+        else {
+          if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.originalGroupList[i].group_avarar, this.originalGroupList[i].group_id))){
+              var showfu = new FileUtil(targetPath);
+              let showfileObj = showfu.GetUploadfileobj();
+              let reader = new FileReader();
+              reader.readAsDataURL(showfileObj);
+              reader.onloadend = () => {
+                  elementImg.setAttribute("src", reader.result);
+              }
+          }
         }
       }
+    },
+    groupIsInFavourite(groupInfo) {
+        // console.log("========groupIsInFavourite status ", (groupInfo.status))
+        // console.log("========groupIsInFavourite ", (Number(groupInfo.status) & Number("00000001")) != 0)
+        if((Number(groupInfo.status) & Number("00001000")) != 0) {
+            // console.log("groupIsInFavourite grou name is ", groupInfo.group_name)
+            // console.log("group state is ", groupInfo.status)
+            return true;
+        }
+        return false;
     },
     groupIsSlience(groupInfo) {
       if((Number(groupInfo.status) & Number("00000001")) != 0) {
@@ -242,26 +322,32 @@ export default {
     },
     getCreateGroupInfo(groupInfo) {
       console.log("Created Info is ", groupInfo)
+     
       var groupIndex = -1;
-      for(var i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id === groupInfo.group_id) {
+      for(var i=0;i<this.originalGroupList.length;i++) {
+        if(this.originalGroupList[i].group_id === groupInfo.group_id) {
           groupIndex = i;
           break;
         }
       }
       if(groupIndex == -1) {
-        this.showGroupList.unshift(groupInfo);
-        setTimeout(() => {
-          this.$nextTick(() => {
-            this.curindex = 0;
-            this.curChat = groupInfo;
-          })
-        }, 500)
+        if(groupInfo.group_type != 102) {
+          this.mqttGroupVar.push(groupInfo);
+          return;
+        }
+        else {
+          this.originalGroupList.unshift(groupInfo);
+          setTimeout(() => {
+            this.$nextTick(() => {
+              this.showGroupIcon();
+            })
+          }, 0)
+        }
       }
       else {
         setTimeout(() => {
           this.$nextTick(() => {
-            this.showChat(this.showGroupList[groupIndex], groupIndex);
+            this.showChat(this.originalGroupList[groupIndex], groupIndex);
           })
         }, 500)
       }
@@ -294,58 +380,6 @@ export default {
         })
       }
       // ++this.needUpdate;
-    },
-    updateChatList(newMsg, updateList=true, content) {
-      // ++this.needUpdate;
-      var msgContent = strMsgContentToJson(newMsg.message_content);
-      console.log("newMsg is ", newMsg)
-      for(var i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id === newMsg.group_id) {
-          this.showGroupList[i].last_message_time = newMsg.message_timestamp;
-          this.showGroupList[i].message_content = newMsg.message_content;
-          console.log("the content is ", strMsgContentToJson(newMsg.message_content))
-          this.showGroupList[i].message_content_type = newMsg.message_type;
-          this.showGroupList[i].message_from_id = newMsg.message_from_id;
-          this.showGroupList[i].message_id = newMsg.message_id;
-          this.showGroupList[i].sequence_id = newMsg.sequence_id;
-          if(newMsg.message_from_id != this.curUserInfo.id) {
-            this.showGroupList[i].un_read_count += 1;
-          }
-          if(msgContent.type != undefined && msgContent.type == "updateGroupName") {
-            this.showGroupList[i].group_name = msgContent.text;
-          }
-          if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
-              let distUsers = msgContent.userInfos;
-              let distUserIds = [];
-              for(let i=0;i<distUsers.length;i++) {
-                distUserIds.push(distUsers[i].userId);
-              }
-              if(distUserIds.indexOf(this.curUserInfo.id) != -1) {
-                this.showGroupList.slice(i, 1);
-
-                var owner = msgContent.userName;
-                var deletedNames = "";
-                var deletedUsers = msgContent.userInfos;
-                if(deletedUsers.length == 1){
-                    deletedNames = deletedUsers[0].userName
-                }
-                else{
-                    for(var i=0;i<deletedUsers.length;i++) {
-                        deletedNames = deletedNames + "、" + deletedUsers[i].userName
-                    }
-                }
-                var alertContent = "您被 " + owner + " 移出了群聊";
-
-                alert(alertContent);
-              }
-          }
-          if(updateList) {
-            console.log("force udate")
-            this.curindex = i;
-          }
-          break;
-        }
-      }
     },
     getUnreadClass(unReadCount, selected) {
       var endPoint = "-unselected";
@@ -417,8 +451,16 @@ export default {
       return groupInfo.groupId;
     },
     // To get group_id uesed as current chat group's element id
-    getChatElementId: function(curChat) {
-      return curChat.group_id;
+    getChatElementId: function(groupId, uid) {
+      if(groupId != undefined && uid != undefined) {
+        return "chat-groupList-" + groupId + "-" + uid;
+      }
+      else if(groupId == undefined) {
+        return "chat-groupList-" + uid;
+      }
+      else if(uid == undefined) {
+        return "chat-groupList-" + groupId;
+      }
     },
     getShowGroupName(chatGroupItem) {
 
@@ -577,8 +619,131 @@ export default {
         return value2 - value1;
       }
     },
-    callback(msg) {
-      console.log("chat content callback msg is ", msg);
+    async callback(msg) {
+      // console.log("chat callback msg is ", msg);
+      console.log("chat callback msg content is ", msg.message_content);
+      console.log("chat callback msg is ", msg)
+      var msgContent = msg.message_content;
+      if(msgContent.type == undefined && msg.group_avarar != undefined) {
+        this.mqttGroupVar.push(msg);
+        return;
+      }
+      ipcRenderer.send("flashIcon");
+      var groupExist = false;
+      for(let i=0;i<this.originalGroupList.length;i++) {
+        if((this.originalGroupList[i].group_id === msg.group_id) || this.originalGroupList[i].user_id ) {
+          this.originalGroupList[i].last_message_time = msg.message_timestamp;
+          this.originalGroupList[i].message_content = msg.message_content;
+          this.originalGroupList[i].message_content_type = msg.message_type;
+          this.originalGroupList[i].message_from_id = msg.message_from_id;
+          this.originalGroupList[i].message_id = msg.message_id;
+          this.originalGroupList[i].sequence_id = msg.sequence_id;
+          if(msg.group_id == this.curChat.group_id) {
+            this.curChat = this.originalGroupList[i];
+            this.newMsg = msg;
+          }
+          if(msg.message_from_id != this.curUserInfo.id) {
+            this.originalGroupList[i].un_read_count += 1;
+          }
+          if(msgContent.type != undefined && msgContent.type == "updateGroupName") {
+            this.originalGroupList[i].group_name = msgContent.text;
+          }
+          if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
+              let distUsers = msgContent.userInfos;
+              let distUserIds = [];
+              for(let i=0;i<distUsers.length;i++) {
+                distUserIds.push(distUsers[i].userId);
+              }
+              if(distUserIds.indexOf(this.curUserInfo.id) != -1) {
+                this.showGroupList.slice(i, 1);
+
+                var owner = msgContent.userName;
+                var deletedNames = "";
+                var deletedUsers = msgContent.userInfos;
+                if(deletedUsers.length == 1){
+                    deletedNames = deletedUsers[0].userName
+                }
+                else{
+                    for(var i=0;i<deletedUsers.length;i++) {
+                        deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                    }
+                }
+                var alertContent = "您被 " + owner + " 移出了群聊";
+
+                alert(alertContent);
+              }
+          }
+          // this.curindex = i;
+          groupExist = true;
+          break;
+        }
+      }
+      if(!groupExist) {
+          var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+          console.log("groupinfo is ", groupInfo);
+          console.log("this.mqttGroupVar is ", this.mqttGroupVar);
+          if(groupInfo == undefined) {
+            console.log("groupInfo is undefined");
+            console.log("this.mqttGroupVar.length is ", this.mqttGroupVar.length);
+            for(let i=0;i<this.mqttGroupVar.length;i++) {
+              if(this.mqttGroupVar[i].group_id == msg.group_id) {
+                console.log("this.mqttGroupVar[i] is ", this.mqttGroupVar[i]);
+                var groupTmp = {
+                  "contain_user_ids": this.mqttGroupVar[i].contain_user_ids,
+                  "group_avarar": this.mqttGroupVar[i].group_avarar,
+                  "group_id": this.mqttGroupVar[i].group_id,
+                  "group_name": this.mqttGroupVar[i].group_name,
+                  "group_notice": this.mqttGroupVar[i].group_notice,
+                  "group_type": this.mqttGroupVar[i].group_type,
+                  "owner": this.mqttGroupVar[i].owner,
+                  "status": this.mqttGroupVar[i].status,
+                  "updatetime": this.mqttGroupVar[i].updatetime,
+                  "un_read_count": this.mqttGroupVar[i].un_read_count,
+                  "message_content": msg.message_content,
+                  "message_content_type": msg.message_type,
+                  "message_from_id": msg.message_from_id,
+                  "message_id": msg.message_id,
+                  "last_message_time": msg.message_timestamp,
+                  "sequence_id": msg.sequence_id,
+                  "time_line_id": msg.time_line_id,
+                }
+                console.log("groupTmp is ", groupTmp);
+                this.originalGroupList.unshift(groupTmp);
+                console.log("update show group list ", this.originalGroupList);
+                this.mqttGroupVar.slice(i, 1);
+                break;
+              }
+            }
+            // needUpdate ++;
+          }
+          else {
+            console.log("update groupInfo ", groupInfo);
+            var groupTmp = {
+              "contain_user_ids": groupInfo.contain_user_ids,
+              "group_avarar": groupInfo.group_avarar,
+              "group_id": groupInfo.group_id,
+              "group_name": groupInfo.group_name,
+              "group_notice": groupInfo.group_notice,
+              "group_type": groupInfo.group_type,
+              "owner": groupInfo.owner,
+              "status": groupInfo.status,
+              "updatetime": groupInfo.updatetime,
+              "un_read_count": groupInfo.un_read_count,
+              "message_content": msg.message_content,
+              "message_content_type": msg.message_type,
+              "message_from_id": msg.message_from_id,
+              "message_id": msg.message_id,
+              "last_message_time": msg.message_timestamp,
+              "sequence_id": msg.sequence_id,
+              "time_line_id": msg.time_line_id,
+            }
+            console.log("groupTmp is ", groupTmp);
+            this.originalGroupList.unshift(groupTmp);
+            console.log("update show group list ", this.originalGroupList);
+            // needUpdate ++;
+          }
+      }
+      this.showGroupIcon();
     },
   },
   mounted: async function() {
@@ -595,6 +760,8 @@ export default {
     this.loginInfo = await services.common.GetLoginModel();
     this.curUserInfo = await services.common.GetSelfUserModel();
 
+    services.common.initmqtt();
+    services.common.handlemessage(this.callback);
   }
 };
 </script>
@@ -752,6 +919,7 @@ export default {
     margin-top: 0px;
     margin-right: 0px;
     margin-bottom: 0px;
+    // z-index:-1;
   }
 
   .group-img {
@@ -836,6 +1004,7 @@ export default {
     line-height: 14px;
     border-radius: 20px;
     background-color: rgba(228, 49, 43, 1);
+    // z-index:-1;
   }
 
   .group-readall-selected {

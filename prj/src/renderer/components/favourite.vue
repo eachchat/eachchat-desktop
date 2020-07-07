@@ -1,71 +1,78 @@
 <template>
     <el-container>
-        <el-aside width="280px">
-            <div class="list-header">
-                <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        
-                        <div class="search-delete">
-                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+        <el-header>
+            <div class="win-header">
+                <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+            </div>
+        </el-header>
+        <el-container>
+            <el-aside width="280px">
+                <div class="list-header">
+                    <div class="search">
+                        <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                    </div><div class="search-action">
                             
-                        </div><div class="search-search">
-                    
-                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            <div class="search-delete">
+                                <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                                
+                            </div><div class="search-search">
+                        
+                                <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            </div>
+                            </div>
+                </div>
+                <div class="list-content">
+                    <div class="organization-view">
+                        <div class="item" @click="messageMenuItemClicked()">
+                            <img class="item-icon" src="../../../static/Img/Favorite/Navigate/message@2x.png">
+                            <div class="item-info">
+                                <p class="item-title">消息</p>
+                            </div>
+                            <div class="item-arrow">
+                                <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            </div>
                         </div>
+                    </div>
+                    <div class="organization-view">
+                        <div class="item" @click="imageMenuItemClicked()">
+                            <img class="item-icon" src="../../../static/Img/Favorite/Navigate/Image@2x.png">
+                            <div class="item-info">
+                                <p class="item-title">图片</p>
+                            </div>
+                            <div class="item-arrow">
+                                <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            </div>
                         </div>
-            </div>
-            <div class="list-content">
-                <div class="organization-view">
-                    <div class="item" @click="messageMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/message@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">消息</p>
+                    </div>
+                    <div class="organization-view">
+                        <div class="item" @click="fileMenuItemClicked()">
+                            <img class="item-icon" src="../../../static/Img/Favorite/Navigate/file@2x.png">
+                            <div class="item-info">
+                                <p class="item-title">文件</p>
+                            </div>
+                            <div class="item-arrow">
+                                <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            </div>
                         </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                    </div>
+                    <div class="organization-view">
+                        <div class="item" @click="groupMenuItemClicked()">
+                            <img class="item-icon" src="../../../static/Img/Favorite/Navigate/group@2x.png">
+                            <div class="item-info">
+                                <p class="item-title">群组</p>
+                            </div>
+                            <div class="item-arrow">
+                                <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="organization-view">
-                    <div class="item" @click="imageMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/Image@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">图片</p>
-                        </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
-                        </div>
-                    </div>
-                </div>
-                <div class="organization-view">
-                    <div class="item" @click="fileMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/file@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">文件</p>
-                        </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
-                        </div>
-                    </div>
-                </div>
-                <div class="organization-view">
-                    <div class="item" @click="groupMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/group@2x.png">
-                        <div class="item-info">
-                            <p class="item-title">群组</p>
-                        </div>
-                        <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </el-aside>
-        <el-container class="right-container">
-            
-                <favouriteList :favouriteType="favouriteType" :showSearchView="showSearchView" :searchKey="searchKey" :key="listKey"></favouriteList>
-            
+            </el-aside>
+            <el-container class="right-container">
+                
+                    <favouriteList :favouriteType="favouriteType" :showSearchView="showSearchView" :searchKey="searchKey" :key="listKey"></favouriteList>
+                
+            </el-container>
         </el-container>
     </el-container>
 </template>
@@ -73,6 +80,8 @@
 import {services} from '../../packages/data/index.js';
 import listHeader from './listheader';
 import favouriteList from './favourite-list'
+import winHeaderBar from './win-header.vue';
+import {ipcRenderer} from 'electron'
 export default {
     name: 'favourite',
     data() {
@@ -86,6 +95,18 @@ export default {
     },
 
     methods: {
+        Close: function() {
+            ipcRenderer.send("win-close");
+        },
+        Min: function() {
+            ipcRenderer.send("win-min");
+        },
+        Max: function() {
+            ipcRenderer.send("win-max");
+        },
+        isWindows() {
+            return environment.os.isWindows;
+        },
         searchDeleteClicked(){
             this.searchKey = '';
             this.showSearchView = false;
@@ -130,7 +151,8 @@ export default {
     },
     components: {
         listHeader,
-        favouriteList
+        favouriteList,
+        winHeaderBar
     },
     created() {
         this.showSearchView = false;
@@ -153,6 +175,12 @@ display: none;
     border: 0px;
     margin: 0px 0px 0px 0px;
     display: block;
+}
+
+.el-header {
+    height: 24px !important;
+    padding: 0px;
+    line-height: 24px;
 }
 
 .list-content {

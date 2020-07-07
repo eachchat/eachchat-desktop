@@ -29,13 +29,34 @@ const environment = {
 
     get isOSX() {
       return this.type == osType.OSX;
+    },
+
+    get mac() {
+      var mac = '';
+      console.log("this.type is ", this.type);
+      if(this.type == osType.WINDOWS) {
+        var networkInterface = os.networkInterfaces();
+        if(networkInterface.WLAN != undefined) {
+          mac = networkInterface.WLAN[0].mac;
+        }
+      }
+      return mac;
+    },
+
+    get hostName() {
+      var hostName = '';
+      if(this.type == osType.WINDOWS) {
+        hostName = os.hostname();
+      }
+      return hostName;
     }
   },
 
   path: {
     base: undefined,
     sqlite: undefined
-  }
+  },
+  
 };
 
 function init(env) {

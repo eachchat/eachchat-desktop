@@ -130,6 +130,7 @@ export default {
     },
     methods: {
         jumpToChat: async function() {
+            this.curUserInfo = await services.common.GetSelfUserModel();
             console.log("JumpToChat")
             var groupItem = {};
             console.log("userInfos is ", this.userInfo);

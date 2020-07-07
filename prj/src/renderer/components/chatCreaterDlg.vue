@@ -210,11 +210,109 @@ export default {
         closeDialog() {
             //this.display = false;
             this.$emit("closeChatCreaterDlg", "");
-            
         },
-        confirm(){
+        async confirm(){
+            if(this.curUserInfo == undefined) {
+                this.curUserInfo = await services.common.GetSelfUserModel();
+            }
             // create or add people judge by bool createNewChat
+            var groupUserIds = [];
+            console.log("this.selectedUsers = ", this.selectedUsers);
+            console.log("this disableUsers is ", this.disableUsers)
+            for(var j=0;j<this.disableUsers.length;j++) {
+                groupUserIds.push(this.disableUsers[j].user_id);
+            }
+            var groupUserName = []
+            for(var i=0;i<this.selectedUsers.length;i++) {
+                groupUserIds.push(this.selectedUsers[i].user_id)
+                if(i < 4) {
+                    groupUserName.push(this.selectedUsers[i].user_display_name)
+                }
+            }
+            var groupName = '';
+            if(groupUserName.length > 1) {
+                groupName = groupUserName.join("、");
+            }
+            else if(groupUserName.length == 4) {
+                groupName = groupUserName.join("、");
+                groupName = groupName + "...";
+            }
+            else {
+                groupName = groupUserName[0];
+            }
+            console.log("group user ids is ", groupUserIds)
+            console.log("group groupName ids is ", groupName)
+            if(this.selectedUsers.length == 0) {
+                alert("选一个呗")
+            }
+            else if(this.selectedUsers.length == 1) {
+                var groupItem = {};
+                var selectedId = this.selectedUsers[0];
+                var userInfos = await services.common.GetDistUserinfo(selectedId.user_id);
+                console.log("userInfos is ", userInfos);
+                var chatUserInfo = userInfos[0];
+                var chatAvater = chatUserInfo.avatar_t_url;
+                var chatName = chatUserInfo.user_display_name;
+                var groupCheck = await services.common.GetGroupByName(chatName);
+                console.log("groupCheck is ", groupCheck)
+                if(groupCheck.length == 0) {
+                    groupItem["contain_user_ids"] = groupUserIds;
+                    groupItem["group_avarar"] = chatAvater;
+                    groupItem["group_name"] = chatName;
+                    groupItem["group_type"] = 102;
+                    groupItem["last_message_time"] = 0;
+                    groupItem["message_content"] = null;
+                    groupItem["message_content_type"] = 101;
+                    groupItem["message_from_id"] = this.curUserInfo.id;
+                    groupItem["message_id"] = '';
+                    groupItem["owner"] = null;
+                    groupItem["sequence_id"] = 0;
+                    groupItem["status"] = 0;
+                    groupItem["un_read_count"] = 0;
+                    groupItem["updatetime"] = new Date().getTime();
+                    groupItem["user_id"] = selectedId.user_id;
+                }
+                else {
+                    groupItem = groupCheck[0];
+                }
 
+                this.$emit('getCreateGroupInfo', groupItem);
+                this.$emit("closeChatCreaterDlg", "");
+            }
+            else {
+                services.common.CreateGroup(groupName, groupUserIds)
+                    .then((ret) => {
+                        if(ret == undefined) {
+                            console.log("!!!!!!!!!!!1 ")
+                            // ToDo exception notice.
+                            return;
+                        }
+                        ret.message_content = null;
+                        
+                        var groupItem = {};
+                        groupItem["contain_user_ids"] = ret.contain_user_ids;
+                        groupItem["group_id"] = ret.group_id;
+                        groupItem["group_avarar"] = ret.group_avarar;
+                        groupItem["group_name"] = ret.group_name;
+                        groupItem["group_type"] = ret.group_type;
+                        groupItem["last_message_time"] = ret.last_message_time;
+                        groupItem["message_content"] = null;
+                        groupItem["message_content_type"] = ret.message_content_type;
+                        groupItem["message_from_id"] = ret.message_from_id;
+                        groupItem["message_id"] = ret.message_id;
+                        groupItem["owner"] = ret.owner;
+                        groupItem["sequence_id"] = ret.sequence_id;
+                        groupItem["status"] = ret.status;
+                        groupItem["un_read_count"] = ret.un_read_count;
+                        groupItem["updatetime"] = ret.updatetime;
+                        groupItem["user_id"] = '';
+                
+                        console.log("services.CreateGroup ret is ", groupItem);
+                        this.$emit('getCreateGroupInfo', groupItem);
+                        this.$emit("closeChatCreaterDlg", "");
+                    })
+
+            }
         },
         departmentBreadCrumbsClicked:async function(department, index) {
             // modify breadCrumb info
@@ -529,6 +627,7 @@ display: none;
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
+        z-index:99;
     }
 
     .ChatCreaterDlg {

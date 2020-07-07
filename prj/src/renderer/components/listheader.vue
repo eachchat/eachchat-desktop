@@ -23,7 +23,7 @@
                 <el-button class="dialog-confirm-button" type="primary" @click="createGroup()">确 定</el-button>
             </span>
         </el-dialog> -->
-        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
     </div>
 </template>
@@ -53,6 +53,9 @@ export default {
         }
     },
     methods: {
+        getCreateGroupInfo(groupinfo) {
+            this.$emit("getCreateGroupInfo", groupinfo);
+        },
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
         },

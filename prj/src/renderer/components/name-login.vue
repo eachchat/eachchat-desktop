@@ -35,7 +35,10 @@
 </template>
 
 <script>
+import os from 'os';
+import {ipcRenderer} from 'electron'
 import {services} from '../../packages/data/index.js'
+import {environment} from '../../packages/data/environment.js'
 export default {
     name: 'login',
     data () {
@@ -67,13 +70,17 @@ export default {
             }
         },
         login:async function() {
+            var mac = environment.os.mac;
+            var hostname = environment.os.hostName;
+            // console.log("mac is ", environment.os);
+            // console.log("hostname is ", hostname);
             let config = {
                 hostname: "139.198.15.253",
                 apiPort: 8888,
                 username: this.username,
                 password: this.password,
-                model: "LAPTOP-D0BP0H",
-                deviceID: "18-1D-EA-14-72-CF"
+                model: hostname,
+                deviceID: mac
             };
             services.common.init(config);
             
@@ -94,17 +101,23 @@ export default {
             this.loginState = "登录成功"
 
             await services.common.InitServiceData();
-            const ipcRenderer = require('electron').ipcRenderer;
+            // const ipcRenderer = require('electron').ipcRenderer;
             ipcRenderer.send('showMainPageWindow');
         }
     },
     mounted: function() {
         this.tokenRefreshing = true;
+        var mac = environment.os.mac;
+        var hostname = environment.os.hostName;
+        // console.log("mac is ", mac);
+        // console.log("hostname is ", hostname);
         let config = {
             hostname: "139.198.15.253",
             apiPort: 8888,
             username: "",
-            password: ""
+            password: "",
+            model: hostname,
+            deviceID: mac
         };
         setTimeout(() => {
             this.$nextTick(async () => {
@@ -117,9 +130,8 @@ export default {
                 }
                 var ret = await services.common.refreshToken();
                 if(ret.state) {
-                    const ipcRenderer = require('electron').ipcRenderer;
+                    // const ipcRenderer = require('electron').ipcRenderer;
                     ipcRenderer.send('showMainPageWindow');
-                    // ipcRenderer.send('showSonWindow', '139.198.15.253');
                 }
                 else{
                     if(ret.msg == "tokenExpired") {

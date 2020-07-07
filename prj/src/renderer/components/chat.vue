@@ -90,7 +90,7 @@
                 <el-button class="dialog-confirm-button" type="primary" @click="AddNewMembers()">确 定</el-button>
             </span>
         </el-dialog> -->
-        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
@@ -99,11 +99,11 @@
         <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">
-                <img class="history-msg-img" src="/static/Img/Chat/chatHistoryMsg-20px@2x.png">
+                <img class="history-msg-img" src="../../../static/Img/Chat/chatHistoryMsg-20px@2x.png">
                 <span class="history-msg-label">聊天记录</span>
             </div>
             <div class="history-file" @click="showFileList()">
-                <img class="history-msg-img" src="/static/Img/Chat/chatHistoryFiles-20px@2x.png">
+                <img class="history-msg-img" src="../../../static/Img/Chat/chatHistoryFiles-20px@2x.png">
                 <span class="history-file-label">文件</span>
             </div>
         </div>
@@ -124,7 +124,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr} from '../../packages/core/Utils.js'
+import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -223,7 +223,7 @@ export default {
         chatCreaterDlg,
         userInfoContent,
     },
-    props: ['chat'],
+    props: ['chat', 'newMsg'],
     methods: {
         openUserInfoTip:async function(tipInfos) {
             console.log("tip inso if ", tipInfos);
@@ -822,7 +822,6 @@ export default {
                 this.showUserInfoTips = false;
             }
             var groupInfoElement = document.getElementById("groupInfoTipId");
-            // console.log("e.target.classname ", e.target.className)
             if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more-div" && e.target.className != "chat-tool-more-img" && e.target.className != "groupMemberSearchImage" && e.target.className != "searchMemberCancel") {
                 this.showGroupInfoTips = false;
                 this.cleanCache = true;
@@ -839,6 +838,11 @@ export default {
             if(msgHistoryMenuElement != undefined && e.target.className != "chat-input-history" && e.target.className != "el-icon-historys") {
                 msgHistoryMenuElement.style.display = "none";
             }
+
+            // console.log("e.target.classname ", e.target.className)
+            if(e.target.className.indexOf('userInfo') == -1){
+                this.showUserInfoTips = false;
+            }
         },
         showExpression: function() {
             this.showFace = !this.showFace;
@@ -850,7 +854,7 @@ export default {
             var groupNameElement = document.getElementById("chat-group-name");
             var groupIcoElement = document.getElementById("chat-group-img");
             var groupStateElement = document.getElementById("chat-group-state");
-            console.log("getShowGroupName is ", chatGroupItem.group_id)
+            console.log("getShowGroupName is ", chatGroupItem)
             var groupName = chatGroupItem.group_name;
             if(groupName.length == 0) {
                 var aboutUids = chatGroupItem.contain_user_ids.split(",");
@@ -1081,7 +1085,8 @@ export default {
         ssendMsg: function() {
         },
         sendMsg: async function() {
-            if(this.chat.group_id == undefined) {
+            console.log("this.chat is ", this.chat);
+            if(this.chat.group_id == undefined && this.chat.user_id == undefined) {
                 alert("请选择一个群组。")
                 return;
             }
@@ -1106,6 +1111,9 @@ export default {
                         var filePath = msgInfo.path;
                         var fileType = msgInfo.type;
                         if(fileType == "file"){
+                            let fileName = getFileNameInPath(filePath);
+                            let ext = filePath.split(".").pop();
+                            let fileSize = getFileSize(filePath);
                             let sendingMsgContentType = 103;
                             // let ext = filePath.split(".").pop();
                             let willShowMsgContent = JsonMsgContentToString({
@@ -1317,6 +1325,7 @@ export default {
                             let fileHeight = msgInfo.height;
                             let fileWidth = msgInfo.width;
                             let ext = filePath.split(".").pop();
+                            let fileName = getFileNameInPath(filePath);
                             let willShowMsgContent = JsonMsgContentToString({
                                 "ext":ext,
                                 "fileName":fileName,
@@ -1804,6 +1813,8 @@ export default {
         handleScroll: function() {
             let uldiv = document.getElementById("message-show-list");
             console.log("=====scroll height is ", uldiv.scrollHeight);
+            console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
+            console.log("=====isRefreshing is ", isRefreshing);
             if(uldiv) {
                 if(uldiv.scrollTop < 100){
                     console.log("to update msg")
@@ -1993,7 +2004,7 @@ export default {
             chatCreaterDialogTitle: '',
             showChatCreaterDlg: false,
             chatCreaterDialogRootDepartments:[],
-            chatCreaterKey:1,
+            chatCreaterKey:99,
             lastScrollHeight: 0,
             fileListGroupInfo: {},
             showFileListInfo: false,
@@ -2025,7 +2036,7 @@ export default {
             ipcInited: false,
             showGroupInfoTips: false,
             showTransmitDlg: false,
-            transmitKey:1,
+            transmitKey:199,
             recentGroups:[],
             transmitTogether: false,
             selectedMsgs: [],
@@ -2080,8 +2091,8 @@ export default {
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
         // console.log("===============mqttinit")
-        services.common.initmqtt();
-        services.common.handlemessage(this.callback);
+        // services.common.initmqtt();
+        // services.common.handlemessage(this.callback);
 
     },
     computed: {
@@ -2108,7 +2119,19 @@ export default {
                 this.getHistoryMessage();
                 this.showGroupName(this.chat);
             }
-        }
+        },
+        newMsg: function() {
+            if(this.existingMsgId.indexOf(this.newMsg.message_id) == -1) {
+                this.messageList.push(this.newMsg);
+                this.existingMsgId.push(this.newMsg.message_id);
+                let div = document.getElementById("message-show-list");
+                if(div) {
+                    this.$nextTick(() => {
+                        div.scrollTop = div.scrollHeight;
+                    })
+                }
+            }
+        },
     }
 }
 </script>

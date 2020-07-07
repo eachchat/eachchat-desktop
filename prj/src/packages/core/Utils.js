@@ -760,6 +760,13 @@ function getdirsize(dir,callback){
     });
 }
 
+async function getFileSize(path) {
+    var size = 0;
+    var fsStat = await fs.stat(path);
+    size = fsStat.size;
+    var sizeStr = size/(1024*1024).toFixed(2) + "M";
+    return sizeStr;
+}
 /**
  * https://blog.csdn.net/qq_30100043/java/article/details/52979714
  */
@@ -1054,6 +1061,6 @@ const iconMap = {
     txt: ['txt', 'log', 'xml']
   }
   
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
