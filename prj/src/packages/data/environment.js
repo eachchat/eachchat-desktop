@@ -18,7 +18,8 @@ const environment = {
   os: {
     type: undefined,
     description: "unknown",
-
+    mac:undefined,
+    hostname:undefined,
     get isWindows() {
       return this.type == osType.WINDOWS;
     },
@@ -32,23 +33,23 @@ const environment = {
     },
 
     get mac() {
-      var mac = '';
+      var networkInterface = os.networkInterfaces();
       console.log("this.type is ", this.type);
       if(this.type == osType.WINDOWS) {
         var networkInterface = os.networkInterfaces();
         if(networkInterface.WLAN != undefined) {
-          mac = networkInterface.WLAN[0].mac;
+          this._mac = networkInterface.WLAN[0].mac;
         }
       }
-      return mac;
+      return this._mac;
     },
 
     get hostName() {
-      var hostName = '';
+      
       if(this.type == osType.WINDOWS) {
-        hostName = os.hostname();
-      }
-      return hostName;
+        this._hostName = os.hostname();
+      }      
+      return this._hostName;
     }
   },
 
