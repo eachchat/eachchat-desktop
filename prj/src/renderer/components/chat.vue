@@ -95,7 +95,7 @@
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
         <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip> -->
         <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
-        <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        <chatCreaterDlg v-show="showChatCreaterDlg" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">
@@ -124,7 +124,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
+import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -554,6 +554,7 @@ export default {
             console.log("tempt is ", temp);
             this.chatCreaterDialogRootDepartments =  temp;
             
+            this.createNewChat = false;
             this.chatCreaterKey ++;
             this.showChatCreaterDlg = true;
             this.chatCreaterDialogTitle = "添加成员";
@@ -561,12 +562,28 @@ export default {
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
         },
-        showAddMembers: function(existedMembers){
-            this.groupCreaterTitle = "添加成员"
-            console.log("showaddmembers is ", this.disabledusers)
-            this.disabledusers = existedMembers;
-            console.log("showaddmembers is ", this.disabledusers)
-            this.dialogVisible = true;
+        showAddMembers: async function(existedMembers){
+            this.chatCreaterDisableUsers = existedMembers;
+            var self = await services.common.GetSelfUserModel();
+            console.log("self is ", self);
+            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
+            var root = await Department.GetRoot();
+            console.log("root is ", root);
+            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+            console.log("rootDepartmentModels is ", rootDepartmentModels);
+            var temp = [];
+            for(var i = 0; i < rootDepartmentModels.length; i ++) {
+                var department = rootDepartmentModels[i];
+                temp[department.show_order] = department;
+            }
+            console.log("tempt is ", temp);
+            this.chatCreaterDialogRootDepartments =  temp;
+            
+            this.chatCreaterKey ++;
+            this.createNewChat = false;
+            this.showChatCreaterDlg = true;
+            this.chatCreaterDialogTitle = "添加成员";
         },
         AddNewMembers: async function() {
             console.log("add member s ", this.usersSelected);
@@ -1753,43 +1770,35 @@ export default {
             console.log("make a call");
         },
         groupIsInFavourite(groupInfo) {
-            // console.log("========groupIsInFavourite status ", (groupInfo.status))
-            // console.log("========groupIsInFavourite ", (Number(groupInfo.status) & Number("00000001")) != 0)
-            if((Number(groupInfo.status) & Number("00001000")) != 0) {
-                // console.log("groupIsInFavourite grou name is ", groupInfo.group_name)
-                // console.log("group state is ", groupInfo.status)
+            if(groupInfo.status.substr(4, 1) == "1") {
                 return true;
             }
             return false;
         },
         groupIsSlience(groupInfo) {
-            // console.log("========groupIsSlience status ", (groupInfo.status))
-            // console.log("========groupIsSlience ", (Number(groupInfo.status) & Number("00000001")) != 0)
-            if((Number(groupInfo.status) & Number("00000001")) != 0) {
-                // console.log("groupIsSlience grou name is ", groupInfo.group_name)
-                // console.log("group state is ", groupInfo.status)
+            if(groupInfo.status.substr(7, 1) == "1") {
                 return true;
             }
             return false;
         },
         groupIsTop(groupInfo) {
-            // console.log("========groupIsTop status ", groupInfo.status)
-            console.log("========groupIsTop ", (Number(groupInfo.status) & Number("00000010"))!= 0)
-            if((Number(groupInfo.status) & Number("00000010")) != 0) {
-                // console.log("top grou name is ", groupInfo.group_name)
-                // console.log("group state is ", groupInfo.status)
+            // console.log("groupInfo.status ", groupInfo.status)
+            // console.log("groupInfo.status.substring(6, 1) = ", groupInfo.status.substr(6, 1))
+            // console.log("groupInfo.status.substring(6, 1) == 1 ", groupInfo.status.substr(6, 1) == 1)
+            if(groupInfo.status.substr(6, 1) == "1") {
                 return true;
             }
             return false;
         },
         More: async function() {
+            this.groupInfo = {};
             var isGroup = this.chat.group_type == 101 ? true : false;
             var idsList = this.chat.contain_user_ids.split(",");
             var isOwner = (this.chat.owner == this.curUserInfo.id ? true : false);
             console.log("this.chat ", this.chat);
-            console.log("this.isTop ", this.groupIsTop(this.chat))
-            console.log("this.isSlience ", this.groupIsSlience(this.chat))
-            console.log("this.isFav ", this.groupIsInFavourite(this.chat))
+            // console.log("this.isTop ", this.groupIsTop(this.chat))
+            // console.log("this.isSlience ", this.groupIsSlience(this.chat))
+            // console.log("this.isFav ", this.groupIsInFavourite(this.chat))
             var groupInfoObj = {
                 "memberList": idsList,
                 "groupName": this.chat.group_name,
@@ -1872,10 +1881,10 @@ export default {
             // console.log("++++++++scroll height is ", uldiv.scrollHeight);
         },
         getHistoryMessage: function() {
-            console.log("this chat is ", this.chat);
-            console.log("this groupid is ", this.chat.group_id);
-            console.log("this sequence_id is ", this.chat.sequence_id);
-            console.log("this.router is ", this.$route.name)
+            // console.log("this chat is ", this.chat);
+            // console.log("this groupid is ", this.chat.group_id);
+            // console.log("this sequence_id is ", this.chat.sequence_id);
+            // console.log("this.router is ", this.$route.name)
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then(async (ret) => {
                     console.log("oririnal ret is ", ret);
@@ -2019,6 +2028,7 @@ export default {
     },
     data() {
         return {
+            createNewChat: false,
             userInfo: {},
             userInfoPosition: {},
             userInfoTipKey: 1,
@@ -2143,6 +2153,24 @@ export default {
         },
         newMsg: function() {
             if(this.existingMsgId.indexOf(this.newMsg.message_id) == -1) {
+                var newMsgContent = strMsgContentToJson(this.newMsg.message_content);
+                if(newMsgContent.type != undefined && newMsgContent.type == "updateGroupName") {
+                    this.chat.group_name = newMsgContent.text;
+                    var groupNameElement = document.getElementById("chat-group-name");
+                    groupNameElement.innerHTML = newMsgContent.text;
+                }
+                if(newMsgContent.type != undefined && newMsgContent.type == "invitation") {
+                    if(newMsgContent.userInfos != undefined) {
+                        let addUsers = newMsgContent.userInfos;
+                        for(let j=0;j<addUsers.length;j++) {
+                            let newUserId = addUsers[j].userId;
+                            if(this.chat.contain_user_ids.indexOf(newUserId) == -1) {
+                                this.chat.contain_user_ids + "," + newUserId;
+                                console.log("Add new member in ", newUserId);
+                            }
+                        }
+                    }
+                }
                 this.messageList.push(this.newMsg);
                 this.existingMsgId.push(this.newMsg.message_id);
                 let div = document.getElementById("message-show-list");

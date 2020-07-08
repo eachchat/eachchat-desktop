@@ -198,7 +198,7 @@ export default {
           this.menu.append(new MenuItem({
               label: "标记已读",
               click: () => {
-                  this.clesrUnread(msgItem)
+                  this.clesrUnread(groupItem)
               }
           }));
         }
@@ -206,7 +206,7 @@ export default {
           this.menu.append(new MenuItem({
               label: "允许消息通知",
               click: () => {
-                  this.transMit(msgItem)
+                  this.setUnSlience(groupItem)
               }
           }));
         }
@@ -214,7 +214,7 @@ export default {
           this.menu.append(new MenuItem({
               label: "消息免打扰",
               click: () => {
-                  this.setSlience(msgItem)
+                  this.setSlience(groupItem)
               }
           }));
         }
@@ -222,7 +222,7 @@ export default {
           this.menu.append(new MenuItem({
               label: "取消收藏",
               click: () => {
-                  this.unFavouriteIt(msgItem)
+                  this.unFavouriteIt(groupItem)
               }
           }));
         }
@@ -230,37 +230,39 @@ export default {
           this.menu.append(new MenuItem({
               label: "收藏",
               click: () => {
-                  this.favouriteIt(msgItem)
+                  this.favouriteIt(groupItem)
               }
           }));
         }
         this.menu.append(new MenuItem({
             label: "删除",
             click: () => {
-                this.deleteGroup(msgItem)
+                this.deleteGroup(groupItem)
             }
         }));
         this.menu.popup(remote.getCurrentWindow());
     },
     deleteGroup(groupItem) {
-      sqliteutil.DeleteGroupByGroupID(groupItem.group_id);
+      services.common.DeleteGroup(groupItem.group_id);
       this.leaveGroup(groupItem.group_id);
     },
     favouriteIt: function(groupItem){
-        services.common.CollectGroup(this.groupId)
+        services.common.CollectGroup(groupItem.group_id)
             .then((ret) => {
-                console.log("CollectGroup ", ret);
+              this.updateChatGroupFavStatus(groupItem.group_id, true);
             })
     },
     unFavouriteIt: function(groupItem){
-        services.common.DeleteCollectionGroup(this.groupId)
+      console.log("unfavouriteid groupitem is ", groupItem)
+        services.common.DeleteCollectionGroup(groupItem.group_id)
             .then((ret) => {
+              this.updateChatGroupFavStatus(groupItem.group_id, false);
                 console.log("DeleteCollectionGroup ", ret);
             })
     },
     setSlience: async function(groupItem){
       var groupIsTop = this.groupIsTop(groupItem);
-      services.common.GroupStatus(this.groupId, groupIsTop, true)
+      services.common.GroupStatus(groupItem.group_id, groupIsTop, true)
           .then((ret) => {
               this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
               console.log("slienceStateChange ", ret);
@@ -268,7 +270,7 @@ export default {
     },
     setUnSlience: async function(groupItem){
       var groupIsTop = this.groupIsTop(groupItem);
-      services.common.GroupStatus(this.groupId, groupIsTop, false)
+      services.common.GroupStatus(groupItem.group_id, groupIsTop, false)
           .then((ret) => {
               this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
               console.log("slienceStateChange ", ret);
@@ -336,28 +338,22 @@ export default {
       }
     },
     groupIsInFavourite(groupInfo) {
-        // console.log("========groupIsInFavourite status ", (groupInfo.status))
-        // console.log("========groupIsInFavourite ", (Number(groupInfo.status) & Number("00000001")) != 0)
-        if((Number(groupInfo.status) & Number("00001000")) != 0) {
-            // console.log("groupIsInFavourite grou name is ", groupInfo.group_name)
-            // console.log("group state is ", groupInfo.status)
+        if(groupInfo.status.substr(4, 1) == "1") {
             return true;
         }
         return false;
     },
     groupIsSlience(groupInfo) {
-      if((Number(groupInfo.status) & Number("00000001")) != 0) {
-        // console.log("groupIsSlience grou name is ", groupInfo.group_name)
-        // console.log("group state is ", groupInfo.status)
-        return true;
+      if(groupInfo.status.substr(7, 1) == "1") {
+          return true;
       }
+      return false;
     },
     groupIsTop(groupInfo) {
-      if((Number(groupInfo.status) & Number("00000010")) != 0) {
-        // console.log("top grou name is ", groupInfo.group_name)
-        // console.log("group state is ", groupInfo.status)
-        return true;
+      if(groupInfo.status.substr(6, 1) == "1") {
+          return true;
       }
+      return false;
     },
     getCreateGroupInfo(groupInfo) {
       console.log("Created Info is ", groupInfo)
@@ -406,17 +402,19 @@ export default {
       console.log("leage group groupid is ", groupId);
       for(let i=0;i<this.originalGroupList.length;i++) {
         if(this.originalGroupList[i].group_id == groupId) {
-            var dist = this.originalGroupList.slice(i, 1);
+            var dist = this.originalGroupList.splice(i, 1);
             console.log("slice this ", dist);
             break;
           }
         }
+      this.curindex = -1;
+      this.isEmpty = true;
       this.showGroupIcon();
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
       console.log("updatechatgroupstatus ", groupStatus);
-      var groupListTmp = this.showGroupList;
+      var groupListTmp = this.originalGroupList;
       for(var i=0;i<groupListTmp.length;i++) {
         if(groupListTmp[i].group_id === groupId) {
           groupListTmp[i].status = groupStatus;
@@ -425,7 +423,31 @@ export default {
       }
       if(updateType == "top") {
         console.log("top")
-        this.showGroupList = groupListTmp;
+        this.originalGroupList = groupListTmp;
+        this.$nextTick(() => {
+          this.showGroupIcon()
+        })
+      }
+      // ++this.needUpdate;
+    },
+    updateChatGroupFavStatus(groupId, toFavourete) {
+      // ++this.needUpdate;
+      console.log("isFavourete ", toFavourete);
+      var groupListTmp = this.originalGroupList;
+      for(var i=0;i<groupListTmp.length;i++) {
+        if(groupListTmp[i].group_id === groupId) {
+          if(toFavourete) {
+            changeStr(groupListTmp[i].status, 4, "1");
+          }
+          else {
+            changeStr(groupListTmp[i].status, 4, "0");
+          }
+          break;
+        }
+      }
+      if(updateType == "top") {
+        console.log("top")
+        this.originalGroupList = groupListTmp;
         this.$nextTick(() => {
           this.showGroupIcon()
         })
@@ -695,9 +717,20 @@ export default {
       for(let i=0;i<this.originalGroupList.length;i++) {
         if((this.originalGroupList[i].group_id === msg.group_id)) {
           console.log("exit group is ", this.originalGroupList[i])
+          if(msgContent.type != undefined && msgContent.type == "invitation") {
+            if(msgContent.userInfos != undefined) {
+              let addUsers = msgContent.userInfos;
+              for(let j=0;j<addUsers.length;j++) {
+                let newUserId = addUsers[j].userId;
+                if(this.originalGroupList[i].contain_user_ids.indexOf(newUserId) == -1) {
+                  this.originalGroupList[i].contain_user_ids + "," + newUserId;
+                }
+              }
+            }
+          }
           this.originalGroupList[i].last_message_time = msg.message_timestamp;
           this.originalGroupList[i].message_content = msg.message_content;
-          this.originalGroupList[i].message_content_type = msg.message_type;
+          this.originalGroupList[i].message_content_type = msg.message_type != undefined ? msg.message_type : msg.message_content_type;
           this.originalGroupList[i].message_from_id = msg.message_from_id;
           this.originalGroupList[i].message_id = msg.message_id;
           this.originalGroupList[i].sequence_id = msg.sequence_id;

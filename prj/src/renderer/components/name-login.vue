@@ -72,8 +72,8 @@ export default {
         login:async function() {
             var mac = environment.os.mac;
             var hostname = environment.os.hostName;
-            console.log("mac is ", environment.os);
-            console.log("hostname is ", hostname);
+            // console.log("mac is ", environment.os);
+            // console.log("hostname is ", hostname);
             let config = {
                 hostname: "139.198.15.253",
                 apiPort: 8888,
@@ -87,7 +87,7 @@ export default {
             let response = await services.common.login();
             console.log(response)
             var ret_data = response;
-            if(!response){
+            if(response != true){
                 var msg = ret_data["message"];
                 var code = ret_data["code"];
                 if(code != 200)

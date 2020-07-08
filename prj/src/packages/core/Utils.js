@@ -966,6 +966,11 @@ function getFileSizeByNumber(limit){
     return sizestr;  
 } 
 
+//https://www.cnblogs.com/zly430/p/11810274.html
+function changeStr(str,index,changeStr){
+    return str.substr(0, index) + changeStr+ str.substr(index + changeStr.length);
+}
+
 const iconMap = {
     zip: ['zip', 'rar', '7z', 'gz', 'tar'],
     ai: ['ai', 'eps'],
@@ -1061,6 +1066,6 @@ const iconMap = {
     txt: ['txt', 'log', 'xml']
   }
   
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
