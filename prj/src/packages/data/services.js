@@ -1231,15 +1231,17 @@ const common = {
     }
     let item;
     let model;
-    item = result.data.obj[index];
-    model = await servicemodels.CollectionModel(item);
-    let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
-    if(findmodel == undefined){
-      model.save();
-    }
-    else{
-      findmodel.values = model.values;
-      findmodel.save();
+    for(let index in result.data.obj){
+      item = result.data.obj[index];
+      model = await servicemodels.CollectionModel(item);
+      let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
+      if(findmodel == undefined){
+        model.save();
+      }
+      else{
+        findmodel.values = model.values;
+        findmodel.save();
+      }
     }
     return true;
   },
@@ -1262,6 +1264,7 @@ const common = {
       findmodel.save();
     }
     await Group.UpdateGroupStatus(item.groupId, item.status);
+    return true;
   },
 
   async DeleteCollectionMessage(favoriteID){
