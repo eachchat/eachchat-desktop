@@ -412,7 +412,7 @@ const Message = {
             },
             $order: {
                 by: 'sequence_id',
-                reverse: false
+                reverse: true
             },
             $size: count
         };

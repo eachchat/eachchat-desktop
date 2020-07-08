@@ -815,7 +815,7 @@ const common = {
 
     if(items.length != 0)
     {
-      sequenceId = items[0].sequence_id
+      sequenceId = items[items.length - 1].sequence_id
       for(let index in items)
       {
         totalcount++;
@@ -836,11 +836,9 @@ const common = {
       resultvalues = result.data.results;
       next = result.data.hasNext;
 
-      let resultMessage = [];
-      let resultLenth = resultvalues.length;
       for(let item in resultvalues)
       {
-        message = resultvalues[resultLenth - item - 1]
+        message = resultvalues[item]
         if(await sqliteutil.ExistMsg(message.msgId)){
           next = false;
           console.log("historyMessage exist message");
@@ -855,10 +853,9 @@ const common = {
         if(totalcount++ < count)
         {
           messagemodel.message = JSON.parse(messagemodel.message_content);
-          resultMessage.push(messagemodel)
+          historymessage.push(messagemodel)
         }
       }
-      historymessage = resultMessage.concat(historymessage)
     }
     return historymessage;
   },
