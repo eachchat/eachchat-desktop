@@ -67,7 +67,7 @@
                     <li class="group"
                         v-for="(group, index) in favourites"
                         :key="index">
-                        <img class="group-icon" :id="group.collection_content.groupId" src="../../../static/Img/Chat/loading.gif" alt= "头像">
+                        <img class="group-icon" :id="group.collection_id" src="../../../static/Img/Chat/loading.gif" alt= "头像">
                         <div class="group-name">{{ group.collection_content.groupName }}
                         </div>
                         <div class="favourite-group-action">
@@ -467,8 +467,8 @@ export default {
         },
         getGroupAvatarContent:async function(group) {
             var targetDir = confservice.getUserThumbHeadPath();
-            var targetPath = path.join(targetDir, group.collection_content.groupId + '.png');
-            var groupAvatarElement = document.getElementById(group.collection_content.groupId);
+            var targetPath = path.join(targetDir, group.collection_id + '.png');
+            var groupAvatarElement = document.getElementById(group.collection_id);
             if(fs.existsSync(targetPath)) {
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
@@ -480,7 +480,7 @@ export default {
             }
             else{
                 console.log("download group avatar", group);
-                await services.common.downloadGroupAvatar(group.collection_content.groupAvatar, group.collection_content.groupId);
+                await services.common.downloadGroupAvatar(group.collection_content.groupAvatar, group.collection_id);
                 //await this.getGroupAvatarContent(group);
             }
 
@@ -676,11 +676,13 @@ export default {
             this.headerTitle = '收藏';
             var groupCollectionModel = await services.common.ListGroupCollections();
             this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
+            console.log(this.favourites);
             this.$nextTick(function(){
                 for(var i = 0; i < this.favourites.length; i ++){
                     this.getGroupAvatarContent(this.favourites[i]);
                 }
             });
+            
         }
         this.curUserInfo = await services.common.GetSelfUserModel();
     }
@@ -711,7 +713,6 @@ display: none;
     height: 55px;
     background-color: rgb(255, 255, 255);
     border-bottom: 1px solid rgb(221, 221, 221);
-    -webkit-app-region: drag;
     .header-title {
         display: inline-block;
         padding-left: 0px;;
@@ -722,7 +723,6 @@ display: none;
         padding-left: 0px;
         width: calc(100% - 100px);
     }
-
     
 }
 .search-view{
