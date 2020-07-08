@@ -1,6 +1,6 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
-        <winHeaderBar v-show="isWindows" :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
         <div class="HistoryMsgDlgHeader">
             <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" @click="Close()">
             <div class="HistoryMsgDlgHeaderTitle">{{GroupName}}</div>

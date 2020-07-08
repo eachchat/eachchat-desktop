@@ -68,7 +68,7 @@
             
         </el-container>
         <div class="win-header">
-            <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+            <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
     </el-container>
 </template>

@@ -31,13 +31,13 @@
           </div>
         </div>
         <div class="win-header">
-          <winHeaderBar v-show="isWindows" @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+          <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
         <div class="chat-empty" v-show="isEmpty">
           <img class="chat-empty-bg" src="../../../static/Img/Chat/empty.png">
         </div>
         <div class="chat" v-show="!isEmpty">
-          <ChatPage :chat="curChat" :newMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
+          <ChatPage :chat="curChat" :newMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
         </div>
       </div>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
@@ -244,6 +244,7 @@ export default {
     },
     deleteGroup(groupItem) {
       sqliteutil.DeleteGroupByGroupID(groupItem.group_id);
+      this.leaveGroup(groupItem.group_id);
     },
     favouriteIt: function(groupItem){
         services.common.CollectGroup(this.groupId)
@@ -400,6 +401,17 @@ export default {
     closeImageOfMessage() {
       this.imageLayersSrc = '';
       this.showImageLayers = false;
+    },
+    leaveGroup(groupId) {
+      console.log("leage group groupid is ", groupId);
+      for(let i=0;i<this.originalGroupList.length;i++) {
+        if(this.originalGroupList[i].group_id == groupId) {
+            var dist = this.originalGroupList.slice(i, 1);
+            console.log("slice this ", dist);
+            break;
+          }
+        }
+      this.showGroupIcon();
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
@@ -681,7 +693,8 @@ export default {
       ipcRenderer.send("flashIcon");
       var groupExist = false;
       for(let i=0;i<this.originalGroupList.length;i++) {
-        if((this.originalGroupList[i].group_id === msg.group_id) || this.originalGroupList[i].group_type == 102) {
+        if((this.originalGroupList[i].group_id === msg.group_id)) {
+          console.log("exit group is ", this.originalGroupList[i])
           this.originalGroupList[i].last_message_time = msg.message_timestamp;
           this.originalGroupList[i].message_content = msg.message_content;
           this.originalGroupList[i].message_content_type = msg.message_type;
@@ -720,27 +733,60 @@ export default {
                 distUserIds.push(distUsers[i].userId);
               }
               if(distUserIds.indexOf(this.curUserInfo.id) != -1) {
-                this.showGroupList.slice(i, 1);
+                for(let i=0;i<this.originalGroupList.length;i++) {
+                  if(this.originalGroupList[i].group_id == msg.group_id) {
+                      this.originalGroupList.slice(i, 1);
 
-                var owner = msgContent.userName;
-                var deletedNames = "";
-                var deletedUsers = msgContent.userInfos;
-                if(deletedUsers.length == 1){
-                    deletedNames = deletedUsers[0].userName
-                }
-                else{
-                    for(var i=0;i<deletedUsers.length;i++) {
-                        deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                      var owner = msgContent.userName;
+                      var alertContent = "您被 " + owner + " 移出了群聊";
+
+                      alert(alertContent);
+                      break;
                     }
-                }
-                var alertContent = "您被 " + owner + " 移出了群聊";
-
-                alert(alertContent);
+                  }
               }
           }
-          // this.curindex = i;
+          if(msg.message_from_id != undefined && msg.message_from_id == this.curUserInfo.id) {
+            this.curindex = i;
+          }
           groupExist = true;
           break;
+        }
+        if((this.originalGroupList[i].group_id == undefined || this.originalGroupList[i].group_id.length == 0) && this.originalGroupList[i].group_type == 102) {
+          console.log("no group id item is ", this.originalGroupList[i]);
+          console.log("cur msg is ", msg);
+          var distFromName = await Group.SearchByNameKey(this.originalGroupList[i].group_name);
+          for(let j=0;j<distFromName.length;j++) {
+            let distGroup = distFromName[j];
+            if(distGroup.group_name == this.originalGroupList[i].group_name && distGroup.group_type == 102) {
+              this.originalGroupList[i].group_id = distGroup.group_id;
+              this.originalGroupList[i].group_avarar = distGroup.group_avarar;
+              if(distGroup.last_message_time > msg.message_timestamp) {
+                this.originalGroupList[i].last_message_time = distGroup.last_message_time;
+                this.originalGroupList[i].message_content = distGroup.message_content;
+                this.originalGroupList[i].message_content_type = distGroup.message_content_type;
+                this.originalGroupList[i].message_from_id = distGroup.message_from_id;
+                this.originalGroupList[i].message_id = distGroup.message_id;
+                this.originalGroupList[i].sequence_id = distGroup.sequence_id;
+              }
+              else {
+                this.originalGroupList[i].last_message_time = msg.message_timestamp;
+                this.originalGroupList[i].message_content = msg.message_content;
+                this.originalGroupList[i].message_content_type = msg.message_type;
+                this.originalGroupList[i].message_from_id = msg.message_from_id;
+                this.originalGroupList[i].message_id = msg.message_id;
+                this.originalGroupList[i].sequence_id = msg.sequence_id;
+                this.originalGroupList[i].time_line_id = msg.time_line_id;
+              }
+              this.originalGroupList[i].owner = distGroup.owner;
+              this.originalGroupList[i].un_read_count = distGroup.un_read_count;
+              break;
+            }
+          }
+          if(msg.message_from_id != undefined && msg.message_from_id == this.curUserInfo.id) {
+            this.curindex = i;
+          }
+          groupExist = true;
         }
       }
       if(!groupExist) {

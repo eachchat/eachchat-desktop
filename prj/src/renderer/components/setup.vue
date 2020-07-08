@@ -1,7 +1,7 @@
 <template>
     <div class="setup-wind">
       <div class="win-header">
-        <winHeaderBar v-show="isWindows" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+        <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
       </div>
       <div class="setup-panel" id="setup-panel-id">
         <div class="setup-list">

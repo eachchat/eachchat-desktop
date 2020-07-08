@@ -1,5 +1,5 @@
 <template>
-    <div class="ChatHeaderBar">
+    <div class="ChatHeaderBar" v-show="isWindows">
         <img class="header-btn-close" src="../../../static/Img/Main/WinClose-20px.png" @click="Close()" v-show="showClose">
         <img class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px.png" @click="Max()" v-show="showMax">
         <img class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px.png" @click="Min()" v-show="showMin">
@@ -8,6 +8,7 @@
 
 <script>
 import { ipcRenderer } from 'electron'
+import { environment} from '../../packages/data/index.js'
 export default {
     name: 'winHeadbar',
     props: {
@@ -40,6 +41,9 @@ export default {
         }
     },
     methods: {
+        isWindows() {
+            return environment.os.isWindows();
+        },
         Min:function() {
             this.$emit("Min");
             // ipcRenderer.send("win-min");

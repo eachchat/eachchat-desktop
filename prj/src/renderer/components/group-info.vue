@@ -350,9 +350,11 @@ export default {
         },
         leave: async function() {
             var ret = await services.common.QuitGroup(this.groupId);
+            this.$emit("leaveGroup", this.groupId);
         },
         dismiss: async function() {
             var ret = await services.common.DeleteGroup(this.groupId);
+            this.$emit("leaveGroup", this.groupId);
         },
         clearAll: function() {
             console.log("clear all");

@@ -80,7 +80,7 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
         <!-- <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater ref="chatGroupCreater" :disableUsers="disabledusers" @getCreateGroupUsersSelected="getUsersSelected">
@@ -1105,6 +1105,7 @@ export default {
                 var uid = this.getDistUidThroughUids(this.chat.contain_user_ids);
                 var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
                 for(var i=0;i<varcontent.ops.length;i++){
+                    console.log("i is ", i);
                     let curMsgItem = varcontent.ops[i].insert;
                     let curTimeSeconds = new Date().getTime();
                     
@@ -1450,10 +1451,14 @@ export default {
                         // console.log("will send msg uid ", uid)
                         let guid = generalGuid();
                         // next is @
-                        for(let j=i+1;j<varcontent.ops.length;j++) {
+                        var curindex = i;
+                        for(let j=curindex+1;j<varcontent.ops.length;j++) {
+                            console.log("====== cur i ", i)
                             console.log("====== varcontent j ", j)
                             let nextMsgItem = varcontent.ops[j].insert;
+                            console.log("====== nextMsgItem ", nextMsgItem)
                             if(nextMsgItem.hasOwnProperty("span")) {
+                                console.log("====== nextMsgItem hasOwnProperty ")
                                 var nextFileSpan = nextMsgItem.span;
                                 var nextPathId = nextFileSpan.id;
                                 var nextMsgInfo = this.idToPath[nextPathId];
@@ -1468,6 +1473,7 @@ export default {
                                     willSendMsgContent.mentions = willSendMsgContent.mentions == undefined ? [nextMentionUserId] : willSendMsgContent.mentions.push(nextMentionUserId) ;
                                     i += 1;
                                 }
+                                break;
                             }
                             else {
                                 willSendMsgContent.text = willSendMsgContent.text + " " + nextMsgItem;
@@ -1515,30 +1521,30 @@ export default {
                                 // console.log("sendNewMessage ret is ", ret);
 
                                 if(ret == undefined) {
-                                    for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                        if(this.sendingMsgIdList[i].message_id == guid){
-                                            this.sendingMsgIdList.splice(i, 1);
+                                    for(var a=0;a<this.sendingMsgIdList.length;a++){
+                                        if(this.sendingMsgIdList[a].message_id == guid){
+                                            this.sendingMsgIdList.splice(a, 1);
                                             break;
                                         }
                                     }
                                     this.failedList.push(willSendMsg);
                                 }
                                 else {
-                                    for(var i=0;i<this.sendingMsgIdList.length;i++){
-                                        if(this.sendingMsgIdList[i].message_id == guid){
-                                            this.sendingMsgIdList.splice(i, 1);
+                                    for(var b=0;b<this.sendingMsgIdList.length;b++){
+                                        if(this.sendingMsgIdList[b].message_id == guid){
+                                            this.sendingMsgIdList.splice(b, 1);
                                             break;
                                         }
                                     }
-                                    for(var i=0;i<this.failedList.length;i++){
-                                        if(this.failedList[i].message_id == guid){
-                                            this.failedList.splice(i, 1);
+                                    for(var c=0;c<this.failedList.length;c++){
+                                        if(this.failedList[c].message_id == guid){
+                                            this.failedList.splice(c, 1);
                                             break;
                                         }
                                     }
-                                    for(var i=0;i<this.messageList.length;i++){
-                                        if(this.messageList[i].message_id == guid){
-                                            this.messageList[i] = ret;
+                                    for(var d=0;d<this.messageList.length;d++){
+                                        if(this.messageList[d].message_id == guid){
+                                            this.messageList[d] = ret;
                                             if(this.existingMsgId.indexOf(ret.message_id) == -1) {
                                                 this.existingMsgId.push(ret.message_id);
                                             }
@@ -1818,9 +1824,9 @@ export default {
         },
         handleScroll: function() {
             let uldiv = document.getElementById("message-show-list");
-            console.log("=====scroll height is ", uldiv.scrollHeight);
-            console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
-            console.log("=====isRefreshing is ", this.isRefreshing);
+            // console.log("=====scroll height is ", uldiv.scrollHeight);
+            // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
+            // console.log("=====isRefreshing is ", this.isRefreshing);
             if(uldiv) {
                 if(uldiv.scrollTop < 100){
                     console.log("to update msg")
@@ -1834,6 +1840,10 @@ export default {
                         services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
                                 var messageListTmp = ret.sort(this.compare());
+                                if(messageListTmp[0].group_id != this.chat.group_id) {
+                                    this.isRefreshing = false;
+                                    return;
+                                }
                                 for(var i=0;i<messageListTmp.length;i++){
                                     console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
@@ -1865,6 +1875,7 @@ export default {
             console.log("this chat is ", this.chat);
             console.log("this groupid is ", this.chat.group_id);
             console.log("this sequence_id is ", this.chat.sequence_id);
+            console.log("this.router is ", this.$route.name)
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then(async (ret) => {
                     console.log("oririnal ret is ", ret);
@@ -1944,6 +1955,10 @@ export default {
         updateChatGroupStatus(groupId, groupStatus, updateType) {
             // console.log("======== ");
             this.$emit("updateChatGroupStatus", groupId, groupStatus, updateType);
+        },
+        leaveGroup(groupId) {
+            this.$emit("leaveGroup", groupId);
+            this.showGroupInfoTips = false;
         },
         updateChatGroupNotice(groupId, originalNotice) {
             // console.log("==========")
