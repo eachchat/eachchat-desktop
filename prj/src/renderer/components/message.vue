@@ -66,6 +66,11 @@
                             <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
                     </div>
+                    <div class="chat-msg-content-other-transmit"
+                        v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
+                        <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
+                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
+                    </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-others-txt" :id="msg.message_id" @load="checkLoad()">{{messageContent}}</p>
@@ -187,6 +192,10 @@ export default {
                 }
                 this.$emit('playAudioOfMessage', this.msg.message_id);
             }
+            // else if(msgType == 106) {
+            //     var needShowMsgId = msgContent.msgIds;
+            //     ipcRenderer.send("showAnotherWindow", this.chat.group_id, "historyMsgList", needShowMsgId);
+            // }
         },
         MsgIsFailed: function() {
         },
@@ -1050,11 +1059,25 @@ export default {
         cursor: pointer;
     }
 
+    .chat-msg-content-other-transmit {
+        float:left;
+        background-color: rgba(247, 248, 250, 1);
+        max-width: 260px;
+        min-width: 200px;
+        border-radius: 5px;
+        padding: 7px 12px 7px 12px;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        text-align: left;
+        margin: 0px;
+        cursor: pointer;
+    }
+
     .chat-msg-content-mine-transmit {
         float:right;
-        background-color: rgba(233, 247, 240, 1);
+        background-color: rgba(247, 248, 250, 1);
         max-width: 260px;
-        min-width: 20px;
+        min-width: 200px;
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
@@ -1069,12 +1092,12 @@ export default {
         background-color: rgba(1,1,1,0);
         max-width: 260px;
         min-width: 20px;
-        border-radius: 5px;
-        border-bottom: 1px solid rgba(221, 221, 221, 1);
+        border: 0px solid rgba(221, 221, 221, 1);
         padding-bottom: 10px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         text-align: left;
+        font-weight: 590;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -1082,18 +1105,21 @@ export default {
 
     .transmit-content {
         display: block;
-        float:right;
+        left:right;
         background-color: rgba(1,1,1,0);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
         padding-top: 10px;
-        font-size: 11px;
+        font-size: 12px;
         font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        letter-spacing:1px;
+        line-height: 18px;
+        color:rgba(102,102,102,1);
     }
     
     .imageTip {

@@ -55,7 +55,7 @@ import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
 // import listItem from './list-item.vue'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr} from '../../packages/core/Utils.js'
 import { Group } from '../../packages/data/sqliteutil'
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
@@ -445,14 +445,6 @@ export default {
           break;
         }
       }
-      if(updateType == "top") {
-        console.log("top")
-        this.originalGroupList = groupListTmp;
-        this.$nextTick(() => {
-          this.showGroupIcon()
-        })
-      }
-      // ++this.needUpdate;
     },
     getUnreadClass(unReadCount, selected) {
       var endPoint = "-unselected";

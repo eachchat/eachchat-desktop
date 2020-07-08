@@ -339,9 +339,10 @@ export default {
             }
         },
         rightClick(e, msgItem) {
-            console.log("e.target is ", e.target.className)
+            console.log("msg is ", msgItem);
+            // console.log("e.target is ", e.target.className)
             let distElement = document.getElementById(msgItem.message_id);
-            console.log("distElement is ", distElement.className);
+            // console.log("distElement is ", distElement.className);
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
             }
@@ -478,6 +479,15 @@ export default {
             }
 
             this.menu.popup(remote.getCurrentWindow());
+        },
+        menuDelete(msg) {
+            Message.DeleteMessage(msg.message_id);
+            for(let i=0;i<this.messageList.length;i++) {
+                if(this.messageList[i].sequence_id == msg.sequence_id) {
+                    this.messageList.splice(i, 1);
+                    break;
+                }
+            }
         },
         menuCopy(msg) {
             var msgContent = strMsgContentToJson(msg.message_content);
