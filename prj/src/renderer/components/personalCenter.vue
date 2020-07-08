@@ -1,7 +1,12 @@
 <template>
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
-            <img class="personalCenter-icon" :src="userInfo.avatar_t_url">
+            <div class="personalCenter-iconView" @click="personalCenterIconClicked()">
+                <img class="personalCenter-icon" src="../../../static/Img/User/user.jpeg">
+                <div class="personalCenter-changeIcon">
+                    <img class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
+                </div>
+            </div>
             <div class="personalCenter-baseInfo">
                 
                 <p class="personalCenter-name">{{ userInfo.user_display_name }}</p>
@@ -26,6 +31,11 @@
     </div>
 </template>
 <script>
+import * as path from 'path'
+import * as fs from 'fs-extra'
+//import { services } from '../../packages/data'
+import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
 export default {
     name: 'user-info',
@@ -51,6 +61,44 @@ export default {
 
     },
     methods: {
+        personalCenterIconClicked(){
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('open-image-dialog', 'openFile');
+            ipcRenderer.on('selectedImageItem', this.nHandleFiles);
+            
+        },
+        nHandleFiles:async function(e, paths) {
+            // Select Same File Failed.
+            var fileList = paths;
+            // console.log("======", fileList)
+            if(fileList === null || fileList.length === 0) {
+                alert("请选择一个图片文件");
+            }
+            var result = await services.common.UpdateUserAvatar(fileList[0]);
+            var userId = this.userInfo.user_id;
+            var userAvatarUrl = this.userInfo.avatar_t_url;
+            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
+            if(fs.existsSync(localPath)){
+                fs.unlink(localPath, function(err){
+                    if(err){
+                        console.log(err);
+                    }
+                })
+            }else{
+                await services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    userIconElement.setAttribute("src", reader.result);
+                }
+            }
+            if (result){
+                this.$message('头像修改成功');
+            }
+        },
         stateListArrowClicked(){
             if(this.showStateList){
                 this.showStateList = false;
@@ -72,15 +120,20 @@ export default {
             temp[index].check = true;
             this.stateInput = state.state;
             this.stateList = temp;
-            await this.stateChangeConfirm();
             this.showStateList = false;
+            await this.stateChangeConfirm();
+
         },
         stateChangeConfirm:async function(){
             await services.common.updateUserStatusDescription(this.stateInput);
-            this.$message('修改成功');
+            this.$message('状态修改成功');
         },
         workDescriptionChangeConfirm:async function(){
-
+            if(this.workDescriptionInput == this.userInfo.work_description){
+                return;
+            }
+            await services.common.updateUserWorkDescription(this.workDescriptionInput);
+            this.$message('描述修改成功');
         },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){
@@ -89,7 +142,28 @@ export default {
                 return false;
             }
         },
-        
+        getUserImg: async function (userInfo){
+            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            if(userInfo.user_id == undefined || userInfo == null) {
+                return "";
+            }
+            var userId = userInfo.user_id;
+            var userAvatarUrl = userInfo.avatar_t_url;
+            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
+            if(fs.existsSync(localPath)){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    userIconElement.setAttribute("src", reader.result);
+                }
+            }else{
+                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+            }
+        },
+
     },
     created () {
         console.log(this.userInfo);
@@ -119,6 +193,11 @@ export default {
                 _this.showStateList = false;
             }
         });
+        this.$nextTick(function(){
+            this.getUserImg(this.userInfo);
+        });
+        
+
     }
 }
 </script>
@@ -142,13 +221,44 @@ export default {
     margin-top: 20px;
     margin-left: 20px;
 }
-.personalCenter-icon {
+.personalCenter-iconView{
+    padding: 0px;
     width: 48px;
     height: 48px;
-    margin: 0px;
-    margin-bottom: 0px;
-    border-radius: 4px;
     display: inline-block;
+    margin: 0px;
+
+    .personalCenter-icon {
+        width: 48px;
+        height: 48px;
+        position: absolute;
+        border-radius: 4px;
+        display: inline-block;
+        cursor: pointer;
+}
+.personalCenter-changeIcon{
+    display: none;
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    border-radius: 4px;
+    z-index: 100;
+    background-color: rgba(0,0,0,0.4);;
+    .personalCenter-cameraIcon{
+        width: 24px;
+        height: 24px;
+        position: absolute;
+        left: 12px;
+        top: 12px;
+    }
+}
+}
+
+.personalCenter-iconView:hover{
+    .personalCenter-changeIcon{
+        display: inline-block;
+    }
+
 }
 .personalCenter-baseInfo {
     display: inline-block;
@@ -156,10 +266,9 @@ export default {
     width: 100px;
     vertical-align: top;
     margin-left: 12px;
-    .personalCenter-state:hover{
-        background:rgba(243,244,247,1);
-    }
+
     .personalCenter-state{
+        margin-top: 1px;
         height: 22px;
         width: 64px;
         border: none;
@@ -167,7 +276,7 @@ export default {
         .personalCenter-stateInput{
             display: inline-block;
             position: absolute;
-            text-indent: 4px;
+            //text-indent: 4px;
             width: 42px;
             padding: 0;
             margin: 0px;
@@ -176,7 +285,7 @@ export default {
             border: 0px;
             font-family: 'Microsoft YaHei';
             font-size: 12px;
-        
+            margin-top: 2px;
             background-color: rgba(1, 1, 1, 0);
 
             font-weight:400;
@@ -200,6 +309,7 @@ export default {
             display: inline-block;
         }
         .personalCenter-stateInput{
+            text-indent: 4px;
             color: black;
         }
     }
@@ -215,6 +325,8 @@ export default {
     color:rgba(0,0,0,1);
     line-height:22px;
     letter-spacing:2px;
+    margin-top: 2px;
+
 }
 .personalCenter-stateSelectListView{
     position: absolute;
@@ -229,17 +341,22 @@ export default {
     padding: 0px;
     z-index: 100;
     .personalCenter-stateSelectList{
-        width: 68px;
+        width: 80px;
         height: 100%;
         padding: 0px;
         margin: 0px;
-        padding-left: 12px;
+        //padding-left: 12px;
         list-style: none;
+        .personalCenter-stateSelect:hover{
+            background:rgba(243,244,247,1);
+        }   
+
         .personalCenter-stateSelect{
-            width: 68px;
+            width: 80px;
             height: 32px;
             vertical-align: top;
             .personalCenter-stateSelectTitle{
+                margin-left: 12px;
                 width: 40px;
                 padding: 0px;
                 margin-top: 7px;
@@ -277,8 +394,8 @@ export default {
     .personalCenter-descriptionInput{
             display: inline-block;
             position: absolute;
-            //text-indent: 10px;
-            width: 105px;
+            text-indent: 4px;
+            width: 200px;
             padding: 0px;
             margin: 0px;
             height: 18px;

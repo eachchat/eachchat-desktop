@@ -8,9 +8,31 @@
             <el-container class="ChatCreaterContent">
                 <el-aside class="ListView" width="280px">
                     <div class="search">
-                        <input class="search-input" placeholder="搜索..." >
-                        <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                </div><div class="search-action">
+                        
+                        <div class="search-delete">
+                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            
+                        </div><div class="search-search">
+                    
+                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                        </div>
                     </div>
+                    <div class="searchView" v-if="showSearchView">
+                        <ul class="subUsersList">
+                            <li class="subUser" v-for="(user, index) in searchUser" :key="index">
+                                <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
+                                    @click="userCheckBoxClicked(user)">
+                                <img class="subUserIcon" :id="'search' + user.user_id" src="../../../static/Img/User/user.jpeg">
+                                <div class="subUserInfo">
+                                    <p class="subUserName" v-html="msgContentHightLight(user.user_display_name)">{{ user.user_display_name }}</p>
+                                    <p class="subUserTitle" v-html="msgContentHightLight(user.user_title)">{{ user.user_title }}</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="OrganizationView" v-if="showOrganizationView">
                     <div class="OrganizationRootView" v-if="showRootDepartmentView">
                         <ul class="OrganizationRootDepartmentList">
                             <li class="OrganizationRootDepartment" v-for="(department, index) in rootDepartments" @click="rootDepartmentClicked(department)" :key="index">
@@ -24,6 +46,7 @@
                             </li>
                         </ul>
                     </div>
+                    
                     <div class="OrganizationSubView" v-if="!showRootDepartmentView">
                         <div class="OrganizationSubViewHeader">
                             <div class="organizationBreadCrumbsHeader">
@@ -71,6 +94,7 @@
                                 </ul>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </el-aside>
                 <el-main class="selectedView">
@@ -199,14 +223,40 @@ export default {
             dlgPosition:{},
 
             showRootDepartmentView:true,
+            showOrganizationView:true,
             breadCrumbs:[],
             curDepartments: [],
             curUsers: [],
             curSubAllUsers: [],
             selectedUsers: [],
+
+            showSearchView: false,
+            searchKey:'',
+            searchUser: [],
         }
     },
     methods: {
+        search:async function () {
+            if(this.searchKey == ''){
+                this.showSearchView = false;
+                this.showOrganizationView = true;
+                return;
+            }
+            this.showSearchView = true;
+            this.showOrganizationView = false;
+            this.searchUser = await UserInfo.SearchByNameKey(this.searchKey);
+
+            this.$nextTick(function(){
+                for(var i = 0; i < this.searchUser.length; i ++){
+                    this.getUserImg(this.searchUser[i], 'search');
+                }
+            });
+        },
+        searchDeleteClicked(){
+            this.searchKey = '';
+            this.showSearchView = false;
+            this.showOrganizationView = true;
+        },
         closeDialog() {
             //this.display = false;
             this.$emit("closeChatCreaterDlg", "");
@@ -377,7 +427,7 @@ export default {
         userCheckBoxClicked(user){
             console.log('haha');
             if(this.indexOfUserInSelected(user) != -1){
-                var index = this.selectedUsers.indexOf(user);
+                var index = this.indexOfUserInSelected(user);
                 this.selectedUsers.splice(index, 1);
             }
             else{
@@ -426,7 +476,7 @@ export default {
             });
         },
         deleteUserFromSelectedUsers(user){
-            var index = this.selectedUsers.indexOf(user);
+            var index = this.indexOfUserInSelected(user);
             this.selectedUsers.splice(index, 1);
             this.$nextTick(function(){
                 for(var i = 0; i < this.selectedUsers.length; i ++){
@@ -584,7 +634,22 @@ export default {
 
             return ret;
         },
-
+        msgContentHightLight: function(curMsg) {
+            var showContent = curMsg;
+            // showContent = showContent + ' ';
+            if(this.searchKey.length == 0) {
+                return showContent
+            }
+            if(showContent.indexOf(this.searchKey) != -1) {
+                let splitValue = showContent.split(this.searchKey);
+                let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                return newInnerHtml;
+            }else{
+                let splitValue = showContent.split('');
+                let newInnerHtml = splitValue.join('<span style="color:red;">' + '' + "</span>");
+                return newInnerHtml;
+            }
+        },
     },
     components: {
     },
@@ -664,6 +729,12 @@ display: none;
         width: 560px;
         height: 340x;
     }
+            .OrganizationView{
+            height: 284px;
+            width: 100%;
+            padding: 0px;
+            margin: 0px;
+        }
     .ChatCreaterContent {
         width: 560px;
         height: 340x;
@@ -677,6 +748,65 @@ display: none;
             height: 100%;
             width: 280px;
             border-right: 1px solid rgba(221,221,221,1);
+        }
+        .searchView {
+            height: 284px;
+            width: calc(100% - 32px);
+            padding: 0px;
+            padding-left: 16px;
+            margin: 0px;
+            overflow: scroll;
+                    .subUsersList{
+                        list-style: none;
+                        padding: 0px;
+                        margin: 0px;
+                        width: 100%;
+                        height: 100%;
+                        .subUser{
+                            height: 48px;
+                            width: 100%;
+
+                            .userCheckBox{
+                                display: inline-block;
+                            }
+                            .subUserIcon {
+                                width: 32px;
+                                height: 32px;
+                                margin-top: 8px;
+                                margin-left: 6px;
+                                border-radius: 4px;
+
+                            }
+                            .subUserInfo{
+                                display: inline-block;
+                                width: 160px;
+                                margin: 0px;
+                                padding: 0px;
+                                padding-left: 12px;
+                                .subUserName{
+                                    margin: 0px;
+                                    padding: 0px;
+                                
+                                height:20px;
+                                font-size:14px;
+                                font-weight:400;
+                                color:rgba(0,0,0,1);
+                                line-height:20px;
+                                letter-spacing:1px;
+                                }
+                                .subUserTitle{
+                                    margin: 0px;
+                                    padding: 0px;
+                                    font-weight:400;
+                                    color:rgba(153,153,153,1);
+                                    line-height:18px;
+                                    letter-spacing:1px;
+                                    height:18px;
+                                    font-size:12px;
+                                }
+                            }
+                        }
+                    }
         }
         .OrganizationSubView {
             height: 284px;
@@ -986,29 +1116,59 @@ display: none;
         
     }
     .search {
-        margin: 12px 16px 12px 16px;
+        margin: 12px 0px -1px 16px;
         text-align: left;
-        width: calc(100% - 32px);
+        width: calc(100% - 86px);
         height: 32px;
         border: 1px solid rgb(221, 221, 221);
-        border-radius: 2px;
+        border-right: none;
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+        display: inline-block;
     }
-
+    .search-action{
+        border: 1px solid rgb(221, 221, 221);
+        border-left: none;
+        margin: 12px 16px 12px 0px;
+        text-align: left;
+        width: 52px;
+        height: 32px;
+        display: inline-block;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+    }
+    .search-delete{
+        display: inline-block;
+        height: 20px;
+        width: 20px;
+        font-size: 0px;
+        margin: 6px 0px 6px 0px;
+    }
+    .search-search{
+        display: inline-block;
+        height: 20px;
+        width: 30px;
+        font-size: 0px;
+        margin: 6px 0px 6px 0px;
+    }
+    .icon-delete{
+        display: inline-block;
+        float: right;
+        height: 20px;
+        line-height: 20px;
+        margin-right: 2px;
+    }
     .icon-search {
         display: inline-block;
         float: right;
         height: 20px;
         line-height: 20px;
-        margin: 6px 10px 6px 10px;
+        margin-right: 8px;
         color: rgb(51, 51, 51);
     }
     
     .icon-search:hover {
         display: inline-block;
-        float: right;
-        height: 20px;
-        line-height: 20px;
-        margin: 6px 10px 6px 10px;
         color: rgb(255,204,102);
     }
     
@@ -1016,7 +1176,7 @@ display: none;
         display: inline-block;
         position: absolute;
         text-indent: 10px;
-        width: 248px;
+        width: 194px;
         padding: 0;
         margin: 0px;
         height: 32px;
@@ -1024,8 +1184,13 @@ display: none;
         border: 0px;
         font-family: 'Microsoft YaHei';
         font-size: 12px;
-        color: rgb(102, 102, 102);
+        
         background-color: rgba(1, 1, 1, 0);
+
+        font-weight:400;
+        color:rgba(0,0,0,1);
+        line-height:18px;
+        letter-spacing:1px;
     }
 
     .TransmitFotter {

@@ -41,14 +41,22 @@ const environment = {
           this._mac = networkInterface.WLAN[0].mac;
         }
       }
+      if(this.type == osType.OSX) {
+        var networkInterface = os.networkInterfaces();
+        if(networkInterface.en0 != undefined) {
+          this._mac = networkInterface.en0[0].mac;
+        }
+      }
       return this._mac;
     },
 
     get hostName() {
-      
       if(this.type == osType.WINDOWS) {
         this._hostName = os.hostname();
-      }      
+      }
+      if(this.type == osType.OSX) {
+        this._hostName = os.hostname();
+      }       
       return this._hostName;
     }
   },

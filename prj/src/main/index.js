@@ -525,7 +525,18 @@ ipcMain.on('open-directory-dialog', function(event, arg) {
     }
   })
 });
-
+ipcMain.on('open-image-dialog', function(event, arg) {
+  dialog.showOpenDialog({
+    properties: [arg, ],
+    filters: [
+      { name: 'Images', extensions: ['jpg', 'png', 'gif']},
+    ]
+  },function(files) {
+    if(files && files.length > 0) {
+      event.sender.send('selectedImageItem', files);
+    }
+  })
+});
 ipcMain.on('modifyGroupImg', function(event, arg) {
   var groupId = arg[0];
   var distPath = arg[1];
