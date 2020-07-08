@@ -490,7 +490,7 @@ export default {
             var msgContent = await this.getTogetherMsgContent(msgs);
             console.log("varcontent is ", msgContent);
             for(var i=0;i<distGroups.length;i++){
-                var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
+                var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
                 var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                 let curTimeSeconds = new Date().getTime();
                 
@@ -520,7 +520,7 @@ export default {
                     var curMsgContent = collection.collection_content;
                     console.log("curMsgCintent is ", curMsgContent);
 
-                    var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
+                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
                     var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                     let curTimeSeconds = new Date().getTime();
                     
@@ -551,7 +551,7 @@ export default {
                     var curMsgContent = strMsgContentToJson(curMsg.message_content);
                     console.log("curMsgCintent is ", curMsgContent);
 
-                    var uid = this.getDistUidThroughUids(distGroups[i].contain_user_ids);
+                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
                     var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                     let curTimeSeconds = new Date().getTime();
                     
