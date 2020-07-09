@@ -626,10 +626,11 @@ export default {
       for(var i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_id === groupId) {
           if(toFavourete) {
-            changeStr(this.showGroupList[i].status, 4, "1");
+            this.showGroupList[i].status = changeStr(statusVar, 4, "1");
+            console.log("this.showgourlist statues ", this.showGroupList[i].status);
           }
           else {
-            changeStr(this.showGroupList[i].status, 4, "0");
+            this.showGroupList[i].status = changeStr(statusVar, 4, "0");
           }
           break;
         }
