@@ -160,9 +160,9 @@ function extend(target, base) {
   extend(Span, Embed);
 
   Span.create = function create(value) {
-      console.log("value is ", value);
-      console.log("attributes value is ", value.attributes);
-      console.log("embed value is ", value.style);
+    //   console.log("value is ", value);
+    //   console.log("attributes value is ", value.attributes);
+    //   console.log("embed value is ", value.style);
         return value; // expects a domNode as value
   };
 
@@ -663,12 +663,16 @@ export default {
             this.usersSelected = usersSelected;
         },
         inputChanged(content) {
+            console.log("content is ", content);
             this.curContent = content.text;
-            var atIndex = this.curContent.lastIndexOf("@", this.curInputIndex);
+            console.log("this.curContent is ", this.curContent);
+            var atIndex = this.curContent.lastIndexOf("@");
+            console.log("atIndex is ", atIndex);
             if(this.chatMemberDlgVisible) {
-                var getSearchKey = this.curContent.substring(atIndex + 1, this.curInputIndex + 1);
+                var getSearchKey = this.curContent.substring(atIndex + 1, this.curInputIndex).trim();
                 this.chatMemberSearchKey = getSearchKey;
                 console.log("inputchange this.chatmembersearchkey is ", this.chatMemberSearchKey);
+                console.log("inputchange this.chatmembersearchkey.length is ", this.chatMemberSearchKey.length);
                 // @ Dlg visialbe need update position.
                 var editorElement = document.getElementsByClassName("ql-editor")[0];
                 var parentElement = document.getElementById("chat-input-id");
@@ -690,8 +694,8 @@ export default {
                     }
                 }
 
-                console.log("top ", offsetTop)
-                console.log("left ", clientOffLeft);
+                // console.log("top ", offsetTop)
+                // console.log("left ", clientOffLeft);
                 this.cursorPosition = {};
                 this.cursorPosition = {
                     "top": offsetTop,
@@ -710,19 +714,27 @@ export default {
         deleteDistContent() {
             var content = this.editor.getContents();
             var index = 0;
-            var distContent = "@" + this.chatMemberSearchKey;
+            var distContent = "@";
+            if(this.chatMemberSearchKey != null) {
+                distContent = distContent + this.chatMemberSearchKey;
+            }
+            distContent = distContent.trim();
             for(var i=0;i<content.ops.length;i++) {
                 if(content.ops[i].insert.span == undefined) {
                     console.log("content.ops[i].insert ", content.ops[i].insert);
-                    console.log("distContent ", distContent);
-                    content.ops[i].insert = content.ops[i].insert.replace(distContent, "");
-                    console.log("content.ops[i].insert ", content.ops[i].insert);
-                    this.editor.setContents(content);
-                    // this.editor.setSelection(500);
-                    console.log("curInputIndex is ", this.curInputIndex);
-                    console.log("cursor index is ", this.curInputIndex - distContent.length);
-                    this.curInputIndex = this.curInputIndex - distContent.length;
-                    break;
+                    // console.log("distContent ", distContent);
+                    if(content.ops[i].insert.indexOf(distContent) != -1) {
+                        console.log("curInputIndex is ", this.curInputIndex);
+                        content.ops[i].insert = content.ops[i].insert.replace(distContent, "");
+                        console.log("curInputIndex is ", this.curInputIndex);
+                        // console.log("content.ops[i].insert ", content.ops[i].insert);
+                        this.editor.setContents(content);
+                        // this.editor.setSelection(500);
+                        console.log("curInputIndex is ", this.curInputIndex);
+                        console.log("cursor index is ", this.curInputIndex - distContent.length);
+                        this.curInputIndex = this.curInputIndex - distContent.length;
+                        break;
+                    }
                 }
             }
         },
@@ -730,6 +742,7 @@ export default {
             // console.log("event ", event)
             // console.log("clipboard ", clipboard.readImage())
             var range = this.editor.getSelection();
+            var content = this.editor.getContents();
             this.curInputIndex = range==null ? 0 : range.index;
             console.log("this.curInputIndex is ", this.curInputIndex);
 
@@ -801,6 +814,7 @@ export default {
         },
         atMember(atMemberInfo) {
             // File
+            console.log("atmemberinfo is ", atMemberInfo);
             var iconPath = "";
             this.deleteDistContent();
             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
@@ -808,7 +822,7 @@ export default {
             complexSpan.innerHTML = "@" + atMemberInfo.user_display_name;
             var distStyle = this.atConstStyle
             // 'display:inline-block;outline:none;border: 0px;font-size:14px;font-family:Microsoft YaHei',
-            console.log("diststyle is ", distStyle);
+            // console.log("diststyle is ", distStyle);
             complexSpan.style = distStyle;
             let msgInfo = {
                 "path": "",
@@ -868,7 +882,7 @@ export default {
                 msgHistoryMenuElement.style.display = "none";
             }
 
-            console.log("e.target.classname ", e.target.className)
+            // console.log("e.target.classname ", e.target.className)
             if(e.target.className.indexOf('userInfo') == -1){
                 this.showUserInfoTips = false;
             }

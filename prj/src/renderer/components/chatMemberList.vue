@@ -137,7 +137,7 @@ export default {
             }
         },
         showPosition: function() {
-            console.log("this showposition is ", this.showPosition)
+            // console.log("this showposition is ", this.showPosition)
         },
         chatMemberSearchKey: function() {
             this.memberListShow = [];
