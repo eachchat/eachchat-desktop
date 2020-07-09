@@ -855,6 +855,8 @@ const common = {
           messagemodel.message = JSON.parse(messagemodel.message_content);
           historymessage.push(messagemodel)
         }
+        else
+          return historymessage;
       }
     }
     return historymessage;
