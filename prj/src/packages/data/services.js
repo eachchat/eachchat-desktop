@@ -1132,7 +1132,6 @@ const common = {
   
   async CreateGroup(groupNameValue, groupUsersArray){
     let result = await this.api.createGroup(this.data.login.access_token, groupNameValue, groupUsersArray)
-    console.log(result)
     
     if (!result.ok || !result.success) {
       return undefined;
@@ -1255,7 +1254,7 @@ const common = {
     }
     let item;
     let model;
-    item = result.data.obj;
+    item = result.data.results;
     model = await servicemodels.CollectionModel(item);
     let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
     if(findmodel == undefined){
