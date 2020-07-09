@@ -24,7 +24,8 @@ class Sqlite {
       return this;
     }
 
-    let sourcePassword = fs.readFileSync(this.basePath + "/password.txt", "utf-8");;
+    //let sourcePassword = fs.readFileSync(this.basePath + "/password.txt", "utf-8");;
+    let sourcePassword = "C3TQzhQBGIRySzrRGOYGHONKVHXnbMPRei2YgOWqaaU/U2Dw8YZadPhOEepbPT/kIc87LLeViRda1HGnR7sn9OY2+XzvyGAHrxXlNg16d+wz4qoMHxojAS8Hzh/VbRGWxzTA4EAW0ByHAMkeO3CNl+YbMFLyI/znYIW5nRY3NkLy6aMUS+xhzzXi+mSgvBjab+OqjwRHNyPr7u/oiehftAwBCnvUTVm4SygDa9s+MCZQMpaOGCd7TthkfsoPgJcKnyu9CdyUU6NG8V8doPPsIqNr1YvYFC5zRF/f4XI9mZt+Xfk38//Ij91xwOrItiZNd+hT7Qp7Zg97O+toDveBPw==";
     let password = this.encryption.decrypt(sourcePassword);
 
     console.log('load ' + filename);
