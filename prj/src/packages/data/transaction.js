@@ -703,6 +703,15 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async SearchAll(accessToken, keyword){
+    var response = await this.commonApi.get(
+      "/api/services/search/v1/all/" + keyword,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

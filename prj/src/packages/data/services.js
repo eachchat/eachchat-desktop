@@ -1509,7 +1509,7 @@ const common = {
     while(1){
       result = await this.api.SearchCollection(this.data.login.access_token, type, sequenceID, 20, sortOrder, keyword);
       if (!result.ok || !result.success) {
-        return result;
+        return false;
       }
       let tmpArray = result.data.results;
       if(tmpArray.length != 0){
@@ -1527,7 +1527,15 @@ const common = {
   async GetRecentDevice(){
     let response = await this.api.GetRecentDevice(this.data.login.access_token);
     if (!response.ok || !response.success) {
-      return response;
+      return false;
+    }
+    return response.data.results;
+  },
+
+  async SearchAll(keyword){
+    let response = await this.api.SearchAll(this.data.login.access_token, keyword);
+    if (!response.ok || !response.success) {
+      return falses;
     }
     return response.data.results;
   }
