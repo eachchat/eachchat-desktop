@@ -424,7 +424,14 @@ export default {
             this.transmitCollectionInfo = file;
         },
         groupCollectionChatClicked:async function(group) {
-
+            console.log("groupCollectionChatClicked group is ", group);
+            this.$router.push(
+                {
+                    name: 'ChatContent', 
+                    params: {
+                        group_id: group.collection_id
+                    }
+                })
         },
         getFileIconThroughExt(ext) {
             var iconPath = getIconPath(ext);

@@ -25,7 +25,7 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" />
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" />
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
@@ -53,16 +53,22 @@ export default {
     watch: {
         '$route'(to, from){
             console.log("========== to.params.user_id is ", to.params.user_id);
+            console.log("========== to.params.user_id is ", to.params.group_id);
             if(to.params.user_id != undefined) {
                 this.distUserId = to.params.user_id;
             }
+            else if(to.params.group_id != undefined) {
+                this.distGroupId = to.params.group_id;
+            }
             else {
                 this.distUserId = '';
+                this.distGroupId = '';
             }
         }
     },
     data () {
         return {
+            distGroupId: '',
             distUserId: '',
             curindex: -1,
             curView: 'ChatContent',
