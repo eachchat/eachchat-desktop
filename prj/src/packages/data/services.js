@@ -892,24 +892,19 @@ const common = {
     this.data.selfuser.msg_max_sequenceid = msgmodel.sequence_id
 
     let group;
-    if("group" in result.data.obj){
-      group = await servicemodels.GroupsModel(result.data.obj)
-    }
-    else{
-      group = await Group.FindItemFromGroupByGroupID(msgmodel.group_id);
-      if(group == undefined)
-      {
-        group = await servicemodels.MessageGroup(msg);
-        let userarray = [];
-        userarray.push(fromID);
-        userarray.push(userID);
-        group.contain_user_ids = userarray.toString();
+    group = await Group.FindItemFromGroupByGroupID(msgmodel.group_id);
+    if(group == undefined)
+    {
+      if("group" in result.data.obj){
+        group = await servicemodels.GroupsModel(result.data.obj)
       }
-      else
-      {
-        group = await servicemodels.UpdateGroupMessage(group, msg);
-      }
+      group = await servicemodels.MessageGroup(msg);
     }
+    else
+    {
+      group = await servicemodels.UpdateGroupMessage(group, msg);
+    }
+    
     
     group.save();
     msgmodel.message = JSON.parse(msgmodel.message_content);
