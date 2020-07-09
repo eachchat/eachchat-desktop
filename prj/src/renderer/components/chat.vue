@@ -94,7 +94,7 @@
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
         <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip> -->
-        <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
+        <userInfoContent :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
         <chatCreaterDlg v-show="showChatCreaterDlg" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
         <div class="history-dropdown-content" id="history-dropdown-content-id">
@@ -238,6 +238,8 @@ export default {
             this.userInfoPosition.top = tipInfos.absoluteLeft;
             if(isMine) {
                 this.userInfoPosition.left = this.userInfoPosition.left - 280 - 45;
+                console.log("isown is ",this.isOwn);
+                this.isOwn = true;
             }
             // console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
@@ -2038,6 +2040,7 @@ export default {
     },
     data() {
         return {
+            isOwn: false,
             createNewChat: false,
             userInfo: {},
             userInfoPosition: {},

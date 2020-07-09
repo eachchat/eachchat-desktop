@@ -51,7 +51,7 @@
             <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
 
         </el-container>
-        <userInfoContent :userInfo="searchUserInfo" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
+        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
         <div class="win-header">
             <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
@@ -75,7 +75,7 @@ export default {
     data() {
         return {
             departments: [],
-
+            isOwn: false,
             dialogVisible: false,
             usersSelected: [],
             currentDepartment: {},
@@ -165,6 +165,11 @@ export default {
             console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
+            var selfUser = await services.common.GetSelfUserModel();
+            console.log("is owner is ", this.isOwn);
+            if(id == selfUser.id) {
+                this.isOwn = true;
+            }
             var user = await UserInfo.GetUserInfo(id);
             tempUserInfo.id = user.user_id;
             tempUserInfo.avatarTUrl = user.avatar_t_url;

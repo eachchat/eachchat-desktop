@@ -8,10 +8,10 @@
                 <p class="userInfo-title">{{ userInfo.title }}</p>
             </div>
         </div>
-        <div class="userInfoAction-view">
+        <div class="userInfoAction-view" v-show="!isOwn">
             <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" @click="jumpToChat">
+            <img class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" @click="jumpToChat" >
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
@@ -100,6 +100,10 @@ export default {
             default:function () {
                 return {};
             }
+        },
+        isOwn: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -152,7 +156,7 @@ export default {
                     groupItem["contain_user_ids"] = [this.curUserInfo.id, this.userInfo.id];
                     groupItem["group_avarar"] = chatAvater;
                     groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 101;
+                    groupItem["group_type"] = 102;
                     groupItem["last_message_time"] = 0;
                     groupItem["message_content"] = null;
                     groupItem["message_content_type"] = 101;
@@ -160,7 +164,7 @@ export default {
                     groupItem["message_id"] = '';
                     groupItem["owner"] = null;
                     groupItem["sequence_id"] = 0;
-                    groupItem["status"] = 0;
+                    groupItem["status"] = "00000000";
                     groupItem["un_read_count"] = 0;
                     groupItem["updatetime"] = new Date().getTime();
                     groupItem["user_id"] = this.userInfo.id;

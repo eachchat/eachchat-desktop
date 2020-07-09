@@ -402,7 +402,7 @@ export default {
                     groupItem["message_id"] = '';
                     groupItem["owner"] = null;
                     groupItem["sequence_id"] = 0;
-                    groupItem["status"] = 0;
+                    groupItem["status"] = "00000000";
                     groupItem["un_read_count"] = 0;
                     groupItem["updatetime"] = new Date().getTime();
                     groupItem["user_id"] = selectedUsers[0].user_id;

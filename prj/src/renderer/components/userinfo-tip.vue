@@ -129,10 +129,10 @@ export default {
                 groupItem["message_id"] = '';
                 groupItem["owner"] = null;
                 groupItem["sequence_id"] = 0;
-                groupItem["status"] = 0;
                 groupItem["un_read_count"] = 0;
                 groupItem["updatetime"] = new Date().getTime();
                 groupItem["user_id"] = this.userInfo.user_id;
+                groupItem["status"] = "00000000";
     
                 let groupvalue = {
                     group_id:           undefined,

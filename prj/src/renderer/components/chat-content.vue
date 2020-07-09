@@ -1,12 +1,15 @@
 <template>
     <div class="chat-wind">
       <div class="chat-panel" id="chat-panel-id">
+        <div class="win-header">
+          <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+        </div>
         <div class="chat-list">
           <div class="list-header">
             <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
           </div>
           <p class="chat-label">普通</p>
-          <div class="list-content" id="list-content-id" :key="needUpdate" @mousemove="showScrollBar" @mouseout="hideScrollBar">
+          <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate" @mousemove="showScrollBar" @mouseout="hideScrollBar">
             <ul class="group-list">
               <li :class="groupOrTopClassName(chatGroupItem, index)"
                   v-for="(chatGroupItem, index) in dealShowGroupList"
@@ -29,9 +32,78 @@
               </li>
             </ul>
           </div>
-        </div>
-        <div class="win-header">
-          <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+          <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
+            <div class="search-list-content-people" id="search-list-content-people-id">
+              <div class="search-list-content-label">联系人</div>
+              <div class="search-list-content-content">
+                <ul class="search-list-content-list">
+                  <li class="search-item"
+                      v-for="searchPeopleItem in searchPeopleItems"
+                      @click="showPeopleInfo(searchPeopleItem)"
+                      >
+                    <div class="search-item-img-div">
+                      <img class="search-item-img-ico" :id="getSearchPeopleElementId(searchPeopleItem)" src="../../../static/Img/User/user.jpeg"/>
+                    </div>
+                    <div class="search-item-info">
+                      <p class="search-item-name">{{searchPeopleItem.name}}</p>
+                      <p class="search-item-position">{{searchPeopleItem.position}}</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="search-list-content-more-div">查看全部 >></div>
+            </div>
+            <div class="search-list-content-message" id="search-list-content-message-id">
+              <div class="search-list-content-label">聊天记录</div>
+              <div class="search-list-content-position-list">
+                <ul class="search-list-content-list">
+                  <li class="search-item"
+                      v-for="searchMessageItem in searchMessageItems"
+                      >
+                    <div class="search-item-img-div">
+                      <img class="search-item-img-ico" :id="getSearchMessageElementId(searchMessageItem)" src="../../../static/Img/User/user.jpeg"/>
+                    </div>
+                    <div class="search-item-info">
+                      <p class="search-item-owner-name">{{searchMessageItem.name}}</p>
+                      <p class="search-item-position">{{searchMessageItem.position}}</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="search-list-content-file-more-div">
+                  <div class="search-item-img-div">
+                    <img class="search-item-img-ico" src="../../../static/Img/User/user.jpeg"/>
+                  </div>
+                  <div class="search-item-info">
+                    <p class="search-item-owner-name">搜索更多聊天记录</p>
+                    <p class="search-item-content">关于"A"的本地聊天记录</p>
+                  </div>
+              </div>
+            </div>
+            <div class="search-list-content-file" id="search-list-content-file-id">
+              <div class="search-list-content-label">文件</div>
+              <div class="search-list-content-content">
+                <ul class="search-list-content-list">
+                  <li class="search-item"
+                      v-for="searchFileItem in searchFileItems"
+                      @click="showFileInfo(searchFileItem)"
+                      >
+                    <div class="search-item-img-div">
+                      <img class="search-item-img-ico" :id="getSearchFileElementId(searchFileItem)" src="../../../static/Img/User/user.jpeg"/>
+                    </div>
+                    <div class="search-item-info">
+                      <p class="search-item-name">{{searchFileItem.name}}</p>
+                      <p class="search-item-detail">{{searchFileItem.position}}</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="search-list-content-more-div">
+                <div class="search-list-content-more-label">查看全部 >></div>
+                <img class="search-list-content-more-ico" src="../../../static/Img/User/user.jpeg">
+              </div>
+            </div>
+          </div>
         </div>
         <div class="chat-empty" v-show="isEmpty">
           <img class="chat-empty-bg" src="../../../static/Img/Chat/empty.png">
@@ -72,6 +144,9 @@ export default {
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
+        var groupUserIds = [];
+        groupUserIds.push(this.distUserId);
+        groupUserIds.push(this.curUserInfo.id);
         var groupItem = {};
         var userInfos = await services.common.GetDistUserinfo(this.distUserId);
         console.log("userInfos is ", userInfos);
@@ -79,6 +154,7 @@ export default {
         var chatAvater = chatUserInfo.avatar_t_url;
         var chatName = chatUserInfo.user_display_name;
         var groupCheck = await services.common.GetGroupByName(chatName);
+        console.log("groupCheck is ", groupCheck)
 
         if(groupCheck.length == 0) {
             groupItem["contain_user_ids"] = groupUserIds;
@@ -92,10 +168,10 @@ export default {
             groupItem["message_id"] = '';
             groupItem["owner"] = null;
             groupItem["sequence_id"] = 0;
-            groupItem["status"] = 0;
+            groupItem["status"] = "00000000";
             groupItem["un_read_count"] = 0;
             groupItem["updatetime"] = new Date().getTime();
-            groupItem["user_id"] = selectedId.id;
+            groupItem["user_id"] = this.distUserId;
         }
         else {
             groupItem = groupCheck[0];
@@ -112,7 +188,7 @@ export default {
       }
       this.showGroupList = [];
       var topGroupVar = [];
-      for(var i=0;i<this.originalGroupList.length;i++) {
+      for(let i=0;i<this.originalGroupList.length;i++) {
         if(this.groupIsTop(this.originalGroupList[i])) {
           topGroupVar.push(this.originalGroupList[i]);
         }
@@ -125,6 +201,17 @@ export default {
       this.showGroupList = this.showGroupList.sort(this.compare());
       console.log("chatGroupVar is ", this.showGroupList)
       this.showGroupList = topGroupVar.concat(this.showGroupList);
+      for(let i=0;i<this.showGroupList.length;i++) {
+        if(this.showGroupList[i].group_type == this.curChat.group_type && this.showGroupList[i].group_id == this.curChat.group_id && this.showGroupList[i].group_name == this.curChat.group_name) {
+          this.curindex = i;
+          break;
+        }
+      }
+      
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      this.groupListElement.scrollTop = this.curindex*60;
       this.$store.commit("setShowGroupList", this.showGroupList);
       return this.showGroupList
     }
@@ -132,6 +219,73 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      searchPeopleItems: [
+        {
+          "name": "张三",
+          "position": "李四家的邻居"
+        },
+        {
+          "name": "李四",
+          "position": "王五家的猫"
+        },
+        {
+          "name": "王五",
+          "position": "老六家的狗"
+        },
+        {
+          "name": "老六",
+          "position": "老大家的葫芦娃"
+        },
+        {
+          "name": "老大",
+          "position": "会吐水的葫芦娃"
+        },
+      ],
+      searchMessageItems: [
+        {
+          "name": "张三",
+          "position": "李四家的邻居"
+        },
+        {
+          "name": "李四",
+          "position": "王五家的猫"
+        },
+        {
+          "name": "王五",
+          "position": "老六家的狗"
+        },
+        {
+          "name": "老六",
+          "position": "老大家的葫芦娃"
+        },
+        {
+          "name": "老大",
+          "position": "会吐水的葫芦娃"
+        },
+      ],
+      searchFileItems: [
+        {
+          "name": "张三",
+          "position": "李四家的邻居"
+        },
+        {
+          "name": "李四",
+          "position": "王五家的猫"
+        },
+        {
+          "name": "王五",
+          "position": "老六家的狗"
+        },
+        {
+          "name": "老六",
+          "position": "老大家的葫芦娃"
+        },
+        {
+          "name": "老大",
+          "position": "会吐水的葫芦娃"
+        },
+      ],
+      isSearch: false,
       curChat: {},
       needUpdate: 1,
       curindex: -1,
@@ -150,6 +304,21 @@ export default {
     };
   },
   methods: {
+    getSearchFileElementId: function(fileInfo) {
+
+    },
+    getSearchMessageElementId: function(msgInfo) {
+
+    },
+    getSearchPeopleElementId: function(peopleInfo) {
+
+    },
+    showFileInfo: function(fileInfo) {
+
+    },
+    showPeopleInfo: function(peopleInfo) {
+
+    },
     Close: function() {
       ipcRenderer.send("win-close");
     },
@@ -360,7 +529,8 @@ export default {
      
       var groupIndex = -1;
       for(var i=0;i<this.originalGroupList.length;i++) {
-        if(this.originalGroupList[i].group_id === groupInfo.group_id) {
+        if(this.originalGroupList[i].group_id != undefined && this.originalGroupList[i].group_id === groupInfo.group_id) {
+          console.log("this.originalgorulliset is ", this.originalGroupList[i]);
           groupIndex = i;
           break;
         }
@@ -372,7 +542,9 @@ export default {
         }
         else {
           this.originalGroupList.unshift(groupInfo);
-          this.curChat = groupInfo;
+          console.log("this.curchat is ", groupInfo);
+          this.curChat = this.originalGroupList[0];
+          this.curindex = 0;
           setTimeout(() => {
             this.$nextTick(() => {
               this.showGroupIcon();
@@ -945,6 +1117,7 @@ export default {
 
   .chat-empty {
     width:100%;
+    margin-top: 20px;
     background-color: white;
     display: flex;
     justify-content: center;
@@ -964,7 +1137,7 @@ export default {
     display: flex;
     flex-direction: column;
     position: relative;
-    padding-top: 20px;
+    margin-top: 20px;
     -webkit-app-region: drag;
   }
   * {
@@ -1001,6 +1174,158 @@ export default {
     margin: 0px;
     display: none;
     background-color: rgb(239,240,241);
+  }
+
+  .search-list-content {
+    height: 100%;
+    overflow-y: scroll;
+    
+    ::-webkit-scrollbar-track {
+      border-radius: 10px;
+    }
+  }
+
+  .search-list-content-people {
+    width: 100%;
+    height: 220px;
+    padding: 0;
+    margin: 0;
+    display: block;
+  }
+
+  .search-list-content-label {
+    width: calc(100%-32px);
+    height: 32px;
+    line-height: 32px;
+    color: rgba(102, 102, 102, 1);
+    font-size: 12px;
+    padding-left: 16px;
+    margin: 0;
+    background-color: rgba(247, 248, 250, 1);
+    display: block;
+  }
+
+  .search-list-content-content {
+    width: 100%;
+    height: calc(100% - 64px);
+    padding: 0;
+    margin: 0;
+    display: block;
+    overflow: hidden;
+  }
+
+  .search-list-content-list {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .search-item {
+    height: 52px;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+  
+  .search-item:hover {
+    height: 52px;
+    background-color: rgba(221, 221, 221, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .search-item-img-div {
+    position:relative;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    margin-left: 16px;
+    margin-top: 10px;
+    margin-right: 0px;
+    margin-bottom: 10px;
+    vertical-align: top;
+  }
+
+  .search-item-img-ico {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 32px;
+    height: 32px;
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+  }
+
+  .search-item-info {
+    display: inline-block;
+    height: 100%;
+    width: calc(100% - 70px);
+    margin-left: 10px;
+  }
+
+  .search-item-name {
+    width: 100%;
+    height: 20px;
+    font-size: 14px;
+    font-weight: medium;
+    font-family:Microsoft Yahei;
+    color: rgba(0, 0, 0, 1);
+    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 7px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .search-item-position {
+    width: 100%;
+    font-size: 13px;
+    color: rgba(153, 153, 153, 1);
+    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 2px;
+    margin-right: 0px;
+    margin-bottom: 7px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    height: 18px;
+  }
+
+  .search-list-content-more-div {
+    width: calc(100%-32px);
+    height: 24px;
+    line-height: 24px;
+    color: rgba(36, 179, 107, 1);
+    font-size: 12px;
+    padding-left: 16px;
+    margin: 0;
+    background-color: rgba(255, 255, 255, 1);
+    display: block;
+  }
+
+  .search-list-content-message {
+    width: 100%;
+    height: 268px;
+    padding: 0;
+    margin: 0;
+    display: block;
+  }
+ 
+  .search-list-content-message-list {
+    width: 100%;
+    height: 204%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .search-list-content-file {
+    width: 100%;
+    height: 33%;
+    padding: 0;
+    margin: 0;
+    display: block;
   }
 
   .list-content {
