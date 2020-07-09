@@ -4,7 +4,7 @@
             <p class="welcome-zh-line1">您好，</p><p class="welcome-zh-line2">欢迎使用易企聊!</p>
             <p class="welcome-en">Hello, welcome to user EachChat!</p>
             <div class="welcome-loading">
-                <i class="el-icon-loading"></i><p class="welcome-loading-text">加载中，请稍后...</p>
+                <i class="el-icon-loading"></i><p class="welcome-loading-text">{{loadingProcess}}，请稍后...</p>
             </div>
             <p class="copy-right">版权所有 2019-2020 workly.ai 保留所有权利</p>
         </div>
@@ -51,6 +51,7 @@ export default {
             services: null,
             tokenExpired: false,
             tokenRefreshing: true,
+            loadingProcess: '正在验证登录信息',
         }
     },
     methods: {
@@ -100,9 +101,20 @@ export default {
             
             this.loginState = "登录成功"
 
-            await services.common.InitServiceData();
-            // const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('showMainPageWindow');
+            setTimeout(async () => {
+                this.tokenRefreshing = true;
+
+                // await services.common.InitServiceData();
+                
+                this.loadingProcess = "正在加载用户信息";
+                await services.common.AllUserinfo();
+                this.loadingProcess = "正在加载组织信息";
+                await services.common.AllDepartmentInfo();
+                this.loadingProcess = "正在加载群组信息";
+                await services.common.listAllGroup();
+                // const ipcRenderer = require('electron').ipcRenderer;
+                ipcRenderer.send('showMainPageWindow');
+            }, 1000)
         }
     },
     mounted: function() {

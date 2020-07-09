@@ -1867,13 +1867,17 @@ export default {
                     console.log("to update msg")
                     var curTime = new Date().getTime();
                     // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
-                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
+                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScroll){
                         this.lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
                         let lastSequenceId = this.messageList[0].sequence_id;
                         services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
+                                this.needScroll = true;
+                                if(ret.length < 20) {
+                                    this.needScroll = false;
+                                }
                                 var messageListTmp = ret.sort(this.compare());
                                 if(messageListTmp[0].group_id != this.chat.group_id) {
                                     this.isRefreshing = false;
@@ -1914,6 +1918,10 @@ export default {
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then(async (ret) => {
                     console.log("oririnal ret is ", ret);
+                    this.needScroll = true;
+                    if(ret.length < 20) {
+                        this.needScroll = false;
+                    }
                     var messageListTmp = ret.sort(this.compare());
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
@@ -2054,6 +2062,7 @@ export default {
     },
     data() {
         return {
+            needScroll: true,
             isOwn: false,
             createNewChat: false,
             userInfo: {},

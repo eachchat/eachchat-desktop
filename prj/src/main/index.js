@@ -33,6 +33,7 @@ const queue = new Bobolink({
   concurrency: 20,
   retryPrior: true,
   taskMode:Bobolink.TASK_MODE_FUNCTION,
+  newPrior: true,
 });
 let timeTmp = 0;
 let countTmp = 1;
