@@ -216,14 +216,10 @@ export default {
           break;
         }
       }
-      
-      if(this.groupListElement == null) {
-        this.groupListElement = document.getElementById("list-content-id");
-      }
       if(this.needScroll) {
-        this.groupListElement.scrollTop = this.curindex*60;
-        this.needScroll = false;
+        this.scrollToDistPosition()
       }
+      
       this.$store.commit("setShowGroupList", this.showGroupList);
       return this.showGroupList
     }
@@ -340,6 +336,13 @@ export default {
     },
     Max: function() {
       ipcRenderer.send("win-max");
+    },
+    scrollToDistPosition(index) {
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      this.groupListElement.scrollTop = index == undefined ? this.curindex*60 : index*60;
+      this.needScroll = false;
     },
     showScrollBar: function(e) {
       if(this.groupListElement == null) {
@@ -546,6 +549,7 @@ export default {
         if(this.showGroupList[i].group_id != undefined && this.showGroupList[i].group_id === groupInfo.group_id) {
           console.log("this.originalgorulliset is ", this.showGroupList[i]);
           groupIndex = i;
+          this.scrollToDistPosition(groupIndex);
           break;
         }
       }

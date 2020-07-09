@@ -663,16 +663,16 @@ export default {
             this.usersSelected = usersSelected;
         },
         inputChanged(content) {
-            console.log("content is ", content);
+            // console.log("content is ", content);
             this.curContent = content.text;
-            console.log("this.curContent is ", this.curContent);
+            // console.log("this.curContent is ", this.curContent);
             var atIndex = this.curContent.lastIndexOf("@");
-            console.log("atIndex is ", atIndex);
+            // console.log("atIndex is ", atIndex);
             if(this.chatMemberDlgVisible) {
                 var getSearchKey = this.curContent.substring(atIndex + 1, this.curInputIndex).trim();
                 this.chatMemberSearchKey = getSearchKey;
-                console.log("inputchange this.chatmembersearchkey is ", this.chatMemberSearchKey);
-                console.log("inputchange this.chatmembersearchkey.length is ", this.chatMemberSearchKey.length);
+                // console.log("inputchange this.chatmembersearchkey is ", this.chatMemberSearchKey);
+                // console.log("inputchange this.chatmembersearchkey.length is ", this.chatMemberSearchKey.length);
                 // @ Dlg visialbe need update position.
                 var editorElement = document.getElementsByClassName("ql-editor")[0];
                 var parentElement = document.getElementById("chat-input-id");
@@ -721,17 +721,17 @@ export default {
             distContent = distContent.trim();
             for(var i=0;i<content.ops.length;i++) {
                 if(content.ops[i].insert.span == undefined) {
-                    console.log("content.ops[i].insert ", content.ops[i].insert);
+                    // console.log("content.ops[i].insert ", content.ops[i].insert);
                     // console.log("distContent ", distContent);
                     if(content.ops[i].insert.indexOf(distContent) != -1) {
-                        console.log("curInputIndex is ", this.curInputIndex);
+                        // console.log("curInputIndex is ", this.curInputIndex);
                         content.ops[i].insert = content.ops[i].insert.replace(distContent, "");
-                        console.log("curInputIndex is ", this.curInputIndex);
+                        // console.log("curInputIndex is ", this.curInputIndex);
                         // console.log("content.ops[i].insert ", content.ops[i].insert);
                         this.editor.setContents(content);
                         // this.editor.setSelection(500);
-                        console.log("curInputIndex is ", this.curInputIndex);
-                        console.log("cursor index is ", this.curInputIndex - distContent.length);
+                        // console.log("curInputIndex is ", this.curInputIndex);
+                        // console.log("cursor index is ", this.curInputIndex - distContent.length);
                         this.curInputIndex = this.curInputIndex - distContent.length;
                         break;
                     }
@@ -744,7 +744,7 @@ export default {
             var range = this.editor.getSelection();
             var content = this.editor.getContents();
             this.curInputIndex = range==null ? 0 : range.index;
-            console.log("this.curInputIndex is ", this.curInputIndex);
+            // console.log("this.curInputIndex is ", this.curInputIndex);
 
             if(event.code == "Enter" && !event.ctrlKey) {
                 this.sendMsg();

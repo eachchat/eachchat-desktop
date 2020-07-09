@@ -64,6 +64,7 @@ export default {
                 this.distUserId = '';
                 this.distGroupId = '';
             }
+            this.curindex = 0;
         }
     },
     data () {
