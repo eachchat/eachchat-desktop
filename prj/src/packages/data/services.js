@@ -1252,9 +1252,14 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
+    let items;
     let item;
     let model;
-    item = result.data.results;
+    items = result.data.results;
+    if(items.length == 0){
+      return false;
+    }
+    item = items[0];
     model = await servicemodels.CollectionModel(item);
     let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
     if(findmodel == undefined){
@@ -1306,6 +1311,7 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
+    return true;
   },
 
   async DeleteHistoryMessage(groupID, sequenceID){
@@ -1319,15 +1325,16 @@ const common = {
   async DeleteGroup(groupID){
     let result = await this.api.DeleteGroup(this.data.login.access_token, groupID);
     if (!result.ok || !result.success) {
-      return result;
+      return false;
     }
-    await sqliteutil.DeleteGroupByGroupID(groupID)
+    await sqliteutil.DeleteGroupByGroupID(groupID);
+    return true;
   },
 
   async DeleteCollections(arrayFavourite){
     let result = await this.api.DeleteCollectionMessages(this.data.login.access_token, arrayFavourite);
     if (!result.ok || !result.success) {
-      return result;
+      return false;
     }
     return true;
   },
@@ -1388,15 +1395,17 @@ const common = {
   async QuitGroup(groupID){
     let result = await this.api.QuitGroup(this.data.login.access_token, groupID);
     if (!result.ok || !result.success) {
-      return result;
+      return false;
     }
+    return true;
   },
 
   async TransferGroup(groupID, toUserID){
     let result = await this.api.TransferGroup(this.data.login.access_token, groupID, toUserID);
     if (!result.ok || !result.success) {
-      return result;
+      return false;
     }
+    return true;
   },
 
   async ListGroupFiles(groupID, sequenceID){
