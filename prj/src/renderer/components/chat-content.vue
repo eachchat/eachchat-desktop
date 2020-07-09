@@ -211,7 +211,10 @@ export default {
       if(this.groupListElement == null) {
         this.groupListElement = document.getElementById("list-content-id");
       }
-      this.groupListElement.scrollTop = this.curindex*60;
+      if(this.needScroll) {
+        this.groupListElement.scrollTop = this.curindex*60;
+        this.needScroll = false;
+      }
       this.$store.commit("setShowGroupList", this.showGroupList);
       return this.showGroupList
     }
@@ -285,6 +288,7 @@ export default {
           "position": "会吐水的葫芦娃"
         },
       ],
+      needScroll: false,
       isSearch: false,
       curChat: {},
       needUpdate: 1,
@@ -525,6 +529,7 @@ export default {
       return false;
     },
     getCreateGroupInfo(groupInfo) {
+      this.needScroll = true;
       console.log("Created Info is ", groupInfo)
      
       var groupIndex = -1;
