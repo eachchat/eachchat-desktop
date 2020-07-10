@@ -1538,6 +1538,25 @@ const common = {
     return response.data.results;
   },
 
+  async SearchUser(keyword){
+    let itemIndex = 0;
+    let response;
+    let result = [];
+    while(1){
+      response = await this.api.SearchUser(this.data.login.access_token, itemIndex, 20, keyword);
+      if (!response.ok || !response.success) {
+        return false;
+      }
+      for(let index in response.data.results){
+        result.push(response.data.results[index]);
+        itemIndex++;
+      }
+      if(response.data.hasNext == false){
+        return result;
+      }
+    }
+  },
+
   async SearchFiles(keyword, sequenceId, perPage, userIds, groupIds, startTime){
     let response = await this.api.SearchFiles(this.data.login.access_token, keyword, sequenceId, perPage, userIds, groupIds, startTime);
     if (!response.ok || !response.success) {
