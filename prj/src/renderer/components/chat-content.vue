@@ -588,9 +588,9 @@ export default {
       console.log("Created Info is ", groupInfo)
       
       var groupIndex = -1;
-      for(var i=0;i<this.originalGroupList.length;i++) {
-        if(this.originalGroupList[i].group_id != undefined && this.originalGroupList[i].group_id === groupInfo.group_id) {
-          console.log("this.originalgorulliset is ", this.originalGroupList[i]);
+      for(var i=0;i<this.showGroupList.length;i++) {
+        if(this.showGroupList[i].group_id != undefined && this.showGroupList[i].group_id === groupInfo.group_id) {
+          console.log("this.originalgorulliset is ", this.showGroupList[i]);
           groupIndex = i;
           this.scrollToDistPosition(groupIndex);
           break;
@@ -1186,14 +1186,19 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;  
-    -webkit-app-region: drag;
-    z-index: -1;
+    position: relative;
+    // -webkit-app-region: drag;
   }
+  // * {
+      
+  //     -webkit-app-region: no-drag;
+  // }
 
   .chat-empty-bg {
     width: 168px;
     height: 168px;
     background-color: white;
+    z-index: -1;
   }
 
   .chat {
