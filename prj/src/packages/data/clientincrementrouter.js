@@ -39,7 +39,9 @@ class UserIncrement extends BaseIncrement{
                 let findUserInfo = userinfos[0];
                 findUserInfo.values = userInfoModel.values;
                 findUserInfo.save();
-    
+                if(findUserInfo.avatar_t_url != userInfoModel.avatar_t_url || findUserInfo.avatar_o_url){
+                    console.log(userInfoModel.user_id + " url is changed");
+                }
             }
             updatetime = userInfoModel.updatetime;
             sqliteutil.UpdateMaxUserUpdatetime(this.service.data.selfuser.id, updatetime);
