@@ -1198,7 +1198,6 @@ export default {
     width: 168px;
     height: 168px;
     background-color: white;
-    z-index: -1;
   }
 
   .chat {
