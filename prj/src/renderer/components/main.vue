@@ -1,7 +1,7 @@
 <template>
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
-            <mac-window-header class="macWindowHeader" v-if="showMacWindowHeader"></mac-window-header>
+            <mac-window-header class="macWindowHeader" ></mac-window-header>
             <div class="User">
                 <img class="login-logo" id="userHead" @click="personalCenterClicked()">
             </div>
@@ -111,7 +111,7 @@ export default {
             ],
             elementImg: null,
             ipcInited: false,
-            showMacWindowHeader:false,
+            
             selfUserInfo:{},
             showPersonalCenter:false,
             personalCenterKey: 0,
@@ -279,9 +279,7 @@ export default {
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
         await this.getAppBaseData();
-        if(environment.os.isOSX) {
-            this.showMacWindowHeader = true;
-        }
+
     },
 }
 </script>

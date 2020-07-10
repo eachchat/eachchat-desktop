@@ -650,7 +650,24 @@ export default {
             console.log(this.organizationList);
 
         },
-
+        updateUserImage: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var elementImg = document.getElementById(id);
+            if(elementImg != null){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
+                
+            }
+            
+        },
     },
     created: async function() {
         await this.getAppBaseData();
@@ -669,6 +686,8 @@ export default {
             }
             
         });
+        const ipcRenderer = require('electron').ipcRenderer;
+        ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
 }
 </script>
