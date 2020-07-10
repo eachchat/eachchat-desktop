@@ -12,15 +12,41 @@
             <div class="windowHeader" style="-webkit-app-region: drag">
                 <mac-window-header class="macWindowHeader" ></mac-window-header>
             </div>
-        <div class="login-panel" >
-            <div class="title">
-                <div class="title-ico">
-                    <img class="login-logo" src="../../../static/Img/Main/logo.png">
-                </div><div class="tltle-content">
-                    易企聊
+        <div class="login-panel" v-show="showLoginView">
+            <div class="organization-content" v-show="showOrganizationView">
+                <div class="title">
+                    <div class="title-ico">
+                        <img class="login-logo" src="../../../static/Img/Login/logo.png">
+                    </div><div class="tltle-content">
+                        易企聊
+                    </div>
+                </div>
+                <div class="item-organization">
+                    <p class="organizaiton-title">
+                        加入您的组织
+                    </p>
+                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input"/>
+                    <p class="organization-input-label">.each.chat</p>
+                </div>
+                <div class="btn-item">
+                    <Button type="success"  @click="organizationConfirmButtonClicked()">确定</Button>
+                </div>
+                <div class="organization-finder-tip">
+                    <p class="forget-title">忘记了你的组织ID?</p><p
+                    class="finder-title" @click="organizationFinderClicked()">点击找回</p>
+                </div>
+                <div class="login-footer">
+                    <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
                 </div>
             </div>
-            <div class="content">
+            <div class="account-content" v-show="!showOrganizationView">
+                <div class="title">
+                    <div class="title-ico">
+                        <img class="login-logo" src="../../../static/Img/Login/logo.png">
+                    </div><div class="tltle-content">
+                        易企聊
+                    </div>
+                </div>
                 <!-- <div class="state">
                     <label>{{loginState}}</label>
                 </div> -->
@@ -38,11 +64,56 @@
                         class="item-input"/>
             </div>
             <div class="btn item">
-                <Button type="success" @click="login()">登录</Button>
-            </div>
+                <Button type="success" :disabled="password" @click="login()">登录</Button>
             </div>
             <div class="login-footer">
                 <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
+            </div>
+            </div>
+
+        </div>
+        <div class="serverSetting-panel" v-show="showServerSettingView">
+            <div class="setting-header">
+                <p class="header-title">服务器设置</p>
+                <p class="header-tip">修改保存后，请清空进程再次重启应用</p>
+            </div>
+            <div class="setting-body">
+                <div class="item-server">
+                    <p class="server-title">
+                        服务器地址
+                    </p>
+                    <input class="item-server-input" prefix="ios-contact-outline" v-model="hostName" placeholder="服务器地址" />
+                </div>
+                <div class="btn-item">
+                    <Button class="server-confirm-button" type="success" :disabled="hostName" @click="serverSettingConfirmClicked()">确定</Button>
+                    <Button class="server-cancel-button" type="success" @click="serverSettingCancelClicked()">取消</Button>
+                </div>
+            </div>
+            <div class="setting-footer" @click="serverSettingBackToLoginClicked()">
+                    <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                    <p class="back-title">返回登录</p>
+                
+            </div>
+        </div>
+        <div class="organizationFinder-panel" v-show="showOrganizationFinderView">
+            <div class="finder-header">
+                <p class="header-title">找回组织ID</p>
+                <p class="header-tip">通过邮箱查找您的组织ID</p>
+            </div>
+            <div class="finder-body">
+                <div class="item-server">
+                    <p class="server-title">
+                        邮箱
+                    </p>
+                    <input class="item-server-input" prefix="ios-contact-outline" v-model="emialAddress" placeholder="请输入邮箱" />
+                </div>
+                <div class="btn-item">
+                    <Button class="server-confirm-button" type="success" :disabled="emialAddress" @click="serverSettingConfirmClicked()">继续</Button>
+                </div>
+            </div>
+            <div class="setting-footer" @click="organizationFinderBackToLoginClicked()">
+                    <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                    <p class="back-title">返回登录</p>
             </div>
         </div>
     </div>
@@ -70,11 +141,46 @@ export default {
             tokenExpired: false,
             tokenRefreshing: true,
             loadingProcess: '正在验证登录信息',
+
+            hostName: '',
+            organizationAddress:'',
+            emialAddress:'',
+            showLoginView: true,
+            showServerSettingView: false,
+            showOrganizationView: true,
+            showOrganizationFinderView: false,
         }
     },
     methods: {
+        organizationConfirmButtonClicked(){
+            this.showLoginView = true;
+            this.showOrganizationView = false;
+        },
+        organizationFinderClicked(){
+            this.showLoginView = false;
+            this.showOrganizationFinderView = true;
+        },
         serverSettingClicked(){
-
+            this.showLoginView = false;
+            this.showServerSettingView = true;
+        },
+        serverSettingConfirmClicked(){
+            this.showLoginView = true;
+            this.showServerSettingView = false;
+        },
+        serverSettingCancelClicked(){
+            this.showLoginView = true;
+            this.showServerSettingView = false;
+            this.hostName = '';
+        },
+        serverSettingBackToLoginClicked(){
+            this.showLoginView = true;
+            this.showServerSettingView = false;
+            this.hostName = '';
+        },
+        organizationFinderBackToLoginClicked(){
+            this.showLoginView = true;
+            this.showOrganizationFinderView = false;
         },
         isCheckToken() {
             return this.tokenRefreshing;
@@ -97,7 +203,7 @@ export default {
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
             let config = {
-                hostname: "139.198.15.253",
+                hostname: this.hostName,
                 apiPort: 8888,
                 username: this.username,
                 password: this.password,
@@ -199,7 +305,8 @@ export default {
         height: 420px;
         background:rgba(255,255,255,1);
         box-shadow:0px 4px 20px 0px rgba(0,0,0,0.17);
-        border-radius:4px;  
+        border-radius:4px;
+        cursor: default;  
     }
 
     // .welcome-panel {
@@ -274,7 +381,8 @@ export default {
         margin-top: 0px;
         height: calc(100% - 36px);
         overflow: hidden;
-        .title {
+.account-content{
+            .title {
             height: 36px;
             width: 100%;
             padding: 0px;
@@ -405,24 +513,464 @@ export default {
             }
 
         }
-    }
-    .login-footer{
-        width: 100%;
-        height: 20px;
-        margin-bottom: 15px;
-        margin-top: 68px;
-        cursor: pointer;
-        .server-setting{
+                .login-footer{
+            width: 100%;
+            height: 20px;
+            margin-bottom: 15px;
+            margin-top: 68px;
             cursor: pointer;
-            padding-left: 20px;
+            .server-setting{
+                cursor: pointer;
+                padding-left: 20px;
+                margin: 0px;
+                width:65px;
+                height:18px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(153,153,153,1);
+                line-height:18px;
+                letter-spacing:1px;
+            }
+        }
+}
+
+    .organization-content{
+        .title {
+            height: 36px;
+            width: 100%;
+            padding: 0px;
             margin: 0px;
-            width:65px;
-            height:18px;
-            font-size:12px;
-            font-weight:400;
-            color:rgba(153,153,153,1);
-            line-height:18px;
-            letter-spacing:1px;
+            padding-top: 44px;
+            //margin-top: 34px;
+
+            .title-ico {
+                display: inline-block;
+                width: 36px;
+                height: 36px;
+                margin-left: 117px;
+                padding: 0px;
+                .login-logo{
+                    width: 36px;
+                    height: 36px;
+                    margin: 0px;
+                    padding: 0px;
+                }
+            }
+
+            .tltle-content {
+                display: inline-block;
+                vertical-align: top;
+                height:36px;
+                font-size:24px;
+                font-weight:600;
+                color:rgba(39,45,52,1);
+                line-height:36px;
+                padding-left: 8px;
+            }
+        }
+        .item-organization{
+            margin-top: 28px;
+            width: 260px;
+            margin-left: 50px;
+            height: 58px;
+            .organizaiton-title{
+                width: 100%;
+                margin: 0px;
+                margin-bottom: 4px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(102,102,102,1);
+                line-height:18px;
+                letter-spacing:1px;
+            }
+            .item-input {
+                margin-top: 4px;
+                width:260px;
+                height:36px;
+                color: #76777A;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border: 1px solid #DFE0E3;
+                border-radius: 3px;
+                padding-left: 10px;
+            }
+            .organization-input-label{
+                position: absolute;
+                left: 221px;
+                top: 174px;
+                margin: 0px;
+                width:77px;
+                height:20px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                text-align: right;
+            }
+        }
+
+        .btn-item {
+            margin-top: 24px;
+            text-align: center;
+
+            button {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+            }
+            
+            button:hover {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+            }
+
+        }
+        .organization-finder-tip{
+            height: 18px;
+            width: 100%;
+            padding-left: 50px;
+            margin-top: 16px;
+            .forget-title{
+                margin: 0px;
+                display: inline-block;
+                height:18px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(102,102,102,1);
+                line-height:18px;
+                letter-spacing:1px;
+            }
+            .finder-title{
+                margin: 0px;
+                display: inline-block;
+                height:18px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(36,179,107,1);
+                line-height:18px;
+                letter-spacing:1px;
+                cursor: pointer;
+            }
+        }
+                .login-footer{
+            width: 100%;
+            height: 20px;
+            margin-bottom: 15px;
+            margin-top: 91px;
+            cursor: pointer;
+            .server-setting{
+                cursor: pointer;
+                padding-left: 20px;
+                margin: 0px;
+                width:65px;
+                height:18px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(153,153,153,1);
+                line-height:18px;
+                letter-spacing:1px;
+            }
         }
     }
+
+    }
+    .serverSetting-panel {
+        width: 100%;
+        margin-top: 0px;
+        height: calc(100% - 36px);
+        overflow: hidden;
+        cursor: default;
+        .setting-header{
+            width: 100%;
+            height: 51px;
+            margin-top: 36px;
+            .header-title{
+                width: 100%;
+                text-align: center;
+                height:22px;
+                font-size:16px;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:22px;
+                letter-spacing:2px;
+                margin: 0px;
+            }
+            .header-tip{
+                width: 100%;
+                text-align: center;
+                height:20px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0px;
+                margin-top: 9px;
+            }
+
+        }
+        .setting-body{
+            .item-server{
+                margin-top: 31px;
+                width: 260px;
+                margin-left: 50px;
+                height: 58px;
+                .server-title{
+                width: 100%;
+                margin: 0px;
+                margin-bottom: 4px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(102,102,102,1);
+                line-height:18px;
+                letter-spacing:1px;
+                }
+                .item-server-input{
+                margin-top: 4px;
+                width:260px;
+                height:36px;
+                color: #76777A;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border: 1px solid #DFE0E3;
+                border-radius: 3px;
+                padding-left: 10px;
+                }
+            }
+            .btn-item{
+                height: 80px;
+                width: 100%;
+                margin: 0px;
+                margin-top: 24px;
+                text-align: center;
+                .server-confirm-button{
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                }
+                .server-confirm-button:hover{
+                                    border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                }
+                .server-cancel-button{
+                    margin-top: 8px;
+                border:1px solid rgba(221,221,221,1);
+                background:rgba(255,255,255,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: black;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                }
+                .server-cancel-button:hover{
+                border:1px solid rgba(221,221,221,1);
+                background:rgba(255,255,255,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: black;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                }
+            }
+        }
+        .setting-footer{
+            width: 100%;
+            height: 20px;
+            margin-bottom: 20px;
+            margin-top: 64px;
+            .back-image{
+                cursor: pointer;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-left: 24px;
+            }
+            .back-title{
+                cursor: pointer;
+                display: inline-block;
+                
+                height:20px;
+                font-size:14px;
+                margin: 0px;
+                vertical-align: top;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+            }
+        }
+    }
+        .organizationFinder-panel {
+        width: 100%;
+        margin-top: 0px;
+        height: calc(100% - 36px);
+        overflow: hidden;
+        cursor: default;
+        .finder-header{
+            width: 100%;
+            height: 51px;
+            margin-top: 36px;
+            .header-title{
+                width: 100%;
+                text-align: center;
+                height:22px;
+                font-size:16px;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:22px;
+                letter-spacing:2px;
+                margin: 0px;
+            }
+            .header-tip{
+                width: 100%;
+                text-align: center;
+                height:20px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0px;
+                margin-top: 12px;
+            }
+
+        }
+        .finder-body{
+            height: 122px;
+            .item-server{
+                margin-top: 28px;
+                width: 260px;
+                margin-left: 50px;
+                height: 58px;
+                .server-title{
+                width: 100%;
+                margin: 0px;
+                margin-bottom: 4px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(102,102,102,1);
+                line-height:18px;
+                letter-spacing:1px;
+                }
+                .item-server-input{
+                margin-top: 4px;
+                width:260px;
+                height:36px;
+                color: #76777A;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border: 1px solid #DFE0E3;
+                border-radius: 3px;
+                padding-left: 10px;
+                }
+            }
+            .btn-item{
+                height: 80px;
+                width: 100%;
+                margin: 0px;
+                margin-top: 24px;
+                text-align: center;
+                .server-confirm-button{
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                }
+                .server-confirm-button:hover{
+                                    border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: 'Microsoft Yahei';
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                }
+            }
+        }
+        .setting-footer{
+            width: 100%;
+            height: 20px;
+            margin-bottom: 20px;
+            margin-top: 108px;
+            .back-image{
+                cursor: pointer;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-left: 24px;
+            }
+            .back-title{
+                cursor: pointer;
+                display: inline-block;
+                
+                height:20px;
+                font-size:14px;
+                margin: 0px;
+                vertical-align: top;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+            }
+        }
+    }
+
 </style>

@@ -599,7 +599,7 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL);
-  //openDevToolsInDevelopment(mainWindow);
+  openDevToolsInDevelopment(mainWindow);
 }
 function openDevToolsInDevelopment(mainWindow) {
 
