@@ -1,5 +1,5 @@
 <template>
-    <div class="window-header-bar">
+    <div class="window-header-bar" v-if="isOSX()">
             <img class="close-image" @click="Close()" src="../../../static/Img/Main/Close@2x.png">
             <img class="min-image" @click="Min()" src="../../../static/Img/Main/Minimise@2x.png">
             <img class="zoom-image" @class="Zoom()" src="../../../static/Img/Main/Zoom@2x.png">
@@ -9,6 +9,7 @@
 
 <script>
 import { ipcRenderer } from 'electron'
+import { environment} from '../../packages/data/index.js'
 export default {
     name: 'macWinHeadbar',
     data () {
@@ -16,6 +17,9 @@ export default {
         }
     },
     methods: {
+        isOSX() {
+            return environment.os.isOSX;
+        },
         Min:function() {
             ipcRenderer.send("win-min");
         },

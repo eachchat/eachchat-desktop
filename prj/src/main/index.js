@@ -587,9 +587,11 @@ function createWindow () {
    */
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
-    height: 340,
+    height: 420,
     useContentSize: true,
-    width: 600,
+    width: 360,
+    frame: false,
+    resizable: false,
     /**
      * Across Domains Problem
      */
@@ -600,9 +602,7 @@ function createWindow () {
   //openDevToolsInDevelopment(mainWindow);
 }
 function openDevToolsInDevelopment(mainWindow) {
-  mainWindow.webContents.once('dom-ready', () => {
-    mainWindow.webContents.openDevTools()
-  })
+
   // Open dev tools initially when in development mode
   if (process.env.NODE_ENV === "development") {
     mainWindow.webContents.on("did-frame-finish-load", () => {

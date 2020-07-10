@@ -163,7 +163,23 @@ export default {
                 services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
-
+        updateSelfImage: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var elementImg = document.getElementsByClassName('personalCenter-icon')[0];
+            if(elementImg != null){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
+                
+            }
+        },
     },
     created () {
         console.log(this.userInfo);
@@ -196,7 +212,8 @@ export default {
         this.$nextTick(function(){
             this.getUserImg(this.userInfo);
         });
-        
+        const ipcRenderer = require('electron').ipcRenderer;
+        ipcRenderer.on('updateUserImage', this.updateSelfImage);
 
     }
 }

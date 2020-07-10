@@ -712,17 +712,32 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
-  
+
+  async SearchUser(accessToken, index, perPageNum, keyword)
+  {
+    var response = await this.commonApi.post(
+      "/api/services/search/v1/users",
+      {
+        "sequenceId":index,
+        "perPage":perPageNum,
+        "keyword":keyword
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
   async SearchFiles(accessToken, keyword, sequenceId, perPage, userIds, groupIds, startTime){
     var response = await this.commonApi.post(
       "/api/services/search/v1/files",
       {
-        "keyword":keyword,
-        "sequenceId":sequenceId,
-        "perPage":perPage,
-        "userIds":userIds,
-        "groupIds":groupIds,
-        "startTime":startTime
+        "sequenceId":   sequenceId,
+        "perPage":      perPage,
+        "keyword":      keyword,
+        "userIds":      userIds,
+        "groupIds":     groupIds,
+        "startTime":    startTime
       },
       {
         Authorization: "Bearer " + accessToken
