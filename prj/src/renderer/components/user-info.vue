@@ -108,27 +108,48 @@ export default {
     },
     computed: {
         showStatusDescription: function() {
+            if (this.userInfo == undefined){
+                return false;
+            }
             return !this.isEmpty(this.userInfo.statusDescription);
         },
         showWorkDescription: function() {
+            if (this.userInfo == undefined){
+                return false;
+            }
             return !this.isEmpty(this.userInfo.workDescription);
         },
         showPhone: function() {
+            if (this.userInfo == undefined){
+                return false;
+            }
             return !this.isEmpty(this.userInfo.phone.mobile);
         },
         showTelephone: function (){
+            if (this.userInfo == undefined){
+                return false;
+            }
             return !this.isEmpty(this.userInfo.phone.work);
         },
         showEmail: function() {
+            if (this.userInfo == undefined){
+                return false;
+            }
             return !this.isEmpty(this.userInfo.email[0].email_value);
         },
         showDepartment: function() {
+            if (this.userInfo == undefined){
+                return false;
+            }
             if(this.userInfo.department.display_name){
                 return true;
             }
             return false;
         },
         showRelation: function() {
+            if (this.userInfo == undefined){
+                return false;
+            }
             return !this.isEmpty(this.userInfo.managerId);
         }
     },

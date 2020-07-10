@@ -1067,7 +1067,7 @@ display: none;
             overflow: hidden;
             .selectedHeader{
                 width: 100%;
-                height: 48px;
+                height: 34px;
                 padding-left: 16px;
                 padding-top: 14px;
                 font-size:14px;
@@ -1077,7 +1077,7 @@ display: none;
                 letter-spacing:1px;
             }
             .selectedContentView {
-                height: 280px;
+                height: 294px;
                 width: 100%;
             }
             .selectedUserList{

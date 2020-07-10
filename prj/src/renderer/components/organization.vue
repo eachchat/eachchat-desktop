@@ -440,12 +440,12 @@ display: none;
 .el-container {
     width: auto;
     height: 100%; 
-    border:1px solid #eee;   
+       
     background-color: white; 
     .el-aside {
         width: 150px;
         overflow: hidden;
-        border-right: 1px solid rgb(221, 221, 221);
+        border-right: 1px solid rgba(221, 221, 221, 1);
         display: block;
     }
     .right-container {

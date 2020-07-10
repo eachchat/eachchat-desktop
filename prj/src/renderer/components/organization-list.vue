@@ -354,7 +354,7 @@
                         </div>
                     </div>
                 </div>
-                <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-show="showUserInfoTips" :key="userInfoTipKey"></userInfoContent> 
+                <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"></userInfoContent> 
                 <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="userInfo" :key="userInfoTipKey"></userInfoTip> -->
             <!-- <div class="userInfo-view" v-if="showUserInfoDrawer">
                 
@@ -654,12 +654,14 @@ export default {
     },
     created: async function() {
         await this.getAppBaseData();
+        setTimeout(() => {
         this.$nextTick(function(){
             var users = this.organizationList[0].users;
             for(var i = 0; i < users.length; i ++){
                 this.getUserImg(users[i]);
             }
         });
+        }, 0);
         var that = this;
         document.addEventListener('click',function(e){
             if(e.target.className.indexOf('userInfo') == -1){

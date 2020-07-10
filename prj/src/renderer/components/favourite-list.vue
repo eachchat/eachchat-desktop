@@ -719,7 +719,7 @@ display: none;
     width: 100%;
     height: 55px;
     background-color: rgb(255, 255, 255);
-    border-bottom: 1px solid rgb(221, 221, 221);
+    //border-bottom: 1px solid rgb(221, 221, 221);
     .header-title {
         display: inline-block;
         padding-left: 0px;;
