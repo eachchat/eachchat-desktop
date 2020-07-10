@@ -777,6 +777,9 @@ const common = {
         group_id: groupId
       })
       if(findGroups.length != 0){
+        if(groupItem.groupAvatar != findGroups[0].group_avarar){
+          console.log("group avatar changed:"+ groupItem.groupAvatar);
+        }
         groupModel = servicemodels.UpdateGroupGroup(findGroups[0], groupItem);
       }
       else{
