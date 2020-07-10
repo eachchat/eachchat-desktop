@@ -9,7 +9,7 @@
             <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
           </div>
           <p class="chat-label">普通</p>
-          <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate" @mousemove="showScrollBar" @mouseout="hideScrollBar">
+          <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
             <ul class="group-list">
               <li :class="groupOrTopClassName(chatGroupItem, index)"
                   v-for="(chatGroupItem, index) in dealShowGroupList"
@@ -33,7 +33,7 @@
             </ul>
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
-            <div class="search-list-content-people" id="search-list-content-people-id">
+            <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
               <div class="search-list-content-label">联系人</div>
               <div class="search-list-content-content">
                 <ul class="search-list-content-list">
@@ -42,45 +42,45 @@
                       @click="showPeopleInfo(searchPeopleItem)"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchPeopleElementId(searchPeopleItem)" src="../../../static/Img/User/user.jpeg"/>
+                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchPeopleItem.id)" src="../../../static/Img/User/user.jpeg"/>
                     </div>
                     <div class="search-item-info">
-                      <p class="search-item-name">{{searchPeopleItem.name}}</p>
-                      <p class="search-item-position">{{searchPeopleItem.position}}</p>
+                      <p class="search-item-name">{{searchPeopleItem.displayName}}</p>
+                      <p class="search-item-position">{{searchPeopleItem.department.name}}</p>
                     </div>
                   </li>
                 </ul>
               </div>
-              <div class="search-list-content-more-div">查看全部 >></div>
+              <div class="search-list-content-more-div" @click="showAllSearchUsers">查看全部 >></div>
             </div>
-            <div class="search-list-content-message" id="search-list-content-message-id">
+            <div class="search-list-content-message" id="search-list-content-message-id" v-show="showSearchMessage">
               <div class="search-list-content-label">聊天记录</div>
-              <div class="search-list-content-position-list">
+              <div class="search-list-content-content">
                 <ul class="search-list-content-list">
                   <li class="search-item"
                       v-for="searchMessageItem in searchMessageItems"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchMessageElementId(searchMessageItem)" src="../../../static/Img/User/user.jpeg"/>
+                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchMessageItem.groupId)" src="../../../static/Img/User/user.jpeg"/>
                     </div>
                     <div class="search-item-info">
-                      <p class="search-item-owner-name">{{searchMessageItem.name}}</p>
-                      <p class="search-item-position">{{searchMessageItem.position}}</p>
+                      <p class="search-item-name">{{searchMessageItem.groupName}}</p>
+                      <p class="search-item-position">包含{{searchMessageItem.count}}条相关聊天记录</p>
+                    </div>
+                  </li>
+                  <li class="search-item">
+                    <div class="search-item-img-div">
+                      <img class="search-item-img-ico" src="../../../static/Img/User/user.jpeg"/>
+                    </div>
+                    <div class="search-item-info-more">
+                      <p class="search-item-name">搜索更多聊天记录</p>
+                      <p class="search-item-position">关于{{searchKey}}的本地聊天记录</p>
                     </div>
                   </li>
                 </ul>
               </div>
-              <div class="search-list-content-file-more-div">
-                  <div class="search-item-img-div">
-                    <img class="search-item-img-ico" src="../../../static/Img/User/user.jpeg"/>
-                  </div>
-                  <div class="search-item-info">
-                    <p class="search-item-owner-name">搜索更多聊天记录</p>
-                    <p class="search-item-content">关于"A"的本地聊天记录</p>
-                  </div>
-              </div>
             </div>
-            <div class="search-list-content-file" id="search-list-content-file-id">
+            <div class="search-list-content-file" id="search-list-content-file-id" v-show="showSearchFile">
               <div class="search-list-content-label">文件</div>
               <div class="search-list-content-content">
                 <ul class="search-list-content-list">
@@ -89,18 +89,17 @@
                       @click="showFileInfo(searchFileItem)"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchFileElementId(searchFileItem)" src="../../../static/Img/User/user.jpeg"/>
+                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchFileItem.timelineId)" src="../../../static/Img/User/user.jpeg"/>
                     </div>
                     <div class="search-item-info">
-                      <p class="search-item-name">{{searchFileItem.name}}</p>
-                      <p class="search-item-detail">{{searchFileItem.position}}</p>
+                      <p class="search-item-name">{{searchFileItem.content.fileName}}</p>
+                      <p class="search-item-position" :id="getFileNameItemElementId(searchFileItem.timelineId)">{{searchFileItem.position}}</p>
                     </div>
                   </li>
                 </ul>
               </div>
               <div class="search-list-content-more-div">
-                <div class="search-list-content-more-label">查看全部 >></div>
-                <img class="search-list-content-more-ico" src="../../../static/Img/User/user.jpeg">
+                <div class="search-list-content-more-label" @click="showAllSearchFiles">查看全部 >></div>
               </div>
             </div>
           </div>
@@ -127,8 +126,8 @@ import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
 // import listItem from './list-item.vue'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr} from '../../packages/core/Utils.js'
-import { Group } from '../../packages/data/sqliteutil'
+import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
+import { Group, UserInfo } from '../../packages/data/sqliteutil'
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
 export default {
@@ -227,72 +226,12 @@ export default {
   data() {
     return {
       //需要展示的用户群组
-      searchPeopleItems: [
-        {
-          "name": "张三",
-          "position": "李四家的邻居"
-        },
-        {
-          "name": "李四",
-          "position": "王五家的猫"
-        },
-        {
-          "name": "王五",
-          "position": "老六家的狗"
-        },
-        {
-          "name": "老六",
-          "position": "老大家的葫芦娃"
-        },
-        {
-          "name": "老大",
-          "position": "会吐水的葫芦娃"
-        },
-      ],
-      searchMessageItems: [
-        {
-          "name": "张三",
-          "position": "李四家的邻居"
-        },
-        {
-          "name": "李四",
-          "position": "王五家的猫"
-        },
-        {
-          "name": "王五",
-          "position": "老六家的狗"
-        },
-        {
-          "name": "老六",
-          "position": "老大家的葫芦娃"
-        },
-        {
-          "name": "老大",
-          "position": "会吐水的葫芦娃"
-        },
-      ],
-      searchFileItems: [
-        {
-          "name": "张三",
-          "position": "李四家的邻居"
-        },
-        {
-          "name": "李四",
-          "position": "王五家的猫"
-        },
-        {
-          "name": "王五",
-          "position": "老六家的狗"
-        },
-        {
-          "name": "老六",
-          "position": "老大家的葫芦娃"
-        },
-        {
-          "name": "老大",
-          "position": "会吐水的葫芦娃"
-        },
-      ],
+      showSearchMessage: true,
+      showSearchFile: true,
+      showSearchPeople: true,
+      searchPeopleItems: [],
+      searchFileItems: [],
+      searchMessageItems: [],
       needScroll: false,
       isSearch: false,
       curChat: {},
@@ -310,17 +249,15 @@ export default {
       groupListElement: null,
       newMsg: {},
       mqttGroupVar: [],
+      searchId: 0,
     };
   },
   methods: {
-    getSearchFileElementId: function(fileInfo) {
-
+    getSearchItemElementId: function(itemId) {
+      return "all-search-" + itemId;
     },
-    getSearchMessageElementId: function(msgInfo) {
-
-    },
-    getSearchPeopleElementId: function(peopleInfo) {
-
+    getFileNameItemElementId: function(itemId) {
+      return "file-name-element-" + itemId;
     },
     showFileInfo: function(fileInfo) {
 
@@ -540,14 +477,120 @@ export default {
       }
       return false;
     },
+    async toSearch(searchKey) {
+      if(searchKey.trim().length != 0) {
+        this.searchKey = searchKey;
+        var curSearchId = new Date().getTime();
+        console.log("searchkey is ", this.searchKey);
+        var searchResult = {
+            "id": curSearchId,
+            "searchList": []
+        };
+        var searcheRet = await services.common.SearchAll(searchKey);
+        console.log("searhret ", searcheRet);
+        this.searchId = curSearchId;
+        if(searchResult.id == this.searchId) {
+          for(let i=0;i<searcheRet.length;i++) {
+            if(searcheRet[i].groups != undefined) {
+              this.searchMessageItems = searcheRet[i].groups.slice(0, 3);
+              if(this.searchMessageItems.length == 0) {
+                this.showSearchMessage = false;
+              }
+            }
+            if(searcheRet[i].files != undefined) {
+              this.searchFileItems = searcheRet[i].files.slice(0, 3);
+              if(this.searchFileItems.length == 0) {
+                this.showSearchFile = false;
+              }
+            }
+            if(searcheRet[i].persons != undefined) {
+              this.searchPeopleItems = searcheRet[i].persons.slice(0, 3);
+              if(this.searchPeopleItems.length == 0) {
+                this.showSearchPeople = false;
+              }
+            }
+          }
+        }
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.showSearchResultIcon();
+          })
+        })
+        this.isSearch = true;
+      }
+      else{
+        this.isSearch = false;
+      }
+    },
+    showSearchResultIcon: async function() {
+      console.log("=======================showGroupIcon")
+      for(let i=0;i<this.searchPeopleItems.length;i++) {
+        var distId = this.getSearchItemElementId(this.searchPeopleItems[i].id);
+        let elementImg = document.getElementById(distId);
+        // console.log("groupavatar is ", elementImg);
+        var targetPath = "";
+        if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.searchPeopleItems[i].avatarTUrl, this.searchPeopleItems[i].id))){
+            elementImg.setAttribute("src", targetPath);
+        }
+      }
+      for(let i=0;i<this.searchMessageItems.length;i++) {
+        var distId = this.getSearchItemElementId(this.searchMessageItems[i].groupId);
+        let elementImg = document.getElementById(distId);
+        // console.log("groupavatar is ", elementImg);
+        var targetPath = "";
+        if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.searchMessageItems[i].groupAvatar, this.searchMessageItems[i].groupId))){
+            elementImg.setAttribute("src", targetPath);
+        }
+      }
+      for(let i=0;i<this.searchFileItems.length;i++) {
+        var distId = this.getSearchItemElementId(this.searchFileItems[i].timelineId);
+        let elementImg = document.getElementById(distId);
+        // console.log("groupavatar is ", elementImg);
+        var targetPath = "";
+
+        var fileDetailElementId = this.getFileNameItemElementId(this.searchFileItems[i].timelineId);
+        let fileDetailElement = document.getElementById(fileDetailElementId);
+        if(fileDetailElement != undefined) {
+          var fileSize = this.searchFileItems[i].content.fileSize /(1024*1024) + "K";
+          var fileOwnerInfo = await UserInfo.GetUserInfo(this.searchFileItems[i].fromId);
+          var fileOwnerName = fileOwnerInfo.user_display_name;
+          var fileTime = this.formatTimeFilter(this.searchFileItems[i].timestamp);
+          fileDetailElement.innerHTML = fileSize + " " + fileOwnerName + " " + fileTime;
+        }
+        
+        var iconPath = this.getFileIconThroughExt(this.searchFileItems[i].content.ext);
+        elementImg.setAttribute("src", iconPath);
+        elementImg.setAttribute("height", 32);
+
+        if(fs.existsSync(targetPath = await services.common.downloadFile(this.searchFileItems[i].time_line_id, this.searchFileItems[i].timestamp, this.searchFileItems[i].content.fileName, false))){
+            elementImg.setAttribute("src", targetPath);
+        }
+      }
+    },
+    showAllSearchUsers: function() {
+        this.$router.push(
+            {
+                name: 'organization', 
+                params: {
+                    searchKey: this.searchKey
+                }
+            })
+    },
+    showAllSearchFiles: function() {
+      ipcRenderer.send("showAnotherWindow", "", "searchFilesList");
+    },
+    getFileIconThroughExt: function(ext) {
+        var iconPath = getIconPath(ext);
+        return iconPath;
+    },
     getCreateGroupInfo(groupInfo) {
       this.needScroll = true;
       console.log("Created Info is ", groupInfo)
-     
+      
       var groupIndex = -1;
-      for(var i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id != undefined && this.showGroupList[i].group_id === groupInfo.group_id) {
-          console.log("this.originalgorulliset is ", this.showGroupList[i]);
+      for(var i=0;i<this.originalGroupList.length;i++) {
+        if(this.originalGroupList[i].group_id != undefined && this.originalGroupList[i].group_id === groupInfo.group_id) {
+          console.log("this.originalgorulliset is ", this.originalGroupList[i]);
           groupIndex = i;
           this.scrollToDistPosition(groupIndex);
           break;
@@ -559,9 +602,9 @@ export default {
           return;
         }
         else {
-          this.showGroupList.unshift(groupInfo);
+          this.originalGroupList.unshift(groupInfo);
           console.log("this.curchat is ", groupInfo);
-          this.curChat = this.showGroupList[0];
+          this.curChat = this.originalGroupList[0];
           this.curindex = 0;
           setTimeout(() => {
             this.$nextTick(() => {
@@ -894,6 +937,9 @@ export default {
         this.mqttGroupVar.push(msg);
         return;
       }
+      if(msg.statues != undefined && msg.status[6] == 1) {
+        return;
+      }
       ipcRenderer.send("flashIcon");
       var groupExist = false;
       for(let i=0;i<this.showGroupList.length;i++) {
@@ -1141,6 +1187,7 @@ export default {
     justify-content: center;
     align-items: center;  
     -webkit-app-region: drag;
+    z-index: -1;
   }
 
   .chat-empty-bg {
@@ -1205,7 +1252,7 @@ export default {
 
   .search-list-content-people {
     width: 100%;
-    height: 220px;
+    max-height: 220px;
     padding: 0;
     margin: 0;
     display: block;
@@ -1281,6 +1328,14 @@ export default {
     margin-left: 10px;
   }
 
+  .search-item-info-more {
+    display: inline-block;
+    height: 100%;
+    width: calc(100% - 70px);
+    margin-left: 10px;
+    cursor: pointer;
+  }
+
   .search-item-name {
     width: 100%;
     height: 20px;
@@ -1321,11 +1376,12 @@ export default {
     margin: 0;
     background-color: rgba(255, 255, 255, 1);
     display: block;
+    cursor: pointer;
   }
 
   .search-list-content-message {
     width: 100%;
-    height: 268px;
+    max-height: 268px;
     padding: 0;
     margin: 0;
     display: block;
@@ -1333,14 +1389,21 @@ export default {
  
   .search-list-content-message-list {
     width: 100%;
-    height: 204%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .search-list-file-content {
+    width: 100%;
+    height: 260px;
     padding: 0;
     margin: 0;
   }
 
   .search-list-content-file {
     width: 100%;
-    height: 33%;
+    height: 220;
     padding: 0;
     margin: 0;
     display: block;
@@ -1348,7 +1411,7 @@ export default {
 
   .list-content {
     height: 100%;
-    overflow: hidden;
+    overflow: scroll;
     
     ::-webkit-scrollbar-track {
       border-radius: 10px;

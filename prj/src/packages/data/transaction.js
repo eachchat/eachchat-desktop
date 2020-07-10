@@ -712,6 +712,23 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+  
+  async SearchFiles(accessToken, keyword, sequenceId, perPage, userIds, groupIds, startTime){
+    var response = await this.commonApi.post(
+      "/api/services/search/v1/files",
+      {
+        "keyword":keyword,
+        "sequenceId":sequenceId,
+        "perPage":perPage,
+        "userIds":userIds,
+        "groupIds":groupIds,
+        "startTime":startTime
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

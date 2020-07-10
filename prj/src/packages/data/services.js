@@ -1536,6 +1536,14 @@ const common = {
       return falses;
     }
     return response.data.results;
+  },
+
+  async SearchFiles(keyword, sequenceId, perPage, userIds, groupIds, startTime){
+    let response = await this.api.SearchFiles(this.data.login.access_token, keyword, sequenceId, perPage, userIds, groupIds, startTime);
+    if (!response.ok || !response.success) {
+      return falses;
+    }
+    return response.data.results;
   }
 };
 

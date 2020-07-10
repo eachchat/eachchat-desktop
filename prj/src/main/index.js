@@ -56,7 +56,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
-  openDevToolsInDevelopment(mainPageWindow);
+  //openDevToolsInDevelopment(mainPageWindow);
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));
 
@@ -90,12 +90,32 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   ? `http://localhost:9080/#/` + path
   : `file://${__dirname}/index.html#` + path;
   soloPage.loadURL(sonPageWinURL);
-  openDevToolsInDevelopment(soloPage);
+  //openDevToolsInDevelopment(soloPage);
   soloPage.webContents.on('did-finish-load', function() {
     soloPage.webContents.send("distGroupInfo", groupId);
   });
   soloPage.show();
 });
+
+ipcMain.on('searchAddedMembers', function(event, selectedGroupIds) {
+  soloPage.webContents.send("searchAddedMembers", selectedGroupIds);
+  soloPage.focus();
+})
+
+ipcMain.on('searchAddedSenders', function(event, selectedSenderIds) {
+  soloPage.webContents.send("searchAddedSenders", selectedSenderIds);
+  soloPage.focus();
+})
+
+ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
+  mainPageWindow.webContents.send("SearchAddSenders", selectedSenderIds);
+  mainPageWindow.focus();
+})
+
+ipcMain.on("SearchAddGroup", function(event, selectedGroupIds) {
+  mainPageWindow.webContents.send("SearchAddGroup", selectedGroupIds);
+  mainPageWindow.focus();
+})
 
 ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
   console.log("=============== ", transmitInfoStr);
@@ -124,7 +144,7 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
   ? `http://localhost:9080/#/` + 'favouriteDetail'
   : `file://${__dirname}/index.html#` + 'favouriteDetail';
   favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
-  openDevToolsInDevelopment(favouriteDetailWindow);
+  //openDevToolsInDevelopment(favouriteDetailWindow);
   favouriteDetailWindow.webContents.on('did-finish-load', function() {
     favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
   });
@@ -152,7 +172,7 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
   ? `http://localhost:9080/#/` + 'reportRelationContent'
   : `file://${__dirname}/index.html#` + 'reportRelationContent';
   reportRelationWindow.loadURL(reportRelationWinURL);
-  openDevToolsInDevelopment(reportRelationWindow);
+  //openDevToolsInDevelopment(reportRelationWindow);
   reportRelationWindow.webContents.on('did-finish-load', function() {
     reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
   });
@@ -577,7 +597,7 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL);
-  openDevToolsInDevelopment(mainWindow);
+  //openDevToolsInDevelopment(mainWindow);
 }
 function openDevToolsInDevelopment(mainWindow) {
   mainWindow.webContents.once('dom-ready', () => {

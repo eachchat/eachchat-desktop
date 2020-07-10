@@ -273,7 +273,11 @@ export default {
 
             if(searchResult.id == this.searchId) {
                 this.fileListShow = searchResult.searchList;
-                this.showGroupInfo();
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        this.showGroupInfo();
+                    }, 0)
+                })
             }
         },
         getFileName: function(curItem) {

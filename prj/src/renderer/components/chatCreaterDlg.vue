@@ -128,7 +128,7 @@ import {services, environment} from '../../packages/data/index.js'
 import {Department, UserInfo} from '../../packages/data/sqliteutil.js'
 //import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
-//import {ipcRenderer, remote} from 'electron'
+import {ipcRenderer} from 'electron'
 import { object } from '../../packages/core/types'
 import confservice from '../../packages/data/conf_service';
 import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
@@ -159,6 +159,10 @@ export default {
         addMemberGroupId: {
             type: String,
             default: ''
+        },
+        isSearchAdd: {
+            type:Boolean,
+            default: false
         }
     },
     computed: {
@@ -267,6 +271,21 @@ export default {
         },
         async confirm(){
             // create or add people judge by bool createNewChat
+            if(this.isSearchAdd) {
+                var selectedUserIds = [];
+                for(let i=0;i<this.selectedUsers.length;i++) {
+                    let selectedUserId = this.selectedUsers[i].user_id;
+                    selectedUserIds.push(selectedUserId);
+                }
+                console.log("disableUsers ", this.disableUsers);
+                for(let i=0;i<this.disableUsers[0].length;i++) {
+                    let selectedUserId = this.disableUsers[i].user_id;
+                    selectedUserIds.push(selectedUserId);
+                }
+                ipcRenderer.send("searchAddedSenders", selectedUserIds);
+                this.$emit("closeChatCreaterDlg", "");
+                return;
+            }
             if(this.createNewChat) {
                 if(this.curUserInfo == undefined) {
                     this.curUserInfo = await services.common.GetSelfUserModel();

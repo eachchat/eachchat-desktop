@@ -1,6 +1,6 @@
 <template>
     <div class="search">
-        <input class="echat-search-input" placeholder="搜索..." @keyup.enter="search" v-model="searchKey">
+        <input class="echat-search-input" placeholder="搜索..." @keyup.enter="search" v-model="searchKey" @input="inputChange">
         <i class="el-icon-search" @click="search"></i>
     </div>
 </template>
@@ -15,6 +15,10 @@ export default {
         }
     },
     methods: {
+        inputChange: function() {
+            console.log("this.searchKey is ", this.searchKey);
+            this.$emit("toSearch", this.searchKey);
+        },
         search: function() {
             console.log("I am searching ", this.searchKey, " and cur os isWindows  ", environment.os.isWindows);
             this.searchKey = '';

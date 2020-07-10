@@ -25,7 +25,7 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" />
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey"/>
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
@@ -52,23 +52,32 @@ export default {
     name: 'mainpage',
     watch: {
         '$route'(to, from){
-            console.log("========== to.params.user_id is ", to.params.user_id);
-            console.log("========== to.params.user_id is ", to.params.group_id);
-            if(to.params.user_id != undefined) {
-                this.distUserId = to.params.user_id;
+            console.log("========== to.params.user_id is ", to);
+            console.log("========== to.params.user_id is ", from);
+            if(to.name == "ChatContent") {
+                if(to.params.user_id != undefined) {
+                    this.distUserId = to.params.user_id;
+                }
+                else if(to.params.group_id != undefined) {
+                    this.distGroupId = to.params.group_id;
+                }
+                else {
+                    this.distUserId = '';
+                    this.distGroupId = '';
+                }
+                this.curindex = 0;
             }
-            else if(to.params.group_id != undefined) {
-                this.distGroupId = to.params.group_id;
+            else if(to.name == "organization") {
+                if(to.params.searchKey != undefined) {
+                    this.searchKey = to.params.searchKey;
+                }
+                this.curindex = 1;
             }
-            else {
-                this.distUserId = '';
-                this.distGroupId = '';
-            }
-            this.curindex = 0;
         }
     },
     data () {
         return {
+            searchKey: '',
             distGroupId: '',
             distUserId: '',
             curindex: -1,
@@ -210,11 +219,20 @@ export default {
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
+            var elementImg = document.getElementById("userHead");
             if(id != this.curUserInfo.id) {
                 return;
             }
-            var elementImg = document.getElementById("userHead");
-            elementImg.setAttribute("src", localPath);
+            if(elementImg != null){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
+                
+            }
         },
         showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");

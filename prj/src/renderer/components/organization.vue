@@ -72,6 +72,23 @@ import winHeaderBar from './win-header.vue';
 import {ipcRenderer} from 'electron'
 export default {
     name: 'organization',
+    props: {
+        receiveSearchKey: {
+            type: String,
+            default: ''
+        }
+    },
+    watch: {
+        receiveSearchKey: function() {
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.searchKey = this.receiveSearchKey;
+                    this.search();
+                    console.log("searchKey ", this.searchKey)
+                }, 1000)
+            })
+        }
+    },
     data() {
         return {
             departments: [],
@@ -109,6 +126,7 @@ export default {
             this.showSearchView = false;
         },
         search:async function () {
+            console.log("this.searchKey ", this.searchKey)
             if (this.searchKey == ''){
                 this.showSearchView = false;
                 return;

@@ -1,7 +1,7 @@
 <template>
     <div class="ListHeadBar">
         <div class="Search">
-            <eSearch/>
+            <eSearch @toSearch="toSearch"/>
         </div>
         <el-dropdown class="new-chat-dropdown" trigger="click">
             <i class="el-icon-circle-plus-outline"></i>
@@ -53,6 +53,9 @@ export default {
         }
     },
     methods: {
+        toSearch (searchKey) {
+            this.$emit("toSearch", searchKey);
+        },
         getCreateGroupInfo(groupinfo) {
             this.$emit("getCreateGroupInfo", groupinfo);
         },

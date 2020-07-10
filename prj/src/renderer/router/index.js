@@ -8,7 +8,8 @@ import historyMsg from '../components/history-message.vue';
 import favouriteDetail from '../components/favourite-detail.vue';
 import setup from '../components/setup.vue';
 Vue.use(Router);
-import reportRelationContent from '../components/reportRelationContent.vue'
+import reportRelationContent from '../components/reportRelationContent.vue';
+import SearchFilesListDlg from '../components/searchFileList.vue';
 
 export default new Router({
   routes: [
@@ -63,6 +64,11 @@ export default new Router({
       path:'/reportRelationContent',
       name: "reportRelationContent",
       component: reportRelationContent,
+    },
+    {
+      path:'/searchFilesList',
+      name: 'searchFilesList',
+      component: SearchFilesListDlg,
     },
     {
       path: '/index',

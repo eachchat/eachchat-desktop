@@ -99,6 +99,16 @@ export default {
     components:{
         chatCreaterContent,
     },
+    watch: {
+        searchSelectedGroups: async function() {
+            for(let i=0;i<this.searchSelectedGroups.length;i++) {
+                var selectedGroupItem = Group.FindGroupByID(this.searchSelectedGroups[i]);
+                if(selectedGroupItem != undefined) {
+                    this.selectedGroups.push(selectedGroupItem);
+                }
+            }
+        }
+    },
     props: {
         collectionInfo: {
             type: Object,
@@ -131,6 +141,14 @@ export default {
             default: function () {
                 return [];
             }
+        },
+        searchSelectedGroups: {
+            type: Array,
+            default: []
+        },
+        isSearchAdd: {
+            type: Boolean,
+            default: false
         }
 
     },
@@ -329,6 +347,14 @@ export default {
         //transmit relation methods
         Transmit:async function() {
             // get createNewChat Users
+            if(this.isSearchAdd) {
+                var selectedGroupIds = [];
+                for(let i=0;i<this.selectedGroups.length;i++) {
+                    var selectedGroupId = this.selectedGroups[i].group_id;
+                    selectedGroupIds.push(selectedGroupId);
+                }
+                ipcRenderer.send("searchAddedMembers", selectedGroupIds);
+            }
             if(this.showCreateNewChat){
                 console.log(this.$refs.chatCreaterContent.getSelectedUsers());
                 this.$emit("closeTransmitDlg", "");
