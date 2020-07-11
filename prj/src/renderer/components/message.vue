@@ -157,6 +157,13 @@ export default {
                 // if(msgContent.fileLocalPath != undefined && fs.existsSync(msgContent.fileLocalPath)){
                 //     targetPath = msgContent.fileLocalPath;
                 // }
+                if(targetPath.length == 0) {
+                    targetPath = this.msg.file_local_path;
+                }
+                if(targetPath.length == 0) {
+                    var targetDir = confservice.getFilePath(this.msg.message_timestamp);
+                    var targetPath = path.join(targetDir, targetFileName);
+                }
                 var needOpen = true;
                 console.log("get path is ", targetPath);
                 if(fs.existsSync(targetPath)){
