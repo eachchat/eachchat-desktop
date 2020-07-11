@@ -1127,7 +1127,7 @@ export default {
     delayCallback: function(msg) {
       setTimeout(() => {
         this.callback(msg);
-      }, 1000)
+      }, 100)
     }
   },
   mounted: async function() {
