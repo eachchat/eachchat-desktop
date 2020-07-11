@@ -45,6 +45,8 @@ const winURL = process.env.NODE_ENV === 'development'
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
   mainPageWindow = new BrowserWindow({
+    minHeight:600,
+    minWidth:960,
     height: 600,
     useContentSize: true,
     width:960,
@@ -580,7 +582,22 @@ ipcMain.on('win-max', function(event, arg) {
     mainPageWindow.maximize();
   }
 });
+ipcMain.on('login-win-close', function(event, arg) {
+  mainWindow.hide();
+});
 
+ipcMain.on('login-win-min', function(event, arg) {
+  mainWindow.minimize();
+});
+
+ipcMain.on('login-win-max', function(event, arg) {
+  if(mainPageWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  }
+  else {
+    mainWindow.maximize();
+  }
+});
 function createWindow () {
   /**
    * Initial window options

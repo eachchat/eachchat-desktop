@@ -10,7 +10,10 @@
         </div> -->
         <!-- <div class="login-panel" v-else style="-webkit-app-region: no-drag"> -->
             <div class="windowHeader" style="-webkit-app-region: drag">
-                <mac-window-header class="macWindowHeader" ></mac-window-header>
+                <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
+            </div>
+            <div class="win-header">
+                <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
             </div>
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
@@ -47,9 +50,7 @@
                         易企聊
                     </div>
                 </div>
-                <!-- <div class="state">
-                    <label>{{loginState}}</label>
-                </div> -->
+
             <div class="item-account">
                 <p class="account-title">
                     用户名
@@ -63,8 +64,11 @@
                 <input prefix="ios-lock-outline" type="password" v-model="password" placeholder="请输入密码"
                         class="item-input"/>
             </div>
+            <div class="accountLogin-state">
+                    <p class="state-title">{{loginState}}</p>
+            </div>
             <div class="btn item">
-                <Button type="success" :disabled="password" @click="login()">登录</Button>
+                <Button type="success" id="loginButton" @click="login()">{{ loginButtonValue }}</Button>
             </div>
             <div class="login-footer">
                 <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
@@ -85,7 +89,7 @@
                     <input class="item-server-input" prefix="ios-contact-outline" v-model="hostName" placeholder="服务器地址" />
                 </div>
                 <div class="btn-item">
-                    <Button class="server-confirm-button" type="success" :disabled="hostName" @click="serverSettingConfirmClicked()">确定</Button>
+                    <Button class="server-confirm-button" type="success"  @click="serverSettingConfirmClicked()">确定</Button>
                     <Button class="server-cancel-button" type="success" @click="serverSettingCancelClicked()">取消</Button>
                 </div>
             </div>
@@ -108,7 +112,7 @@
                     <input class="item-server-input" prefix="ios-contact-outline" v-model="emialAddress" placeholder="请输入邮箱" />
                 </div>
                 <div class="btn-item">
-                    <Button class="server-confirm-button" type="success" :disabled="emialAddress" @click="serverSettingConfirmClicked()">继续</Button>
+                    <Button class="server-confirm-button" type="success"  @click="serverSettingConfirmClicked()">继续</Button>
                 </div>
             </div>
             <div class="setting-footer" @click="organizationFinderBackToLoginClicked()">
@@ -125,10 +129,12 @@ import {ipcRenderer} from 'electron'
 import {services} from '../../packages/data/index.js'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
+import winHeaderBar from './win-header.vue';
 export default {
     name: 'login',
     components:{
         macWindowHeader,
+        winHeaderBar
     },
     data () {
         return {
@@ -142,6 +148,7 @@ export default {
             tokenRefreshing: true,
             loadingProcess: '正在验证登录信息',
 
+            loginButtonValue:'登录',
             hostName: '',
             organizationAddress:'',
             emialAddress:'',
@@ -152,6 +159,15 @@ export default {
         }
     },
     methods: {
+        Close: function() {
+            ipcRenderer.send("login-win-close");
+        },
+        Min: function() {
+            ipcRenderer.send("login-win-min");
+        },
+        Max: function() {
+            ipcRenderer.send("login-win-max");
+        },
         organizationConfirmButtonClicked(){
             this.showLoginView = true;
             this.showOrganizationView = false;
@@ -202,6 +218,9 @@ export default {
             var hostname = environment.os.hostName;
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
+            if(this.hostName == ''||this.hostName == undefined){
+                this.hostName = '139.198.15.253';
+            }
             let config = {
                 hostname: this.hostName,
                 apiPort: 8888,
@@ -221,11 +240,13 @@ export default {
                 if(code != 200)
                     {
                     console.log("code != 200")
+                    
                     this.loginState = msg
                     return
                 }
             }
-            
+            var elementButton = document.getElementById('loginButton');
+            this.loginButtonValue = "正在加载数据";
             this.loginState = "登录成功"
 
             setTimeout(async () => {
@@ -416,12 +437,7 @@ export default {
             }
         }
 
-        .state {
-            margin-top: 20px;
-            text-align:center;
-            color: #B33636;
-            font-size: 9px;
-        }
+
 
         .item-account{
             margin-top: 28px;
@@ -478,9 +494,23 @@ export default {
                 padding-left: 10px;
             }
         }
-
+        .accountLogin-state {
+            width: 100%;
+            padding-left: 50px;
+            height: 17px;
+            .state-title{
+                text-align: left;
+                margin: 0px;
+                height:17px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(228,49,43,1);
+                line-height:17px;
+                letter-spacing:1px;
+            }
+        }
         .btn {
-            margin-top: 24px;
+            margin-top: 7px;
             text-align: center;
 
             button {

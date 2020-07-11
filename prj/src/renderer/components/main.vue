@@ -1,7 +1,7 @@
 <template>
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
-            <mac-window-header class="macWindowHeader" ></mac-window-header>
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()"></mac-window-header>
             <div class="User">
                 <img class="login-logo" id="userHead" @click="personalCenterClicked()">
             </div>
@@ -118,6 +118,15 @@ export default {
         }
     },
     methods: {
+        Close: function() {
+            ipcRenderer.send("win-close");
+        },
+        Min: function() {
+            ipcRenderer.send("win-min");
+        },
+        Max: function() {
+            ipcRenderer.send("win-max");
+        },
         showSetUpPage: function() {
             this.curindex = 3;
             this.$router.push("/main/setup")
@@ -286,6 +295,7 @@ export default {
 
 <style lang="scss" scoped>
     .mainpage {
+        cursor: default;
         margin: 0 0 0 0;
         width: 100%;
         height: 100%;

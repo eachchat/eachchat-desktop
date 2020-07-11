@@ -25,7 +25,8 @@
                 </li>
                 <li v-show="showRelation">
                     <p class="userInfo-key">汇报关系</p>
-                    <p class="userInfo-value" @click="reportRelationClicked()">查看</p>
+                    <p class="userInfo-value">查看</p>
+                    <!-- <p class="userInfo-value" @click="reportRelationClicked()">查看</p> -->
                 </li>
                 <li v-show="showDepartment">
                     <p class="userInfo-key">部门</p>

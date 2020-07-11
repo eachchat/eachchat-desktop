@@ -1,8 +1,8 @@
 <template>
     <div class="window-header-bar" v-if="isOSX()">
-            <img class="close-image" @click="Close()" src="../../../static/Img/Main/Close@2x.png">
-            <img class="min-image" @click="Min()" src="../../../static/Img/Main/Minimise@2x.png">
-            <img class="zoom-image" @class="Zoom()" src="../../../static/Img/Main/Zoom@2x.png">
+            <img class="close-image" @click="Close()" src="../../../static/Img/Main/Close@2x.png" v-show="showClose">
+            <img class="min-image" @click="Min()" src="../../../static/Img/Main/Minimise@2x.png" v-show="showMin">
+            <img class="zoom-image" @class="Max()" src="../../../static/Img/Main/Zoom@2x.png" v-show="showMax">
     </div>
 
 </template>
@@ -16,18 +16,50 @@ export default {
         return {
         }
     },
+    props: {
+        showClose: {
+            type: Boolean,
+            default: true
+        },
+        showMax: {
+            type: Boolean,
+            default: true
+        },
+        showMin: {
+            type: Boolean,
+            default: true
+        }
+    },
+    watch: {
+        showClose: function() {
+            console.log("this.showClose ", this.showClose);
+        },
+        showMax: function() {
+            console.log("this.showMax ", this.showMax);
+        },
+        showMin: function() {
+            console.log("this.showMin ", this.showMin);
+        }
+    },
+    data () {
+        return {
+        }
+    },
     methods: {
         isOSX() {
             return environment.os.isOSX;
         },
         Min:function() {
-            ipcRenderer.send("win-min");
+            this.$emit("Min");
+            // ipcRenderer.send("win-min");
         },
         Close: function() {
-            ipcRenderer.send("win-close");
+            this.$emit("Close");
+            // ipcRenderer.send("win-close");
         },
-        Zoom:function() {
-            ipcRenderer.send("win-zoom");
+        Max: function() {
+            this.$emit("Max");
+            // ipcRenderer.send("win-max");
         }
     },
     components: {
