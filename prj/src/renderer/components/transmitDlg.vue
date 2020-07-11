@@ -104,7 +104,10 @@ export default {
             for(let i=0;i<this.searchSelectedGroups.length;i++) {
                 var selectedGroupItem = Group.FindGroupByID(this.searchSelectedGroups[i]);
                 if(selectedGroupItem != undefined) {
-                    this.selectedGroups.push(selectedGroupItem);
+                    if(this.indexOfGroupInSelected(selectedGroupItem) == -1){
+                        this.selectedGroups.push(selectedGroupItem);
+                    }
+                    
                 }
             }
         }
@@ -144,7 +147,9 @@ export default {
         },
         searchSelectedGroups: {
             type: Array,
-            default: []
+            default: function () {
+                return [];
+            }
         },
         isSearchAdd: {
             type: Boolean,
