@@ -277,7 +277,7 @@ export default {
     mounted: async function() {
         await services.common.GetLoginModel();
         this.selfUserInfo = await services.common.GetSelfUserModel();
-        await services.common.AllUserinfo();
+        //await services.common.AllUserinfo();
         this.$nextTick(() => {
             // this.showCurUserIcon();
         }) 

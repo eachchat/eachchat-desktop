@@ -406,7 +406,7 @@ export default {
     },
     // Download thumb and show in dist id element
     async updateGroupImg(e, arg) {
-      console.log("=======================updateGroupImg")
+      console.log("=======================updateGroupImg", arg)
       var state = arg[0];
       var stateInfo = arg[1];
       var id = arg[2];
@@ -419,7 +419,7 @@ export default {
       console.log("groupinfotmp is ", groupInfoTmp)
 
       var distId = this.getChatElementId(id, groupInfoTmp.user_id);
-
+      console.log("updateGroupImg dist id ", distId);
       let elementImg = document.getElementById(distId);
 
       elementImg.setAttribute("src", "");
@@ -432,31 +432,42 @@ export default {
       }
     },
     showGroupIcon: async function() {
-      console.log("=======================showGroupIcon")
-      for(var i=0;i<this.showGroupList.length;i++) {
-        var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
-        let elementImg = document.getElementById(distId);
-        var targetPath = "";
-        if(this.showGroupList[i].group_name == "测试员134") {
-          console.log("info is ", this.showGroupList[i]);
-        }
-        if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
-          if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].user_id))){
-              elementImg.setAttribute("src", targetPath);
+      setTimeout(async () => {
+        console.log("=======================showGroupIcon", this)
+        for(var i=0;i<this.showGroupList.length;i++) {
+          var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
+          let elementImg = document.getElementById(distId);
+          var targetPath = "";
+          if(this.showGroupList[i].group_name == "测试员134") {
+            console.log("info is ", this.showGroupList[i]);
+          }
+          if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
+            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].user_id))){
+                elementImg.setAttribute("src", targetPath);
+            }
+          }
+          else {
+            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
+                var showfu = new FileUtil(targetPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
+            }
+            // else {
+            //   var showfu = new FileUtil("../../../static/Img/User/user.jpeg");
+            //   let showfileObj = showfu.GetUploadfileobj();
+            //   let reader = new FileReader();
+            //   reader.readAsDataURL(showfileObj);
+            //   reader.onloadend = () => {
+            //       elementImg.setAttribute("src", reader.result);
+            //   }
+            // }
           }
         }
-        else {
-          if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-              var showfu = new FileUtil(targetPath);
-              let showfileObj = showfu.GetUploadfileobj();
-              let reader = new FileReader();
-              reader.readAsDataURL(showfileObj);
-              reader.onloadend = () => {
-                  elementImg.setAttribute("src", reader.result);
-              }
-          }
-        }
-      }
+      }, 500)
     },
     groupIsInFavourite(groupInfo) {
         if(groupInfo.status.substr(4, 1) == "1") {
@@ -750,8 +761,15 @@ export default {
     },
     // To get group_id uesed as current chat group's element id
     getChatElementId: function(groupId, uid) {
+      console.log("groupid ",groupId)
+      console.log("uid ",uid)
       if(groupId != undefined && uid != undefined) {
-        return "chat-groupList-" + groupId + "-" + uid;
+        if(uid.length == 0) {
+          return "chat-groupList-" + groupId;
+        }
+        else {
+          return "chat-groupList-" + groupId + "-" + uid;
+        }
       }
       else if(groupId == undefined) {
         return "chat-groupList-" + uid;
