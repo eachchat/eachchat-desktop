@@ -436,13 +436,12 @@ export default {
       for(var i=0;i<this.showGroupList.length;i++) {
         var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
         let elementImg = document.getElementById(distId);
-        // console.log("groupavatar is ", elementImg);
         var targetPath = "";
-        if(this.showGroupList[i].group_name == "测试员36") {
+        if(this.showGroupList[i].group_name == "测试员134") {
           console.log("info is ", this.showGroupList[i]);
         }
         if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
-          if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.showGroupList[i].avatar_t_url, this.showGroupList[i].user_id))){
+          if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].user_id))){
               elementImg.setAttribute("src", targetPath);
           }
         }
@@ -606,11 +605,12 @@ export default {
           console.log("this.curchat is ", groupInfo);
           this.curChat = this.originalGroupList[0];
           this.curindex = 0;
+          this.isEmpty = false;
           setTimeout(() => {
             this.$nextTick(() => {
               this.showGroupIcon();
             })
-          }, 0)
+          }, 1000)
         }
       }
       else {
@@ -1013,24 +1013,29 @@ export default {
           groupExist = true;
           break;
         }
-        if((this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) && this.showGroupList[i].group_type == 102) {
+        if((this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) && this.showGroupList[i].group_type == 102 && msgContent.type != "invitation") {
           console.log("no group id item is ", this.showGroupList[i]);
           console.log("cur msg is ", msg);
-          var distFromName = await Group.SearchByNameKey(this.showGroupList[i].group_name);
+          // var distFromName = await Group.SearchByNameKey(this.showGroupList[i].group_name);
+          var distFromName = await services.common.GetGroupByName(this.showGroupList[i].group_name);
+          console.log("distFromName is ", distFromName)
           for(let j=0;j<distFromName.length;j++) {
             let distGroup = distFromName[j];
+            console.log("distGroup is ", distGroup)
+            console.log("this.showGroupList[i].group_name ", this.showGroupList[i].group_name);
             if(distGroup.group_name == this.showGroupList[i].group_name && distGroup.group_type == 102) {
+              console.log("find dist grou pis ", distGroup);
               this.showGroupList[i].group_id = distGroup.group_id;
               this.showGroupList[i].group_avarar = distGroup.group_avarar;
-              if(distGroup.last_message_time > msg.message_timestamp) {
-                this.showGroupList[i].last_message_time = distGroup.last_message_time;
-                this.showGroupList[i].message_content = distGroup.message_content;
-                this.showGroupList[i].message_content_type = distGroup.message_content_type;
-                this.showGroupList[i].message_from_id = distGroup.message_from_id;
-                this.showGroupList[i].message_id = distGroup.message_id;
-                this.showGroupList[i].sequence_id = distGroup.sequence_id;
-              }
-              else {
+              // if(distGroup.last_message_time > msg.message_timestamp) {
+              //   this.showGroupList[i].last_message_time = distGroup.last_message_time;
+              //   this.showGroupList[i].message_content = distGroup.message_content;
+              //   this.showGroupList[i].message_content_type = distGroup.message_content_type;
+              //   this.showGroupList[i].message_from_id = distGroup.message_from_id;
+              //   this.showGroupList[i].message_id = distGroup.message_id;
+              //   this.showGroupList[i].sequence_id = distGroup.sequence_id;
+              // }
+              // else {
                 this.showGroupList[i].last_message_time = msg.message_timestamp;
                 this.showGroupList[i].message_content = msg.message_content;
                 this.showGroupList[i].message_content_type = msg.message_type;
@@ -1038,9 +1043,11 @@ export default {
                 this.showGroupList[i].message_id = msg.message_id;
                 this.showGroupList[i].sequence_id = msg.sequence_id;
                 this.showGroupList[i].time_line_id = msg.time_line_id;
-              }
+              // }
               this.showGroupList[i].owner = distGroup.owner;
               this.showGroupList[i].un_read_count = distGroup.un_read_count;
+              groupExist = true;
+              this.needUpdate ++;
               break;
             }
           }
@@ -1110,13 +1117,18 @@ export default {
               "time_line_id": msg.time_line_id,
             }
             console.log("groupTmp is ", groupTmp);
-            this.showGroupList.unshift(groupTmp);
+            this.originalGroupList.unshift(groupTmp);
             console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
           }
       }
       this.showGroupIcon();
     },
+    delayCallback: function(msg) {
+      setTimeout(() => {
+        this.callback(msg);
+      }, 1000)
+    }
   },
   mounted: async function() {
       // When Mounting Can Not Get The Element. Here Need SetTimeout
@@ -1133,7 +1145,7 @@ export default {
     this.curUserInfo = await services.common.GetSelfUserModel();
 
     services.common.initmqtt();
-    services.common.handlemessage(this.callback);
+    services.common.handlemessage(this.delayCallback);
   }
 };
 </script>

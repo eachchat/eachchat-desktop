@@ -1,6 +1,6 @@
 <template>
     <div class="FileListDlg" id="FileListDlgId" @click="hideSth($event)">
-        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="FileListDlgHeader">
             <img class="FileListDlgHeaderImg" id="FileListDlgHeaderImgId" @click="Close()">
             <div class="FileListDlgHeaderTitle">{{GroupName}}</div>

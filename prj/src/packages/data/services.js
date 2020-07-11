@@ -898,10 +898,10 @@ const common = {
     group = await Group.FindItemFromGroupByGroupID(msgmodel.group_id);
     if(group == undefined)
     {
+      group = await servicemodels.MessageGroup(msg);
       if("group" in result.data.obj){
         group = await servicemodels.GroupsModel(result.data.obj)
       }
-      group = await servicemodels.MessageGroup(msg);
     }
     else
     {

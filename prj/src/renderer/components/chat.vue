@@ -1178,7 +1178,7 @@ export default {
             }
             else{
                 console.log("varcontent is ", varcontent);
-                var uid = this.getDistUidThroughUids(this.chat.contain_user_ids);
+                var uid = this.chat.user_id;
                 var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
                 for(var i=0;i<varcontent.ops.length;i++){
                     console.log("i is ", i);

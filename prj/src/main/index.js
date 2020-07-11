@@ -80,13 +80,21 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 });
 
 ipcMain.on('showAnotherWindow', function(event, groupId, path) {
+  var title = "";
+  if(path == "historyMsgList") {
+    title = "聊天记录"
+  }
+  else {
+    title = "文件列表"
+  }
   soloPage = new BrowserWindow({
     height: 468,
     //useContentSize: true,
-    // resizable: false,
+    resizable: false,
     width:600,
     webPreferences: {webSecurity:false},
-    frame:false
+    frame:true,
+    title:title
   })
   const sonPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/` + path
