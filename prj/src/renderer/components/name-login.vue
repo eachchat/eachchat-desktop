@@ -255,7 +255,7 @@ export default {
                 // await services.common.InitServiceData();
                 
                 this.loadingProcess = "正在加载用户信息";
-                await services.common.AllUserinfo();
+                
                 this.loadingProcess = "正在加载组织信息";
                 await services.common.AllDepartmentInfo();
                 this.loadingProcess = "正在加载群组信息";

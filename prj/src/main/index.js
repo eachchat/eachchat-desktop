@@ -58,7 +58,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
   mainPageWindow.loadURL(mainPageWinURL);
-  //openDevToolsInDevelopment(mainPageWindow);
+  openDevToolsInDevelopment(mainPageWindow);
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));
 
@@ -82,7 +82,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   soloPage = new BrowserWindow({
     height: 468,
-    useContentSize: true,
+    //useContentSize: true,
     // resizable: false,
     width:600,
     webPreferences: {webSecurity:false},
@@ -141,6 +141,7 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
     webPreferences: {webSecurity:false},
     //frame:false,
     title:"收藏详情"
+    
   })
   const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/` + 'favouriteDetail'
@@ -540,7 +541,7 @@ ipcMain.on("download-mgs-oimage", function(event, arg) {
 });
 
 ipcMain.on('open-directory-dialog', function(event, arg) {
-  dialog.showOpenDialog({
+  dialog.showOpenDialog(mainPageWindow,{
     properties: [arg, 'multiSelections']
   },function(files) {
     if(files && files.length > 0) {

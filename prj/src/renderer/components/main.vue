@@ -139,6 +139,7 @@ export default {
             };
             services.common.init(config);
             // Set accessToken in services
+            
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
             console.log("the init user id is ,", this.curUserInfo.id)
@@ -146,6 +147,7 @@ export default {
             this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
             this.$router.push("/main/ChatContent");
+            
             this.curindex = 0;
             this.showCurUserIcon();
             // Get data from server and set in database
@@ -275,6 +277,7 @@ export default {
     mounted: async function() {
         await services.common.GetLoginModel();
         this.selfUserInfo = await services.common.GetSelfUserModel();
+        await services.common.AllUserinfo();
         this.$nextTick(() => {
             // this.showCurUserIcon();
         }) 

@@ -329,7 +329,6 @@ export default {
             }else{
                 console.log("download start");
                 await services.common.downloadFile(file.timeline_id, file.timestamp, file.collection_content.fileName, false);
-                this.updateFileCollectionList();
             }
         },
         updateFileCollectionList() {
@@ -638,7 +637,47 @@ export default {
                 }
             });
             return;
-        }
+        },
+        updateCollectionShowImage: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var needOpen = args[4];
+            if(this.showSearchView){
+                this.updateSearchCollectionResult(this.searchKey);
+            }else{
+                for (var i = 0;i < this.favourites.length; i ++){
+                    var image = this.favourites[i];
+                    var targetDir = confservice.getThumbImagePath(image.timestamp);
+                    var targetPath = path.join(targetDir, image.collection_content.fileName);
+                    if(targetPath == localPath){
+                        this.getImageCollectionContent(image);
+                    }
+                }
+            }
+
+        },
+        updateCollectionShowFile: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var needOpen = args[4];
+            if(this.showSearchView){
+                this.updateSearchCollectionResult(this.searchKey);
+            }else{
+                for (var i = 0;i < this.favourites.length; i ++){
+                    var file = this.favourites[i];
+                    var targetDir = confservice.getFilePath(file.timestamp);
+                    var targetPath = path.join(targetDir, file.collection_content.fileName);
+                    if(targetPath == localPath){
+                        this.updateFileCollectionList();
+                    }
+                }
+            }
+
+        },
     },
     created:async function() {
 
@@ -660,6 +699,8 @@ export default {
             var imageCollectionModel = await services.common.ListPictureCollections();
             this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.on('updateMsgFile', this.updateCollectionShowImage);
             this.$nextTick(function(){
                 for(var i = 0; i < this.favourites.length; i ++){
                     this.getImageCollectionContent(this.favourites[i]);
@@ -677,7 +718,8 @@ export default {
                     tempFiles[i] = file;
             }
             this.favourites = tempFiles;
-
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.on('updateMsgFile', this.updateCollectionShowFile);
             console.log(this.favourites);
         }else if(this.favouriteType == 'group'){
             this.headerTitle = '收藏';
