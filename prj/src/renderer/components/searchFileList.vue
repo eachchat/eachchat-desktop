@@ -1,6 +1,6 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
-        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader"></div>
         <div class="HistoryMsgDlgContent">
             <div class="search">
@@ -68,7 +68,7 @@
                     </div>
                 </li>
             </ul>
-            <div class="HistoryMsgEmpty" v-show="showEmpty">
+            <div class="HistoryMsgEmpty" v-show="showEmpty" id="HistoryMsgEmptyId">
                 <img class="HistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
                 <div class="HistoryMsgEmptyText">搜索用户</div>
             </div>
@@ -123,12 +123,28 @@ export default {
         openFilter: function() {
             this.showFilter = true;
             let distElement = document.getElementById("search-file-list-id");
-            distElement.style.height = "170px";
+            let bgElement = document.getElementById("HistoryMsgEmptyId");
+            if(this.showEmpty) {
+                distElement.style.display = "none";
+                bgElement.style.height = "170px"
+            }
+            else {
+                distElement.style.height = "170px";
+                bgElement.style.display = "none"
+            }
         },
         hideFilter: function() {
             this.showFilter = false;
             let distElement = document.getElementById("search-file-list-id");
-            distElement.style.height = "290px";
+            let bgElement = document.getElementById("HistoryMsgEmptyId");
+            if(this.showEmpty) {
+                distElement.style.display = "none";
+                bgElement.style.height = "290px"
+            }
+            else {
+                distElement.style.height = "290px";
+                bgElement.style.display = "none"
+            }
         },
         openFile: function(userInfo) {
             ipcRenderer.send("jumpToChat", userInfo.user_id);

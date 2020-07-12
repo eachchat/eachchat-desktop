@@ -1,6 +1,6 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
-        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader"></div>
         <div class="HistoryMsgDlgContent">
             <div class="search">
@@ -140,10 +140,10 @@ export default {
             return "HistoryMsgListName-" + curMsg.user_id;
         },
         getFilterGroupImageId: function(groupItem) {
-            return "FilterGroupListImg-" + groupItem.group_id;
+            return "MsgFilterGroupListImg-" + groupItem.group_id;
         },
         getFilterSenderImageId: function(senderItem) {
-            return "FilterGroupListImg-" + senderItem.user_id;
+            return "MsgFilterGroupListImg-" + senderItem.user_id;
         },
         Close: function() {
             console.log("=======")

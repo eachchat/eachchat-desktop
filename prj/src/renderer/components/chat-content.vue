@@ -272,10 +272,11 @@ export default {
   methods: {
     closeSearchChatFilterDlg() {
         this.showSearchSelecterDlg = false;
+        this.searchSelectedGroupIds = [];
     },
     closeSearchSenderSelectDlg() {
       this.showSearchSelectedSenderDlg = false;
-      this.selectedSenderIds = [];
+      this.searchSelectedSenders = [];
     },
     async SearchAddGroup(event, selectedIds) {
         console.log("SearchAddGroup ", selectedIds);
