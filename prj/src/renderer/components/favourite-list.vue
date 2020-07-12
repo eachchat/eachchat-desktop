@@ -393,7 +393,7 @@ export default {
             this.favourites = tempFiles;
         },
         deleteGroupCollectionClicked:async function(group) {
-            await services.common.DeleteCollectionGroup(group.collection_content.groupId);
+            await services.common.DeleteCollectionGroup(group.collection_id);
             if(this.showSearchView){
                 await this.updateSearchCollectionResult(this.searchKey);
                 return;
@@ -466,7 +466,7 @@ export default {
             else{
 
                 console.log("download collection image ", image)
-                await services.common.downloadMsgTTumbnail(image.timeline_id, image.timestamp, image.collection_content.fileName, false);
+                await services.common.downloadMsgTTumbnail(image.collection_content.timelineId, image.timestamp, image.collection_content.fileName, false);
                 //await this.getImageCollectionContent(image);
                 // this.checkAndLoadImg(targetPath);
             }
@@ -486,7 +486,7 @@ export default {
             }
             else{
                 console.log("download group avatar", group);
-                await services.common.downloadGroupAvatar(group.collection_content.groupAvatar, group.collection_id);
+                await services.common.downloadGroupAvatar(group.collection_content.fromUserAvatar, group.collection_id);
                 //await this.getGroupAvatarContent(group);
             }
 
@@ -496,6 +496,11 @@ export default {
             var favourites = [];
             for(var i = 0; i < collectionModels.length; i ++){
                 var model = collectionModels[i];
+                if(model.collection_type == 104) {
+                    if(model.collection_id.length == 0) {
+                        continue;
+                    }
+                }
                 var tempFavourite = {};
                 tempFavourite.collection_id = model.collection_id;
                 tempFavourite.collection_type = model.collection_type;

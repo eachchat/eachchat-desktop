@@ -379,12 +379,14 @@ export default {
                 services.common.CollectGroup(this.groupId)
                     .then((ret) => {
                         console.log("CollectGroup ", ret);
+                        this.$emit("updateChatGroupStatus", this.groupId, true, 'fav');
                     })
             }
             else {
                 services.common.DeleteCollectionGroup(this.groupId)
                     .then((ret) => {
                         console.log("DeleteCollectionGroup ", ret);
+                        this.$emit("updateChatGroupStatus", this.groupId, false, 'fav');
                     })
             }
         },

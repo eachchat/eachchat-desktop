@@ -798,7 +798,10 @@ export default {
                 }
                 return true;
             }
-            else if(event.code == "Digit2") {
+            else if(event.key == "@") {
+                if(this.chat.group_type == 102) {
+                    return;
+                }
                 this.chatMemberDlgVisible = false;
                 // this.chatMemberDlgchat = {};
                 this.chatMemberSearchKey = null;
@@ -1912,10 +1915,10 @@ export default {
                                         this.messageList.unshift(messageListTmp[i]);
                                         this.existingMsgId.push(messageListTmp[i].message_id);
                                     }
-                                    // this.$nextTick(() => {
+                                    this.$nextTick(() => {
                                         console.log("---------update croll top is ", uldiv.scrollHeight);
                                         uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
-                                    // })
+                                    })
                                 }
                                 this.isRefreshing = false;
                             })
@@ -1949,7 +1952,7 @@ export default {
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
                         // console.log("this.chat.sequence_id is ", this.chat.sequence_id);
-                        var chatGroupMsgContent = strMsgContentToJson(messageListTmp[i].message_content);
+                        // var chatGroupMsgContent = strMsgContentToJson(messageListTmp[i].message_content);
                         // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
                         // console.log("getHistoryMessage messageListTmp [i] is ", messageListTmp[i].sequence_id);
                         if(this.existingMsgId.indexOf(messageListTmp.message_id) == -1) {
@@ -2015,7 +2018,7 @@ export default {
                             }
                             this.isRefreshing = false;
                         })
-                    }, 1000)
+                    }, 300)
                 })
         },
         updateChatGroupStatus(groupId, groupStatus, updateType) {

@@ -378,10 +378,15 @@ export default {
                 //     targetPath = chatGroupMsgContent.fileLocalPath;
                 // }
                 
+                if(targetPath.length == 0) {
+                    var targetDir = confservice.getFilePath(this.msg.message_timestamp);
+                    var targetPath = path.join(targetDir, targetFileName);
+                }
                 var needOpen = false;
+                console.log("targetPath is ", targetPath)
                 if(!fs.existsSync(targetPath)){
-                    // console.log("this.msg.timelineid is ", this.msg.time_line_id)
-                    // console.log("targetfilename is ", targetFileName);
+                    console.log("this.msg.timelineid is ", this.msg.time_line_id)
+                    console.log("targetfilename is ", targetFileName);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);

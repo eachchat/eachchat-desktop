@@ -20,7 +20,7 @@
             </div>
             <div class="OwnerTransferFotter">
                 <button class="OwnerTransferCancleButton" @click="Close()">取消</button>
-                <button class="OwnerTransferConfirmButton" @click="TransferOwner()">确认</button>
+                <button class="OwnerTransferConfirmButton" @click="TransferOwner()" :disabled="selectedUserId.length==0">确认</button>
             </div>
         </div>
     </div>
@@ -176,6 +176,9 @@ export default {
             console.log("this member list is ", this.memberIdList);
             
             for(var i=0;i<this.memberIdList.length;i++) {
+                if(this.memberIdList[i] == this.GroupInfo.owner) {
+                    continue;
+                }
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
                 memberInfoTmp[0].checkState = false;
                 this.memberListShow.push(memberInfoTmp[0]);
@@ -206,6 +209,7 @@ export default {
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
+        z-index: 51;
     }
 
     .OwnerTransferDlg {
@@ -313,7 +317,7 @@ export default {
         height: 20px;
         background-color: rgba(255, 255, 255, 1);
         border: 1px solid rgb(221,221,221);
-        border-radius: 50%;
+        border-radius: 4px;
         font-size: 10px;
         margin-top: 14px;
         margin-bottom: 14px;
@@ -324,11 +328,38 @@ export default {
         user-select:none;
         -webkit-transition:background-color ease 0.1s;
         transition:background-color ease 0.1s;
+        outline: none;
     }
 
     .user-checkBox:checked {
         background-color: rgb(36, 179, 107);
         cursor: pointer;
+        outline: none;
+    }
+
+    .user-checkBox:indeterminate {
+        background-color: rgb(36, 179, 107);
+        cursor: pointer;
+        outline: none;
+    }
+    .user-checkBox:indeterminate::after{
+        content:'';
+        top:7px;
+        left:4px;
+        font-size: 10px;
+        position: absolute;
+        background:transparent;
+        border:#fff solid 2px;
+        border-top:none;
+        border-right:none;
+        border-left: none;
+        height:1px;
+        width:10px;
+        // -moz-transform:rotate(-45deg);
+        // -ms-transform:rotate(-45deg);
+        // -webkit-transform:rotate(-45deg);
+        // transform:rotate(-45deg);
+        outline: none;
     }
 
     .user-checkBox:checked::after {
@@ -384,6 +415,19 @@ export default {
         margin-bottom: 20px;
         margin-right: 110px;
         background: rgba(167, 224, 196, 1);
+        border:1px solid rgba(221,221,221,1);
+        color: white;
+        border-radius:4px;
+    }
+ 
+    .OwnerTransferConfirmButton:hover {
+        width: 100px;
+        height: 32px;
+        margin-left: 5px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-right: 110px;
+        background: rgba(36,179,107,1);
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;

@@ -713,20 +713,25 @@ export default {
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
-      console.log("updatechatgroupstatus ", groupStatus);
-      var groupListTmp = this.showGroupList;
-      for(var i=0;i<groupListTmp.length;i++) {
-        if(groupListTmp[i].group_id === groupId) {
-          groupListTmp[i].status = groupStatus;
-          break;
+      if(updateType == "top" || updateType == "slience") {
+        console.log("updatechatgroupstatus ", groupStatus);
+        var groupListTmp = this.showGroupList;
+        for(var i=0;i<groupListTmp.length;i++) {
+          if(groupListTmp[i].group_id === groupId) {
+            groupListTmp[i].status = groupStatus;
+            break;
+          }
+        }
+        if(updateType == "top") {
+          console.log("top")
+          this.showGroupList = groupListTmp;
+          this.$nextTick(() => {
+            this.showGroupIcon()
+          })
         }
       }
-      if(updateType == "top") {
-        console.log("top")
-        this.showGroupList = groupListTmp;
-        this.$nextTick(() => {
-          this.showGroupIcon()
-        })
+      else {
+        this.updateChatGroupFavStatus(groupId, groupStatus)
       }
       // ++this.needUpdate;
     },
@@ -736,11 +741,11 @@ export default {
       for(var i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_id === groupId) {
           if(toFavourete) {
-            this.showGroupList[i].status = changeStr(statusVar, 4, "1");
+            this.showGroupList[i].status = changeStr(this.showGroupList[i].status, 4, "1");
             console.log("this.showgourlist statues ", this.showGroupList[i].status);
           }
           else {
-            this.showGroupList[i].status = changeStr(statusVar, 4, "0");
+            this.showGroupList[i].status = changeStr(this.showGroupList[i].status, 4, "0");
           }
           break;
         }
@@ -1308,7 +1313,7 @@ export default {
     width: 280px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgb(242, 242, 246);
+    border-right: 1px solid rgb(221, 221, 221);
     -webkit-app-region: drag;
   }
 
@@ -1525,25 +1530,25 @@ export default {
 
   .group-top {
     height: 60px;
-    background-color: rgba(247, 248, 250, 1);
+    background-color: rgba(243, 244, 247, 1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-top:hover {
     height: 60px;
-    background-color: rgba(221, 221, 221, 1);
+    background-color: rgba(247, 248, 250, 1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-top.active {
     height: 60px;
-    background-color: rgba(221, 221, 221, 1);
+    background-color: rgba(247, 248, 250, 1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group:hover {
     height: 60px;
-    background-color: rgba(221, 221, 221, 1);
+    background-color: rgba(247, 248, 250, 1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
