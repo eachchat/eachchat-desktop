@@ -1,0 +1,13 @@
+1 调安全的接口，把私钥签名后的传过去。 服务端验证后，收到用公钥解密。
+pkcs12,
+
+256
+AES_CBC_
+
+
+id        20200104V100
+key       kchw+GgmAoBMI/fzG5cHE7W3h/UhtskSL/nHRzV3TT0=
+vector    SSg3Z8ra2C04SV69
+
+
+
