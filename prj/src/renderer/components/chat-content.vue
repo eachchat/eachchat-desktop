@@ -6,7 +6,7 @@
         </div>
         <div class="chat-list">
           <div class="list-header">
-            <listHeader @getCreateGroupInfo="getCreateGroupInfo"/>
+            <listHeader @getCreateGroupInfo="getCreateGroupInfo" @toSearch="toSearch"/>
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
@@ -72,7 +72,7 @@
                     <div class="search-item-img-div">
                       <img class="search-item-img-ico" src="../../../static/Img/User/user.jpeg"/>
                     </div>
-                    <div class="search-item-info-more">
+                    <div class="search-item-info-more" @click="showAllSearchMessages">
                       <p class="search-item-name">搜索更多聊天记录</p>
                       <p class="search-item-position">关于{{searchKey}}的本地聊天记录</p>
                     </div>
@@ -111,6 +111,10 @@
           <ChatPage :chat="curChat" :newMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
         </div>
       </div>
+      <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
+      </searchSenderSelecterDlg>
+      <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
+      </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
     </div>
 </template>
@@ -125,9 +129,11 @@ import winHeaderBar from './win-header.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
+import searchChatSelecterDlg from './searchChatSelecter.vue'
+import searchSenderSelecterDlg from './searchSenderSelect.vue'
 // import listItem from './list-item.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
-import { Group, UserInfo } from '../../packages/data/sqliteutil'
+import { Group, UserInfo, Department } from '../../packages/data/sqliteutil'
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
 export default {
@@ -136,6 +142,8 @@ export default {
     listHeader,
     winHeaderBar,
     imageLayer,
+    searchChatSelecterDlg,
+    searchSenderSelecterDlg,
     // listItem
   },
   props: ['distUserId', 'distGroupId'],
@@ -226,6 +234,15 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      searchSelectedSenderDialogRootDepartments: [],
+      searchSelectedSenderDialogTitle: "",
+      searchSelectedSenders: [],
+      searchAddSenderKey: 199,
+      recentGroups: [],
+      searchSelectedGroupKey: 99,
+      searchSelectedGroupIds:[],
+      showSearchSelectedSenderDlg: false,
+      showSearchSelecterDlg: false,
       showSearchMessage: true,
       showSearchFile: true,
       showSearchPeople: true,
@@ -253,6 +270,42 @@ export default {
     };
   },
   methods: {
+    closeSearchChatFilterDlg() {
+        this.showSearchSelecterDlg = false;
+    },
+    closeSearchSenderSelectDlg() {
+      this.showSearchSelectedSenderDlg = false;
+      this.selectedSenderIds = [];
+    },
+    async SearchAddGroup(event, selectedIds) {
+        console.log("SearchAddGroup ", selectedIds);
+        this.searchSelectedGroupIds = selectedIds;
+        
+        this.recentGroups = await Group.GetGroupByTime();
+        this.searchSelectedGroupKey ++;
+        this.showSearchSelecterDlg = true;
+    },
+    async searchAddSenders(event, selectedSenderIds) {
+      console.log("selectedSenderIds ", selectedSenderIds);
+        for(let i=0;i<selectedSenderIds.length;i++) {
+          let selectedSenderVar = await UserInfo.GetUserInfo(selectedSenderIds[i]);
+          if(selectedSenderVar != undefined) {
+            this.searchSelectedSenders.push(selectedSenderVar);
+          }
+        }
+        var root = await Department.GetRoot();
+        var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+        var temp = [];
+        for(let i = 0; i < rootDepartmentModels.length; i ++) {
+            var department = rootDepartmentModels[i];
+            temp[department.show_order] = department;
+        }
+        this.searchSelectedSenderDialogRootDepartments =  temp;
+       
+        this.searchAddSenderKey ++;
+        this.showSearchSelectedSenderDlg = true;
+        this.searchSelectedSenderDialogTitle = "指定发送人";
+    },
     getSearchItemElementId: function(itemId) {
       return "all-search-" + itemId;
     },
@@ -589,6 +642,9 @@ export default {
     showAllSearchFiles: function() {
       ipcRenderer.send("showAnotherWindow", "", "searchFilesList");
     },
+    showAllSearchMessages: function() {
+      ipcRenderer.send("showAnotherWindow", "", "searchMessageList");
+    },
     getFileIconThroughExt: function(ext) {
         var iconPath = getIconPath(ext);
         return iconPath;
@@ -761,8 +817,8 @@ export default {
     },
     // To get group_id uesed as current chat group's element id
     getChatElementId: function(groupId, uid) {
-      console.log("groupid ",groupId)
-      console.log("uid ",uid)
+      // console.log("groupid ",groupId)
+      // console.log("uid ",uid)
       if(groupId != undefined && uid != undefined) {
         if(uid.length == 0) {
           return "chat-groupList-" + groupId;
@@ -1157,6 +1213,9 @@ export default {
             this.showGroupIcon();
           })
       }, 0)
+      
+        ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
+        ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
   },
   created: async function() {
     this.loginInfo = await services.common.GetLoginModel();

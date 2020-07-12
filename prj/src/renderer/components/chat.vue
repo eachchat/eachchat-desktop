@@ -74,7 +74,7 @@
                 <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px.png" @click="multiToolsClose">
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :searchSelectedGroups="searchSelectedGroups" :isSearchAdd="isSearchAdd" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <!-- <transmit v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs"></transmit>         -->
         <div id="complextype" class="edit-file-blot" style="display:none;">
@@ -95,7 +95,7 @@
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
         <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip> -->
         <userInfoContent :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
-        <chatCreaterDlg v-show="showChatCreaterDlg" :isSearchAdd="isSearchAdd" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        <chatCreaterDlg v-show="showChatCreaterDlg" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">
@@ -225,39 +225,6 @@ export default {
     },
     props: ['chat', 'newMsg'],
     methods: {
-        async SearchAddGroup(event, selectedIds) {
-            console.log("SearchAddGroup ", selectedIds);
-            this.searchSelectedGroups = selectedIds;
-            this.isSearchAdd = true;
-            
-            this.recentGroups = await Group.GetGroupByTime();
-            this.transmitKey ++;
-            this.showTransmitDlg = true;
-        },
-        async searchAddSenders(event, selectedSenderIds) {
-            // var memeberList = this.chat.contain_user_ids.split(",");
-            // this.showAddMembers(memeberList);
-            ////////////////////////////////////////////////////
-            var self = await services.common.GetSelfUserModel();
-            this.chatCreaterDisableUsers.push(selectedSenderIds);
-            var root = await Department.GetRoot();
-            console.log("root is ", root);
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = [];
-            for(var i = 0; i < rootDepartmentModels.length; i ++) {
-                var department = rootDepartmentModels[i];
-                temp[department.show_order] = department;
-            }
-            console.log("tempt is ", temp);
-            this.chatCreaterDialogRootDepartments =  temp;
-            
-            this.createNewChat = false;
-            this.chatCreaterKey ++;
-            this.showChatCreaterDlg = true;
-            this.chatCreaterDialogTitle = "指定发送人";
-            this.isSearchAdd = true;
-        },
         openUserInfoTip:async function(tipInfos) {
             console.log("tip inso if ", tipInfos);
             if(this.showUserInfoTips && tipInfos.userInfo == undefined) {
@@ -651,11 +618,34 @@ export default {
                 //
             }
         },
-        multiFav() {
-
+        async multiFav() {
+            var toFavMsgIds = [];
+            for(let i=0;i<this.selectedMsgs.length;i++) {
+                toFavMsgIds.push(this.selectedMsgs[i].time_line_id);
+            }
+            // console.log("fav msg is ", msg);
+            // console.log("cointent is ", strMsgContentToJson(msg.message_content));
+            var ret = await services.common.CollectMessage(toFavMsgIds);
+            if(ret) {
+                //
+            }
+            else {
+                //
+            }
+            this.multiToolsClose();
         },
         multiDel() {
-
+            console.log("this.selectedMsgs is ", this.selectedMsgs);
+            for(let i=0;i<this.selectedMsgs.length;i++) {
+                Message.DeleteMessage(this.selectedMsgs[i].message_id);
+                for(let j=0;j<this.messageList.length;j++) {
+                    if(this.messageList[j].sequence_id == this.selectedMsgs[i].sequence_id) {
+                        this.messageList.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+            this.multiToolsClose();
         },
         multiToolsClose() {
             this.multiSelect = false;
@@ -2095,8 +2085,6 @@ export default {
     },
     data() {
         return {
-            searchSelectedGroups: [],
-            isSearchAdd: false,
             needScroll: true,
             isOwn: false,
             createNewChat: false,
@@ -2189,8 +2177,6 @@ export default {
         }, 0)
         document.addEventListener('click',this.closeInfoTip)
         
-        ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
-        ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
     },
     created: async function() {
         this.loginInfo = await services.common.GetLoginModel();

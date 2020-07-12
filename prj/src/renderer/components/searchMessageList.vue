@@ -57,20 +57,20 @@
                 </div>
                 <img class="filterTimeImage" src="../../../static/Img/SearchDlg/time-20px.png" v-show="false">
             </div>
-            <ul class="SearchFileList" id="search-file-list-id">
+            <ul class="HistoryMsg-list" id="search-message-list-id">
                 <li v-for="(item, index) in messageListShow" class="messageItem" @click="openFile(item)">
-                    <img class="messageOwnerImage" :src="getIcon(item)">
+                    <img class="messageOwnerImage" :id="getUserHeadImageId(item)">
                     <div class="messageInfoDiv">
                         <div class="messageOwnerTimeDiv">
-                            <label class="fileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
-                            <label class="fileInfoDetailLabel">{{getFileInfo(item)}}</label>
+                            <label class="messageInfoOwnerNameLabel">{{item.groupName}}</label>
                         </div>
+                        <div class="messageInfoDetailLabel" v-html="msgContentHeightLight(item)"></div>
                     </div>
                 </li>
             </ul>
             <div class="HistoryMsgEmpty" v-show="showEmpty">
                 <img class="HistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
-                <div class="HistoryMsgEmptyText">搜索用户</div>
+                <div class="HistoryMsgEmptyText">搜索会话中的消息</div>
             </div>
         </div>
     </div>
@@ -86,9 +86,10 @@ import winHeaderBar from './win-header.vue'
 import confservice from '../../packages/data/conf_service.js'
 import { Group, UserInfo } from '../../packages/data/sqliteutil'
 export default {
-    name: 'HistoryMsgDlg',
+    name: 'SearchMessagesListDlg',
     data () {
         return {
+            showSearchType: "",
             selectedSenders: [],
             startTime: '',
             groupNeedMore: false,
@@ -105,6 +106,9 @@ export default {
         }
     },  
     methods: {
+        getUserHeadImageId: function(curMsg) {
+            return "HistoryMsgListImg-" + curMsg.groupId;
+        },
         addGroup: function() {
             var selectedGroupsIds = [];
             for(let i=0;i<this.selectedGroups.length;i++) {
@@ -114,20 +118,19 @@ export default {
         },
         addDisgUser: function() {
             var selectedSenderIds = [];
-            console.log("this.selectedSenders ", this.selectedSenders);
             for(let i=0;i<this.selectedSenders.length;i++) {
-                selectedSenderIds.push(this.selectedSenders[i].user_id);
+                selectedSenderIds.push(this.selectedSenders[i].group_id);
             }
             ipcRenderer.send("SearchAddSender", selectedSenderIds);
         },
         openFilter: function() {
             this.showFilter = true;
-            let distElement = document.getElementById("search-file-list-id");
+            let distElement = document.getElementById("search-message-list-id");
             distElement.style.height = "170px";
         },
         hideFilter: function() {
             this.showFilter = false;
-            let distElement = document.getElementById("search-file-list-id");
+            let distElement = document.getElementById("search-message-list-id");
             distElement.style.height = "290px";
         },
         openFile: function(userInfo) {
@@ -316,6 +319,20 @@ export default {
             console.log("========== ", this.startTime)
             this.search();
         },
+        showGroupInfo: async function() {
+            for(let i=0;i<this.messageListShow.length;i++) {
+                var curItem = this.messageListShow[i];
+                var groupId = curItem.groupId;
+                var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
+                
+                var distTAvatar = curItem.groupAvatar;
+                var targetPath = '';
+                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, groupId))){
+                    distUserImgElement.setAttribute("src", targetPath);
+                }
+            }
+
+        },
         search: async function() {
             if(this.searchKey.length == 0) {
                 return;
@@ -338,7 +355,7 @@ export default {
             for(let i=0;i<this.selectedGroups.length;i++) {
                 selectedGroupIds.push(this.selectedGroups[i].group_id);
             }
-            var ret = await services.common.SearchFiles(this.searchKey, this.numIndex, 50, selectedSenderIds, selectedGroupIds, this.startTime);
+            var ret = await services.common.SearchGroups(this.searchKey, this.numIndex, 50, selectedSenderIds, selectedGroupIds, this.startTime);
             console.log(ret);
             if(ret.length != 0) {
                 this.showEmpty = false;
@@ -348,8 +365,6 @@ export default {
             }
             this.numIndex = ret.length;
             this.messageListShow = [];
-            console.log(searchResult.id)
-            console.log(this.searchId)
             if(searchResult.id == this.searchId) {
                 this.messageListShow = ret;
                 console.log(this.messageListShow)
@@ -359,29 +374,10 @@ export default {
                     })
                 }, 500)
             }
-            // this.searchId = curSearchId;
-            // var ret = await services.common.SearchFiles(this.searchKey)
-            // var messageListTmp = ret;
-            // this.messageListShow = [];
-            // this.originalMessageList = [];
-            // console.log("this. is ", ret)
-            // for(var i=0;i<messageListTmp.length;i++){
-            //     this.messageListShow.unshift(messageListTmp[i]);
-            //     this.originalMessageList.unshift(messageListTmp[i]);
-            // }
-            
-            // console.log("this.filelistshow is ", this.messageListShow);
         },
         msgContentHeightLight: function(curMsg) {
-            var showContent = curMsg.user_display_name;
-            // showContent = showContent + ' ';
-            if(this.searchKey.length == 0) {
-                return showContent
-            }
-            if(showContent.indexOf(this.searchKey) != -1) {
-                let splitValue = showContent.split(this.searchKey);
-                let newInnerHtml = splitValue.join('<span style="color:red;">' + this.searchKey + "</span>");
-                return newInnerHtml;
+            if(curMsg.count != undefined) {
+                return "包含" + curMsg.count + "条相关记录";
             }
         },
         MsgContent: function(curMsg) {
@@ -417,8 +413,7 @@ export default {
             }
         },
         updatePage: function() {
-            this.showSeletcteGroupInfo();
-            this.showSeletcteSenderInfo();
+            this.showGroupInfo();
         },
         updateSelectedGroups: async function(event, selectedGroupIds) {
             console.log("searchfilelist updateselected groups ", selectedGroupIds)
@@ -796,7 +791,7 @@ export default {
         float: right;
     }
     
-    .SearchFileList {
+    .HistoryMsg-list {
         list-style: none;
         max-height: 290px;
         width: 100%;
@@ -876,6 +871,8 @@ export default {
         line-height: 18px;
         font-size: 12px;
         font-family:Microsoft Yahei;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
 </style>

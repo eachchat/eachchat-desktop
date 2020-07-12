@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import os from 'os';
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import macWindowHeader from './macWindowHeader.vue'
@@ -275,6 +276,16 @@ export default {
         personalCenter,
     },
     mounted: async function() {
+        console.log("os.type() ", os.type());
+        console.log("os.type() ", os.release());
+        // console.log("os.type() ", os.type());
+        // console.log("os.type() ", os.type());
+        // console.log("os.type() ", os.type());
+        // console.log("os.type() ", os.type());
+        // console.log("os.type() ", os.type());
+        // console.log("os.type() ", os.type());
+        // console.log("os.type() ", os.type());
+        // console.log("os.type() ", os.type());
         await services.common.GetLoginModel();
         this.selfUserInfo = await services.common.GetSelfUserModel();
         //await services.common.AllUserinfo();

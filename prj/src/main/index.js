@@ -82,16 +82,22 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   var title = "";
   if(path == "historyMsgList") {
-    title = "聊天记录"
+    title = "聊天记录";
   }
-  else {
-    title = "文件列表"
+  else if(path == "fileList") {
+    title = "文件列表";
+  }
+  else if(path == "searchMessageList") {
+    title = "聊天记录";
+  }
+  else if(path == "searchFilesList") {
+    title = "文件列表";
   }
   soloPage = new BrowserWindow({
-    height: 468,
+    height: 508,
     //useContentSize: true,
-    resizable: false,
-    width:600,
+    // resizable: false,
+    width:615,
     webPreferences: {webSecurity:false},
     frame:true,
     title:title

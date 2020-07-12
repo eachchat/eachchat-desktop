@@ -1,12 +1,12 @@
 <template>
-    <div class="TransmitLayers" id="TransmitLayersId" >
-        <div :style="dlgPosition" class="TransmitDlg" id="TransmitDlgId">
-            <div class="TransmitHeader">
-                <div class="TransmitHeaderTitle">{{ dialogTitle }}</div>
-                <img class="TransmitClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
+    <div class="SearchChatFilterLayers" id="SearchChatFilterLayersId" >
+        <div :style="dlgPosition" class="SearchChatFilterDlg" id="SearchChatFilterDlgId">
+            <div class="SearchChatFilterHeader">
+                <div class="SearchChatFilterHeaderTitle">{{ dialogTitle }}</div>
+                <img class="SearchChatFilterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
             
-            <el-container class="TransmitContent" v-show="!showCreateNewChat">
+            <el-container class="SearchChatFilterContent">
                 <el-aside class="ListView" width="280px">
                     <div class="search">
                     <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
@@ -30,12 +30,6 @@
                                 </div>
                             </li>
                         </ul>
-                    </div>
-                    <div class="NewChatView" v-show="!showSearchView">
-                        <img class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
-                        <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
-                        <p class="createNewChatTitle">创建新聊天</p>
-                        </div>
                     </div>
                     <div class="RecentChatHeader" v-show="!showSearchView">
                         最近聊天
@@ -69,14 +63,9 @@
                     </div>
                 </el-main>
             </el-container>
-            <chatCreaterContent ref="chatCreaterContent" v-if="showCreateNewChat" :rootDepartments="rootDepartments" :disableUsers="chatCreaterDisableUsers"></chatCreaterContent>
-            <div class="TransmitFotter" v-show="!showCreateNewChat">
-                <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确认</button>
-            </div>
-            <div class="TransmitFotter" v-show="showCreateNewChat">
-                <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确认</button>
+            <div class="SearchChatFilterFotter">
+                <button class="SearchChatFilterCancleButton" @click="closeDialog()">取消</button>
+                <button class="SearchChatFilterConfirmButton" @click="SearchChatFilter()" :disabled="selectedGroups.length==0">确认</button>
             </div>
         </div>
     </div>
@@ -95,44 +84,39 @@ import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group} from '../../packages/data/sqliteutil.js';
 export default {
-    name: 'TransmitDlg',
+    name: 'SearchChatFilterDlg',
     components:{
         chatCreaterContent,
     },
-    props: {
-        collectionInfo: {
-            type: Object,
-            default: function(){
-                return {};
+    watch: {
+        searchSelectedGroupIds: async function() {
+            for(let i=0;i<this.searchSelectedGroupIds.length;i++) {
+                var selectedGroupItem = await Group.FindGroupByID(this.searchSelectedGroupIds[i]);
+                if(selectedGroupItem.length != 0) {
+                    if(this.indexOfGroupInSelected(selectedGroupItem[0]) == -1){
+                        this.selectedGroups.push(selectedGroupItem[0]);
+                    }
+                }
             }
-        },
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedGroups.length; i ++){
+                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
+                }
+            });
+            console.log("in init the selected groups is ", this.selectedGroups)
+        }
+    },
+    props: {
         recentGroups: {
             type: Array,
             default: function () { 
                 return [];
             }
         },
-        transmitCollection:{
-            type: Boolean,
-            default: false
-        },
-        transmitTogether: {
-            type: Boolean,
-            default: false
-        },
-        curChat:{
-            type: Object,
-            default: function () {
-                return {};
-            }
-        },
-        transmitMessages: {
+        searchSelectedGroupIds: {
             type: Array,
-            default: function () {
-                return [];
-            }
+            default: []
         },
-
     },
     computed: {
         groupChecked() {
@@ -156,18 +140,13 @@ export default {
     },
     data () {
         return {
-            showCreateNewChat: false,
-            TransmitDlgElement: null,
-            TransmitLayersElement: null,
+            SearchChatFilterDlgElement: null,
+            SearchChatFilterLayersElement: null,
             imgHeight: 468,
             imgWidth: 624,
-            ipcInited: false,
-            TransmitContent: "",
-            groupId: "",
+            SearchChatFilterContent: "",
             dlgPosition:{},
-            selectedGroups: [],
-
-            curUserInfo:{},
+            selectedGroups:[],
             rootDepartments:[],
             chatCreaterDisableUsers:[],
 
@@ -200,7 +179,7 @@ export default {
         },
         closeDialog() {
             this.display = false;
-            this.$emit("closeTransmitDlg", "");
+            this.$emit("closeSearchChatFilterDlg", "");
             
         },
         search:async function () {
@@ -222,6 +201,7 @@ export default {
             this.showSearchView = false;
         },
         deleteGroupFromSelectedGroups(group){
+            console.log("delete group from selected groups")
             var index = this.selectedGroups.indexOf(group);
             this.selectedGroups.splice(index, 1);
             this.$nextTick(function(){
@@ -231,6 +211,7 @@ export default {
             });
         },
         groupCheckBoxClicked(group){
+            console.log("selected = ", this.selectedGroups)
             if(this.selectedGroups.indexOf(group) != -1){
                 var index = this.selectedGroups.indexOf(group);
                 this.selectedGroups.splice(index, 1);
@@ -244,21 +225,6 @@ export default {
                 }
             });
         },
-        createNewChatButtonClicked:async function() {
-            
-            var self = await services.common.GetSelfUserModel();
-            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
-            var root = await Department.GetRoot();
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            var temp = [];
-            for(var i = 0; i < rootDepartmentModels.length; i ++) {
-                var department = rootDepartmentModels[i];
-                temp[department.show_order] = department;
-            }
-            this.rootDepartments =  temp;
-            this.showCreateNewChat = true;
-            
-        },
         indexOfGroupInSelected(group){
             var index = -1;
             for(var i = 0; i < this.selectedGroups.length; i ++){
@@ -270,20 +236,6 @@ export default {
             }
             return index;
         },
-        // selectedGroupImageId(id) {
-        //     return "selected" + id;
-        // },
-        // UpdateTransmit: function() {
-        //     if(this.TransmitContent.length == 0){
-        //         alert("公告内容不能为空");
-        //         return;
-        //     }
-        //     services.common.UpdateGroupTransmit(this.groupId, this.TransmitContent)
-        //         .then((ret) => {
-        //             console.log("ret ", ret)
-        //             this.$emit("closeTransmitDlg", this.TransmitContent);
-        //         })
-        // },
         getGroupAvatarContent:async function(group, key='') {
             var targetDir = confservice.getUserThumbHeadPath();
             var targetPath = path.join(targetDir, group.group_id + '.png');
@@ -291,7 +243,7 @@ export default {
             if(groupAvatarElement == null) {
                 return;
             }
-            if(fs.existsSync(targetPath)) {
+            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(group.group_avarar, group.group_id))){
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
@@ -300,12 +252,6 @@ export default {
                     groupAvatarElement.setAttribute("src", reader.result);
                 }
             }
-            else{
-                console.log("download group avatar", group);
-                services.common.downloadGroupAvatar(group.group_avarar, group.group_id);
-                //await this.getGroupAvatarContent(group);
-            }
-
         },
         calcImgPosition: function() {
 
@@ -327,378 +273,47 @@ export default {
 
 
         //transmit relation methods
-        Transmit:async function() {
+        SearchChatFilter:async function() {
             // get createNewChat Users
-            if(this.showCreateNewChat){
-                console.log(this.$refs.chatCreaterContent.getSelectedUsers());
-                this.$emit("closeTransmitDlg", "");
-                this.$message('转发成功');
-                return;
+            var selectedGroupIds = [];
+            for(let i=0;i<this.selectedGroups.length;i++) {
+                var selectedGroupId = this.selectedGroups[i].group_id;
+                selectedGroupIds.push(selectedGroupId);
             }
-            //
-            this.curUserInfo = await services.common.GetSelfUserModel();
-            if(this.transmitCollection){
-                await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
-                this.$emit("closeTransmitDlg", "");
-                this.$message('转发成功');
-                return;
-            }
-            await this.sendMsg(this.selectedGroups, this.transmitMessages);
-            // for(var i=0;i<this.groupList.length;i++) {
-            //     this.groupList[i].checkState = false;
-            // }
-            // this.selectedChat = [];
-            this.$emit("closeTransmitDlg", "");
-            this.$message('转发成功');
-        },
-        createGroupAndTransmit: async function() {
-            console.log(this.$refs.chatCreaterContent.getSelectedUsers());
-            var selectedUsers = this.$refs.chatCreaterContent.getSelectedUsers();
-            var selfUser = await services.common.GetSelfUserModel();
-            var groupUserIds = [];
-            var groupUserName = []
-            for(var i=0;i<selectedUsers.length;i++) {
-                groupUserIds.push(selectedUsers[i].user_id)
-                if(i < 4) {
-                    groupUserName.push(selectedUsers[i].user_display_name)
-                }
-            }
-            // console.log("group groupUserName ids is ", groupUserName)
-            var groupName = '';
-            if(groupUserName.length > 1) {
-                groupName = groupUserName.join("、");
-            }
-            else if(groupUserName.length == 4) {
-                groupName = groupUserName.join("、");
-                groupName = groupName + "...";
-            }
-            else {
-                groupName = groupUserName[0];
-            }
-            // console.log("group user ids is ", groupUserIds)
-            // console.log("group groupName ids is ", groupName)
-            if(selectedUsers.length == 0) {
-                alert("未选择用户")
-            }
-            else if(selectedUsers.length == 1) {
-                var groupItem = {};
-                var selectedId = selectedUsers[0];
-                var chatUserInfo = await UserInfo.GetUserInfo(selectedId.id);
-                console.log("userInfos is ", chatUserInfo);
-                var chatAvater = chatUserInfo.avatar_t_url;
-                var chatName = chatUserInfo.user_display_name;
-                var groupCheck = await services.common.GetGroupByName(chatName);
-                console.log("groupCheck is ", groupCheck)
-                groupUserIds.push(selfUser.id);
-                if(groupCheck.contain_user_ids == undefined) {
-                    groupItem["contain_user_ids"] = groupUserIds;
-                    groupItem["group_avarar"] = chatAvater;
-                    groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 102;
-                    groupItem["last_message_time"] = 0;
-                    groupItem["message_content"] = null;
-                    groupItem["message_content_type"] = 101;
-                    groupItem["message_from_id"] = selfUser.id;
-                    groupItem["message_id"] = '';
-                    groupItem["owner"] = null;
-                    groupItem["sequence_id"] = 0;
-                    groupItem["status"] = "00000000";
-                    groupItem["un_read_count"] = 0;
-                    groupItem["updatetime"] = new Date().getTime();
-                    groupItem["user_id"] = selectedUsers[0].user_id;
-                }
-                else {
-                    groupItem = groupCheck;
-                }
-
-                this.$emit('getCreateGroupInfo', groupItem);
-
-                this.selectedGroups = [groupItem];
-                if(this.transmitCollection){
-                    await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
-                    this.$emit("closeTransmitDlg", "");
-                    this.$message('转发成功');
-                    return;
-                }
-                var newmsgret = await this.sendMsg(this.selectedGroups, this.transmitMessages);
-                console.log('newmsgret ', newmsgret);
-                this.$emit("closeTransmitDlg", "");
-                this.$message('转发成功');
-            }
-            else {
-                groupUserIds.push(selfUser.id);
-                services.common.CreateGroup(groupName, groupUserIds)
-                    .then((ret) => {
-                        if(ret == undefined) {
-                            console.log("!!!!!!!!!!!1 ")
-                            // ToDo exception notice.
-                            return;
-                        }
-                        ret.message_content = null;
-                        
-                        var groupItem = {};
-                        groupItem["contain_user_ids"] = ret.contain_user_ids;
-                        groupItem["group_id"] = ret.group_id;
-                        groupItem["group_avarar"] = ret.group_avarar;
-                        groupItem["group_name"] = ret.group_name;
-                        groupItem["group_type"] = ret.group_type;
-                        groupItem["last_message_time"] = ret.last_message_time;
-                        groupItem["message_content"] = null;
-                        groupItem["message_content_type"] = ret.message_content_type;
-                        groupItem["message_from_id"] = ret.message_from_id;
-                        groupItem["message_id"] = ret.message_id;
-                        groupItem["owner"] = ret.owner;
-                        groupItem["sequence_id"] = ret.sequence_id;
-                        groupItem["status"] = ret.status;
-                        groupItem["un_read_count"] = ret.un_read_count;
-                        groupItem["updatetime"] = ret.updatetime;
-                        groupItem["user_id"] = '';
-                
-                        // console.log("services.CreateGroup ret is ", groupItem);
-                        this.$emit('getCreateGroupInfo', groupItem);
-                        setTimeout(async () => {
-                            this.selectedGroups = [groupItem];
-                            if(this.transmitCollection){
-                                await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
-                                this.$emit("closeTransmitDlg", "");
-                                this.$message('转发成功');
-                                return;
-                            }
-                            await this.sendMsg(this.selectedGroups, this.transmitMessages);
-                            // for(var i=0;i<this.groupList.length;i++) {
-                            //     this.groupList[i].checkState = false;
-                            // }
-                            // this.selectedChat = [];
-                            this.$emit("closeTransmitDlg", "");
-                            this.$message('转发成功');
-                        }, 500)
-                    })
-            }
-        },
-        sendMsg: async function(distGroups, msgs) {
-            if(this.transmitTogether) {
-                await this.sendTogetherMsg(distGroups, msgs);
-            }
-            else {
-                await this.sendSingleMsg(distGroups, msgs);
-            }
-        },
-        sendTogetherMsg: async function(distGroups, msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            var msgContent = await this.getTogetherMsgContent(msgs);
-            console.log("varcontent is ", msgContent);
-            for(var i=0;i<distGroups.length;i++){
-                var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
-                let curTimeSeconds = new Date().getTime();
-                
-                let sendingMsgContentType = 106;
-                let willSendMsgContent = msgContent;
-                let guid = generalGuid();
-                services.common.sendNewMessage(
-                        guid, 
-                        sendingMsgContentType, 
-                        this.curUserInfo.id, 
-                        groupId, 
-                        uid, 
-                        curTimeSeconds, 
-                        willSendMsgContent)
-                    .then((ret) => {
-                        console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
-                    })
-            }
-        },
-        sendSingleCollectionMsg: async function(distGroups, collection) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            for(var i=0;i<distGroups.length;i++){
-
-                    var curMsg = collection;
-                    var curMsgContent = collection.collection_content;
-                    console.log("curMsgCintent is ", curMsgContent);
-
-                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
-                    let curTimeSeconds = new Date().getTime();
-                    
-                    let sendingMsgContentType = curMsg.collection_type;
-                    let willSendMsgContent = curMsgContent;
-                    let guid = generalGuid();
-                    
-                    services.common.sendNewMessage(
-                            guid, 
-                            sendingMsgContentType, 
-                            this.curUserInfo.id, 
-                            groupId, 
-                            uid, 
-                            curTimeSeconds, 
-                            willSendMsgContent)
-                        .then((ret) => {
-                            console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
-                        })
-                }
-        },
-        sendSingleMsg: async function(distGroups, msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            for(var i=0;i<distGroups.length;i++){
-                for(var j=0;j<msgs.length;j++) {
-                    var curMsg = msgs[j];
-                    var curMsgContent = strMsgContentToJson(curMsg.message_content);
-                    console.log("curMsgCintent is ", curMsgContent);
-
-                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
-                    let curTimeSeconds = new Date().getTime();
-                    
-                    let sendingMsgContentType = curMsg.message_type;
-                    let willSendMsgContent = curMsgContent;
-                    let guid = generalGuid();
-
-                    services.common.sendNewMessage(
-                            guid, 
-                            sendingMsgContentType, 
-                            this.curUserInfo.id, 
-                            groupId, 
-                            uid, 
-                            curTimeSeconds, 
-                            willSendMsgContent)
-                        .then((ret) => {
-                            console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
-                        })
-                }
-            }
-        },
-        getTogetherMsgContent: async function(msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            var contentTitle = "";
-            var contentText = "";
-            var groupId = this.curChat.group_id;
-            var msgIds = [];
-            var fromId = this.curUserInfo.id;
-            console.log("this.curchat is ", this.curChat.group_type);
-            if(this.curChat.group_type == 102) {
-
-                var nameTemp = '';
-                var userInfos = await services.common.GetDistUserinfo(this.curChat.uid);
-                var distUserInfo = userInfos[0];
-                if(distUserInfo != undefined){
-                    nameTemp = distUserInfo.user_display_name;
-                }
-
-                contentTitle = this.curUserInfo.name + "与" + nameTemp + "的聊天记录";
-            }
-            else {
-                contentTitle = this.curChat.group_name;
-            }
-            for(let i=0;i<msgs.length;i++) {
-                if(i < 4) {
-                    if(i == 3) {
-                        contentText = contentText + await this.getMsgContent(msgs[i]);
-                    }
-                    else {
-                        contentText = contentText + await this.getMsgContent(msgs[i]) + "\n";
-                    }
-                }
-                msgIds.push(msgs[i].time_line_id);
-            }
-            console.log("contentText is ", contentText);
-
-            var togetherMsgContent = {
-                "title": contentTitle,
-                "text": contentText,
-                "groupId": groupId,
-                "msgIds": msgIds,
-                "fromId": fromId,
-            };
-
-            return togetherMsgContent;
-        },
-        getMsgContent: async function(msg) {
-            if(this.msg === null) {
-                return '';
-            }
-            var messageContent = '';
-            let chatGroupMsgType = msg.message_type;
-            var chatGroupMsgContent = strMsgContentToJson(msg.message_content);
-
-            var nameTemp = '';
-            var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
-            var distUserInfo = userInfos[0];
-            if(distUserInfo != undefined){
-                nameTemp = distUserInfo.user_display_name;
-            }
-
-            console.log("chatGroupMsgContent is ", nameTemp)
-            // console.log("this. msg is ", this.msg)
-            // 数据库缺省type = 0 
-            if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
-            {
-                messageContent = nameTemp + ":" + chatGroupMsgContent.text;
-                console.log("aboutUserName ",nameTemp);
-                console.log("getMsgContent ",messageContent);
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 102)
-            {
-                messageContent = nameTemp + ":" + "[图片]:" + chatGroupMsgContent.fileName;
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 103)
-            {
-                messageContent = nameTemp + ":" + "[文件}:" + chatGroupMsgContent.fileName;   
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 106)
-            {
-                return messageContent = chatGroupMsgContent.title + ":" + "的聊天记录";
-            }
-            else {
-                return messageContent = "不支持的消息类型，请升级客户端。"
-            }
-        },
-        getDistUidThroughUids: async function(uids) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            if(uids.length > 2) {
-                return "";
-            }
-            else if(uids.length == 1) {
-                return uids[0];
-            }
-            else {
-                if(uids[0] == this.curUserInfo.id) {
-                    return uids[1];
-                }
-                else {
-                    return uids[0];
-                }
-            }
+            ipcRenderer.send("searchAddedMembers", selectedGroupIds);
+            
+            this.$emit("closeSearchChatFilterDlg", "");
         },
     },
     created() {
-            //this.curUserInfo = await services.common.GetSelfUserModel();
-            //console.log("this.curuser info is ", this.curUserInfo);
+        console.log("created =======");
             var showPosition = this.calcImgPosition();
             console.log(showPosition);
             this.dlgPosition.left = showPosition.left.toString() + "px";
             this.dlgPosition.top = showPosition.top.toString() + "px";
             console.log(this.recentGroups);
     },
-    mounted: function() {
+    mounted: async function() {
+        console.log("mounted =======")
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);
+        for(let i=0;i<this.searchSelectedGroupIds.length;i++) {
+            var selectedGroupItem = await Group.FindGroupByID(this.searchSelectedGroupIds[i]);
+            if(selectedGroupItem.length != 0) {
+                if(this.indexOfGroupInSelected(selectedGroupItem[0]) == -1){
+                    this.selectedGroups.push(selectedGroupItem[0]);
+                }
+            }
+        }
         setTimeout(() => {
             this.$nextTick(function(){
                 console.log(this.recentGroups.length)
                 for(var i = 0; i < this.recentGroups.length; i ++){
                     this.getGroupAvatarContent(this.recentGroups[i]);
+                }
+            });
+            this.$nextTick(function(){
+                for(var i = 0; i < this.selectedGroups.length; i ++){
+                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
                 }
             });
         }, 0)
@@ -712,16 +327,17 @@ export default {
 /*隐藏滚轮*/
 display: none;
 }
-    .TransmitLayers {
+    .SearchChatFilterLayers {
         height: 100%;
         width: 100%;
         position: fixed;
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
+        z-index: 51;
     }
 
-    .TransmitDlg {
+    .SearchChatFilterDlg {
         position: absolute;
         width: 624px;
         height: 468px;
@@ -729,13 +345,13 @@ display: none;
         background: rgba(255, 255, 255, 1);
     }
 
-    .TransmitHeader {
+    .SearchChatFilterHeader {
         width: 100%;
         height: 56px;
         background: rgba(255, 255, 255, 1);
     }
 
-    .TransmitHeaderTitle {
+    .SearchChatFilterHeaderTitle {
         width: calc(100% - 68px);
         height: 56px;
         line-height: 56px;
@@ -744,18 +360,18 @@ display: none;
         vertical-align: top;
     }
 
-    .TransmitClose {
+    .SearchChatFilterClose {
         width: 20px;
         height: 20px;
         margin-top: 18px;
         margin-bottom: 18px;
         display: inline-block;
     }
-    .TransmitBody {
+    .SearchChatFilterBody {
         width: 560px;
         height: 340x;
     }
-    .TransmitContent {
+    .SearchChatFilterContent {
         width: 560px;
         height: 340x;
         margin: 0;
@@ -1064,7 +680,7 @@ display: none;
     }
     
 
-    // .TransmitTextArea {
+    // .SearchChatFilterTextArea {
     //     width: calc(100% - 96px);
     //     height: calc(100% - 32px);
     //     background:rgba(255,255,255,1);
@@ -1083,7 +699,7 @@ display: none;
     //     padding: 16px;
     // }
 
-    // .TransmitTextArea:focus {
+    // .SearchChatFilterTextArea:focus {
     //     width: calc(100% - 96px);
     //     height: calc(100% - 32px);
     //     background:rgba(255,255,255,1);
@@ -1103,13 +719,13 @@ display: none;
     //     outline: none;
     // }
 
-    .TransmitFotter {
+    .SearchChatFilterFotter {
         width: 100%;
         height: 72px;
         display: inline-block;
         text-align: center;
     }
-    .TransmitConfirmButton{
+    .SearchChatFilterConfirmButton{
         width: 100px;
         height: 32px;
         margin-left: 5px;
@@ -1122,7 +738,7 @@ display: none;
         border-radius:4px;
     }
  
-    .TransmitConfirmButton:disabled{
+    .SearchChatFilterConfirmButton:disabled{
         width: 100px;
         height: 32px;
         margin-left: 5px;
@@ -1135,7 +751,7 @@ display: none;
         border-radius:4px;
     }
  
-    .TransmitCancleButton {
+    .SearchChatFilterCancleButton {
         width: 100px;
         height: 32px;
         margin-right: 5px;

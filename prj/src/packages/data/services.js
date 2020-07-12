@@ -1563,7 +1563,23 @@ const common = {
       return falses;
     }
     return response.data.results;
-  }
+  },
+  
+  async SearchGroups(keyword, sequenceId, perPage, userIds, groupIds, startTime){
+    let response = await this.api.SearchGroups(this.data.login.access_token, keyword, sequenceId, perPage, userIds, groupIds, startTime);
+    if (!response.ok || !response.success) {
+      return falses;
+    }
+    return response.data.results;
+  },
+
+  async SearchMessages(keyword, sequenceId, perPage, userIds, groupIds, startTime){
+    let response = await this.api.SearchMessages(this.data.login.access_token, keyword, sequenceId, perPage, userIds, groupIds, startTime);
+    if (!response.ok || !response.success) {
+      return falses;
+    }
+    return response.data.results;
+  },
 };
 
 const cache = {

@@ -10,6 +10,7 @@ import setup from '../components/setup.vue';
 Vue.use(Router);
 import reportRelationContent from '../components/reportRelationContent.vue';
 import SearchFilesListDlg from '../components/searchFileList.vue';
+import SearchMessagesListDlg from '../components/searchMessageList.vue';
 
 export default new Router({
   routes: [
@@ -69,6 +70,11 @@ export default new Router({
       path:'/searchFilesList',
       name: 'searchFilesList',
       component: SearchFilesListDlg,
+    },
+    {
+      path:'/searchMessageList',
+      name: 'searchMessageList',
+      component: SearchMessagesListDlg,
     },
     {
       path: '/index',
