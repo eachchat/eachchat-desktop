@@ -17,7 +17,7 @@
                         <label class="fileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
                         <label class="fileInfoDetailLabel">{{getFileInfo(item)}}</label>
                     </div>
-                    <img class="fileOperate" src="../../../static/Img/Chat/More@2x.png" @click="showOperate($event, item)">
+                    <img class="fileOperate" src="../../../static/Img/Chat/more@2x.png" @click="showOperate($event, item)">
                 </li>
             </ul>
         </div>
