@@ -38,7 +38,7 @@
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                    <img class="group-icon" :id="group.group_id" src="../../../static/Img/User/user.jpeg">
+                                    <img class="group-icon" :id="searchChatGroupImgId(group.group_id)" src="../../../static/Img/User/user.jpeg">
                                     <div class="group-info">
                                         <p class="group-name">{{ group.group_name }}</p>
                                     </div>
@@ -156,6 +156,9 @@ export default {
         }
     },
     methods: {
+        searchChatGroupImgId(groupId) {
+            return "search-chat-chat-group-" + groupId;
+        },
         updateGroupImg(e, arg) {
             var state = arg[0];
             var stateInfo = arg[1];
@@ -239,7 +242,9 @@ export default {
         getGroupAvatarContent:async function(group, key='') {
             var targetDir = confservice.getUserThumbHeadPath();
             var targetPath = path.join(targetDir, group.group_id + '.png');
-            var groupAvatarElement = document.getElementById(key + group.group_id);
+            var distGrouId = this.searchChatGroupImgId(group.group_id);
+            var selectedgroupAvatarElement = document.getElementById(key + group.group_id);
+            var groupAvatarElement = document.getElementById(distGrouId);
             if(groupAvatarElement == null) {
                 return;
             }
@@ -250,6 +255,9 @@ export default {
                 reader.readAsDataURL(showfileObj);
                 reader.onloadend = () => {
                     groupAvatarElement.setAttribute("src", reader.result);
+                    if(selectedgroupAvatarElement != undefined) {
+                        selectedgroupAvatarElement.setAttribute("src", reader.result);
+                    }
                 }
             }
         },

@@ -93,6 +93,9 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   else if(path == "searchFilesList") {
     title = "文件列表";
   }
+  else if(path == "TransmitMsgList") {
+    title = "聊天记录";
+  }
   soloPage = new BrowserWindow({
     height: 508,
     //useContentSize: true,

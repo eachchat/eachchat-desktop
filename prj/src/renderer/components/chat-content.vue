@@ -615,7 +615,7 @@ export default {
         var fileDetailElementId = this.getFileNameItemElementId(this.searchFileItems[i].timelineId);
         let fileDetailElement = document.getElementById(fileDetailElementId);
         if(fileDetailElement != undefined) {
-          var fileSize = this.searchFileItems[i].content.fileSize /(1024*1024) + "K";
+          var fileSize = (this.searchFileItems[i].content.fileSize /(1024*1024)).toFixed(2) + "K";
           var fileOwnerInfo = await UserInfo.GetUserInfo(this.searchFileItems[i].fromId);
           var fileOwnerName = fileOwnerInfo.user_display_name;
           var fileTime = this.formatTimeFilter(this.searchFileItems[i].timestamp);

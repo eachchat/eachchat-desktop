@@ -199,10 +199,9 @@ export default {
                 }
                 this.$emit('playAudioOfMessage', this.msg.message_id);
             }
-            // else if(msgType == 106) {
-            //     var needShowMsgId = msgContent.msgIds;
-            //     ipcRenderer.send("showAnotherWindow", this.chat.group_id, "historyMsgList", needShowMsgId);
-            // }
+            else if(msgType == 106) {
+                ipcRenderer.send("showAnotherWindow", [this.msg.time_line_id, this.msg.group_id], "TransmitMsgList");
+            }
         },
         MsgIsFailed: function() {
         },

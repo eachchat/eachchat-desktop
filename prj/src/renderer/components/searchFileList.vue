@@ -314,7 +314,7 @@ export default {
                 fileFromUserName = fileFromUserInfo.user_display_name;
             }
 
-            return fileSize + " " + fileFromUserName + " " + fileDate;
+            return fileSize + "K " + fileDate;
         },
         fileNameHeightLight: function(curItem) {
             var showContent = curItem.content.fileName;

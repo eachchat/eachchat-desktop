@@ -85,7 +85,7 @@
                                     <li class="subUser" v-for="(user, index) in curUsers" :key="index">
                                         <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
                                             @click="userCheckBoxClicked(user)">
-                                        <img class="subUserIcon" :id="user.user_id" src="../../../static/Img/User/user.jpeg">
+                                        <img class="subUserIcon" :id="searchSenderUserImg(user.user_id)" src="../../../static/Img/User/user.jpeg">
                                         <div class="subUserInfo">
                                             <p class="subUserName">{{ user.user_display_name }}</p>
                                             <p class="subUserTitle">{{ user.user_title }}</p>
@@ -233,6 +233,9 @@ export default {
         }
     },
     methods: {
+        searchSenderUserImg: function(userId) {
+            return "search-sender-user-img-" + userId;
+        },
         search:async function () {
             if(this.searchKey == ''){
                 this.showSearchView = false;
@@ -486,13 +489,17 @@ export default {
             var userId = userInfo.user_id;
             var userAvatarUrl = userInfo.avatar_t_url;
             var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(key + userInfo.user_id);
+            let userIconSelectedElement = document.getElementById(key + userInfo.user_id);
+            let userIconElement = document.getElementById(this.searchSenderUserImg(userInfo.user_id));
             if(fs.existsSync(localPath)){
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
                 reader.readAsDataURL(showfileObj);
                 reader.onloadend = () => {
+                    if(userIconSelectedElement != undefined) {
+                        userIconSelectedElement.setAttribute("src", reader.result);
+                    }
                     userIconElement.setAttribute("src", reader.result);
                 }
             }else{

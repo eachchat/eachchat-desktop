@@ -11,6 +11,7 @@ Vue.use(Router);
 import reportRelationContent from '../components/reportRelationContent.vue';
 import SearchFilesListDlg from '../components/searchFileList.vue';
 import SearchMessagesListDlg from '../components/searchMessageList.vue';
+import TransmitMsgListDlg from '../components/transmitTogetherContent.vue'
 
 export default new Router({
   routes: [
@@ -75,6 +76,11 @@ export default new Router({
       path:'/searchMessageList',
       name: 'searchMessageList',
       component: SearchMessagesListDlg,
+    },
+    {
+      path:'/TransmitMsgList',
+      name: 'TransmitMsgList',
+      component: TransmitMsgListDlg,
     },
     {
       path: '/index',

@@ -1580,6 +1580,15 @@ const common = {
     }
     return response.data.results;
   },
+  
+  async GetTransmitMsgContent(timelineId, userId){
+    let result = await this.api.ReceiveTransmitMessage(this.data.login.access_token, timelineId, userId);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data.results;
+  },
+
 };
 
 const cache = {

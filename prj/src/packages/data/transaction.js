@@ -778,6 +778,17 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async ReceiveTransmitMessage(accessToken, timelineId, userId)
+  {
+    var response = await this.commonApi.get(
+      "/api/apps/im/v1/message/forward/" + timelineId + "/userId/" + userId,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
 }
 
 class MQTTTransaction {}
