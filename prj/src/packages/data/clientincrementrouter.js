@@ -1,7 +1,11 @@
 import { models } from './models.js'
 import { servicemodels } from './servicemodels.js'
 import { sqliteutil } from './sqliteutil.js'
-
+import * as fs from 'fs-extra'
+//import { services } from '../../packages/data'
+import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import confservice from './conf_service.js'
+import {services} from './index.js';
 class BaseIncrement{
     constructor(type, item, service){
         this.type = type;
@@ -40,7 +44,18 @@ class UserIncrement extends BaseIncrement{
                 findUserInfo.values = userInfoModel.values;
                 findUserInfo.save();
                 if(findUserInfo.avatar_t_url != userInfoModel.avatar_t_url || findUserInfo.avatar_o_url){
+                    
                     console.log(userInfoModel.user_id + " url is changed");
+                    var userId = findUserInfo.user_id;
+                    var localPath = confservice.getUserThumbHeadLocalPath(userId);
+                    if(fs.existsSync(localPath)){
+                        fs.unlink(localPath, function(err){
+                            if(err){
+                                console.log(err);
+                            }
+                        })
+                    }
+                    await services.common.downloadUserTAvatar(findUserInfo.avatar_t_url, findUserInfo.user_id);
                 }
             }
             updatetime = userInfoModel.updatetime;

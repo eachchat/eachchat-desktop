@@ -75,28 +75,9 @@ export default {
                 alert("请选择一个图片文件");
             }
             var result = await services.common.UpdateUserAvatar(fileList[0]);
-            var userId = this.userInfo.user_id;
-            var userAvatarUrl = this.userInfo.avatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
-            if(fs.existsSync(localPath)){
-                fs.unlink(localPath, function(err){
-                    if(err){
-                        console.log(err);
-                    }
-                })
-            }else{
-                await services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }
+
             if (result){
-                this.$message('头像修改成功');
+                //this.$message('头像修改成功');
             }
         },
         stateListArrowClicked(){
