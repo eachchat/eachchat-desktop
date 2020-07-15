@@ -47,6 +47,7 @@ class UserIncrement extends BaseIncrement{
                     
                     console.log(userInfoModel.user_id + " url is changed");
                     var userId = findUserInfo.user_id;
+                    confservice.init(userId);
                     var localPath = confservice.getUserThumbHeadLocalPath(userId);
                     if(fs.existsSync(localPath)){
                         fs.unlink(localPath, function(err){

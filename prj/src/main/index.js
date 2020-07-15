@@ -77,7 +77,52 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon.on("click", function() {
     showMain();
   });
+
+  initServicesData(arg);
 });
+
+
+// ipcMain.on('MainPageWindowInitData', function(event, arg) {
+//   console.log("===================MainPageWindowInitData");
+//   initServicesData(true);
+// })
+
+async function initServicesData(isFirstLogin) {
+  console.log("================ ", isFirstLogin);
+  if(isFirstLogin == true) {
+    let config = {
+      hostname: '139.198.15.253',
+      apiPort: 8888,
+    };
+    services.common.init(config);
+
+    try {
+      var loginret = await services.common.GetLoginModel();
+      console.log("================ GetLoginModel", loginret);
+      var userret = await services.common.GetSelfUserModel();
+      console.log("================ GetLoginModel", userret);
+      services.common.InitServiceData();
+    }
+    catch(error) {
+      console.log("===================== ", error);
+    }
+  }
+  else {
+    console.log("=========================")
+    let config = {
+      hostname: '139.198.15.253',
+      apiPort: 8888,
+    };
+    services.common.init(config);
+    try {
+      console.log("================start to init service data ");
+      await services.common.InitDbData();
+    }
+    catch(error) {
+      console.log("===================== ", error);
+    }
+  }
+}
 
 ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   var title = "";
