@@ -19,11 +19,20 @@ let favouriteDetailWindow
 let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
-let iconPath = "/static/Img/Main/logo.png";
-let emptyIconPath = "/static/Img/Main/Zoom@3x.png";
+let iconPath 
+//let emptyIconPath = "/static/Img/Main/Zoom@3x.png";
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo.png";
-  emptyIconPath = "../../static/Img/Main/Zoom@3x.png";
+  if(process.platform == 'darwin'){
+    iconPath = "../../static/Img/Main/macMenuIcon.png";
+  }
+  
+  //emptyIconPath = "../../static/Img/Main/Zoom@3x.png";
+}else{
+  iconPath = "/static/Img/Main/logo.png";
+  if(process.platform == 'darwin'){
+    iconPath = "/static/Img/Main/macMenuIcon.png";
+  }
 }
 
 const Bobolink = require('bobolink');
@@ -53,11 +62,16 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     webPreferences: {webSecurity:false},
     frame:false
   })
-  mainWindow.close();
+
   const mainPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
+  mainPageWindow.hide();
   mainPageWindow.loadURL(mainPageWinURL);
+  mainPageWindow.webContents.on('dom-ready', function(){
+    mainWindow.close();
+    mainPageWindow.show();
+  });
   openDevToolsInDevelopment(mainPageWindow);
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));
@@ -677,9 +691,13 @@ function createWindow () {
      */
     webPreferences: {webSecurity:false}
   })
-
+  mainWindow.hide();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
+  
+  mainWindow.webContents.on('dom-ready', function(){
+    mainWindow.show();            
+  });
 }
 function openDevToolsInDevelopment(mainWindow) {
 
