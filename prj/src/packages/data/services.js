@@ -1214,9 +1214,9 @@ const common = {
           collectionModel.save();
         }
       }
-      sequenceID = await sqliteutil.FindMaxCollectionSequenceID(type[0])
+      sequenceID = await Collection.FindMaxCollectionSequenceID(type[0])
     }
-    collections = await sqliteutil.FindCollectionByType(type[0])
+    collections = await Collection.FindCollectionByType(type[0])
     for(let index in collections){
       collections[index].collection = JSON.parse(collections[index].collection_content);
     }
