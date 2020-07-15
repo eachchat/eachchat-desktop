@@ -7,6 +7,8 @@ import {generalGuid} from "../../../src/packages/core/Utils.js"
 describe('ServiceTest', function () {
   let resCreateGroup;
   let selfUser;
+  let resSendMessage;
+  let sendNewMessageResponse;
   it("LoginTestCase", async function(){
     this.timeout(50000);
     let config = {
@@ -77,11 +79,13 @@ describe('ServiceTest', function () {
   })
 
   it("AddGroupUserTestCase", async function(){
+    return;
     let res = await services.common.AddGroupUsers('5f06c25bcc10105b06aff96b', ["157668e1fc2c0a054af0244116a09e36"]);
     expect(res).to.equal(true);
   })
 
   it("DeleteGroupUserTestCase", async function(){
+    return;
     let res = await services.common.DeleteGroupUsers('5f06c25bcc10105b06aff96b',["157668e1fc2c0a054af0244116a09e36"]);
     expect(res).to.equal(true);
   })
@@ -94,38 +98,97 @@ describe('ServiceTest', function () {
   it("sendNewMessageTestCase", async function(){
     let msgID = generalGuid();
     let curTimeSeconds = new Date().getTime();
-    await services.common.sendNewMessage(msgID, 101, "25d4cb78d54840dfa70df0dfa847c024", "5e815b92cc101019c46c2eea", "eb69c200e11801906322203ad59ff885", curTimeSeconds, {text:"test message"});
-    
-    //await services.common.sendNewMessage(msgID, 101, this.selfUser.id, undefined, "eb69c200e11801906322203ad59ff885", undefined, "test message");
+    let response = await services.common.sendNewMessage(msgID, 101, "25d4cb78d54840dfa70df0dfa847c024", "5e815b92cc101019c46c2eea", "eb69c200e11801906322203ad59ff885", curTimeSeconds, {text:"test message"});
+    expect(response).to.not.equal(undefined);
+    this.sendNewMessageResponse = response;
+    let sequenceID = response.sequence_id;
+    let ret = await Message.ExistMessageBySequenceID(sequenceID);
+    expect(ret).to.equal(true);
   })
 
-  //sendmessage
-  //receivemessage
+  it("UploadFileTestCase", async function(){
+    return;
+    let filepath = __dirname + "\\..\\..\\uploadfile\\1.txt";
+    let result = await services.common.uploadFile(filepath);
+    console.log(result);
+  })
+
   //sendfile
   //sendphoto
   //deletemessage
 
   //collectionmessage
-  //collectiongroup
+  it("CollectMessageTestCase", async function(){
+    let array = [];
+    array.push(this.sendNewMessageResponse.time_line_id);
+    let result = await services.common.CollectMessage(array);
+    expect(result).to.equal(true);
+  })
+
   it("CollectGroupTestCase", async function(){
       let result = await services.common.CollectGroup("5e9ea897cc10101597c8959f", this.selfUser.id);
-      console.log(result);
+      expect(result).to.equal(true);
   })
   //collectoinfile
   //collectionphoto
 
   it("SearchUserTestCase", async function(){
+    return;
     this.timeout(30000);
     let result = await services.common.SearchUser("测试员");
     expect(result).to.not.equal(false);
   })
 
   it("SearchFilesTestCase", async function(){
+    return;
     this.timeout(30000);
     let result = await services.common.SearchFiles("pdf", 0, 10, undefined, ["5eb8067ecc101030003a41a4", "5eba49dccc10107d8ba6c3aa", "5ee7607bcc1010262607a20f", "5e06f4ad0a50417215194beb","5e1156960a50411e50d0cf4b"], 0)
-    console.log(result)
+    //console.log(result)
     expect(result).to.not.equal(false);
 
     //expect(result).to.not.equal(false);
   })
 })
+
+     
+//let msgID = generalGuid();
+//let curTimeSeconds = new Date().getTime();
+
+//await services.common.sendNewMessage(msgID, 101, "25d4cb78d54840dfa70df0dfa847c024", "5e815b92cc101019c46c2eea", "eb69c200e11801906322203ad59ff885", curTimeSeconds, {text:"test message"});
+
+// = await services.common.UpdateUserAvatar("C:\\Users\\chengfang\\Desktop\\laofuzi.png");
+//response = await services.common.UpdateGroupAvatar("5ec4fda7cc101002783bcb77", "C:\\Users\\chengfang\\Desktop\\laofuzi.png");
+//await services.common.updateUserWorkDescription("1111111111122222dddd");
+//await services.common.updateUserStatusDescription("1111111111122222dddd")
+
+//await services.common.CollectGroup("5e9ea897cc10101597c8959f");
+//await services.common.CollectMessage(["5e8fded1cc10102b85372dde"]);
+
+//response = await services.common.SearchAll("测试");
+
+
+//await services.common.ListAllCollections();
+//response = await Department.SearchByNameKey("公")
+//response = await UserInfo.SearchByNameKey("测试")
+//response = await Group.SearchByNameKey("程方")
+//response = await services.common.SearchCollection(101, "1")
+//response = await services.common.GetRecentDevice();
+//response = await services.common.GetNewVersion();
+
+//for(let index in response){
+//console.log(response[index].sequenceValue)
+//}
+//await services.common.InitServiceData();
+//await services.common.ListGroupFiles("5eec82a1cc10105e30d318a5", "0");
+//response = await services.common.historyMessage("5e815b92cc101019c46c2eea", "449677749993881600", 20);
+//for(let index in response){
+//    console.log(response[index].sequence_id)
+//}
+//response = await services.common.ListAllMessage("5eec82a1cc10105e30d318a5","471405801505308672")
+//await services.common.SearchGroupFiles("5eec82a1cc10105e30d318a5", "0", "检测");
+//response = await services.common.ListAllMessage("5eec82a1cc10105e30d318a5", "471464492426346496");
+//response = await services.common.SearchGroupMessage("5e815b92cc101019c46c2eea", "1", 20)
+//console.log(response)
+
+//response = await services.common.SearchMessage("1", 20)
+
