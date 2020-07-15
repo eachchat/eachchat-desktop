@@ -253,7 +253,8 @@ export default {
                 this.tokenRefreshing = true;
 
                 // await services.common.InitServiceData();
-                
+                //后面的这些代码可以放到主线程
+                //ipcRenderer.send("firstLogin")                
                 this.loadingProcess = "正在加载用户信息";
                 await services.common.AllUserinfo();
                 this.loadingProcess = "正在加载组织信息";
@@ -261,7 +262,7 @@ export default {
                 this.loadingProcess = "正在加载群组信息";
                 await services.common.listAllGroup();
                 // const ipcRenderer = require('electron').ipcRenderer;
-                ipcRenderer.send('showMainPageWindow');
+                ipcRenderer.send('showMainPageWindow'); 
             }, 1000)
         }
     },
@@ -282,23 +283,25 @@ export default {
         setTimeout(() => {
             this.$nextTick(async () => {
                 services.common.init(config);
-                try{
-                    await services.common.InitDbData();
+                if(await services.common.GetLoginModel() == undefined)//判断数据库存在登陆信息，如果不存在直接返回
+                {
+                    this.tokenRefreshing = false;
+                    return;
                 }
-                catch(error){
-
-                }
+                //如果存在刷新token
                 var ret = await services.common.refreshToken();
-                if(ret.state) {
-                    // const ipcRenderer = require('electron').ipcRenderer;
-                    ipcRenderer.send('showMainPageWindow');
-                }
-                else{
+                if(!ret.state) {
                     if(ret.msg == "tokenExpired") {
                         this.loginState = "认证已过期，请重新登录。"
                     }
                     this.tokenRefreshing = false;
+                    return;
                 }
+                //这段代码可以用IPC放到主线程
+                //ipcRenderer.send("notFirstLogin")
+                await services.common.InitDbData();
+                // const ipcRenderer = require('electron').ipcRenderer;
+                ipcRenderer.send('showMainPageWindow');
             })
 
         }, 1000);
