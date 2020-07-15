@@ -106,24 +106,7 @@ const sqliteutil = {
         return true;
     },
     
-    async FindMaxCollectionSequenceID(type){
-        let collections = await(await models.Collection).find(
-            {
-                collection_type: type,
-                $order: {
-                    by: 'sequence_id',
-                    reverse: true
-                    },
-                $size: 1
-            }
-        );
-        
-        if(collections.length == 0){
-            return 0;
-        }
-        return collections[0].sequence_id;
-    },
-
+    
     async ClearCollectionByType(type){
         let collections = await(await models.Collection).find(
             {
@@ -136,15 +119,6 @@ const sqliteutil = {
         
     },
     
-    async FindCollectionByType(type){
-        let collections = await(await models.Collection).find(
-            {
-                collection_type: type,
-            }
-        );
-        return collections;
-    },
-
     async ExistCollection(collectionId){
         let collections = await(await models.Collection).find(
             {
@@ -531,6 +505,32 @@ const Collection = {
         return undefined;
     },
 
+    async FindCollectionByType(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type,
+            }
+        );
+        return collections;
+    },
+
+    async FindMaxCollectionSequenceID(type){
+        let collections = await(await models.Collection).find(
+            {
+                collection_type: type,
+                $order: {
+                    by: 'sequence_id',
+                    reverse: true
+                    },
+                $size: 1
+            }
+        );
+        
+        if(collections.length == 0){
+            return 0;
+        }
+        return collections[0].sequence_id;
+    }
 }
 
 
