@@ -1,20 +1,13 @@
 <template>
-    <div class="detailPage">
-        <div class="detailHeader">
-            <img class="userIcon" src="../../../static/Img/User/user.jpeg">
-            <div class="userInfo">
-                <p class="userName">{{ collectionInfo.collection_content.fromUserName }}</p>
-                <p class="userTime">{{ formatTimeFilter(collectionInfo.timestamp) }}</p>
-            </div>
-        </div>
-        <div class="detailContent">
-            <div class="messageContent" v-if="showMessageContent">
-                <p class="messageText">{{ collectionInfo.collection_content.text }}</p>
-            </div>
-            <div class="imageContent" v-if="!showMessageContent">
-                <img class="image" :id="collectionInfo.collection_id" src="../../../static/Img/Chat/loading.gif">
-            </div>
-        </div>
+    <div class="reportPage">
+        <ul class="reportList">
+            <li class="report" v-for="(user, index) in leaders" :key="index">
+                <img class="reportIcon">
+                <p class="reportName">{{ user._attr.user_display_name }}</p>
+                <p class="reportTitle"></p>
+                <img class="reportArraw" v-show="index == (leaders.length - 1)"> 
+            </li>
+        </ul>
     </div>
 </template>>
 <script>
@@ -24,7 +17,7 @@ import * as fs from 'fs-extra'
 import {services} from '../../packages/data/index.js';
 import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
 export default {
-    name:'favouriteDetail',
+    name:'reportRelationContent',
     data() {
         return{
             leaders:[],
@@ -35,10 +28,10 @@ export default {
     },
     mounted:function() {
         const ipcRenderer = require('electron').ipcRenderer;
-        
+        var _this = this;
         ipcRenderer.on("clickedReportRelationInfo", (event, leaders) => {
-            this.leaders = leaders
-            console.log(this.leaders);
+            _this.leaders = leaders;
+            console.log(_this.leaders);
             // this.collectionInfo = collectionInfo;
             // var favouriteType = collectionInfo.collection_type;
             
@@ -60,8 +53,5 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-::-webkit-scrollbar {
-/*隐藏滚轮*/
-display: none;
-}
+
 </style>
