@@ -47,6 +47,36 @@ describe('ServiceTest', function () {
     expect(result).to.equal(true);
   })
 
+  it("ListMessageCollectionTestCase", async function(){
+    let netRes = await services.common.ListMessageCollections();
+    let dbRes = await Collection.FindCollectionByType(101);
+    expect(netRes.length).to.equal(dbRes.length);
+  })
+
+  it("ListPictrueCollectionTestCase", async function(){
+    let netRes = await services.common.ListPictureCollections();
+    let dbRes = await Collection.FindCollectionByType(102);
+    expect(netRes.length).to.equal(dbRes.length);
+  })
+
+  it("ListFileCollectionsTestCase", async function(){
+    let netRes = await services.common.ListFileCollections();
+    let dbRes = await Collection.FindCollectionByType(103);
+    expect(netRes.length).to.equal(dbRes.length);
+  })
+
+  it("ListGroupCollectionsTestCase", async function(){
+    let netRes = await services.common.ListGroupCollections();
+    let dbRes = await Collection.FindCollectionByType(104);
+    expect(netRes.length).to.equal(dbRes.length);
+  })
+
+  it("ListTopicCollectionsTestCase", async function(){
+    let netRes = await services.common.ListTopicCollections();
+    let dbRes = await Collection.FindCollectionByType(106);
+    expect(netRes.length).to.equal(dbRes.length);
+  })
+
   it("updateUserWorkDescriptionTestCase", async function(){
     return;
     let workDescription = generalGuid();
@@ -148,26 +178,17 @@ describe('ServiceTest', function () {
 
     //expect(result).to.not.equal(false);
   })
+
+
 })
-
-     
-//let msgID = generalGuid();
-//let curTimeSeconds = new Date().getTime();
-
-//await services.common.sendNewMessage(msgID, 101, "25d4cb78d54840dfa70df0dfa847c024", "5e815b92cc101019c46c2eea", "eb69c200e11801906322203ad59ff885", curTimeSeconds, {text:"test message"});
 
 // = await services.common.UpdateUserAvatar("C:\\Users\\chengfang\\Desktop\\laofuzi.png");
 //response = await services.common.UpdateGroupAvatar("5ec4fda7cc101002783bcb77", "C:\\Users\\chengfang\\Desktop\\laofuzi.png");
-//await services.common.updateUserWorkDescription("1111111111122222dddd");
-//await services.common.updateUserStatusDescription("1111111111122222dddd")
 
-//await services.common.CollectGroup("5e9ea897cc10101597c8959f");
-//await services.common.CollectMessage(["5e8fded1cc10102b85372dde"]);
 
 //response = await services.common.SearchAll("测试");
 
 
-//await services.common.ListAllCollections();
 //response = await Department.SearchByNameKey("公")
 //response = await UserInfo.SearchByNameKey("测试")
 //response = await Group.SearchByNameKey("程方")
