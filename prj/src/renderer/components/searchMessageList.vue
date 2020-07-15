@@ -1,13 +1,17 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
         <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
-        <div class="HistoryMsgDlgHeader"></div>
+        <div class="HistoryMsgDlgHeader" id="HistoryMsgDlgHeaderId">
+            <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
+            <div class="HistoryMsgDlgHeaderTitle" v-show="isMsgDetail">{{GroupName}}</div>
+            <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px.png" @click="CloseDetail()" v-show="isMsgDetail">
+        </div>
         <div class="HistoryMsgDlgContent">
-            <div class="search">
+            <div class="search" v-show="!isMsgDetail">
                 <input class="HistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="icon-search" src="../../../static/Img/Chat/search-20px.png" @click="search">
             </div>
-            <div class="filter-header">
+            <div class="filter-header" v-show="!isMsgDetail">
                 <i class="el-icon-paperclip"></i>
                 <label class="fileter-header-label">筛选条件</label>
                 <i class="el-icon-arrow-down" v-show="showFilter" @click="hideFilter"></i>
@@ -58,11 +62,11 @@
                 <img class="filterTimeImage" src="../../../static/Img/SearchDlg/time-20px.png" v-show="false">
             </div>
             <ul class="HistoryMsg-list" id="search-message-list-id">
-                <li v-for="(item, index) in messageListShow" class="messageItem" @click="openFile(item)">
+                <li v-for="(item, index) in messageListShow" class="messageItem" @click="openMsgDetail(item)">
                     <img class="messageOwnerImage" :id="getUserHeadImageId(item)">
                     <div class="messageInfoDiv">
                         <div class="messageOwnerTimeDiv">
-                            <label class="messageInfoOwnerNameLabel">{{item.groupName}}</label>
+                            <label class="messageInfoOwnerNameLabel" :id="getUserNameId(item)">{{item.groupName}}</label>
                         </div>
                         <div class="messageInfoDetailLabel" v-html="msgContentHeightLight(item)"></div>
                     </div>
@@ -89,6 +93,7 @@ export default {
     name: 'SearchMessagesListDlg',
     data () {
         return {
+            isMsgDetail: false,
             showSearchType: "",
             selectedSenders: [],
             startTime: '',
@@ -107,7 +112,20 @@ export default {
     },  
     methods: {
         getUserHeadImageId: function(curMsg) {
-            return "HistoryMsgListImg-" + curMsg.groupId;
+            if(curMsg.fromId == undefined) {
+                return "HistoryMsgListImg-" + curMsg.groupId;
+            }
+            else {
+                return "HistoryMsgListImg-" + curMsg.msgId;
+            }
+        },
+        getUserNameId: function(curMsg) {
+            if(curMsg.fromId == undefined) {
+                return "searchMsgBelongName-" + curMsg.groupId;
+            }
+            else {
+                return "searchMsgBelongName-" + curMsg.msgId;
+            }
         },
         addGroup: function() {
             var selectedGroupsIds = [];
@@ -133,12 +151,50 @@ export default {
             let distElement = document.getElementById("search-message-list-id");
             distElement.style.height = "290px";
         },
-        openFile: function(userInfo) {
-            ipcRenderer.send("jumpToChat", userInfo.user_id);
+        openMsgDetail: function(msgItem) {
+            console.log("selectedGroups is ", this.selectedGroups)
+            console.log("msgItem is ", msgItem)
+            this.isMsgDetail = true;
+            var clickedMsgInfo = null;
+            this.GroupInfo = msgItem;
+            for(let i=0;i<this.selectedGroups.length;i++) {
+                if(this.selectedGroups.group_id == msgItem.groupId) {
+                    clickedMsgInfo = this.selectedGroups;
+                }
+            }
+            if(clickedMsgInfo == null) {
+                clickedMsgInfo = {
+                    "groupId": msgItem.groupId,
+                }
+                this.selectedSenders = [];
+            }
+            else {
+                this.selectedGroups = [clickedMsgInfo];
+                this.selectedSenders = [];
+                this.clickedMsgInfo.groupId = clickedMsgInfo.group_id;
+            }
+            var groupHederElement = document.getElementById("HistoryMsgDlgHeaderId");
+            if(this.isMsgDetail) {
+                groupHederElement.style.height = "52px";
+            }
+            else {
+                groupHederElement.style.height = "20px";
+            }
+            //keyword, sequenceId, perPage, userIds, groupIds, startTime
+            services.common.SearchMessages(this.searchKey, 0, 50, [], [clickedMsgInfo.groupId], "")
+                .then((ret) => {
+                    console.log("--------- ", ret);
+                    this.messageListShow = ret;
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.updatePage();
+                        })
+                    }, 500)
+                })
         },
-        getUserNameId: function(curMsg) {
-            return "HistoryMsgListName-" + curMsg.user_id;
-        },
+        // getUserNameId: function(curMsg) {
+        //     return "HistoryMsgListName-" + curMsg.user_id;
+        // },
         getFilterGroupImageId: function(groupItem) {
             return "MsgFilterGroupListImg-" + groupItem.group_id;
         },
@@ -148,6 +204,22 @@ export default {
         Close: function() {
             console.log("=======")
             ipcRenderer.send("AnotherClose");
+        },
+        CloseDetail: function() {
+            this.searchKey = "";
+            this.selectedSenders = [];
+            this.selectedSenders = [];
+            this.showEmpty = true;
+            this.isMsgDetail = false;
+            var groupHederElement = document.getElementById("HistoryMsgDlgHeaderId");
+            if(this.isMsgDetail) {
+                groupHederElement.style.height = "52px";
+            }
+            else {
+                groupHederElement.style.height = "20px";
+            }
+            this.messageListShow = [];
+            this.updatePage();
         },
         Min: function() {
             ipcRenderer.send("AnotherMin");
@@ -320,21 +392,92 @@ export default {
             this.search();
         },
         showGroupInfo: async function() {
+            console.log("showGroupInfo groupinfo is ", this.GroupInfo)
+            if(this.GroupInfo != undefined){
+                var groupIcoElement = document.getElementById("HistoryMsgDlgHeaderImgId");
+                this.GroupName = this.GroupInfo.groupName;
+                if(this.GroupName.length == 0) {
+                    var aboutUids = this.GroupInfo.contain_user_ids.split(",");
+                    var groupUidNameList = [];
+                    for(var i=0;i<aboutUids.length;i++) {
+                        let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
+                        groupUidNameList.unshift(nameTmp);
+                        if(i > 3) {
+                                break;
+                            }
+                    }
+                    this.GroupName = groupUidNameList.join(",");
+                }
+                
+                var targetPath = "";
+                if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.GroupInfo.groupAvatar, this.GroupInfo.groupId))){
+                    var showfu = new FileUtil(targetPath);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        groupIcoElement.setAttribute("src", reader.result);
+                    }
+                }
+
+            }
             for(let i=0;i<this.messageListShow.length;i++) {
                 var curItem = this.messageListShow[i];
                 var groupId = curItem.groupId;
-                var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
-                
-                var distTAvatar = curItem.groupAvatar;
-                var targetPath = '';
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, groupId))){
-                    distUserImgElement.setAttribute("src", targetPath);
+                if(curItem.fromId != null) {
+                    var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
+                    var distUserNameElement = document.getElementById(this.getUserNameId(curItem));
+                    var showDistName = '';
+                    if(i == 0) {
+                        console.log("00000000000 ", distUserNameElement);
+                        console.log("111111111 ", curItem);
+                    }
+                    if(curItem.fromId != undefined) {
+                        var distUserInfo = await UserInfo.GetUserInfo(curItem.fromId);
+                        if(distUserInfo != undefined) {
+                            showDistName = distUserInfo.user_display_name;
+                        }
+                    }
+                    distUserNameElement.innerHTML = showDistName;
+                    var distTAvatar = distUserInfo.user_avatar_url;
+                    var targetPath = '';
+                    if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, curItem.fromId))){
+                        distUserImgElement.setAttribute("src", targetPath);
+                    }
+                }
+                else {
+                    var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
+                    var distUserNameElement = document.getElementById(this.getUserNameId(curItem));
+                    var showDistName = '';
+                    if(i == 0) {
+                        console.log("00000000000 ", distUserNameElement);
+                        console.log("111111111 ", curItem);
+                    }
+                    if(curItem.groupName == undefined) {
+                        if(curItem.fromId != undefined) {
+                            var distUserInfo = await UserInfo.GetUserInfo(curItem.fromId);
+                            if(distUserInfo != undefined) {
+                                showDistName = distUserInfo.user_display_name;
+                            }
+                        }
+                    }
+                    else {
+                        showDistName = curItem.groupName;
+                    }
+                    distUserNameElement.innerHTML = showDistName;
+                    var distTAvatar = curItem.groupAvatar;
+                    var targetPath = '';
+                    if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, groupId))){
+                        distUserImgElement.setAttribute("src", targetPath);
+                    }
                 }
             }
 
         },
         search: async function() {
             if(this.searchKey.length == 0) {
+                this.showEmpty = true;
+                this.messageListShow = [];
                 return;
             }
 
@@ -378,6 +521,18 @@ export default {
         msgContentHeightLight: function(curMsg) {
             if(curMsg.count != undefined) {
                 return "包含" + curMsg.count + "条相关记录";
+            }
+            else if(curMsg.content != null){
+                var showContent = curMsg.content.text;
+                // showContent = showContent + ' ';
+                if(this.searchKey.length == 0) {
+                    return showContent
+                }
+                if(showContent.indexOf(this.searchKey) != -1) {
+                    let splitValue = showContent.split(this.searchKey);
+                    let newInnerHtml = splitValue.join('<span style="color:red;">' + this.searchKey + "</span>");
+                    return newInnerHtml;
+                }
             }
         },
         MsgContent: function(curMsg) {
@@ -503,7 +658,7 @@ export default {
     }
 
     .HistoryMsgDlgHeader {
-        width: calc(100% - 94px);
+        width: 100%;
         height: 20px;
         background: rgba(255, 255, 255, 1);
         padding-top: 20px;
@@ -521,7 +676,7 @@ export default {
     }
 
     .HistoryMsgDlgHeaderTitle {
-        width: calc(100% - 80px);
+        width: calc(100% - 100px);
         height: 52px;
         line-height: 52px;
         display: inline-block;
@@ -535,6 +690,14 @@ export default {
     * {
         
         -webkit-app-region: no-drag;
+    }
+
+    .HistoryMsgDlgHeaderGoback {
+        width: 20px;
+        height: 20px;
+        margin: 16px 0 16px 0;
+        display: inline-block;
+        vertical-align: top;
     }
 
     .HistoryMsgDlgContent {
@@ -850,6 +1013,8 @@ export default {
         line-height: 20px;
         font-size: 12px;
         font-family:Microsoft Yahei;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         float: left;
     }
 
