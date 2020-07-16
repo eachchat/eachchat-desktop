@@ -288,6 +288,7 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
     reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
   });
   reportRelationWindow.show();
+  openDevToolsInDevelopment(reportRelationWindow);
 });
 // 闪烁任务栏
 ipcMain.on("flashIcon", () => {

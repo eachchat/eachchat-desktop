@@ -25,8 +25,8 @@
                 </li>
                 <li v-show="showRelation">
                     <p class="userInfo-key">汇报关系</p>
-                    <p class="userInfo-value">查看</p>
-                    <!-- <p class="userInfo-value" @click="reportRelationClicked()">查看</p> -->
+                    <!-- <p class="userInfo-value">查看</p> -->
+                    <p class="userInfo-value" @click="reportRelationClicked()">查看</p>
                 </li>
                 <li v-show="showDepartment">
                     <p class="userInfo-key">部门</p>
@@ -214,9 +214,12 @@ export default {
         userVideoButtonClicked() {
 
         },
-        reportRelationClicked() {
+        reportRelationClicked:async function() {
+            this.curUserInfo = await services.common.GetSelfUserModel();
+            var tempUserinfo = this.userInfo;
+            tempUserinfo.curUserInfo = this.curUserInfo;
             const ipcRender = require('electron').ipcRenderer;
-            ipcRender.send('showReportRelationWindow', this.userInfo.leaders);
+            ipcRender.send('showReportRelationWindow', this.userInfo);
 
         },
         getPageHeight(){
