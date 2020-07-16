@@ -92,7 +92,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     showMain();
   });
 
-  initServicesData(arg);
+  // initServicesData(arg);
 });
 
 

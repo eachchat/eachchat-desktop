@@ -255,12 +255,12 @@ export default {
                 // await services.common.InitServiceData();
                 //后面的这些代码可以放到主线程
                 //ipcRenderer.send("firstLogin")                
-                // this.loadingProcess = "正在加载用户信息";
-                // await services.common.AllUserinfo();
-                // this.loadingProcess = "正在加载组织信息";
-                // await services.common.AllDepartmentInfo();
-                // this.loadingProcess = "正在加载群组信息";
-                // await services.common.listAllGroup();
+                this.loadingProcess = "正在加载用户信息";
+                await services.common.AllUserinfo();
+                this.loadingProcess = "正在加载组织信息";
+                await services.common.AllDepartmentInfo();
+                this.loadingProcess = "正在加载群组信息";
+                await services.common.listAllGroup();
                 // const ipcRenderer = require('electron').ipcRenderer;
                 ipcRenderer.send('showMainPageWindow', true); 
             }, 1000)
@@ -299,9 +299,9 @@ export default {
                 }
                 //这段代码可以用IPC放到主线程
                 //ipcRenderer.send("notFirstLogin")
-                // await services.common.InitDbData();
+                await services.common.InitDbData();
                 // const ipcRenderer = require('electron').ipcRenderer;
-                ipcRenderer.send('showMainPageWindow', true);
+                ipcRenderer.send('showMainPageWindow', false);
             })
 
         }, 1000);
