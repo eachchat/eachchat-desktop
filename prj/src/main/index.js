@@ -257,6 +257,7 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
     favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
   });
   favouriteDetailWindow.show();
+  openDevToolsInDevelopment(favouriteDetailWindow);
 });
 
 ipcMain.on('favouriteDetailClose', function(event, arg) {

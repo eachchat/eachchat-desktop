@@ -1,7 +1,7 @@
 <template>
     <div class="detailPage">
         <div class="detailHeader">
-            <img class="userIcon" src="../../../static/Img/User/user.jpeg">
+            <img class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user.jpeg">
             <div class="userInfo">
                 <p class="userName">{{ collectionInfo.collection_content.fromUserName }}</p>
                 <p class="userTime">{{ formatTimeFilter(collectionInfo.timestamp) }}</p>
@@ -83,6 +83,26 @@ export default {
                 // this.checkAndLoadImg(targetPath);
             }
         },
+        getUserImg: async function (user_id){
+            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
+            if(user_id == undefined) {
+                return "";
+            }
+            var userId = user_id;
+            
+            confservice.init(this.collectionInfo.curUserInfo._attr.id);
+            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            let userIconElement = document.getElementById(userId);
+            if(fs.existsSync(localPath)){
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    userIconElement.setAttribute("src", reader.result);
+                }
+            }
+        },
         formatTimeFilter(secondsTime) {
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
@@ -136,6 +156,9 @@ export default {
             
             if (favouriteType == 101){
                 this.showMessageContent = true;
+                this.$nextTick(function(){
+                    this.getUserImg(collectionInfo.collection_content.fromUserId);
+            });
             }else if(favouriteType == 102) {
                 this.showMessageContent = false;
                 
