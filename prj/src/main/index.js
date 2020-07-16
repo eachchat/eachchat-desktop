@@ -20,20 +20,20 @@ let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
-let emptyIconPath = "/static/Img/Main/macMenuIcon.png";
+let emptyIconPath = "/static/Img/Main/logo-empty.ico";
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo.png";
   if(process.platform == 'darwin'){
     iconPath = "../../static/Img/Main/macMenuIcon.png";
   }
   
-  emptyIconPath = "../../static/Img/Main/macMenuIcon.png";
+  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
 }else{
   iconPath = "/static/Img/Main/logo.png";
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/macMenuIcon.png";
   }
-  emptyIconPath = "../../static/Img/Main/macMenuIcon.png";
+  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
 }
 
 const Bobolink = require('bobolink');

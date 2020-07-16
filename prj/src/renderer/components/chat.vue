@@ -1930,6 +1930,9 @@ export default {
             }
         },
         checkLoadFinished(msgTemplateId, msg) {
+            if(this.isRefreshing = true) {
+                this.isRefreshing = false;
+            }
             console.log("msgTemplateId ", msgTemplateId);
             console.log("msg ", msg);
             console.log("==================")
@@ -2216,6 +2219,7 @@ export default {
             if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
+                this.needScroll = true;
 
                 this.existingMsgId = [];
                 

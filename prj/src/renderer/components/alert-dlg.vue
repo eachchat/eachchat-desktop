@@ -29,7 +29,10 @@ export default {
     props: {
         AlertContnts: {
             type: String,
-            default: ''
+            default: {
+                "Details": '',
+                "Abstrace": ''
+            }
         },
         canCancel: {
             type: Boolean,
@@ -94,6 +97,9 @@ export default {
     },
     watch: {
         AlertContnts: async function() {
+            if(AlertContnts.Details == undefined || (AlertContnts.Details != undefined && AlertContnts.Details.length == 0)) {
+                return;
+            }
             if(this.AlertDlgElement == null) {
                 this.AlertDlgElement = document.getElementById("AlertDlgId");
             }
