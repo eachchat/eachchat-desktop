@@ -20,19 +20,20 @@ let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
-//let emptyIconPath = "/static/Img/Main/Zoom@3x.png";
+let emptyIconPath = "/static/Img/Main/macMenuIcon.png";
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo.png";
   if(process.platform == 'darwin'){
     iconPath = "../../static/Img/Main/macMenuIcon.png";
   }
   
-  //emptyIconPath = "../../static/Img/Main/Zoom@3x.png";
+  emptyIconPath = "../../static/Img/Main/macMenuIcon.png";
 }else{
   iconPath = "/static/Img/Main/logo.png";
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/macMenuIcon.png";
   }
+  emptyIconPath = "../../static/Img/Main/macMenuIcon.png";
 }
 
 const Bobolink = require('bobolink');
@@ -110,6 +111,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   })
   mainWindow.hide();
   mainPageWindow.close();
+  appIcon.destroy();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
   
@@ -289,18 +291,18 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
 });
 // 闪烁任务栏
 ipcMain.on("flashIcon", () => {
-  if (!mainPageWindow.isVisible()) {
-    clearFlashIconTimer();
-    let count = 0;
-    flashIconTimer = setInterval(function() {
-      count++;
-      if (count % 2 === 0) {
-        appIcon.setImage(path.join(__dirname, emptyIconPath));
-      } else {
-        appIcon.setImage(path.join(__dirname, iconPath));
-      }
-    }, 500);
-  }
+    mainPageWindow.flashFrame(true);
+  
+  clearFlashIconTimer();
+  let count = 0;
+  flashIconTimer = setInterval(function() {
+    count++;
+    if (count % 2 === 0) {
+      appIcon.setImage(path.join(__dirname, emptyIconPath));
+    } else {
+      appIcon.setImage(path.join(__dirname, iconPath));
+    }
+  }, 500);
 });
 
 function showMain() {

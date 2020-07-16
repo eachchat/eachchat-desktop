@@ -11,7 +11,7 @@
                 </div>
             </div>
             <div class="AlertFotter">
-                <button class="AlertCancleButton" @click="Close()">取消</button>
+                <button class="AlertCancleButton" @click="Close()" v-show="canCancel">取消</button>
                 <button class="AlertConfirmButton" @click="ClearCache()">确认</button>
             </div>
         </div>
@@ -26,13 +26,31 @@ import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
 export default {
     name: 'AlertDlg',
-    props: ['AlertContnts'],
+    props: {
+        AlertContnts: {
+            type: String,
+            default: ''
+        },
+        canCancel: {
+            type: Boolean,
+            default: true
+        },
+        cancalButtonText: {
+            type: String,
+            default: "取消"
+        },
+        confirmButtonText: {
+            type: String,
+            default: "确定"
+        }
+    },//['AlertContnts'],
     data () {
         return {
             Abstrace: '',
             Details: '',
             dlgWidth: 440,
             dlgHeight: 179,
+            canCancel: true,
         }
     },
     methods: {

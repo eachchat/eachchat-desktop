@@ -29,6 +29,7 @@
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
     </el-container>
 </template>
 
@@ -49,6 +50,7 @@ import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
 import {UserInfo} from '../../packages/data/sqliteutil.js';
+import AlertDlg from './alert-dlg.vue'
 export default {
     name: 'mainpage',
     watch: {
@@ -78,6 +80,8 @@ export default {
     },
     data () {
         return {
+            showAlertDlg:false,
+            alertContnets: {},
             searchKey: '',
             distGroupId: '',
             distUserId: '',
@@ -119,6 +123,12 @@ export default {
         }
     },
     methods: {
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+        },
+        clearCache: function() {
+            this.showAlertDlg = false;
+        },
         Close: function() {
             ipcRenderer.send("win-close");
         },
@@ -166,7 +176,7 @@ export default {
             //     console.log(departmentInfos[i].displayName);
             // }
         },
-        menuClicked (cur_index, cur_name, cur_link, cur_view) {
+        async menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;
             // this.curView = cur_view;
             console.log(cur_index);
@@ -266,7 +276,32 @@ export default {
             this.showPersonalCenter = true;
             this.personalCenterKey ++;
         },
+        startCheckUpgrade: function() {
+            async function checkUpgrade(self) {
+                var newVersion = await services.common.GetNewVersion();
+                if(!newVersion)
+                {
+                    return;
+                }
+                if(newVersion.osType != undefined && newVersion.osType != windows) {
+                    return;
+                }
+                if(newVersion.forceUpdate != undefined && newVersion.forceUpdate){
+                    self.alertContnets = {
+                        "Details": "版本全新升级",
+                        "Abstrace": "新版本提示"
+                    };
+                    self.showAlertDlg = true;
+                }
+                else {
 
+                }
+            }
+            checkUpgrade(this);
+            setTimeout(() => {
+                checkUpgrade(this);
+            }, 1000 * 3600)
+        }
     },
     components: {
         organization,
@@ -274,6 +309,7 @@ export default {
         favourite,
         macWindowHeader,
         personalCenter,
+        AlertDlg,
     },
     mounted: async function() {
         await services.common.GetLoginModel();
@@ -292,6 +328,7 @@ export default {
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
         await this.getAppBaseData();
+        this.startCheckUpgrade();
 
     },
 }

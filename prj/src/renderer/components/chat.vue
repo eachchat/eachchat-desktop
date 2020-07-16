@@ -21,6 +21,9 @@
         <div class="chat-main" id="chat-main">
             <div class="chat-main-message" id="message-show">
                 <ul class="msg-list" id="message-show-list">
+                    <li class="msg-loading" v-show="isRefreshing">
+                        <i class="el-icon-loading"></i>
+                    </li>
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)"
                         @contextmenu="rightClick($event, item)">
@@ -1926,7 +1929,13 @@ export default {
                 }
             }
         },
-        checkLoadFinished(msg) {
+        checkLoadFinished(msgTemplateId, msg) {
+            console.log("msgTemplateId ", msgTemplateId);
+            console.log("msg ", msg);
+            console.log("==================")
+            let distMsgElement = document.getElementById(msgTemplateId);
+            distMsgElement.style.display = "block";
+
             let uldiv = document.getElementById("message-show-list");
             uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
             // console.log("+++++++++scroll height is ", uldiv.scrollHeight);
@@ -2011,7 +2020,7 @@ export default {
                         this.$nextTick(() => {
                             let div = document.getElementById("message-show-list");
                             if(div) {
-                                div.scrollTop = div.scrollHeight;
+                                div.scrollTop = div.scrollHeight - div.clientHeight;
                                 // The left msg get through scroll event
                                 div.addEventListener('scroll', this.handleScroll);
                                 div.addEventListener('onresize', this.checkResize);
@@ -2421,6 +2430,11 @@ export default {
         }
     }
 
+    .msg-loading {
+        width: 100%;
+        margin: 5px 0 5px 0;
+        text-align: center;
+    }
     .msg-info {
         width: 100%;
         margin: 5px 0 5px 0;

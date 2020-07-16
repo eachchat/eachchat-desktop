@@ -1,5 +1,5 @@
 <template>
-    <div class="message">
+    <div class="message" :id="getMessageTemplateId()">
         <div class="chat-msg-body">
             <div class="msg-info-mine" v-if="MsgIsMine()">
                 <div class="msgState" v-if="MsgIsSending()">
@@ -14,11 +14,11 @@
                     <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight" @load="checkLoad()">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}} K</p>
@@ -26,7 +26,7 @@
                     </div>
                     <div class="chat-msg-content-mine-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
-                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
                         <div class="voice-info">
                             <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
@@ -34,11 +34,11 @@
                     <div class="chat-msg-content-mine-transmit"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
                         <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
+                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
+                        <p class="chat-msg-content-mine-txt" :id="msg.message_id" @load="checkLoad()">{{messageContent}}</p>
                     </div>
                 </div>
                 <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
@@ -69,7 +69,7 @@
                     <div class="chat-msg-content-other-transmit"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
                         <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
+                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
@@ -106,10 +106,12 @@ export default {
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser'],
     methods: {
+        getMessageTemplateId: function() {
+            return "message-template-" + this.msg.message_id;
+        },
         checkLoad: function() {
-            console.log("--------------==============")
             this.$nextTick(() => {
-                this.$emit("loadedFinished", this.msg);
+                this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
             })
         },
         showUserInfoTip: function() {
@@ -319,6 +321,9 @@ export default {
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
                 }
+                this.$nextTick(() => {
+                    this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
+                })
                 // console.log("this.messageContent is ", this.messageContent)
                 // textMsgImgElement.innerHTML = this.messageContent;
             }
@@ -476,9 +481,15 @@ export default {
                 this.transmitMsgTitle = chatGroupMsgContent.title;
                 this.transmitMsgContent = chatGroupMsgContent.text;
                 this.messageContent = "[聊天记录]";
+                this.$nextTick(() => {
+                    this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
+                })
             }
             else {
                 return this.messageContent = "不支持的消息类型，请升级客户端。"
+                this.$nextTick(() => {
+                    this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
+                })
             }
         },
         MsgBelongUserName: function() {
@@ -606,9 +617,6 @@ export default {
                 }
             })
         }, 0)
-        this.$nextTick(() => {
-            this.$emit("loadedFinished", this.msg);
-        })
     },
     created: async function() {
         this.loginInfo = await services.common.GetLoginModel();
@@ -731,6 +739,7 @@ export default {
 <style lang="scss" scoped>
     .message {
         font-size: 15px;
+        display: none;
     }
 
     .chat-msg-body {
