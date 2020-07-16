@@ -276,16 +276,6 @@ export default {
         personalCenter,
     },
     mounted: async function() {
-        console.log("os.type() ", os.type());
-        console.log("os.type() ", os.release());
-        // console.log("os.type() ", os.type());
-        // console.log("os.type() ", os.type());
-        // console.log("os.type() ", os.type());
-        // console.log("os.type() ", os.type());
-        // console.log("os.type() ", os.type());
-        // console.log("os.type() ", os.type());
-        // console.log("os.type() ", os.type());
-        // console.log("os.type() ", os.type());
         await services.common.GetLoginModel();
         this.selfUserInfo = await services.common.GetSelfUserModel();
         //await services.common.AllUserinfo();

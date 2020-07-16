@@ -80,7 +80,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     {
       label: "退出",
       click: function() {
-        mainPageWindow.close();
+        app.quit();
       }
     }
   ]);
@@ -91,10 +91,39 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon.on("click", function() {
     showMain();
   });
-
+  setAutoRun(true);
   // initServicesData(arg);
 });
 
+ipcMain.on('showLoginPageWindow', function(event, arg) {
+  Menu.setApplicationMenu(null)
+  mainWindow = new BrowserWindow({
+    height: 420,
+    useContentSize: true,
+    width: 360,
+    frame: false,
+    resizable: false,
+    /**
+     * Across Domains Problem
+     */
+    webPreferences: {webSecurity:false}
+  })
+  mainWindow.hide();
+  mainPageWindow.close();
+  mainWindow.loadURL(winURL);
+  openDevToolsInDevelopment(mainWindow);
+  
+  mainWindow.webContents.on('dom-ready', function(){
+    mainWindow.show();            
+  });
+});
+
+function setAutoRun(isAutoRun) {
+  app.setLoginItemSettings({
+    openAtLogin: isAutoRun,
+    openAsHidden: isAutoRun,
+  })
+}
 
 // ipcMain.on('MainPageWindowInitData', function(event, arg) {
 //   console.log("===================MainPageWindowInitData");

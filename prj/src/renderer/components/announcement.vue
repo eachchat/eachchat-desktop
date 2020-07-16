@@ -8,7 +8,7 @@
             
             <div class="AnnouncementContent">
                 <div class="AnnouncementContentDetails">
-                    <label class="AnnouncementContentDetailsContent">{{AnnouncementContnts}}</label>
+                    <label class="AnnouncementContentDetailsContent" v-html="AnnouncementContnts"></label>
                 </div>
             </div>
         </div>
