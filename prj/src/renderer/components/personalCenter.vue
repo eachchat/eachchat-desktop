@@ -149,6 +149,9 @@ export default {
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
+            if(id != this.userInfo.user_id){
+                return;
+            }
             var elementImg = document.getElementsByClassName('personalCenter-icon')[0];
             if(elementImg != null){
                 var showfu = new FileUtil(localPath);

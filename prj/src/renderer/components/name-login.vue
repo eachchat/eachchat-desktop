@@ -70,8 +70,9 @@
             <div class="btn item">
                 <Button type="success" id="loginButton" @click="login()">{{ loginButtonValue }}</Button>
             </div>
-            <div class="login-footer">
-                <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
+            <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
+                    <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                    <p class="back-title">返回</p>
             </div>
             </div>
 
@@ -95,7 +96,7 @@
             </div>
             <div class="setting-footer" @click="serverSettingBackToLoginClicked()">
                     <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
-                    <p class="back-title">返回登录</p>
+                    <p class="back-title">返回</p>
                 
             </div>
         </div>
@@ -117,8 +118,12 @@
             </div>
             <div class="setting-footer" @click="organizationFinderBackToLoginClicked()">
                     <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
-                    <p class="back-title">返回登录</p>
+                    <p class="back-title">返回</p>
             </div>
+        </div>
+        <div class="loginLoading-view" v-show="showLoadingView">
+            <img class="loading-img" src="../../../static/Img/Login/loading.gif">
+            <p class="loading-title">数据加载中</p>
         </div>
     </div>
 </template>
@@ -152,10 +157,11 @@ export default {
             hostName: '',
             organizationAddress:'',
             emialAddress:'',
-            showLoginView: true,
+            showLoginView: false,
             showServerSettingView: false,
             showOrganizationView: true,
             showOrganizationFinderView: false,
+            showLoadingView: true,
         }
     },
     methods: {
@@ -190,13 +196,15 @@ export default {
             this.hostName = '';
         },
         serverSettingBackToLoginClicked(){
-            this.showLoginView = true;
             this.showServerSettingView = false;
+            this.showLoginView = true;
+            //this.showOrganizationView = true;
             this.hostName = '';
         },
         organizationFinderBackToLoginClicked(){
             this.showLoginView = true;
             this.showOrganizationFinderView = false;
+            this.showOrganizationView = true;
         },
         isCheckToken() {
             return this.tokenRefreshing;
@@ -246,9 +254,10 @@ export default {
                 }
             }
             var elementButton = document.getElementById('loginButton');
-            this.loginButtonValue = "正在加载数据";
-            this.loginState = "登录成功"
-
+            //this.loginButtonValue = "正在加载数据";
+            this.loginState = "登录成功";
+            this.showLoginView = false;
+            this.showLoadingView = true;
             setTimeout(async () => {
                 this.tokenRefreshing = true;
 
@@ -285,7 +294,10 @@ export default {
                 services.common.init(config);
                 if(await services.common.GetLoginModel() == undefined)//判断数据库存在登陆信息，如果不存在直接返回
                 {
+                    
                     this.tokenRefreshing = false;
+                    this.showLoadingView = false;
+                    this.showLoginView = true;
                     return;
                 }
                 //如果存在刷新token
@@ -295,6 +307,8 @@ export default {
                         this.loginState = "认证已过期，请重新登录。"
                     }
                     this.tokenRefreshing = false;
+                    this.showLoadingView = false;
+                    this.showLoginView = true;
                     return;
                 }
                 //这段代码可以用IPC放到主线程
@@ -552,16 +566,24 @@ export default {
             margin-bottom: 15px;
             margin-top: 68px;
             cursor: pointer;
-            .server-setting{
+            .back-image{
                 cursor: pointer;
-                padding-left: 20px;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-left: 24px;
+            }
+            .back-title{
+                cursor: pointer;
+                display: inline-block;
+                
+                height:20px;
+                font-size:14px;
                 margin: 0px;
-                width:65px;
-                height:18px;
-                font-size:12px;
-                font-weight:400;
-                color:rgba(153,153,153,1);
-                line-height:18px;
+                vertical-align: top;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:20px;
                 letter-spacing:1px;
             }
         }
@@ -1005,5 +1027,30 @@ export default {
             }
         }
     }
+        .loginLoading-view {
+            width: 100%;
+            margin-top: 0px;
+            height: calc(100% - 36px);
+            overflow: hidden;
+            cursor: default;
+            .loading-img{
+                height: 68px;
+                width: 68px;
+                margin-top: 130px;
+                margin-left: 146px;
 
+            }
+            .loading-title{
+                width:100%;
+                text-align: center;
+                height:18px;
+                font-size:16px;
+                font-weight:400;
+                color:rgba(153,153,153,1);
+                line-height:18px;
+                letter-spacing:2px;
+                margin: 0px;
+                margin-top: 20px;
+            }
+        }
 </style>
