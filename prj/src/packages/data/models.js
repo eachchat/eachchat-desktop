@@ -238,6 +238,27 @@ var models = {
         primaryKey: "favourite_id"
       });
     })();
+
+    this.config = (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: "config",
+        fields: {
+          id:                types.string,
+          entry_host:        types.string,
+          entry_port:        types.string,
+          entry_tls:         types.integer,
+          mqtt_host:         types.string,
+          mqtt_port:         types.string,
+          mqtt_tls:          types.integer,
+          auto_start:        types.integer,
+          message_sound:     types.integer,
+          message_notice:    types.integer,
+          auto_update:       types.integer
+        },
+        primaryKey: "id"
+      });
+    })();
   },
 
   _initSqliteStorage() {
@@ -298,6 +319,10 @@ var models = {
 
   get Collection(){
     return this.collection;
+  },
+
+  get Config(){
+    return this.config;
   }
 }
 

@@ -533,6 +533,39 @@ const Collection = {
     }
 }
 
+const Config = {
+    async SetAutoStart(value){
+        await this.SetValue("auto_start", value);
+    },
+
+    async SetMessageSound(value){
+        await this.SetValue("message_sound", value);
+    },
+
+    async SetMessageNotice(value){
+        await this.SetValue("message_notice", value);
+    },
+
+    async SetAutoUpdate(value){
+        await this.SetValue("auto_update", value);
+    },
+
+    async SetValue(key, value){
+        let configs = await(await models.Config).find();
+        console.log(configs)
+        if(configs.length == 0)
+            return;
+        configs[0][key] = value;
+        configs[0].save();
+    },
+
+    async GetValue(){
+        let configs = await(await models.Config).find();
+        if(configs.length == 0)
+            return;
+        return configs[0];
+    }
+}
 
 export{
     sqliteutil,
@@ -540,5 +573,6 @@ export{
     UserInfo,
     Message,
     Group,
-    Collection
+    Collection,
+    Config
 }
