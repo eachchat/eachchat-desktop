@@ -1,8 +1,8 @@
 <template>
     <div class="ChatHeaderBar" v-show="isWindows()">
-        <img class="header-btn-close" src="../../../static/Img/Main/WinClose-20px.png" @click="Close()" v-show="showClose">
-        <img class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px.png" @click="Max()" v-show="showMax">
-        <img class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px.png" @click="Min()" v-show="showMin">
+        <img class="header-btn-close" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" v-show="showClose">
+        <img class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px@2x.png" @click="Max()" v-show="showMax">
+        <img class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px@2x.png" @click="Min()" v-show="showMin">
     </div>
 </template>
 

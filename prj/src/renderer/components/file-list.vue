@@ -8,7 +8,7 @@
         <div class="FileListDlgContent">
             <div class="search">
                 <input class="FileListDlgSearchInput" placeholder="文件..." v-model="searchKey" @input="search" @keyup.enter="search">
-                <img class="icon-search" src="../../../static/Img/Chat/search-20px.png" @click="search">
+                <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="file-list">
                 <li v-for="(item, index) in fileListShow" class="fileItem">

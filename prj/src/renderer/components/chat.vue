@@ -70,11 +70,11 @@
                 </div>
             </div>
             <div class="multiSelectTools" v-show="multiSelect">
-                <img class="multiSelectTransmit" src="../../../static/Img/Chat/transmit-44px.png" @click="multiTransMit">
-                <img class="multiSelectTransmitTogether" src="../../../static/Img/Chat/transmitTogether-44px.png" @click="multTtransMitTogether">
-                <img class="multiSelectFav" src="../../../static/Img/Chat/favourite-44px.png" @click="multiFav">
-                <img class="multiSelectDel" src="../../../static/Img/Chat/delete-44px.png" @click="multiDel">
-                <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px.png" @click="multiToolsClose">
+                <img class="multiSelectTransmit" src="../../../static/Img/Chat/transmit-44px@2x.png" @click="multiTransMit">
+                <img class="multiSelectTransmitTogether" src="../../../static/Img/Chat/transmitTogether-44px@2x.png" @click="multTtransMitTogether">
+                <img class="multiSelectFav" src="../../../static/Img/Chat/favourite-44px@2x.png" @click="multiFav">
+                <img class="multiSelectDel" src="../../../static/Img/Chat/delete-44px@2x.png" @click="multiDel">
+                <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px@2x.png" @click="multiToolsClose">
             </div>
         </div>
         <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">

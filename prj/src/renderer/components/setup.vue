@@ -6,19 +6,19 @@
       <div class="setup-panel" id="setup-panel-id">
         <div class="setup-list">
           <div class="setup-list-item" @click="jumpToGeneralSetup">
-            <img class="setupGeneralImage" src="../../../static/Img/Setup/general-20px.png">
+            <img class="setupGeneralImage" src="../../../static/Img/Setup/general-20px@2x.png">
             <label class="setupGeneralLabel">通用设置</label>
           </div>
           <div class="setup-list-item" @click="jumpToNoticeSetup" v-show="false">
-            <img class="setupNoticeImage" src="../../../static/Img/Setup/notice-20px.png">
+            <img class="setupNoticeImage" src="../../../static/Img/Setup/notice-20px@2x.png">
             <label class="setupNoticeLabel">通知设置</label>
           </div>
           <div class="setup-list-item" @click="jumpToUpdateSetup" v-show="false">
-            <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px.png">
+            <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px@2x.png">
             <label class="setupUpdateLabel" >软件升级</label>
           </div>
           <div class="setup-list-item" @click="jumpToAboutSetup">
-            <img class="setupAboutImage" src="../../../static/Img/Setup/about-20px.png">
+            <img class="setupAboutImage" src="../../../static/Img/Setup/about-20px@2x.png">
             <label class="setupAboutLabel">关于易企聊</label>
           </div>
         </div>
@@ -48,14 +48,14 @@
                 <div class="setup-general-file-location-input-div" @click="openLocalStorageDir">
                   <input class="setup-general-file-location-input" v-model="localStorePath" disabled="disabled" @click="openLocalStorageDir">
                   <div class="setup-general-file-location-input-folder-ico">
-                      <img class="icon-folder" src="../../../static/Img/Setup/store-folder-20px.png">
+                      <img class="icon-folder" src="../../../static/Img/Setup/store-folder-20px@2x.png">
                   </div>
                 </div>
             </div>
             <div class="setup-general-clear-cache">
                 <label class="setup-general-clear-cache-label">清理缓存</label>
                 <label class="setup-general-clear-cache-label2" id="setup-general-clear-cache-label2-id">--M</label>
-                <img class="setup-general-clear-cache-ico" src="../../../static/Img/Setup/arrow-20px.png" @click="showAlert">
+                <img class="setup-general-clear-cache-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAlert">
             </div>
             <div class="setup-notice-title" v-show="false">通知设置</div>
             <div class="setup-notice-message-notice" v-show="false">
@@ -72,7 +72,7 @@
             <div class="setup-update-cur-version" v-show="false">
                 <label class="setup-update-cur-version-label">当前版本</label>
                 <label class="setup-update-cur-version-label2">--</label>
-                <img class="setup-update-cur-version-ico" src="../../../static/Img/Setup/arrow-20px.png">
+                <img class="setup-update-cur-version-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
             </div>
             <div class="setup-update-auto-update" v-show="false">
                 <label class="setup-update-auto-update-label">自动更新</label>
@@ -82,15 +82,15 @@
             <div class="setup-about-title">关于应用</div>
             <div class="setup-about-introduce" v-show="false">
                 <label class="setup-about-introduce-label">功能介绍</label>
-                <img class="setup-about-introduce-label-ico" src="../../../static/Img/Setup/arrow-20px.png" @click="showAbout">
+                <img class="setup-about-introduce-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAbout">
             </div>
             <div class="setup-about-agreement">
                 <label class="setup-about-agreement-label">软件用户协议</label>
-                <img class="setup-about-agreement-label-ico" src="../../../static/Img/Setup/arrow-20px.png" @click="showAgreement">
+                <img class="setup-about-agreement-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAgreement">
             </div>
             <div class="setup-about-privacy">
                 <label class="setup-about-privacy-label">软件隐私政策</label>
-                <img class="setup-about-privacy-label-ico" src="../../../static/Img/Setup/arrow-20px.png" @click="showPrivacy">
+                <img class="setup-about-privacy-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
             </div>
             <div class="setup-logout" @click="logout()">退出登录</div>
         </div>

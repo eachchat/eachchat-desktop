@@ -19,7 +19,7 @@
             <div class="organization-content" v-show="showOrganizationView">
                 <div class="title">
                     <div class="title-ico">
-                        <img class="login-logo" src="../../../static/Img/Login/logo.png">
+                        <img class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
                         易企聊
                     </div>
@@ -45,7 +45,7 @@
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="title">
                     <div class="title-ico">
-                        <img class="login-logo" src="../../../static/Img/Login/logo.png">
+                        <img class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
                         易企聊
                     </div>

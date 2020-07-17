@@ -105,7 +105,7 @@
           </div>
         </div>
         <div class="chat-empty" v-show="isEmpty">
-          <img class="chat-empty-bg" src="../../../static/Img/Chat/empty.png">
+          <img class="chat-empty-bg" src="../../../static/Img/Chat/empyt2@2x.png">
         </div>
         <div class="chat" v-show="!isEmpty">
           <ChatPage :chat="curChat" :newMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>

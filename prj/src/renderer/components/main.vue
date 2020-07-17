@@ -399,63 +399,72 @@ export default {
 
     .NavChatting {
         border: 1px red;
-        background-image: url("../../../static/Img/Navigate/chat-24px.png");
+        background-image: url("../../../static/Img/Navigate/chat-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavChatting:hover {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/chathover-24px.png");
+        background-image: url("../../../static/Img/Navigate/chathover-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavChatting.active {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/chatselected-24px.png");
+        background-image: url("../../../static/Img/Navigate/chatselected-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavOrganization {
         border: 1px red;
-        background-image: url("../../../static/Img/Navigate/org-24px.png");
+        background-image: url("../../../static/Img/Navigate/org-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavOrganization:hover {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/orghover-24px.png");
+        background-image: url("../../../static/Img/Navigate/orghover-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavOrganization.active {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/orgselected-24px.png");
+        background-image: url("../../../static/Img/Navigate/orgselected-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavFavourite {
         border: 1px red;
-        background-image: url("../../../static/Img/Navigate/fav-24px.png");
+        background-image: url("../../../static/Img/Navigate/fav-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavFavourite:hover {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/favhover-24px.png");
+        background-image: url("../../../static/Img/Navigate/favhover-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavFavourite.active {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/favselected-24px.png");
+        background-image: url("../../../static/Img/Navigate/favselected-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
@@ -492,21 +501,24 @@ export default {
 
     .NavSetUpImg {
         border: 1px red;
-        background-image: url("../../../static/Img/Navigate/setup-nor-24px.png");
+        background-image: url("../../../static/Img/Navigate/setup-nor-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavSetUpImg:hover {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/setup-hover-24px.png");
+        background-image: url("../../../static/Img/Navigate/setup-hover-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }
 
     .NavSetUpImg.active {
         border: 0px;
-        background-image: url("../../../static/Img/Navigate/setup-sel-24px.png");
+        background-image: url("../../../static/Img/Navigate/setupsel-24px@2x.png");
+        background-size: contain;
         width: 24px;
         height: 24px;
     }

@@ -3,7 +3,7 @@
         <div class="AlertDlg" id="AlertDlgId">
             <div class="AlertContent">
                 <div class="AlertContentAbstract">
-                    <img class="AlertContentAbstraceIco" src="../../../static/Img/Setup/Alert.png">
+                    <img class="AlertContentAbstraceIco" src="../../../static/Img/Setup/Alert@2x.png">
                     <label class="AlertContentAbstraceContent">{{Abstrace}}</label>
                 </div>
                 <div class="AlertContentDetails">

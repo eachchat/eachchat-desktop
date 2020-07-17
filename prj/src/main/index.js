@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell} from 'electron'
+import { app, BrowserWindow, Tray, Menu, dialog, shell, screen} from 'electron'
 import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
@@ -20,16 +20,17 @@ let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
+var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath = "/static/Img/Main/logo-empty.ico";
 if (process.env.NODE_ENV === "development") {
-  iconPath = "../../static/Img/Main/logo.png";
+  iconPath = "../../static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
     iconPath = "../../static/Img/Main/macMenuIcon.png";
   }
   
   emptyIconPath = "../../static/Img/Main/logo-empty.ico";
 }else{
-  iconPath = "/static/Img/Main/logo.png";
+  iconPath = "/static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/macMenuIcon.png";
   }
@@ -55,6 +56,9 @@ const winURL = process.env.NODE_ENV === 'development'
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
   mainPageWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,//添加这个即可
+    },
     minHeight:600,
     minWidth:960,
     height: 600,
@@ -77,6 +81,15 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));
 
+  appIcon.on('mouse-move', function(event, position){
+    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
+    // if(isLeave) {
+    //   console.log("****************************************")
+    //   isLeave = false;
+    //   checkTrayLeave();
+    // }
+  });
+
   let contextMenu = Menu.buildFromTemplate([
     {
       label: "退出",
@@ -90,15 +103,33 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon.setContextMenu(contextMenu);
 
   appIcon.on("click", function() {
+    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
     showMain();
   });
   setAutoRun(true);
   // initServicesData(arg);
 });
 
+// function checkTrayLeave(){
+//   clearInterval(leaveInter)
+//   leaveInter = setInterval(function(){
+//       trayBounds = appIcon.getBounds();
+//       console.log("111111111111111111111");
+//       point = screen.getCursorScreenPoint();
+//       if(!(trayBounds.x < point.x && trayBounds.y < point.y && point.x < (trayBounds.x + trayBounds.width) && point.y < (trayBounds.y  + trayBounds.height))){
+//           //触发mouse-leave
+//           clearInterval(leaveInter);
+//           isLeave = true;
+//       }
+//   }, 100)
+// }
+
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,//添加这个即可
+    },
     height: 420,
     useContentSize: true,
     width: 360,
@@ -187,6 +218,9 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     title = "聊天记录";
   }
   soloPage = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,//添加这个即可
+    },
     height: 508,
     //useContentSize: true,
     // resizable: false,
@@ -242,6 +276,9 @@ ipcMain.on('AnotherMin', function(event, arg) {
 // 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
     favouriteDetailWindow = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,//添加这个即可
+      },
     height: 468,
     resizable: false,
     width:600,
@@ -272,6 +309,9 @@ ipcMain.on('favouriteDetailMin', function(event, arg) {
 // 汇报关系窗口
 ipcMain.on('showReportRelationWindow', function(event, leaders) {
   reportRelationWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,//添加这个即可
+    },
     height: 340,
     resizable: false,
     width: 520,
@@ -714,6 +754,9 @@ function createWindow () {
    */
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,//添加这个即可
+    },
     height: 420,
     useContentSize: true,
     width: 360,

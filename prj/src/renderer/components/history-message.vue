@@ -8,7 +8,7 @@
         <div class="HistoryMsgDlgContent">
             <div class="search">
                 <input class="HistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
-                <img class="icon-search" src="../../../static/Img/Chat/search-20px.png" @click="search">
+                <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="HistoryMsg-list">
                 <li v-for="(item, index) in messageListShow" class="messageItem">

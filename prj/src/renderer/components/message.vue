@@ -473,7 +473,7 @@ export default {
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 this.voiceLenth = chatGroupMsgContent.length;
                 this.fileSize = (chatGroupMsgContent.fileSize/1024).toFixed(2);
-                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/voiceAudio@3x.png");
+                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/voiceAudio@2x.png");
                 fileMsgImgElement.setAttribute("height", 12);
             }
             else if(chatGroupMsgType === 106)

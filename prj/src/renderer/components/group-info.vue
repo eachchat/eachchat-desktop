@@ -45,7 +45,7 @@
             </div>
             <div class="groupMemberAddDiv" v-else>
                 <label class="groupMemberAddDivLabel">群成员</label>
-                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px.png" @click="showSearch" v-show="isOwner">
+                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px@2x.png" @click="showSearch" v-show="isOwner">
                 <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
             </div>
         </div>

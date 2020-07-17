@@ -4,12 +4,12 @@
         <div class="HistoryMsgDlgHeader" id="HistoryMsgDlgHeaderId">
             <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
             <div class="HistoryMsgDlgHeaderTitle" v-show="isMsgDetail">{{GroupName}}</div>
-            <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px.png" @click="CloseDetail()" v-show="isMsgDetail">
+            <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px@2x.png" @click="CloseDetail()" v-show="isMsgDetail">
         </div>
         <div class="HistoryMsgDlgContent">
             <div class="search" v-show="!isMsgDetail">
                 <input class="HistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
-                <img class="icon-search" src="../../../static/Img/Chat/search-20px.png" @click="search">
+                <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <div class="filter-header" v-show="!isMsgDetail">
                 <i class="el-icon-paperclip"></i>
@@ -21,10 +21,10 @@
                 <label class="filter-group-label">指定会话</label>
                 <ul class="filter-group-list">
                     <li class="filterGroupItem" @click="addGroup">
-                        <img class="filterGroupImage" src="../../../static/Img/SearchDlg/add-20px.png">
+                        <img class="filterGroupImage" src="../../../static/Img/SearchDlg/add-20px@2x.png">
                     </li>
                     <li class="filterGroupItem" v-show="groupNeedMore">
-                        <img class="filterGroupImage" src="../../../static/Img/SearchDlg/more-20px.png">
+                        <img class="filterGroupImage" src="../../../static/Img/SearchDlg/more-20px@2x.png">
                     </li>
                     <li v-for="(item, index) in selectedGroups" class="filterGroupItem">
                         <img class="filterGroupImage" :id="getFilterGroupImageId(item)">
@@ -35,10 +35,10 @@
                 <label class="filter-sender-label">指定发送人</label>
                 <ul class="filter-sender-list">
                     <li class="filterSenderItem">
-                        <img class="filterSenderImage" @click="addDisgUser" src="../../../static/Img/SearchDlg/add-20px.png">
+                        <img class="filterSenderImage" @click="addDisgUser" src="../../../static/Img/SearchDlg/add-20px@2x.png">
                     </li>
                     <li class="filterSenderItem" v-show="SenderNeedMore">
-                        <img class="filterSenderImage" src="../../../static/Img/SearchDlg/more-20px.png">
+                        <img class="filterSenderImage" src="../../../static/Img/SearchDlg/more-20px@2x.png">
                     </li>
                     <li v-for="(item, index) in selectedSenders" class="filterSenderItem">
                         <img class="filterSenderImage" :id="getFilterSenderImageId(item)">
@@ -59,7 +59,7 @@
                         >
                     </el-date-picker>
                 </div>
-                <img class="filterTimeImage" src="../../../static/Img/SearchDlg/time-20px.png" v-show="false">
+                <img class="filterTimeImage" src="../../../static/Img/SearchDlg/time-20px@2x.png" v-show="false">
             </div>
             <ul class="HistoryMsg-list" id="search-message-list-id">
                 <li v-for="(item, index) in messageListShow" class="messageItem" @click="openMsgDetail(item)">

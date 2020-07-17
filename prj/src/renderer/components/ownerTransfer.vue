@@ -3,12 +3,12 @@
         <div class="OwnerTransferDlg" id="OwnerTransferDlgId">
             <div class="OwnerTransferHeader">
                 <div class="OwnerTransferHeaderTitle">转让群主</div>
-                <img class="OwnerTransferClose" src="../../../static/Img/Chat/delete-20px.png" @click="Close()">
+                <img class="OwnerTransferClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="Close()">
             </div>
             <div class="OwnerTransferContent">
                 <div class="search">
                     <input class="ownertransfer-search-input" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
-                    <img class="icon-search" src="../../../static/Img/Chat/search-20px.png" @click="search">
+                    <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
                 </div>
                 <ul class="groupMember-list">
                     <li v-for="(item, index) in memberListShow" class="memberItem">
