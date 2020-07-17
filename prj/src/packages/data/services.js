@@ -3,25 +3,19 @@ import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config } from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo } from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import { makeFlieNameForConflict } from '../core/Utils.js'
-import axios from "axios";
-import {Base64} from "js-base64";
 
 const mqtt = require('mqtt')
 
 const commonConfig = {
   hostname:       undefined,
   apiPort:        undefined,
-  hostTls:        undefined,
-  mqttHost:       undefined,
-  mqttPort:       undefined,
-  mqttTls:        undefined,
   username:       undefined,
   password:       undefined,
   identityType:   undefined,
@@ -73,8 +67,6 @@ const common = {
   },
 
   async GetSelfUserModel(){
-    if(this.data.login == undefined)
-      return;
     var foundUsers = await(await models.User).find({
       id: this.data.login.user_id
     });
@@ -247,30 +239,19 @@ const common = {
     return groups;
   },
 
-  async init() {
-    models.init();
-    await this.initServiceApi();
-    await this.GetLoginModel();
-    await this.GetSelfUserModel();
-  },
-
-  async initServiceApi(){
-    let configModel = await(await models.Config).find();
-    if(configModel.length == 0)
-      return false;
-
-    this.config.hostname = configModel[0].entry_host;
-    this.config.apiPort = configModel[0].entry_port;
-    this.config.hostTls = configModel[0].entry_tls;
-    if(this.api == undefined)
-      this.api = new APITransaction(this.config.hostname, this.config.apiPort, this.config.hostTls);
-  },
-
-  async login(config) {
+  init(config) {
     if (typeof config != "object") {
-      return;
+      config = {};
     }
-    
+
+    if ("hostname" in config) {
+      this.config.hostname = config.hostname;
+    }
+
+    if ("apiPort" in config) {
+      this.config.apiPort = config.apiPort;
+    }
+
     if ("username" in config) {
       this.config.username = config.username;
     }
@@ -298,7 +279,14 @@ const common = {
     if("desktopType" in config){
       this.config.desktopType = config.desktopType;
     }
+    this.api = new APITransaction(this.config.hostname, this.config.apiPort);
+    models.init();
+  },
+
+  async login() {
+    var api = this.api;
     var config = this.config;
+    var data = this.data;
 
     let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.model, config.deviceID, config.desktopType);
 
@@ -359,6 +347,8 @@ const common = {
 
   async InitDbData()
   {
+    await this.GetLoginModel();
+    await this.GetSelfUserModel();
     await this.UpdateGroups();
     await this.UpdateUserinfo();
     await this.UpdateDepartment();
@@ -387,21 +377,11 @@ const common = {
     await this.ReveiveNewMessage(maxSequenceIdFromGroup, 0)
   },
 
-  async initmqtt(){
+  initmqtt(){
     if(this.mqttclient != undefined) {
       return;
     }
-    let configModel = await(await models.Configure).find();
-    this.config.mqttName = configModel[0].mqtt_host;
-    this.config.mqttPort = configModel[0].mqtt_port;
-    this.config.mqttTls = configModel[0].mqtt_tls;
-
-    let httpValue;
-    if(this.config.mqttTls)
-      httpValue = "https";
-    else
-      httpValue = "http";
-    this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttName + ':' + this.config.mqttPort,
+    this.mqttclient = mqtt.connect('http://'+ this.config.hostname + ':' + 1883,
                                       {username: 'client', 
                                       password: 'yiqiliao',
                                       clientId: this.data.selfuser.id + '|1111111111111111111'});
@@ -446,9 +426,10 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
-    await(await models.Login).truncate();
-    await(await models.Config).truncate();
-
+    let foundlogin = await(await models.Login).find({
+      user_id: this.data.selfuser.id
+    })
+    foundlogin[0].destroy();
     return await this.api.logout(this.data.login.access_token)
   },
 
@@ -1608,35 +1589,6 @@ const common = {
     return result.data.results;
   },
 
-  async gmsConfiguration(domainBase64){
-    await (await models.Config).truncate();
-    let value = Base64.encode(domainBase64, true);
-    let response = await axios.get("https://gms.eachchat.net/api/services/gms/v1/configuration/" + value)
-    if (response.status != 200 
-      || response.data == undefined
-      || response.data.obj == undefined) {
-      return false;
-    }
-    
-    let entry = response.data.obj.entry;
-    let mqtt = response.data.obj.mqtt;
-    let identities = response.data.obj.identities;
-
-    let configValue = {
-      id:                domainBase64,
-      entry_host:        entry.host,
-      entry_port:        entry.port,
-      entry_tls:         entry.tls,
-      mqtt_host:         mqtt.host,
-      mqtt_port:         mqtt.port,
-      mqtt_tls:          mqtt.tls
-    }  
-    
-    let configModel = await new (await models.Config)(configValue);
-    configModel.save();
-
-    return identities;
-  }
 };
 
 const cache = {

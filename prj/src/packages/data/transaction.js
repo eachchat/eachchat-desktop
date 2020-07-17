@@ -7,10 +7,10 @@ import { environment } from "./environment.js"
 //const {FileUtil} = require("./Utils.js")
 
 class APITransaction {
-  constructor(hostname, port, tls) {
+  constructor(hostname, port) {
     // 聊天、收藏、组织、认证、文件、安全、邮件
     // 公共服务
-    this.commonApi = new net.HTTP(hostname, port, tls);
+    this.commonApi = new net.HTTP(hostname, port);
   }
 
   parseStatus(response) {
