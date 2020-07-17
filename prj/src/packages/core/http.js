@@ -7,10 +7,15 @@
 import axios from "axios";
 
 class HTTP {
-  constructor(hostname, port) {
+  constructor(hostname, port, tls) {
     this.hostname = hostname;
-    this.baseURL = "http://" + hostname;
-    this.port = 80;
+    let httpValue;
+    if(tls == true)
+      httpValue = "https";
+    else
+      httpValue = "http";
+    this.baseURL = httpValue + "://" + hostname;
+    this.port = port;
     this.contentTypeChecker = undefined;
 
     this.MIME = {
