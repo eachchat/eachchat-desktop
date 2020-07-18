@@ -12,7 +12,6 @@ import * as fs from 'fs-extra'
 import { makeFlieNameForConflict } from '../core/Utils.js'
 import axios from "axios";
 import {Base64} from "js-base64";
-import { timeStamp } from 'console';
 
 const mqtt = require('mqtt')
 
