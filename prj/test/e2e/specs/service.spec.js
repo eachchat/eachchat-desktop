@@ -10,6 +10,11 @@ describe('ServiceTest', function () {
   let resSendMessage;
   let sendNewMessageResponse;
 
+  it("gmsConfigurationTestCase", async function(){
+    let ret = await services.common.gmsConfiguration("dev.eachchat.net");
+    expect(ret).to.not.equal(false);
+  })
+
   it("LoginTestCase", async function(){
     this.timeout(50000);
     
@@ -18,13 +23,12 @@ describe('ServiceTest', function () {
       password: "12345678"
     };
     
-    await services.common.gmsConfiguration("dev.eachchat.net");
     await services.common.init();
     let loginResult = await services.common.login(config);
     expect(loginResult).to.equal(true);
     this.selfUser = await services.common.GetSelfUserModel();
   })
-
+  return;
   it("AllUserinfoTestCase", async function (){
     return;
     this.timeout(300000);
