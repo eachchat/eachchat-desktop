@@ -327,6 +327,10 @@ const common = {
       this.data.selfuser = foundUser;
       console.log('Your profile has been update!');
     } else {
+      selfuser.msg_max_sequenceid = 0;
+      selfuser.user_max_updatetime = 0;
+      selfuser.group_max_updatetime = 0;
+      selfuser.department_max_updatetime = 0;
       selfuser.save();
       this.data.selfuser = selfuser;
       console.log('New account login ok!');
@@ -680,7 +684,7 @@ const common = {
     }
     await sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, updateTime)
     let maxSequenceId = await sqliteutil.FindMaxSequenceIDFromGroup();
-    await await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, maxSequenceId);
+    await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, maxSequenceId);
     this.data.selfuser.group_max_updatetime = updateTime;
     return true;
   },
