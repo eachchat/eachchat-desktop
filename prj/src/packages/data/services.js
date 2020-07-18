@@ -248,7 +248,7 @@ const common = {
     return groups;
   },
 
-  async CreateDatabaseTabel(){
+  CreateDatabaseTable(){
     models.init();
   },
 
