@@ -398,7 +398,7 @@ const common = {
     if(this.mqttclient != undefined) {
       return;
     }
-    let configModel = await(await models.Configure).find();
+    let configModel = await(await models.Config).find();
     this.config.mqttName = configModel[0].mqtt_host;
     this.config.mqttPort = configModel[0].mqtt_port;
     this.config.mqttTls = configModel[0].mqtt_tls;
@@ -1625,7 +1625,6 @@ const common = {
       return false;
     }
     
-    
     let entry = response.data.obj.entry;
     let mqtt = response.data.obj.mqtt;
     let identities = response.data.obj.identities;
@@ -1651,8 +1650,12 @@ const common = {
     await(await models.Config).truncate();
     let configModel = await new (await models.Config)(configValue);
     configModel.save();
-
+    console.log("gmsConfiguration end");
     return identities;
+  },
+
+  async testfunction(){
+    await this.gmsConfiguration("dev.eachchat.net");
   }
 };
 

@@ -1224,10 +1224,8 @@ export default {
         ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
   },
   created: async function() {
-    this.loginInfo = await services.common.GetLoginModel();
-    this.curUserInfo = await services.common.GetSelfUserModel();
-
-    services.common.initmqtt();
+    await services.common.init();
+    await services.common.initmqtt();
     services.common.handlemessage(this.delayCallback);
   }
 };
