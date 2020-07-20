@@ -29,7 +29,7 @@
                 <ul class="image-list">
                     <li class="image"
                         v-for="(image, index) in favourites" :key="index">
-                        <img class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Chat/loading.gif" alt= "图片">
+                        <img class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
                         <p class="image-sender">{{ image.collection_content.fromUserName }}</p>
                         <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
                         <div class="favourite-action">

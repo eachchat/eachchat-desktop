@@ -28,8 +28,11 @@
                     <p class="organizaiton-title">
                         加入您的组织
                     </p>
-                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input"/>
+                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label">.each.chat</p>
+                </div>
+                <div class="organizationLogin-state">
+                    <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
                 </div>
                 <div class="btn-item">
                     <Button type="success"  @click="organizationConfirmButtonClicked()">确定</Button>
@@ -38,9 +41,9 @@
                     <p class="forget-title">忘记了你的组织ID?</p><p
                     class="finder-title" @click="organizationFinderClicked()">点击找回</p>
                 </div>
-                <div class="login-footer">
+                <!-- <div class="login-footer">
                     <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
-                </div>
+                </div> -->
             </div>
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="title">
@@ -55,17 +58,16 @@
                 <p class="account-title">
                     用户名
                 </p>
-                <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名" class="item-input"/>
+                <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
             </div>
             <div class="item-pwd">
                 <p class="password-title">
                     密码
                 </p>
-                <input prefix="ios-lock-outline" type="password" v-model="password" placeholder="请输入密码"
-                        class="item-input"/>
+                <input prefix="ios-lock-outline" type="password" v-model="password" placeholder="请输入密码" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
             </div>
             <div class="accountLogin-state">
-                    <p class="state-title">{{loginState}}</p>
+                    <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
             </div>
             <div class="btn item">
                 <Button type="success" id="loginButton" @click="login()">{{ loginButtonValue }}</Button>
@@ -77,7 +79,7 @@
             </div>
 
         </div>
-        <div class="serverSetting-panel" v-show="showServerSettingView">
+        <!-- <div class="serverSetting-panel" v-show="showServerSettingView">
             <div class="setting-header">
                 <p class="header-title">服务器设置</p>
                 <p class="header-tip">修改保存后，请清空进程再次重启应用</p>
@@ -99,7 +101,7 @@
                     <p class="back-title">返回</p>
                 
             </div>
-        </div>
+        </div> -->
         <div class="organizationFinder-panel" v-show="showOrganizationFinderView">
             <div class="finder-header">
                 <p class="header-title">找回组织ID</p>
@@ -154,11 +156,10 @@ export default {
             loadingProcess: '正在验证登录信息',
 
             loginButtonValue:'登录',
-            hostName: '',
             organizationAddress:'',
             emialAddress:'',
             showLoginView: false,
-            showServerSettingView: false,
+            //showServerSettingView: false,
             showOrganizationView: true,
             showOrganizationFinderView: false,
             showLoadingView: true,
@@ -174,25 +175,42 @@ export default {
         Max: function() {
             ipcRenderer.send("login-win-max");
         },
-        organizationConfirmButtonClicked(){
+        resetLoginStateTitle(){
+            this.loginState = "";
+        },
+        organizationConfirmButtonClicked:async function(){
+            if (this.organizationAddress == undefined || this.organizationAddress == ""){
+                this.loginState = "请输入组织ID";
+                return;
+            }
+            var address = this.organizationAddress + ".eachchat.net";
+            var result = await services.common.gmsConfiguration(address);
+            console.log(result);
+            if(!result){
+                this.loginState = "未找到该组织";
+                return;
+            }
+            this.resetLoginStateTitle();
+            await services.common.init();
             this.showLoginView = true;
             this.showOrganizationView = false;
         },
-        organizationFinderClicked(){
+        organizationFinderClicked:async function(){
+
             this.showLoginView = false;
             this.showOrganizationFinderView = true;
         },
         serverSettingClicked(){
             this.showLoginView = false;
-            this.showServerSettingView = true;
+            //this.showServerSettingView = true;
         },
         serverSettingConfirmClicked(){
             this.showLoginView = true;
-            this.showServerSettingView = false;
+            //this.showServerSettingView = false;
         },
         serverSettingCancelClicked(){
             this.showLoginView = true;
-            this.showServerSettingView = false;
+            //this.showServerSettingView = false;
             this.hostName = '';
         },
         serverSettingBackToLoginClicked(){
@@ -221,26 +239,39 @@ export default {
                 return true;
             }
         },
+        isEmpty(obj){
+            if(typeof obj == "undefined" || obj == null || obj == ""){
+                return true;
+            }else{
+                return false;
+            }
+        },
         login:async function() {
+            if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
+                this.loginState = "请输入用户名和密码";
+                return;
+            }
+            if(this.isEmpty(this.username)){
+                this.loginState = "请输入用户名";
+                return;
+            }
+            if(this.isEmpty(this.password)){
+                this.loginState = "请输入密码";
+                return;
+            }
             var mac = environment.os.mac;
             var hostname = environment.os.hostName;
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
-            if(this.hostName == ''||this.hostName == undefined){
-                this.hostName = '139.198.15.253';
-            }
             let config = {
-                hostname: this.hostName,
-                apiPort: 8888,
                 username: this.username,
                 password: this.password,
+                identityType: 'password',
                 model: hostname,
                 deviceID: mac
             };
-            services.common.init(config);
-            
-            let response = await services.common.login();
-            console.log(response)
+            let response = await services.common.login(config);
+            console.log(response);
             var ret_data = response;
             if(response != true){
                 var msg = ret_data["message"];
@@ -272,26 +303,17 @@ export default {
                 await services.common.listAllGroup();
                 // const ipcRenderer = require('electron').ipcRenderer;
                 ipcRenderer.send('showMainPageWindow', true); 
-            }, 1000)
+            }, 1000);
         }
     },
-    mounted: function() {
+    mounted: async function() {
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
-        // console.log("mac is ", mac);
-        // console.log("hostname is ", hostname);
-        let config = {
-            hostname: "139.198.15.253",
-            apiPort: 8888,
-            username: "",
-            password: "",
-            model: hostname,
-            deviceID: mac
-        };
-        setTimeout(() => {
+        await services.common.init();
+        setTimeout(() => {  
             this.$nextTick(async () => {
-                services.common.init(config);
+                
                 if(await services.common.GetLoginModel() == undefined)//判断数据库存在登陆信息，如果不存在直接返回
                 {
                     
@@ -475,12 +497,17 @@ export default {
                 margin-top: 4px;
                 width:260px;
                 height:36px;
-                color: #76777A;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
-                border: 1px solid #DFE0E3;
-                border-radius: 3px;
-                padding-left: 10px;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 12px;
+                font-size:14px;
+                outline: none;
             }
         }
 
@@ -503,12 +530,17 @@ export default {
                 margin-top: 4px;
                 width:260px;
                 height:36px;
-                color: #76777A;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
-                border: 1px solid #DFE0E3;
-                border-radius: 3px;
-                padding-left: 10px;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 12px;
+                font-size:14px;
+                outline: none;
             }
         }
         .accountLogin-state {
@@ -642,12 +674,17 @@ export default {
                 margin-top: 4px;
                 width:260px;
                 height:36px;
-                color: #76777A;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
-                border: 1px solid #DFE0E3;
-                border-radius: 3px;
-                padding-left: 10px;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 12px;
+                font-size:14px;
+                outline: none;
             }
             .organization-input-label{
                 position: absolute;
@@ -666,7 +703,7 @@ export default {
         }
 
         .btn-item {
-            margin-top: 24px;
+            margin-top: 7px;
             text-align: center;
 
             button {
@@ -698,6 +735,21 @@ export default {
                 opacity: 0.8;
             }
 
+        }
+        .organizationLogin-state {
+            width: 100%;
+            padding-left: 50px;
+            height: 17px;
+            .state-title{
+                text-align: left;
+                margin: 0px;
+                height:17px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(228,49,43,1);
+                line-height:17px;
+                letter-spacing:1px;
+            }
         }
         .organization-finder-tip{
             height: 18px;
@@ -748,159 +800,159 @@ export default {
     }
 
     }
-    .serverSetting-panel {
-        width: 100%;
-        margin-top: 0px;
-        height: calc(100% - 36px);
-        overflow: hidden;
-        cursor: default;
-        .setting-header{
-            width: 100%;
-            height: 51px;
-            margin-top: 36px;
-            .header-title{
-                width: 100%;
-                text-align: center;
-                height:22px;
-                font-size:16px;
-                font-weight:500;
-                color:rgba(0,0,0,1);
-                line-height:22px;
-                letter-spacing:2px;
-                margin: 0px;
-            }
-            .header-tip{
-                width: 100%;
-                text-align: center;
-                height:20px;
-                font-size:14px;
-                font-weight:400;
-                color:rgba(0,0,0,1);
-                line-height:20px;
-                letter-spacing:1px;
-                margin: 0px;
-                margin-top: 9px;
-            }
+    // .serverSetting-panel {
+    //     width: 100%;
+    //     margin-top: 0px;
+    //     height: calc(100% - 36px);
+    //     overflow: hidden;
+    //     cursor: default;
+    //     .setting-header{
+    //         width: 100%;
+    //         height: 51px;
+    //         margin-top: 36px;
+    //         .header-title{
+    //             width: 100%;
+    //             text-align: center;
+    //             height:22px;
+    //             font-size:16px;
+    //             font-weight:500;
+    //             color:rgba(0,0,0,1);
+    //             line-height:22px;
+    //             letter-spacing:2px;
+    //             margin: 0px;
+    //         }
+    //         .header-tip{
+    //             width: 100%;
+    //             text-align: center;
+    //             height:20px;
+    //             font-size:14px;
+    //             font-weight:400;
+    //             color:rgba(0,0,0,1);
+    //             line-height:20px;
+    //             letter-spacing:1px;
+    //             margin: 0px;
+    //             margin-top: 9px;
+    //         }
 
-        }
-        .setting-body{
-            .item-server{
-                margin-top: 31px;
-                width: 260px;
-                margin-left: 50px;
-                height: 58px;
-                .server-title{
-                width: 100%;
-                margin: 0px;
-                margin-bottom: 4px;
-                font-size:12px;
-                font-weight:400;
-                color:rgba(102,102,102,1);
-                line-height:18px;
-                letter-spacing:1px;
-                }
-                .item-server-input{
-                margin-top: 4px;
-                width:260px;
-                height:36px;
-                color: #76777A;
-                margin: 0 0 0 0;
-                box-sizing: border-box;
-                border: 1px solid #DFE0E3;
-                border-radius: 3px;
-                padding-left: 10px;
-                }
-            }
-            .btn-item{
-                height: 80px;
-                width: 100%;
-                margin: 0px;
-                margin-top: 24px;
-                text-align: center;
-                .server-confirm-button{
-                border: 1px solid #24B36B;
-                background:rgba(36,179,107,1);
-                width: 260px;
-                height: 36px;
-                border-radius:4px;
-                color: white;
-                font-family: 'Microsoft Yahei';
-                font-size:14px;
-                font-weight:500;
-                line-height:20px;
-                letter-spacing:1px;
-                }
-                .server-confirm-button:hover{
-                                    border: 1px solid #24B36B;
-                background:rgba(36,179,107,1);
-                width: 260px;
-                height: 36px;
-                border-radius:4px;
-                color: white;
-                font-family: 'Microsoft Yahei';
-                font-size:14px;
-                font-weight:500;
-                line-height:20px;
-                letter-spacing:1px;
-                opacity: 0.8;
-                }
-                .server-cancel-button{
-                    margin-top: 8px;
-                border:1px solid rgba(221,221,221,1);
-                background:rgba(255,255,255,1);
-                width: 260px;
-                height: 36px;
-                border-radius:4px;
-                color: black;
-                font-family: 'Microsoft Yahei';
-                font-size:14px;
-                font-weight:500;
-                line-height:20px;
-                letter-spacing:1px;
-                }
-                .server-cancel-button:hover{
-                border:1px solid rgba(221,221,221,1);
-                background:rgba(255,255,255,1);
-                width: 260px;
-                height: 36px;
-                border-radius:4px;
-                color: black;
-                font-family: 'Microsoft Yahei';
-                font-size:14px;
-                font-weight:500;
-                line-height:20px;
-                letter-spacing:1px;
-                opacity: 0.8;
-                }
-            }
-        }
-        .setting-footer{
-            width: 100%;
-            height: 20px;
-            margin-bottom: 20px;
-            margin-top: 64px;
-            .back-image{
-                cursor: pointer;
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                margin-left: 24px;
-            }
-            .back-title{
-                cursor: pointer;
-                display: inline-block;
+    //     }
+    //     .setting-body{
+    //         .item-server{
+    //             margin-top: 31px;
+    //             width: 260px;
+    //             margin-left: 50px;
+    //             height: 58px;
+    //             .server-title{
+    //             width: 100%;
+    //             margin: 0px;
+    //             margin-bottom: 4px;
+    //             font-size:12px;
+    //             font-weight:400;
+    //             color:rgba(102,102,102,1);
+    //             line-height:18px;
+    //             letter-spacing:1px;
+    //             }
+    //             .item-server-input{
+    //             margin-top: 4px;
+    //             width:260px;
+    //             height:36px;
+    //             color: #76777A;
+    //             margin: 0 0 0 0;
+    //             box-sizing: border-box;
+    //             border: 1px solid #DFE0E3;
+    //             border-radius: 3px;
+    //             padding-left: 10px;
+    //             }
+    //         }
+    //         .btn-item{
+    //             height: 80px;
+    //             width: 100%;
+    //             margin: 0px;
+    //             margin-top: 24px;
+    //             text-align: center;
+    //             .server-confirm-button{
+    //             border: 1px solid #24B36B;
+    //             background:rgba(36,179,107,1);
+    //             width: 260px;
+    //             height: 36px;
+    //             border-radius:4px;
+    //             color: white;
+    //             font-family: 'Microsoft Yahei';
+    //             font-size:14px;
+    //             font-weight:500;
+    //             line-height:20px;
+    //             letter-spacing:1px;
+    //             }
+    //             .server-confirm-button:hover{
+    //                                 border: 1px solid #24B36B;
+    //             background:rgba(36,179,107,1);
+    //             width: 260px;
+    //             height: 36px;
+    //             border-radius:4px;
+    //             color: white;
+    //             font-family: 'Microsoft Yahei';
+    //             font-size:14px;
+    //             font-weight:500;
+    //             line-height:20px;
+    //             letter-spacing:1px;
+    //             opacity: 0.8;
+    //             }
+    //             .server-cancel-button{
+    //                 margin-top: 8px;
+    //             border:1px solid rgba(221,221,221,1);
+    //             background:rgba(255,255,255,1);
+    //             width: 260px;
+    //             height: 36px;
+    //             border-radius:4px;
+    //             color: black;
+    //             font-family: 'Microsoft Yahei';
+    //             font-size:14px;
+    //             font-weight:500;
+    //             line-height:20px;
+    //             letter-spacing:1px;
+    //             }
+    //             .server-cancel-button:hover{
+    //             border:1px solid rgba(221,221,221,1);
+    //             background:rgba(255,255,255,1);
+    //             width: 260px;
+    //             height: 36px;
+    //             border-radius:4px;
+    //             color: black;
+    //             font-family: 'Microsoft Yahei';
+    //             font-size:14px;
+    //             font-weight:500;
+    //             line-height:20px;
+    //             letter-spacing:1px;
+    //             opacity: 0.8;
+    //             }
+    //         }
+    //     }
+    //     .setting-footer{
+    //         width: 100%;
+    //         height: 20px;
+    //         margin-bottom: 20px;
+    //         margin-top: 64px;
+    //         .back-image{
+    //             cursor: pointer;
+    //             display: inline-block;
+    //             width: 20px;
+    //             height: 20px;
+    //             margin-left: 24px;
+    //         }
+    //         .back-title{
+    //             cursor: pointer;
+    //             display: inline-block;
                 
-                height:20px;
-                font-size:14px;
-                margin: 0px;
-                vertical-align: top;
-                font-weight:500;
-                color:rgba(0,0,0,1);
-                line-height:20px;
-                letter-spacing:1px;
-            }
-        }
-    }
+    //             height:20px;
+    //             font-size:14px;
+    //             margin: 0px;
+    //             vertical-align: top;
+    //             font-weight:500;
+    //             color:rgba(0,0,0,1);
+    //             line-height:20px;
+    //             letter-spacing:1px;
+    //         }
+    //     }
+    // }
         .organizationFinder-panel {
         width: 100%;
         margin-top: 0px;
@@ -957,12 +1009,17 @@ export default {
                 margin-top: 4px;
                 width:260px;
                 height:36px;
-                color: #76777A;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
-                border: 1px solid #DFE0E3;
-                border-radius: 3px;
-                padding-left: 10px;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 12px;
+                font-size:14px;
+                outline: none;
                 }
             }
             .btn-item{

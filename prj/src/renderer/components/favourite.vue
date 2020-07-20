@@ -153,7 +153,7 @@ export default {
     created() {
         this.showSearchView = false;
         this.favouriteType = 'message';
-        listKey ++;
+        this.listKey ++;
     }
 }
 </script>
