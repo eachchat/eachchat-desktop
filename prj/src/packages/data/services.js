@@ -793,7 +793,7 @@ const common = {
     }
 
     let groupItem;
-    let groupModel;
+    let groupModel = undefined;
     let findGroups;
     let groupId;
     for(let index in result.data.results){
@@ -819,8 +819,11 @@ const common = {
         await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
       }
     }
-    sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, groupModel.updatetime)
-    this.data.selfuser.group_max_updatetime = groupModel.updatetime;
+    if(groupModel != undefined)
+    {
+      sqliteutil.UpdateGroupMaxUpdatetime(this.data.selfuser.id, groupModel.updatetime)
+      this.data.selfuser.group_max_updatetime = groupModel.updatetime;
+    }
   },
 
   async historyMessage(groupId, sequenceId, count) { 
