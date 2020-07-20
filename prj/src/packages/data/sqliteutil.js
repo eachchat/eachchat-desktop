@@ -170,6 +170,8 @@ const sqliteutil = {
                 $size: 1
             }
         );
+        if(groups.length == 0)
+            return 0;
         let sequenceID = groups[0].sequence_id;
         return sequenceID;
     },
