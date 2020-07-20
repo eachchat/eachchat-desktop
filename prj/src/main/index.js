@@ -374,7 +374,7 @@ function downloadFile(event, arg) {
       var distPath = arg[4];
       var distTemp = distPath + "_tmp";
       var needOpen = arg[5]; 
-      var baseURL = "http://" + hostname;
+      var baseURL = hostname;
     
       if (typeof port == "number") {
         port = port;
@@ -563,7 +563,7 @@ function downloadImage(event, arg) {
       var distTemp = distPath + "_tmp";
       var thumbType = arg[5];
       var needOpen = arg[6];
-      var baseURL = "http://" + hostname;
+      var baseURL = hostname;
     
       if (typeof port == "number") {
         port = port;
@@ -632,7 +632,7 @@ function downloadMsgOImage(event, arg) {
       var distTemp = distPath + "_tmp";
       var thumbType = arg[5];
       var needOpen = arg[6];
-      var baseURL = "http://" + hostname;
+      var baseURL = hostname;
     
       if (typeof port == "number") {
         port = port;
@@ -772,7 +772,7 @@ function createWindow () {
   })
   mainWindow.hide();
   mainWindow.loadURL(winURL);
-  openDevToolsInDevelopment(mainWindow);
+  // openDevToolsInDevelopment(mainWindow);
   
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            
@@ -781,14 +781,14 @@ function createWindow () {
 function openDevToolsInDevelopment(mainWindow) {
 
   // Open dev tools initially when in development mode
-  // if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development") {
     mainWindow.webContents.on("did-frame-finish-load", () => {
     mainWindow.webContents.once("devtools-opened", () => {
     mainWindow.focus();
     });
     mainWindow.webContents.openDevTools();
     });
-  // }
+  }
   mainWindow.on('closed', () => {
     mainWindow = null
   })

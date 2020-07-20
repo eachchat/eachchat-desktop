@@ -1053,7 +1053,7 @@ const common = {
     }
     else {
       targetPath = await makeFlieNameForConflict(targetPath);
-      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen]);
       return ret;
     }
   },
@@ -1069,7 +1069,7 @@ const common = {
     }
     else {
       targetPath = await makeFlieNameForConflict(targetPath);
-      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, needOpen]);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen]);
       return ret;
     }
   },
@@ -1085,7 +1085,7 @@ const common = {
     }
     else {
       targetPath = await makeFlieNameForConflict(targetPath);
-      ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, "T", needOpen]);
+      ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, "T", needOpen]);
       return ret;
     }
   },
@@ -1101,7 +1101,7 @@ const common = {
     else {
       targetPath = await makeFlieNameForConflict(targetPath);
       console.log("downloadMsgOTumbnail targetPath is ", targetPath);
-      ipcRenderer.send('download-mgs-oimage', [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, "M", needOpen]);
+      ipcRenderer.send('download-mgs-oimage', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, "M", needOpen]);
       return ret;
     }
   },
