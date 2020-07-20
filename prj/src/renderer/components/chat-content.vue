@@ -1225,7 +1225,7 @@ export default {
   },
   created: async function() {
     await services.common.init();
-    this.curUserInfo = await this.GetSelfUserModel();
+    this.curUserInfo = await services.common.GetSelfUserModel();
     await services.common.initmqtt();
     services.common.handlemessage(this.delayCallback);
   }
