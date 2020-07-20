@@ -160,6 +160,10 @@ export default {
             type: String,
             default: ''
         },
+        addMemberGroupType: {
+            type: Number,
+            default: 102,
+        },
         isSearchAdd: {
             type:Boolean,
             default: false
@@ -352,6 +356,78 @@ export default {
 
                     this.$emit('getCreateGroupInfo', groupItem);
                     this.$emit("closeChatCreaterDlg", "");
+                }
+                else {
+                    services.common.CreateGroup(groupName, groupUserIds)
+                        .then((ret) => {
+                            if(ret == undefined) {
+                                console.log("!!!!!!!!!!!1 ")
+                                // ToDo exception notice.
+                                return;
+                            }
+                            ret.message_content = null;
+                            
+                            var groupItem = {};
+                            groupItem["contain_user_ids"] = ret.contain_user_ids;
+                            groupItem["group_id"] = ret.group_id;
+                            groupItem["group_avarar"] = ret.group_avarar;
+                            groupItem["group_name"] = ret.group_name;
+                            groupItem["group_type"] = ret.group_type;
+                            groupItem["last_message_time"] = ret.last_message_time;
+                            groupItem["message_content"] = null;
+                            groupItem["message_content_type"] = ret.message_content_type;
+                            groupItem["message_from_id"] = ret.message_from_id;
+                            groupItem["message_id"] = ret.message_id;
+                            groupItem["owner"] = ret.owner;
+                            groupItem["sequence_id"] = ret.sequence_id;
+                            groupItem["status"] = ret.status;
+                            groupItem["un_read_count"] = ret.un_read_count;
+                            groupItem["updatetime"] = ret.updatetime;
+                            groupItem["user_id"] = '';
+                    
+                            console.log("services.CreateGroup ret is ", groupItem);
+                            this.$emit('getCreateGroupInfo', groupItem);
+                            this.$emit("closeChatCreaterDlg", "");
+                        })
+                }
+            }
+            else if(!this.createNewChat && this.addMemberGroupType == 102) {
+                
+                if(this.curUserInfo == undefined) {
+                    this.curUserInfo = await services.common.GetSelfUserModel();
+                }
+                var groupUserIds = [];
+                groupUserIds.push(this.curUserInfo.id);
+                console.log("this.selectedUsers = ", this.selectedUsers);
+                console.log("this disableUsers is ", this.disableUsers)
+                var groupUserName = []
+                for(var j=0;j<this.disableUsers.length;j++) {
+                    groupUserIds.push(this.disableUsers[j].user_id);
+                    if(i < 4) {
+                        groupUserName.push(this.selectedUsers[i].user_display_name)
+                    }
+                }
+                for(var i=0;i<this.selectedUsers.length;i++) {
+                    groupUserIds.push(this.selectedUsers[i].user_id)
+                    if(i < 2) {
+                        groupUserName.push(this.selectedUsers[i].user_display_name)
+                    }
+                }
+                var groupName = '';
+                if(groupUserName.length > 1) {
+                    groupName = groupUserName.join("、");
+                }
+                else if(groupUserName.length == 4) {
+                    groupName = groupUserName.join("、");
+                    groupName = groupName + "...";
+                }
+                else {
+                    groupName = groupUserName[0];
+                }
+                console.log("group user ids is ", groupUserIds)
+                console.log("group groupName ids is ", groupName)
+                if(this.selectedUsers.length == 0) {
+                    alert("选一个呗")
                 }
                 else {
                     services.common.CreateGroup(groupName, groupUserIds)

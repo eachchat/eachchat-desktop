@@ -98,7 +98,7 @@
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
         <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip> -->
         <userInfoContent :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
-        <chatCreaterDlg v-show="showChatCreaterDlg" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        <chatCreaterDlg v-show="showChatCreaterDlg" :addMemberGroupType="addMemberGroupType" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">
@@ -570,12 +570,15 @@ export default {
             this.chatCreaterDialogRootDepartments =  temp;
             
             this.createNewChat = false;
+            this.addMemberGroupType = this.chat.group_type;
             this.chatCreaterKey ++;
             this.showChatCreaterDlg = true;
             this.chatCreaterDialogTitle = "添加成员";
         },
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
+            this.createNewChat = false;
+            this.chatCreaterDisableUsers = [];
         },
         showAddMembers: async function(existedMembers){
             this.chatCreaterDisableUsers = existedMembers;
@@ -597,6 +600,7 @@ export default {
             
             this.chatCreaterKey ++;
             this.createNewChat = false;
+            this.addMemberGroupType = this.chat.group_type;
             this.showChatCreaterDlg = true;
             this.chatCreaterDialogTitle = "添加成员";
         },
@@ -2103,6 +2107,7 @@ export default {
             needScroll: true,
             isOwn: false,
             createNewChat: false,
+            addMemberGroupType: 101,
             userInfo: {},
             userInfoPosition: {},
             userInfoTipKey: 1,
