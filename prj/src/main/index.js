@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === "development") {
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/macMenuIcon.png";
   }
-  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
+  emptyIconPath = "/static/Img/Main/logo-empty.ico";
 }
 
 const Bobolink = require('bobolink');
@@ -332,7 +332,9 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
 });
 // 闪烁任务栏
 ipcMain.on("flashIcon", () => {
+  if(!mainPageWindow.isFocused()) {
     mainPageWindow.flashFrame(true);
+  }
   
   clearFlashIconTimer();
   let count = 0;
@@ -761,7 +763,7 @@ function createWindow () {
     useContentSize: true,
     width: 360,
     frame: false,
-    resizable: false,
+    resizable: true,
     /**
      * Across Domains Problem
      */
@@ -778,14 +780,14 @@ function createWindow () {
 function openDevToolsInDevelopment(mainWindow) {
 
   // Open dev tools initially when in development mode
-  if (process.env.NODE_ENV === "development") {
+  // if (process.env.NODE_ENV === "development") {
     mainWindow.webContents.on("did-frame-finish-load", () => {
     mainWindow.webContents.once("devtools-opened", () => {
     mainWindow.focus();
     });
     mainWindow.webContents.openDevTools();
     });
-  }
+  // }
   mainWindow.on('closed', () => {
     mainWindow = null
   })

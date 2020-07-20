@@ -1036,6 +1036,12 @@ export default {
               }
             }
           }
+          if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {
+            let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+            if(!this.groupIsSlience(groupInfo)) {
+              this.showGroupList[i].un_read_count += 1;
+            }
+          }
           this.showGroupList[i].last_message_time = msg.message_timestamp;
           this.showGroupList[i].message_content = msg.message_content;
           this.showGroupList[i].message_content_type = msg.message_type != undefined ? msg.message_type : msg.message_content_type;
@@ -1059,12 +1065,6 @@ export default {
             else{
               this.curChat = this.showGroupList[i];
               this.newMsg = msg;
-            }
-          }
-          if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {
-            let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-            if(!this.groupIsSlience(groupInfo)) {
-              this.showGroupList[i].un_read_count += 1;
             }
           }
           if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {

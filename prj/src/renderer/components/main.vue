@@ -29,7 +29,7 @@
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
-        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
+        <!-- <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/> -->
     </el-container>
 </template>
 
@@ -50,7 +50,7 @@ import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
 import {UserInfo} from '../../packages/data/sqliteutil.js';
-import AlertDlg from './alert-dlg.vue'
+// import AlertDlg from './alert-dlg.vue'
 export default {
     name: 'mainpage',
     watch: {
@@ -153,6 +153,9 @@ export default {
             
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
+            console.log("11111111111111111111111111")
+            // services.common.AllUserinfo();
+            console.log("22222222222222222222222222")
             console.log("the init user id is ,", this.curUserInfo.id)
             confservice.init(this.curUserInfo.id);
             this.$store.commit("setUserId", this.curUserInfo.id)
@@ -309,7 +312,7 @@ export default {
         favourite,
         macWindowHeader,
         personalCenter,
-        AlertDlg,
+        // AlertDlg,
     },
     mounted: async function() {
         await services.common.GetLoginModel();
