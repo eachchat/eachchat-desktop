@@ -359,7 +359,7 @@ export default {
       }
     },
     isWindows() {
-      return environment.os.isWindows();
+      return environment.os.isWindows;
     },
     rightClick(e, groupItem) {
         console.log("groupItem is ", groupItem)
@@ -1020,7 +1020,12 @@ export default {
       if(msg.statues != undefined && msg.status[6] == 1) {
         return;
       }
-      ipcRenderer.send("flashIcon");
+      if(msg.message_from_id != undefined && msg.message_from_id != this.curUserInfo.id){
+        // console.log("process.platfrom is ", this.isWindows())
+        if(this.isWindows()) {
+          ipcRenderer.send("flashIcon");
+        }
+      }
       var groupExist = false;
       for(let i=0;i<this.showGroupList.length;i++) {
         if((this.showGroupList[i].group_id === msg.group_id)) {

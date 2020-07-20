@@ -21,7 +21,7 @@ let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
 var leaveInter, trayBounds, point, isLeave = true;
-let emptyIconPath = "/static/Img/Main/logo-empty.ico";
+let emptyIconPath;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
