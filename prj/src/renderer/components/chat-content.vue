@@ -227,7 +227,7 @@ export default {
         this.scrollToDistPosition()
       }
       
-      this.$store.commit("setShowGroupList", this.showGroupList);
+      // this.$store.commit("setShowGroupList", this.showGroupList);
       return this.showGroupList
     }
   },
@@ -1225,6 +1225,7 @@ export default {
   },
   created: async function() {
     await services.common.init();
+    this.curUserInfo = await this.GetSelfUserModel();
     await services.common.initmqtt();
     services.common.handlemessage(this.delayCallback);
   }

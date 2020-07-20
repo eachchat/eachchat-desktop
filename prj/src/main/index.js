@@ -754,6 +754,7 @@ function createWindow () {
   /**
    * Initial window options
    */
+  services.common.CreateDatabaseTable();
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
     webPreferences: {
