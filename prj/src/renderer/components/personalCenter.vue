@@ -107,14 +107,14 @@ export default {
         },
         stateChangeConfirm:async function(){
             await services.common.updateUserStatusDescription(this.stateInput);
-            this.$message('状态修改成功');
+            
         },
         workDescriptionChangeConfirm:async function(){
             if(this.workDescriptionInput == this.userInfo.work_description){
                 return;
             }
             await services.common.updateUserWorkDescription(this.workDescriptionInput);
-            this.$message('描述修改成功');
+            
         },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){
