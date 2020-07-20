@@ -953,7 +953,7 @@ export default {
       return timeFormate;
     },
     isWindows() {
-      return environment.os.isWindows();
+      return environment.os.isWindows;
     },
     Close: function() {
       ipcRenderer.send("win-close");

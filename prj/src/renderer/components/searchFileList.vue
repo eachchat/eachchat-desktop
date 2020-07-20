@@ -246,7 +246,7 @@ export default {
             }
         },
         isWindows() {
-            return environment.os.isWindows();
+            return environment.os.isWindows;
         },
         generalIDThroughMsgId: function(curMsg) {
             return "HistoryMsg-msg-id-" + curMsg.sequence_id;
