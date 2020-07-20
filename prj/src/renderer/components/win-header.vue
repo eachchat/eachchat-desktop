@@ -42,7 +42,7 @@ export default {
     },
     methods: {
         isWindows() {
-            return environment.os.isWindows;
+            return environment.os.isWindows || environment.os.isLinux;
         },
         Min:function() {
             this.$emit("Min");

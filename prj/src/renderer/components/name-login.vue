@@ -13,7 +13,7 @@
                 <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
             </div>
             <div class="win-header">
-                <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+                <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
             </div>
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
