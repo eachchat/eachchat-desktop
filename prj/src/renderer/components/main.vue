@@ -144,13 +144,13 @@ export default {
         },
         getAppBaseData:async function() {
             // Init services
-            let config = {
-                hostname: "139.198.15.253",
-                apiPort: 8888,
-            };
-            services.common.init(config);
+            // let config = {
+            //     hostname: "139.198.15.253",
+            //     apiPort: 8888,
+            // };
+            // services.common.init(config);
             // Set accessToken in services
-            
+            await services.common.init();
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
             console.log("11111111111111111111111111")
@@ -343,6 +343,7 @@ export default {
         margin: 0 0 0 0;
         width: 100%;
         height: 100%;
+        -webkit-user-select:none;
     }
 
     .nav-menu {

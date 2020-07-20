@@ -367,6 +367,7 @@ export default {
         box-shadow:0px 4px 20px 0px rgba(0,0,0,0.17);
         border-radius:4px;
         cursor: default;  
+        -webkit-user-select:none;
     }
 
     // .welcome-panel {
@@ -954,6 +955,7 @@ export default {
     //     }
     // }
         .organizationFinder-panel {
+            -webkit-user-select:none;
         width: 100%;
         margin-top: 0px;
         height: calc(100% - 36px);
@@ -1085,6 +1087,7 @@ export default {
         }
     }
         .loginLoading-view {
+            -webkit-user-select:none;
             width: 100%;
             margin-top: 0px;
             height: calc(100% - 36px);

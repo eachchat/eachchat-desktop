@@ -343,9 +343,9 @@ export default {
         },
         getFileStateSourceImage(file) {
             if(this.getFileExist(file)){
-                return "../../../static/Img/Favorite/File/directory@2x.png";
+                return require("../../../static/Img/Favorite/File/directory@2x.png");
             }else{
-                return "../../../static/Img/Favorite/File/download@2x.png";
+                return require("../../../static/Img/Favorite/File/download@2x.png");
             }
 
         },
