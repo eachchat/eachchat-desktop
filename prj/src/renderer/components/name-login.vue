@@ -294,13 +294,21 @@ export default {
 
                 // await services.common.InitServiceData();
                 //后面的这些代码可以放到主线程
-                //ipcRenderer.send("firstLogin")                
-                this.loadingProcess = "正在加载用户信息";
-                await services.common.AllUserinfo();
-                this.loadingProcess = "正在加载组织信息";
-                await services.common.AllDepartmentInfo();
-                this.loadingProcess = "正在加载群组信息";
-                await services.common.listAllGroup();
+                //ipcRenderer.send("firstLogin")  
+                if(await services.common.GetLoginModel() == undefined)
+                {
+                    this.loadingProcess = "正在加载用户信息";
+                    await services.common.AllUserinfo();
+                    this.loadingProcess = "正在加载组织信息";
+                    await services.common.AllDepartmentInfo();
+                    this.loadingProcess = "正在加载群组信息";
+                    await services.common.listAllGroup();
+                }
+                else
+                {
+                    this.loadingProcess = "正在加载信息";
+                    await services.common.InitDbData();
+                }              
                 // const ipcRenderer = require('electron').ipcRenderer;
                 ipcRenderer.send('showMainPageWindow', true); 
             }, 1000);
