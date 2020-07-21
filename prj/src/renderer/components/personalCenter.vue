@@ -2,9 +2,9 @@
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
             <div class="personalCenter-iconView" @click="personalCenterIconClicked()">
-                <img class="personalCenter-icon" src="../../../static/Img/User/user.jpeg">
+                <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user.jpeg">
                 <div class="personalCenter-changeIcon">
-                    <img class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
+                    <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
                 </div>
             </div>
             <div class="personalCenter-baseInfo">
@@ -12,7 +12,7 @@
                 <p class="personalCenter-name">{{ userInfo.user_display_name }}</p>
                 <div class="personalCenter-state">
                     <input class="personalCenter-stateInput" v-model="stateInput" @keyup.enter="stateChangeConfirm()">
-                    <img class="personalCenter-stateSelectArrow"  @click="stateListArrowClicked()" src="../../../static/Img/personalCenter/statusArrow-20px@2x.png">
+                    <img ondragstart="return false" class="personalCenter-stateSelectArrow"  @click="stateListArrowClicked()" src="../../../static/Img/personalCenter/statusArrow-20px@2x.png">
                 </div>
             </div>
         </div>
@@ -20,12 +20,12 @@
             <ul class="personalCenter-stateSelectList">
                 <li class="personalCenter-stateSelect" v-for="(state, index) in stateList" @click="stateItemClicked(state, index)" :key="index">
                     <p class="personalCenter-stateSelectTitle">{{ state.state }}</p>
-                        <img class="personalCenter-stateSelectCheck" v-show="state.check" src="../../../static/Img/personalCenter/selected-20px@2x.png">
+                        <img ondragstart="return false" class="personalCenter-stateSelectCheck" v-show="state.check" src="../../../static/Img/personalCenter/selected-20px@2x.png">
                         </li>
                     </ul>
                 </div>
         <div class="personalCenter-workDescription">
-            <img class="personalCenter-descriptionIcon" src="../../../static/Img/personalCenter/workDescription-20px@2x.png">
+            <img ondragstart="return false" class="personalCenter-descriptionIcon" src="../../../static/Img/personalCenter/workDescription-20px@2x.png">
             <input class="personalCenter-descriptionInput" placeholder="请添加工作描述" v-model="workDescriptionInput" @keyup.enter="workDescriptionChangeConfirm()">
         </div>
     </div>

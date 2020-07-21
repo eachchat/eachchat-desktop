@@ -20,12 +20,12 @@
                                     v-for="(department, index) in organizationList[0].departments"
                                     @click="departmentMenuItemClicked(department, 0)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -40,7 +40,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -58,12 +58,12 @@
                                     v-for="(department, index) in organizationList[1].departments"
                                     @click="departmentMenuItemClicked(department, 1)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -78,7 +78,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -96,12 +96,12 @@
                                     v-for="(department, index) in organizationList[2].departments"
                                     @click="departmentMenuItemClicked(department, 2)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -116,7 +116,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -134,12 +134,12 @@
                                     v-for="(department, index) in organizationList[3].departments"
                                     @click="departmentMenuItemClicked(department, 3)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -154,7 +154,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -172,12 +172,12 @@
                                     v-for="(department, index) in organizationList[4].departments"
                                     @click="departmentMenuItemClicked(department, 4)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -192,7 +192,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -210,12 +210,12 @@
                                     v-for="(department, index) in organizationList[5].departments"
                                     @click="departmentMenuItemClicked(department, 5)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -230,7 +230,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -248,12 +248,12 @@
                                     v-for="(department, index) in organizationList[6].departments"
                                     @click="departmentMenuItemClicked(department, 6)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -268,7 +268,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -286,12 +286,12 @@
                                     v-for="(department, index) in organizationList[7].departments"
                                     @click="departmentMenuItemClicked(department, 7)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -306,7 +306,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -324,12 +324,12 @@
                                     v-for="(department, index) in organizationList[8].departments"
                                     @click="departmentMenuItemClicked(department, 8)" 
                                     :key="index">
-                                    <img class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Common/department_list@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
                                     <div align="center" class="item-arrow">
-                                        <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                        <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                     </div>
                                 </li>
                             </ul>
@@ -344,7 +344,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>

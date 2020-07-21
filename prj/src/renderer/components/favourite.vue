@@ -7,56 +7,56 @@
                 </div><div class="search-action">
                         
                         <div class="search-delete">
-                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
                             
                         </div><div class="search-search">
                     
-                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                         </div>
                         </div>
             </div>
             <div class="list-content">
                 <div class="organization-view">
                     <div class="item" @click="messageMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/message@2x.png">
+                        <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/message@2x.png">
                         <div class="item-info">
                             <p class="item-title">消息</p>
                         </div>
                         <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </div>
                 </div>
                 <div class="organization-view">
                     <div class="item" @click="imageMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/Image@2x.png">
+                        <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/Image@2x.png">
                         <div class="item-info">
                             <p class="item-title">图片</p>
                         </div>
                         <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </div>
                 </div>
                 <div class="organization-view">
                     <div class="item" @click="fileMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/file@2x.png">
+                        <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/file@2x.png">
                         <div class="item-info">
                             <p class="item-title">文件</p>
                         </div>
                         <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </div>
                 </div>
                 <div class="organization-view">
                     <div class="item" @click="groupMenuItemClicked()">
-                        <img class="item-icon" src="../../../static/Img/Favorite/Navigate/group@2x.png">
+                        <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/group@2x.png">
                         <div class="item-info">
                             <p class="item-title">群组</p>
                         </div>
                         <div class="item-arrow">
-                            <img class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </div>
                 </div>
@@ -100,9 +100,7 @@ export default {
         Max: function() {
             ipcRenderer.send("win-max");
         },
-        isWindows() {
-            return environment.os.isWindows;
-        },
+
         searchDeleteClicked(){
             this.searchKey = '';
             this.showSearchView = false;

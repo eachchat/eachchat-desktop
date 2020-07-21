@@ -4,11 +4,11 @@
         <ul class="reportList">
             <li class="report" v-for="(user, index) in userInfo.leaders" :key="index">
                 <div class="reportInfo">
-                    <img class="reportIcon" src="../../../static/Img/User/user.jpeg" :id="user._attr.user_id">
+                    <img ondragstart="return false" class="reportIcon" src="../../../static/Img/User/user.jpeg" :id="user._attr.user_id">
                     <p class="reportName">{{ user._attr.user_display_name }}</p>
                     <p class="reportTitle">{{ user._attr.user_title }}</p>
                 </div>
-                <img class="reportArraw" src="../../../static/Img/Organization//UserInfo/reportRelation-24px@2x.png" v-show="index != (userInfo.leaders.length - 1)"> 
+                <img ondragstart="return false" class="reportArraw" src="../../../static/Img/Organization//UserInfo/reportRelation-24px@2x.png" v-show="index != (userInfo.leaders.length - 1)"> 
             </li>
         </ul>
         </div>
