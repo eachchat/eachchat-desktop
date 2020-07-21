@@ -321,9 +321,7 @@ export default {
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
                 }
-                this.$nextTick(() => {
-                    this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
-                })
+                this.checkLoad();
                 // console.log("this.messageContent is ", this.messageContent)
                 // textMsgImgElement.innerHTML = this.messageContent;
             }
@@ -481,15 +479,12 @@ export default {
                 this.transmitMsgTitle = chatGroupMsgContent.title;
                 this.transmitMsgContent = chatGroupMsgContent.text;
                 this.messageContent = "[聊天记录]";
-                this.$nextTick(() => {
-                    this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
-                })
+                
+                this.checkLoad();
             }
             else {
                 return this.messageContent = "不支持的消息类型，请升级客户端。"
-                this.$nextTick(() => {
-                    this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
-                })
+                this.checkLoad();
             }
         },
         MsgBelongUserName: function() {

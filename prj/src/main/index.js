@@ -772,7 +772,7 @@ function createWindow () {
   })
   mainWindow.hide();
   mainWindow.loadURL(winURL);
-  // openDevToolsInDevelopment(mainWindow);
+  openDevToolsInDevelopment(mainWindow);
   
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            

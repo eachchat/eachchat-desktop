@@ -564,7 +564,7 @@ const Config = {
     async GetValue(){
         let configs = await(await models.Config).find();
         if(configs.length == 0)
-            return;
+            return undefined;
         return configs[0];
     }
 }

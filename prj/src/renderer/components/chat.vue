@@ -1911,6 +1911,7 @@ export default {
                                 if(ret.length < 20) {
                                     this.needScroll = false;
                                 }
+                                this.needToBottom = false;
                                 var messageListTmp = ret.sort(this.compare());
                                 if(messageListTmp[0].group_id != this.chat.group_id) {
                                     this.isRefreshing = false;
@@ -1934,6 +1935,9 @@ export default {
             }
         },
         checkLoadFinished(msgTemplateId, msg) {
+            if(msg.group_id == undefined || (msg.group_id != this.chat.group_id)) {
+                return;
+            }
             if(this.isRefreshing = true) {
                 this.isRefreshing = false;
             }
@@ -1945,6 +1949,11 @@ export default {
 
             let uldiv = document.getElementById("message-show-list");
             uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+
+            if(this.needToBottom) {
+                console.log("=========scroll to bottom");
+                uldiv.scrollTop = uldiv.scrollHeight - uldiv.clientHeight;
+            }
             // console.log("+++++++++scroll height is ", uldiv.scrollHeight);
         },
         checkResize: function() {
@@ -2024,13 +2033,14 @@ export default {
                     //     // console.log("this.messagelist is ", this.messageList)
                     // }
                     setTimeout(() => {
+                        this.needToBottom = true;
                         this.$nextTick(() => {
                             let div = document.getElementById("message-show-list");
                             if(div) {
                                 div.scrollTop = div.scrollHeight - div.clientHeight;
                                 // The left msg get through scroll event
                                 div.addEventListener('scroll', this.handleScroll);
-                                div.addEventListener('onresize', this.checkResize);
+                                // div.addEventListener('onresize', this.checkResize);
                             }
                             this.isRefreshing = false;
                         })
@@ -2104,6 +2114,7 @@ export default {
     },
     data() {
         return {
+            needToBottom: false,
             needScroll: true,
             isOwn: false,
             createNewChat: false,

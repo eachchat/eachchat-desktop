@@ -113,6 +113,7 @@ import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToSt
 import {shell} from 'electron'
 import AlertDlg from './alert-dlg.vue'
 import AnnouncementDlg from './announcement.vue'
+import { Config } from '../../packages/data/sqliteutil.js'
 
 export default {
   components: {
@@ -121,7 +122,7 @@ export default {
     AnnouncementDlg,
     // listItem
   },
-  props: ['distUserId'],
+  props: [],
   watch: {
   },
   computed: {
@@ -143,7 +144,13 @@ export default {
   },
   methods: {
     autoRunStateChange: async function(state){
-      remote.setAutoRun(state);
+      if(state == true) {
+        Config.SetAutoStart(1);
+      }
+      else {
+        Config.SetAutoStart(0);
+      }
+      ipcRenderer.send("setAutoRun", state);
     },
     closeAnnouncementDlg: function() {
       this.showAnnouncementDlg = false;
@@ -1011,6 +1018,11 @@ export default {
   created: async function() {
     this.loginInfo = await services.common.GetLoginModel();
     this.curUserInfo = await services.common.GetSelfUserModel();
+    var config = await Config.GetValue();
+    console.log("get config is ", config)
+    if(config != undefined) {
+      this.autoRun = config.auto_start == 0 ? false : true;
+    }
   },
   activated: async function() {
     this.recentDevice = await services.common.GetRecentDevice();

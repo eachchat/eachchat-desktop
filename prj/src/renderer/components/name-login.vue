@@ -9,11 +9,9 @@
             <p class="copy-right">版权所有 2019-2020 workly.ai 保留所有权利</p>
         </div> -->
         <!-- <div class="login-panel" v-else style="-webkit-app-region: no-drag"> -->
-            <div class="windowHeader" style="-webkit-app-region: drag">
+            <div class="windowHeader">
                 <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
-            </div>
-            <div class="win-header">
-                <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
+                <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
             </div>
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
@@ -363,7 +361,11 @@ export default {
     padding: 0px;
     margin: 0px;
     height: 36px;
-    width: 100%;
+    width: 100%; 
+    -webkit-app-region: drag;
+    * {
+        -webkit-app-region: no-drag;
+    }
 }
 .macWindowHeader {
     padding: 0px;
