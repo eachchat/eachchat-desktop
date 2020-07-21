@@ -805,7 +805,7 @@ export default {
                 }
                 return true;
             }
-            else if(event.key == "@") {
+            else if(event.keyCode == 50) {
                 if(this.chat.group_type == 102) {
                     return;
                 }
@@ -1885,8 +1885,8 @@ export default {
         compare: function(){
             return function(a, b)
             {
-                var value1 = a.sequence_id;
-                var value2 = b.sequence_id;
+                var value1 = a.message_timestamp;
+                var value2 = b.message_timestamp;
                 return value2 - value1;
             }
         },
