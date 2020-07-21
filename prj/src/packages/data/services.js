@@ -427,7 +427,19 @@ const common = {
             }
           })
     })
-    
+    mqttclient.on("close", function(){
+      console.log("mqtt closed-----------------")
+    })
+    mqttclient.on("disconnect", function(){
+      console.log("mqtt disconnect-----------------")
+    })
+    mqttclient.on("offline", function(){
+      console.log("mqtt offline-----------------")
+    })
+    mqttclient.on("error", function(){
+      console.log("mqtt error-----------------")
+    })
+
   },
 
   closemqtt(){
