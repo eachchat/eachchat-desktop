@@ -7,10 +7,6 @@ import store from './store'
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import VueCropper from 'vue-cropper'
-import toastMessage from '../plugins/ToastMessage'
-Vue.use(toastMessage)
-Vue.use(VueCropper)
 Vue.use(ElementUI)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))

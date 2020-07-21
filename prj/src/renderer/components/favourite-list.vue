@@ -693,7 +693,7 @@ export default {
             return;
         }
         if (this.favouriteType == 'message'){
-            //this.$toastMessage({message: '33333', time: 3000})
+
             this.headerTitle = '收藏';
             var messageCollectionModel = await services.common.ListMessageCollections();
             this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);

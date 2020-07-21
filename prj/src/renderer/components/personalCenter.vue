@@ -28,7 +28,6 @@
             <img ondragstart="return false" class="personalCenter-descriptionIcon" src="../../../static/Img/personalCenter/workDescription-20px@2x.png">
             <input class="personalCenter-descriptionInput" placeholder="请添加工作描述" v-model="workDescriptionInput" @keyup.enter="workDescriptionChangeConfirm()">
         </div>
-        <image-cropper v-if="showImageCropper"></image-cropper>
     </div>
 </template>
 <script>
@@ -38,7 +37,6 @@ import * as fs from 'fs-extra'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
-import imageCropper from './imageCropper.vue';
 export default {
     name: 'user-info',
     data() {
@@ -48,7 +46,6 @@ export default {
             workDescriptionInput:'',
             stateList:[],
             showStateList: false,
-            showImageCropper: false,
         }
     },
     props: {
@@ -59,9 +56,6 @@ export default {
             }
         },
 
-    },
-    components:{
-        imageCropper,
     },
     computed: {
 
@@ -80,7 +74,6 @@ export default {
             if(fileList === null || fileList.length === 0) {
                 alert("请选择一个图片文件");
             }
-            //this.showImageCropper = true;
             var result = await services.common.UpdateUserAvatar(fileList[0]);
 
             if (result){

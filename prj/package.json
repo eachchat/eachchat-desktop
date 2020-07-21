@@ -70,7 +70,6 @@
     "sqlite3": "^4.2.0",
     "utf-8-validate": "^5.0.2",
     "vue": "^2.5.16",
-    "vue-cropper": "^0.5.5",
     "vue-electron": "^1.0.6",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.0.1",
