@@ -270,6 +270,7 @@ export default {
                 model: hostname,
                 deviceID: mac
             };
+            let oldLoginModel = await services.common.GetLoginModel();
             let response = await services.common.login(config);
             console.log(response);
             var ret_data = response;
@@ -295,7 +296,13 @@ export default {
                 // await services.common.InitServiceData();
                 //后面的这些代码可以放到主线程
                 //ipcRenderer.send("firstLogin")  
-                if(await services.common.GetLoginModel() == undefined)
+                let newLoginModel = await services.common.GetLoginModel();
+                if(oldLoginModel != undefined && oldLoginModel.user_id == newLoginModel.user_id)
+                {
+                    this.loadingProcess = "正在加载信息";
+                    await services.common.InitDbData();
+                }
+                else
                 {
                     this.loadingProcess = "正在加载用户信息";
                     await services.common.AllUserinfo();
@@ -303,11 +310,6 @@ export default {
                     await services.common.AllDepartmentInfo();
                     this.loadingProcess = "正在加载群组信息";
                     await services.common.listAllGroup();
-                }
-                else
-                {
-                    this.loadingProcess = "正在加载信息";
-                    await services.common.InitDbData();
                 }              
                 // const ipcRenderer = require('electron').ipcRenderer;
                 ipcRenderer.send('showMainPageWindow', true); 
