@@ -62,8 +62,10 @@ const common = {
       return;
     }
     this.data.login = foundlogin[0];
-
     
+    let configModel = await(await models.Config).find();
+    if(configModel.length == 0)
+      return;
     //if(!await this.tokenValid())
     //{
     //  await this.refreshToken();
