@@ -848,8 +848,11 @@ const common = {
     let messagemodel;
     let historymessage = []
     let totalcount = 0;
+    if(sequenceId == undefined)
+      return;
+    let timestamp = await Message.SequenceIDtoTimeStamp(sequenceId);
 
-    let items = await Message.GetBeforeMessage(groupId, sequenceId, count);
+    let items = await Message.GetBeforeMessage(groupId, timestamp, count);
     //sort items by sequenceId
     if(items.length != 0 && items.length == count)
     {
@@ -915,6 +918,17 @@ const common = {
                         userID,
                         timestamp,
                         content) {
+    let tmpmsg = {
+      message_id: messageID,
+      message_type: messageContentType,
+      message_from_id: fromID,
+      group_id: groupID,
+      message_timestamp: timestamp,
+      message_content: JSON.stringify(content),
+      message_direction: 0
+    }
+    let tmpmsgmodel = await new(await models.Message)(tmpmsg);
+    tmpmsgmodel.save();
     let result = await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
@@ -931,9 +945,12 @@ const common = {
     {
       return undefined;
     }
+
     let msg = result.data.obj.message;
     let msgmodel = await servicemodels.MessageModel(msg)
-    msgmodel.save();
+    let findMsgs = await Message.FindMessageByMesssageID(msgmodel.message_id);
+    findMsgs[0].values = msgmodel.values;
+    findMsgs[0].save();
     await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, msgmodel.sequence_id)
     this.data.selfuser.msg_max_sequenceid = msgmodel.sequence_id
 

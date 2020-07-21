@@ -379,15 +379,15 @@ const Message = {
         }
     },
 
-    async GetBeforeMessage(groupId, sequenceID, count){
+    async GetBeforeMessage(groupId, stamp, count){
         let condition;
         condition = {
             group_id: groupId,
-            sequence_id:{
-                lte: sequenceID
+            message_timestamp:{
+                lte: stamp
             },
             $order: {
-                by: 'sequence_id',
+                by: 'message_timestamp',
                 reverse: true
             },
             $size: count
@@ -403,7 +403,7 @@ const Message = {
                 gt: sequenceID
             },
             $order: {
-                by: 'sequence_id',
+                by: 'message_timestamp',
                 reverse: false
             },
             $size: count
@@ -429,6 +429,20 @@ const Message = {
                 sequence_id: sequenceID
             }
         );
+    },
+
+    async FindMessageByMesssageID(msgID){
+        return await (await models.Message).find({
+            message_id: msgID
+        })
+    },
+
+    async SequenceIDtoTimeStamp(sequenceID){
+        let msgs = await this.FindMessageBySequenceID(sequenceID);
+        if(msgs.length == 0)
+            return;
+        console.log(msgs);
+        return msgs[0].message_timestamp;
     }
 }
 
