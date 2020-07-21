@@ -151,7 +151,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   });
 });
 
-function setAutoRun(isAutoRun) {
+ipcMain.on('setAutoRun', function(event, isAutoRun) {
   app.setLoginItemSettings({
     openAtLogin: isAutoRun,
     openAsHidden: isAutoRun,
