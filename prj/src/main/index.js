@@ -106,7 +106,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
     showMain();
   });
-  setAutoRun(true);
+  // setAutoRun(true);
   // initServicesData(arg);
 });
 
@@ -156,7 +156,7 @@ ipcMain.on('setAutoRun', function(event, isAutoRun) {
     openAtLogin: isAutoRun,
     openAsHidden: isAutoRun,
   })
-}
+});
 
 // ipcMain.on('MainPageWindowInitData', function(event, arg) {
 //   console.log("===================MainPageWindowInitData");
