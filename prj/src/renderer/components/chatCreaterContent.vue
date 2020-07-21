@@ -7,11 +7,11 @@
                 </div><div class="search-action">
                         
                         <div class="search-delete">
-                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
                             
                         </div><div class="search-search">
                     
-                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                         </div>
                     </div>
                     <div class="searchView" v-if="showSearchView">
@@ -19,7 +19,7 @@
                             <li class="subUser" v-for="(user, index) in searchUser" :key="index">
                                 <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
                                     @click="userCheckBoxClicked(user)">
-                                <img class="subUserIcon" :id="'search' + user.user_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="subUserIcon" :id="'search' + user.user_id" src="../../../static/Img/User/user.jpeg">
                                 <div class="subUserInfo">
                                     <p class="subUserName" v-html="msgContentHightLight(user.user_display_name)">{{ user.user_display_name }}</p>
                                     <p class="subUserTitle" v-html="msgContentHightLight(user.user_title)">{{ user.user_title }}</p>
@@ -31,12 +31,12 @@
                     <div class="OrganizationRootView" v-show="showRootDepartmentView">
                         <ul class="OrganizationRootDepartmentList">
                             <li class="OrganizationRootDepartment" v-for="(department, index) in rootDepartments" @click="rootDepartmentClicked(department)" :key="index">
-                                <img class="organizationRootDepartment-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
+                                <img ondragstart="return false" class="organizationRootDepartment-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
                                 <div class="organizationRootDepartment-info">
                                     <p class="organizationRootDepartment-title"> {{ department.display_name }} </p>
                                 </div>
                                 <div align="center" class="item-arrow">
-                                    <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                    <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                 </div>
                             </li>
                         </ul>
@@ -69,7 +69,7 @@
                                             <p class="subDepartmentTitle">{{ department.display_name }}</p>
                                         </div>
                                         <div align="center" class="item-arrow">
-                                            <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                                         </div>
                                     </li>
                                 </ul>
@@ -79,7 +79,7 @@
                                     <li class="subUser" v-for="(user, index) in curUsers" :key="index">
                                         <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
                                             @click="userCheckBoxClicked(user)">
-                                        <img class="subUserIcon" :id="user.user_id" src="../../../static/Img/User/user.jpeg">
+                                        <img ondragstart="return false" class="subUserIcon" :id="user.user_id" src="../../../static/Img/User/user.jpeg">
                                         <div class="subUserInfo">
                                             <p class="subUserName">{{ user.user_display_name }}</p>
                                             <p class="subUserTitle">{{ user.user_title }}</p>
@@ -98,11 +98,11 @@
                     <div class="selectedContentView">
                         <ul class="selectedUserList">
                             <li class="selectedUser" v-for="(user,index) in selectedUsers" :key="index">
-                                <img class="user-icon" :id="'selected' + user.user_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="user-icon" :id="'selected' + user.user_id" src="../../../static/Img/User/user.jpeg">
                                 <div class="user-info">
                                     <p class="user-name">{{ user.user_display_name }}</p>
                                 </div>
-                                <img class="user-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteUserFromSelectedUsers(user)">
+                                <img ondragstart="return false" class="user-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteUserFromSelectedUsers(user)">
                             </li>
                         </ul>
                     </div>

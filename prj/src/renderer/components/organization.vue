@@ -7,11 +7,11 @@
                 </div><div class="search-action">
                         
                         <div class="search-delete">
-                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
                             
                         </div><div class="search-search">
                     
-                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                         </div>
                     </div>
             </div>
@@ -21,7 +21,7 @@
                         v-for="(manager, index) in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
                         :key="index">
-                        <img class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
                         <div class="manager-info">
                         <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
                         <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
@@ -35,12 +35,12 @@
                         v-for="(department, index) in departments"
                         @click="departmentMenuItemClicked(department)" 
                         :key="index">
-                        <img class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
                         <div class="department-info">
                             <p class="department-name">{{ department.display_name }}</p>
                         </div>
                         <div align="center" class="item-arrow">
-                            <img class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </li>
                 </ul>
@@ -65,7 +65,6 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
-import chatGroupCreater from './chatgroup-creater';
 import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header.vue';
@@ -274,7 +273,6 @@ export default {
     },
     components: {
         organizationList,
-        chatGroupCreater,
         listHeader,
         userInfoContent,
         winHeaderBar,

@@ -764,7 +764,7 @@ function createWindow () {
     useContentSize: true,
     width: 360,
     frame: false,
-    resizable: true,
+    resizable: false,
     /**
      * Across Domains Problem
      */

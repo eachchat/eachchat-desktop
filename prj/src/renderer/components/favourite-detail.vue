@@ -1,7 +1,7 @@
 <template>
     <div class="detailPage">
         <div class="detailHeader">
-            <img class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user.jpeg">
+            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user.jpeg">
             <div class="userInfo">
                 <p class="userName">{{ collectionInfo.collection_content.fromUserName }}</p>
                 <p class="userTime">{{ formatTimeFilter(collectionInfo.timestamp) }}</p>
@@ -12,7 +12,7 @@
                 <p class="messageText">{{ collectionInfo.collection_content.text }}</p>
             </div>
             <div class="imageContent" v-if="!showMessageContent">
-                <img class="image" :id="collectionInfo.collection_id" src="../../../static/Img/Chat/loading.gif">
+                <img ondragstart="return false" class="image" :id="collectionInfo.collection_id" src="../../../static/Img/Chat/loading.gif">
             </div>
         </div>
     </div>

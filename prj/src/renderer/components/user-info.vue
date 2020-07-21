@@ -2,16 +2,16 @@
 <template>
     <div class="userInfo-view" :style="pagePosition">
         <div class="userInfoBaseInfo-view">
-            <img class="userInfo-icon" src="../../../static/Img/User/user.jpeg" :id="getUserInfoIconID(userInfo.id)">
+            <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user.jpeg" :id="getUserInfoIconID(userInfo.id)">
             <div class="userInfo-baseInfo">
                 <p class="userInfo-name">{{ userInfo.displayName }}</p>
                 <p class="userInfo-title">{{ userInfo.title }}</p>
             </div>
         </div>
         <div class="userInfoAction-view" v-show="!isOwn">
-            <!-- <img class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
-            <img class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" @click="jumpToChat" >
+            <!-- <img ondragstart="return false" class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
+            <img ondragstart="return false" class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
+            <img ondragstart="return false" class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" @click="jumpToChat" >
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">

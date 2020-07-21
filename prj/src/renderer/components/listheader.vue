@@ -30,7 +30,6 @@
 
 
 <script>
-import chatGroupCreater from './chatgroup-creater'
 import {createGroup} from '../../packages/data/services'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -194,7 +193,6 @@ export default {
         }
     },
     components: {
-        chatGroupCreater,
         chatCreaterDlg,
         eSearch
     },

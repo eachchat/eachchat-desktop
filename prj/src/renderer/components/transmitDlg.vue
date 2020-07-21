@@ -3,7 +3,7 @@
         <div :style="dlgPosition" class="TransmitDlg" id="TransmitDlgId">
             <div class="TransmitHeader">
                 <div class="TransmitHeaderTitle">{{ dialogTitle }}</div>
-                <img class="TransmitClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
+                <img ondragstart="return false" class="TransmitClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
             
             <el-container class="TransmitContent" v-show="!showCreateNewChat">
@@ -13,18 +13,18 @@
                 </div><div class="search-action">
                         
                         <div class="search-delete">
-                            <img class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
                             
                         </div><div class="search-search">
                     
-                            <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
+                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                         </div>
                     </div>
                     <div class="searchView" v-if="showSearchView">
                         <ul class="searchGroupList">
                             <li class="searchGroup" v-for="(group, index) in searchGroup" :key="index">
                                 <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                <img class="group-icon" :id="'search' + group.group_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="group-icon" :id="'search' + group.group_id" src="../../../static/Img/User/user.jpeg">
                                 <div class="group-info">
                                     <p class="group-name">{{ group.group_name }}</p>
                                 </div>
@@ -32,7 +32,7 @@
                         </ul>
                     </div>
                     <div class="NewChatView" v-show="!showSearchView">
-                        <img class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
+                        <img ondragstart="return false" class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
                         <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
                         <p class="createNewChatTitle">创建新聊天</p>
                         </div>
@@ -44,7 +44,7 @@
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                    <img class="group-icon" :id="group.group_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="group-icon" :id="group.group_id" src="../../../static/Img/User/user.jpeg">
                                     <div class="group-info">
                                         <p class="group-name">{{ group.group_name }}</p>
                                     </div>
@@ -59,11 +59,11 @@
                     <div class="selectedContentView">
                         <ul class="selectedGroupList">
                             <li class="selectedGroup" v-for="(group,index) in selectedGroups" :key="index">
-                                <img class="group-icon" :id="'selected' + group.group_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="group-icon" :id="'selected' + group.group_id" src="../../../static/Img/User/user.jpeg">
                                 <div class="group-info">
                                     <p class="group-name">{{ group.group_name }}</p>
                                 </div>
-                                <img class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
+                                <img ondragstart="return false" class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
                             </li>
                         </ul>
                     </div>

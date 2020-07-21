@@ -17,7 +17,7 @@
             <div class="organization-content" v-show="showOrganizationView">
                 <div class="title">
                     <div class="title-ico">
-                        <img class="login-logo" src="../../../static/Img/Login/logo@2x.png">
+                        <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
                         易企聊
                     </div>
@@ -46,7 +46,7 @@
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="title">
                     <div class="title-ico">
-                        <img class="login-logo" src="../../../static/Img/Login/logo@2x.png">
+                        <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
                         易企聊
                     </div>
@@ -71,7 +71,7 @@
                 <Button type="success" id="loginButton" @click="login()">{{ loginButtonValue }}</Button>
             </div>
             <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
-                    <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                    <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
                     <p class="back-title">返回</p>
             </div>
             </div>
@@ -117,13 +117,13 @@
                 </div>
             </div>
             <div class="setting-footer" @click="organizationFinderBackToLoginClicked()">
-                    <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                    <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
                     <p class="back-title">返回</p>
             </div>
         </div>
         <div class="loginLoading-view" v-show="showLoadingView">
-            <img class="loading-img" src="../../../static/Img/Login/loading.gif">
-            <p class="loading-title">数据加载中</p>
+            <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
+            <p class="loading-title">{{ loadingProcess }}</p>
         </div>
     </div>
 </template>
