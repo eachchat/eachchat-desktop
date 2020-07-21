@@ -406,7 +406,7 @@ export default {
         getMemberImage: async function() {
             for(var i=0; i < this.memberListShow.length; i++) {
                 var distUserInfo = this.memberListShow[i];
-                console.log("getMemberImage distuserinfo ", distUserInfo);
+                console.log("distuserinfo.uid ", distUserInfo.user_id);
                 var targetPath = '';
                 if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
                     var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.user_id));
@@ -470,13 +470,8 @@ export default {
             // console.log("this.slienceState ", this.slienceState)
             for(var i=0;i<this.memberList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
-                if(memberInfoTmp.length != 0) {
-                    this.memberListShow.push(memberInfoTmp[0]);
-                    this.memberListShowOriginal.push(memberInfoTmp[0]);
-                }
-                if(i > 20) {
-                    break;
-                }
+                this.memberListShow.push(memberInfoTmp[0]);
+                this.memberListShowOriginal.push(memberInfoTmp[0]);
             }
             // console.log("watch memberListShow is ", this.memberListShow);
             this.wholeTipElement.style.right = "0px";
@@ -511,16 +506,6 @@ export default {
                     this.getMemberImage();
                 })
             }, 0)
-
-            for(var i=0;i<this.memberList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
-                if(memberInfoTmp.length != 0) {
-                    if(this.memberListShow.indexOf(memberInfoTmp[0]) == -1) {
-                        this.memberListShow.push(memberInfoTmp[0]);
-                        this.memberListShowOriginal.push(memberInfoTmp[0]);
-                    }
-                }
-            }
         },
         cleanCache: function() {
             console.log("cleancache is ", this.cleanCache)

@@ -1231,7 +1231,6 @@ export default {
   created: async function() {
     await services.common.init();
     this.curUserInfo = await services.common.GetSelfUserModel();
-    console.log("in chatcontent init mqtt");
     await services.common.initmqtt();
     services.common.handlemessage(this.delayCallback);
   }

@@ -1009,7 +1009,6 @@ export default {
       }
     },
     logout: function() {
-      services.common.closemqtt();
       services.common.logout();
       ipcRenderer.send("showLoginPageWindow");
     }

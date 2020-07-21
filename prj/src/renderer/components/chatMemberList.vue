@@ -116,41 +116,9 @@ export default {
             
             for(var i=0;i<this.memberIdList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
-                
-                if(memberInfoTmp.length != 0) {
-                    memberInfoTmp[0].checkState = false;
-                    this.memberListShow.push(memberInfoTmp[0]);
-                    this.memberListShowOriginal.push(memberInfoTmp[0]);
-                }
-
-                if(i == 6){
-                    break;
-                }
-            }
-
-            this.$nextTick(() => {
-                this.getMemberImage();
-            })
-
-            if(this.showPosition.length != 0) {
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        this.atDlgElement.style.left = this.showPosition.left.toString() + "px";
-                        this.atDlgElement.style.top = (this.showPosition.top - this.atDlgElement.clientHeight).toString() + "px";
-                    })
-                }, 0)
-            }
-
-            for(var i=0;i<this.memberIdList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
-                console.log("memgerinfotmep is ", memberInfoTmp)
-                if(memberInfoTmp.length != 0) {
-                    if(this.memberListShow.indexOf(memberInfoTmp[0]) == -1) {
-                        memberInfoTmp[0].checkState = false;
-                        this.memberListShow.push(memberInfoTmp[0]);
-                        this.memberListShowOriginal.push(memberInfoTmp[0]);
-                    }
-                }
+                memberInfoTmp[0].checkState = false;
+                this.memberListShow.push(memberInfoTmp[0]);
+                this.memberListShowOriginal.push(memberInfoTmp[0]);
             }
 
             this.$nextTick(() => {
@@ -159,6 +127,14 @@ export default {
 
             this.ownerId = this.GroupInfo.owner;
             this.groupId = this.GroupInfo.group_id; 
+            if(this.showPosition.length != 0) {
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        this.atDlgElement.style.left = this.showPosition.left.toString() + "px";
+                        this.atDlgElement.style.top = (this.showPosition.top - this.atDlgElement.clientHeight).toString() + "px";
+                    })
+                }, 0)
+            }
         },
         showPosition: function() {
             // console.log("this showposition is ", this.showPosition)
@@ -219,12 +195,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  ::-webkit-scrollbar {
-    width: 7px;
-    height: 12px;
-    display: none;
-  }
-
     .atDlg {
         position: absolute;
         max-height: 200px;
@@ -252,7 +222,7 @@ export default {
         padding: 0;
         display: block;
         list-style: none;
-        overflow-y: scroll;
+        overflow-y: hidden;
         overflow-x: hidden;
     }
 

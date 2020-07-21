@@ -436,14 +436,14 @@ const common = {
     mqttclient.on("offline", function(){
       console.log("mqtt offline-----------------")
     })
-    mqttclient.on("error", function(error){
-      console.log("mqtt error-----------------", error)
+    mqttclient.on("error", function(){
+      console.log("mqtt error-----------------")
     })
 
   },
 
   closemqtt(){
-    this.mqttclient.end()
+    this.mqttclient.close()
   },
 
   async handlemessage(callback){
