@@ -167,7 +167,6 @@ export default {
                     var targetPath = path.join(targetDir, targetFileName);
                 }
                 var needOpen = true;
-                console.log("get path is ", targetPath);
                 if(fs.existsSync(targetPath)){
                     shell.openExternal(targetPath);
                 }
