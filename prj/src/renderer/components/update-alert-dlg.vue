@@ -1,18 +1,18 @@
 <template>
-    <div class="AlertLayers" id="AlertLayersId">
-        <div class="AlertDlg" id="AlertDlgId">
-            <div class="AlertContent">
-                <div class="AlertContentAbstract">
-                    <img class="AlertContentAbstraceIco" src="../../../static/Img/Setup/Alert@2x.png">
-                    <label class="AlertContentAbstraceContent">{{Abstrace}}</label>
+    <div class="UpgradeLayers" id="UpgradeLayersId">
+        <div class="UpgradeDlg" id="UpgradeDlgId">
+            <div class="UpgradeContent">
+                <div class="UpgradeContentAbstract">
+                    <img class="UpgradeContentAbstraceIco" src="../../../static/Img/Setup/Alert@2x.png">
+                    <label class="UpgradeContentAbstraceContent">{{Abstrace}}</label>
                 </div>
-                <div class="AlertContentDetails">
-                    <label class="AlertContentDetailsContent">{{Details}}</label>
+                <div class="UpgradeContentDetails">
+                    <label class="UpgradeContentDetailsContent">{{Details}}</label>
                 </div>
             </div>
-            <div class="AlertFotter">
-                <button class="AlertCancleButton" @click="Close()" v-show="canCancel">取消</button>
-                <button class="AlertConfirmButton" @click="ClearCache()">确认</button>
+            <div class="UpgradeFotter">
+                <button class="UpgradeCancleButton" @click="Close()" v-show="canCancel">取消</button>
+                <button class="UpgradeConfirmButton" @click="Cancle()">升级</button>
             </div>
         </div>
     </div>
@@ -25,28 +25,18 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
 export default {
-    name: 'AlertDlg',
+    name: 'UpgradeDlg',
     props: {
-        AlertContnts: {
+        upgradeInfo: {
             type: Object,
             default: {
-                "Details": '',
-                "Abstrace": ''
             }
         },
         canCancel: {
             type: Boolean,
             default: true
         },
-        cancalButtonText: {
-            type: String,
-            default: "取消"
-        },
-        confirmButtonText: {
-            type: String,
-            default: "确定"
-        }
-    },//['AlertContnts'],
+    },
     data () {
         return {
             Abstrace: '',
@@ -58,21 +48,22 @@ export default {
     },
     methods: {
         Close: function() {
-            this.$emit("closeAlertDlg", "");
+            services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.verName);
+            // this.$emit("closeUpgradeDlg", "");
         },
-        ClearCache: function() {
-            this.$emit("clearCache", '');
+        Cancle: function() {
+            this.$emit("closeUpgradeDlg", '');
         },
         calcImgPosition: function() {
-            if(this.AlertDlgElement == null) {
-                this.AlertDlgElement = document.getElementById("AlertDlgId");
+            if(this.UpgradeDlgElement == null) {
+                this.UpgradeDlgElement = document.getElementById("UpgradeDlgId");
             }
-            if(this.AlertLayersElement == null) {
-                this.AlertLayersElement = document.getElementById("AlertLayersId");
+            if(this.UpgradeLayersElement == null) {
+                this.UpgradeLayersElement = document.getElementById("UpgradeLayersId");
             }
             // console.log("remote.b")
-            var showScreenHeight = this.AlertLayersElement.offsetHeight;
-            var showScreenWidth = this.AlertLayersElement.offsetWidth;
+            var showScreenHeight = this.UpgradeLayersElement.offsetHeight;
+            var showScreenWidth = this.UpgradeLayersElement.offsetWidth;
             console.log("showScreenHeight ", showScreenHeight)
             console.log("showScreenWidth ", showScreenWidth)
             var left = (showScreenWidth - this.dlgWidth) / 2;
@@ -96,36 +87,32 @@ export default {
     mounted: function() {
     },
     watch: {
-        AlertContnts: async function() {
-            if(this.AlertContnts.Details == undefined || (this.AlertContnts.Details != undefined && this.AlertContnts.Details.length == 0)) {
+        upgradeInfo: async function() {
+            if(this.upgradeInfo.downloadUrl == undefined) {
                 return;
             }
-            if(this.AlertDlgElement == null) {
-                this.AlertDlgElement = document.getElementById("AlertDlgId");
+            if(this.UpgradeDlgElement == null) {
+                this.UpgradeDlgElement = document.getElementById("UpgradeDlgId");
             }
 
-            if(this.AlertLayersElement == null) {
-                this.AlertLayersElement = document.getElementById("AlertLayersId");
+            if(this.UpgradeLayersElement == null) {
+                this.UpgradeLayersElement = document.getElementById("UpgradeLayersId");
             }
 
-            this.Details = this.AlertContnts.Details;
-            this.Abstrace = this.AlertContnts.Abstrace;
+            this.Details = this.upgradeInfo.description;
+            this.Abstrace = "提示";
 
-            console.log("Alertcontent is ", this.AlertContnts);
-            console.log("Details is ", this.Details);
-            console.log("Abstrace is ", this.Abstrace);
-            
             var showPosition = this.calcImgPosition();
             console.log("showPositon is ", showPosition)
-            this.AlertDlgElement.style.left = showPosition.left.toString() + "px";
-            this.AlertDlgElement.style.top = showPosition.top.toString() + "px";
+            this.UpgradeDlgElement.style.left = showPosition.left.toString() + "px";
+            this.UpgradeDlgElement.style.top = showPosition.top.toString() + "px";
         }
     }
 }
 </script>
 
 <style lang="scss" scoped>
-    .AlertLayers {
+    .UpgradeLayers {
         height: 100%;
         width: 100%;
         position: fixed;
@@ -134,7 +121,7 @@ export default {
         background: rgba(0, 0, 0, 0.6);
     }
 
-    .AlertDlg {
+    .UpgradeDlg {
         position: absolute;
         width: 440px;
         height: 179px;
@@ -142,27 +129,27 @@ export default {
         background: rgba(255, 255, 255, 1);
     }
 
-    .AlertContent {
+    .UpgradeContent {
         width: calc(100% - 64px);
         height: calc(100% - 104px);
         margin: 32px 32px 0 32px;
         border: 0px solid rgba(221, 221, 221, 1);
     }
     
-    .AlertContentAbstract {
+    .UpgradeContentAbstract {
         display: block;
         width: 100%;
         height: 30px;
         margin: 0;
     }
 
-    .AlertContentAbstraceIco {
+    .UpgradeContentAbstraceIco {
         display: inline-block;
         width: 24px;
         height: 24px;
     }
 
-    .AlertContentAbstraceContent {
+    .UpgradeContentAbstraceContent {
         width: calc(100% - 40px);
         font-size: 16px;
         font-family: "Microsoft Yahei";
@@ -170,28 +157,28 @@ export default {
         margin-left: 16px;
     }
 
-    .AlertContentDetails {
+    .UpgradeContentDetails {
         display: block;
         width: 100%;
         height: 60px;
         margin: 12px 32px 0px 42px;
     }
 
-    .AlertContentDetailsContent {
+    .UpgradeContentDetailsContent {
         width: 336px;
         font-size: 14px;
         font-family: "Microsoft Yahei";
         vertical-align: top;
     }
 
-    .AlertferFotter {
+    .UpgradeferFotter {
         width: 100%;
         height: 72px;
         display: inline-block;
         text-align: center;
     }
 
-    .AlertConfirmButton {
+    .UpgradeConfirmButton {
         width: 100px;
         height: 32px;
         margin-left: 5px;
@@ -204,7 +191,7 @@ export default {
         border-radius:4px;
     }
  
-    .AlertConfirmButton:hover {
+    .UpgradeConfirmButton:hover {
         width: 100px;
         height: 32px;
         margin-left: 5px;
@@ -217,7 +204,7 @@ export default {
         border-radius:4px;
     }
  
-    .AlertCancleButton {
+    .UpgradeCancleButton {
         width: 100px;
         height: 32px;
         margin-right: 5px;

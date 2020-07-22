@@ -29,7 +29,7 @@
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
-        <!-- <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/> -->
+        <UpdateAlertDlg v-show="showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo" :canCancel="upgradeCanCancel"/>
     </el-container>
 </template>
 
@@ -50,7 +50,7 @@ import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
 import {UserInfo} from '../../packages/data/sqliteutil.js';
-// import AlertDlg from './alert-dlg.vue'
+import UpdateAlertDlg from './update-alert-dlg.vue'
 export default {
     name: 'mainpage',
     watch: {
@@ -80,8 +80,9 @@ export default {
     },
     data () {
         return {
-            showAlertDlg:false,
-            alertContnets: {},
+            upgradeInfo: {},
+            upgradeCanCancel: true,
+            showUpgradeAlertDlg:false,
             searchKey: '',
             distGroupId: '',
             distUserId: '',
@@ -123,11 +124,11 @@ export default {
         }
     },
     methods: {
-        closeAlertDlg: function() {
-            this.showAlertDlg = false;
+        closeUpgradeAlertDlg: function() {
+            this.showUpgradeAlertDlg = false;
         },
         clearCache: function() {
-            this.showAlertDlg = false;
+            this.showUpgradeAlertDlg = false;
         },
         Close: function() {
             ipcRenderer.send("win-close");
@@ -282,22 +283,24 @@ export default {
         startCheckUpgrade: function() {
             async function checkUpgrade(self) {
                 var newVersion = await services.common.GetNewVersion();
-                if(!newVersion)
+                console.log("newversion is ", newVersion);
+                if(newVersion == undefined)
                 {
                     return;
                 }
-                if(newVersion.osType != undefined && newVersion.osType != windows) {
+                if(newVersion.osType != undefined && newVersion.osType != "windows") {
                     return;
                 }
                 if(newVersion.forceUpdate != undefined && newVersion.forceUpdate){
-                    self.alertContnets = {
-                        "Details": "版本全新升级",
-                        "Abstrace": "新版本提示"
-                    };
-                    self.showAlertDlg = true;
+                    return;
+                    self.showUpgradeAlertDlg = true;
+                    self.upgradeCanCancel = false;
+                    self.upgradeInfo = newVersion;
                 }
                 else {
-
+                    return;
+                    self.showUpgradeAlertDlg = true;
+                    self.upgradeInfo = newVersion;
                 }
             }
             checkUpgrade(this);
@@ -312,7 +315,7 @@ export default {
         favourite,
         macWindowHeader,
         personalCenter,
-        // AlertDlg,
+        UpdateAlertDlg,
     },
     mounted: async function() {
         await services.common.GetLoginModel();

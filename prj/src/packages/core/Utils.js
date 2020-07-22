@@ -108,7 +108,12 @@ function findKey(obj, value, compare = (a, b) => a === b) {
 }
 
 function pathDeal(oriPath) {
-    return oriPath.replace("/", "\\");
+    if(environment.os.isWindows) {
+        return oriPath.replace("/", "\\");
+    }
+    else {
+        return oriPath;
+    }
 }
 
 function Appendzero(o_num) {

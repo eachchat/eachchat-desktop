@@ -81,6 +81,12 @@ class ConfService {
         appDatePath = path.join(app.getPath('appData'));
         return appDatePath;
     }
+    getTempPath() {
+        var appDatePath = '';
+        let { app } = require('electron').remote;
+        appDatePath = path.join(app.getPath('temp'));
+        return appDatePath;
+    }
     getConfPath(){
         var userPath = path.join(this.productPath, this.uid);
         if(!fs.existsSync(userPath)){

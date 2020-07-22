@@ -760,7 +760,7 @@ const common = {
       return false;
     }
 
-    return response.data.results;
+    return response.data.obj;
   },
 
   async tokenValid() {
@@ -1076,6 +1076,13 @@ const common = {
 
   async uploadFile(filepath) {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
+  },
+
+  async downloadUpgradeFile(url, fileName) {
+    var targetDir = confservice.getTempPath();
+    var targetPath = path.join(targetDir, fileName);
+    ipcRenderer.send('download-upgrade', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]);
+    return ret;
   },
 
   async downloadFile(timelineId, message_time, fileName, needOpen) {

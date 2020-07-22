@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell, screen} from 'electron'
+import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem} from 'electron'
 import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
@@ -427,6 +427,40 @@ function downloadFile(event, arg) {
     })
   }
 }
+
+ipcMain.on("download-upgrade", function(event, arg) {
+  // url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]
+  // console.log("args is ", arg);
+  var distUrl = arg[0];
+  var token = arg[1];
+  var baseURL = arg[2];
+  var port = arg[3];
+  // console.log("downloadingList is ", downloadingList);
+  var distPath = arg[4];
+  var distTemp = distPath + "_tmp";
+
+  if (typeof port == "number") {
+    port = port;
+  }
+
+  var sender = axios.create({
+    baseURL: baseURL + ":" + String(port)
+  });
+
+  var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
+  var headers = {
+    Authorization: "Bearer " + token
+  };
+  var appendix = {
+    timeout: 35000,
+    responseType: "stream"
+  };
+
+  var config = Object.assign({
+    headers: headers,
+  }, appendix);
+
+})
 
 ipcMain.on("download-file", function(event, arg) {
   // [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath]
