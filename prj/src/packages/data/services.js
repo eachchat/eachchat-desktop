@@ -413,7 +413,8 @@ const common = {
     this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttName + ':' + this.config.mqttPort,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.id + '|1111111111111111111'});
+                                      clientId: this.data.selfuser.id + '|1111111111111111111',
+                                      keepalive: 10});
       
     let mqttclient = this.mqttclient;
     let userid = this.data.selfuser.id;
