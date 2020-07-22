@@ -2,6 +2,7 @@
 const axios = require('axios');
 import * as fs from 'fs-extra'
 import * as path from 'path'
+import { environment } from "../data/environment.js"
 //const mimestruct = require("./mine.js");
 
 //https://blog.csdn.net/qq_37568049/article/details/80736305
@@ -157,6 +158,62 @@ async function downloadGroupAvatar(url, accesstoken)
     }, appendix);
 
   return axios.get(url,config);
+}
+
+function rmdir(dir) {
+    let arr = [dir]
+    let current = null
+    let index = 0
+ 
+    while(current = arr[index++]) {
+        // 读取当前文件，并做一个判断，文件目录分别处理
+        let stat = fs.statSync(current)
+        //如果文件是目录
+        if (stat.isDirectory()) {
+            //读取当前目录，拿到所有文件
+            let files = fs.readdirSync(current)
+            // 将文件添加到文件池
+            arr = [...arr, ...files.map(file => path.join(current, file))]
+        }
+    }
+    //遍历删除文件
+    for (var i = arr.length - 1; i >= 0; i--) {
+        // 读取当前文件，并做一个判断，文件目录分别处理
+        let stat = fs.statSync(arr[i])
+        // 目录和文件的删除方法不同
+        if (stat.isDirectory()) {
+            fs.rmdirSync(arr[i])
+        } else {
+            fs.unlinkSync(arr[i])
+        }
+    }
+}
+
+function ClearDB(curVersion){
+    let filepath = environment.path.base;
+    let filename = filepath + "/version.txt";
+    let bExist = fs.existsSync(filename);
+    if(bExist)
+    {
+        let fileutil = new FileUtil(filename);
+        let value = fileutil.ReadfileSync();
+        if(value != undefined && parseInt(value) >= curVersion)
+        {
+            console.log("current version is "+ value);
+            return ;
+        }
+    }
+    let dbname = filepath + "/EachChat.db";
+    if(fs.existsSync(dbname))
+        fs.unlinkSync(dbname);
+    fs.writeFile(filename, curVersion, 'utf8', function(error){
+        if(error){
+            console.log(error);
+            return false;
+        }
+        console.log("write value " + curVersion);
+        console.log('写入成功');
+    })
 }
 
 const mimestruct = {
@@ -1066,6 +1123,6 @@ const iconMap = {
     txt: ['txt', 'log', 'xml']
   }
   
-export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr};
+export {generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
