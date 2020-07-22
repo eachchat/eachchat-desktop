@@ -805,7 +805,7 @@ export default {
                 }
                 return true;
             }
-            else if(event.key == "@") {
+            else if(event.keyCode == 50) {
                 if(this.chat.group_type == 102) {
                     return;
                 }
