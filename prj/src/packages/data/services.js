@@ -849,7 +849,7 @@ const common = {
     let messagemodel;
     let historymessage = []
     let totalcount = 0;
-    if(sequenceId == undefined)
+    if(sequenceId == undefined || sequenceId == 0)
       return;
     let timestamp = await Message.SequenceIDtoTimeStamp(sequenceId);
 
