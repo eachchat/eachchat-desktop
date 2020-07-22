@@ -1,5 +1,5 @@
 <template>
-    <div class="toastMessageBox" v-if="show">
+    <div class="toastMessageBox" v-if="show" :style="boxStyle">
         <img class="message-icon" :src="imageSrc">
         <p class="message-content">{{ message }}</p>
     </div>
@@ -15,10 +15,18 @@ export default {
             show: false,
             type: '',
             imageSrc: '../../../static/Img/Login/toastSuccess@2x.png',
+            
+            boxStyle:{},
         }
     },
     watch:{
         type: function(){
+            // if(this.boxWidth != 0){
+            //     this.boxStyle.width = this.boxWidth.toString() + "px";
+            // }
+            // var position = this.calcImgPosition();
+            // this.boxStyle.top = position.top.toString() + "px";
+            // this.boxStyle.left = position.left.toString() + "px";
             if (this.type == 'error'){
             this.imageSrc = '../../../static/Img/Login/toastError@2x.png';
             }
@@ -53,7 +61,7 @@ export default {
         height: 24px;
         margin-top: 18px;
         margin-bottom: 18px;
-        margin-left: 32px;
+        margin-left: 18px;
     }
     .message-content{
         display: inline-block;
@@ -68,6 +76,7 @@ export default {
         line-height:22px;
         letter-spacing:2px;
         vertical-align: top;
+        text-align: left;
     }
 }
 </style>

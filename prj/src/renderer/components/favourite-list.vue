@@ -173,7 +173,6 @@ import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
 import chatCreaterDlg from './chatCreaterDlg.vue';
 import {Group, Department, UserInfo} from '../../packages/data/sqliteutil.js';
-
 export default {
     name: 'favourite-list',
     data() {
@@ -693,7 +692,6 @@ export default {
             return;
         }
         if (this.favouriteType == 'message'){
-
             this.headerTitle = '收藏';
             var messageCollectionModel = await services.common.ListMessageCollections();
             this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);

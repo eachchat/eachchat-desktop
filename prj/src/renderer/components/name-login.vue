@@ -244,8 +244,21 @@ export default {
                 return false;
             }
         },
+        getOSVersion(){
+            var agent = navigator.userAgent;
+            var version = '';
+            if(agent.indexOf("Mac OS") != -1){
+                var startIndex = agent.indexOf("Mac OS");
+                var endIndex = agent.indexOf(")");
+                version = agent.substring(startIndex, endIndex);
+                console.log(version);
+                return version;
+            }
+            
+        },
         login:async function() {
             if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
+                
                 this.loginState = "请输入用户名和密码";
                 return;
             }
@@ -258,6 +271,7 @@ export default {
                 return;
             }
             var mac = environment.os.mac;
+            var version = this.getOSVersion();
             var hostname = environment.os.hostName;
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
@@ -266,7 +280,8 @@ export default {
                 password: this.password,
                 identityType: 'password',
                 model: hostname,
-                deviceID: mac
+                deviceID: mac,
+                desktopType: version
             };
             let oldLoginModel = await services.common.GetLoginModel();
             let response = await services.common.login(config);
@@ -285,6 +300,7 @@ export default {
             }
             var elementButton = document.getElementById('loginButton');
             //this.loginButtonValue = "正在加载数据";
+            this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
             this.loginState = "登录成功";
             this.showLoginView = false;
             this.showLoadingView = true;
