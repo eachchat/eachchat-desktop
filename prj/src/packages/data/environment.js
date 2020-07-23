@@ -47,6 +47,12 @@ const environment = {
           this._mac = networkInterface.en0[0].mac;
         }
       }
+      if(this.type == osType.LINUX){
+        var networkInterface = os.networkInterfaces();
+        if(networkInterface.ens33 != undefined) {
+          this._mac = networkInterface.en0[0].mac;
+        }
+      }
       return this._mac;
     },
 
