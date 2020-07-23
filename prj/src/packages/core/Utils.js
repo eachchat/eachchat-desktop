@@ -210,7 +210,16 @@ function ClearDB(curVersion){
     }
     let dbname = filepath + "/EachChat.db";
     if(fs.existsSync(dbname))
-        fs.unlinkSync(dbname);
+    {
+        try{
+            fs.unlinkSync(dbname);
+        }
+        catch(e){
+            console.log(e)
+            console.log("please delete file:" + dbname);
+            return;
+        }
+    }
     fs.writeFile(filename, curVersion, 'utf8', function(error){
         if(error){
             console.log(error);
