@@ -50,7 +50,7 @@ const environment = {
       if(this.type == osType.LINUX){
         var networkInterface = os.networkInterfaces();
         if(networkInterface.ens33 != undefined) {
-          this._mac = networkInterface.en0[0].mac;
+          this._mac = networkInterface.ens33[0].mac;
         }
       }
       return this._mac;
