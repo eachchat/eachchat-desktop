@@ -34,21 +34,17 @@ const environment = {
 
     get mac() {
       var networkInterface = os.networkInterfaces();
-      console.log("this.type is ", this.type);
       if(this.type == osType.WINDOWS) {
-        var networkInterface = os.networkInterfaces();
         if(networkInterface.WLAN != undefined) {
           this._mac = networkInterface.WLAN[0].mac;
         }
       }
       if(this.type == osType.OSX) {
-        var networkInterface = os.networkInterfaces();
         if(networkInterface.en0 != undefined) {
           this._mac = networkInterface.en0[0].mac;
         }
       }
       if(this.type == osType.LINUX){
-        var networkInterface = os.networkInterfaces();
         if(networkInterface.ens33 != undefined) {
           this._mac = networkInterface.ens33[0].mac;
         }

@@ -12,6 +12,7 @@ import * as fs from 'fs-extra'
 import { makeFlieNameForConflict } from '../core/Utils.js'
 import axios from "axios";
 import {Base64} from "js-base64";
+import {environment} from "./environment.js"
 
 const mqtt = require('mqtt')
 
@@ -51,6 +52,10 @@ const common = {
   api: undefined,
 
   mqttclient: undefined,
+
+  callback: undefined,
+
+  reconnectTime: 0,
 
   async GetLoginModel(){
     let foundlogin = await(await models.Login).find(
@@ -397,7 +402,7 @@ const common = {
   },
 
   async initmqtt(){
-    if(this.mqttclient != undefined) {
+    if(this.mqttclient != undefined && this.mqttclient.connected) {
       return;
     }
     let configModel = await(await models.Config).find();
@@ -410,36 +415,64 @@ const common = {
       httpValue = "https";
     else
       httpValue = "http";
+    let mac = environment.os.mac;
+
     this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttName + ':' + this.config.mqttPort,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.id + '|1111111111111111111',
-                                      keepalive: 10});
-      
-    let mqttclient = this.mqttclient;
+                                      clientId: this.data.selfuser.id + '|' + mac,
+                                      keepalive: 10,
+                                      reconnectPeriod: 0});
+    
     let userid = this.data.selfuser.id;
-    mqttclient.on('connect', function(){
-        console.log("mqtt connect success")
-        console.log(userid)
-        mqttclient.subscribe(userid, function (err) {
-            if (err) {
-                console.log("subscribe failed")
-            }
-            else{
-                console.log("subscribe success")
-            }
-          })
+    let mqttName = this.config.mqttName;
+    let mqttPort = this.config.mqttPort;
+    let servers = this;
+    let mqttclient = this.mqttclient;    
+    
+    this.mqttclient.on('connect', function(){
+      console.log("mqtt connect success")
+      console.log(mac);
+      servers.reconnectTime = 0;
+      if(servers.retSetTimer != undefined)
+        clearTimeout(servers.retSetTimer);
+      if(servers.callback != undefined)
+        servers.handlemessage(servers.callback);
+      console.log(userid)
+      mqttclient.subscribe(userid, function (err) {
+          if (err) {
+              console.log("subscribe failed")
+          }
+          else{
+              console.log("subscribe success")
+          }
+        })
     })
-    mqttclient.on("close", function(){
-      console.log("mqtt closed-----------------")
+     
+    this.mqttclient.on("reconnect", function(){
+      console.log("mqtt reconnect-----------------")
     })
-    mqttclient.on("disconnect", function(){
+
+    this.mqttclient.on("close", function(){
+      console.log("this.mqttclient.connected:" + servers.mqttclient.connected);
+      if(servers.reconnectTime == 0)
+        servers.reconnectTime = 1;
+      else
+        servers.reconnectTime = servers.reconnectTime * 2;
+      if(servers.reconnectTime > 30)
+        servers.reconnectTime = 30;
+      console.log("mqtt closed-----------------:" + servers.reconnectTime)
+      setTimeout(function(){
+        servers.initmqtt()
+      }, servers.reconnectTime * 1000);
+    })
+    this.mqttclient.on("disconnect", function(){
       console.log("mqtt disconnect-----------------")
     })
-    mqttclient.on("offline", function(){
+    this.mqttclient.on("offline", function(){
       console.log("mqtt offline-----------------")
     })
-    mqttclient.on("error", function(error){
+    this.mqttclient.on("error", function(error){
       console.log("mqtt error----------------- ", error)
     })
 
@@ -450,6 +483,7 @@ const common = {
   },
 
   async handlemessage(callback){
+    this.callback = callback;
     let userid = this.data.selfuser.id;
     let services = this;
     await this.mqttclient.on('message', async function(topic, message){
