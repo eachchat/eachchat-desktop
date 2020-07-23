@@ -754,6 +754,17 @@ const common = {
     return true;
   },
 
+  async UpdateUserAvatarByData(fileData, fileName, fileMime){
+    let response = await this.api.UpdateUserAvatarByData(this.data.login.access_token, fileData, fileName, fileMime);
+    if (!response.ok || !response.success) {
+      return false;
+    }
+    let oUrl = response.data.obj.originalUrl;
+    let tUrl = response.data.obj.thumbnailUrl;
+    await UserInfo.UpdateUserAvater(this.data.selfuser.id, oUrl, tUrl);
+    return true;
+  },
+
   async GetNewVersion() {
     let response = await this.api.getNewVersion(this.data.login.access_token);
     if (!response.ok || !response.success) {
