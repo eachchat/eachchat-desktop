@@ -1896,7 +1896,7 @@ export default {
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
             // console.log("=====isRefreshing is ", this.isRefreshing);
             if(uldiv) {
-                if(uldiv.scrollTop < 100){
+                if(uldiv.scrollTop == 0){
                     console.log("to update msg")
                     var curTime = new Date().getTime();
                     // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
@@ -1935,7 +1935,7 @@ export default {
             }
         },
         checkLoadFinished(msgTemplateId, msg) {
-            if(msg.group_id == undefined || (msg.group_id != this.chat.group_id)) {
+            if(msg.group_id == undefined) {
                 return;
             }
             if(this.isRefreshing = true) {
@@ -1969,6 +1969,12 @@ export default {
             services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
                 .then(async (ret) => {
                     console.log("oririnal ret is ", ret);
+                    if(ret == undefined) {
+                        this.needScroll = false;
+                        this.messageList = [];
+                        this.isRefreshing = false;
+                        return;
+                    }
                     this.needScroll = true;
                     if(ret.length < 20) {
                         this.needScroll = false;
@@ -1990,11 +1996,27 @@ export default {
                         let messagesFromDB = await Message.FindMessageBySequenceID(this.chat.sequence_id);
                         let messageFromGroup = {};
                         messageFromGroup = messagesFromDB[0];
-                        console.log("message from group is ", messageFromGroup)
-                        if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
-                            // console.log("========push mes ")
-                            this.messageList.push(messageFromGroup);
-                            this.existingMsgId.push(messageFromGroup.message_id);
+                        if(messageFromGroup == undefined) {
+                            // console.log("this.chat.message_content is ", this.chat.message_content)
+                            let messageFromGroup = {};
+                            messageFromGroup.message_type = this.chat.message_content_type;
+                            messageFromGroup.message_content = this.chat.message_content;
+                            messageFromGroup.message_from_id = this.chat.message_from_id;
+                            messageFromGroup.message_timestamp = this.chat.last_message_time;
+                            messageFromGroup.sequence_id = this.chat.sequence_id;
+                            messageFromGroup.message_id = this.chat.message_id;
+                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
+                                this.messageList.unshift(messageFromGroup);
+                                this.existingMsgId.push(messageFromGroup.message_id);
+                            }
+                        }
+                        else {
+                            console.log("message from group is ", messageFromGroup)
+                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
+                                // console.log("========push mes ")
+                                this.messageList.push(messageFromGroup);
+                                this.existingMsgId.push(messageFromGroup.message_id);
+                            }
                         }
                     }
                     // console.log("this.messageList is ", this.messageList);

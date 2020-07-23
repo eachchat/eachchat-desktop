@@ -3,6 +3,7 @@ import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
+import {ClearDB} from '../packages/core/Utils.js';
 
 /**
  * Set `__static` path to static files in production
@@ -788,6 +789,7 @@ function createWindow () {
   /**
    * Initial window options
    */
+  ClearDB(0);
   services.common.CreateDatabaseTable();
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({

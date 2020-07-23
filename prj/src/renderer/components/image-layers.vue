@@ -118,20 +118,20 @@ export default {
             var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
             var targetFileName = msgContent.fileName;
             var localPath = "";
-            ///////
+            
             var targetPath = await services.common.GetFilePath(this.imgSrcInfo.message_id);
-            console.log("target 1 = ", targetPath);
+            // console.log("target 1 = ", targetPath);
             if(targetPath.length != 0) {
                 targetPath = this.imgSrcInfo.file_local_path;
             }
-            console.log("target 2 = ", targetPath);
+            // console.log("target 2 = ", targetPath);
             if(targetPath.length == 0) {
                 var targetDir = confservice.getFilePath(this.imgSrcInfo.message_timestamp);
                 var targetPath = path.join(targetDir, targetFileName);
             }
-            console.log("target 3 = ", targetPath);
+            // console.log("target 3 = ", targetPath);
             if(fs.existsSync(targetPath)) {
-                console.log("target exist = ", targetPath);
+                // console.log("target exist = ", targetPath);
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 this.imgHeight = msgContent.imgHeight;
@@ -149,34 +149,31 @@ export default {
                     this.ImgElement.style.top = showPosition.top.toString() + "px";
                 }
             }
-            else {
-            ///////
-                if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, targetFileName, false))) {
-                    var showfu = new FileUtil(localPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    this.imgHeight = msgContent.imgHeight;
-                    this.imgWidth = msgContent.imgWidth;
-                    if(this.imgHeight > 400) {
-                        this.imgHeight = 400;
-                    }
-                    var showPosition = this.calcImgPosition();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        this.ImgElement.setAttribute("src", reader.result);
-                        this.ImgElement.setAttribute("height", this.imgHeight);
-                        this.ImgElement.style.left = showPosition.left.toString() + "px";
-                        this.ImgElement.style.top = showPosition.top.toString() + "px";
-                    }
+            if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, targetFileName, false))) {
+                // console.log("localPath is ", localPath);
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                this.imgHeight = msgContent.imgHeight;
+                this.imgWidth = msgContent.imgWidth;
+                if(this.imgHeight > 400) {
+                    this.imgHeight = 400;
                 }
-                else {
-                    if(!this.ipcInited) {
-                        ipcRenderer.on('updateShowImage', this.updateShowImage);
-                        this.ipcInited = true;
-                    }
+                var showPosition = this.calcImgPosition();
+                let reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    this.ImgElement.setAttribute("src", reader.result);
+                    this.ImgElement.setAttribute("height", this.imgHeight);
+                    this.ImgElement.style.left = showPosition.left.toString() + "px";
+                    this.ImgElement.style.top = showPosition.top.toString() + "px";
                 }
             }
-
+            else {
+                if(!this.ipcInited) {
+                    ipcRenderer.on('updateShowImage', this.updateShowImage);
+                    this.ipcInited = true;
+                }
+            }
             // if(fs.existsSync(this.imgSrcInfo.targetPath)){
             //     var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
             //     var showfu = new FileUtil(this.imgSrcInfo.targetPath);
