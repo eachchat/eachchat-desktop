@@ -38,6 +38,8 @@ if (process.env.NODE_ENV === "development") {
   emptyIconPath = "/static/Img/Main/logo-empty.ico";
 }
 
+let resizableValue = false;
+
 const Bobolink = require('bobolink');
 const queue = new Bobolink({
   timeout: 2000,
@@ -171,7 +173,7 @@ async function initServicesData(isFirstLogin) {
       hostname: '139.198.15.253',
       apiPort: 8888,
     };
-    services.common.init(config);
+    services.common.init();
 
     try {
       var loginret = await services.common.GetLoginModel();
@@ -190,7 +192,7 @@ async function initServicesData(isFirstLogin) {
       hostname: '139.198.15.253',
       apiPort: 8888,
     };
-    services.common.init(config);
+    services.common.init();
     try {
       console.log("================start to init service data ");
       await services.common.InitDbData();
@@ -789,6 +791,9 @@ function createWindow () {
   /**
    * Initial window options
    */
+  if (process.env.NODE_ENV === "development") {
+    resizableValue = true;
+  }
   ClearDB(0);
   services.common.CreateDatabaseTable();
   Menu.setApplicationMenu(null)
@@ -800,7 +805,7 @@ function createWindow () {
     useContentSize: true,
     width: 360,
     frame: false,
-    resizable: false,
+    resizable: resizableValue,
     /**
      * Across Domains Problem
      */
