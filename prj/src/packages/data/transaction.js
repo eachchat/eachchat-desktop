@@ -3,6 +3,7 @@
 import { net } from '../core/index.js'
 import { FileUtil } from "../core/Utils.js"
 import { environment } from "./environment.js"
+import {ipcRenderer} from 'electron';
 
 //const {FileUtil} = require("./Utils.js")
 
@@ -27,6 +28,9 @@ class APITransaction {
         if (!("code" in this.data)) {
           return false;
         }
+
+        if(this.data.code == 401)
+          ipcRenderer.send('token-expired');
 
         return this.data.code >= 200 && this.data.code < 300;
       }
