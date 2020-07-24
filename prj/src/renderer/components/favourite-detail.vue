@@ -1,7 +1,7 @@
 <template>
     <div class="detailPage">
         <div class="detailHeader">
-            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user.jpeg">
+            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user-40px@2x.png">
             <div class="userInfo">
                 <p class="userName">{{ collectionInfo.collection_content.fromUserName }}</p>
                 <p class="userTime">{{ formatTimeFilter(collectionInfo.timestamp) }}</p>

@@ -43,7 +43,6 @@ export default {
             Details: '',
             dlgWidth: 440,
             dlgHeight: 179,
-            canCancel: true,
         }
     },
     methods: {

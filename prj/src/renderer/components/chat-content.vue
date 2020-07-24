@@ -18,7 +18,7 @@
                   >
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                 <div class="group-img">
-                  <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user.jpeg"/>
+                  <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
                   <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
                 </div>
                 <div class="group-info">
@@ -42,7 +42,7 @@
                       @click="showPeopleInfo(searchPeopleItem)"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchPeopleItem.id)" src="../../../static/Img/User/user.jpeg"/>
+                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchPeopleItem.id)" src="../../../static/Img/User/user-40px@2x.png"/>
                     </div>
                     <div class="search-item-info">
                       <p class="search-item-name">{{searchPeopleItem.displayName}}</p>
@@ -61,7 +61,7 @@
                       v-for="searchMessageItem in searchMessageItems"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchMessageItem.groupId)" src="../../../static/Img/User/user.jpeg"/>
+                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchMessageItem.groupId)" src="../../../static/Img/User/user-40px@2x.png"/>
                     </div>
                     <div class="search-item-info">
                       <p class="search-item-name">{{searchMessageItem.groupName}}</p>
@@ -70,7 +70,7 @@
                   </li>
                   <li class="search-item">
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" src="../../../static/Img/User/user.jpeg"/>
+                      <img class="search-item-img-ico" src="../../../static/Img/User/user-40px@2x.png"/>
                     </div>
                     <div class="search-item-info-more" @click="showAllSearchMessages">
                       <p class="search-item-name">搜索更多聊天记录</p>
@@ -89,7 +89,7 @@
                       @click="showFileInfo(searchFileItem)"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchFileItem.timelineId)" src="../../../static/Img/User/user.jpeg"/>
+                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchFileItem.timelineId)" src="../../../static/Img/User/user-40px@2x.png"/>
                     </div>
                     <div class="search-item-info">
                       <p class="search-item-name">{{searchFileItem.content.fileName}}</p>
@@ -511,7 +511,7 @@ export default {
                 }
             }
             // else {
-            //   var showfu = new FileUtil("../../../static/Img/User/user.jpeg");
+            //   var showfu = new FileUtil("../../../static/Img/User/user-40px@2x.png");
             //   let showfileObj = showfu.GetUploadfileobj();
             //   let reader = new FileReader();
             //   reader.readAsDataURL(showfileObj);

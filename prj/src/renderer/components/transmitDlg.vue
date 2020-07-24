@@ -24,7 +24,7 @@
                         <ul class="searchGroupList">
                             <li class="searchGroup" v-for="(group, index) in searchGroup" :key="index">
                                 <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                <img ondragstart="return false" class="group-icon" :id="'search' + group.group_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="group-icon" :id="'search' + group.group_id" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
                                     <p class="group-name">{{ group.group_name }}</p>
                                 </div>
@@ -44,7 +44,7 @@
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                    <img ondragstart="return false" class="group-icon" :id="group.group_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="group-icon" :id="group.group_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="group-info">
                                         <p class="group-name">{{ group.group_name }}</p>
                                     </div>
@@ -59,7 +59,7 @@
                     <div class="selectedContentView">
                         <ul class="selectedGroupList">
                             <li class="selectedGroup" v-for="(group,index) in selectedGroups" :key="index">
-                                <img ondragstart="return false" class="group-icon" :id="'selected' + group.group_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="group-icon" :id="'selected' + group.group_id" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
                                     <p class="group-name">{{ group.group_name }}</p>
                                 </div>

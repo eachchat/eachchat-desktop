@@ -2,7 +2,7 @@
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
             <div class="personalCenter-iconView" @click="personalCenterIconClicked()">
-                <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user.jpeg">
+                <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png">
                 <div class="personalCenter-changeIcon">
                     <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
                 </div>

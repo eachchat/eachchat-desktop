@@ -11,7 +11,7 @@
                         v-for="(chatGroupItem, index) in groupList"
                         >
                         <!-- <listItem @groupInfo="chatGroupItem"/> -->
-                        <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
+                        <img class="group-ico" :id="getChatElementId(chatGroupItem)" src="../../../static/Img/User/user-40px@2x.png"/>
                         <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
                         <input type="checkBox" class="user-checkBox" @change="selectChanged(chatGroupItem)" :checked="isChecked(chatGroupItem)">
                     </li>
@@ -25,7 +25,7 @@
                     </li>
                     <li class="selected-group"
                         v-for="(chatGroupItem, index) in selectedChat">
-                    <img class="group-ico" :id="getSelectedChatElementId(chatGroupItem)" src="../../../static/Img/User/user.jpeg"/>
+                    <img class="group-ico" :id="getSelectedChatElementId(chatGroupItem)" src="../../../static/Img/User/user-40px@2x.png"/>
                     <p class="group-name">{{getShowGroupName(chatGroupItem)}}</p>
                     <img class="disSelected" @click="disSelected(chatGroupItem)" src="../../../static/Img/Navigate/close-20px.png">
                     </li>

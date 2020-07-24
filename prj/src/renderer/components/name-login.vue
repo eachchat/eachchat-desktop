@@ -254,6 +254,14 @@ export default {
                 console.log(version);
                 return version;
             }
+            else if(environment.os.isWindows) {
+                console.log("agent is ", agent)
+                var startIndex = agent.indexOf("Windows");
+                var endIndex = agent.indexOf(";");
+                version = agent.substring(startIndex, endIndex);
+                console.log(version);
+                return version;
+            }
             
         },
         login:async function() {

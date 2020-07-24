@@ -19,7 +19,7 @@
                             <li class="subUser" v-for="(user, index) in searchUser" :key="index">
                                 <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
                                     @click="userCheckBoxClicked(user)">
-                                <img ondragstart="return false" class="subUserIcon" :id="'search' + user.user_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="subUserIcon" :id="'search' + user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="subUserInfo">
                                     <p class="subUserName" v-html="msgContentHightLight(user.user_display_name)">{{ user.user_display_name }}</p>
                                     <p class="subUserTitle" v-html="msgContentHightLight(user.user_title)">{{ user.user_title }}</p>
@@ -79,7 +79,7 @@
                                     <li class="subUser" v-for="(user, index) in curUsers" :key="index">
                                         <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
                                             @click="userCheckBoxClicked(user)">
-                                        <img ondragstart="return false" class="subUserIcon" :id="user.user_id" src="../../../static/Img/User/user.jpeg">
+                                        <img ondragstart="return false" class="subUserIcon" :id="user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                         <div class="subUserInfo">
                                             <p class="subUserName">{{ user.user_display_name }}</p>
                                             <p class="subUserTitle">{{ user.user_title }}</p>
@@ -98,7 +98,7 @@
                     <div class="selectedContentView">
                         <ul class="selectedUserList">
                             <li class="selectedUser" v-for="(user,index) in selectedUsers" :key="index">
-                                <img ondragstart="return false" class="user-icon" :id="'selected' + user.user_id" src="../../../static/Img/User/user.jpeg">
+                                <img ondragstart="return false" class="user-icon" :id="'selected' + user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="user-info">
                                     <p class="user-name">{{ user.user_display_name }}</p>
                                 </div>

@@ -40,7 +40,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -78,7 +78,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -116,7 +116,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -154,7 +154,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -192,7 +192,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -230,7 +230,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -268,7 +268,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -306,7 +306,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>
@@ -344,7 +344,7 @@
                                     @click="userMenuItemClicked(manager.user_id)" 
                                     
                                     :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user.jpeg">
+                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
                                         <p class="manager-name">{{ manager.user_display_name }}</p>
                                         <p class="manager-title">{{ manager.user_title }}</p>

@@ -5,7 +5,7 @@
         </div>
         <div class="groupInfo-view">
             <div class="groupInfoImageDiv">
-                <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user.jpeg">
+                <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user-40px@2x.png">
                 <img id="groupInfoImageChangeId" class="groupInfoImageChange" src="../../../static/Img/Chat/updateHeadImg-24px@2x.png" @click="updateGroupImg" v-show="isOwner">
             </div>
             <div class="groupInfoNoticeAndName">

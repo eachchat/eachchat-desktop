@@ -41,10 +41,10 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id" @load="checkLoad()">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user.jpeg' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip">
                 <div class="about-msg">
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"

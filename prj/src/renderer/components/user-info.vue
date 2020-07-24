@@ -2,7 +2,7 @@
 <template>
     <div class="userInfo-view" :style="pagePosition">
         <div class="userInfoBaseInfo-view">
-            <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user.jpeg" :id="getUserInfoIconID(userInfo.id)">
+            <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.id)">
             <div class="userInfo-baseInfo">
                 <p class="userInfo-name">{{ userInfo.displayName }}</p>
                 <p class="userInfo-title">{{ userInfo.title }}</p>
@@ -30,7 +30,7 @@
                 </li>
                 <li v-show="showDepartment">
                     <p class="userInfo-key">部门</p>
-                    <p class="userInfo-value">{{ userInfo.department.display_name }}</p>
+                    <p class="userInfo-value">{{ userInfo.department != undefined ? userInfo.department.display_name : '' }}</p>
                 </li>
                 <li v-show="showPhone">
                     <p class="userInfo-key">手机</p>
@@ -142,7 +142,7 @@ export default {
             if (this.userInfo == undefined){
                 return false;
             }
-            if(this.userInfo.department.display_name){
+            if(this.userInfo.department != undefined && this.userInfo.department.display_name){
                 return true;
             }
             return false;

@@ -21,7 +21,7 @@
                         v-for="(manager, index) in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
                         :key="index">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user.jpeg">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
                         <div class="manager-info">
                         <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
                         <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>

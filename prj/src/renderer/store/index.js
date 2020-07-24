@@ -214,7 +214,7 @@ export default new Vuex.Store({
     },
     getUserIcon: state => (is_original=false) => {
       if(state.userInfo === null) {
-        return '/static/Img/User/user.jpeg';
+        return '/static/Img/User/user-40px@2x.png';
       }
       if(is_original) {
         return state.userInfo.avatar_minimal;
@@ -231,7 +231,7 @@ export default new Vuex.Store({
     },
     getChatUserIcon: state => (distId, is_original=false) => {
         if(state.usersInfo === null) {
-          return '/static/Img/User/user.jpeg';
+          return '/static/Img/User/user-40px@2x.png';
         }
 
         var distUser = state.usersInfo.filter(function(item) {
@@ -239,7 +239,7 @@ export default new Vuex.Store({
         })
 
         if(distUser.length === 0) {
-          return '/static/Img/User/user.jpeg';
+          return '/static/Img/User/user-40px@2x.png';
         }
         else {
           if(is_original) {
