@@ -609,7 +609,7 @@ class APITransaction {
 
   async QuitGroup(accessToken, groupID){
     var response = await this.commonApi.delete(
-      "/api/apps/imv1/group/quit/" + groupID,
+      "/api/apps/im/v1/group/quit/" + groupID,
       {
         Authorization: "Bearer " + accessToken
       });
