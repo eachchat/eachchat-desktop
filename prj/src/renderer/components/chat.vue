@@ -79,24 +79,13 @@
         </div>
         <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
-        <!-- <transmit v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :showTransmit="updateTransmit" :curChat="chat" :transmitTogether="transmitTogether" :distMsgs="selectedMsgs"></transmit>         -->
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
         <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
-        <!-- <el-dialog :title="groupCreaterTitle" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
-            <div class="el-dialog-content">
-                <chatGroupCreater ref="chatGroupCreater" :disableUsers="disabledusers" @getCreateGroupUsersSelected="getUsersSelected">
-                </chatGroupCreater>
-            </div>
-            <span slot="footer" class="dialog-footer">
-                <el-button class="dialog-confirm-button" type="primary" @click="AddNewMembers()">确 定</el-button>
-            </span>
-        </el-dialog> -->
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
-        <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="tipInfos" @getCreateGroupInfo="getCreateGroupInfo"></userInfoTip> -->
         <userInfoContent :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
         <chatCreaterDlg v-show="showChatCreaterDlg" :addMemberGroupType="addMemberGroupType" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
@@ -211,6 +200,7 @@ FileBlot.tagName = 'img';
 Quill.register({ 'formats/imageBlot': FileBlot });
 
 export default {
+    name: 'Chat',
     components: {
         quillEditor,
         imessage,
@@ -226,7 +216,6 @@ export default {
         chatCreaterDlg,
         userInfoContent,
     },
-    props: ['chat', 'newMsg'],
     methods: {
         openUserInfoTip:async function(tipInfos) {
             console.log("tip inso if ", tipInfos);
@@ -1723,7 +1712,7 @@ export default {
                 else if(chatGroupMsgContent.type == "groupTransfer") {
                     var originalOwner = chatGroupMsgContent.fromUserName;
                     var newOwner = chatGroupMsgContent.toUserName;
-                    console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+                    // console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
                     return originalOwner + " 将群主转让给 " + newOwner;
                 }
                 else
@@ -1941,15 +1930,18 @@ export default {
             if(this.isRefreshing = true) {
                 this.isRefreshing = false;
             }
-            console.log("msgTemplateId ", msgTemplateId);
-            console.log("msg ", msg);
-            console.log("==================")
             let distMsgElement = document.getElementById(msgTemplateId);
             distMsgElement.style.display = "block";
 
             let uldiv = document.getElementById("message-show-list");
             uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
 
+            if(msg.message_type == 102) {
+                console.log("msgTemplateId ", msgTemplateId);
+                console.log("msg ", msg);
+                console.log("==================uldiv ")
+                // uldiv.childNodes.sort(this.compareDom())
+            }
             if(this.needToBottom) {
                 console.log("=========scroll to bottom");
                 uldiv.scrollTop = uldiv.scrollHeight - uldiv.clientHeight;
@@ -1960,6 +1952,17 @@ export default {
             console.log("++++++++++++++====")
             let uldiv = document.getElementById("message-show-list");
             // console.log("++++++++scroll height is ", uldiv.scrollHeight);
+        },
+        copyDom: function() {
+            let distUlElement = document.getElementById("message-show-list");
+            let hideUlElement = document.getElementById("message-show-list-hide");
+            let startIndex = distUlElement.childNodes.length - 1;
+            console.log("hideUlElement.childNodes is ", hideUlElement.childNodes);
+            console.log("distUlElement.childNodes is ", distUlElement.childNodes);
+            for(let i=startIndex;i<hideUlElement.childNodes.length;i++) {
+                // console.log("i is ", i);
+                distUlElement.insertBefore(hideUlElement.childNodes[i], distUlElement[2]);
+            }
         },
         getHistoryMessage: function() {
             // console.log("this chat is ", this.chat);
@@ -2248,10 +2251,12 @@ export default {
             }
         }
     },
+    props: ['chat', 'newMsg'],
     watch: {
         chat: function() {
-            console.log("============", this.chat);
-            if(this.chat == undefined) {
+            console.log("chat ============", this.chat);
+            console.log("this.curGroupId is ", this.curGroupId);
+            if(this.chat == undefined || this.curGroupId == this.chat.group_id) {
                 return;
             }
             if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
@@ -2294,7 +2299,7 @@ export default {
                     })
                 }
             }
-        },
+        }
     }
 }
 </script>

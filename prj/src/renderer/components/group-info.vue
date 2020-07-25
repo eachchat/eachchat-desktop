@@ -468,11 +468,13 @@ export default {
             this.ownerId = this.showGroupInfo.ownerId;
             // console.log("this.groupTopState ", this.groupTopState)
             // console.log("this.slienceState ", this.slienceState)
+            var adddedMemberId = [];
             for(var i=0;i<this.memberList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
                 if(memberInfoTmp.length != 0) {
                     this.memberListShow.push(memberInfoTmp[0]);
                     this.memberListShowOriginal.push(memberInfoTmp[0]);
+                    adddedMemberId.push(this.memberList[i]);
                 }
                 if(i > 20) {
                     break;
@@ -515,7 +517,7 @@ export default {
             for(var i=0;i<this.memberList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
                 if(memberInfoTmp.length != 0) {
-                    if(this.memberListShow.indexOf(memberInfoTmp[0]) == -1) {
+                    if(adddedMemberId.indexOf(this.memberList[i]) == -1) {
                         this.memberListShow.push(memberInfoTmp[0]);
                         this.memberListShowOriginal.push(memberInfoTmp[0]);
                     }

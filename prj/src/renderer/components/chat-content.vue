@@ -1036,9 +1036,15 @@ export default {
               for(let j=0;j<addUsers.length;j++) {
                 let newUserId = addUsers[j].userId;
                 if(this.showGroupList[i].contain_user_ids.indexOf(newUserId) == -1) {
-                  this.showGroupList[i].contain_user_ids + "," + newUserId;
+                  this.showGroupList[i].contain_user_ids = this.showGroupList[i].contain_user_ids + "," + newUserId;
                 }
               }
+            }
+          }
+          if(msgContent.type != undefined && msgContent.type == "groupTransfer") {
+            if(msgContent.toUserId != undefined) {
+              let distUserId = msgContent.toUserId;
+              this.showGroupList[i].owner = distUserId;
             }
           }
           if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {

@@ -106,7 +106,6 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon.setContextMenu(contextMenu);
 
   appIcon.on("click", function() {
-    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
     showMain();
   });
   // setAutoRun(true);
@@ -126,6 +125,40 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 //       }
 //   }, 100)
 // }
+
+ipcMain.on("token-expired", function(event, arg) {
+  console.log("logout")
+  let config = {
+    hostname: '139.198.15.253',
+    apiPort: 8888,
+  };
+  services.common.init();
+  services.common.logout();
+  Menu.setApplicationMenu(null)
+  mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,//添加这个即可
+    },
+    height: 420,
+    useContentSize: true,
+    width: 360,
+    frame: false,
+    resizable: false,
+    /**
+     * Across Domains Problem
+     */
+    webPreferences: {webSecurity:false}
+  })
+  mainWindow.hide();
+  mainPageWindow.close();
+  appIcon.destroy();
+  mainWindow.loadURL(winURL);
+  openDevToolsInDevelopment(mainWindow);
+  
+  mainWindow.webContents.on('dom-ready', function(){
+    mainWindow.show();            
+  });
+})
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   Menu.setApplicationMenu(null)
