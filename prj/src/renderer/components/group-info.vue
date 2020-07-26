@@ -14,7 +14,7 @@
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
                 </div>
                 <div class="groupInfoNotice" @click="updateGroupNotice">
-                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-show="isOwner" :disabled="!isOwner" v-model="newGroupNotice" name="groupInfoNotice" :placeholder="this.groupNotice" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
+                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-show="isOwner" :disabled="!isOwner" v-model="groupNotice" name="groupInfoNotice" placeholder="未设置" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
                     <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
                 </div>
             </div>
@@ -86,7 +86,6 @@ export default {
     data() {
         return {
             newGroupName: '',
-            newGroupNotice: '',
             memberListShow: [],
             memberListShowOriginal: [],
             absoluteTop: 0,
@@ -125,10 +124,10 @@ export default {
             type: Array,
             default: []
         },
-        "updateNotice": {
-            type: String,
-            default: ""
-        }
+        // "updateNotice": {
+        //     type: String,
+        //     default: ""
+        // }
     },
     computed: {
     },
@@ -145,17 +144,18 @@ export default {
             if(ret) {
                 for(let i=0;i<this.memberListShow.length;i++) {
                     if(this.memberListShow[i].user_id == distUser.user_id) {
-                        this.memberListShow.slice(i, 1);
+                        this.memberListShow.splice(i, 1);
                         break;
                     }
                 }
                 for(let i=0;i<this.memberListShowOriginal.length;i++) {
                     if(this.memberListShowOriginal[i].user_id == distUser.user_id) {
-                        this.memberListShowOriginal.slice(i, 1);
+                        this.memberListShowOriginal.splice(i, 1);
                         break;
                     }
                 }
             }
+            this.$emit("closeGroupInfo");
         },
         ownerTransfer: function() {
             this.$emit("showOwnerTransferDlg");
@@ -349,7 +349,12 @@ export default {
             this.$emit("closeGroupInfo");
         },
         leave: async function() {
-            var ret = await services.common.QuitGroup(this.groupId);
+            if(isOwner) {
+                var ret = await services.common.DeleteGroup(this.groupId);
+            }
+            else {
+                var ret = await services.common.QuitGroup(this.groupId);
+            }
             this.$emit("leaveGroup", this.groupId);
         },
         dismiss: async function() {
@@ -458,7 +463,7 @@ export default {
             this.memberList = this.showGroupInfo.memberList;
             this.groupName = this.showGroupInfo.groupName;
             this.groupAvarar = this.showGroupInfo.groupAvarar;
-            // this.groupNotice = this.showGroupInfo.groupNotice;
+            this.groupNotice = this.showGroupInfo.groupNotice;
             this.groupId = this.showGroupInfo.groupId;
             this.isGroup = this.showGroupInfo.isGroup;
             this.slienceState = this.showGroupInfo.isSlience;
@@ -503,9 +508,9 @@ export default {
             //         URL.revokeObjectURL(elementImg.getAttribute("src"))
             //     }
             // })
-
+            console.log("this.groupNotice is ", this.groupNotice);
             if(this.groupNotice.length == 0) {
-                this.groupNotice = "未设置"
+                this.groupNotice = ""
             }
             this.newGroupName = this.groupName;
             setTimeout(() => {
@@ -549,9 +554,9 @@ export default {
             }
             distElement.setAttribute("src", localPath);
         },
-        updateNotice: function() {
-            this.groupNotice = this.updateNotice;
-        },
+        // updateNotice: function() {
+        //     this.groupNotice = this.updateNotice;
+        // },
     }
 }
 </script>

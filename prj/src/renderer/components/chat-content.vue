@@ -133,7 +133,7 @@ import searchChatSelecterDlg from './searchChatSelecter.vue'
 import searchSenderSelecterDlg from './searchSenderSelect.vue'
 // import listItem from './list-item.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
-import { Group, UserInfo, Department } from '../../packages/data/sqliteutil'
+import { Group, UserInfo, Department, Message } from '../../packages/data/sqliteutil'
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
 export default {
@@ -234,6 +234,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      dealedMsgSequenceId:[],
       searchSelectedSenderDialogRootDepartments: [],
       searchSelectedSenderDialogTitle: "",
       searchSelectedSenders: [],
@@ -545,14 +546,16 @@ export default {
       if(searchKey.trim().length != 0) {
         this.searchKey = searchKey;
         var curSearchId = new Date().getTime();
-        console.log("searchkey is ", this.searchKey);
+        // console.log("searchkey is ", this.searchKey);
         var searchResult = {
             "id": curSearchId,
             "searchList": []
         };
+        this.searchId = curSearchId;
         var searcheRet = await services.common.SearchAll(searchKey);
         console.log("searhret ", searcheRet);
-        this.searchId = curSearchId;
+        // console.log("searchResult.id is ", searchResult.id);
+        // console.log("this.searchId is ", this.searchId);
         if(searchResult.id == this.searchId) {
           for(let i=0;i<searcheRet.length;i++) {
             if(searcheRet[i].groups != undefined) {
@@ -560,17 +563,26 @@ export default {
               if(this.searchMessageItems.length == 0) {
                 this.showSearchMessage = false;
               }
+              else {
+                this.showSearchMessage = true;
+              }
             }
             if(searcheRet[i].files != undefined) {
               this.searchFileItems = searcheRet[i].files.slice(0, 3);
               if(this.searchFileItems.length == 0) {
                 this.showSearchFile = false;
               }
+              else {
+                this.showSearchFile = true;
+              }
             }
             if(searcheRet[i].persons != undefined) {
               this.searchPeopleItems = searcheRet[i].persons.slice(0, 3);
               if(this.searchPeopleItems.length == 0) {
                 this.showSearchPeople = false;
+              }
+              else {
+                this.showSearchPeople = true;
               }
             }
           }
@@ -1013,6 +1025,14 @@ export default {
       console.log("chat callback msg content is ", msg.message_content);
       console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
+      if(msg.sequence_id != undefined || msg.sequence_id.length != 0) {
+        if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
+          this.dealedMsgSequenceId.push(msg.sequence_id);
+        }
+        else {
+          return;
+        }
+      }
       if(msgContent.type == undefined && msg.group_avarar != undefined) {
         this.mqttGroupVar.push(msg);
         return;
@@ -1045,6 +1065,25 @@ export default {
             if(msgContent.toUserId != undefined) {
               let distUserId = msgContent.toUserId;
               this.showGroupList[i].owner = distUserId;
+            }
+          }
+          if(msgContent.type != undefined && msgContent.type == "notice") {
+            if(msgContent.text != undefined) {
+              this.showGroupList[i].group_notice = msgContent.text;
+            }
+          }
+          if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
+            if(msgContent.userInfos != undefined) {
+              let deleteUsers = msgContent.userInfos;
+              for(let j=0;j<deleteUsers.length;j++) {
+                var deletedUserId = deleteUsers[j].userId;
+                var idsList = this.showGroupList[i].contain_user_ids.split(",");
+                var deleteIndex = idsList.indexOf(deletedUserId);
+                if(deleteIndex != -1) {
+                  idsList.splice(deleteIndex, 1);
+                }
+                this.showGroupList[i].contain_user_ids = idsList.join(",");
+              }
             }
           }
           if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {

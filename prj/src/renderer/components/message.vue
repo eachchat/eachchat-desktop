@@ -733,7 +733,6 @@ export default {
 <style lang="scss" scoped>
     .message {
         font-size: 15px;
-        display: none;
     }
 
     .chat-msg-body {

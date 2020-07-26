@@ -79,17 +79,21 @@ export default {
     },
     watch: {
         receiveSearchKey: function() {
-            this.$nextTick(() => {
-                setTimeout(() => {
-                    this.searchKey = this.receiveSearchKey;
-                    this.search();
-                    console.log("searchKey ", this.searchKey)
-                }, 1000)
-            })
+            console.log("can search is ", this.canSearch);
+            if(this.canSearch) {
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        this.searchKey = this.receiveSearchKey;
+                        this.search();
+                        console.log("searchKey ", this.searchKey)
+                    }, 1000)
+                })
+            }
         }
     },
     data() {
         return {
+            canSearch: false,
             departments: [],
             isOwn: false,
             dialogVisible: false,
@@ -278,6 +282,7 @@ export default {
         winHeaderBar,
     },
     created:async function() {
+        console.log("to get organization");
         await this.getOrganizationBaseData();
         var that = this;
         document.addEventListener('click',function(e){
@@ -286,6 +291,17 @@ export default {
             }
             
         });
+        console.log("can search now");
+        this.canSearch = true;
+        if(this.receiveSearchKey.length != 0 ) {
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.searchKey = this.receiveSearchKey;
+                    this.search();
+                    console.log("searchKey ", this.searchKey)
+                }, 1000)
+            })
+        }
     }
 }
 </script>

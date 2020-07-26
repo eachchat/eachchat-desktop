@@ -82,7 +82,7 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :updateNotice="updateNotice" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
+        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
@@ -1861,7 +1861,6 @@ export default {
                 "ownerId": this.chat.owner,
                 "groupType": this.chat.group_type,
             }
-            this.updateNotice = this.chat.group_notice;
             this.groupInfo = groupInfoObj;
             // console.log("more more more ", this.chat.contain_user_ids.split(","))
             // var idsList = this.chat.contain_user_ids.split(",");
@@ -1930,8 +1929,10 @@ export default {
             if(this.isRefreshing = true) {
                 this.isRefreshing = false;
             }
-            let distMsgElement = document.getElementById(msgTemplateId);
-            distMsgElement.style.display = "block";
+            // let distMsgElement = document.getElementById(msgTemplateId);
+            // if(distMsgElement != undefined) {
+            //     distMsgElement.style.display = "block";
+            // }
 
             let uldiv = document.getElementById("message-show-list");
             uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
@@ -2094,7 +2095,6 @@ export default {
             }
             else {
                 this.noticeDialogVisible = false;
-                this.updateNotice = content;
             }
         },
         showOwnerTransferDlg() {
@@ -2159,7 +2159,6 @@ export default {
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
             updateUser:[],
-            updateNotice: "",
             updateMsg: {},
             menu: null,
             cleanCache: false,

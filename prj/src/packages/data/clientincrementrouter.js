@@ -29,6 +29,9 @@ class UserIncrement extends BaseIncrement{
               return;
             }
             let userInfoModel = itemModel[0];
+            var foundUsers = await(await models.Login).find({
+                $reverse: true
+              });
             let userinfos = await (await models.UserInfo).find({
                 user_id: userInfoModel.user_id
             })
@@ -47,7 +50,7 @@ class UserIncrement extends BaseIncrement{
                     
                     console.log(userInfoModel.user_id + " url is changed");
                     var userId = findUserInfo.user_id;
-                    confservice.init(userId);
+                    confservice.init(foundUsers[0].user_id);
                     var localPath = confservice.getUserThumbHeadLocalPath(userId);
                     if(fs.existsSync(localPath)){
                         fs.unlink(localPath, function(err){

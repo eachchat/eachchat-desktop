@@ -21,7 +21,6 @@ export default {
         },
         search: function() {
             console.log("I am searching ", this.searchKey, " and cur os isWindows  ", environment.os.isWindows);
-            this.searchKey = '';
         }
     },
     components: {
