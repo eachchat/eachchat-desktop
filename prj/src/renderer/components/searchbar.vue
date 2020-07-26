@@ -9,6 +9,17 @@
 import {services, environment} from '../../packages/data/index.js'
 export default {
     name: 'eSearch',
+    props: {
+        cleanSearchKey: {
+            type: Boolean,
+            default: false
+        }
+    },
+    watch: {
+        cleanSearchKey: function() {
+            this.searchKey = "";
+        }
+    },
     data () {
         return {
             searchKey: '',

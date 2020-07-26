@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem} from 'electron'
+import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification} from 'electron'
 import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
@@ -21,6 +21,9 @@ let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
+let soundPath
+let notificationIco
+let notification = null
 var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
 if (process.env.NODE_ENV === "development") {
@@ -30,12 +33,16 @@ if (process.env.NODE_ENV === "development") {
   }
   
   emptyIconPath = "../../static/Img/Main/logo-empty.ico";
+  soundPath = "../../static/sound.wav";
+  notificationIco = "../../static/Img/Main/logo@2x.png";
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/macMenuIcon.png";
   }
   emptyIconPath = "/static/Img/Main/logo-empty.ico";
+  soundPath = "/static/sound.wav";
+  notificationIco = "/static/Img/Main/logo@2x.png";
 }
 
 let resizableValue = false;
@@ -108,6 +115,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon.on("click", function() {
     showMain();
   });
+
   // setAutoRun(true);
   // initServicesData(arg);
 });
@@ -125,6 +133,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 //       }
 //   }, 100)
 // }
+
+ipcMain.on("updateUnreadCount", function(event, arg) {
+  if(process.platform == 'darwin'){
+    app.dock.setBadge(arg);
+  }
+})
 
 ipcMain.on("token-expired", function(event, arg) {
   console.log("logout")
@@ -367,7 +381,9 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
   openDevToolsInDevelopment(reportRelationWindow);
 });
 // 闪烁任务栏
-ipcMain.on("flashIcon", () => {
+ipcMain.on("flashIcon", (event, title, contnet) => {
+  console.log("title ",title)
+  console.log("contnet ",contnet)
   if(!mainPageWindow.isFocused()) {
     mainPageWindow.flashFrame(true);
   }
@@ -382,6 +398,27 @@ ipcMain.on("flashIcon", () => {
       appIcon.setImage(path.join(__dirname, iconPath));
     }
   }, 500);
+  if(process.platform == 'darwin'){
+    if(!mainPageWindow.isFocused()) {
+      if(notification != null) {
+        notification.close();
+      }
+      notification = new Notification({
+        title: title,
+        body: contnet,
+        icon: path.join(__dirname, notificationIco),
+        sound: path.join(__dirname, soundPath)
+      })
+      notification.show();
+      setTimeout(() => {
+        notification.close();
+      }, 2000)
+      notification.on("click", () => {
+        mainPageWindow.show();
+      })
+    }
+  }
+
 });
 
 function showMain() {

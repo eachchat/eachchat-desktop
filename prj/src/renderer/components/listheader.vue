@@ -1,7 +1,7 @@
 <template>
     <div class="ListHeadBar">
         <div class="Search">
-            <eSearch @toSearch="toSearch"/>
+            <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="toSearch"/>
         </div>
         <el-dropdown class="new-chat-dropdown" trigger="click">
             <i class="el-icon-circle-plus-outline"></i>
@@ -39,6 +39,12 @@ import chatCreaterDlg from './chatCreaterDlg.vue'
 import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
 export default {
     name: 'listHeadbar',
+    props: {
+        cleanSearchKey: {
+            type: Boolean,
+            default: false
+        }
+    },
     data () {
         return {
             chatCreaterDisableUsers: [],

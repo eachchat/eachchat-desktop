@@ -6,7 +6,7 @@
         </div>
         <div class="chat-list">
           <div class="list-header">
-            <listHeader @getCreateGroupInfo="getCreateGroupInfo" @toSearch="toSearch"/>
+            <listHeader :cleanSearchKey="cleanSearchKey" @getCreateGroupInfo="getCreateGroupInfo" @toSearch="toSearch"/>
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
@@ -146,7 +146,21 @@ export default {
     searchSenderSelecterDlg,
     // listItem
   },
-  props: ['distUserId', 'distGroupId'],
+  props: {
+    distUserId: {
+      type: String,
+      default: ""
+    },
+    distGroupId: {
+      type: String,
+      default: ""
+    },
+    updateImg: {
+      type: Boolean,
+      default: false
+    }
+    //['distUserId', 'distGroupId'],
+  },
   watch: {
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
@@ -195,6 +209,9 @@ export default {
           this.getCreateGroupInfo(distInfo);
         }
       }
+    },
+    updateImg: function() {
+      this.showGroupIcon();
     }
   },
   computed: {
@@ -234,6 +251,8 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      unreadCound: 0,
+      cleanSearchKey: false,
       dealedMsgSequenceId:[],
       searchSelectedSenderDialogRootDepartments: [],
       searchSelectedSenderDialogTitle: "",
@@ -371,6 +390,7 @@ export default {
         //     return;
         // }
         this.menu = new Menu();
+        this.unreadCound -= groupItem.un_read_count;
         if(groupItem.un_read_count != 0) {
           this.menu.append(new MenuItem({
               label: "标记已读",
@@ -456,7 +476,7 @@ export default {
     clesrUnread(groupItem) {
       this.isEmpty = false;
       services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
-      services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
+      this.unreadCound -= groupItem.un_read_count;
       groupItem.un_read_count = 0;
     },
     // Download thumb and show in dist id element
@@ -492,6 +512,7 @@ export default {
         for(var i=0;i<this.showGroupList.length;i++) {
           var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
           let elementImg = document.getElementById(distId);
+          // console.log("elementImg src is ", elementImg.src)
           var targetPath = "";
           if(this.showGroupList[i].group_name == "测试员134") {
             console.log("info is ", this.showGroupList[i]);
@@ -651,12 +672,19 @@ export default {
                     searchKey: this.searchKey
                 }
             })
+
+        this.cleanSearchKey = !this.cleanSearchKey;
+        this.toSearch("");
     },
     showAllSearchFiles: function() {
       ipcRenderer.send("showAnotherWindow", "", "searchFilesList");
+      this.cleanSearchKey = !this.cleanSearchKey;
+      this.toSearch("");
     },
     showAllSearchMessages: function() {
       ipcRenderer.send("showAnotherWindow", "", "searchMessageList");
+      this.cleanSearchKey = !this.cleanSearchKey;
+      this.toSearch("");
     },
     getFileIconThroughExt: function(ext) {
         var iconPath = getIconPath(ext);
@@ -909,7 +937,7 @@ export default {
       }
       var chatGroupMsgContent = strMsgContentToJson(chatGroupItem.message_content);
 
-      var chatGroupMsgType = chatGroupItem.message_content_type;
+      var chatGroupMsgType = chatGroupItem.message_content_type != undefined ? chatGroupItem.message_content_type : chatGroupItem.message_type;
       if(chatGroupMsgContent === null) {
         return "";
       }
@@ -993,9 +1021,11 @@ export default {
     },
     showChat: function(chatGroup, index) {
       this.isEmpty = false;
+      this.unreadCound -= this.curChat.un_read_count;
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat = chatGroup;
       this.curindex = index;
+      this.unreadCound -= this.curChat.un_read_count;
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat.un_read_count = 0;
     },
@@ -1025,9 +1055,15 @@ export default {
       console.log("chat callback msg content is ", msg.message_content);
       console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
-      if(msg.sequence_id != undefined || msg.sequence_id.length != 0) {
+      if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
+        var msgExist = await Message.FindMessageBySequenceID(msg.sequence_id);
+        console.log("msg exist is ", msgExist);
         if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
           this.dealedMsgSequenceId.push(msg.sequence_id);
+        }
+        else if(await Message.FindMessageBySequenceID(msg.sequence_id)) {
+          console.log("return it ")
+          return;
         }
         else {
           return;
@@ -1042,8 +1078,16 @@ export default {
       }
       if(msg.message_from_id != undefined && msg.message_from_id != this.curUserInfo.id){
         // console.log("process.platfrom is ", this.isWindows())
+        var fromName = "收到一条新短消息";
+        console.log("msg.messagefromid ", msg.message_from_id);
+        var fromUserInfo = await UserInfo.GetUserInfo(msg.message_from_id);
+        console.log("fromUserInfo ", fromUserInfo);
+        if(fromUserInfo != undefined) {
+          fromName = fromUserInfo.user_display_name;
+        }
+        var notificateContent = this.getShowMsgContent(msg);
         if(this.isWindows()) {
-          ipcRenderer.send("flashIcon");
+          ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
       }
       var groupExist = false;
@@ -1090,6 +1134,7 @@ export default {
             let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
             if(!this.groupIsSlience(groupInfo)) {
               this.showGroupList[i].un_read_count += 1;
+              this.unreadCound += 1;
             }
           }
           this.showGroupList[i].last_message_time = msg.message_timestamp;
@@ -1175,7 +1220,9 @@ export default {
                 this.showGroupList[i].time_line_id = msg.time_line_id;
               // }
               this.showGroupList[i].owner = distGroup.owner;
+              let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
               this.showGroupList[i].un_read_count = distGroup.un_read_count;
+              this.unreadCound += tmp;
               groupExist = true;
               this.needUpdate ++;
               break;
@@ -1220,6 +1267,7 @@ export default {
                 this.showGroupList.unshift(groupTmp);
                 console.log("update show group list ", this.showGroupList);
                 this.mqttGroupVar.slice(i, 1);
+                this.unreadCound += this.mqttGroupVar[i].un_read_count;
                 break;
               }
             }
@@ -1248,6 +1296,7 @@ export default {
             }
             console.log("groupTmp is ", groupTmp);
             this.originalGroupList.unshift(groupTmp);
+            this.unreadCound += groupInfo.un_read_count;
             console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
           }
@@ -1261,8 +1310,13 @@ export default {
     }
   },
   mounted: async function() {
+    console.log("chat content mounted");
       // When Mounting Can Not Get The Element. Here Need SetTimeout
       await this.getGroupList(false);
+      for(let i=0;i<this.showGroupList.length;i++) {
+        this.unreadCound += this.showGroupList.un_read_count;
+      }
+      ipcRenderer.send("updateUnreadCount", this.unreadCound);
       setTimeout(() => {
           this.$nextTick(() => {
             ipcRenderer.on('updateGroupImg', this.updateGroupImg);

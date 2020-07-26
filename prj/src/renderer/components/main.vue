@@ -25,7 +25,7 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey"/>
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg"/>
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
@@ -68,6 +68,7 @@ export default {
                     this.distUserId = '';
                     this.distGroupId = '';
                 }
+                this.updateImg = !this.updateImg;
                 this.curindex = 0;
             }
             else if(to.name == "organization") {
@@ -80,6 +81,7 @@ export default {
     },
     data () {
         return {
+            updateImg: false,
             upgradeInfo: {},
             upgradeCanCancel: true,
             showUpgradeAlertDlg:false,
