@@ -134,6 +134,7 @@ import searchSenderSelecterDlg from './searchSenderSelect.vue'
 // import listItem from './list-item.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department, Message } from '../../packages/data/sqliteutil'
+import BenzAMRRecorder from 'benz-amr-recorder'
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
 export default {
@@ -251,6 +252,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      amr: null,
       unreadCound: 0,
       cleanSearchKey: false,
       dealedMsgSequenceId:[],
@@ -1088,6 +1090,7 @@ export default {
         var notificateContent = this.getShowMsgContent(msg);
         if(this.isWindows()) {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
+          this.amr.play();
         }
       }
       var groupExist = false;
@@ -1332,6 +1335,12 @@ export default {
     this.curUserInfo = await services.common.GetSelfUserModel();
     await services.common.initmqtt();
     services.common.handlemessage(this.delayCallback);
+    if(this.amr == null){
+        this.amr = new BenzAMRRecorder();
+        console.log("=========================")
+        console.log(path.join(__dirname, "../../../static/sound.wav"))
+        this.amr.initWithUrl(path.join(__dirname, "../../../static/sound.wav"))
+    }
   }
 };
 </script>
