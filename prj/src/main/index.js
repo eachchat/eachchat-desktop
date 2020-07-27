@@ -138,7 +138,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 ipcMain.on("updateUnreadCount", function(event, arg) {
   console.log("==========arg ", arg);
   if(process.platform == 'darwin' && arg != null){
-    app.dock.setBadge(arg.toString());
+    if(arg == 0) {
+      app.dock.setBadge("");
+    }
+    else {
+      app.dock.setBadge(arg.toString());
+    }
   }
 })
 
