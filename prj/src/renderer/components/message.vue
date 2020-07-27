@@ -154,8 +154,10 @@ export default {
                 // var ext = msgContent.ext;
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = msgContent.fileName;
+                var ext = path.extname(targetFileName);
                 // var targetPath = path.join(targetDir, targetFileName);
                 var targetPath = await services.common.GetFilePath(this.msg.message_id);
+                console.log("targetPath is =========== ", targetPath);
                 // if(msgContent.fileLocalPath != undefined && fs.existsSync(msgContent.fileLocalPath)){
                 //     targetPath = msgContent.fileLocalPath;
                 // }
@@ -164,14 +166,14 @@ export default {
                 }
                 if(targetPath.length == 0) {
                     var targetDir = confservice.getFilePath(this.msg.message_timestamp);
-                    var targetPath = path.join(targetDir, targetFileName);
+                    var targetPath = path.join(targetDir, this.msg.message_id);
                 }
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
                     shell.openExternal(targetPath);
                 }
                 else{
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
+                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + ext, needOpen);
                 }
             }
             else if(msgType == 105) {
@@ -328,6 +330,7 @@ export default {
             {
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = chatGroupMsgContent.fileName;
+                var theExt = path.extname(targetFileName);
                 // var targetPath = path.join(targetDir, targetFileName);
                 var targetPath = this.msg.file_local_path;
                 // var targetDir = confservice.getFilePath();
@@ -340,7 +343,7 @@ export default {
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
                 imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
                 if(targetPath.length == 0) {
-                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false))) {
+                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false))) {
                         //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                         let imageHeight = 100;
                         if(chatGroupMsgContent.imgHeight < 100){
@@ -365,7 +368,7 @@ export default {
                 }
                 else{
                     console.log("download msg t thumnail args is ", this.msg)
-                    services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
+                    services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false);
                     // this.checkAndLoadImg(targetPath);
                 }
             }
@@ -373,6 +376,7 @@ export default {
             {
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = chatGroupMsgContent.fileName;
+                var theExt = path.extname(targetFileName);
                 // var targetPath = path.join(targetDir, targetFileName);
                 var targetPath = this.msg.file_local_path;
                 // if(chatGroupMsgContent.fileLocalPath != undefined && fs.existsSync(chatGroupMsgContent.fileLocalPath)){
@@ -388,7 +392,7 @@ export default {
                 if(!fs.existsSync(targetPath)){
                     console.log("this.msg.timelineid is ", this.msg.time_line_id)
                     console.log("targetfilename is ", targetFileName);
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
+                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false);
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
