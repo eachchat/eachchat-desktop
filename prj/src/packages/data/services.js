@@ -518,11 +518,6 @@ const common = {
     let userAddressModel;
     let userPhoneModel;
     let userImModel;
-    this.data.userinfo = [];
-    this.data.useremail = [];
-    this.data.useraddress = [];
-    this.data.userphone = [];
-    this.data.userim = [];
     let updateTime;
     await (await models.UserInfo).truncate()
     await (await models.UserEmail).truncate()
@@ -551,27 +546,22 @@ const common = {
           continue;
         }
         userInfoModel = usermodel[0];
-        userInfoModel.save();
-        this.data.userinfo.push(userInfoModel);
+        await userInfoModel.save();
 
         userEmailModel = usermodel[1];
         for(let index in userEmailModel){
-          userEmailModel[index].save();
-          this.data.useremail.push(userEmailModel[index]);
+          await userEmailModel[index].save();
         }
         userAddressModel = usermodel[2];
-        userAddressModel.save();
-        this.data.useraddress.push(userAddressModel);
+        await userAddressModel.save();
         
         userPhoneModel = usermodel[3];
         for(let index in userPhoneModel){
-          userPhoneModel[index].save();
-          this.data.userphone.push(userPhoneModel[index]);
+          await userPhoneModel[index].save();
         }
         
         userImModel = usermodel[4];
-        userImModel.save();
-        this.data.userim.push(userImModel);
+        await userImModel.save();
       }
     }while(result.data.total > index);
     var foundUsers = await(await models.User).find({
