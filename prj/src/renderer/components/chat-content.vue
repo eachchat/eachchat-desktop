@@ -253,7 +253,7 @@ export default {
     return {
       //需要展示的用户群组
       amr: null,
-      unreadCound: 0,
+      unreadCount: 0,
       cleanSearchKey: false,
       dealedMsgSequenceId:[],
       searchSelectedSenderDialogRootDepartments: [],
@@ -392,7 +392,8 @@ export default {
         //     return;
         // }
         this.menu = new Menu();
-        this.unreadCound -= groupItem.un_read_count;
+        this.unreadCount -= groupItem.un_read_count;
+        ipcRenderer.send("updateUnreadCount", this.unreadCount);
         if(groupItem.un_read_count != 0) {
           this.menu.append(new MenuItem({
               label: "标记已读",
@@ -478,7 +479,8 @@ export default {
     clesrUnread(groupItem) {
       this.isEmpty = false;
       services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
-      this.unreadCound -= groupItem.un_read_count;
+      this.unreadCount -= groupItem.un_read_count;
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
       groupItem.un_read_count = 0;
     },
     // Download thumb and show in dist id element
@@ -508,20 +510,52 @@ export default {
           elementImg.setAttribute("src", reader.result);
       }
     },
+    getUidFromUids(groupInfo) {
+      var containUids = groupInfo.contain_user_ids;
+      var containUidsList = containUids.split(",");
+      var distUid = "";
+      for(let i=0;i<containUidsList.length;i++) {
+        if(containUidsList[i] != this.curUserInfo.id) {
+          distUid = containUidsList[i];
+        }
+      }
+      return distUid;
+    },
     showGroupIcon: async function() {
       setTimeout(async () => {
         console.log("=======================showGroupIcon", this)
         for(var i=0;i<this.showGroupList.length;i++) {
+          if(this.showGroupList[i].group_name == "武汉测试") {
+            console.log("this.showGroupList[i] is ", this.showGroupList[i]);
+          }
           var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
           let elementImg = document.getElementById(distId);
           // console.log("elementImg src is ", elementImg.src)
           var targetPath = "";
-          if(this.showGroupList[i].group_name == "测试员134") {
-            console.log("info is ", this.showGroupList[i]);
-          }
-          if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
-            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].user_id))){
-                elementImg.setAttribute("src", targetPath);
+          if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0 || this.showGroupList[i].group_type == 102) {
+            if(this.showGroupList[i].user_id.length == 0) {
+              this.showGroupList[i].user_id = this.getUidFromUids(this.showGroupList[i]);
+            }
+            var distUserInfo = await UserInfo.GetUserInfo(this.showGroupList[i].user_id);
+            // console.log("distUserInfo is ", distUserInfo);
+            if(distUserInfo != undefined) {
+              if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, this.showGroupList[i].user_id))){
+                  elementImg.setAttribute("src", targetPath);
+                  if(this.showGroupList[i].group_name == "武汉测试") {
+                    console.log("showGroupIcon targetPath is ", targetPath);
+                  }
+              }
+            }
+            else {
+              if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
+                  var showfu = new FileUtil(targetPath);
+                  let showfileObj = showfu.GetUploadfileobj();
+                  let reader = new FileReader();
+                  reader.readAsDataURL(showfileObj);
+                  reader.onloadend = () => {
+                      elementImg.setAttribute("src", reader.result);
+                  }
+              }
             }
           }
           else {
@@ -1023,11 +1057,13 @@ export default {
     },
     showChat: function(chatGroup, index) {
       this.isEmpty = false;
-      this.unreadCound -= this.curChat.un_read_count;
+      this.unreadCount -= this.curChat.un_read_count;
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat = chatGroup;
       this.curindex = index;
-      this.unreadCound -= this.curChat.un_read_count;
+      this.unreadCount -= this.curChat.un_read_count;
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat.un_read_count = 0;
     },
@@ -1137,7 +1173,8 @@ export default {
             let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
             if(!this.groupIsSlience(groupInfo)) {
               this.showGroupList[i].un_read_count += 1;
-              this.unreadCound += 1;
+              this.unreadCount += 1;
+              ipcRenderer.send("updateUnreadCount", this.unreadCount);
             }
           }
           this.showGroupList[i].last_message_time = msg.message_timestamp;
@@ -1225,7 +1262,8 @@ export default {
               this.showGroupList[i].owner = distGroup.owner;
               let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
               this.showGroupList[i].un_read_count = distGroup.un_read_count;
-              this.unreadCound += tmp;
+              this.unreadCount += tmp;
+              ipcRenderer.send("updateUnreadCount", this.unreadCount);
               groupExist = true;
               this.needUpdate ++;
               break;
@@ -1270,7 +1308,8 @@ export default {
                 this.showGroupList.unshift(groupTmp);
                 console.log("update show group list ", this.showGroupList);
                 this.mqttGroupVar.slice(i, 1);
-                this.unreadCound += this.mqttGroupVar[i].un_read_count;
+                this.unreadCount += this.mqttGroupVar[i].un_read_count;
+                ipcRenderer.send("updateUnreadCount", this.unreadCount);
                 break;
               }
             }
@@ -1299,7 +1338,8 @@ export default {
             }
             console.log("groupTmp is ", groupTmp);
             this.originalGroupList.unshift(groupTmp);
-            this.unreadCound += groupInfo.un_read_count;
+            this.unreadCount += groupInfo.un_read_count;
+            ipcRenderer.send("updateUnreadCount", this.unreadCount);
             console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
           }
@@ -1316,10 +1356,15 @@ export default {
     console.log("chat content mounted");
       // When Mounting Can Not Get The Element. Here Need SetTimeout
       await this.getGroupList(false);
-      for(let i=0;i<this.showGroupList.length;i++) {
-        this.unreadCound += this.showGroupList.un_read_count;
+      console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
+      for(let i=0;i<this.originalGroupList.length;i++) {
+        if(this.originalGroupList[i].group_name == "武汉测试") {
+          console.log("this.originalkjflkajlsdjfl;j  ", this.originalGroupList[i]);
+        }
+        this.unreadCount += this.originalGroupList[i].un_read_count;
       }
-      ipcRenderer.send("updateUnreadCount", this.unreadCound);
+      console.log("this.unreadCount ", this.unreadCount);
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
       setTimeout(() => {
           this.$nextTick(() => {
             ipcRenderer.on('updateGroupImg', this.updateGroupImg);

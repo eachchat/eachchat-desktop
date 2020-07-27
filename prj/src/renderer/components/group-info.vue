@@ -45,7 +45,7 @@
             </div>
             <div class="groupMemberAddDiv" v-else>
                 <label class="groupMemberAddDivLabel">群成员</label>
-                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px@2x.png" @click="showSearch" v-show="isOwner">
+                <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px@2x.png" @click="showSearch">
                 <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
             </div>
         </div>
@@ -349,7 +349,7 @@ export default {
             this.$emit("closeGroupInfo");
         },
         leave: async function() {
-            if(isOwner) {
+            if(this.isOwner) {
                 var ret = await services.common.DeleteGroup(this.groupId);
             }
             else {
@@ -788,7 +788,7 @@ export default {
     border: 0px;
     font-family:Microsoft Yahei;
     font-size: 12px;
-    color: rgba(103, 103, 103, 0.24);
+    color: rgba(153, 153, 153, 0.24);
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
