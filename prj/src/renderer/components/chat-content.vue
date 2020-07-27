@@ -1158,7 +1158,12 @@ export default {
         var notificateContent = this.getShowMsgContent(msg);
         if(this.isWindows()) {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
-          this.amr.play();
+          try{
+            this.amr.play();
+          }
+          catch(e) {
+            
+          }
         }
         else {
           ipcRenderer.send("showNotice", fromName, notificateContent);
@@ -1433,9 +1438,9 @@ export default {
     services.common.handlemessage(this.delayCallback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
-        console.log("=========================")
-        console.log(path.join(__dirname, "../../../static/sound.wav"))
-        this.amr.initWithUrl(path.join(__dirname, "../../../static/sound.wav"))
+        // console.log("=========================")
+        // console.log(path.join(__dirname, "../../../static/sound.wav"))
+        this.amr.initWithUrl(path.join(__dirname, "/static/sound.wav"))
     }
   }
 };
