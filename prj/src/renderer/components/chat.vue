@@ -116,7 +116,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {generalGuid, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
+import {getFileSizeNum, generalGuid, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -1051,7 +1051,10 @@ export default {
                         var showfu = new FileUtil(fileList[i]);
                         var showfileObj = showfu.GetUploadfileobj();
                         var imgurl = URL.createObjectURL(showfileObj)
-                        var fileType = path.extname(fileList[i]);//showfu.GetMimename();
+                        var fileType = showfu.GetMimename();
+                        if(fileType == undefined) {
+                            fileType = path.extname(fileList[i]);
+                        }
                         var fileExt = showfu.GetExtname();
                         var fileName = path.basename(fileList[i]);//showfu.GetFilename()
 
@@ -1184,7 +1187,8 @@ export default {
                         if(fileType == "file"){
                             let fileName = getFileNameInPath(filePath);
                             let ext = filePath.split(".").pop();
-                            let fileSize = getFileSize(filePath);
+                            let fileSize = await getFileSizeNum(filePath);
+                            console.log("=========filesize ", fileSize);
                             let sendingMsgContentType = 103;
                             // let ext = filePath.split(".").pop();
                             let willShowMsgContent = JsonMsgContentToString({
@@ -1895,16 +1899,16 @@ export default {
                         let lastSequenceId = this.messageList[0].sequence_id;
                         services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
+                                if(messageListTmp[0].group_id != this.chat.group_id) {
+                                    this.isRefreshing = false;
+                                    return;
+                                }
                                 this.needScroll = true;
                                 if(ret.length < 20) {
                                     this.needScroll = false;
                                 }
                                 this.needToBottom = false;
                                 var messageListTmp = ret.sort(this.compare());
-                                if(messageListTmp[0].group_id != this.chat.group_id) {
-                                    this.isRefreshing = false;
-                                    return;
-                                }
                                 for(var i=0;i<messageListTmp.length;i++){
                                     console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
@@ -1924,6 +1928,11 @@ export default {
         },
         checkLoadFinished(msgTemplateId, msg) {
             if(msg.group_id == undefined) {
+                this.isRefreshing = false;
+                return;
+            }
+            if(msg.group_id != this.chat.group_id) {
+                this.isRefreshing = false;
                 return;
             }
             if(this.isRefreshing = true) {

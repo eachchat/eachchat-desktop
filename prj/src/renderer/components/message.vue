@@ -21,7 +21,7 @@
                         <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
-                            <p class="file-size">{{this.fileSize}} K</p>
+                            <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-mine-voice"
@@ -56,7 +56,7 @@
                         <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
-                            <p class="file-size">{{this.fileSize}} K</p>
+                            <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-others-voice"
@@ -99,7 +99,7 @@ import BenzAMRRecorder from 'benz-amr-recorder'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
 
 export default {
     components: {
@@ -311,7 +311,7 @@ export default {
             this.transmitMsgContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
@@ -393,8 +393,9 @@ export default {
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
                 console.log("icon path is ", iconPath);
+                console.log("filesize is ", chatGroupMsgContent.fileSize);
                     this.fileName = chatGroupMsgContent.fileName;
-                    this.fileSize = (chatGroupMsgContent.fileSize/1024).toFixed(2);
+                    this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
                     fileMsgImgElement.setAttribute("src", iconPath);
                     fileMsgImgElement.setAttribute("height", 40);
             }
@@ -469,7 +470,7 @@ export default {
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 this.voiceLenth = chatGroupMsgContent.length;
-                this.fileSize = (chatGroupMsgContent.fileSize/1024).toFixed(2);
+                this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
                 fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/voiceAudio@2x.png");
                 fileMsgImgElement.setAttribute("height", 12);
             }
@@ -711,7 +712,7 @@ export default {
             var id = this.updateUser[2];
             var localPath = this.updateUser[3];
 
-            if(id == this.userInfo.user_id) {
+            if(this.userInfo != undefined && id == this.userInfo.user_id) {
                 var userIconElementId = this.getUserIconId();
                 var userIconElement = document.getElementById(userIconElementId);
                 if(fs.existsSync(localPath)){

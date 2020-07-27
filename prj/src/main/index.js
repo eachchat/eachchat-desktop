@@ -148,9 +148,12 @@ ipcMain.on("token-expired", function(event, arg) {
     hostname: '139.198.15.253',
     apiPort: 8888,
   };
-  app.dock.setBadge("");
+  if(process.platform == 'darwin' && arg != null){
+    app.dock.setBadge("");
+  }
   services.common.init();
   services.common.logout();
+  // services.common.closemqtt();
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
     webPreferences: {
@@ -203,7 +206,9 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            
   });
-  app.dock.setBadge("");
+  if(process.platform == 'darwin' && arg != null){
+    app.dock.setBadge("");
+  }
 });
 
 ipcMain.on('setAutoRun', function(event, isAutoRun) {
