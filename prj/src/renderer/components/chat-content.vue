@@ -392,9 +392,11 @@ export default {
         //     return;
         // }
         this.menu = new Menu();
-        this.unreadCount = this.unreadCount - groupItem.un_read_count;
-        console.lo("rightClick ", this.unReadCount);
-        ipcRenderer.send("updateUnreadCount", this.unreadCount);
+        // console.log("this.unreadCount ", this.unreadCount)
+        // console.log("groupItem.un_read_count ", groupItem.un_read_count)
+        // this.unreadCount = this.unreadCount - groupItem.un_read_count;
+        // console.log("rightClick ", this.unReadCount);
+        // ipcRenderer.send("updateUnreadCount", this.unreadCount);
         if(groupItem.un_read_count != 0) {
           this.menu.append(new MenuItem({
               label: "标记已读",
@@ -478,10 +480,15 @@ export default {
           })
     },
     clesrUnread(groupItem) {
-      this.isEmpty = false;
+      // this.isEmpty = false;
       services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
-      this.unreadCount = this.unReadCount - groupItem.un_read_count;
-      console.log("clesrUnread ", this.unReadCount);
+      this.unreadCount = this.unreadCount - groupItem.un_read_count;
+      // console.log("clesrUnread ", this.unreadCount);
+      // console.log("groupItem ", groupItem);
+      // console.log("groupItem.un_read_count ", groupItem.un_read_count);
+      if(this.unreadCount < 0) {
+        this.unreadCount = 0;
+      }
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       groupItem.un_read_count = 0;
     },
@@ -1063,18 +1070,24 @@ export default {
     },
     showChat: function(chatGroup, index) {
       this.isEmpty = false;
-      console.log("this.unreadcount is ", this.unreadCount);
-      console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
+      // console.log("this.unreadcount is ", this.unreadCount);
+      // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
       if(this.curChat.un_read_count != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
-        console.log("showchat this.unreadCount ", this.unreadCount)
+        // console.log("showchat this.unreadCount ", this.unreadCount)
+        if(this.unreadCount < 0) {
+          this.unreadCount = 0;
+        }
         ipcRenderer.send("updateUnreadCount", this.unreadCount);
         services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       }
       this.curChat = chatGroup;
       this.curindex = index;
       this.unreadCount = this.unreadCount - chatGroup.un_read_count;
-      console.log("showchat this.unreadCount ", this.unreadCount)
+      // console.log("showchat this.unreadCount ", this.unreadCount)
+      if(this.unreadCount < 0) {
+        this.unreadCount = 0;
+      }
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat.un_read_count = 0;
@@ -1118,7 +1131,7 @@ export default {
         if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
           this.dealedMsgSequenceId.push(msg.sequence_id);
         }
-        else if(await Message.ExistMessageBySequenceID(msg.sequence_id)) {
+        else if(msgExist) {
           console.log("return it ")
           return;
         }
@@ -1196,7 +1209,10 @@ export default {
             if(!this.groupIsSlience(groupInfo)) {
               this.showGroupList[i].un_read_count += 1;
               this.unreadCount += 1;
-              console.log("callback this.unreadCount ", this.unreadCount)
+              // console.log("callback this.unreadCount ", this.unreadCount)
+              if(this.unreadCount < 0) {
+                this.unreadCount = 0;
+              }
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
             }
           }
@@ -1286,7 +1302,10 @@ export default {
               let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
               this.showGroupList[i].un_read_count = distGroup.un_read_count;
               this.unreadCount += tmp;
-              console.log("callback this.unreadCount ", this.unreadCount)
+              // console.log("callback this.unreadCount ", this.unreadCount)
+              if(this.unreadCount < 0) {
+                this.unreadCount = 0;
+              }
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
               groupExist = true;
               this.needUpdate ++;
@@ -1328,11 +1347,14 @@ export default {
                   "sequence_id": msg.sequence_id,
                   "time_line_id": msg.time_line_id,
                 }
-                console.log("groupTmp is ", groupTmp);
+                // console.log("groupTmp is ", groupTmp);
                 this.showGroupList.unshift(groupTmp);
-                console.log("update show group list ", this.showGroupList);
+                // console.log("update show group list ", this.showGroupList);
                 this.mqttGroupVar.slice(i, 1);
                 this.unreadCount += this.mqttGroupVar[i].un_read_count;
+                if(this.unreadCount < 0) {
+                  this.unreadCount = 0;
+                }
                 ipcRenderer.send("updateUnreadCount", this.unreadCount);
                 break;
               }
@@ -1363,6 +1385,9 @@ export default {
             console.log("groupTmp is ", groupTmp);
             this.originalGroupList.unshift(groupTmp);
             this.unreadCount += groupInfo.un_read_count;
+            if(this.unreadCount < 0) {
+              this.unreadCount = 0;
+            }
             ipcRenderer.send("updateUnreadCount", this.unreadCount);
             console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
@@ -1387,7 +1412,9 @@ export default {
       //   }
       //   this.unreadCount += this.originalGroupList[i].un_read_count;
       // }
-      console.log("this.unreadCount ", this.unreadCount);
+      if(this.unreadCount < 0) {
+        this.unreadCount = 0;
+      }
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       setTimeout(() => {
           this.$nextTick(() => {
