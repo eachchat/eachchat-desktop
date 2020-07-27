@@ -982,7 +982,7 @@ export default {
                         var curPath = fileList[i].path;
                         var fileType = fileList[i].type;
                         var fileSize = fileList[i].size;
-                        var fileName = getFileNameInPath(fileList[i].path)
+                        var fileName = path.basename(fileList[i]);//getFileNameInPath(fileList[i].path)
                         if(fileType.split("/")[0] == "image"){
                             // Image
                             reader.readAsDataURL(fileList[i]);
@@ -1185,7 +1185,7 @@ export default {
                         var filePath = msgInfo.path;
                         var fileType = msgInfo.type;
                         if(fileType == "file"){
-                            let fileName = getFileNameInPath(filePath);
+                            let fileName = path.basename(filePath);//getFileNameInPath(filePath);
                             let ext = filePath.split(".").pop();
                             let fileSize = await getFileSizeNum(filePath);
                             console.log("=========filesize ", fileSize);
@@ -1230,7 +1230,7 @@ export default {
                                     var uploadRetData = ret.data.obj;
                                     let willSendMsgContent = {};
                                     willSendMsgContent.ext = uploadRetData.ext;
-                                    willSendMsgContent.fileName = uploadRetData.fileName;
+                                    willSendMsgContent.fileName = uploadRetData.fileName.indexOf('/') != -1 ? path.basename(uploadRetData.fileName) : uploadRetData.fileName;
                                     willSendMsgContent.url = uploadRetData.url;
                                     willSendMsgContent.fileSize = uploadRetData.fileSize;
 
@@ -1400,7 +1400,7 @@ export default {
                             let fileHeight = msgInfo.height;
                             let fileWidth = msgInfo.width;
                             let ext = filePath.split(".").pop();
-                            let fileName = getFileNameInPath(filePath);
+                            let fileName = path.basename(filePath);//getFileNameInPath(filePath);
                             let willShowMsgContent = JsonMsgContentToString({
                                 "ext":ext,
                                 "fileName":fileName,
@@ -1443,7 +1443,7 @@ export default {
                                     var uploadRetData = ret.data.obj;
                                     let willSendMsgContent = {};
                                     willSendMsgContent.ext = uploadRetData.ext;
-                                    willSendMsgContent.fileName = uploadRetData.fileName;
+                                    willSendMsgContent.fileName = uploadRetData.fileName.indexOf('/') != -1 ? path.basename(uploadRetData.fileName) : uploadRetData.fileName;;
                                     willSendMsgContent.url = uploadRetData.url;
                                     willSendMsgContent.middleImage = uploadRetData.middleImage;
                                     willSendMsgContent.thumbnailImage = uploadRetData.thumbnailImage;
