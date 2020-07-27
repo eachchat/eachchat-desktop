@@ -1,6 +1,6 @@
 <template>
     <div class="detailPage">
-        <div class="detailHeader">
+        <div class="detailHeader" v-if="showMessageContent">
             <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user-40px@2x.png">
             <div class="userInfo">
                 <p class="userName">{{ collectionInfo.collection_content.fromUserName }}</p>
@@ -30,6 +30,7 @@ export default {
             collectionInfo: {},
             showMessageContent: true,
             loginInfo:{},
+            
         }
     },
     methods:{
@@ -230,7 +231,7 @@ display: none;
     }
 }
 .detailContent{
-    height: calc(100% - 56px);
+    height: 100%;
     width: 100%;
     .messageContent{
         width: calc(100% - 40px);
