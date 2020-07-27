@@ -392,7 +392,8 @@ export default {
         //     return;
         // }
         this.menu = new Menu();
-        this.unreadCount -= groupItem.un_read_count;
+        this.unreadCount = this.unreadCount - groupItem.un_read_count;
+        console.lo("rightClick ", this.unReadCount);
         ipcRenderer.send("updateUnreadCount", this.unreadCount);
         if(groupItem.un_read_count != 0) {
           this.menu.append(new MenuItem({
@@ -479,7 +480,8 @@ export default {
     clesrUnread(groupItem) {
       this.isEmpty = false;
       services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
-      this.unreadCount -= groupItem.un_read_count;
+      this.unreadCount = this.unReadCount - groupItem.un_read_count;
+      console.log("clesrUnread ", this.unReadCount);
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       groupItem.un_read_count = 0;
     },
@@ -514,8 +516,12 @@ export default {
       var containUids = groupInfo.contain_user_ids;
       var containUidsList = containUids.split(",");
       var distUid = "";
+      if(groupInfo.group_name == "微信") {
+        console.log("containUidsList ", containUidsList);
+        console.log("this.curUserInfo.id ", this.curUserInfo.id);
+      }
       for(let i=0;i<containUidsList.length;i++) {
-        if(containUidsList[i] != this.curUserInfo.id) {
+        if(containUidsList[i] != this.curUserInfo.id && containUidsList[i].length != 0) {
           distUid = containUidsList[i];
         }
       }
@@ -525,15 +531,15 @@ export default {
       setTimeout(async () => {
         console.log("=======================showGroupIcon", this)
         for(var i=0;i<this.showGroupList.length;i++) {
-          if(this.showGroupList[i].group_name == "武汉测试") {
+          if(this.showGroupList[i].group_name == "微信") {
             console.log("this.showGroupList[i] is ", this.showGroupList[i]);
           }
           var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
           let elementImg = document.getElementById(distId);
           // console.log("elementImg src is ", elementImg.src)
           var targetPath = "";
-          if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0 || this.showGroupList[i].group_type == 102) {
-            if(this.showGroupList[i].user_id.length == 0) {
+          if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
+            if(this.showGroupList[i].user_id != undefined && this.showGroupList[i].user_id.length == 0) {
               this.showGroupList[i].user_id = this.getUidFromUids(this.showGroupList[i]);
             }
             var distUserInfo = await UserInfo.GetUserInfo(this.showGroupList[i].user_id);
@@ -541,7 +547,7 @@ export default {
             if(distUserInfo != undefined) {
               if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, this.showGroupList[i].user_id))){
                   elementImg.setAttribute("src", targetPath);
-                  if(this.showGroupList[i].group_name == "武汉测试") {
+                  if(this.showGroupList[i].group_name == "微信") {
                     console.log("showGroupIcon targetPath is ", targetPath);
                   }
               }
@@ -1057,12 +1063,16 @@ export default {
     },
     showChat: function(chatGroup, index) {
       this.isEmpty = false;
-      this.unreadCount -= this.curChat.un_read_count;
+      console.log("this.unreadcount is ", this.unreadCount);
+      console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
+      this.unreadCount = this.unreadCount - chatGroup.un_read_count;
+      console.log("showchat this.unreadCount ", this.unreadCount)
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat = chatGroup;
       this.curindex = index;
-      this.unreadCount -= this.curChat.un_read_count;
+      this.unreadCount = this.unreadCount - chatGroup.un_read_count;
+      console.log("showchat this.unreadCount ", this.unreadCount)
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
       this.curChat.un_read_count = 0;
@@ -1075,7 +1085,7 @@ export default {
             continue;
           }
           this.originalGroupList.push(ret[i]);
-          this.unreadCount += ret[i].un_read_count;
+          this.unreadCount = this.unreadCount + ret[i].un_read_count;
         }
         // this.originalGroupList = ret;
         console.log("length is ", ret)
@@ -1135,6 +1145,9 @@ export default {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
           this.amr.play();
         }
+        else {
+          ipcRenderer.send("showNotice", fromName, notificateContent);
+        }
       }
       var groupExist = false;
       for(let i=0;i<this.showGroupList.length;i++) {
@@ -1181,6 +1194,7 @@ export default {
             if(!this.groupIsSlience(groupInfo)) {
               this.showGroupList[i].un_read_count += 1;
               this.unreadCount += 1;
+              console.log("callback this.unreadCount ", this.unreadCount)
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
             }
           }
@@ -1270,6 +1284,7 @@ export default {
               let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
               this.showGroupList[i].un_read_count = distGroup.un_read_count;
               this.unreadCount += tmp;
+              console.log("callback this.unreadCount ", this.unreadCount)
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
               groupExist = true;
               this.needUpdate ++;

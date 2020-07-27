@@ -1051,9 +1051,9 @@ export default {
                         var showfu = new FileUtil(fileList[i]);
                         var showfileObj = showfu.GetUploadfileobj();
                         var imgurl = URL.createObjectURL(showfileObj)
-                        var fileType = showfu.GetMimename();
+                        var fileType = path.extname(fileList[i]);//showfu.GetMimename();
                         var fileExt = showfu.GetExtname();
-                        var fileName = showfu.GetFilename()
+                        var fileName = path.basename(fileList[i]);//showfu.GetFilename()
 
                         if(fileType.split("/")[0] == "image"){
                             // Image

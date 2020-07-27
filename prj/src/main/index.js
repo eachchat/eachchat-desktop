@@ -135,8 +135,9 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 // }
 
 ipcMain.on("updateUnreadCount", function(event, arg) {
-  if(process.platform == 'darwin'){
-    app.dock.setBadge(arg);
+  console.log("==========arg ", arg);
+  if(process.platform == 'darwin' && arg != null){
+    app.dock.setBadge(arg.toString());
   }
 })
 
@@ -146,6 +147,7 @@ ipcMain.on("token-expired", function(event, arg) {
     hostname: '139.198.15.253',
     apiPort: 8888,
   };
+  app.dock.setBadge("0");
   services.common.init();
   services.common.logout();
   Menu.setApplicationMenu(null)
@@ -380,6 +382,32 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
   reportRelationWindow.show();
   openDevToolsInDevelopment(reportRelationWindow);
 });
+
+ipcMain.on("showNotice", (event, title, contnet) => {
+  console.log("title ",title)
+  console.log("contnet ",contnet)
+  if(process.platform == 'darwin'){
+    if(!mainPageWindow.isFocused()) {
+      if(notification != null) {
+        notification.close();
+      }
+      notification = new Notification({
+        title: title,
+        body: contnet,
+        icon: path.join(__dirname, notificationIco),
+        sound: path.join(__dirname, soundPath)
+      })
+      notification.show();
+      setTimeout(() => {
+        notification.close();
+      }, 2000)
+      notification.on("click", () => {
+        mainPageWindow.show();
+      })
+    }
+  }
+
+})
 // 闪烁任务栏
 ipcMain.on("flashIcon", (event, title, contnet) => {
   console.log("title ",title)
