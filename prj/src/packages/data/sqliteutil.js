@@ -277,6 +277,15 @@ const UserInfo = {
         return userinfos;
     },
 
+    async GetSubUserinfoByPage(departmentID, perPage, page){
+        let userinfos = await(await models.UserInfo).find({
+            belong_to_department_id: departmentID,
+            $offset: perPage * page,
+            $size: perPage,
+        })
+        return userinfos;
+    },
+
     async GetUserInfo(userID){
         let userinfos = await(await models.UserInfo).find({
             user_id: userID
