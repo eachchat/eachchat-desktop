@@ -1705,16 +1705,16 @@ const common = {
   async gmsConfiguration(domainBase64){
     models.init();
     let value = Base64.encode(domainBase64, true);
-    let response = await axios.get("https://gms.eachchat.net/api/services/gms/v1/configuration/" + value)
+    let response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/configuration/" + value)
     if (response.status != 200 
       || response.data == undefined
       || response.data.obj == undefined) {
       return false;
     }
     
-    let entry = response.data.obj.entry;
-    let mqtt = response.data.obj.mqtt;
-    let identities = response.data.obj.identities;
+    let entry = JSON.parse(response.data.obj.entry);
+    let mqtt = JSON.parse(response.data.obj.mqtt);
+    let identities = JSON.parse(response.data.obj.identities);
     if(entry.tls == true)
       entry.tls = 1
     else
