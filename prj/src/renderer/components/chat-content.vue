@@ -1111,12 +1111,12 @@ export default {
       console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
       if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
-        var msgExist = await Message.FindMessageBySequenceID(msg.sequence_id);
+        var msgExist = await Message.ExistMessageBySequenceID(msg.sequence_id);
         console.log("msg exist is ", msgExist);
         if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
           this.dealedMsgSequenceId.push(msg.sequence_id);
         }
-        else if(await Message.FindMessageBySequenceID(msg.sequence_id)) {
+        else if(await Message.ExistMessageBySequenceID(msg.sequence_id)) {
           console.log("return it ")
           return;
         }
