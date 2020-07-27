@@ -84,8 +84,10 @@ export default {
             if(fileList === null || fileList.length === 0) {
                 alert("请选择一个图片文件");
             }
-            this.showImageCropper = true;
+            //this.showImageCropper = true;
             this.selectImageSource = fileList[0];
+            await services.common.UpdateUserAvatar(fileList[0]);
+            
         },
         stateListArrowClicked(){
             if(this.showStateList){
