@@ -171,7 +171,7 @@ export default {
             if(this.GroupInfo.group_id == undefined) {
                 return;
             }
-            
+            this.memberIdList = [];
             this.memberIdList = this.GroupInfo.contain_user_ids.split(",");
             console.log("this member list is ", this.memberIdList);
             
@@ -202,6 +202,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    ::-webkit-scrollbar {
+        width: 7px;
+        height: 12px;
+        display: none;
+    }
+
     .OwnerTransferLayers {
         height: 100%;
         width: 100%;
@@ -300,7 +306,7 @@ export default {
         padding: 0;
         display: block;
         list-style: none;
-        overflow-y: hidden;
+        overflow-y: scroll;
         overflow-x: hidden;
     }
 

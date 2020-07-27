@@ -1070,7 +1070,14 @@ export default {
     getGroupList: async function(updateCurPage=false) {
         var ret = await services.common.GetAllGroups()
         console.log("sql getGroupList is ", ret)
-        this.originalGroupList = ret;
+        for(let i=0;i<ret.length;i++) {
+          if(ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0){
+            continue;
+          }
+          this.originalGroupList.push(ret[i]);
+          this.unreadCount += ret[i].un_read_count;
+        }
+        // this.originalGroupList = ret;
         console.log("length is ", ret)
         // if(updateCurPage){
         //   let chatGroupVar = [];
@@ -1357,12 +1364,12 @@ export default {
       // When Mounting Can Not Get The Element. Here Need SetTimeout
       await this.getGroupList(false);
       console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
-      for(let i=0;i<this.originalGroupList.length;i++) {
-        if(this.originalGroupList[i].group_name == "武汉测试") {
-          console.log("this.originalkjflkajlsdjfl;j  ", this.originalGroupList[i]);
-        }
-        this.unreadCount += this.originalGroupList[i].un_read_count;
-      }
+      // for(let i=0;i<this.originalGroupList.length;i++) {
+      //   if(this.originalGroupList[i].group_name == "武汉测试") {
+      //     console.log("this.originalkjflkajlsdjfl;j  ", this.originalGroupList[i]);
+      //   }
+      //   this.unreadCount += this.originalGroupList[i].un_read_count;
+      // }
       console.log("this.unreadCount ", this.unreadCount);
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       setTimeout(() => {
