@@ -329,7 +329,10 @@ export default {
         var _this = this;
         document.addEventListener('click',function(e){
             if(e.target.className.indexOf('personalCenter') == -1){
-                _this.showPersonalCenter = false;
+                if(e.target.className.indexOf('cropper') == -1){
+                    _this.showPersonalCenter = false;
+                }
+
             }
         });
     },
