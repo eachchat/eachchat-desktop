@@ -205,13 +205,13 @@ display: none;
 }
 
 .item-icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     display: inline-block;
-    margin-left: 24px;
-    margin-top: 18px;
+    margin-left: 16px;
+    margin-top: 14px;
     margin-right: 0px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     border-radius: 4px;
 }
 .item-info {
@@ -255,6 +255,8 @@ display: none;
     .el-aside {
         width: 150px;
         overflow: hidden;
+        margin-top: -1px;
+        margin-left: -1px;
         border-right: 1px solid rgb(221, 221, 221);
     }
     .right-container {

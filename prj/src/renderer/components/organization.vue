@@ -342,7 +342,9 @@ display: none;
     margin: 0px 0px 0px 0px;
     display: block;
 }
-
+.organization-view{
+    margin-top: -13px;
+}
 .departments-list {
     width: 100%;
     height: 100%;
