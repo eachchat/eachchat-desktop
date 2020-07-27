@@ -1712,9 +1712,9 @@ const common = {
       return false;
     }
     
-    let entry = JSON.parse(response.data.obj.entry);
-    let mqtt = JSON.parse(response.data.obj.mqtt);
-    let identities = JSON.parse(response.data.obj.identities);
+    let entry = response.data.obj.entry;
+    let mqtt = response.data.obj.mqtt;
+    let identities = response.data.obj.identities;
     if(entry.tls == true)
       entry.tls = 1
     else
