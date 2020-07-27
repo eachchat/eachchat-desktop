@@ -1065,10 +1065,12 @@ export default {
       this.isEmpty = false;
       console.log("this.unreadcount is ", this.unreadCount);
       console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
-      this.unreadCount = this.unreadCount - chatGroup.un_read_count;
-      console.log("showchat this.unreadCount ", this.unreadCount)
-      ipcRenderer.send("updateUnreadCount", this.unreadCount);
-      services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
+      if(this.curChat.un_read_count != undefined) {
+        this.unreadCount = this.unreadCount - this.curChat.un_read_count;
+        console.log("showchat this.unreadCount ", this.unreadCount)
+        ipcRenderer.send("updateUnreadCount", this.unreadCount);
+        services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
+      }
       this.curChat = chatGroup;
       this.curindex = index;
       this.unreadCount = this.unreadCount - chatGroup.un_read_count;

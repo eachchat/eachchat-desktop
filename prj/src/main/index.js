@@ -26,6 +26,7 @@ let notificationIco
 let notification = null
 var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
+let isLogin = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
@@ -77,7 +78,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     webPreferences: {webSecurity:false},
     frame:false
   })
-
+  isLogin = true;
   const mainPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
@@ -147,7 +148,7 @@ ipcMain.on("token-expired", function(event, arg) {
     hostname: '139.198.15.253',
     apiPort: 8888,
   };
-  app.dock.setBadge("0");
+  app.dock.setBadge("");
   services.common.init();
   services.common.logout();
   Menu.setApplicationMenu(null)
@@ -174,6 +175,7 @@ ipcMain.on("token-expired", function(event, arg) {
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            
   });
+  isLogin = false;
 })
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
@@ -197,10 +199,11 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   appIcon.destroy();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
-  
+  isLogin = false;
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            
   });
+  app.dock.setBadge("");
 });
 
 ipcMain.on('setAutoRun', function(event, isAutoRun) {
@@ -941,8 +944,16 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow()
+  if(isLogin) {
+    mainPageWindow.show();
+  }
+  else {
+    if (mainWindow === null) {
+      createWindow()
+    }
+    else {
+      mainWindow.show();
+    }
   }
 })
 
