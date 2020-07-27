@@ -14,7 +14,7 @@ export default {
             message: '',
             show: false,
             type: '',
-            imageSrc: '../../../static/Img/Login/toastSuccess@2x.png',
+            imageSrc: '',
             
             boxStyle:{},
         }
@@ -28,10 +28,10 @@ export default {
             // this.boxStyle.top = position.top.toString() + "px";
             // this.boxStyle.left = position.left.toString() + "px";
             if (this.type == 'error'){
-            this.imageSrc = '../../../static/Img/Login/toastError@2x.png';
+            this.imageSrc = require('../../../static/Img/Login/toastError@2x.png');
             }
             if (this.type == 'success'){
-            this.imageSrc = '../../../static/Img/Login/toastSuccess@2x.png';
+            this.imageSrc = require('../../../static/Img/Login/toastSuccess@2x.png');
             }
         }
     },
