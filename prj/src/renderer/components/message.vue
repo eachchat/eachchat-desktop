@@ -1,11 +1,11 @@
 <template>
     <div class="message" :id="getMessageTemplateId()">
-        <div class="chat-msg-body">
+        <div class="chat-msg-body" :key="updateStatus">
             <div class="msg-info-mine" v-if="MsgIsMine()">
                 <div class="msgState" v-if="MsgIsSending()">
                     <i class="el-icon-loading"></i>
                 </div>
-                <div class="msgState" v-else-if="MsgIsFailed()">
+                <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
                     <i class="el-icon-warning"></i>
                 </div>
                 <div class="msgState" v-else>
@@ -104,8 +104,11 @@ import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sli
 export default {
     components: {
     },
-    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser'],
+    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus'],
     methods: {
+        sendAgain: function() {
+            this.$emit("sendAgain", this.msg);
+        },
         getMessageTemplateId: function() {
             return "message-template-" + this.msg.message_id;
         },
@@ -207,8 +210,20 @@ export default {
             }
         },
         MsgIsFailed: function() {
+            if(this.msg.message_status == 2) {
+                return true;
+            }
+            else {
+                return false;
+            }
         },
         MsgIsSending: function() {
+            if(this.msg.message_status == 1) {
+                return true;
+            }
+            else {
+                return false;
+            }
         },
         getFileIconThroughExt: function(ext) {
             var iconPath = getIconPath(ext);
@@ -580,6 +595,7 @@ export default {
     },
     data() {
         return {
+            updateStatus: false,
             messageContent: '',
             transmitMsgContent: '',
             transmitMsgTitle: '',
@@ -731,6 +747,12 @@ export default {
                 }
             }
         },
+        updateMsgStatus: function() {
+            // console.log("updateMsgstatus ", this.updateMsgStatus);
+            if(this.updateMsgStatus.id == this.msg.message_id) {
+                this.updateStatus = !this.updateStatus;
+            }
+        }
     }
 }
 </script>
@@ -778,12 +800,14 @@ export default {
         display: inline-block;
         margin: 0px 10px 5px 10px;
         width: calc(100% - 95px);
+        vertical-align: top;
     }
 
     .msgState {
         display: inline-block;
         width: 20px;
         height: 20px;
+        margin-top: 10px;
     }
 
     .msg-info-username-mine {
@@ -791,7 +815,6 @@ export default {
         font-size: 10px;
         color: rgb(153, 153, 153);
         text-align: right;
-        
     }
 
     .msg-info-username-others {
