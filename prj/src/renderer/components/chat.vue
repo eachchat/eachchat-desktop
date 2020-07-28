@@ -26,7 +26,8 @@
                     </li>
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)"
-                        @contextmenu="rightClick($event, item)">
+                        @contextmenu="rightClick($event, item)"
+                        v-bind:key="ChatMessageId(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
@@ -1801,6 +1802,9 @@ export default {
                 return "message-left";
             }
         },
+        ChatMessageId: function (curMsg) {
+            return "message-" + curMsg.message_id;
+        },
         msgSelectOrNotClassName: function(curMsg) {
             //class="msgContent"
             var hasSelected = false;
@@ -1899,7 +1903,7 @@ export default {
                         let lastSequenceId = this.messageList[0].sequence_id;
                         services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
-                                if(messageListTmp[0].group_id != this.chat.group_id) {
+                                if(ret[0].group_id != this.chat.group_id) {
                                     this.isRefreshing = false;
                                     return;
                                 }
