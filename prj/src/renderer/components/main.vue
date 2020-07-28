@@ -157,8 +157,8 @@ export default {
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
             if(this.$store.getters.isFirstLogin()) {
-                services.common.AllUserinfo();
                 services.common.AllDepartmentInfo();
+                services.common.AllUserinfo();
             }
             else {
                 services.common.InitDbData();
