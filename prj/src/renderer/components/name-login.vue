@@ -369,7 +369,8 @@ export default {
                 }
                 //这段代码可以用IPC放到主线程
                 //ipcRenderer.send("notFirstLogin")
-                await services.common.InitDbData();
+                this.$store.commit("setIsFirstLogin", false);
+                // await services.common.InitDbData();
                 // const ipcRenderer = require('electron').ipcRenderer;
                 ipcRenderer.send('showMainPageWindow', false);
             })
