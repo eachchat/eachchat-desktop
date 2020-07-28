@@ -1731,6 +1731,17 @@ const common = {
     return identities;
   },
 
+  async gmsGetUser(key){
+    let value = Base64.encode(key, true);
+    let response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/domain/user/" + value)
+    if (response.status != 200 
+      || response.data == undefined
+      || response.data.obj == undefined) {
+      return false;
+    }
+    return true;
+  },
+
   async testfunction(){
     await this.gmsConfiguration("dev.eachchat.net");
   }
