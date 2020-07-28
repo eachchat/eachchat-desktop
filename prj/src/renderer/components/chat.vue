@@ -1209,6 +1209,7 @@ export default {
                                 "file_local_path": filePath
                                 };
                             this.messageList.push(willSendMsg);
+                            this.needToBottom = true;
                             console.log("willsendmsg is ", willSendMsg);
                             this.existingMsgId.push(willSendMsg.message_id);
 
@@ -1331,6 +1332,7 @@ export default {
                                 "message_id": guid,
                                 };
                             this.messageList.push(willSendMsg);
+                            this.needToBottom = true;
                             this.existingMsgId.push(willSendMsg.message_id);
                             
                             let div = document.getElementById("message-show-list");
@@ -1423,6 +1425,7 @@ export default {
                                 "file_local_path": filePath
                                 };
                             this.messageList.push(willSendMsg);
+                            this.needToBottom = true;
                             this.existingMsgId.push(willSendMsg.message_id);
 
                             let div = document.getElementById("message-show-list");
@@ -1523,16 +1526,16 @@ export default {
                         // next is @
                         var curindex = i;
                         for(let j=curindex+1;j<varcontent.ops.length;j++) {
-                            console.log("====== cur i ", i)
-                            console.log("====== varcontent j ", j)
+                            // console.log("====== cur i ", i)
+                            // console.log("====== varcontent j ", j)
                             let nextMsgItem = varcontent.ops[j].insert;
-                            console.log("====== nextMsgItem ", nextMsgItem)
+                            // console.log("====== nextMsgItem ", nextMsgItem)
                             if(nextMsgItem.hasOwnProperty("span")) {
-                                console.log("====== nextMsgItem hasOwnProperty ")
+                                // console.log("====== nextMsgItem hasOwnProperty ")
                                 var nextFileSpan = nextMsgItem.span;
                                 var nextPathId = nextFileSpan.id;
                                 var nextMsgInfo = this.idToPath[nextPathId];
-                                console.log("this.idToPath is ", this.idToPath)
+                                // console.log("this.idToPath is ", this.idToPath)
                                 var nextFilePath = nextMsgInfo.path;
                                 var nextFileType = nextMsgInfo.type;
                                 if(nextFileType == "at") {
@@ -1562,6 +1565,7 @@ export default {
                             };
 
                         this.messageList.push(willSendMsg);
+                        this.needToBottom = true;
                         this.existingMsgId.push(willSendMsg.message_id);
                         
                         let div = document.getElementById("message-show-list");
@@ -1989,6 +1993,10 @@ export default {
                     if(ret == undefined) {
                         this.needScroll = false;
                         this.messageList = [];
+                        this.isRefreshing = false;
+                        return;
+                    }
+                    if(ret[0].group_id != this.chat.group_id) {
                         this.isRefreshing = false;
                         return;
                     }
