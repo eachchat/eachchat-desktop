@@ -67,9 +67,6 @@ const winURL = process.env.NODE_ENV === 'development'
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
   mainPageWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
     minHeight:600,
     minWidth:960,
     height: 600,
@@ -118,22 +115,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   });
 
   // setAutoRun(true);
-  // initServicesData(arg);
 });
-
-// function checkTrayLeave(){
-//   clearInterval(leaveInter)
-//   leaveInter = setInterval(function(){
-//       trayBounds = appIcon.getBounds();
-//       console.log("111111111111111111111");
-//       point = screen.getCursorScreenPoint();
-//       if(!(trayBounds.x < point.x && trayBounds.y < point.y && point.x < (trayBounds.x + trayBounds.width) && point.y < (trayBounds.y  + trayBounds.height))){
-//           //触发mouse-leave
-//           clearInterval(leaveInter);
-//           isLeave = true;
-//       }
-//   }, 100)
-// }
 
 ipcMain.on("updateUnreadCount", function(event, arg) {
   console.log("==========arg ", arg);
@@ -160,6 +142,7 @@ ipcMain.on("token-expired", function(event, arg) {
   services.common.logout();
   // services.common.closemqtt();
   Menu.setApplicationMenu(null)
+  queue.destory();
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,//添加这个即可
@@ -168,7 +151,7 @@ ipcMain.on("token-expired", function(event, arg) {
     useContentSize: true,
     width: 360,
     frame: false,
-    resizable: false,
+    resizable: resizableValue,
     /**
      * Across Domains Problem
      */
@@ -196,7 +179,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     useContentSize: true,
     width: 360,
     frame: false,
-    resizable: false,
+    resizable: resizableValue,
     /**
      * Across Domains Problem
      */
@@ -208,6 +191,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
   isLogin = false;
+  queue.destory();
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            
   });
@@ -222,48 +206,6 @@ ipcMain.on('setAutoRun', function(event, isAutoRun) {
     openAsHidden: isAutoRun,
   })
 });
-
-// ipcMain.on('MainPageWindowInitData', function(event, arg) {
-//   console.log("===================MainPageWindowInitData");
-//   initServicesData(true);
-// })
-
-async function initServicesData(isFirstLogin) {
-  console.log("================ ", isFirstLogin);
-  if(isFirstLogin == true) {
-    let config = {
-      hostname: '139.198.15.253',
-      apiPort: 8888,
-    };
-    services.common.init();
-
-    try {
-      var loginret = await services.common.GetLoginModel();
-      console.log("================ GetLoginModel", loginret);
-      var userret = await services.common.GetSelfUserModel();
-      console.log("================ GetLoginModel", userret);
-      services.common.InitServiceData();
-    }
-    catch(error) {
-      console.log("===================== ", error);
-    }
-  }
-  else {
-    console.log("=========================")
-    let config = {
-      hostname: '139.198.15.253',
-      apiPort: 8888,
-    };
-    services.common.init();
-    try {
-      console.log("================start to init service data ");
-      await services.common.InitDbData();
-    }
-    catch(error) {
-      console.log("===================== ", error);
-    }
-  }
-}
 
 ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   var title = "";
@@ -288,7 +230,7 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     },
     height: 508,
     //useContentSize: true,
-    // resizable: false,
+    resizable: resizableValue,
     width:615,
     webPreferences: {webSecurity:false},
     frame:true,
@@ -345,7 +287,7 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
         nodeIntegration: true,//添加这个即可
       },
     height: 468,
-    resizable: false,
+    resizable: resizableValue,
     width:600,
     webPreferences: {webSecurity:false},
     //frame:false,
@@ -378,7 +320,7 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
       nodeIntegration: true,//添加这个即可
     },
     height: 340,
-    resizable: false,
+    resizable: resizableValue,
     width: 520,
     webPreferences: {webSecurity:false},
     //frame:false,

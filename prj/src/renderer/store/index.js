@@ -28,8 +28,12 @@ export default new Vuex.Store({
     Services: null,
     msgIpcInited: false,
     showGroupList: [],
+    isFirstLogin: false,
   },
   mutations: {
+    setIsFirstLogin(state, isFirstLogin) {
+      state.isFirstLogin = isFirstLogin;
+    },
     setShowGroupList(state, showList) {
       console.log("set list is ", showList);
       state.showGroupList = showList;
@@ -192,6 +196,9 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    isFirstLogin: state=> () => {
+      return state.isFirstLogin;
+    },
     getGroupList: state=> () => {
       var tmp = state.showGroupList.slice();
       return tmp;

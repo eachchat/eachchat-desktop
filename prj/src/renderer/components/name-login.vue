@@ -322,14 +322,16 @@ export default {
                 if(oldLoginModel != undefined && oldLoginModel.user_id == newLoginModel.user_id)
                 {
                     this.loadingProcess = "正在加载信息";
-                    await services.common.InitDbData();
+                    this.$store.commit("setIsFirstLogin", false);
+                    // await services.common.InitDbData();
                 }
                 else
                 {
-                    this.loadingProcess = "正在加载用户信息";
-                    await services.common.AllUserinfo();
-                    this.loadingProcess = "正在加载组织信息";
-                    await services.common.AllDepartmentInfo();
+                    // this.loadingProcess = "正在加载用户信息";
+                    // await services.common.AllUserinfo();
+                    // this.loadingProcess = "正在加载组织信息";
+                    // await services.common.AllDepartmentInfo();
+                    this.$store.commit("setIsFirstLogin", true);
                     this.loadingProcess = "正在加载群组信息";
                     await services.common.listAllGroup();
                 }              
