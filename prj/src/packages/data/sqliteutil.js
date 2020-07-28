@@ -452,6 +452,17 @@ const Message = {
             return;
         console.log(msgs);
         return msgs[0].message_timestamp;
+    },
+
+    async SetMessageStatus(msgID, status){
+        let msgs = this.FindMessageByMesssageID(msgID);
+        if(msgs.length == 0)
+            return false;
+        else{
+            msgs[0].message_status = status;
+            msgs[0].save();
+        }
+        return true;
     }
 }
 
