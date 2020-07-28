@@ -22,6 +22,7 @@
                     :autoCropHeight="option.autoCropHeight"
                     :fixedBox="option.fixedBox"
                     :infoTrue="option.infoTrue"
+                    :mode="option.mode"
                     @imgLoad="imgLoad"
                 ></vueCropper>
                 <div class="cropper-action">
@@ -64,7 +65,8 @@ export default {
                 autoCropWidth: 240, 
                 autoCropHeight: 240, 
                 fixedBox: true, // 截图框固定大小
-                infoTrue: true
+                infoTrue: true,
+                mode:"100% auto"
             }, 
             fileName:'',  // 本机文件地址
             scaleNumber:0,
@@ -80,6 +82,9 @@ export default {
                 return '';
             }
         }
+    },
+    created:{
+
     },
     mounted:function(){
         var showfu = new FileUtil(this.imageSource);
@@ -102,11 +107,11 @@ export default {
         },
       // 放大/缩小
         changeScale(num) { 
-            // if((this.scaleNumber + num) < 0){
-            //     return;
-            // }
-            // this.scaleNumber += num;
-            // num = num || 1; 
+            if((this.scaleNumber + num) < 0){
+                return;
+            }
+            this.scaleNumber += num;
+            num = num || 1; 
             this.$refs.cropper.changeScale(num); 
         }, 
         cropperConfirmButtonClicked:async function(){
@@ -126,6 +131,16 @@ export default {
         rotateRight() { 
             this.$refs.cropper.rotateRight(); 
         }, 
+        getScaleNumber(width, height){
+            var max = height;
+            var min = width;
+            if(width >= height){
+                max = width;
+                min = height;
+            }
+            var p = 20 / max;
+            return (240 - min)/(min*p);
+        },
         imgLoad (msg) { 
             var showfu = new FileUtil(this.imageSource);
             let showfileObj = showfu.GetUploadfileobj();
@@ -135,16 +150,7 @@ export default {
                 this.option.img = evt.target.result;
                 image.src = evt.target.result;
                 console.log(image.width);
-                if(image.width >= image.height ){
-                    var cha = 240 - image.height;
-                    var result = cha / (40/3);
-                    this.$refs.cropper.changeScale(result);
-                } else{
-                    var cha = 240 - image.width;
-                    var result = cha / (40/3);
-                    this.$refs.cropper.changeScale(result);
-                    //this.$refs.cropper.changeScale((image.width/240 -1)*(-14));
-                }
+                this.$refs.cropper.changeScale(this.getScaleNumber(image.width, image.height)); 
             }
             reader.readAsDataURL(showfileObj);
         }
@@ -163,8 +169,8 @@ export default {
             position: absolute;
             width: 380px;
             height: 440px;
-            top: 10%;
-            left: 10%;
+            top: calc(50% - 220px);
+            left: calc(50% - 190px);
             background:rgba(255,255,255,1);
             box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
             border-radius:4px;
