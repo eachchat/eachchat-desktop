@@ -455,7 +455,7 @@ const Message = {
     },
 
     async SetMessageStatus(msgID, status){
-        let msgs = this.FindMessageByMesssageID(msgID);
+        let msgs = await this.FindMessageByMesssageID(msgID);
         if(msgs.length == 0)
             return false;
         else{
