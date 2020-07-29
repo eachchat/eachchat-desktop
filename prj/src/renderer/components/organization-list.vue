@@ -918,9 +918,10 @@ display: none;
 }
 .department-name {
     text-align: left;
-    height: 40%;
+    height: 20px;
     width: 70%;
     margin-top: 20px;
+    margin-bottom: 20px;
     margin-left: 12px;
     font-size: 14px;
     line-height: 20px;
@@ -934,7 +935,8 @@ display: none;
 }
 .right-arrow {
     margin-left: 6.5px;
-    margin-top: 25.5px;
+    margin-top: 23.5px;
+    margin-bottom: 23.5px;
     margin-right: 0px;
     margin-bottom: 0px;
     width: 7px;

@@ -35,8 +35,7 @@
                         v-for="(department, index) in departments"
                         @click="departmentMenuItemClicked(department)" 
                         :key="index">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png">
-                        <div class="department-info">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png"><div class="department-info">
                             <p class="department-name">{{ department.display_name }}</p>
                         </div>
                         <div align="center" class="item-arrow">
@@ -375,13 +374,14 @@ display: none;
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 92px);
+    width: calc(100% - 99px);
 }
 .department-name {
     text-align: left;
-    height: 40%;
-    width: 70%;
+    height: 20px;
+    width: 168px;
     margin-top: 20px;
+    margin-bottom: 20px;
     margin-left: 12px;
     font-size: 14px;
     line-height: 20px;
@@ -395,9 +395,9 @@ display: none;
 }
 .right-arrow {
     margin-left: 6.5px;
-    margin-top: 25.5px;
+    margin-top: 23.5px;
     margin-right: 0px;
-    margin-bottom: 0px;
+    margin-bottom: 23.5px;
     width: 7px;
     height: 13px;
 }
