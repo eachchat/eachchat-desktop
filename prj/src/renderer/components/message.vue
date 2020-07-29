@@ -328,7 +328,7 @@ export default {
             this.transmitMsgContent = '';
             let chatGroupMsgType = this.msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
@@ -828,6 +828,7 @@ export default {
         background-color: rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
+        min-height: 18px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -843,6 +844,7 @@ export default {
         background-color: rgb(233,234,235);
         max-width: 260px;
         min-width: 20px;
+        min-height: 18px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -887,6 +889,7 @@ export default {
         float: left;
         background-color: rgba(1,1,1,0);
         min-width: 104px;
+        min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
@@ -900,6 +903,7 @@ export default {
         background-color: rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
+        min-height: 40px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -914,6 +918,7 @@ export default {
         background-color: rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
+        min-height: 12px;
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
@@ -928,6 +933,7 @@ export default {
         background-color: rgb(233,234,235);
         max-width: 260px;
         min-width: 20px;
+        min-height: 40px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -991,6 +997,7 @@ export default {
         background-color: rgba(233, 247, 240, 1);
         max-width: 260px;
         min-width: 20px;
+        min-height: 18px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -1006,6 +1013,7 @@ export default {
         background-color: rgb(209,232,221);
         max-width: 260px;
         min-width: 20px;
+        min-height: 18px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -1050,6 +1058,7 @@ export default {
         float: right;
         background-color: rgba(1,1,1,0);
         min-width: 104px;
+        min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
@@ -1063,6 +1072,7 @@ export default {
         background-color: rgba(233, 247, 240, 1);
         max-width: 260px;
         min-width: 20px;
+        min-height: 40px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -1077,6 +1087,7 @@ export default {
         background-color: rgb(220,244,233);
         max-width: 260px;
         min-width: 20px;
+        min-height: 40px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -1091,6 +1102,7 @@ export default {
         background-color: rgba(233, 247, 240, 1);
         max-width: 260px;
         min-width: 20px;
+        min-height: 12px;
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
