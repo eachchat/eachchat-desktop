@@ -603,7 +603,7 @@ class APITransaction {
       formData,
       {
         Authorization: "Bearer " + accessToken,
-        "Content-Type": fu.GetMimename()
+        "Content-Type": fileMime
       },
       {
         timeout: 15000

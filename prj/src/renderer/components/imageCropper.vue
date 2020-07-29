@@ -40,10 +40,12 @@
 </div>
 </template>
 <script>
-import * as path from 'path';
-import {FileUtil} from '../../packages/core/Utils.js';
+import * as path from 'path'
+import * as fs from 'fs-extra'
+import {FileUtil, fileMIMEFromType} from '../../packages/core/Utils.js';
 import {services} from '../../packages/data/index.js';
 import { read } from 'fs'
+import confservice from '../../packages/data/conf_service.js'
 export default {
     name: 'cropper',
     data() {
@@ -81,6 +83,10 @@ export default {
             default:function(){
                 return '';
             }
+        },
+        groupId: {
+            type: String,
+            default: '',
         }
     },
     created:{
@@ -115,13 +121,30 @@ export default {
             this.$refs.cropper.changeScale(num); 
         }, 
         cropperConfirmButtonClicked:async function(){
-            var _this = this;
-            this.$refs.cropper.getCropBlob((data) => { 
-                services.common.UpdateUserAvatarByData(data,this.imageSource,'image/png');
-                _this.closeDialog();
-                _this.$toastMessage({message:'头像修改成功', time:2000, type:'success'});
-                
-            });
+            if(this.groupId.length != 0) {
+                var targetDir = confservice.getUserThumbHeadPath();
+                var targetPath = path.join(targetDir, this.groupId + '.png');
+                if(fs.existsSync(targetPath)) {
+                    fs.unlinkSync(targetPath);
+                }
+
+                var _this = this;
+                this.$refs.cropper.getCropBlob((data) => { 
+                    services.common.UpdateGroupAvatarByData(this.groupId, data,this.imageSource,'image/png');
+                    _this.closeDialog();
+                    _this.$toastMessage({message:'头像修改成功', time:2000, type:'success'});
+                    
+                });
+            }
+            else {
+                var _this = this;
+                this.$refs.cropper.getCropBlob((data) => { 
+                    services.common.UpdateUserAvatarByData(data,this.imageSource,'image/png');
+                    _this.closeDialog();
+                    _this.$toastMessage({message:'头像修改成功', time:2000, type:'success'});
+                    
+                });
+            }
         },
         // 坐旋转
         rotateLeft() { 

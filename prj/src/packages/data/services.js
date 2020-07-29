@@ -1470,8 +1470,8 @@ const common = {
     if (!response.ok || !response.success) {
       return false;
     }
-    await Group.UpdateGroupAvatar(groupID, result.data.obj.groupAvatar)
-    this.downloadGroupAvatar(result.data.obj.groupAvatar, groupID)
+    await Group.UpdateGroupAvatar(groupID, response.data.obj.groupAvatar)
+    this.downloadGroupAvatar(response.data.obj.groupAvatar, groupID)
     return true;
   },
 

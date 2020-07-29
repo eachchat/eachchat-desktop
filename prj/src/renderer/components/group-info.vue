@@ -70,6 +70,7 @@
                 解散群聊
             </p>
         </div>
+        <image-cropper v-if="showImageCropper" :groupId="groupId" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
     </div>
 </template>
 <script>
@@ -81,10 +82,13 @@ import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { stat } from 'fs'
+import imageCropper from './imageCropper.vue'
 export default {
     name: 'group-info',
     data() {
         return {
+            showImageCropper:false,
+            selectImageSource: '',
             newGroupName: '',
             memberListShow: [],
             memberListShowOriginal: [],
@@ -110,6 +114,7 @@ export default {
         }
     },
     components: {
+        imageCropper
     },
     props: {
         "showGroupInfo": { 
@@ -132,6 +137,9 @@ export default {
     computed: {
     },
     methods: {
+        closeCropperDlg(){
+            this.showImageCropper = false;
+        },
         notOwner: function(distUser) {
             if(distUser.user_id == this.ownerId) {
                 return false;
@@ -268,18 +276,20 @@ export default {
                             ],
                     }, async (files) => {
                     if(files && files.length > 0) {
-                        var targetDir = confservice.getUserThumbHeadPath();
-                        var targetPath = path.join(targetDir, this.groupId + '.png');
-                        if(fs.existsSync(targetPath)) {
-                            fs.unlinkSync(targetPath);
-                        }
-                        var distFilePath = pathDeal(files[0]);
+                        this.showImageCropper = true;
+                        this.selectImageSource = files[0];
+                        // var targetDir = confservice.getUserThumbHeadPath();
+                        // var targetPath = path.join(targetDir, this.groupId + '.png');
+                        // if(fs.existsSync(targetPath)) {
+                        //     fs.unlinkSync(targetPath);
+                        // }
+                        // var distFilePath = pathDeal(files[0]);
                         
-                        var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
-                        console.log("ret is ", ret);
-                        if(ret.ok == true && ret.success == true) {
-                            ipcRenderer.send('modifyGroupImg', [this.groupId, distFilePath]);
-                        }
+                        // var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
+                        // console.log("ret is ", ret);
+                        // if(ret.ok == true && ret.success == true) {
+                        //     ipcRenderer.send('modifyGroupImg', [this.groupId, distFilePath]);
+                        // }
                         
                     }
                 })
