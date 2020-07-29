@@ -592,6 +592,25 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async UpdateGroupAvatarByData(accessToken, groupID, fileData, fileName, fileMime){
+    let file = new File([fileData], fileName, {type : fileMime});
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('groupId', groupID);
+
+    var response = await this.commonApi.post(
+      "/api/apps/im/v1/group/avatar",
+      formData,
+      {
+        Authorization: "Bearer " + accessToken,
+        "Content-Type": fu.GetMimename()
+      },
+      {
+        timeout: 15000
+      });
+    return this.parseStatus(response);
+  }
+
   async GroupStatus(accessToken, groupID, userID, stickFlag, disturbFlag){
     var response = await this.commonApi.put(
       "/api/apps/im/v1/group/status",

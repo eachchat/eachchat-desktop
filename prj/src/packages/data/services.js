@@ -1465,6 +1465,16 @@ const common = {
     return result;
   },
 
+  async UpdateGroupAvatarByData(groupID, fileData, fileName, fileMime){
+    let response = await this.api.UpdateGroupAvatarByData(this.data.login.access_token, groupID, fileData, fileName, fileMime);
+    if (!response.ok || !response.success) {
+      return false;
+    }
+    await Group.UpdateGroupAvatar(groupID, result.data.obj.groupAvatar)
+    this.downloadGroupAvatar(result.data.obj.groupAvatar, groupID)
+    return true;
+  },
+
   async GroupStatus(groupID, stickFlag, disturbFlag){
     let result = await this.api.GroupStatus(this.data.login.access_token, groupID, this.data.selfuser.user_id, stickFlag, disturbFlag);
     if (!result.ok || !result.success) {
