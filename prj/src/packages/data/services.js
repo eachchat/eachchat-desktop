@@ -444,6 +444,7 @@ const common = {
       if(servers.callback != undefined)
         servers.handlemessage(servers.callback);
       console.log(userid)
+      this.api.SetMqtt(mqttclient);
       mqttclient.subscribe(userid, function (err) {
           if (err) {
               console.log("subscribe failed")

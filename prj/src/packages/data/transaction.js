@@ -11,7 +11,12 @@ class APITransaction {
   constructor(hostname, port, tls) {
     // 聊天、收藏、组织、认证、文件、安全、邮件
     // 公共服务
+    this.mqtt = undefined;
     this.commonApi = new net.HTTP(hostname, port, tls);
+  }
+
+  SetMqtt(mqtt){
+    this.mqtt = mqtt;
   }
 
   parseStatus(response) {
@@ -30,7 +35,11 @@ class APITransaction {
         }
 
         if(this.data.code == 401)
+        {
           ipcRenderer.send('token-expired');
+          if(this.mqtt != undefined)
+            this.mqtt.close();
+        }
 
         return this.data.code >= 200 && this.data.code < 300;
       }
