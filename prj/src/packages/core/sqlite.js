@@ -31,9 +31,30 @@ class Sqlite {
     console.log('load ' + filename);
     this.db = new sqlite3.Database(this.filename);
     this.db.serialize(() => {
-      this.db.run("PRAGMA KEY = " + password)
+      this.db.run("PRAGMA KEY = " + password);
       this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
     })
+    
+    let version = await this.SyncAll("PRAGMA user_version");
+    if(version.length == 0)
+      return false;
+    let oldVersion = version[0].user_version;
+    let newVersion = 1;
+    if(oldVersion == newVersion)
+      console.log("version is same as before");
+    else
+    {
+      let tables = await this.SyncAll("SELECT name FROM sqlite_master WHERE type='table'");
+      let tableName;
+      let sql;
+      for(let index in tables){
+        tableName = tables[index].name; 
+        sql = "drop table \'" + tableName + "\'";
+        await this.SyncAll(sql);
+      }
+     // this.SyncAll("PRAGMA user_version =" + newVersion);
+      console.log("user version is " + newVersion);
+    }
     console.log('ok');
     return this;
   }

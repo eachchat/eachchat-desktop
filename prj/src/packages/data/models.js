@@ -13,13 +13,14 @@ var models = {
     sqlite: undefined
   },
 
-  init(config) {
+  async init(config) {
     if (typeof config != "object") {
       config = {};
     }
 
     this.storage.sqlite = this._initSqliteStorage();
-    this.user = (async () => {
+    await this.storage.sqlite.connect(); 
+    this.user = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'users',
@@ -56,8 +57,7 @@ var models = {
         primaryKey: 'id'
       });
     })();
-
-    this.login = (async () => {
+    this.login = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'login',
@@ -71,7 +71,7 @@ var models = {
       });
     })();
 
-    this.department = (async () => {
+    this.department = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'department',
@@ -90,7 +90,7 @@ var models = {
       });
     })();
 
-    this.userInfo = (async () => {
+    this.userInfo = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'userinfo',
@@ -123,7 +123,7 @@ var models = {
       });
     })();
 
-    this.userEmail = (async () => {
+    this.userEmail = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'useremail',
@@ -138,7 +138,7 @@ var models = {
       });
     })();
 
-    this.userAddress = (async () => {
+    this.userAddress = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'useraddress',
@@ -153,7 +153,7 @@ var models = {
       });
     })();
 
-    this.userPhone = (async () => {
+    this.userPhone = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: 'userphone',
@@ -167,7 +167,7 @@ var models = {
       });
     })();
 
-    this.userIM = (async () => {
+    this.userIM = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "userim",
@@ -180,7 +180,7 @@ var models = {
       });
     })();
 
-    this.group = (async () => {
+    this.group = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "group",
@@ -210,7 +210,7 @@ var models = {
       });
     })();
 
-    this.message = (async () => {
+    this.message = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "message",
@@ -231,7 +231,7 @@ var models = {
       });
     })();
 
-    this.collection = (async () => {
+    this.collection = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "collection",
@@ -248,7 +248,7 @@ var models = {
       });
     })();
 
-    this.config = (async () => {
+    this.config = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "config",

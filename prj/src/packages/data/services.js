@@ -58,6 +58,7 @@ const common = {
   reconnectTime: 0,
 
   async GetLoginModel(){
+    await models.init();
     let foundlogin = await(await models.Login).find(
       {
         $size: 1,
@@ -71,6 +72,7 @@ const common = {
   },
 
   async GetSelfUserModel(){
+    await models.init();
     if(this.data.login == undefined)
       return;
     var foundUsers = await(await models.User).find({
@@ -251,12 +253,8 @@ const common = {
     return groups;
   },
 
-  CreateDatabaseTable(){
-    models.init();
-  },
-
   async init() {
-    models.init();
+    await models.init();
     if(await this.GetLoginModel() != undefined && await this.GetSelfUserModel() != undefined)
     {
       await this.initServiceApi();
@@ -1709,7 +1707,7 @@ const common = {
   },
 
   async gmsConfiguration(domainBase64){
-    models.init();
+    await models.init();
     let value = Base64.encode(domainBase64, true);
     let response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/configuration/" + value)
     if (response.status != 200 

@@ -138,8 +138,6 @@ ipcMain.on("token-expired", function(event, arg) {
   if(process.platform == 'darwin' && arg != null){
     app.dock.setBadge("");
   }
-  services.common.init();
-  services.common.logout();
   // services.common.closemqtt();
   Menu.setApplicationMenu(null)
   queue.destory();
@@ -847,8 +845,7 @@ function createWindow () {
   if (process.env.NODE_ENV === "development") {
     resizableValue = true;
   }
-  ClearDB(1);
-  services.common.CreateDatabaseTable();
+
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
     webPreferences: {

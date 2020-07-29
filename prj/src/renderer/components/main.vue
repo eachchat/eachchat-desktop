@@ -325,7 +325,7 @@ export default {
         UpdateAlertDlg,
     },
     mounted: async function() {
-        await services.common.GetLoginModel();
+        await services.common.init();
         this.selfUserInfo = await services.common.GetSelfUserModel();
         //await services.common.AllUserinfo();
         this.$nextTick(() => {
