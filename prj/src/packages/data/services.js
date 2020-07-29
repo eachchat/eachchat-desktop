@@ -1745,7 +1745,8 @@ const common = {
     let response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/domain/user/" + value)
     if (response.status != 200 
       || response.data == undefined
-      || response.data.obj == undefined) {
+      || response.data.results == undefined
+      || response.data.results.length == 0) {
       return false;
     }
     return true;
