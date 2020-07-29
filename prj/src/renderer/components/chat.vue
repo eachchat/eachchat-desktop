@@ -2397,7 +2397,7 @@ export default {
                                     }
                                     this.$nextTick(() => {
                                         console.log("---------update croll top is ", uldiv.scrollHeight);
-                                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
                                     })
                                 }
                                 this.isRefreshing = false;
@@ -2424,7 +2424,7 @@ export default {
             // }
 
             let uldiv = document.getElementById("message-show-list");
-            uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+            uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
 
             if(msg.message_type == 102) {
                 console.log("msgTemplateId ", msgTemplateId);
@@ -2853,14 +2853,16 @@ export default {
 
     .chat-name {
         height: 32px;
+        max-width: 150px;
         line-height: 32px;
         margin:0px 12px 0px 0px;
         float: left;
-        white-space: nowrap;
-        text-overflow: ellipsis;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         font-weight: 590;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .chat-img {
