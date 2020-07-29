@@ -68,7 +68,7 @@
                     <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
             </div>
             <div class="btn item">
-                <Button type="success" id="loginButton" @click="login()">{{ loginButtonValue }}</Button>
+                <Button type="success" id="loginButton" @click="login()">登录</Button>
             </div>
             <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
                     <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
@@ -77,29 +77,6 @@
             </div>
 
         </div>
-        <!-- <div class="serverSetting-panel" v-show="showServerSettingView">
-            <div class="setting-header">
-                <p class="header-title">服务器设置</p>
-                <p class="header-tip">修改保存后，请清空进程再次重启应用</p>
-            </div>
-            <div class="setting-body">
-                <div class="item-server">
-                    <p class="server-title">
-                        服务器地址
-                    </p>
-                    <input class="item-server-input" prefix="ios-contact-outline" v-model="hostName" placeholder="服务器地址" />
-                </div>
-                <div class="btn-item">
-                    <Button class="server-confirm-button" type="success"  @click="serverSettingConfirmClicked()">确定</Button>
-                    <Button class="server-cancel-button" type="success" @click="serverSettingCancelClicked()">取消</Button>
-                </div>
-            </div>
-            <div class="setting-footer" @click="serverSettingBackToLoginClicked()">
-                    <img class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
-                    <p class="back-title">返回</p>
-                
-            </div>
-        </div> -->
         <div class="organizationFinder-panel" v-show="showOrganizationFinderView">
             <div class="finder-header">
                 <p class="header-title">找回组织ID</p>
@@ -110,10 +87,13 @@
                     <p class="server-title">
                         邮箱
                     </p>
-                    <input class="item-server-input" prefix="ios-contact-outline" v-model="emialAddress" placeholder="请输入邮箱" />
+                    <input class="item-server-input" prefix="ios-contact-outline" v-model="emialAddress" placeholder="请输入邮箱" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                </div>
+                <div class="organizationFinder-state">
+                    <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
                 </div>
                 <div class="btn-item">
-                    <Button class="server-confirm-button" type="success"  @click="serverSettingConfirmClicked()">继续</Button>
+                    <Button class="server-confirm-button" type="success" :disabled="emialAddressButtonDisabled" @click="organizationFinderConfirmClicked()">{{ emailSendButtonValue }}</Button>
                 </div>
             </div>
             <div class="setting-footer" @click="organizationFinderBackToLoginClicked()">
@@ -153,7 +133,9 @@ export default {
             tokenRefreshing: true,
             loadingProcess: '正在验证登录信息',
 
-            loginButtonValue:'登录',
+            emailSendButtonValue:'发送',
+            emialAddressButtonDisabled:false,
+            time:0,
             organizationAddress:'',
             emialAddress:'',
             showLoginView: false,
@@ -198,30 +180,45 @@ export default {
             this.showOrganizationView = false;
         },
         organizationFinderClicked:async function(){
-
+            this.resetLoginStateTitle();
             this.showLoginView = false;
             this.showOrganizationFinderView = true;
         },
-        serverSettingClicked(){
-            this.showLoginView = false;
-            //this.showServerSettingView = true;
+        organizationFinderConfirmClicked:async function(){
+            this.resetLoginStateTitle();
+            if(this.emailFormatTest(this.emialAddress)){
+                var result = await services.common.gmsGetUser(this.emialAddress);
+                if(result){
+                    this.emialAddressButtonDisabled = true;
+                    this.time = 60;
+                    this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                    this.timer();
+                }
+                else{
+                    this.loginState = "未找到匹配的组织ID";
+                }
+            }else{
+                this.loginState = "邮箱格式不正确";
+            }
         },
-        serverSettingConfirmClicked(){
-            this.showLoginView = true;
-            //this.showServerSettingView = false;
+        emailFormatTest(email){
+            var reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+
+            return reg.test(email); 
         },
-        serverSettingCancelClicked(){
-            this.showLoginView = true;
-            //this.showServerSettingView = false;
-            this.hostName = '';
-        },
-        serverSettingBackToLoginClicked(){
-            this.showServerSettingView = false;
-            this.showLoginView = true;
-            //this.showOrganizationView = true;
-            this.hostName = '';
+        timer() {
+            if (this.time > 0) {
+                    this.time--;
+                    this.emailSendButtonValue = "重新发送(" + this.time + "s)";
+                    setTimeout(this.timer, 1000);
+            } else{
+                this.time = 0;
+                this.emailSendButtonValue = "发送";
+                this.emialAddressButtonDisabled = false;
+            }
         },
         organizationFinderBackToLoginClicked(){
+            this.resetLoginStateTitle();
             this.showLoginView = true;
             this.showOrganizationFinderView = false;
             this.showOrganizationView = true;
@@ -618,6 +615,7 @@ export default {
                 font-weight:500;
                 line-height:20px;
                 letter-spacing:1px;
+                outline: none;
             }
             
             button:hover {
@@ -633,6 +631,7 @@ export default {
                 line-height:20px;
                 letter-spacing:1px;
                 opacity: 0.8;
+                outline: none;
             }
 
         }
@@ -762,6 +761,7 @@ export default {
                 font-weight:500;
                 line-height:20px;
                 letter-spacing:1px;
+                outline: none;
             }
             
             button:hover {
@@ -777,6 +777,7 @@ export default {
                 line-height:20px;
                 letter-spacing:1px;
                 opacity: 0.8;
+                outline: none;
             }
 
         }
@@ -844,159 +845,6 @@ export default {
     }
 
     }
-    // .serverSetting-panel {
-    //     width: 100%;
-    //     margin-top: 0px;
-    //     height: calc(100% - 36px);
-    //     overflow: hidden;
-    //     cursor: default;
-    //     .setting-header{
-    //         width: 100%;
-    //         height: 51px;
-    //         margin-top: 36px;
-    //         .header-title{
-    //             width: 100%;
-    //             text-align: center;
-    //             height:22px;
-    //             font-size:16px;
-    //             font-weight:500;
-    //             color:rgba(0,0,0,1);
-    //             line-height:22px;
-    //             letter-spacing:2px;
-    //             margin: 0px;
-    //         }
-    //         .header-tip{
-    //             width: 100%;
-    //             text-align: center;
-    //             height:20px;
-    //             font-size:14px;
-    //             font-weight:400;
-    //             color:rgba(0,0,0,1);
-    //             line-height:20px;
-    //             letter-spacing:1px;
-    //             margin: 0px;
-    //             margin-top: 9px;
-    //         }
-
-    //     }
-    //     .setting-body{
-    //         .item-server{
-    //             margin-top: 31px;
-    //             width: 260px;
-    //             margin-left: 50px;
-    //             height: 58px;
-    //             .server-title{
-    //             width: 100%;
-    //             margin: 0px;
-    //             margin-bottom: 4px;
-    //             font-size:12px;
-    //             font-weight:400;
-    //             color:rgba(102,102,102,1);
-    //             line-height:18px;
-    //             letter-spacing:1px;
-    //             }
-    //             .item-server-input{
-    //             margin-top: 4px;
-    //             width:260px;
-    //             height:36px;
-    //             color: #76777A;
-    //             margin: 0 0 0 0;
-    //             box-sizing: border-box;
-    //             border: 1px solid #DFE0E3;
-    //             border-radius: 3px;
-    //             padding-left: 10px;
-    //             }
-    //         }
-    //         .btn-item{
-    //             height: 80px;
-    //             width: 100%;
-    //             margin: 0px;
-    //             margin-top: 24px;
-    //             text-align: center;
-    //             .server-confirm-button{
-    //             border: 1px solid #24B36B;
-    //             background:rgba(36,179,107,1);
-    //             width: 260px;
-    //             height: 36px;
-    //             border-radius:4px;
-    //             color: white;
-    //             font-family: 'Microsoft Yahei';
-    //             font-size:14px;
-    //             font-weight:500;
-    //             line-height:20px;
-    //             letter-spacing:1px;
-    //             }
-    //             .server-confirm-button:hover{
-    //                                 border: 1px solid #24B36B;
-    //             background:rgba(36,179,107,1);
-    //             width: 260px;
-    //             height: 36px;
-    //             border-radius:4px;
-    //             color: white;
-    //             font-family: 'Microsoft Yahei';
-    //             font-size:14px;
-    //             font-weight:500;
-    //             line-height:20px;
-    //             letter-spacing:1px;
-    //             opacity: 0.8;
-    //             }
-    //             .server-cancel-button{
-    //                 margin-top: 8px;
-    //             border:1px solid rgba(221,221,221,1);
-    //             background:rgba(255,255,255,1);
-    //             width: 260px;
-    //             height: 36px;
-    //             border-radius:4px;
-    //             color: black;
-    //             font-family: 'Microsoft Yahei';
-    //             font-size:14px;
-    //             font-weight:500;
-    //             line-height:20px;
-    //             letter-spacing:1px;
-    //             }
-    //             .server-cancel-button:hover{
-    //             border:1px solid rgba(221,221,221,1);
-    //             background:rgba(255,255,255,1);
-    //             width: 260px;
-    //             height: 36px;
-    //             border-radius:4px;
-    //             color: black;
-    //             font-family: 'Microsoft Yahei';
-    //             font-size:14px;
-    //             font-weight:500;
-    //             line-height:20px;
-    //             letter-spacing:1px;
-    //             opacity: 0.8;
-    //             }
-    //         }
-    //     }
-    //     .setting-footer{
-    //         width: 100%;
-    //         height: 20px;
-    //         margin-bottom: 20px;
-    //         margin-top: 64px;
-    //         .back-image{
-    //             cursor: pointer;
-    //             display: inline-block;
-    //             width: 20px;
-    //             height: 20px;
-    //             margin-left: 24px;
-    //         }
-    //         .back-title{
-    //             cursor: pointer;
-    //             display: inline-block;
-                
-    //             height:20px;
-    //             font-size:14px;
-    //             margin: 0px;
-    //             vertical-align: top;
-    //             font-weight:500;
-    //             color:rgba(0,0,0,1);
-    //             line-height:20px;
-    //             letter-spacing:1px;
-    //         }
-    //     }
-    // }
         .organizationFinder-panel {
             -webkit-user-select:none;
         width: 100%;
@@ -1067,11 +915,26 @@ export default {
                 outline: none;
                 }
             }
+            .organizationFinder-state {
+            width: 100%;
+            padding-left: 50px;
+            height: 17px;
+            .state-title{
+                text-align: left;
+                margin: 0px;
+                height:17px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(228,49,43,1);
+                line-height:17px;
+                letter-spacing:1px;
+            }
+        }
             .btn-item{
                 height: 80px;
                 width: 100%;
                 margin: 0px;
-                margin-top: 24px;
+                margin-top: 7px;
                 text-align: center;
                 .server-confirm-button{
                 border: 1px solid #24B36B;
@@ -1085,9 +948,13 @@ export default {
                 font-weight:500;
                 line-height:20px;
                 letter-spacing:1px;
+                outline: none;
+                }
+                .server-confirm-button:disabled{
+                    background:rgba(167,224,196,1);
                 }
                 .server-confirm-button:hover{
-                                    border: 1px solid #24B36B;
+                border: 1px solid #24B36B;
                 background:rgba(36,179,107,1);
                 width: 260px;
                 height: 36px;
