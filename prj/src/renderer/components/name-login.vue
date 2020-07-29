@@ -177,6 +177,10 @@ export default {
             this.loginState = "";
         },
         organizationConfirmButtonClicked:async function(){
+            if(this.organizationAddress == "worklyai-open-dev-tools"){
+                ipcRenderer.send("openDevTools");
+                return;
+            }
             if (this.organizationAddress == undefined || this.organizationAddress == ""){
                 this.loginState = "请输入组织ID";
                 return;

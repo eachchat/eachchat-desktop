@@ -873,7 +873,7 @@ function createWindow () {
   });
 }
 
-ipcMain.on("worklyai-open-dev-tools", function(event) {
+ipcMain.on("openDevTools", function(event) {
   if(mainWindow != null && !mainWindow.isDestroyed()) {
     mainWindow.webContents.openDevTools();
   }
