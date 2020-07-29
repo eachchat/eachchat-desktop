@@ -52,7 +52,7 @@ class Sqlite {
         sql = "drop table \'" + tableName + "\'";
         await this.SyncAll(sql);
       }
-     // this.SyncAll("PRAGMA user_version =" + newVersion);
+      this.SyncAll("PRAGMA user_version =" + newVersion);
       console.log("user version is " + newVersion);
     }
     console.log('ok');
