@@ -972,7 +972,7 @@ export default {
       this.showAlertDlg = false;
     },
     openLocalStorageDir: function() {
-      shell.openExternal(this.localStorePath);
+      shell.openItem(this.localStorePath);
     },
     timeDeal(timeOriginal) {
       var timeFormate = timeOriginal.replace("-", "/");

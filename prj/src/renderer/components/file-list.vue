@@ -82,7 +82,7 @@ export default {
         showFile: function() {
             console.log("this.operateItem is ", this.operatedItem);
             var targetDir = confservice.getFilePath(this.operatedItem.timestamp);
-            shell.openExternal(targetDir);
+            shell.openItem(targetDir);
         },
         updateMsgFile(e, args) {
             var state = this.updateMsg[0];
@@ -110,7 +110,7 @@ export default {
             var targetPath = "";
             var targetFileName = curItem.content.fileName;
             if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, targetFileName, true))) {
-                shell.openExternal(targetPath);
+                shell.openItem(targetPath);
             }
         },
         hideSth: function(event) {

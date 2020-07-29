@@ -53,8 +53,8 @@
             <ul class="groupMember-list">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
                     <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" @click="showUserInfoTip">
-                        <label class="groupMemberInfoLabel" @click="showUserInfoTip">{{item.user_display_name}}</label>
+                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)">
+                        <label :id="getLabelIdThroughMemberUid(item.user_id)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.user_display_name}}</label>
                     </div>
                     <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)">
                 </li>
@@ -295,19 +295,24 @@ export default {
                 })
             }
         },
-        showUserInfoTip: async function(e) {
+        showUserInfoTip: async function(e, item) {
             console.log("e is ", e.target.id);
+            console.log("item is ", item)
+            var distElement = e.target;
             if(this.wholeTipElement == null) {
                 this.wholeTipElement = document.getElementById("groupInfoTipId");
                 // console.log("this.wholeTipElement ", this.wholeTipElement)
             }
             var wholeWinTop = this.wholeTipElement.offsetTop;
             var wholeWinLeft = this.wholeTipElement.offsetLeft;
-            var elementId = e.target.id;
-            var uid = this.getUidThroughElementId(elementId);
+            var uid = item.user_id;
 
-            var curAbsoluteTop = e.target.offsetTop;
-            var curAbsoluteLeft = e.target.offsetLeft;
+            if(distElement == undefined) {
+                distElement = document.getElementById(this.getLabelIdThroughMemberUid(uid));
+            }
+
+            var curAbsoluteTop = distElement.offsetTop;
+            var curAbsoluteLeft = distElement.offsetLeft;
             var isMine = (uid == this.curUserInfo.id);
 
             console.log("uid is ", uid);
@@ -319,11 +324,11 @@ export default {
                 "absoluteTop": this.cursorY,
                 // "absoluteLeft": curAbsoluteLeft + wholeWinLeft,
                 "absoluteLeft": this.cursorX - 330,
-                "isMine": isMine,
+                "isMine": true,
             }
-            console.log("emit absoluteTop ", curAbsoluteTop + wholeWinTop);
-            console.log("emit absoluteLeft ", curAbsoluteLeft + wholeWinLeft);
-            console.log("emit openUserInfoTip ", tipInfos);
+            // console.log("emit absoluteTop ", curAbsoluteTop + wholeWinTop);
+            // console.log("emit absoluteLeft ", curAbsoluteLeft + wholeWinLeft);
+            // console.log("emit openUserInfoTip ", tipInfos);
             this.$emit("openUserInfoTip", tipInfos);
         },
         showAddMembers: function() {
@@ -411,6 +416,9 @@ export default {
         getIdThroughMemberUid: function(memberUid) {
             return "member-img-id-" + memberUid;
         },
+        getLabelIdThroughMemberUid: function(memberUid) {
+            return "member-label-id-" + memberUid;
+        },
         getDeleteIdThroughMemberUid: function(memberUid) {
             return "delete-member-id-" + memberUid;
         },
@@ -440,8 +448,8 @@ export default {
             distElement.setAttribute("src", localPath);
         },
         updateCursorPosition: function(e) {
-            //console.log("client x ", e.clientX)
-            //console.log("client y ", e.clientY)
+            // console.log("client x ", e.clientX)
+            // console.log("client y ", e.clientY)
             this.cursorX = e.clientX;
             this.cursorY = e.clientY;
         }

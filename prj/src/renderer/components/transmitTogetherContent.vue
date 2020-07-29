@@ -69,6 +69,7 @@ import {ipcRenderer, remote} from 'electron'
 import winHeaderBar from './win-header.vue'
 import confservice from '../../packages/data/conf_service.js'
 import { Group } from '../../packages/data/sqliteutil'
+import {shell} from 'electron'
 export default {
     name: 'HistoryMsgDlg',
     data () {
@@ -190,7 +191,7 @@ export default {
                 var needOpen = true;
                 console.log("get path is ", targetPath);
                 if(fs.existsSync(targetPath)){
-                    shell.openExternal(targetPath);
+                    shell.openItem(targetPath);
                 }
                 else{
                     services.common.downloadFile(item.time_line_id, item.message_timestamp, targetFileName, needOpen);

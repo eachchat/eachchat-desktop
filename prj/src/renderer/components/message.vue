@@ -173,7 +173,7 @@ export default {
                 }
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
-                    shell.openExternal(targetPath);
+                    shell.openItem(targetPath);
                 }
                 else{
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + ext, needOpen);
