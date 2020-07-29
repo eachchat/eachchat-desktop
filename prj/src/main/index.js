@@ -872,6 +872,22 @@ function createWindow () {
     mainWindow.show();            
   });
 }
+
+ipcMain.on("worklyai-open-dev-tools", function(event) {
+  if(mainWindow != null && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.openDevTools();
+  }
+  if(mainPageWindow != null && !mainPageWindow.isDestroyed()) {
+    mainPageWindow.webContents.openDevTools();
+  }
+  if(soloPage != null && !soloPage.isDestroyed()) {
+    soloPage.webContents.openDevTools();
+  }
+  if(favouriteDetailWindow != null && !favouriteDetailWindow.isDestroyed()) {
+    favouriteDetailWindow.webContents.openDevTools();
+  }
+})
+
 function openDevToolsInDevelopment(mainWindow) {
 
   // Open dev tools initially when in development mode

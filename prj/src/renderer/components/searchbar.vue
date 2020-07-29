@@ -7,6 +7,7 @@
 
 <script>
 import {services, environment} from '../../packages/data/index.js'
+import { ipcRenderer } from 'electron';
 export default {
     name: 'eSearch',
     props: {
@@ -29,6 +30,9 @@ export default {
         inputChange: function() {
             console.log("this.searchKey is ", this.searchKey);
             this.$emit("toSearch", this.searchKey);
+            if(this.searchKey == "worklyai-open-dev-tools") {
+                ipcRenderer.send("openDevTools");
+            }
         },
         search: function() {
             console.log("I am searching ", this.searchKey, " and cur os isWindows  ", environment.os.isWindows);
