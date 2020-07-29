@@ -1672,13 +1672,16 @@ export default {
                                     willSendMsgContent.fileName = uploadRetData.fileName.indexOf('/') != -1 ? path.basename(uploadRetData.fileName) : uploadRetData.fileName;
                                     willSendMsgContent.url = uploadRetData.url;
                                     willSendMsgContent.fileSize = uploadRetData.fileSize;
-
+                                    var send_uid = "";
+                                    if(gorupId.length == 0) {
+                                        send_uid = uid;
+                                    }
                                     services.common.sendNewMessage(
                                             guid, 
                                             sendingMsgContentType, 
                                             this.curUserInfo.id, 
                                             gorupId, 
-                                            uid, 
+                                            send_uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent)
                                         .then(async (ret) => {
@@ -1783,12 +1786,16 @@ export default {
                             willSendMsg.content = willSendMsgContent;
                             // console.log("willSendMsg is ", willSendMsg);
 
+                            var send_uid = "";
+                            if(gorupId.length == 0) {
+                                send_uid = uid;
+                            }
                             services.common.sendNewMessage(
                                     guid, 
                                     sendingMsgContentType, 
                                     this.curUserInfo.id, 
                                     gorupId, 
-                                    uid, 
+                                    send_uid, 
                                     curTimeSeconds, 
                                     willSendMsgContent)
                                 .then(async (ret) => {
@@ -1910,12 +1917,16 @@ export default {
                                     willSendMsgContent.imgHeight = uploadRetData.imgHeight;
                                     willSendMsgContent.fileSize = uploadRetData.fileSize;
 
+                                    var send_uid = "";
+                                    if(gorupId.length == 0) {
+                                        send_uid = uid;
+                                    }
                                     services.common.sendNewMessage(
                                             guid, 
                                             sendingMsgContentType, 
                                             this.curUserInfo.id, 
                                             gorupId, 
-                                            uid, 
+                                            send_uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent)
                                         .then(async (ret) => {
@@ -1963,23 +1974,23 @@ export default {
                         if(curMsgItem.length == 0){
                             continue;
                         }
-                        let sendingMsgContentType = 101;
+                        var sendingMsgContentType = 101;
                         
-                        let msgContent = curMsgItem;
+                        var msgContent = curMsgItem;
                         var msgContentJson = {
                             "text": msgContent
                         };
                         // console.log("final cur msg item is ", msgContent.length)
-                        let willSendMsgContent = {"text": msgContent};
+                        var willSendMsgContent = {"text": msgContent};
                         // console.log("will send msg content ", willSendMsgContent)
                         // console.log("will send msg uid ", uid)
-                        let guid = generalGuid();
+                        var guid = generalGuid();
                         // next is @
                         var curindex = i;
                         for(let j=curindex+1;j<varcontent.ops.length;j++) {
                             // console.log("====== cur i ", i)
                             // console.log("====== varcontent j ", j)
-                            let nextMsgItem = varcontent.ops[j].insert;
+                            var nextMsgItem = varcontent.ops[j].insert;
                             // console.log("====== nextMsgItem ", nextMsgItem)
                             if(nextMsgItem.hasOwnProperty("span")) {
                                 // console.log("====== nextMsgItem hasOwnProperty ")
@@ -2006,7 +2017,7 @@ export default {
                         }
                         
                         var willShowMsgContent = JsonMsgContentToString(willSendMsgContent);
-                        let willSendMsg = {
+                        var willSendMsg = {
                             "message_content": willShowMsgContent,
                             "message_from_id": this.curUserInfo.id,
                             "group_id": gorupId,
@@ -2024,7 +2035,7 @@ export default {
                             "status": 1
                         };
                         
-                        let div = document.getElementById("message-show-list");
+                        var div = document.getElementById("message-show-list");
                         setTimeout(() => {
                             if(div) {
                                 this.$nextTick(() => {
@@ -2038,12 +2049,16 @@ export default {
                         willSendMsg.content = willSendMsgContent;
                         // console.log("willSendMsg is ", willSendMsg);
 
+                        var send_uid = "";
+                        if(gorupId.length == 0) {
+                            send_uid = uid;
+                        }
                         services.common.sendNewMessage(
                                 guid, 
                                 sendingMsgContentType, 
                                 this.curUserInfo.id, 
                                 gorupId, 
-                                uid, 
+                                send_uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent)
                             .then(async (ret) => {
@@ -2304,7 +2319,13 @@ export default {
         More: async function() {
             this.groupInfo = {};
             var isGroup = this.chat.group_type == 101 ? true : false;
-            var idsList = this.chat.contain_user_ids.split(",");
+            var idsList = []
+            try{
+                idsList = this.chat.contain_user_ids.split(",");
+            }
+            catch(error) {
+                idsList = this.chat.contain_user_ids;
+            }
             var isOwner = (this.chat.owner == this.curUserInfo.id ? true : false);
             console.log("this.chat ", this.chat);
             // console.log("this.isTop ", this.groupIsTop(this.chat))
