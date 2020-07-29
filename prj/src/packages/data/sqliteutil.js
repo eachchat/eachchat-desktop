@@ -587,19 +587,32 @@ const Config = {
     },
 
     async SetValue(key, value){
-        let configs = await(await models.Config).find();
-        console.log(configs)
-        if(configs.length == 0)
+        let logins = await(await model.Login).find();
+        if(logins.length == 0)
             return;
-        configs[0][key] = value;
-        configs[0].save();
+        let userid = logins[0].user_id;
+        var foundUsers = await(await models.User).find({
+            id: userid
+          });
+        if(foundUsers.length == 0){
+            return;
+        }
+        foundUsers[0][key] = value;
+        foundUsers[0].save();
     },
 
     async GetValue(){
-        let configs = await(await models.Config).find();
-        if(configs.length == 0)
-            return undefined;
-        return configs[0];
+        let logins = await(await model.Login).find();
+        if(logins.length == 0)
+            return;
+        let userid = logins[0].user_id;
+        var foundUsers = await(await models.User).find({
+            id: userid
+          });
+        if(foundUsers.length == 0){
+            return;
+        }
+        return foundUsers[0];
     }
 }
 

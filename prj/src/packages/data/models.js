@@ -42,7 +42,16 @@ var models = {
           msg_max_sequenceid: types.string,
           user_max_updatetime: types.integer,
           group_max_updatetime:types.integer,
-          department_max_updatetime: types.integer
+          department_max_updatetime: types.integer,
+          entry_host:        types.string,
+          entry_port:        types.string,
+          entry_tls:         types.integer,
+          mqtt_host:         types.string,
+          mqtt_port:         types.string,
+          mqtt_tls:          types.integer,
+          message_sound:     types.integer,
+          message_notice:    types.integer,
+          auto_update:       types.integer
         },
         primaryKey: 'id'
       });
@@ -243,20 +252,9 @@ var models = {
       return await model.Model.create({
         storage: this.storage.sqlite,
         index: "config",
-        fields: {
-          id:                types.string,
-          entry_host:        types.string,
-          entry_port:        types.string,
-          entry_tls:         types.integer,
-          mqtt_host:         types.string,
-          mqtt_port:         types.string,
-          mqtt_tls:          types.integer,
-          auto_start:        types.integer,
-          message_sound:     types.integer,
-          message_notice:    types.integer,
-          auto_update:       types.integer
-        },
-        primaryKey: "id"
+        fields: {          
+          auto_start:        types.integer
+        }
       });
     })();
   },

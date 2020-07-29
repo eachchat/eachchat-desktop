@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config } from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -67,15 +67,6 @@ const common = {
       return;
     }
     this.data.login = foundlogin[0];
-    
-    let configModel = await(await models.Config).find();
-    if(configModel.length == 0)
-      return;
-    //if(!await this.tokenValid())
-    //{
-    //  await this.refreshToken();
-    //}
-    
     return this.data.login;
   },
 
@@ -89,6 +80,12 @@ const common = {
       return;
     }
     this.data.selfuser = foundUsers[0];
+    this.config.hostname = foundUsers[0].entry_host;
+    this.config.apiPort = foundUsers[0].entry_port;
+    this.config.hostTls = foundUsers[0].entry_tls;
+    this.config.mqttHost = foundUsers[0].mqtt_host;
+    this.config.mqttPort = foundUsers[0].mqtt_port;
+    this.config.mqttTls = foundUsers[0].mqtt_tls;
     return this.data.selfuser;
   },
 
@@ -260,22 +257,19 @@ const common = {
 
   async init() {
     models.init();
-    await this.initServiceApi();
-    await this.GetLoginModel();
-    await this.GetSelfUserModel();
+    if(await this.GetLoginModel() != undefined && await this.GetSelfUserModel() != undefined)
+    {
+      await this.initServiceApi();
+      return true;
+    }
+    return false;
   },
 
   async initServiceApi(){
+    if(this.api != undefined)
+      return;
     console.log("initServiceApi")
-    let configModel = await(await models.Config).find();
-    if(configModel.length == 0)
-      return false;
-
-    this.config.hostname = configModel[0].entry_host;
-    this.config.apiPort = configModel[0].entry_port;
-    this.config.hostTls = configModel[0].entry_tls;
-    if(this.api == undefined)
-      this.api = new APITransaction(this.config.hostname, this.config.apiPort, this.config.hostTls);
+    this.api = new APITransaction(this.config.hostname, this.config.apiPort, this.config.hostTls);
   },
 
   async login(config) {
@@ -309,7 +303,7 @@ const common = {
     if("desktopType" in config){
       this.config.desktopType = config.desktopType;
     }
-
+    this.initServiceApi();
     let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.model, config.deviceID, config.desktopType);
 
     if (!result.ok || !result.success) {
@@ -318,9 +312,17 @@ const common = {
 
     
     var retmodels = await servicemodels.LoginModel(result)
-    let login = retmodels[0]
-    let selfuser = retmodels[1]
-
+    let login = retmodels[0];
+    let selfuser = retmodels[1];
+    selfuser.entry_host = this.config.hostname;
+    selfuser.entry_port = this.config.apiPort;
+    selfuser.entry_tls = this.config.hostTls;
+    selfuser.mqtt_host = this.config.mqttHost;
+    selfuser.mqtt_port = this.config.mqttPort;
+    selfuser.mqtt_tls = this.config.mqttTls;
+    //selfuser.message_sound:     undefined,
+    //selfuser.message_notice:    undefined,
+    //selfuser.auto_update:       undefined
 
     var foundUsers = await(await models.User).find({
       id: selfuser.id
@@ -329,15 +331,27 @@ const common = {
     if (foundUsers instanceof Array
       && foundUsers.length > 0) {
       var foundUser = foundUsers[0];
+      let msg_max_sequenceid = foundUser.msg_max_sequenceid;
+      let user_max_updatetime = foundUser.user_max_updatetime;
+      let group_max_updatetime = foundUser.group_max_updatetime;
+      let department_max_updatetime = foundUser.department_max_updatetime;
+      let message_sound = foundUser.message_sound;
+      let message_notice = foundUser.message_notice;
+      let auto_update = foundUser.auto_update;
+
       foundUser.values = selfuser.values;
+      foundUser.msg_max_sequenceid = msg_max_sequenceid;
+      foundUser.user_max_updatetime = user_max_updatetime;
+      foundUser.group_max_updatetime = group_max_updatetime;
+      foundUser.department_max_updatetime = department_max_updatetime;
+      foundUser.message_sound = message_sound;
+      foundUser.message_notice = message_notice;
+      foundUser.auto_update = auto_update;
+
       foundUser.save();
       this.data.selfuser = foundUser;
       console.log('Your profile has been update!');
     } else {
-      selfuser.msg_max_sequenceid = 0;
-      selfuser.user_max_updatetime = 0;
-      selfuser.group_max_updatetime = 0;
-      selfuser.department_max_updatetime = 0;
       selfuser.save();
       this.data.selfuser = selfuser;
       console.log('New account login ok!');
@@ -405,11 +419,6 @@ const common = {
     if(this.mqttclient != undefined && this.mqttclient.connected) {
       return;
     }
-    let configModel = await(await models.Config).find();
-    this.config.mqttName = configModel[0].mqtt_host;
-    this.config.mqttPort = configModel[0].mqtt_port;
-    this.config.mqttTls = configModel[0].mqtt_tls;
-
     let httpValue;
     if(this.config.mqttTls)
       httpValue = "https";
@@ -417,7 +426,7 @@ const common = {
       httpValue = "http";
     let mac = environment.os.mac;
 
-    this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttName + ':' + this.config.mqttPort,
+    this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttHost + ':' + this.config.mqttPort,
                                       {username: 'client', 
                                       password: 'yiqiliao',
                                       clientId: this.data.selfuser.id + '|' + mac,
@@ -425,8 +434,6 @@ const common = {
                                       reconnectPeriod: 0});
     
     let userid = this.data.selfuser.id;
-    let mqttName = this.config.mqttName;
-    let mqttPort = this.config.mqttPort;
     let servers = this;
     let mqttclient = this.mqttclient;    
     
@@ -503,7 +510,6 @@ const common = {
       return undefined;
     }
     await(await models.Login).truncate();
-    await(await models.Config).truncate();
 
     return await this.api.logout(this.data.login.access_token)
   },
@@ -1715,18 +1721,12 @@ const common = {
     else
       mqtt.tls = 0;
 
-    let configValue = {
-      id:                domainBase64,
-      entry_host:        entry.host,
-      entry_port:        entry.port,
-      entry_tls:         entry.tls,
-      mqtt_host:         mqtt.host,
-      mqtt_port:         mqtt.port,
-      mqtt_tls:          mqtt.tls
-    }  
-    await(await models.Config).truncate();
-    let configModel = await new (await models.Config)(configValue);
-    configModel.save();
+    this.config.hostname = entry.host;
+    this.config.apiPort = entry.port;
+    this.config.hostTls = entry.tls;
+    this.config.mqttHost = mqtt.host;
+    this.config.mqttPort = mqtt.port;
+    this.config.mqttTls = mqtt.tls;
     console.log("gmsConfiguration end");
     return identities;
   },

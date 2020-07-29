@@ -26,7 +26,20 @@ const servicemodels = {
         timezone: undefined,
         is_active: undefined,
         bio: undefined,
-        job: undefined
+        job: undefined,
+        msg_max_sequenceid: 0,
+        user_max_updatetime: 0,
+        group_max_updatetime:0,
+        department_max_updatetime: 0,
+        entry_host:        undefined,
+        entry_port:        undefined,
+        entry_tls:         undefined,
+        mqtt_host:         undefined,
+        mqtt_port:         undefined,
+        mqtt_tls:          undefined,
+        message_sound:     undefined,
+        message_notice:    undefined,
+        auto_update:       undefined
       };
       var headersHave = {
         "access-token": "access_token",

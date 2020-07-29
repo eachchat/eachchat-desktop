@@ -847,7 +847,7 @@ function createWindow () {
   if (process.env.NODE_ENV === "development") {
     resizableValue = true;
   }
-  ClearDB(0);
+  ClearDB(1);
   services.common.CreateDatabaseTable();
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
