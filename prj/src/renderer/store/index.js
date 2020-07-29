@@ -29,8 +29,16 @@ export default new Vuex.Store({
     msgIpcInited: false,
     showGroupList: [],
     isFirstLogin: false,
+    soundNotice: true, 
+    flashNotice: true,
   },
   mutations: {
+    setSoundNotice(state, soundNotice) {
+      state.soundNotice = soundNotice;
+    },
+    setFlashNotice(state, flashNotice) {
+      state.flashNotice = flashNotice;
+    },
     setIsFirstLogin(state, isFirstLogin) {
       state.isFirstLogin = isFirstLogin;
     },
@@ -196,6 +204,12 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    soundNotice: state=> () => {
+      return state.soundNotice;
+    },
+    flashNotice: state=> () => {
+      return state.flashNotice;
+    },
     isFirstLogin: state=> () => {
       return state.isFirstLogin;
     },

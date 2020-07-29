@@ -587,7 +587,7 @@ const Config = {
     },
 
     async SetValue(key, value){
-        let logins = await(await model.Login).find();
+        let logins = await(await models.Login).find();
         if(logins.length == 0)
             return;
         let userid = logins[0].user_id;
@@ -602,7 +602,7 @@ const Config = {
     },
 
     async GetValue(){
-        let logins = await(await model.Login).find();
+        let logins = await(await models.Login).find();
         if(logins.length == 0)
             return;
         let userid = logins[0].user_id;

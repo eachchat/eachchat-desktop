@@ -9,7 +9,7 @@
             <img class="setupGeneralImage" src="../../../static/Img/Setup/general-20px@2x.png">
             <label class="setupGeneralLabel">通用设置</label>
           </div>
-          <div class="setup-list-item" @click="jumpToNoticeSetup" v-show="false">
+          <div class="setup-list-item" @click="jumpToNoticeSetup">
             <img class="setupNoticeImage" src="../../../static/Img/Setup/notice-20px@2x.png">
             <label class="setupNoticeLabel">通知设置</label>
           </div>
@@ -57,15 +57,15 @@
                 <label class="setup-general-clear-cache-label2" id="setup-general-clear-cache-label2-id">--M</label>
                 <img class="setup-general-clear-cache-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAlert">
             </div>
-            <div class="setup-notice-title" v-show="false">通知设置</div>
-            <div class="setup-notice-message-notice" v-show="false">
+            <div class="setup-notice-title">通知设置</div>
+            <div class="setup-notice-message-notice">
                 <label class="setup-notice-message-notice-label">消息提示音</label>
-                <el-switch class="setup-notice-message-notice-switch">
+                <el-switch class="setup-notice-message-notice-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)">
                 </el-switch>
             </div>
-            <div class="setup-notice-desktop-notice" v-show="false">
+            <div class="setup-notice-desktop-notice">
                 <label class="setup-notice-desktop-notice-label">消息桌面通知</label>
-                <el-switch class="setup-notice-desktop-notice-switch">
+                <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)">
                 </el-switch>
             </div>
             <div class="setup-update-title" v-show="false">软件升级</div>
@@ -129,6 +129,8 @@ export default {
   },
   data() {
     return {
+      soundNotice: true,
+      flashNotice: true,
       autoRun: true,
       showAnnouncementDlg: false,
       dialogTitle: '',
@@ -143,6 +145,26 @@ export default {
     };
   },
   methods: {
+    autoSoundNoticeStateChange: async function(state) {
+      if(state == true) {
+        Config.SetMessageSound(1);
+        this.$store.commit("setSoundNotice", true);
+      }
+      else {
+        Config.SetMessageSound(0);
+        this.$store.commit("setSoundNotice", false);
+      }
+    },
+    autoFlashNoticeStateChange: async function(state) {
+      if(state == true) {
+        Config.SetMessageNotice(1);
+        this.$store.commit("setFlashNotice", true);
+      }
+      else {
+        Config.SetMessageNotice(0);
+        this.$store.commit("setFlashNotice", false);
+      }
+    },
     autoRunStateChange: async function(state){
       if(state == true) {
         Config.SetAutoStart(1);
@@ -1020,9 +1042,23 @@ export default {
     this.loginInfo = await services.common.GetLoginModel();
     this.curUserInfo = await services.common.GetSelfUserModel();
     var config = await Config.GetValue();
-    console.log("get config is ", config)
+    console.log("=====get config is ", config)
     if(config != undefined) {
       this.autoRun = config.auto_start == 0 ? false : true;
+      this.soundNotice = config.message_sound == 0 ? false : true;
+      if(this.soundNotice) {
+        this.$store.commit("setSoundNotice", true);
+      }
+      else {
+        this.$store.commit("setSoundNotice", false);
+      }
+      this.flashNotice = config.message_notice == 0 ? false : true;
+      if(this.flashNotice) {
+        this.$store.commit("setFlashNotice", true);
+      }
+      else {
+        this.$store.commit("setFlashNotice", false);
+      }
     }
   },
   activated: async function() {

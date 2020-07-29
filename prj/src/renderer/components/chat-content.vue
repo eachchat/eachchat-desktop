@@ -1127,12 +1127,12 @@ export default {
       var msgContent = strMsgContentToJson(msg.message_content);
       if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
         var msgExist = await Message.ExistMessageBySequenceID(msg.sequence_id);
-        console.log("msg exist is ", msgExist);
+        // console.log("msg exist is ", msgExist);
         if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
           this.dealedMsgSequenceId.push(msg.sequence_id);
         }
         else if(msgExist) {
-          console.log("return it ")
+          // console.log("return it ")
           return;
         }
         else {
@@ -1149,24 +1149,30 @@ export default {
       if(msg.message_from_id != undefined && msg.message_from_id != this.curUserInfo.id){
         // console.log("process.platfrom is ", this.isWindows())
         var fromName = "收到一条新短消息";
-        console.log("msg.messagefromid ", msg.message_from_id);
+        // console.log("msg.messagefromid ", msg.message_from_id);
         var fromUserInfo = await UserInfo.GetUserInfo(msg.message_from_id);
-        console.log("fromUserInfo ", fromUserInfo);
+        // console.log("fromUserInfo ", fromUserInfo);
         if(fromUserInfo != undefined) {
           fromName = fromUserInfo.user_display_name;
         }
         var notificateContent = this.getShowMsgContent(msg);
         if(this.isWindows()) {
-          ipcRenderer.send("flashIcon", fromName, notificateContent);
+          if(this.$store.getters.flashNotice()) {
+            ipcRenderer.send("flashIcon", fromName, notificateContent);
+          }
           try{
-            this.amr.play();
+            if(this.$store.getters.soundNotice()) {
+              this.amr.play();
+            }
           }
           catch(e) {
             
           }
         }
         else {
-          ipcRenderer.send("showNotice", fromName, notificateContent);
+          if(this.$store.getters.flashNotice()) {
+            ipcRenderer.send("showNotice", fromName, notificateContent);
+          }
         }
       }
       var groupExist = false;
