@@ -87,13 +87,13 @@
                     <p class="server-title">
                         邮箱
                     </p>
-                    <input class="item-server-input" prefix="ios-contact-outline" v-model="emialAddress" placeholder="请输入邮箱" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                    <input class="item-server-input" prefix="ios-contact-outline" v-model="emialAddress" placeholder="请输入邮箱" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationFinderConfirmClicked()"/>
                 </div>
                 <div class="organizationFinder-state">
                     <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
                 </div>
                 <div class="btn-item">
-                    <Button class="server-confirm-button" type="success" :disabled="emialAddressButtonDisabled" @click="organizationFinderConfirmClicked()">{{ emailSendButtonValue }}</Button>
+                    <Button class="server-confirm-button" type="success" :disabled="emialAddressButtonDisabled" @click="organizationFinderConfirmClicked()" >{{ emailSendButtonValue }}</Button>
                 </div>
             </div>
             <div class="setting-footer" @click="organizationFinderBackToLoginClicked()">
@@ -952,10 +952,9 @@ export default {
                 }
                 .server-confirm-button:disabled{
                     background:rgba(167,224,196,1);
+                    border: 1px solid rgba(167,224,196,1);
                 }
                 .server-confirm-button:hover{
-                border: 1px solid #24B36B;
-                background:rgba(36,179,107,1);
                 width: 260px;
                 height: 36px;
                 border-radius:4px;
