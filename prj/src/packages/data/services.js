@@ -58,7 +58,7 @@ const common = {
   reconnectTime: 0,
 
   async GetLoginModel(){
-    await models.init();
+    //await models.init();
     let foundlogin = await(await models.Login).find(
       {
         $size: 1,
@@ -72,7 +72,7 @@ const common = {
   },
 
   async GetSelfUserModel(){
-    await models.init();
+    //await models.init();
     if(this.data.login == undefined)
       return;
     var foundUsers = await(await models.User).find({
@@ -388,7 +388,7 @@ const common = {
     await this.UpdateGroups();
     await this.UpdateUserinfo();
     await this.UpdateDepartment();
-    await this.UpdateMessages();
+    //await this.UpdateMessages();
     //await this.ListAllCollections();
   },
 
