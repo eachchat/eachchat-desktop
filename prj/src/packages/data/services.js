@@ -436,14 +436,18 @@ const common = {
     let mqttclient = this.mqttclient;    
     let api = this.api;
 
-    this.mqttclient.on('connect', function(){
+    this.mqttclient.on('connect', async function(){
       console.log("mqtt connect success")
       console.log(mac);
       servers.reconnectTime = 0;
       if(servers.retSetTimer != undefined)
         clearTimeout(servers.retSetTimer);
       if(servers.callback != undefined)
+      {
         servers.handlemessage(servers.callback);
+        await servers.UpdateGroups();
+        servers.callback("reconnect");
+      }
       console.log(userid)
       api.SetMqtt(mqttclient);
       mqttclient.subscribe(userid, function (err) {
