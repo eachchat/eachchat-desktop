@@ -321,7 +321,7 @@ class Sql {
       return this;
     }
 
-    this._sql = "insert into `" + table + "` ";
+    this._sql = "insert or replace into `" + table + "` ";
     this._sql += "(`" + sqlFields.join("`, `") + "`) ";
     this._sql += "values ";
     this._sql += "('" + sqlValues.join("', '") + "')";
