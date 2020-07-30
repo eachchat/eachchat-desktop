@@ -434,7 +434,8 @@ const common = {
     let userid = this.data.selfuser.id;
     let servers = this;
     let mqttclient = this.mqttclient;    
-    
+    let api = this.api;
+
     this.mqttclient.on('connect', function(){
       console.log("mqtt connect success")
       console.log(mac);
@@ -444,7 +445,7 @@ const common = {
       if(servers.callback != undefined)
         servers.handlemessage(servers.callback);
       console.log(userid)
-      this.api.SetMqtt(mqttclient);
+      api.SetMqtt(mqttclient);
       mqttclient.subscribe(userid, function (err) {
           if (err) {
               console.log("subscribe failed")
