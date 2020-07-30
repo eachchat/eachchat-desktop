@@ -332,7 +332,7 @@ export default {
             if(this.showCreateNewChat){
                 console.log(this.$refs.chatCreaterContent.getSelectedUsers());
                 this.$emit("closeTransmitDlg", "");
-                this.$message('转发成功');
+                this.$toastMessage({message:'转发成功', time:1500, type:'success'});
                 return;
             }
             //
@@ -340,7 +340,7 @@ export default {
             if(this.transmitCollection){
                 await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                 this.$emit("closeTransmitDlg", "");
-                this.$message('转发成功');
+                this.$toastMessage({message:'转发成功', time:1500, type:'success'});
                 return;
             }
             await this.sendMsg(this.selectedGroups, this.transmitMessages);
@@ -349,7 +349,7 @@ export default {
             // }
             // this.selectedChat = [];
             this.$emit("closeTransmitDlg", "");
-            this.$message('转发成功');
+            this.$toastMessage({message:'转发成功', time:1500, type:'success'});
         },
         createGroupAndTransmit: async function() {
             console.log(this.$refs.chatCreaterContent.getSelectedUsers());

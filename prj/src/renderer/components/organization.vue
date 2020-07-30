@@ -232,10 +232,12 @@ export default {
             console.log(rootDepartment);
             var departments = await Department.GetSubDepartment(rootDepartment.department_id);
             console.log(departments);
-            var tempDepartments = [];
-            for(var i = 0; i < departments.length; i ++){
-                tempDepartments[departments[i].show_order] = departments[i];
-            }
+            var tempDepartments = departments;
+            // for(var i = 0; i < departments.length; i ++){
+                
+            //     //tempDepartments[departments[i].show_order] = departments[i];
+            // }
+            tempDepartments.sort(this.compare("show_order"));
             this.departments = tempDepartments;
             this.currentDepartment = this.departments[0];
             this.organizationListTimer = new Date().getTime();
@@ -273,6 +275,13 @@ export default {
                 return newInnerHtml;
             }
         },
+        compare(property){
+            return function(a,b){
+                var value1 = a[property];
+                var value2 = b[property];
+                return value1 - value2;
+            }
+        }
     },
     components: {
         organizationList,
@@ -431,7 +440,7 @@ display: none;
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 120px);
+    width: calc(100% - 84px);
 }
 .manager-name {
     height: 20px;
@@ -451,6 +460,9 @@ display: none;
     margin-top: 0px;
     margin-bottom: 10px;
     margin-left: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     font-size: 12px;
     line-height: 18px;
     font-weight:400;

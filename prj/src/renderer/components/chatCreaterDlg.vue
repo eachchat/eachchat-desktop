@@ -872,9 +872,9 @@ display: none;
                     .subUsersList{
                         list-style: none;
                         padding: 0px;
-                        margin: 0px;
+                        margin-top: 0px;
                         width: 100%;
-                        height: 100%;
+                        
                         .subUser{
                             height: 48px;
                             width: 100%;
