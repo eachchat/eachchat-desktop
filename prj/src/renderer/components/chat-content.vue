@@ -1112,6 +1112,27 @@ export default {
         //   // this.showChat(curGroup, 0);
         // }
     },
+    updateGroupList: async function() {
+        var ret = await services.common.GetAllGroups()
+        console.log("updateGroupList sql getGroupList is ", ret)
+        for(let i=0;i<ret.length;i++) {
+          if(ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0){
+            continue;
+          }
+          for(let j=0;j<this.originalGroupList.length;j++) {
+            if((this.originalGroupList[j].group_id != undefined && this.originalGroupList[j].group_id.length != 0 && this.originalGroupList[j].group_id == ret[i].group_id) 
+            || (this.originalGroupList[j].user_id != undefined && this.originalGroupList[j].user_id.length != 0 && this.originalGroupList[j].user_id == ret[i].user_id)){
+              this.originalGroupList[j] = ret[i];
+              if(this.originalGroupList[j].un_read_count != ret[i].un_read_count) {
+                var tmp = ret[i].un_read_count - this.originalGroupList[j].un_read_count;
+                this.unreadCount = this.unreadCount + tmp;
+              }
+            }
+          }
+        }
+        // this.originalGroupList = ret;
+        console.log("length is ", ret)
+    },
     compare: function() {
       return function(a, b)
       {
@@ -1124,6 +1145,18 @@ export default {
       // console.log("chat callback msg is ", msg);
       console.log("chat callback msg content is ", msg.message_content);
       console.log("chat callback msg is ", msg)
+      if(msg == "reconnect") {
+        this.updateGroupList();
+        if(this.unreadCount < 0) {
+          this.unreadCount = 0;
+        }
+        ipcRenderer.send("updateUnreadCount", this.unreadCount);
+        setTimeout(() => {
+            this.$nextTick(() => {
+              this.showGroupIcon();
+            })
+        }, 0)
+      }
       var msgContent = strMsgContentToJson(msg.message_content);
       if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
         var msgExist = await Message.ExistMessageBySequenceID(msg.sequence_id);
@@ -1441,7 +1474,7 @@ export default {
     await services.common.init();
     this.curUserInfo = await services.common.GetSelfUserModel();
     await services.common.initmqtt();
-    services.common.handlemessage(this.delayCallback);
+    services.common.handlemessage(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")

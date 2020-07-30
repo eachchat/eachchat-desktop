@@ -123,6 +123,9 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
     if(arg == 0) {
       app.dock.setBadge("");
     }
+    else if(arg >= 100) {
+      app.dock.setBadge("99+");
+    }
     else {
       app.dock.setBadge(arg.toString());
     }
@@ -135,7 +138,7 @@ ipcMain.on("token-expired", function(event, arg) {
     hostname: '139.198.15.253',
     apiPort: 8888,
   };
-  if(process.platform == 'darwin' && arg != null){
+  if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
   // services.common.closemqtt();
@@ -193,7 +196,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            
   });
-  if(process.platform == 'darwin' && arg != null){
+  if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
 });

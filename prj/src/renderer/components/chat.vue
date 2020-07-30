@@ -922,9 +922,9 @@ export default {
             var groupStateElement = document.getElementById("chat-group-state");
             console.log("getShowGroupName is ", chatGroupItem)
             var groupName = chatGroupItem.group_name;
+            var aboutUids = chatGroupItem.contain_user_ids.split(",");
+            var groupUidNameList = [];
             if(groupName.length == 0) {
-                var aboutUids = chatGroupItem.contain_user_ids.split(",");
-                var groupUidNameList = [];
                 for(var i=0;i<aboutUids.length;i++) {
                     let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
                     groupUidNameList.unshift(nameTmp);
@@ -933,6 +933,9 @@ export default {
                         }
                 }
                 groupName = groupUidNameList.join(",");
+            }
+            if(this.chat.group_type == 101) {
+                groupName = groupName + ' (' + aboutUids.length + ') ';
             }
             groupNameElement.innerHTML = groupName;
             
@@ -2377,8 +2380,12 @@ export default {
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
                         let lastSequenceId = this.messageList[0].sequence_id;
+                        if(lastSequenceId.length == 0) {
+                            lastSequenceId = this.messageList[1].sequence_id;
+                        }
                         services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
                             .then((ret) => {
+                                console.log("=========ret is ", ret);
                                 if(ret[0].group_id != this.chat.group_id) {
                                     this.isRefreshing = false;
                                     return;

@@ -2,7 +2,7 @@
     <div class="window-header-bar" v-if="isOSX()">
             <img ondragstart="return false" class="close-image" @click="Close()" src="../../../static/Img/Main/Close@2x.png" v-show="showClose">
             <img ondragstart="return false" class="min-image" @click="Min()" src="../../../static/Img/Main/Minimise@2x.png" v-show="showMin">
-            <img ondragstart="return false" class="zoom-image" @class="Max()" src="../../../static/Img/Main/Zoom@2x.png" v-show="showMax">
+            <img ondragstart="return false" class="zoom-image" @click="Max()" src="../../../static/Img/Main/Zoom@2x.png" v-show="showMax">
     </div>
 
 </template>
