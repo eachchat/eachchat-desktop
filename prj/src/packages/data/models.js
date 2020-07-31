@@ -17,9 +17,10 @@ var models = {
     if (typeof config != "object") {
       config = {};
     }
-
-    this.storage.sqlite = this._initSqliteStorage();
+    if(this.storage.sqlite == undefined)
+      this.storage.sqlite = this._initSqliteStorage();
     await this.storage.sqlite.connect(); 
+
     this.user = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
