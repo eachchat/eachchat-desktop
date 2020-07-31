@@ -1096,7 +1096,10 @@ export default {
         var ret = await services.common.GetAllGroups()
         console.log("sql getGroupList is ", ret)
         for(let i=0;i<ret.length;i++) {
-          if(ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0){
+          if(ret[i].group_name == "从你的那些年") {
+            console.log("ret continue is ", ret[i]);
+          }
+          if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
             continue;
           }
           this.originalGroupList.push(ret[i]);
@@ -1116,7 +1119,7 @@ export default {
         var ret = await services.common.GetAllGroups()
         console.log("updateGroupList sql getGroupList is ", ret)
         for(let i=0;i<ret.length;i++) {
-          if(ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0){
+          if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
             continue;
           }
           for(let j=0;j<this.originalGroupList.length;j++) {
@@ -1145,18 +1148,6 @@ export default {
       // console.log("chat callback msg is ", msg);
       console.log("chat callback msg content is ", msg.message_content);
       console.log("chat callback msg is ", msg)
-      if(msg == "reconnect") {
-        this.updateGroupList();
-        if(this.unreadCount < 0) {
-          this.unreadCount = 0;
-        }
-        ipcRenderer.send("updateUnreadCount", this.unreadCount);
-        setTimeout(() => {
-            this.$nextTick(() => {
-              this.showGroupIcon();
-            })
-        }, 0)
-      }
       var msgContent = strMsgContentToJson(msg.message_content);
       if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
         var msgExist = await Message.ExistMessageBySequenceID(msg.sequence_id);
