@@ -1269,7 +1269,7 @@ export default {
                                         }
                                     }
                                     // this.$store.commit("updateChatGroup", obj.message);
-                                    this.$emit('updateChatList', ret, false);
+                                    this.$emit('updateChatList', ret);
 
                                 }
                             })
@@ -1393,7 +1393,7 @@ export default {
                                     // console.log("Send Image msg list is ", this.messageList)
                                     // console.log("Send Image msg list content is ", strMsgContentToJson(this.messageList.message_content))
                                     // this.$store.commit("updateChatGroup", obj.message);
-                                    this.$emit('updateChatList', ret, false);
+                                    this.$emit('updateChatList', ret);
                                 }
                             })
                     })
@@ -1481,7 +1481,7 @@ export default {
                                 }
                             }
                             // this.$store.commit("updateChatGroup", obj.message);
-                            this.$emit('updateChatList', ret, false);
+                            this.$emit('updateChatList', ret);
 
                         }
                     })
@@ -1568,7 +1568,7 @@ export default {
                                 }
                             }
                             // this.$store.commit("updateChatGroup", obj.message);
-                            this.$emit('updateChatList', ret, false);
+                            this.$emit('updateChatList', ret);
 
                         }
                     })
@@ -1718,7 +1718,7 @@ export default {
                                                     }
                                                 }
                                                 // this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', ret, false);
+                                                this.$emit('updateChatList', ret);
 
                                             }
                                         })
@@ -1836,7 +1836,7 @@ export default {
                                             }
                                         }
                                         // this.$store.commit("updateChatGroup", obj.message);
-                                        this.$emit('updateChatList', ret, false);
+                                        this.$emit('updateChatList', ret);
 
                                     }
                                 })
@@ -1968,7 +1968,7 @@ export default {
                                                 // console.log("Send Image msg list is ", this.messageList)
                                                 // console.log("Send Image msg list content is ", strMsgContentToJson(this.messageList.message_content))
                                                 // this.$store.commit("updateChatGroup", obj.message);
-                                                this.$emit('updateChatList', ret, false);
+                                                this.$emit('updateChatList', ret);
                                             }
                                         })
                                 })
@@ -2099,7 +2099,7 @@ export default {
                                         }
                                     }
                                     // this.$store.commit("updateChatGroup", obj.message);
-                                    this.$emit('updateChatList', ret, false);
+                                    this.$emit('updateChatList', ret);
 
                                 }
                             })
@@ -2630,7 +2630,7 @@ export default {
                     }
                 }
             }
-            this.$emit('updateChatList', msg, forceUpdate);
+            // this.$emit('updateChatList', msg, forceUpdate);
         },
         updateMsgFile(e, args) {
             console.log("updateMsgfile ", args);

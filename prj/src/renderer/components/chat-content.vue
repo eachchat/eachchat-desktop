@@ -108,7 +108,7 @@
           <img class="chat-empty-bg" src="../../../static/Img/Chat/empyt2@2x.png">
         </div>
         <div class="chat" v-show="!isEmpty">
-          <ChatPage :chat="curChat" :newMsg="newMsg" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
+          <ChatPage :chat="curChat" :newMsg="newMsg" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -292,6 +292,10 @@ export default {
     };
   },
   methods: {
+    updateChatList(newMsg) {
+      // ++this.needUpdate;
+      this.callback(newMsg);
+    },
     closeSearchChatFilterDlg() {
         this.showSearchSelecterDlg = false;
         this.searchSelectedGroupIds = [];
