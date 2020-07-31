@@ -445,8 +445,10 @@ const common = {
       if(servers.callback != undefined)
       {
         servers.handlemessage(servers.callback);
-        await servers.UpdateGroups();
-        servers.callback("reconnect");
+        //await servers.UpdateGroups();
+        let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(servers.data.selfuser.id);
+        await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback);
+        //servers.callback("reconnect");
       }
       console.log(userid)
       api.SetMqtt(mqttclient);
