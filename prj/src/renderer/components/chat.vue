@@ -4,6 +4,7 @@
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img">
                 <p class="chat-name" id="chat-group-name"></p>
+                <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <p class="chat-name-state" id="chat-group-state"></p>
             </div>
             <div class="chat-tools">
@@ -920,8 +921,10 @@ export default {
             var groupNameElement = document.getElementById("chat-group-name");
             var groupIcoElement = document.getElementById("chat-group-img");
             var groupStateElement = document.getElementById("chat-group-state");
+            var groupContentNumElement = document.getElementById("chat-group-content-num");
             console.log("getShowGroupName is ", chatGroupItem)
             var groupName = chatGroupItem.group_name;
+            var groupContentNum = "";
             var aboutUids = chatGroupItem.contain_user_ids.split(",");
             var groupUidNameList = [];
             if(groupName.length == 0) {
@@ -935,9 +938,10 @@ export default {
                 groupName = groupUidNameList.join(",");
             }
             if(this.chat.group_type == 101) {
-                groupName = groupName + ' (' + aboutUids.length + ') ';
+                groupContentNum = '(' + aboutUids.length + ')';
             }
             groupNameElement.innerHTML = groupName;
+            groupContentNumElement.innerHTML = groupContentNum;
             
             var targetPath = "";
             if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, chatGroupItem.group_id))){
@@ -2862,7 +2866,7 @@ export default {
         height: 32px;
         max-width: 150px;
         line-height: 32px;
-        margin:0px 12px 0px 0px;
+        margin:0px 0px 0px 0px;
         float: left;
         font-size: 14px;
         font-family: 'Microsoft YaHei';
@@ -2883,7 +2887,7 @@ export default {
     .chat-name-state {
         height: 32px;
         line-height: 32px;
-        margin:0px 12px 0px 0px;
+        margin:0px 0px 0px 12px;
         max-width: 100px;
         float: left;
         white-space: nowrap;
@@ -2892,6 +2896,18 @@ export default {
         font-family: 'Microsoft YaHei';
         font-weight: 590;
         color: rgba(153, 153, 153, 1);
+    }
+
+    .chat-group-content-num {
+        height: 32px;
+        max-width: 150px;
+        line-height: 32px;
+        margin:0px 0px 0px 0px;
+        float: left;
+        font-size: 14px;
+        font-family: 'Microsoft YaHei';
+        font-weight: 590;
+        overflow: hidden;
     }
 
     .chat-tools {
