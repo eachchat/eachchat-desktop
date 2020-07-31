@@ -28,7 +28,13 @@ describe('ServiceTest', function () {
     expect(loginResult).to.equal(true);
     this.selfUser = await services.common.GetSelfUserModel();
   })
-  return;
+
+  it("UpdateMessagesTestCase", async function(){
+    return;
+    let response = await services.common.UpdateMessages();
+    console.log(response);
+  })
+
   it("AllUserinfoTestCase", async function (){
     return;
     this.timeout(300000);
@@ -190,6 +196,18 @@ describe('ServiceTest', function () {
     expect(result).to.not.equal(false);
 
     //expect(result).to.not.equal(false);
+  }),
+
+  it("UpdateUserAvatarTestCase", async function{
+    //let tmp = await services.common.UpdateUserAvatar("C:\\Users\\chengfang\\Desktop\\laofuzi.png");
+    //console.log(tmp);
+    
+    let fileutil = new FileUtil("C:\\Users\\chengfang\\Desktop\\laofuzi.png");
+    let filedata = fileutil.ReadfileSync();
+    let filename = fileutil.GetFilename();
+    let filemime = fileutil.GetMimename();
+    await services.common.UpdateUserAvatarByData(filedata, filename, filemime);
+    return
   })
   
   it("GetRecentDeviceTestCase", async function(){
