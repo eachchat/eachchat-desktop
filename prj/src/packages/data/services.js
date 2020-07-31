@@ -966,17 +966,7 @@ const common = {
                         userID,
                         timestamp,
                         content) {
-    let tmpmsg = {
-      message_id: messageID,
-      message_type: messageContentType,
-      message_from_id: fromID,
-      group_id: groupID,
-      message_timestamp: timestamp,
-      message_content: JSON.stringify(content),
-      message_direction: 0
-    }
-    let tmpmsgmodel = await new(await models.Message)(tmpmsg);
-    tmpmsgmodel.save();
+    
     let result = await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
@@ -987,10 +977,32 @@ const common = {
                                   content)
     if (!result.ok || !result.success) 
     {
+      let tmpmsg = {
+        message_id: messageID,
+        message_type: messageContentType,
+        message_from_id: fromID,
+        group_id: groupID,
+        message_timestamp: timestamp,
+        message_content: JSON.stringify(content),
+        message_direction: 0
+      }
+      let tmpmsgmodel = await new(await models.Message)(tmpmsg);
+      tmpmsgmodel.save();
       return undefined;
     }
     if (!("obj" in result.data)) 
     {
+      let tmpmsg = {
+        message_id: messageID,
+        message_type: messageContentType,
+        message_from_id: fromID,
+        group_id: groupID,
+        message_timestamp: timestamp,
+        message_content: JSON.stringify(content),
+        message_direction: 0
+      }
+      let tmpmsgmodel = await new(await models.Message)(tmpmsg);
+      tmpmsgmodel.save();
       return undefined;
     }
 
