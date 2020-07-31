@@ -996,9 +996,10 @@ const common = {
 
     let msg = result.data.obj.message;
     let msgmodel = await servicemodels.MessageModel(msg)
-    let findMsgs = await Message.FindMessageByMesssageID(msgmodel.message_id);
-    findMsgs[0].values = msgmodel.values;
-    findMsgs[0].save();
+    msgmodel.save();
+    //let findMsgs = await Message.FindMessageByMesssageID(msgmodel.message_id);
+    //findMsgs[0].values = msgmodel.values;
+    //findMsgs[0].save();
     await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, msgmodel.sequence_id)
     this.data.selfuser.msg_max_sequenceid = msgmodel.sequence_id
 
