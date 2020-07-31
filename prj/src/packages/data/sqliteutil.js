@@ -571,7 +571,27 @@ const Collection = {
 
 const Config = {
     async SetAutoStart(value){
-        await this.SetValue("auto_start", value);
+        let configs = await(await models.Config).find();
+        let configModel;
+        if(configs.length == 0){   
+            let ConfigValues = {
+                auto_start: value
+            }
+            configModel = new (await models.Config)(ConfigValues);
+            configModel.save();
+        }
+        else{
+            configs[0].auto_start = value;
+            configs[0].save();
+        }
+    },
+
+    async GetAutoStart(){
+        let configs = await(await models.Config).find();
+        if(configs.length != 0){
+            return configs[0].auto_start;
+        }   
+        return 1;
     },
 
     async SetMessageSound(value){
