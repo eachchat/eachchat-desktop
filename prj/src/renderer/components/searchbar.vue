@@ -47,7 +47,7 @@ export default {
 
 <style lang="scss" scoped>
     .search {
-        margin: 0 0 0 20px;
+        margin: 0px 0px 0px 16px;
         text-align: left;
         width: 200px;
         height: 32px;
@@ -84,6 +84,9 @@ export default {
         outline:none;
         border: 0px;
         font-family: 'Microsoft YaHei';
+        font-weight:400;
+        line-height:18px;
+        letter-spacing:1px;
         font-size: 12px;
         color: rgb(102, 102, 102);
         background-color: rgba(1, 1, 1, 0);

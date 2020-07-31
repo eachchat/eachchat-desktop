@@ -385,11 +385,13 @@ export default {
         text-align: center;
         line-height: 40px;
         margin: 40px 0px 10px 0px;
+        border-radius:4px;
     }
 
     .login-logo {
         width: 40px;
         height: 40px;
+        border-radius:4px;
     }
 
     .nav-item {

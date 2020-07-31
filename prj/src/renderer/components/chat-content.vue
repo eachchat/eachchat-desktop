@@ -16,18 +16,20 @@
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   >
+                <div :class="groupDivOrTopClassName(chatGroupItem, index)">
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
-                <div class="group-img">
-                  <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
-                  <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
-                </div>
-                <div class="group-info">
-                  <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                  <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
-                </div>
-                <div class="group-notice">
-                  <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
-                  <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                  <div class="group-img">
+                    <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
+                    <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
+                  </div>
+                  <div class="group-info">
+                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                  </div>
+                  <div class="group-notice">
+                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                  </div>
                 </div>
               </li>
             </ul>
@@ -382,6 +384,17 @@ export default {
       }
       else {
         return "group";
+      }
+    },
+    groupDivOrTopClassName(item, index) {
+      if(index == this.curindex) {
+        return "group-div active";
+      }
+      if(this.groupIsTop(item)) {
+        return "group-div-top";
+      }
+      else {
+        return "group-div";
       }
     },
     isWindows() {
@@ -1561,7 +1574,7 @@ export default {
     width: 280px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgb(221, 221, 221);
+    border-right: 1px solid rgb(238, 238, 238);
     -webkit-app-region: drag;
   }
 
@@ -1571,9 +1584,9 @@ export default {
     line-height: 41px;
     background-color: rgb(255, 255, 255);
     border: 0px;
-    margin: 0px 0px 0px 0px;
     display: block;
-    margin-top: 20px;
+    margin-top: 12.5px;
+    margin-bottom: 7.5px;
   }
 
   .chat-label {
@@ -1771,39 +1784,105 @@ export default {
     margin: 0;
   }
 
+  .group-div {
+    height: 60px;
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
+
+  .group-div-top {
+    height: 60px;
+    background-color: rgba(243, 244, 247, 1);
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
+
+  .group-div-top:hover {
+    height: 60px;
+    background-color: rgba(247, 248, 250, 1);
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
+
+  .group-div-top.active {
+    height: 60px;
+    background-color: rgba(247, 248, 250, 1);
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
+
+  .group-div:hover {
+    height: 60px;
+    background-color: rgba(247, 248, 250, 1);
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
+
+  .group-div.active {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+    border-bottom:1px solid rgba(221, 221, 221, 1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
+
+  ////////////////////////////////////
   .group {
     height: 60px;
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-top {
     height: 60px;
     background-color: rgba(243, 244, 247, 1);
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-top:hover {
     height: 60px;
     background-color: rgba(247, 248, 250, 1);
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-top.active {
     height: 60px;
     background-color: rgba(247, 248, 250, 1);
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group:hover {
     height: 60px;
     background-color: rgba(247, 248, 250, 1);
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group.active {
     height: 60px;
     background-color: rgba(221, 221, 221, 1);
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .group-ico {
@@ -1816,6 +1895,7 @@ export default {
     margin-top: 0px;
     margin-right: 0px;
     margin-bottom: 0px;
+    border-radius:4px;
     // z-index:-1;
   }
 
@@ -1824,7 +1904,7 @@ export default {
     width: 40px;
     height: 40px;
     display: inline-block;
-    margin-left: 16px;
+    margin-left: 0px;
     margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 10px;
@@ -1833,8 +1913,8 @@ export default {
   .group-info {
     display: inline-block;
     height: 100%;
-    width: calc(100% - 140px);
-    margin-left: 10px;;
+    width: calc(100% - 120px);
+    margin-left: 12px;
   }
 
   .group-name {
@@ -1872,7 +1952,7 @@ export default {
     vertical-align: top;
     height: 100%;
     width: 56px;
-    padding-right: 8px;
+    margin-right: 5px;
   }
 
   .group-time {

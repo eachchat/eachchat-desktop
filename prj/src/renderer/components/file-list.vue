@@ -375,6 +375,7 @@ export default {
         width: 32px;
         height: 32px;
         margin: 10px 12px 20px 10px;
+        border-radius:4px;
         vertical-align: center;
         display: inline-block;
         -webkit-app-region: drag;

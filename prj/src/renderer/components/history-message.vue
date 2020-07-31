@@ -557,6 +557,7 @@ export default {
         display: inline-block;
         margin: 0 0 0 4px;
         padding: 12px 0px 12px 0px;
+        border-radius:4px;
         width: 40px;
         height: 40px;
     }

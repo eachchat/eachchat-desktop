@@ -33,7 +33,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" v-show="showMessageOrNot(item)" @loadedFinished="checkLoadFinished" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
                         </div>
                     </li>
                 </ul>
@@ -2369,6 +2369,23 @@ export default {
                 return value2 - value1;
             }
         },
+        getLatestMessageSequenceIdAndCount: function() {
+            var ret = {
+                "latestSequenceId": "",
+                "count": 20
+            };
+            for(var i=0;i<this.messageList.length;i++) {
+                if(this.messageList[i].sequence_id.length != 0) {
+                    ret.latestSequenceId = this.messageList[i].sequence_id;
+                    break;
+                }
+            }
+            if(ret.latestSequenceId.length == 0) {
+                ret.latestSequenceId = this.chat.sequence_id;
+                ret.count = this.messageList.length + 20;
+            }
+            return ret;
+        },
         handleScroll: function() {
             let uldiv = document.getElementById("message-show-list");
             // console.log("=====scroll height is ", uldiv.scrollHeight);
@@ -2383,11 +2400,8 @@ export default {
                         this.lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
-                        let lastSequenceId = this.messageList[0].sequence_id;
-                        if(lastSequenceId.length == 0) {
-                            lastSequenceId = this.messageList[1].sequence_id;
-                        }
-                        services.common.historyMessage(this.chat.group_id, lastSequenceId, 20)
+                        let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+                        services.common.historyMessage(this.chat.group_id, latestSequenceIdAndCount.latestSequenceId, latestSequenceIdAndCount.count)
                             .then((ret) => {
                                 console.log("=========ret is ", ret);
                                 if(ret[0].group_id != this.chat.group_id) {
@@ -2416,38 +2430,6 @@ export default {
                     }
                 }
             }
-        },
-        checkLoadFinished(msgTemplateId, msg) {
-            if(msg.group_id == undefined) {
-                this.isRefreshing = false;
-                return;
-            }
-            if(msg.group_id != this.chat.group_id) {
-                this.isRefreshing = false;
-                return;
-            }
-            if(this.isRefreshing = true) {
-                this.isRefreshing = false;
-            }
-            // let distMsgElement = document.getElementById(msgTemplateId);
-            // if(distMsgElement != undefined) {
-            //     distMsgElement.style.display = "block";
-            // }
-
-            let uldiv = document.getElementById("message-show-list");
-            uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
-
-            if(msg.message_type == 102) {
-                console.log("msgTemplateId ", msgTemplateId);
-                console.log("msg ", msg);
-                console.log("==================uldiv ")
-                // uldiv.childNodes.sort(this.compareDom())
-            }
-            if(this.needToBottom) {
-                console.log("=========scroll to bottom");
-                uldiv.scrollTop = uldiv.scrollHeight - uldiv.clientHeight;
-            }
-            // console.log("+++++++++scroll height is ", uldiv.scrollHeight);
         },
         checkResize: function() {
             console.log("++++++++++++++====")
@@ -2852,7 +2834,7 @@ export default {
     .chat-title {
         display: float;
         width: 100%;
-        height: 32px;
+        height: 29px;
         background-color: rgb(255, 255, 255);
         border-bottom: 0px solid rgb(242, 242, 246);
         margin-bottom: 12px;
@@ -2882,6 +2864,7 @@ export default {
         width: 32px;
         float: left;
         border: 0px solid rgba(0, 0, 0, 0);
+        border-radius:4px;
     }
     
     .chat-name-state {
@@ -2971,7 +2954,7 @@ export default {
     .chat-main-message {
         width: 100%;
         height: calc(100% - 150px);
-        border-bottom: 0px solid rgb(242, 242, 246);
+        border-top: 1px solid rgb(238, 238, 238);
         display: flex;
         flex-direction: column;
         list-style: none;
@@ -2980,6 +2963,7 @@ export default {
     }
 
     .msg-list {
+        min-height: 99%;
         list-style: none;
         margin: 0;
         padding: 0;
@@ -2989,7 +2973,7 @@ export default {
         // height: 100%;
         overflow-y: scroll;
         overflow-x: hidden;
-
+        border-bottom: 1px solid rgba(238,238,238,1);
         li {
             list-style-type: none;
         }

@@ -676,6 +676,7 @@ export default {
     padding-bottom: 8px;
     width: 32px;
     height: 32px;
+    border-radius:4px;
     cursor: pointer;
 }
 
@@ -722,6 +723,7 @@ export default {
     position: absolute;
     top: 0px;
     left: 0px;
+    border-radius:4px;
 }
 
 .groupInfoImageChange {

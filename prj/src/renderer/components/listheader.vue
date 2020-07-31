@@ -4,15 +4,17 @@
             <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="toSearch"/>
         </div>
         <el-dropdown class="new-chat-dropdown" trigger="click">
-            <i class="el-icon-circle-plus-outline"></i>
-            <el-dropdown-menu class="new-chat-content" slot="dropdown">
-                <el-dropdown-item class="create-new-group" icon="el-icon-connection" @click.native="showCreateGroup">
-                发起群聊
-                </el-dropdown-item>
-                <!-- <el-dropdown-item class="create-new-secret" icon="el-icon-lock">
-                进入密聊
-                </el-dropdown-item> -->
-            </el-dropdown-menu>
+            <div class="new-chat-content-div">
+                <img class="el-icon-circle-plus-outline" src="../../../static/Img/Main/create-chat-nor-20px@2x.png" height="20px">
+                <el-dropdown-menu class="new-chat-content" slot="dropdown">
+                    <el-dropdown-item class="create-new-group" icon="el-icon-connection" @click.native="showCreateGroup">
+                    发起群聊
+                    </el-dropdown-item>
+                    <!-- <el-dropdown-item class="create-new-secret" icon="el-icon-lock">
+                    进入密聊
+                    </el-dropdown-item> -->
+                </el-dropdown-menu>
+            </div>
         </el-dropdown>
         <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
@@ -221,7 +223,7 @@ export default {
     } 
 
     .Search {
-        width: calc(100% - 50px);
+        width: calc(100% - 55px);
         height: 34px;
         line-height: 34px;
         font-size: 14px;
@@ -240,9 +242,21 @@ export default {
         overflow: hidden;
     }
 
+    .new-chat-content-div {
+        width:32px;
+        height:32px;
+        background:rgba(255,255,255,1);
+        border-radius:16px;
+        border:1px solid rgba(221,221,221,1);
+    }
+
     .el-icon-circle-plus-outline {
         background-color: white;
         line-height: 32px;
+        margin-top: 6px;
+        margin-bottom: 6px;
+        margin-right: 6px;
+        margin-left: 6px;
         color: rgb(211, 211, 211)
     }
 

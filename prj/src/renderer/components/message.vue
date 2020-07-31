@@ -14,11 +14,11 @@
                     <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight" @load="checkLoad()">
+                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
+                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -26,7 +26,7 @@
                     </div>
                     <div class="chat-msg-content-mine-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
-                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
+                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
                             <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
@@ -34,11 +34,11 @@
                     <div class="chat-msg-content-mine-transmit"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
                         <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">{{transmitMsgContent}}</div>
+                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-mine-txt" :id="msg.message_id" @load="checkLoad()">{{messageContent}}</p>
+                        <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
                 <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip">
@@ -49,11 +49,11 @@
                     <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight" @load="checkLoad()">
+                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
+                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -61,7 +61,7 @@
                     </div>
                     <div class="chat-msg-content-others-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
-                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">
+                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
                             <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
@@ -69,11 +69,11 @@
                     <div class="chat-msg-content-other-transmit"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
                         <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" @load="checkLoad()">{{transmitMsgContent}}</div>
+                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-others-txt" :id="msg.message_id" @load="checkLoad()">{{messageContent}}</p>
+                        <p class="chat-msg-content-others-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
                 <div class="msgState" v-if="MsgIsSending()">
@@ -111,11 +111,6 @@ export default {
         },
         getMessageTemplateId: function() {
             return "message-template-" + this.msg.message_id;
-        },
-        checkLoad: function() {
-            this.$nextTick(() => {
-                this.$emit("loadedFinished", this.getMessageTemplateId(), this.msg);
-            })
         },
         showUserInfoTip: function() {
             if(this.userIconElement == undefined) {
@@ -337,7 +332,6 @@ export default {
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
                 }
-                this.checkLoad();
                 // console.log("this.messageContent is ", this.messageContent)
                 // textMsgImgElement.innerHTML = this.messageContent;
             }
@@ -499,11 +493,9 @@ export default {
                 this.transmitMsgContent = chatGroupMsgContent.text;
                 this.messageContent = "[聊天记录]";
                 
-                this.checkLoad();
             }
             else {
                 return this.messageContent = "不支持的消息类型，请升级客户端。"
-                this.checkLoad();
             }
         },
         MsgBelongUserName: function() {
@@ -786,6 +778,7 @@ export default {
         vertical-align: top;
         width: 32px;
         height: 32px;
+        border-radius:4px;
     }
 
     .msg-info-user-img:hover {
@@ -793,6 +786,7 @@ export default {
         vertical-align: top;
         width: 32px;
         height: 32px;
+        border-radius:4px;
         cursor: pointer;
     }
 
@@ -828,7 +822,7 @@ export default {
         background-color: rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
-        min-height: 18px;
+        min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -844,7 +838,7 @@ export default {
         background-color: rgb(233,234,235);
         max-width: 260px;
         min-width: 20px;
-        min-height: 18px;
+        min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -997,7 +991,7 @@ export default {
         background-color: rgba(233, 247, 240, 1);
         max-width: 260px;
         min-width: 20px;
-        min-height: 18px;
+        min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
@@ -1013,7 +1007,7 @@ export default {
         background-color: rgb(209,232,221);
         max-width: 260px;
         min-width: 20px;
-        min-height: 18px;
+        min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;

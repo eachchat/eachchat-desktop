@@ -283,6 +283,7 @@ export default {
         padding-bottom: 8px;
         width: 24px;
         height: 24px;
+        border-radius:4px;
     }
 
     .groupMemberInfoLabel {
