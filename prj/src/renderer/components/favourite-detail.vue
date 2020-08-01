@@ -54,11 +54,7 @@ export default {
         },
         getImageCollectionContent:async function(image){
             //Init services
-            let config = {
-                hostname: "139.198.15.253",
-                apiPort: 8888,
-            };
-            services.common.init(config);
+            await services.common.init();
             confservice.init(this.collectionInfo.curUserInfo._attr.id);
             this.loginInfo = await services.common.GetLoginModel();
             var targetDir = confservice.getThumbImagePath(image.timestamp);
