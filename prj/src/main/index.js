@@ -133,41 +133,43 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
 })
 
 ipcMain.on("token-expired", function(event, arg) {
-  console.log("logout")
-  let config = {
-    hostname: '139.198.15.253',
-    apiPort: 8888,
-  };
-  if(process.platform == 'darwin'){
-    app.dock.setBadge("");
+  if(isLogin) {
+    console.log("logout")
+    let config = {
+      hostname: '139.198.15.253',
+      apiPort: 8888,
+    };
+    if(process.platform == 'darwin'){
+      app.dock.setBadge("");
+    }
+    // services.common.closemqtt();
+    Menu.setApplicationMenu(null)
+    queue.destory();
+    mainWindow = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,//添加这个即可
+      },
+      height: 420,
+      useContentSize: true,
+      width: 360,
+      frame: false,
+      resizable: resizableValue,
+      /**
+       * Across Domains Problem
+       */
+      webPreferences: {webSecurity:false}
+    })
+    mainWindow.hide();
+    mainPageWindow.close();
+    appIcon.destroy();
+    mainWindow.loadURL(winURL);
+    openDevToolsInDevelopment(mainWindow);
+    
+    mainWindow.webContents.on('dom-ready', function(){
+      mainWindow.show();            
+    });
+    isLogin = false;
   }
-  // services.common.closemqtt();
-  Menu.setApplicationMenu(null)
-  queue.destory();
-  mainWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
-    height: 420,
-    useContentSize: true,
-    width: 360,
-    frame: false,
-    resizable: resizableValue,
-    /**
-     * Across Domains Problem
-     */
-    webPreferences: {webSecurity:false}
-  })
-  mainWindow.hide();
-  mainPageWindow.close();
-  appIcon.destroy();
-  mainWindow.loadURL(winURL);
-  openDevToolsInDevelopment(mainWindow);
-  
-  mainWindow.webContents.on('dom-ready', function(){
-    mainWindow.show();            
-  });
-  isLogin = false;
 })
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
