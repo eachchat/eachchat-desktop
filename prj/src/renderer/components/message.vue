@@ -975,6 +975,9 @@ export default {
         margin-top: 4px;
         margin-right: 0px;
         margin-bottom: 3px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .file-size {
