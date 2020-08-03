@@ -29,7 +29,7 @@ let emptyIconPath;
 let isLogin = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
-  if(process.platform == 'darwin'){
+  if(process.platform == 'darwin' || process.platform == 'linux'){
     iconPath = "../../static/Img/Main/macMenuIcon.png";
   }
   
@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "../../static/Img/Main/logo@2x.png";
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
-  if(process.platform == 'darwin'){
+  if(process.platform == 'darwin' || process.platform == 'linux'){
     iconPath = "/static/Img/Main/macMenuIcon.png";
   }
   emptyIconPath = "/static/Img/Main/logo-empty.ico";
