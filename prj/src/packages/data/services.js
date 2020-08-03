@@ -709,7 +709,6 @@ const common = {
         {
           continue
         }
-        console.log(groupmodel.updatetime)
         if(groupmodel.status[5] != 1){
           groupmodel.save()
           groupmodel.message = JSON.parse(groupmodel.message_content);
