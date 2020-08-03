@@ -444,7 +444,7 @@ const common = {
         clearTimeout(servers.retSetTimer);
       if(servers.callback != undefined)
       {
-        servers.handlemessage(servers.callback);
+        //servers.handlemessage(servers.callback);
         //await servers.UpdateGroups();
         let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(servers.data.selfuser.id);
         await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback);
@@ -461,10 +461,6 @@ const common = {
           }
         })
     })
-     
-    this.mqttclient.on("reconnect", function(){
-      console.log("mqtt reconnect-----------------")
-    })
 
     this.mqttclient.on("close", function(){
       console.log("this.mqttclient.connected:" + servers.mqttclient.connected);
@@ -476,7 +472,8 @@ const common = {
         servers.reconnectTime = 30;
       console.log("mqtt closed-----------------:" + servers.reconnectTime)
       setTimeout(function(){
-        servers.initmqtt()
+        //servers.initmqtt()
+        mqttclient.reconnect()
       }, servers.reconnectTime * 1000);
     })
     this.mqttclient.on("disconnect", function(){
