@@ -678,13 +678,47 @@ const common = {
     return await this.api.getEnterpriseInfo(this.data.login.access_token)
   },
 
-  async listGroup(updateTime, perPage) 
+  async listGroup(updateTime, perPageNotDelete) 
   {
     if (typeof this.data.login == "undefined") {
       console.debug("Please login first");
       return undefined;
     }
-    return await this.api.listGroup(this.data.login.access_token, updateTime, perPage)
+
+    let groupvalue;
+    let groupmodel;
+    let count = 0;
+    while(1){
+      let result = await this.api.listGroup(this.data.login.access_token, updateTime, 20);
+      if (!result.ok || !result.success) {
+        return result;
+      }
+  
+      if (!("obj" in result.data)) {
+        return result;
+      }
+  
+      //updateTime = result.data.obj.updateTime;
+      //next = result.data.hasNext
+      updateTime = result.data.obj.maxUpdateTime;
+      for(let item in result.data.results)
+      {
+        groupvalue = result.data.results[item]
+        groupmodel = await servicemodels.GroupsModel(groupvalue)
+        if(groupmodel == undefined)
+        {
+          continue
+        }
+        console.log(groupmodel.updatetime)
+        if(groupmodel.status[5] != 1){
+          groupmodel.save()
+          groupmodel.message = JSON.parse(groupmodel.message_content);
+          if(++count >= perPageNotDelete)
+            return;
+        }
+        
+      }
+    }
   },
 
   async listAllGroup()
