@@ -41,7 +41,7 @@
             <div class="chat-input" id="chat-input-id" v-show="!multiSelect">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
-                        <Faces v-show="showFace"  @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
+                        <Faces v-show="showFace" id="face-box-id" @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
                         <div class="chat-input-expression" @click="showExpression()">
                             <img class="el-icon-emoji" src="../../../static/Img/Chat/emoji@2x.png">
                         </div>
@@ -906,9 +906,14 @@ export default {
                 msgHistoryMenuElement.style.display = "none";
             }
 
-            // console.log("e.target.classname ", e.target.className)
+            console.log("e.target.classname ", e.target.className)
             if(e.target.className.indexOf('userInfo') == -1){
                 this.showUserInfoTips = false;
+            }
+
+            var faceElement = document.getElementById("face-box-id");
+            if(faceElement != null && !faceElement.contains(e.target) && e.target.className != "el-icon-emoji"){
+                this.showFace = false;
             }
         },
         showExpression: function() {
@@ -3161,6 +3166,7 @@ export default {
         bottom: 155px;
         left:5px;
         box-shadow: 2px 2px 5px rgb(219,219,219);
+        background-color: white;
     }
 
     .chat-input-expression {

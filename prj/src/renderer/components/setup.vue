@@ -1305,6 +1305,7 @@ export default {
     height:100px;
     background:rgba(255,255,255,1);
     display: block;
+    padding: 0;
   }
 
   .device-info {
@@ -1329,6 +1330,9 @@ export default {
     font-family: "Microsoft Yahei";
     letter-spacing:1px;
     display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
   .device-one-os {
