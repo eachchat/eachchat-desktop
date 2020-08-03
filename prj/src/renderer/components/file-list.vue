@@ -85,11 +85,11 @@ export default {
             shell.openItem(targetDir);
         },
         updateMsgFile(e, args) {
-            var state = this.updateMsg[0];
-            var stateInfo = this.updateMsg[1];
-            var id = this.updateMsg[2];
-            var localPath = this.updateMsg[3];
-            var needOpen = this.updateMsg[4];
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var needOpen = args[4];
 
             var distName = '';
             for(let i=0;i<this.fileListShow.length;i++) {
@@ -102,14 +102,23 @@ export default {
         },
         download: async function(curItem) {
             // console.log(curItem);
+            // console.log("this.fileListShow ", this.fileListShow);
+            if(curItem == undefined) {
+                curItem = this.operatedItem;
+            }
             var targetFileName = curItem.content.fileName;
-            await services.common.downloadFile(curItem.timelineId, curItem.timestamp, targetFileName, false)
+            var ext = path.extname(targetFileName);
+            await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, false)
         },
         openFile: async function(curItem) {
             // console.log(curItem);
+            if(curItem == undefined) {
+                curItem = this.operatedItem;
+            }
             var targetPath = "";
             var targetFileName = curItem.content.fileName;
-            if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, targetFileName, true))) {
+            var ext = path.extname(targetFileName);
+            if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, true))) {
                 shell.openItem(targetPath);
             }
         },
@@ -128,6 +137,7 @@ export default {
             ipcRenderer.send("AnotherMin");
         },
         showOperate: function(event, operatedItem) {
+            console.log("operate item is ", operatedItem);
             var dropDownWidth = 80;
             if(this.operateMenuElement == null) {
                 this.operateMenuElement = document.getElementById("fileList-operate-dropdown-content-id");
@@ -137,8 +147,11 @@ export default {
                 var chatGroupMsgContent = operatedItem.content;
                 console.log("chatGroupMsgContent ", chatGroupMsgContent)
                 var targetFileName = chatGroupMsgContent.fileName;
+                var msgId = operatedItem.msgId;
+                var ext = path.extname(targetFileName);
                 var targetDir = confservice.getFilePath(operatedItem.timestamp);
-                targetPath = path.join(targetDir, targetFileName);
+                targetPath = path.join(targetDir, msgId + ext);
+                console.log("target path is ", targetPath);
             }
             if(fs.existsSync(targetPath)) {
                 this.needDownload = false
@@ -159,11 +172,8 @@ export default {
         },
         getAppBaseData:async function() {
             // Init services
-            let config = {
-                hostname: "139.198.15.253",
-                apiPort: 8888,
-            };
-            services.common.init(config);
+            await services.common.init();
+            this.selfUserInfo = await services.common.GetSelfUserModel();
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();

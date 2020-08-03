@@ -68,11 +68,8 @@ export default {
         },
         getAppBaseData:async function() {
             // Init services
-            let config = {
-                hostname: "139.198.15.253",
-                apiPort: 8888,
-            };
-            services.common.init(config);
+            await services.common.init();
+            this.selfUserInfo = await services.common.GetSelfUserModel();
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
@@ -245,7 +242,7 @@ export default {
                 var distTAvatar = distUser.avatar_t_url;
                 var targetPath = '';
                 console.log("cur item is ", curItem.sequenceId)
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, userId))){
+                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, userId, '', curItem.sequence_id))){
                     console.log("cur it is ", curItem.sequenceId)
                     distUserImgElement.setAttribute("src", targetPath);
                 }
@@ -370,7 +367,36 @@ export default {
                 this.showEmpty = false;
             }
             this.showGroupInfo(this.GroupInfo);
-        }
+        },
+        updateUserImage(e, args) {
+            console.log("updateUserImage ", args);
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+
+            var distElement = document.getElementById(this.getIdThroughMemberUid(id));
+            distElement.setAttribute("src", localPath);
+        },
+        updateUserImage(e, args) {
+            console.log("updateUserImage ", args);
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var sequenceId = args[4];
+            console.log("group info updateuserimage args ", args)
+
+            if(sequenceId.length != 0 ) {
+                var distElement = document.getElementById(this.getIdThroughMemberUid(sequenceId));
+            }
+            if(distElement == undefined) {
+                var distElement = document.getElementById(this.getIdThroughMemberUid(id));
+            }
+            if(distElement != undefined) {
+                distElement.setAttribute("src", localPath);
+            }
+        },
     },
     components: {
         winHeaderBar,
@@ -382,6 +408,7 @@ export default {
         ipcRenderer.on("distGroupInfo", (event, groupId) => {
             this.groupId = groupId;
         })
+        ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
 }
 </script>

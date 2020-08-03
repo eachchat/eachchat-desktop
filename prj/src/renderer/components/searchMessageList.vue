@@ -226,11 +226,8 @@ export default {
         },
         getAppBaseData:async function() {
             // Init services
-            let config = {
-                hostname: "139.198.15.253",
-                apiPort: 8888,
-            };
-            services.common.init(config);
+            await services.common.init();
+            this.selfUserInfo = await services.common.GetSelfUserModel();
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();

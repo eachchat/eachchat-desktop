@@ -592,6 +592,7 @@ function downloadUserAvarar(event, arg) {
       var userId = arg[1];
       var token = arg[2];
       var distPath = arg[3];
+      var sequenceId = arg[4];
       var distTemp = distPath + "_tmp";
       // console.log("distPath is ", distPath);
     
@@ -623,7 +624,7 @@ function downloadUserAvarar(event, arg) {
                 // console.log(countTmp + "~" + (a - timeTmp) + "： downloadUserAvarar distPath is ", distPath);
                 // timeTmp = a;
                 // countTmp += 1;
-                event.sender.send('updateUserImage', [true, '', userId, distPath]);
+                event.sender.send('updateUserImage', [true, '', userId, distPath, sequenceId]);
                 resolve(true);
               }
               catch(e) {

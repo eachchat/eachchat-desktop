@@ -1208,7 +1208,7 @@ const common = {
     }
   },
   
-  async downloadUserTAvatar(url, userId, targetPath="") {
+  async downloadUserTAvatar(url, userId, targetPath="", sequenceId="") {
     var ret = "FILE_DOWNLOADING";
     if(targetPath.length == 0) {
       var targetDir = confservice.getUserThumbHeadPath();
@@ -1221,7 +1221,7 @@ const common = {
     }
     else {
       // console.log(targetPath, " downloading")
-      ipcRenderer.send('download-user-avarar', [url, userId, this.data.login.access_token, targetPath]);
+      ipcRenderer.send('download-user-avarar', [url, userId, this.data.login.access_token, targetPath, sequenceId]);
       return ret;
     }
   },
