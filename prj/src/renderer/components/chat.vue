@@ -3167,10 +3167,11 @@ export default {
         border: 0.5px solid rgb(211, 211, 211);
         position: absolute;
         bottom: 170px;
-        left:5px;
+        left:-130px;
         box-shadow: 2px 2px 5px rgb(219,219,219);
         background-color: white;
         border-radius:4px;
+        width: 324px;
     }
 
     .chat-input-expression {
