@@ -31,16 +31,16 @@ export default {
 
 <style scoped lang="scss">
 .faces {
-  width: 300px;
+  width: 348px;
   list-style: none;
   background-color: white;
   display: block;
-  padding: 0 0 0 20px;
+  padding: 0 0 0 10px;
   & > li {
     width: 20px !important;
     height: 20px !important;
     display: inline-block;
-    padding: 4px;
+    padding: 9px;
     cursor: pointer;
     & > img {
       width: 100%;

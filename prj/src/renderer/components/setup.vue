@@ -151,7 +151,7 @@ export default {
         this.$store.commit("setSoundNotice", true);
       }
       else {
-        Config.SetMessageSound(0);
+        Config.SetMessageSound(2);
         this.$store.commit("setSoundNotice", false);
       }
     },
@@ -161,7 +161,7 @@ export default {
         this.$store.commit("setFlashNotice", true);
       }
       else {
-        Config.SetMessageNotice(0);
+        Config.SetMessageNotice(2);
         this.$store.commit("setFlashNotice", false);
       }
     },
@@ -985,14 +985,15 @@ export default {
       return environment.os.isWindows;
     },
     Close: function() {
-      ipcRenderer.send("win-close");
+        ipcRenderer.send("win-close");
     },
     Min: function() {
-      ipcRenderer.send("win-min");
+        ipcRenderer.send("win-min");
     },
     Max: function() {
-      ipcRenderer.send("win-max");
+        ipcRenderer.send("win-max");
     },
+
     jumpToGeneralSetup: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
@@ -1042,17 +1043,19 @@ export default {
     this.loginInfo = await services.common.GetLoginModel();
     this.curUserInfo = await services.common.GetSelfUserModel();
     var config = await Config.GetValue();
+    var autoStart = await Config.GetAutoStart();
     console.log("=====get config is ", config)
+    console.log("=====autoStart is ", autoStart)
     if(config != undefined) {
-      this.autoRun = config.auto_start == 0 ? false : true;
-      this.soundNotice = config.message_sound == 0 ? false : true;
+      this.autoRun = autoStart == 0 ? false : true;
+      this.soundNotice = (config.message_sound == 0 || config.message_sound == 1) ? true : false;
       if(this.soundNotice) {
         this.$store.commit("setSoundNotice", true);
       }
       else {
         this.$store.commit("setSoundNotice", false);
       }
-      this.flashNotice = config.message_notice == 0 ? false : true;
+      this.flashNotice = (config.message_notice == 0 || config.message_notice == 1) ? true : false;
       if(this.flashNotice) {
         this.$store.commit("setFlashNotice", true);
       }
@@ -1107,9 +1110,10 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: row;
-    padding: 20px;
+    margin: 20px;
     overflow-y: hidden;
     -webkit-app-region: drag;
+    z-index: 30;
   }
 
   * {
@@ -1287,6 +1291,7 @@ export default {
     height: 20px;
     width: 40px;
     float: right;
+    padding-right: 14px;
     display: inline-block;
   }
 
@@ -1554,6 +1559,7 @@ export default {
     height: 20px;
     width: 40px;
     float: right;
+    padding-right: 14px;
     display: inline-block;
   }
 
@@ -1585,6 +1591,7 @@ export default {
     height: 20px;
     width: 40px;
     float: right;
+    padding-right: 14px;
     display: inline-block;
   }
 
@@ -1673,6 +1680,7 @@ export default {
     height: 20px;
     width: 40px;
     float: right;
+    padding-right: 14px;
     display: inline-block;
   }
 

@@ -171,6 +171,7 @@ export default {
         var groupUserIds = [];
         groupUserIds.push(this.distUserId);
         groupUserIds.push(this.curUserInfo.id);
+        var contain_user_ids = groupUserIds.join(",");
         var groupItem = {};
         var userInfos = await services.common.GetDistUserinfo(this.distUserId);
         console.log("userInfos is ", userInfos);
@@ -181,7 +182,7 @@ export default {
         console.log("groupCheck is ", groupCheck)
 
         if(groupCheck.length == 0) {
-            groupItem["contain_user_ids"] = groupUserIds;
+            groupItem["contain_user_ids"] = contain_user_ids;
             groupItem["group_avarar"] = chatAvater;
             groupItem["group_name"] = chatName;
             groupItem["group_type"] = 102;
@@ -525,7 +526,13 @@ export default {
 
       var distId = this.getChatElementId(id, groupInfoTmp.user_id);
       console.log("updateGroupImg dist id ", distId);
-      let elementImg = document.getElementById(distId);
+      var elementImg = document.getElementById(distId);
+
+      if(elementImg == undefined) {
+        distId = this.getChatElementId(id, this.curChat.user_id);
+        console.log("updateGroupImg dist id ", distId);
+        elementImg = document.getElementById(distId);
+      }
 
       elementImg.setAttribute("src", "");
       var showfu = new FileUtil(localPath);
@@ -2028,6 +2035,7 @@ export default {
     margin-right: 0px;
     margin-bottom: 10px;
     background-color: rgba(228, 49, 43, 0);
-    background-image: url("../../../static/Img/Chat/slience-20px.png");
+    background-image: url("../../../static/Img/Chat/slience-20px@2x.png");
+    background-size: contain;
   }
 </style>

@@ -235,6 +235,9 @@ export default {
                 console.log("isown is ",this.isOwn);
                 this.isOwn = true;
             }
+            else {
+                this.isOwn = false;
+            }
             // console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
@@ -3163,10 +3166,11 @@ export default {
     .faces-box {
         border: 0.5px solid rgb(211, 211, 211);
         position: absolute;
-        bottom: 155px;
+        bottom: 170px;
         left:5px;
         box-shadow: 2px 2px 5px rgb(219,219,219);
         background-color: white;
+        border-radius:4px;
     }
 
     .chat-input-expression {

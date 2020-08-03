@@ -50,7 +50,7 @@ export default {
         margin: 0px 0px 0px 16px;
         text-align: left;
         width: 200px;
-        height: 32px;
+        height: 30px;
         border: 1px solid rgb(221, 221, 221);
         border-radius: 3px;
     }

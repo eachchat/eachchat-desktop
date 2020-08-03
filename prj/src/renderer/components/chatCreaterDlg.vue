@@ -320,6 +320,7 @@ export default {
                 }
                 console.log("group user ids is ", groupUserIds)
                 console.log("group groupName ids is ", groupName)
+                var contain_user_ids = groupUserIds.join(",");
                 if(this.selectedUsers.length == 0) {
                     alert("选一个呗")
                 }
@@ -334,7 +335,7 @@ export default {
                     var groupCheck = await services.common.GetGroupByName(chatName);
                     console.log("groupCheck is ", groupCheck)
                     if(groupCheck.length == 0) {
-                        groupItem["contain_user_ids"] = groupUserIds;
+                        groupItem["contain_user_ids"] = contain_user_ids;
                         groupItem["group_avarar"] = chatAvater;
                         groupItem["group_name"] = chatName;
                         groupItem["group_type"] = 102;

@@ -164,7 +164,7 @@ export default {
                 }
                 if(targetPath.length == 0) {
                     var targetDir = confservice.getFilePath(this.msg.message_timestamp);
-                    var targetPath = path.join(targetDir, this.msg.message_id);
+                    var targetPath = path.join(targetDir, this.msg.message_id + ext);
                 }
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
@@ -831,6 +831,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
 
     .chat-msg-content-others-txt-div:hover {
@@ -847,6 +848,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
     
     .chat-msg-content-others-txt{
@@ -862,6 +864,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
 
     .chat-msg-content-others-txt:hover{
@@ -877,6 +880,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
 
     .chat-msg-content-others-img {
@@ -1000,6 +1004,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
 
     .chat-msg-content-mine-txt-div:hover{
@@ -1016,6 +1021,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
 
     .chat-msg-content-mine-txt {
@@ -1031,6 +1037,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
 
     .chat-msg-content-mine-txt:hover {
@@ -1046,6 +1053,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
+        line-height: 20px;
     }
 
     .chat-msg-content-mine-img {

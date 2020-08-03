@@ -173,9 +173,10 @@ export default {
                 var chatAvater = this.userInfo.avatarTUrl;
                 var chatName = this.userInfo.displayName;
                 var groupCheck = await services.common.GetGroupByName(chatName)
+                var contain_user_ids = [this.curUserInfo.id, this.userInfo.id].join(",");
                 console.log("groupCheck is ", groupCheck)
                 if(groupCheck.length == 0) {
-                    groupItem["contain_user_ids"] = [this.curUserInfo.id, this.userInfo.id];
+                    groupItem["contain_user_ids"] = contain_user_ids;
                     groupItem["group_avarar"] = chatAvater;
                     groupItem["group_name"] = chatName;
                     groupItem["group_type"] = 102;

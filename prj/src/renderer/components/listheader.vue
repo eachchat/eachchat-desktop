@@ -121,6 +121,7 @@ export default {
             }
             console.log("group user ids is ", groupUserIds)
             console.log("group groupName ids is ", groupName)
+            var contain_user_ids = groupUserIds.join(",");
             if(this.usersSelected.length == 0) {
                 alert("选一个呗")
             }
@@ -135,7 +136,7 @@ export default {
                 var groupCheck = await services.common.GetGroupByName(chatName);
                 console.log("groupCheck is ", groupCheck)
                 if(groupCheck.length == 0) {
-                    groupItem["contain_user_ids"] = groupUserIds;
+                    groupItem["contain_user_ids"] = contain_user_ids;
                     groupItem["group_avarar"] = chatAvater;
                     groupItem["group_name"] = chatName;
                     groupItem["group_type"] = 102;
@@ -235,16 +236,16 @@ export default {
     .new-chat-dropdown {
         display: inline-block;
         font-size: 20px;
-        height: 34px;
-        line-height: 34px;
+        height: 32px;
+        line-height: 32px;
         padding: 0px;
-        margin: 0px 0px 0px 0px;
+        margin: 0px 0px 2px 0px;
         overflow: hidden;
     }
 
     .new-chat-content-div {
-        width:32px;
-        height:32px;
+        width:30px;
+        height:30px;
         background:rgba(255,255,255,1);
         border-radius:16px;
         border:1px solid rgba(221,221,221,1);
@@ -256,7 +257,7 @@ export default {
         margin-top: 6px;
         margin-bottom: 6px;
         margin-right: 6px;
-        margin-left: 6px;
+        margin-left: 5.5px;
         color: rgb(211, 211, 211)
     }
 

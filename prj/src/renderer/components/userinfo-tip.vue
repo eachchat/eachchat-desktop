@@ -116,9 +116,10 @@ export default {
             var chatAvater = this.userInfo.avatar_t_url;
             var chatName = this.userInfo.user_display_name;
             var groupCheck = await services.common.GetGroupByName(chatName)
+            var contain_user_ids = [this.curUserInfo.id, this.userInfo.id].join(",");
             console.log("groupCheck is ", groupCheck)
             if(groupCheck.length == 0) {
-                groupItem["contain_user_ids"] = [this.curUserInfo.user_id, this.userInfo.user_id];
+                groupItem["contain_user_ids"] = contain_user_ids;
                 groupItem["group_avarar"] = chatAvater;
                 groupItem["group_name"] = chatName;
                 groupItem["group_type"] = 101;
@@ -133,20 +134,6 @@ export default {
                 groupItem["updatetime"] = new Date().getTime();
                 groupItem["user_id"] = this.userInfo.user_id;
                 groupItem["status"] = "00000000";
-    
-                let groupvalue = {
-                    group_id:           undefined,
-                    contain_user_ids:   [this.curUserInfo.user_id, this.userInfo.user_id],
-                    group_name:         chatName,
-                    group_avarar:       chatAvater,
-                    group_type :        101,
-                    status:             0,
-                    owner:              undefined,
-                    group_notice:       undefined,
-                    notice_time:        undefined,
-                    notice_userId:      undefined,
-                    updatetime:         new Date().getTime()
-                    }
             }
             else {
                 groupItem = groupCheck[0];
