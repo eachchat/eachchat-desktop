@@ -906,6 +906,17 @@ function openDevToolsInDevelopment(mainWindow) {
     mainWindow = null
   })
 }
+let iShouldQuit = app.makeSingleInstance(() => {
+  mainWindow.show();
+  mainWindow.focus();
+  return true;
+});
+console.log("isShouldQuit: " + iShouldQuit)
+if (iShouldQuit) {
+  app.quit();
+}
+
+
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
