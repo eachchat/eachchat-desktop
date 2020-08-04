@@ -735,7 +735,7 @@ const common = {
     this.data.group = []
     let updateTime = 0;
     let messageModel;
-    await (await models.Groups).truncate()
+    //await (await models.Groups).truncate()
 
     result = await this.api.listAllGroup(this.data.login.access_token, undefined)
     if (!result.ok || !result.success) {
@@ -760,7 +760,6 @@ const common = {
       if(groupmodel.status[5] != 1){
         groupmodel.save()
         groupmodel.message = JSON.parse(groupmodel.message_content);
-        this.data.group.push(groupmodel)
         
         messageModel = await servicemodels.MessageModel(groupvalue.message)
         if(!await Message.ExistMessageBySequenceID(messageModel.sequence_id))
