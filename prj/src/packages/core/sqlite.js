@@ -363,9 +363,9 @@ class Sql {
   }
 
   orderBy(field, reverse) {
-    this._sql += " order by `";
+    this._sql += " order by cast(";
     this._sql += field;
-    this._sql += "` ";
+    this._sql += " as int)";
 
     if (reverse) {
       this._sql += " desc ";
