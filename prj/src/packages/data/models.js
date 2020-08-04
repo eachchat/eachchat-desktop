@@ -314,11 +314,19 @@ var models = {
     let userID = await Config.GetCurrentUserID();
     if(userID == undefined)
       return;
-    let dbPath = environment.path.base + "\\" + userID;
-    if (!fs.existsSync(dbPath)) {
-      fs.mkdirSync(dbPath);
+    let dbPath;
+    let dbFolder;
+    if(environment.os.isWindows){
+      dbFolder = environment.path.base + "\\" + userID; 
+      dbPath = dbFolder + "\\eachchat.db";
     }
-    dbPath = dbPath + "\\eachchat.db"
+    else{
+      dbFolder = environment.path.base + "/" + userID; 
+      dbPath = dbFolder + "/achchat.db"
+    }
+    if (!fs.existsSync(dbFolder)) {
+      fs.mkdirSync(dbFolder);
+    }
     var sqlite = new storage.SQLiteStorage({
       filename: dbPath
     });
