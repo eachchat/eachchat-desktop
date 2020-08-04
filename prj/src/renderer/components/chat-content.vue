@@ -15,6 +15,7 @@
                   v-for="(chatGroupItem, index) in dealShowGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
+                  v-bind:key="ChatGroupId(chatGroupItem)"
                   >
                 <div :class="groupDivOrTopClassName(chatGroupItem, index)">
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
@@ -295,6 +296,22 @@ export default {
     };
   },
   methods: {
+    ChatGroupId(item) {
+      if(item.group_id != undefined && item.user_id != undefined) {
+        if(item.user_id.length == 0) {
+          return "chat-v-bind-" + item.group_id;
+        }
+        else {
+          return "chat-v-bind-" + item.group_id + "-" + item.user_id;
+        }
+      }
+      else if(item.group_id == undefined) {
+        return "chat-v-bind-" + item.user_id;
+      }
+      else if(item.user_id == undefined) {
+        return "chat-v-bind-" + item.group_id;
+      }
+    },
     updateChatList(newMsg) {
       // ++this.needUpdate;
       this.callback(newMsg);
@@ -1461,6 +1478,7 @@ export default {
     }
   },
   mounted: async function() {
+    await services.common.init();
     console.log("chat content mounted");
       // When Mounting Can Not Get The Element. Here Need SetTimeout
       await this.getGroupList(false);
@@ -1482,8 +1500,9 @@ export default {
           })
       }, 0)
       
-        ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
-        ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
+      ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
+      ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
+      ipcRenderer.on('updateGroupList', this.updateGroupList)
   },
   created: async function() {
     await services.common.init();

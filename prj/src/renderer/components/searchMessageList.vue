@@ -682,6 +682,9 @@ export default {
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         -webkit-app-region: drag;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     * {

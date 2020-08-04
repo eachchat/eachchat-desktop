@@ -455,6 +455,7 @@ export default {
         }
     },
     async created () {
+        await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         console.log("userinfo-tip login info is ", this.loginInfo);
         this.curUserInfo = await services.common.GetSelfUserModel();

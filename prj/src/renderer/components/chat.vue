@@ -2341,7 +2341,7 @@ export default {
             catch(error) {
                 idsList = this.chat.contain_user_ids;
             }
-            var isOwner = (this.chat.owner == this.curUserInfo.id ? true : false);
+            var isOwner = ((this.chat.owner == this.curUserInfo.id || this.chat.owner != null) ? true : false);
             console.log("this.chat ", this.chat);
             // console.log("this.isTop ", this.groupIsTop(this.chat))
             // console.log("this.isSlience ", this.groupIsSlience(this.chat))
@@ -2350,7 +2350,7 @@ export default {
                 "memberList": idsList,
                 "groupName": this.chat.group_name,
                 "groupAvarar": this.chat.group_avarar,
-                "groupNotice": this.chat.group_notice,
+                "groupNotice": this.chat.group_notice != undefined ? this.chat.group_notice : '',
                 "groupId": this.chat.group_id,
                 "isGroup": isGroup,
                 "isOwner": isOwner,
@@ -2729,6 +2729,7 @@ export default {
         
     },
     created: async function() {
+        await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
         // console.log("===============mqttinit")

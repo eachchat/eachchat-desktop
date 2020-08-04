@@ -68,6 +68,7 @@ export default {
         },
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
+            this.chatCreaterDisableUsers = [];
         },
         showCreateGroup: async function(){
             // this.disabledusers = [this.curUserInfo.id];
@@ -75,8 +76,14 @@ export default {
             // console.log("this disabledusers is ", this.disabledusers)
             /////////////////////////////////////////////////////////
             var self = await services.common.GetSelfUserModel();
+            var selfUserInfo = await UserInfo.GetUserInfo(self.id);
+            if(selfUserInfo == undefined) {
+                selfUserInfo = {
+                    "user_id": self.id,
+                }
+            }
             console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            this.chatCreaterDisableUsers.push(selfUserInfo);
             console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
             var root = await Department.GetRoot();
             console.log("root is ", root);
@@ -206,6 +213,7 @@ export default {
         eSearch
     },
     created: async function () {
+        await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
     }

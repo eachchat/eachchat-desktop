@@ -460,6 +460,7 @@ export default {
         }, 0)
     },
     created: async function() {
+        await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
 

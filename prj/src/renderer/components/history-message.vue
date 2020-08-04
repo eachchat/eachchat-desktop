@@ -59,6 +59,9 @@ export default {
         getUserHeadImageId: function(curMsg) {
             return "HistoryMsgListImg-" + curMsg.sequenceId;
         },
+        checkGetUserHedImageId: function(id) {
+            return "HistoryMsgListImg-" + id;
+        },
         Close: function() {
             console.log("=======")
             ipcRenderer.send("AnotherClose");
@@ -374,24 +377,14 @@ export default {
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
-
-            var distElement = document.getElementById(this.getIdThroughMemberUid(id));
-            distElement.setAttribute("src", localPath);
-        },
-        updateUserImage(e, args) {
-            console.log("updateUserImage ", args);
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
             var sequenceId = args[4];
             console.log("group info updateuserimage args ", args)
 
             if(sequenceId.length != 0 ) {
-                var distElement = document.getElementById(this.getIdThroughMemberUid(sequenceId));
+                var distElement = document.getElementById(this.checkGetUserHedImageId(sequenceId));
             }
             if(distElement == undefined) {
-                var distElement = document.getElementById(this.getIdThroughMemberUid(id));
+                var distElement = document.getElementById(this.checkGetUserHedImageId(id));
             }
             if(distElement != undefined) {
                 distElement.setAttribute("src", localPath);
@@ -473,6 +466,9 @@ export default {
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         -webkit-app-region: drag;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     * {

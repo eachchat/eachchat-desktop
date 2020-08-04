@@ -12,7 +12,7 @@
             </div> -->
             <ul class="HistoryMsg-list">
                 <li v-for="(item, index) in messageListShow" class="messageItem">
-                    <img class="messageOwnerImage" :id="getUserHeadImageId(item)" @click="openFile(item)">
+                    <img class="messageOwnerImage" :id="getUserHeadImageId(item)">
                     <div class="messageInfoDiv">
                         <div class="messageOwnerTimeDiv">
                             <label class="messageInfoOwnerNameLabel" :id="getUserNameId(item)"></label>
@@ -80,7 +80,7 @@ export default {
             GroupInfo: null,
             groupId: '',
             originalMessageList: [],
-            showEmpty: true,
+            showEmpty: false,
         }
     },  
     methods: {
@@ -104,11 +104,12 @@ export default {
             else if(chatGroupMsgType === 102)
             {
                 var targetFileName = chatGroupMsgContent.fileName;
+                var ext = path.extname(targetFileName);
                 var targetPath = "";
                 var needOpen = false;
                 var imgMsgImgElement = document.getElementById(distId);
                 imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
-                if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(item.timelineId, item.timestamp, targetFileName, false))) {
+                if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(item.timelineId, item.timestamp, item.sequenceId.toString() + ext, false))) {
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                     let imageHeight = 100;
                     if(chatGroupMsgContent.imgHeight < 100){
@@ -123,6 +124,7 @@ export default {
             else if(chatGroupMsgType === 103)
             {
                 var targetFileName = chatGroupMsgContent.fileName;
+                var ext = path.extname(targetFileName);
                 var targetPath = "";
 
                 var targetDir = confservice.getFilePath(item.message_timestamp);
@@ -130,7 +132,7 @@ export default {
 
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
-                    services.common.downloadFile(item.timelineId, item.timestamp, targetFileName, false);
+                    services.common.downloadFile(item.timelineId, item.timestamp, item.sequenceId + ext, false);
                 }
                 var fileMsgImgElement = document.getElementById(distId);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
@@ -164,42 +166,46 @@ export default {
             }
         },
         ShowFile: async function(item) {
-            console.log("open image proxy ", item)
-            let msgType = item.message_type;
-            let msgContent = strMsgContentToJson(item.message_content);
+            // console.log("open image proxy ", item)
+            let msgType = item.msgContentType;
+            let msgContent = item.content;
+            // var targetDir = confservice.getFilePath();
+            // var targetFileName = item.message_id.toString() + "." + msgContent.ext;
+            // var targetPath = path.join(targetDir, targetFileName);
             if(msgType === 102)
             {
-                this.$emit('showImageOfMessage', item);
+                // this.$emit('showImageOfMessage', item);
             }
             else if(msgType === 103)
             {
                 // var ext = msgContent.ext;
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = msgContent.fileName;
+                var ext = path.extname(targetFileName);
                 // var targetPath = path.join(targetDir, targetFileName);
-                var targetPath = await services.common.GetFilePath(item.message_id);
+                var targetPath = await services.common.GetFilePath(item.msgId);
+                console.log("targetPath is =========== ", targetPath);
                 // if(msgContent.fileLocalPath != undefined && fs.existsSync(msgContent.fileLocalPath)){
                 //     targetPath = msgContent.fileLocalPath;
                 // }
+                // if(targetPath.length == 0) {
+                //     targetPath = item.file_local_path;
+                // }
                 if(targetPath.length == 0) {
-                    targetPath = item.file_local_path;
-                }
-                if(targetPath.length == 0) {
-                    var targetDir = confservice.getFilePath(item.message_timestamp);
-                    var targetPath = path.join(targetDir, targetFileName);
+                    var targetDir = confservice.getFilePath(item.timestamp);
+                    var targetPath = path.join(targetDir, item.msgId + ext);
                 }
                 var needOpen = true;
-                console.log("get path is ", targetPath);
                 if(fs.existsSync(targetPath)){
                     shell.openItem(targetPath);
                 }
                 else{
-                    services.common.downloadFile(item.time_line_id, item.message_timestamp, targetFileName, needOpen);
+                    services.common.downloadFile(item.timelineId, item.timestamp, item.msgId + ext, true);
                 }
             }
             else if(msgType == 105) {
                 var targetFileName = msgContent.fileName;
-                var targetPath = await services.common.GetFilePath(item.message_id);
+                var targetPath = await services.common.GetFilePath(item.msgId);
                 if(fs.existsSync(targetPath)){
                     if(this.amr == null){
                         this.amr = new BenzAMRRecorder();
@@ -219,7 +225,7 @@ export default {
                     }
                 }
                 else{
-                    services.common.downloadVoiceFile(item.time_line_id, item.message_timestamp, targetFileName, needOpen);
+                    services.common.downloadVoiceFile(item.timelineId, item.timestamp, item.msgId + ext, true);
                 }
                 this.$emit('playAudioOfMessage', item.message_id);
             }
@@ -270,6 +276,9 @@ export default {
         },
         getUserHeadImageId: function(curMsg) {
             return "TransmitTogetherMsgListImg-" + curMsg.sequenceId;
+        },
+        checkGetUserHedImageId: function(id) {
+            return "TransmitTogetherMsgListImg-" + id;
         },
         Close: function() {
             console.log("=======")
@@ -450,17 +459,40 @@ export default {
                 
                 var userInfos = await services.common.GetDistUserinfo(userId)
                 var distUser = userInfos[0];
+                var sequenceId = curItem.sequenceId;
                 var distUserName = distUser.user_display_name;
                 distUserNameElement.innerHTML = distUserName;
                 var distTAvatar = distUser.avatar_t_url;
                 var targetPath = '';
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, userId))){
-                    console.log("cur it is ", curItem.sequenceId)
+                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distTAvatar, userId, '', sequenceId))){
+                    console.log("cur it is ", curItem.sequenceId, "path ", targetPath)
                     distUserImgElement.setAttribute("src", targetPath);
+                }
+                else{
+                    console.log("cur not exist  it is ", curItem.sequenceId, "path ", targetPath)
                 }
                 this.MsgContent(this.messageListShow[i]);
             }
 
+        },
+        updateUserImage(e, args) {
+            console.log("updateUserImage ", args);
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var sequenceId = args[4];
+            console.log("group info updateuserimage args ", args)
+
+            if(sequenceId.length != 0 ) {
+                var distElement = document.getElementById(this.checkGetUserHedImageId(sequenceId));
+            }
+            if(distElement == undefined) {
+                var distElement = document.getElementById(this.checkGetUserHedImageId(id));
+            }
+            if(distElement != undefined) {
+                distElement.setAttribute("src", localPath);
+            }
         },
         search: function() {
             // console.log("this.searchKeylneth ", this.searchKey.length);
@@ -568,12 +600,12 @@ export default {
         updatePage: async function() {
             console.log("filelist group info is ", this.groupId);
             await this.getHistoryMessage(this.GroupInfo);
-            if(this.searchKey.length == 0) {
-                this.showEmpty = true;
-            }
-            else{
-                this.showEmpty = false;
-            }
+            // if(this.searchKey.length == 0) {
+            //     this.showEmpty = true;
+            // }
+            // else{
+            //     this.showEmpty = false;
+            // }
             this.$nextTick(() => {
                 setTimeout(() => {
                     this.showGroupInfo(this.GroupInfo);
@@ -593,6 +625,7 @@ export default {
             this.groupId = groupId[1];
             this.timelineId = groupId[0];
         })
+        ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
 }
 </script>
@@ -657,6 +690,9 @@ export default {
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         -webkit-app-region: drag;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     * {
@@ -861,7 +897,7 @@ export default {
         font-size: 14px;
         font-family: 'Microsoft YaHei';
         text-align: left;
-        margin: 0px;
+        margin-bottom: 5px;
         cursor: pointer;
         display: block;
     }
@@ -930,6 +966,9 @@ export default {
         margin-top: 4px;
         margin-right: 0px;
         margin-bottom: 3px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .file-size {
