@@ -39,7 +39,7 @@ class Sqlite {
     if(version.length == 0)
       return false;
     let oldVersion = version[0].user_version;
-    let newVersion = 1;
+    let newVersion = 2;
     if(oldVersion == newVersion)
       console.log("version is same as before");
     else
