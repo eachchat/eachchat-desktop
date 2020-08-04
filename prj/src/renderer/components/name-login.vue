@@ -292,7 +292,7 @@ export default {
                 deviceID: mac,
                 desktopType: version
             };
-            let oldLoginModel = await services.common.GetLoginModel();
+            let oldLoginModel = await services.common.GetGlobalLogin();
             let response = await services.common.login(config);
             console.log(response);
             var ret_data = response;
@@ -348,10 +348,8 @@ export default {
         await services.common.init();
         setTimeout(() => {  
             this.$nextTick(async () => {
-                
-                if(await services.common.GetLoginModel() == undefined)//判断数据库存在登陆信息，如果不存在直接返回
+                if(await services.common.GetGlobalLogin() == undefined)//判断数据库存在登陆信息，如果不存在直接返回
                 {
-                    
                     this.tokenRefreshing = false;
                     this.showLoadingView = false;
                     this.showLoginView = true;

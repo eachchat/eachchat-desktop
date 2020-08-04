@@ -1,9 +1,9 @@
 import { APITransaction } from './transaction.js';
 import { servicemodels } from './servicemodels.js';
-import { models } from './models.js';
+import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Config} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -57,8 +57,13 @@ const common = {
 
   reconnectTime: 0,
 
+  async GetGlobalLogin(){
+    let globalLogin = await(await globalModels.Login).find();
+    if(globalLogin.length != 0)
+      return globalLogin[0].user_id;
+  },
+
   async GetLoginModel(){
-    //await models.init();
     let foundlogin = await(await models.Login).find(
       {
         $size: 1,
@@ -72,7 +77,6 @@ const common = {
   },
 
   async GetSelfUserModel(){
-    //await models.init();
     if(this.data.login == undefined)
       return;
     var foundUsers = await(await models.User).find({
@@ -254,10 +258,12 @@ const common = {
   },
 
   async init() {
-    await models.init();
+    let ret = await models.init();
+    if(ret != true)
+      return false;
     if(await this.GetLoginModel() != undefined && await this.GetSelfUserModel() != undefined)
     {
-      await this.initServiceApi();
+      this.initServiceApi();
       return true;
     }
     return false;
@@ -307,6 +313,9 @@ const common = {
     if (!result.ok || !result.success) {
       return result.data;
     }
+    let userid = result.data.obj.id;
+    await Config.SetLoginInfo(userid);
+    await models.init();
 
     
     var retmodels = await servicemodels.LoginModel(result)
@@ -512,8 +521,7 @@ const common = {
       console.debug("Please login first");
       return undefined;
     }
-    await(await models.Login).truncate();
-
+    await(await globalModels.Login).truncate();
     return await this.api.logout(this.data.login.access_token)
   },
 
@@ -1758,7 +1766,6 @@ const common = {
   },
 
   async gmsConfiguration(domainBase64){
-    await models.init();
     let value = Base64.encode(domainBase64, true);
     let response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/configuration/" + value)
     if (response.status != 200 

@@ -1,5 +1,4 @@
-import { models } from './models.js';
-
+import { models, globalModels } from './models.js';
 
 const sqliteutil = {
     async GetMaxMsgSequenceID(userid){
@@ -633,6 +632,28 @@ const Config = {
             return;
         }
         return foundUsers[0];
+    },
+
+    async GetCurrentUserID(){
+        let login = await (await globalModels.Login).find();
+        if(login.length != 0)
+            return login[0].user_id;
+    },
+
+    async SetLoginInfo(userID){
+        let login = await (await globalModels.Login).find();
+        if(login.length == 0){
+            const LoginModel = await globalModels.Login;
+            let loginvalue = {
+                user_id: userID
+            }
+            let loginmodel = new LoginModel(loginvalue);
+            loginmodel.save();
+        }
+        else{
+            login[0].user_id = userID;
+            login[0].save();
+        }
     }
 }
 

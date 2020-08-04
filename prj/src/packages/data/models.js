@@ -7,18 +7,63 @@
 import fs from 'fs';
 import {model, storage, types} from '../core/index.js';
 import {environment} from './environment.js';
+import {Config} from './sqliteutil.js'
+
+var globalModels = {
+  storage: {
+    sqlite: undefined
+  },
+
+  async init(){
+    if(this.storage.sqlite == undefined)
+      this.storage.sqlite = this._initSqliteStorage();
+    if(this.storage.sqlite == undefined)
+      return;
+    await this.storage.sqlite.connect(); 
+    
+    this.login = await (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: 'login',
+        fields: {
+          user_id: types.string,
+        },
+        primaryKey: 'user_id'
+      });
+    })();
+  },
+
+  _initSqliteStorage() {
+    if (typeof environment.path.sqlite == "undefined") {
+      return undefined;
+    }
+    let dbPath = environment.path.sqlite;
+    var sqlite = new storage.SQLiteStorage({
+      filename: dbPath
+    });
+  
+    if (typeof sqlite == "undefined") {
+      return undefined;
+    }
+  
+    return sqlite;
+  },
+  
+  get Login() {
+    return this.login;
+  }
+}
 
 var models = {
   storage: {
     sqlite: undefined
   },
 
-  async init(config) {
-    if (typeof config != "object") {
-      config = {};
-    }
+  async init() {
     if(this.storage.sqlite == undefined)
-      this.storage.sqlite = this._initSqliteStorage();
+      this.storage.sqlite = await this._initSqliteStorage();
+    if(this.storage.sqlite == undefined)
+      return;
     await this.storage.sqlite.connect(); 
 
     this.user = await (async () => {
@@ -258,15 +303,24 @@ var models = {
         }
       });
     })();
+    return true;
   },
 
-  _initSqliteStorage() {
+  async _initSqliteStorage() {
     if (typeof environment.path.sqlite == "undefined") {
       return undefined;
     }
-
+    await globalModels.init();
+    let userID = await Config.GetCurrentUserID();
+    if(userID == undefined)
+      return;
+    let dbPath = environment.path.base + "\\" + userID;
+    if (!fs.existsSync(dbPath)) {
+      fs.mkdirSync(dbPath);
+    }
+    dbPath = dbPath + "\\eachchat.db"
     var sqlite = new storage.SQLiteStorage({
-      filename: environment.path.sqlite
+      filename: dbPath
     });
 
     if (typeof sqlite == "undefined") {
@@ -326,5 +380,6 @@ var models = {
 }
 
 export {
-  models
+  models,
+  globalModels
 }
