@@ -21,7 +21,7 @@
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex, chatGroupItem.status)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
                   </div>
                   <div class="group-info">
                     <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
@@ -882,13 +882,22 @@ export default {
         }
       }
     },
-    getUnreadClass(unReadCount, selected) {
+    getUnreadClass(unReadCount, selected, status) {
       var endPoint = "-unselected";
       if(selected) {
         endPoint = "-selected";
       }
-      if(unReadCount === 0) return "group-readall" + endPoint;
-      else return "group-unread";
+      if(unReadCount === 0) {
+        return "group-readall" + endPoint;
+      }
+      else {
+        if(status != undefined && status.substr(7, 1) == "1") {
+          return "group-unread-slience"
+        }
+        else {
+          return "group-unread";
+        }
+      }
     },
     getUnReadCount(unReadCount) {
       if(unReadCount === 0) return "";
@@ -1208,9 +1217,9 @@ export default {
         this.mqttGroupVar.push(msg);
         return;
       }
-      if(msg.statues != undefined && msg.status[6] == 1) {
-        return;
-      }
+      // if(msg.statues != undefined && msg.status[6] == 1) {
+      //   return;
+      // }
       if(msg.message_from_id != undefined && msg.message_from_id != this.curUserInfo.id){
         // console.log("process.platfrom is ", this.isWindows())
         var fromName = "收到一条新短消息";
@@ -1282,13 +1291,13 @@ export default {
           }
           if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {
             let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-            if(!this.groupIsSlience(groupInfo)) {
               this.showGroupList[i].un_read_count += 1;
               this.unreadCount += 1;
               // console.log("callback this.unreadCount ", this.unreadCount)
               if(this.unreadCount < 0) {
                 this.unreadCount = 0;
               }
+            if(!this.groupIsSlience(groupInfo)) {
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
             }
           }
@@ -1990,6 +1999,24 @@ export default {
     margin-bottom: 2px;
     height: 18px;
     text-align: right;
+  }
+
+  .group-unread-slience {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 0px;
+    font-family:Microsoft Yahei;
+    float: right;
+    color: rgb(255, 255, 255);
+    margin: 0px;
+    text-align: center;
+    height: 8px;
+    width: 8px;
+    line-height: 8px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+    // z-index:-1;
   }
 
   .group-unread {
