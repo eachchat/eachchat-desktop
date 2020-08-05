@@ -1607,7 +1607,7 @@ const common = {
 
   async ListAllMessage(groupID, sequenceID){
     let allMessage = {};
-    if(await Message.ExistMessageBySequenceID())    {
+    if(await Message.ExistMessageBySequenceID(sequenceID))    {
       let history = await this.historyMessage(groupID, sequenceID, 20);
       let after = await this.AfterMessage(groupID, sequenceID, 20);
       allMessage.before = history;
