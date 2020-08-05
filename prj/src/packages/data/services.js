@@ -432,12 +432,12 @@ const common = {
       httpValue = "https";
     else
       httpValue = "http";
-    let mac = environment.os.mac;
+    let hostname = environment.os.hostName;
 
     this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttHost + ':' + this.config.mqttPort,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.id + '|' + mac,
+                                      clientId: this.data.selfuser.id + '|' + hostname,
                                       keepalive: 10,
                                       reconnectPeriod: 0});
     
@@ -448,7 +448,7 @@ const common = {
 
     this.mqttclient.on('connect', async function(){
       console.log("mqtt connect success")
-      console.log(mac);
+      console.log(hostname);
       servers.reconnectTime = 0;
       if(servers.retSetTimer != undefined)
         clearTimeout(servers.retSetTimer);
