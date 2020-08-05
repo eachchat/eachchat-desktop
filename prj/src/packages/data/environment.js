@@ -53,12 +53,7 @@ const environment = {
     },
 
     get hostName() {
-      if(this.type == osType.WINDOWS) {
-        this._hostName = os.hostname();
-      }
-      if(this.type == osType.OSX) {
-        this._hostName = os.hostname();
-      }       
+      this._hostName = os.hostname();     
       return this._hostName;
     }
   },
