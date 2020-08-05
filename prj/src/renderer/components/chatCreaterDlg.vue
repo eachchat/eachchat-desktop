@@ -283,7 +283,7 @@ export default {
                 }
                 console.log("disableUsers ", this.disableUsers);
                 for(let i=0;i<this.disableUsers[0].length;i++) {
-                    let selectedUserId = this.disableUsers[i].user_id;
+                    let selectedUserId = this.disableUsers[i];
                     selectedUserIds.push(selectedUserId);
                 }
                 ipcRenderer.send("searchAddedSenders", selectedUserIds);
@@ -298,7 +298,7 @@ export default {
                 console.log("this.selectedUsers = ", this.selectedUsers);
                 console.log("this disableUsers is ", this.disableUsers)
                 for(var j=0;j<this.disableUsers.length;j++) {
-                    groupUserIds.push(this.disableUsers[j].user_id);
+                    groupUserIds.push(this.disableUsers[j]);
                 }
                 var groupUserName = []
                 for(var i=0;i<this.selectedUsers.length;i++) {
@@ -309,10 +309,10 @@ export default {
                 }
                 var groupName = '';
                 if(groupUserName.length > 1) {
-                    groupName = groupUserName.join("、");
+                    groupName = groupUserName.join(",");
                 }
                 else if(groupUserName.length == 4) {
-                    groupName = groupUserName.join("、");
+                    groupName = groupUserName.join(",");
                     groupName = groupName + "...";
                 }
                 else {
@@ -403,24 +403,27 @@ export default {
                 console.log("this disableUsers is ", this.disableUsers)
                 var groupUserName = []
                 for(var j=0;j<this.disableUsers.length;j++) {
-                    groupUserIds.push(this.disableUsers[j].user_id);
-                    if(i < 4) {
-                        groupUserName.push(this.selectedUsers[i].user_display_name)
+                    if(groupUserIds.indexOf(this.disableUsers[j]) == -1) {
+                        groupUserIds.push(this.disableUsers[j]);
+                        if(j < 4) {
+                            var disabledUserInfo = await UserInfo.GetUserInfo(this.disableUsers[j])
+                            if(disabledUserInfo != undefined) {
+                                groupUserName.push(disabledUserInfo.user_display_name)
+                            }
+                        }
                     }
                 }
                 for(var i=0;i<this.selectedUsers.length;i++) {
-                    groupUserIds.push(this.selectedUsers[i].user_id)
-                    if(i < 2) {
-                        groupUserName.push(this.selectedUsers[i].user_display_name)
+                    if(groupUserIds.indexOf(this.selectedUsers[i].user_id) == -1) {
+                        groupUserIds.push(this.selectedUsers[i].user_id)
+                        if(i < 2) {
+                            groupUserName.push(this.selectedUsers[i].user_display_name)
+                        }
                     }
                 }
                 var groupName = '';
                 if(groupUserName.length > 1) {
-                    groupName = groupUserName.join("、");
-                }
-                else if(groupUserName.length == 4) {
-                    groupName = groupUserName.join("、");
-                    groupName = groupName + "...";
+                    groupName = groupUserName.join(",");
                 }
                 else {
                     groupName = groupUserName[0];
@@ -616,9 +619,11 @@ export default {
             breadInfo.display_name = department.display_name;
             this.breadCrumbs.push(breadInfo);
             this.$nextTick(function(){
-                for(var i = 0; i < this.curUsers.length; i ++){
-                    this.getUserImg(this.curUsers[i]);
-                }
+                setTimeout(() => {
+                    for(var i = 0; i < this.curUsers.length; i ++){
+                        this.getUserImg(this.curUsers[i]);
+                    }
+                }, 0)
             });
         },
         subDepartmentClicked:async function (department) {
@@ -672,7 +677,7 @@ export default {
                 var disable = false;
                 for(var j = 0; j < this.disableUsers.length; j ++){
                     var disabledUser = this.disableUsers[j];
-                    if (user.user_id == disabledUser.user_id) {
+                    if (user.user_id == disabledUser) {
                         disable = true;
                         break;
                     }

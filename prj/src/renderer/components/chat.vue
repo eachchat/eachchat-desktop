@@ -324,17 +324,16 @@ export default {
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
-            if(id != this.chat.group_id) {
-                return;
-            }
-            let elementImg = document.getElementById("chat-group-img");
-            elementImg.setAttribute("src", "");
-            var showfu = new FileUtil(localPath);
-            let showfileObj = showfu.GetUploadfileobj();
-            var reader = new FileReader();
-            reader.readAsDataURL(showfileObj);
-            reader.onloadend = () => {
-                elementImg.setAttribute("src", reader.result);
+            if(id == this.chat.group_id || id == this.chat.user_id) {
+                let elementImg = document.getElementById("chat-group-img");
+                elementImg.setAttribute("src", "");
+                var showfu = new FileUtil(localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                var reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    elementImg.setAttribute("src", reader.result);
+                }
             }
         },
         rightClick(e, msgItem) {
@@ -549,8 +548,16 @@ export default {
             ////////////////////////////////////////////////////
             var self = await services.common.GetSelfUserModel();
             console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            this.chatCreaterDisableUsers.push(self.id);
             console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
+            if(this.chat.contain_user_ids.length != 0) {
+                var contain_user_ids = this.chat.contain_user_ids.split(",");
+                for(var i=0;i<contain_user_ids.length;i++) {
+                    if(this.chatCreaterDisableUsers.indexOf(contain_user_ids[i]) == -1) {
+                        this.chatCreaterDisableUsers.push(contain_user_ids[i]);
+                    }
+                }
+            }
             var root = await Department.GetRoot();
             console.log("root is ", root);
             var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
@@ -578,7 +585,7 @@ export default {
             this.chatCreaterDisableUsers = existedMembers;
             var self = await services.common.GetSelfUserModel();
             console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            this.chatCreaterDisableUsers.push(self.id);
             console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
             var root = await Department.GetRoot();
             console.log("root is ", root);
@@ -952,7 +959,14 @@ export default {
             groupContentNumElement.innerHTML = groupContentNum;
             
             var targetPath = "";
-            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, chatGroupItem.group_id))){
+            var distId = "";
+            if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
+                distId = chatGroupItem.group_id;
+            }
+            else {
+                distId = chatGroupItem.user_id;
+            }
+            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, distId))){
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
@@ -2168,7 +2182,7 @@ export default {
                         for(var i=0;i<invitees.length;i++) {
                             inviteeNameList.push(invitees[i].userName);
                         }
-                        inviteeNames = inviteeNameList.join("、");
+                        inviteeNames = inviteeNameList.join(",");
                     }
                     var inviter = chatGroupMsgContent.userName;
                     return inviter + " 邀请 " + inviteeNames + " 加入群聊";
@@ -2194,7 +2208,7 @@ export default {
                     }
                     else{
                         for(var i=0;i<deletedUsers.length;i++) {
-                            deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                            deletedNames = deletedNames + "," + deletedUsers[i].userName
                         }
                     }
                     return owner + " 将 " + deletedNames + " 移出了群聊";
@@ -2341,7 +2355,7 @@ export default {
             catch(error) {
                 idsList = this.chat.contain_user_ids;
             }
-            var isOwner = ((this.chat.owner == this.curUserInfo.id || this.chat.owner != null) ? true : false);
+            var isOwner = (this.chat.owner == this.curUserInfo.id);
             console.log("this.chat ", this.chat);
             // console.log("this.isTop ", this.groupIsTop(this.chat))
             // console.log("this.isSlience ", this.groupIsSlience(this.chat))
@@ -2404,14 +2418,16 @@ export default {
                     console.log("to update msg")
                     var curTime = new Date().getTime();
                     // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
-                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScroll){
+                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScrollTop){
                         this.lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
                         let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                        services.common.historyMessage(this.chat.group_id, latestSequenceIdAndCount.latestSequenceId, latestSequenceIdAndCount.count)
+                        // services.common.historyMessage(this.chat.group_id, latestSequenceIdAndCount.latestSequenceId, latestSequenceIdAndCount.count)
+                        services.common.ListAllMessage(this.chat.group_id, latestSequenceIdAndCount.latestSequenceId)
                             .then((ret) => {
                                 console.log("=========ret is ", ret);
+                                ret = ret.before;
                                 if(ret[0].group_id != this.chat.group_id) {
                                     this.isRefreshing = false;
                                     return;
@@ -2460,24 +2476,27 @@ export default {
             // console.log("this groupid is ", this.chat.group_id);
             // console.log("this sequence_id is ", this.chat.sequence_id);
             // console.log("this.router is ", this.$route.name)
-            services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
+            // services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
+            services.common.ListAllMessage(this.chat.group_id, this.chat.sequence_id)
                 .then(async (ret) => {
                     console.log("oririnal ret is ", ret);
-                    if(ret == undefined) {
-                        this.needScroll = false;
+                    var retBefore = ret.before;
+                    var retAfter = ret.after;
+                    if(retBefore == undefined || retBefore.length == 0) {
+                        this.needScrollTop = false;
                         this.messageList = [];
                         this.isRefreshing = false;
                         return;
                     }
-                    if(ret[0].group_id != this.chat.group_id) {
+                    if(retBefore[0].group_id != this.chat.group_id) {
                         this.isRefreshing = false;
                         return;
                     }
-                    this.needScroll = true;
-                    if(ret.length < 20) {
-                        this.needScroll = false;
+                    this.needScrollTop = true;
+                    if(retBefore.length < 20) {
+                        this.needScrollTop = false;
                     }
-                    var messageListTmp = ret.sort(this.compare());
+                    var messageListTmp = retBefore.sort(this.compare());
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
                         // console.log("this.chat.sequence_id is ", this.chat.sequence_id);
@@ -2637,7 +2656,8 @@ export default {
                 "id": ""
             },
             needToBottom: false,
-            needScroll: true,
+            needScrollTop: true,
+            needScrollBottom: true,
             isOwn: false,
             createNewChat: false,
             addMemberGroupType: 101,
@@ -2751,13 +2771,14 @@ export default {
         chat: function() {
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
-            if(this.chat == undefined || this.curGroupId == this.chat.group_id) {
+            if(this.chat == undefined || (this.curGroupId != undefined && this.curGroupId == this.chat.group_id)) {
                 return;
             }
             if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
-                this.needScroll = true;
+                this.needScrollTop = true;
+                this.needScrollBottom = true;
 
                 this.existingMsgId = [];
                 

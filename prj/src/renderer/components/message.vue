@@ -423,7 +423,7 @@ export default {
                     }
                     else{
                         for(var i=0;i<invitees.length;i++) {
-                            inviteeNames = inviteeNames + "、" + invitees[i].userName
+                            inviteeNames = inviteeNames + "," + invitees[i].userName
                         }
                     }
                     var inviter = chatGroupMsgContent.userName;
@@ -450,7 +450,7 @@ export default {
                     }
                     else{
                         for(var i=0;i<deletedUsers.length;i++) {
-                            deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                            deletedNames = deletedNames + "," + deletedUsers[i].userName
                         }
                     }
                     return owner + " 将 " + deletedNames + " 移出了群聊";

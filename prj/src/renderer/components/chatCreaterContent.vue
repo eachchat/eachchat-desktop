@@ -454,7 +454,7 @@ export default {
                 var disable = false;
                 for(var j = 0; j < this.disableUsers.length; j ++){
                     var disabledUser = this.disableUsers[j];
-                    if (user.user_id == disabledUser.user_id) {
+                    if (user.user_id == disabledUser) {
                         disable = true;
                         break;
                     }

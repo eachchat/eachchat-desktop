@@ -247,7 +247,7 @@ export default {
         createNewChatButtonClicked:async function() {
             
             var self = await services.common.GetSelfUserModel();
-            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
+            this.chatCreaterDisableUsers.push(self.id);
             var root = await Department.GetRoot();
             var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
             var temp = [];
@@ -366,10 +366,10 @@ export default {
             // console.log("group groupUserName ids is ", groupUserName)
             var groupName = '';
             if(groupUserName.length > 1) {
-                groupName = groupUserName.join("、");
+                groupName = groupUserName.join(",");
             }
             else if(groupUserName.length == 4) {
-                groupName = groupUserName.join("、");
+                groupName = groupUserName.join(",");
                 groupName = groupName + "...";
             }
             else {

@@ -1066,7 +1066,7 @@ export default {
               for(var i=0;i<invitees.length;i++) {
                   inviteeNameList.push(invitees[i].userName);
               }
-              inviteeNames = inviteeNameList.join("、");
+              inviteeNames = inviteeNameList.join(",");
           }
           var inviter = chatGroupMsgContent.userName;
           return inviter + " 邀请 " + inviteeNames + " 加入群聊";
@@ -1092,7 +1092,7 @@ export default {
             }
             else{
                 for(var i=0;i<deletedUsers.length;i++) {
-                    deletedNames = deletedNames + "、" + deletedUsers[i].userName
+                    deletedNames = deletedNames + "," + deletedUsers[i].userName
                 }
             }
             return owner + " 将 " + deletedNames + " 移出了群聊";

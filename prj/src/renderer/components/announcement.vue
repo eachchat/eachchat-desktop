@@ -7,8 +7,9 @@
             </div>
             
             <div class="AnnouncementContent">
-                <div class="AnnouncementContentDetails">
-                    <label class="AnnouncementContentDetailsContent" v-html="AnnouncementContnts"></label>
+                <div class="AnnouncementContentDetails" id="AnnouncementContentDetailsId">
+                    <Agreement v-if="contentType=='agreement'"/>
+                    <Privacy v-else />
                 </div>
             </div>
         </div>
@@ -21,9 +22,11 @@ import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
+import Agreement from './agreement.vue'
+import Privacy from './privacy.vue'
 export default {
     name: 'AnnouncementDlg',
-    props: ['AnnouncementContnts', 'dialogTitle'],
+    props: ['contentType', 'dialogTitle'],
     data () {
         return {
             Abstrace: '',
@@ -65,6 +68,8 @@ export default {
         },
     },
     components: {
+        Agreement,
+        Privacy
     },
     created: async function () {
         this.serverapi = new APITransaction('139.198.15.253', 8888)
@@ -72,7 +77,13 @@ export default {
     mounted: function() {
     },
     watch: {
-        AnnouncementContnts: async function() {
+        contentType: async function() {
+            if(this.AnnouncementContentDetailsElement == null) {
+                this.AnnouncementContentDetailsElement = document.getElementById("AnnouncementContentDetailsId");
+            }
+
+            this.AnnouncementContentDetailsElement.scrollTop = 0;
+
             if(this.AnnouncementDlgElement == null) {
                 this.AnnouncementDlgElement = document.getElementById("AnnouncementDlgId");
             }
@@ -157,16 +168,20 @@ export default {
     .AnnouncementContent {
         width: calc(100% - 64px);
         height: calc(100% - 104px);
-        margin: 0px 32px 0 32px;
+        padding: 0px 32px 0 32px;
         border: 0px solid rgba(221, 221, 221, 1);
     }
     
     .AnnouncementContentDetails {
         display: block;
         width: 100%;
-        height: 340px;
-        margin: 0px;
+        height: 370px;
+        background:rgba(255,255,255,1);
+        border-radius:4px 0px 0px 4px;
+        border:1px solid rgba(221,221,221,1);
         overflow-y: scroll;
+        overflow-x: hidden;;
+        padding-bottom: 5px;
     }
 
     .AnnouncementContentDetailsContent {

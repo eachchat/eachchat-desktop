@@ -282,7 +282,7 @@ export default {
                         break;
                     }
                 }
-                groupName = groupUidNameList.join("、");
+                groupName = groupUidNameList.join(",");
             }
             return groupName
         },

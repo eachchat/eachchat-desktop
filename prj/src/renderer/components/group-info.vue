@@ -60,15 +60,17 @@
                 </li>
             </ul>
         </div>
-        <div class="groupLeave-view" v-show="isGroup">
-            <p class="groupLeaveDiv" @click="leave()">
-                退出群聊
-            </p>
-        </div>
-        <div class="groupDismiss-view" v-show="isGroup && isOwner">
-            <p class="groupDismissDiv" @click="dismiss()">
-                解散群聊
-            </p>
+        <div class="footer">
+            <div class="groupLeave-view" v-show="isGroup">
+                <p class="groupLeaveDiv" @click="leave()">
+                    退出群聊
+                </p>
+            </div>
+            <div class="groupDismiss-view" v-show="isGroup && isOwner">
+                <p class="groupDismissDiv" @click="dismiss()">
+                    解散群聊
+                </p>
+            </div>
         </div>
         <image-cropper v-if="showImageCropper" :groupId="groupId" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
     </div>
@@ -1047,11 +1049,18 @@ export default {
     cursor: pointer;
 }
 
+.footer{
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+}
+
 .groupLeave-view{
     height: 48px;
     padding: 0px;
     background: rgba(255, 255, 255, 1);
-    border: 0px solid rgba(221, 221, 221, 1)
+    border: 0px solid rgba(221, 221, 221, 1);
 }
 
 .groupLeaveDiv{

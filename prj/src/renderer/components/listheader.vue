@@ -117,10 +117,10 @@ export default {
             }
             var groupName = '';
             if(groupUserName.length > 1) {
-                groupName = groupUserName.join("、");
+                groupName = groupUserName.join(",");
             }
             else if(groupUserName.length == 4) {
-                groupName = groupUserName.join("、");
+                groupName = groupUserName.join(",");
                 groupName = groupName + "...";
             }
             else {

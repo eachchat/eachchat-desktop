@@ -906,8 +906,13 @@ const common = {
       })
       if(findGroups.length != 0){
         if(groupItem.groupAvatar != findGroups[0].group_avarar){
-          console.log("group avatar changed:"+ groupItem.groupAvatar);
+          var targetDir = confservice.getUserThumbHeadPath();
+          var targetPath = path.join(targetDir, groupId + '.png');
+          if(fs.existsSync(targetPath)) {
+              fs.unlinkSync(targetPath);
+          }
         }
+        await this.downloadGroupAvatar(groupItem.groupAvatar, groupId);
         groupModel = servicemodels.UpdateGroupGroup(findGroups[0], groupItem);
       }
       else{
