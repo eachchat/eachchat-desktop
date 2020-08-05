@@ -12,7 +12,8 @@ import * as fs from 'fs-extra'
 import { makeFlieNameForConflict } from '../core/Utils.js'
 import axios from "axios";
 import {Base64} from "js-base64";
-import {environment} from "./environment.js"
+import {environment} from "./environment.js";
+import {globalConfig} from "../core/config.js"
 
 const mqtt = require('mqtt')
 
@@ -1769,7 +1770,14 @@ const common = {
 
   async gmsConfiguration(domainBase64){
     let value = Base64.encode(domainBase64, true);
-    let response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/configuration/" + value)
+    let response;
+    if(globalConfig.gmsEnv == "develop")//测试环境
+      response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/configuration/" + value);
+    else if(globalConfig.gmsEnv == "preRelease")//预发布环境
+      response = await axios.get("https://gmspre.eachchat.net/api/sys/gms/v1/configuration/" + value);
+    else//正式环境
+      response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/configuration/" + value);
+    
     if (response.status != 200 
       || response.data == undefined
       || response.data.obj == undefined) {
