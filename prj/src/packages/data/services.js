@@ -387,7 +387,7 @@ const common = {
 
   async InitDbData()
   {
-    return new Promise.all([this.UpdateGroups(), this.UpdateUserinfo(), this.UpdateDepartment()])
+    Promise.all([this.UpdateGroups(), this.UpdateUserinfo(), this.UpdateDepartment()])
     //await this.UpdateMessages();
     //await this.ListAllCollections();
   },
