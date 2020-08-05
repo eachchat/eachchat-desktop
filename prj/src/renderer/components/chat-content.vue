@@ -21,7 +21,7 @@
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex, chatGroupItem.status)">{{getUnReadCount(chatGroupItem.un_read_count, index)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex, chatGroupItem.status)">{{getUnReadCount(chatGroupItem.un_read_count)}}</p>
                   </div>
                   <div class="group-info">
                     <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
@@ -901,7 +901,7 @@ export default {
     },
     getUnReadCount(unReadCount) {
       if(unReadCount === 0) return "";
-      else return unReadCount;
+      else return unReadCount > 100 ? "99+" : unReadCount;
     },
     formatTimeFilter(secondsTime) {
       let curDate = new Date();
@@ -1222,14 +1222,28 @@ export default {
       // }
       if(msg.message_from_id != undefined && msg.message_from_id != this.curUserInfo.id){
         // console.log("process.platfrom is ", this.isWindows())
-        var fromName = "收到一条新短消息";
+        var fromName = "";
+        var fromUserName = "";
         // console.log("msg.messagefromid ", msg.message_from_id);
         var fromUserInfo = await UserInfo.GetUserInfo(msg.message_from_id);
-        // console.log("fromUserInfo ", fromUserInfo);
+        var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+        var notificateContent = this.getShowMsgContent(msg);
+        console.log("fromUserInfo ", fromUserInfo);
         if(fromUserInfo != undefined) {
           fromName = fromUserInfo.user_display_name;
         }
-        var notificateContent = this.getShowMsgContent(msg);
+        if(groupInfo != undefined) {
+          if(groupInfo.group_type == 101) {
+            fromUserName = fromName;
+            fromName = groupInfo.group_name;
+            if(fromUserName.length == 0) {
+              notificateContent = notificateContent;
+            }
+            else{
+              notificateContent = fromUserName + ":" + notificateContent;
+            }
+          }
+        }
         if(this.isWindows()) {
           if(this.$store.getters.flashNotice()) {
             ipcRenderer.send("flashIcon", fromName, notificateContent);
