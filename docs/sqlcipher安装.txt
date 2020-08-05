@@ -55,6 +55,8 @@ linux下bind.gyp配置：
   ]
 }
 
-
+ubuntu:
+sqlcipher版本 v4.4.0
+openssl版本：1.1.1g
 
 
