@@ -46,6 +46,29 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "/static/Img/Main/logo@2x.png";
 }
 
+let iShouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+  console.log("isShouldQuit ", iShouldQuit);
+  try{
+    if(isLogin) {
+      mainPageWindow.show();
+      mainPageWindow.focus();
+    }
+    else {
+      mainWindow.show();
+      mainWindow.focus();
+    }
+    return true;
+  }
+  catch(error) {
+    console.log("========= ", error);
+    return true;
+  }
+});
+console.log("isShouldQuit: " + iShouldQuit)
+if (iShouldQuit) {
+  app.exit();
+}
+
 let resizableValue = false;
 
 const Bobolink = require('bobolink');
@@ -135,10 +158,6 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
 ipcMain.on("token-expired", function(event, arg) {
   if(isLogin) {
     console.log("logout")
-    let config = {
-      hostname: '139.198.15.253',
-      apiPort: 8888,
-    };
     if(process.platform == 'darwin'){
       app.dock.setBadge("");
     }
@@ -906,16 +925,6 @@ function openDevToolsInDevelopment(mainWindow) {
     mainWindow = null
   })
 }
-let iShouldQuit = app.makeSingleInstance(() => {
-  mainWindow.show();
-  mainWindow.focus();
-  return true;
-});
-console.log("isShouldQuit: " + iShouldQuit)
-if (iShouldQuit) {
-  app.quit();
-}
-
 
 app.on('ready', createWindow)
 
