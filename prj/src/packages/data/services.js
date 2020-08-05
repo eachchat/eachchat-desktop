@@ -426,6 +426,7 @@ const common = {
     if(this.mqttclient != undefined && this.mqttclient.connected) {
       return;
     }
+    let bClose = false;
     let httpValue;
     if(this.config.mqttTls)
       httpValue = "https";
@@ -451,13 +452,14 @@ const common = {
       servers.reconnectTime = 0;
       if(servers.retSetTimer != undefined)
         clearTimeout(servers.retSetTimer);
-      if(servers.callback != undefined)
+      if(bClose)
       {
         //servers.handlemessage(servers.callback);
         //await servers.UpdateGroups();
         let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(servers.data.selfuser.id);
         await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback);
         //servers.callback("reconnect");
+        bClose = false;
       }
       console.log(userid)
       api.SetMqtt(mqttclient);
@@ -472,6 +474,7 @@ const common = {
     })
 
     this.mqttclient.on("close", function(){
+      bClose = true;
       console.log("this.mqttclient.connected:" + servers.mqttclient.connected);
       if(servers.reconnectTime == 0)
         servers.reconnectTime = 1;
