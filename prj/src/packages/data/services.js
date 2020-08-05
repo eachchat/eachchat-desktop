@@ -385,14 +385,6 @@ const common = {
     return true;
   },
 
-  async InitServiceData(){
-    await this.AllUserinfo();
-    await this.AllDepartmentInfo();
-    await this.listAllGroup();
-    //await this.ReveiveNewMessage(0, 0);
-    
-  },
-
   async InitDbData()
   {
     await this.UpdateGroups();
@@ -404,18 +396,27 @@ const common = {
 
   async UpdateDepartment(){
     let updateTime = await sqliteutil.GetMaxDepartmentUpdatetime(this.data.selfuser.id);
-    await this.clientIncrement("updateDepartment", updateTime, 0, 0);
+    if(updateTime == 0)
+      await this.AllDepartmentInfo();
+    else
+      await this.clientIncrement("updateDepartment", updateTime, 0, 0);
   },
 
   async UpdateUserinfo(){
     let updateTime = await sqliteutil.GetMaxUserUpdatetime(this.data.selfuser.id);
-    await this.clientIncrement("updateUser", updateTime, 0, 0);
+    if(updateTime == 0)
+      await this.AllUserinfo();
+    else
+      await this.clientIncrement("updateUser", updateTime, 0, 0);
   },
 
   async UpdateGroups()
   {
     let updatetime = await sqliteutil.GetMaxGroupUpdatetime(this.data.selfuser.id);
-    await this.groupIncrement(updatetime, 0);
+    if(updatetime == 0)
+      await this.listAllGroup();
+    else
+      await this.groupIncrement(updatetime, 0);
   },
 
   async UpdateMessages(){

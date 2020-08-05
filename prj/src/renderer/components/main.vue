@@ -156,13 +156,7 @@ export default {
             await services.common.init();
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
-            if(this.$store.getters.isFirstLogin()) {
-                services.common.AllDepartmentInfo();
-                services.common.AllUserinfo();
-            }
-            else {
-                services.common.InitDbData();
-            }
+            services.common.InitDbData();
             // console.log("22222222222222222222222222")
             console.log("the init user id is ,", this.curUserInfo.id)
             confservice.init(this.curUserInfo.id);

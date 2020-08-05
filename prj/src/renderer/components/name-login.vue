@@ -315,28 +315,7 @@ export default {
             this.showLoadingView = true;
             setTimeout(async () => {
                 this.tokenRefreshing = true;
-
-                // await services.common.InitServiceData();
-                //后面的这些代码可以放到主线程
-                //ipcRenderer.send("firstLogin")  
-                let newLoginModel = await services.common.GetLoginModel();
-                if(oldLoginModel != undefined && oldLoginModel.user_id == newLoginModel.user_id)
-                {
-                    this.loadingProcess = "正在加载信息";
-                    this.$store.commit("setIsFirstLogin", false);
-                    // await services.common.InitDbData();
-                }
-                else
-                {
-                    // this.loadingProcess = "正在加载用户信息";
-                    // await services.common.AllUserinfo();
-                    // this.loadingProcess = "正在加载组织信息";
-                    // await services.common.AllDepartmentInfo();
-                    this.$store.commit("setIsFirstLogin", true);
-                    this.loadingProcess = "正在加载群组信息";
-                    await services.common.listAllGroup();
-                }              
-                // const ipcRenderer = require('electron').ipcRenderer;
+                await services.common.UpdateGroups();         
                 ipcRenderer.send('showMainPageWindow', true); 
             }, 1000);
         }
@@ -366,11 +345,6 @@ export default {
                     this.showLoginView = true;
                     return;
                 }
-                //这段代码可以用IPC放到主线程
-                //ipcRenderer.send("notFirstLogin")
-                this.$store.commit("setIsFirstLogin", false);
-                // await services.common.InitDbData();
-                // const ipcRenderer = require('electron').ipcRenderer;
                 ipcRenderer.send('showMainPageWindow', false);
             })
 
