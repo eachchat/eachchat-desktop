@@ -898,6 +898,10 @@ export default {
             if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img" && e.target.className != "groupMemberInfoImage" && e.target.className != "groupMemberInfoLabel"){
                 this.showUserInfoTips = false;
             }
+            var userInfoElement = document.getElementById("userInfoId");
+            if(userInfoElement != null && !userInfoElement.contains(e.target) && e.target.className != "msg-info-user-img" && e.target.className != "groupMemberInfoImage" && e.target.className != "groupMemberInfoLabel"){
+                this.$emit("closeUserInfoTip");
+            }
             var groupInfoElement = document.getElementById("groupInfoTipId");
             if(groupInfoElement != null && !groupInfoElement.contains(e.target) && e.target.className != "chat-tool-more-div" && e.target.className != "chat-tool-more-img" && e.target.className != "groupMemberSearchImage" && e.target.className != "searchMemberCancel") {
                 this.showGroupInfoTips = false;
@@ -2381,7 +2385,7 @@ export default {
             // console.log("this.chat.group_name is ", this.chat.group_name);
             this.showGroupInfoTips = true;
             this.cleanCache = false;
-            console.log("more more more ", this.showGroupInfoTips)
+            console.log("more more more ", this.groupInfoObj)
         },
         compare: function(){
             return function(a, b)

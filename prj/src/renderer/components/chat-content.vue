@@ -42,7 +42,7 @@
                 <ul class="search-list-content-list">
                   <li class="search-item"
                       v-for="searchPeopleItem in searchPeopleItems"
-                      @click="showPeopleInfo(searchPeopleItem)"
+                      @click="showPeopleInfo($event, searchPeopleItem)"
                       >
                     <div class="search-item-img-div">
                       <img class="search-item-img-ico" :id="getSearchItemElementId(searchPeopleItem.id)" src="../../../static/Img/User/user-40px@2x.png"/>
@@ -62,6 +62,7 @@
                 <ul class="search-list-content-list">
                   <li class="search-item"
                       v-for="searchMessageItem in searchMessageItems"
+                      @click="showGroup(searchMessageItem)"
                       >
                     <div class="search-item-img-div">
                       <img class="search-item-img-ico" :id="getSearchItemElementId(searchMessageItem.groupId)" src="../../../static/Img/User/user-40px@2x.png"/>
@@ -111,7 +112,7 @@
           <img class="chat-empty-bg" src="../../../static/Img/Chat/empyt2@2x.png">
         </div>
         <div class="chat" v-show="!isEmpty">
-          <ChatPage :chat="curChat" :newMsg="newMsg" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus"></ChatPage>
+          <ChatPage :chat="curChat" :newMsg="newMsg" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -119,6 +120,7 @@
       <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
       </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
+      <userInfoContent id="userInfoId" :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
     </div>
 </template>
 
@@ -138,6 +140,9 @@ import searchSenderSelecterDlg from './searchSenderSelect.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department, Message } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
+import userInfoContent from './user-info';
+import {shell} from 'electron'
+import confservice from '../../packages/data/conf_service.js'
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
 export default {
@@ -148,6 +153,7 @@ export default {
     imageLayer,
     searchChatSelecterDlg,
     searchSenderSelecterDlg,
+    userInfoContent,
     // listItem
   },
   props: {
@@ -256,6 +262,11 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      showUserInfoTips: false,
+      isOwn: false,
+      userInfo: {},
+      userInfoPosition: {},
+      userInfoTipKey: 1,
       amr: null,
       unreadCount: 0,
       cleanSearchKey: false,
@@ -360,10 +371,87 @@ export default {
       return "file-name-element-" + itemId;
     },
     showFileInfo: function(fileInfo) {
-
+      console.log("showfileINfo file info is ", fileInfo);
+      var chatGroupMsgContent = fileInfo.content;
+      targetDir = confservice.getFilePath();
+      var targetFileName = chatGroupMsgContent.fileName;
+      var theExt = path.extname(targetFileName);
+      
+      var targetDir = confservice.getFilePath(fileInfo.timestamp);
+      var targetPath = path.join(targetDir, fileInfo.msgId + theExt);
+      
+      var needOpen = false;
+      console.log("targetPath is ", targetPath)
+      if(!fs.existsSync(targetPath)){
+        // console.log("this.msg.timelineid is ", fileInfo.timelineId)
+        // console.log("targetfilename is ", targetFileName);
+        services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, fileInfo.msgId + theExt, true);
+      }
+      else {
+        shell.openItem(targetPath);
+      }
     },
-    showPeopleInfo: function(peopleInfo) {
+    closeUserInfoTip: function() {
+      this.showUserInfoTips = false;
+    },
+    showGroup: async function(groupInfo) {
+      console.log("in chat content distGroupId is ", groupInfo);
+      if(groupInfo.groupId.length != 0) {
+        var distInfo = await Group.FindItemFromGroupByGroupID(groupInfo.groupId);
+        if(distInfo != undefined) {
+          this.getCreateGroupInfo(distInfo);
+        }
+      }
+    },
+    showPeopleInfo: async function(event, tipInfos) {
+      console.log("event is ", event);
+      console.log("tip inso if ", tipInfos);
+      if(tipInfos == undefined) {
+          this.showUserInfoTips = false;
+          return;
+      }
+      var distUserInfo = tipInfos;
+      // var iconElement = document.getElementById(id);
+      this.userInfoPosition.left = event.clientX;
+      this.userInfoPosition.top = event.clientY;
+      // console.log(iconElement.getBoundingClientRect());
+      var tempUserInfo = {};
+      //get userinfo
+      var user = await UserInfo.GetUserInfo(distUserInfo.id);
+      tempUserInfo.id = user.user_id;
+      tempUserInfo.avatarTUrl = user.avatar_t_url;
+      tempUserInfo.displayName = user.user_display_name;
+      tempUserInfo.title = user.user_title;
+      tempUserInfo.statusDescription = user.status_description;
+      tempUserInfo.workDescription = user.work_description;
+      tempUserInfo.managerId = user.manager_id;
+      tempUserInfo.departmentId = user.belong_to_department_id;
+      
+      //get department
+      var department = await Department.GetDepartmentInfoByUserID(distUserInfo.id);
+      tempUserInfo.department = department;
+      //get email
+      var email = await UserInfo.GetUserEmailByUserID(distUserInfo.id);
+      tempUserInfo.email = email;
+      //get phone
+      var phone = await UserInfo.GetUserPhoneByUserID(distUserInfo.id);
+      var tempPhone = {};
+      for (var i = 0; i < phone.length; i ++){
+          var temp = phone[i];
+          if(temp.phone_type == 'mobile'){
+              tempPhone.mobile = temp.phone_value;
+          }else{
+              tempPhone.work = temp.phone_value;
+          }
+      }
+      tempUserInfo.phone = tempPhone;
+      var leaders = await UserInfo.GetLeaders(distUserInfo.id);
+      tempUserInfo.leaders = leaders;
+      console.log("tetempUserInfo is ", tempUserInfo);
 
+      this.userInfo = tempUserInfo;
+      this.userInfoTipKey ++;
+      this.showUserInfoTips = true;
     },
     Close: function() {
       ipcRenderer.send("win-close");
@@ -783,22 +871,27 @@ export default {
     getCreateGroupInfo(groupInfo) {
       this.needScroll = true;
       console.log("Created Info is ", groupInfo)
+
+      this.cleanSearchKey = !this.cleanSearchKey;
+      this.toSearch("");
+      this.showUserInfoTips = false;
       
-      var groupIndex = -1;
-      for(var i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id != undefined && this.showGroupList[i].group_id === groupInfo.group_id) {
-          console.log("this.originalgorulliset is ", this.showGroupList[i]);
-          groupIndex = i;
-          this.scrollToDistPosition(groupIndex);
-          break;
+      this.$nextTick(() => {
+        var groupIndex = -1;
+        for(var i=0;i<this.showGroupList.length;i++) {
+          if(this.showGroupList[i].group_id != undefined && this.showGroupList[i].group_id === groupInfo.group_id) {
+            console.log("this.originalgorulliset is ", this.showGroupList[i]);
+            groupIndex = i;
+            this.scrollToDistPosition(groupIndex);
+            break;
+          }
         }
-      }
-      if(groupIndex == -1) {
-        if(groupInfo.group_type != 102) {
-          this.mqttGroupVar.push(groupInfo);
-          return;
-        }
-        else {
+        if(groupIndex == -1) {
+          if(groupInfo.group_type != 102) {
+            this.mqttGroupVar.push(groupInfo);
+            return;
+          }
+          // else {
           this.originalGroupList.unshift(groupInfo);
           console.log("this.curchat is ", groupInfo);
           this.curChat = this.originalGroupList[0];
@@ -809,15 +902,16 @@ export default {
               this.showGroupIcon();
             })
           }, 1000)
+          // }
         }
-      }
-      else {
-        setTimeout(() => {
-          this.$nextTick(() => {
-            this.showChat(this.showGroupList[groupIndex], groupIndex);
-          })
-        }, 500)
-      }
+        else {
+          setTimeout(() => {
+            this.$nextTick(() => {
+              this.showChat(this.showGroupList[groupIndex], groupIndex);
+            })
+          }, 500)
+        }
+      })
       // ++this.needUpdate;
     },
     showImageOfMessage(imgSrcInfo) {
