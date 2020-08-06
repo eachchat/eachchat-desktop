@@ -146,8 +146,26 @@ export default {
                 bgElement.style.display = "none"
             }
         },
-        openFile: function(userInfo) {
-            ipcRenderer.send("jumpToChat", userInfo.user_id);
+        openFile: function(fileInfo) {
+            console.log("fileInfo ======= ", fileInfo);
+            var chatGroupMsgContent = fileInfo.content;
+            targetDir = confservice.getFilePath();
+            var targetFileName = chatGroupMsgContent.fileName;
+            var theExt = path.extname(targetFileName);
+            
+            var targetDir = confservice.getFilePath(fileInfo.timestamp);
+            var targetPath = path.join(targetDir, fileInfo.msgId + theExt);
+            
+            var needOpen = false;
+            console.log("targetPath is ", targetPath)
+            if(!fs.existsSync(targetPath)){
+                // console.log("this.msg.timelineid is ", fileInfo.timelineId)
+                // console.log("targetfilename is ", targetFileName);
+                services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, fileInfo.msgId + theExt, true);
+            }
+            else {
+                shell.openItem(targetPath);
+            }
         },
         getUserNameId: function(curMsg) {
             return "HistoryMsgListName-" + curMsg.user_id;
