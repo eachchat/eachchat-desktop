@@ -34,7 +34,16 @@
                             <div class="users-header">
                                 成员
                             </div>
-                            <ul class="managers-list">
+                            <RecycleScroller class="managers-List" :items="organizationList[0].users" :item-size="60" key-field="user_id" v-slot="{ item }">
+                                <div class="manager" @click="userMenuItemClicked(item.user_id)">
+                                    <img ondragstart="return false" class="manager-icon" :id="item.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                                    <div class="manager-info">
+                                        <p class="manager-name">{{ item.user_display_name }}</p>
+                                        <p class="manager-title">{{ item.user_title }}</p>
+                                    </div>
+                                </div>
+                            </RecycleScroller>
+                            <!-- <ul class="managers-list">
                                 <li class="manager"
                                     v-for="(manager, index) in organizationList[0].users"
                                     @click="userMenuItemClicked(manager.user_id)" 
@@ -46,7 +55,7 @@
                                         <p class="manager-title">{{ manager.user_title }}</p>
                                     </div>
                                 </li>
-                            </ul>
+                            </ul> -->
                         </div>
                     </div>
                 
