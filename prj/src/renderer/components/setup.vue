@@ -39,7 +39,7 @@
             <ul class="setup-general-device-list">
                 <li class="device-info" v-for="(deviceItem, index) in recentDevice">
                     <label class="device-one-name">{{deviceItem.model}}</label>
-                    <label class="device-one-os">系统：</label>
+                    <label class="device-one-os">系统：{{deviceItem.desktopType}}</label>
                     <label class="device-one-last-login-time">时间：{{timeDeal(deviceItem.loginTime)}}</label>
                 </li>
             </ul>

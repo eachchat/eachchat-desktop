@@ -79,6 +79,8 @@ export default {
             }
         },
         Close: function() {
+            this.memberListShow = [];
+            this.memberListShowOriginal = [];
             this.$emit("closeOwnerTransferDlg", "");
         },
         TransferOwner: function() {
@@ -301,7 +303,7 @@ export default {
 
     .groupMember-list {
         list-style: none;
-        max-height: calc(100% - 32px);
+        max-height: calc(100% - 62px);
         margin: 0 16px 0 16px;
         padding: 0;
         display: block;

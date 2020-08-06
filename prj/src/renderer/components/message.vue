@@ -394,7 +394,7 @@ export default {
                 
                 if(targetPath.length == 0) {
                     var targetDir = confservice.getFilePath(this.msg.message_timestamp);
-                    var targetPath = path.join(targetDir, targetFileName);
+                    var targetPath = path.join(targetDir, this.msg.message_id + theExt);
                 }
                 var needOpen = false;
                 console.log("targetPath is ", targetPath)
