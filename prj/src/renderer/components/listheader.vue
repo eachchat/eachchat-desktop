@@ -83,7 +83,7 @@ export default {
                 }
             }
             console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(selfUserInfo);
+            this.chatCreaterDisableUsers.push(selfUserInfo.user_id);
             console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
             var root = await Department.GetRoot();
             console.log("root is ", root);
