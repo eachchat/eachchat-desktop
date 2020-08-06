@@ -1,4 +1,5 @@
 import { models, globalModels } from './models.js';
+import { model } from '../core/index.js';
 
 const sqliteutil = {
     async GetMaxMsgSequenceID(userid){
@@ -227,7 +228,12 @@ const Department = {
                 return departments[index];
         }        
     },
+    async GetAllDepartment(){
+        let departments = await (await models.Department).find({
 
+        });
+        return departments;
+    },
     async GetSubDepartment(departmentID){
         let departments = await (await models.Department).find({
             parent_id: departmentID
@@ -269,6 +275,12 @@ const Department = {
 };
 
 const UserInfo = {
+    async GetAllUserInfo(){
+        let userinfos = await(await models.UserInfo).find({
+
+        });
+        return userinfos;
+    },
     async GetSubUserinfo(departmentID){
         let userinfos = await(await models.UserInfo).find({
             belong_to_department_id: departmentID

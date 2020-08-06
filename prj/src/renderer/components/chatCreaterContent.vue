@@ -17,7 +17,7 @@
                     <div class="searchView" v-if="showSearchView">
                         <ul class="subUsersList">
                             <li class="subUser" v-for="(user, index) in searchUser" :key="index">
-                                <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
+                                <input type="checkBox" class="multiSelectCheckbox" :checked="user.isCheck"
                                     @click="userCheckBoxClicked(user)">
                                 <img ondragstart="return false" class="subUserIcon" :id="'search' + user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="subUserInfo">
@@ -53,17 +53,17 @@
                             </el-breadcrumb>
                             </div>
                             <div class="organizationSelectAllHeader">
-                                <input type="checkBox" class="multiSelectCheckbox"  :checked="selectAllCheckState"
+                                <input type="checkBox" class="multiSelectCheckbox"  :checked="curDepartment.isCheck"
                                     @click="currentDepartmentSelectAllClicked()">
                                 <p class="checkBox-title">全选</p>
-                                <p class="checkBox-label">已选{{ curDepartmentSelectUserNumber }}人</p>
+                                <p class="checkBox-label">已选{{ selectedUsers.length }}人</p>
                             </div>
                         </div>
                         <div class="OrganizationSubViewContent">
                             <div class="subDepartmentView">
                                 <ul class="subDepartmentList">
-                                    <li class="subDepartment" v-for="(department, index) in curDepartments"  :key="index" >
-                                        <input type="checkBox" class="multiSelectCheckbox" :checked="departmentCheckState(department)"
+                                    <li class="subDepartment" v-for="(department, index) in curSubDepartments"  :key="index" >
+                                        <input type="checkBox" class="multiSelectCheckbox" :checked="department.isCheck"
                                             @click="departmentCheckBoxClicked(department)">
                                         <div class="subDepartmentInfo" @click="subDepartmentClicked(department)">
                                             <p class="subDepartmentTitle">{{ department.display_name }}</p>
@@ -75,9 +75,18 @@
                                 </ul>
                             </div>
                             <div class="subUsersView">
-                                <ul class="subUsersList">
+                                <RecycleScroller class="subUsersList" :items="curUsers" :item-size="48" key-field="user_id" v-slot="{ item }">
+                                        <input type="checkBox" class="multiSelectCheckbox" :checked="item.isCheck"
+                                            @click="userCheckBoxClicked(item)">
+                                        <img ondragstart="return false" class="subUserIcon" :id="item.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                                        <div class="subUserInfo">
+                                            <p class="subUserName">{{ item.user_display_name }}</p>
+                                            <p class="subUserTitle">{{ item.user_title }}</p>
+                                        </div>
+                                </RecycleScroller>
+                                <!-- <ul class="subUsersList">
                                     <li class="subUser" v-for="(user, index) in curUsers" :key="index">
-                                        <input type="checkBox" class="multiSelectCheckbox" :checked="userCheckState(user)"
+                                        <input type="checkBox" class="multiSelectCheckbox" :checked="user.isCheck"
                                             @click="userCheckBoxClicked(user)">
                                         <img ondragstart="return false" class="subUserIcon" :id="user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                         <div class="subUserInfo">
@@ -85,7 +94,7 @@
                                             <p class="subUserTitle">{{ user.user_title }}</p>
                                         </div>
                                     </li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </div>
                     </div>
@@ -145,66 +154,6 @@ export default {
             }
         }
     },
-    computed: {
-
-        curDepartmentSelectUserNumber:function(){
-            var count = 0;
-            for(var i = 0.; i < this.curSubAllUsers.length; i++){
-                if(this.indexOfUserInSelected(this.curSubAllUsers[i]) != -1){
-                    count ++;
-                }
-            }
-            return count;
-        },
-        selectAllCheckState:function(){
-            // user state
-            // var allUsers = this.curUsers;
-            // for (var i = 0; i < this.curDepartments.length; i ++){
-            //     allUsers = allUsers.concat(this.curDepartments[i].subAllUsers);
-            // }
-            var check = true;
-            for(var i = 0; i < this.curSubAllUsers.length; i ++){
-                if(this.indexOfUserInSelected(this.curSubAllUsers[i]) == -1){
-                    check = false;
-                    break;
-                }
-            }
-            return check;
-        },
-        departmentCheckState(){
-            return function(department) {
-                if(department.subAllUsers == undefined || this.selectedUsers == undefined){
-                    return false;
-                }
-                if(department.subAllUsers.length == 0 || this.selectedUsers.length == 0 || department.subAllUsers.length > this.selectedUsers.length){
-                    return false;
-                }
-                var checked = true;
-                for(var i = 0; i < department.subAllUsers.length; i ++){
-                    var user = department.subAllUsers[i];
-                    if(!this.userCheckState(user)){
-                        checked = false;
-                        break;
-                    }
-                }
-                return checked;
-            }
-            
-        },
-        userCheckState() {
-            return function (user) {
-                var check = false;
-                for(var i = 0; i < this.selectedUsers.length; i ++){
-                    var id = user.user_id;
-                    if(id == this.selectedUsers[i].user_id){
-                        check = true;
-                        break;
-                    }
-                }
-                return check;
-            }
-        }
-    },
     data () {
         return {
             imgHeight: 468,
@@ -214,9 +163,12 @@ export default {
             showRootDepartmentView:true,
             showOrganizationView:true,
             breadCrumbs:[],
-            curDepartments: [],
-            curUsers: [],
-            curSubAllUsers: [],
+            allDepartments:[],
+            allUsers:[],
+
+            curDepartment: {},
+            curSubDepartments: [],
+            curUsers:[],
             selectedUsers: [],
 
             showSearchView: false,
@@ -233,8 +185,17 @@ export default {
             }
             this.showSearchView = true;
             this.showOrganizationView = false;
-            this.searchUser = await UserInfo.SearchByNameKey(this.searchKey);
-
+            var result = [];
+            var tempSearchUsers = await UserInfo.SearchByNameKey(this.searchKey);
+            for(var i = 0; i < tempSearchUsers.length; i ++){
+                for(var j = 0; j < this.allUsers.length; j ++){
+                    if(tempSearchUsers[i].user_id == this.allUsers[j].user_id){
+                        result.push(this.allUsers[j]);
+                        break;
+                    }
+                }
+            }
+            this.searchUser = result;
             this.$nextTick(function(){
                 for(var i = 0; i < this.searchUser.length; i ++){
                     this.getUserImg(this.searchUser[i], 'search');
@@ -243,8 +204,8 @@ export default {
         },
         searchDeleteClicked(){
             this.searchKey = '';
-            this.showSearchView = false;
-            this.showOrganizationView = true;
+            this.search();
+
         },
         closeDialog() {
             //this.display = false;
@@ -267,70 +228,120 @@ export default {
                 return;
             }
             // other
+            this.curDepartment = this.getDepartment(department.department_id);
             this.showRootDepartmentView = false;
-            var subDepartmentModels = await Department.GetSubDepartment(department.department_id);
-            var subUserModels = await UserInfo.GetSubUserinfo(department.department_id);
-            var tempDepartments = [];
-            for (var i = 0; i < subDepartmentModels.length; i ++) {
-                var temp = {};
-                temp.department_id = subDepartmentModels[i].department_id;
-                temp.display_name = subDepartmentModels[i].display_name;
-                temp.subAllUsers = await this.getDepartmentSubAllUsers(subDepartmentModels[i]);
+            var subDepartmentModels = this.getSubDepartment(department.department_id);
+            var subUserModels = this.getSubUsers(department.department_id);
+            // var tempDepartments = [];
+            // for (var i = 0; i < subDepartmentModels.length; i ++) {
+            //     var temp = {};
+            //     temp.department_id = subDepartmentModels[i].department_id;
+            //     temp.display_name = subDepartmentModels[i].display_name;
+            //     temp.subAllUsers = this.getDepartmentSubAllUsers(subDepartmentModels[i]);
                 
-                tempDepartments.push(temp);
-            }
-            this.curDepartments = tempDepartments;
+            //     tempDepartments.push(temp);
+            // }
+            this.curSubDepartments = subDepartmentModels;
             this.curUsers = this.filterDisabledUsers(subUserModels);
-            this.curSubAllUsers = await this.getDepartmentSubAllUsers(department);
+            this.curSubAllUsers = this.getDepartmentSubAllUsers(department);
             this.$nextTick(function(){
                 for(var i = 0; i < this.curUsers.length; i ++){
                     this.getUserImg(this.curUsers[i]);
                 }
             });
+
         },
         currentDepartmentSelectAllClicked(){
-            var allUsers = this.curUsers;
-            for (var i = 0; i < this.curDepartments.length; i ++){
-                allUsers = allUsers.concat(this.curDepartments[i].subAllUsers);
-            }
-            // check state
-            if (this.selectAllCheckState){
-                for(var i = 0; i < allUsers.length; i ++){
-                    var index = this.indexOfUserInSelected(allUsers[i]);
-                    if(index != -1){
-                        this.selectedUsers.splice(index, 1);
-                    }
-                }
-                return;
-            }
-            else {
-                for(var i = 0; i < allUsers.length; i ++){
-                    var index = this.indexOfUserInSelected(allUsers[i]);
-                    if(index == -1){
-                        this.selectedUsers.push(allUsers[i]);
-                    }
-                }
-            }
-            this.$nextTick(function(){
-                for(var i = 0; i < this.selectedUsers.length; i ++){
-                    this.getUserImg(this.selectedUsers[i], 'selected');
-                }
-            });
+            this.departmentCheckBoxClicked(this.curDepartment);
+            // var allUsers = this.curUsers;
+            // for (var i = 0; i < this.curDepartments.length; i ++){
+            //     allUsers = allUsers.concat(this.curDepartments[i].subAllUsers);
+            // }
+            // // check state
+            // if (this.selectAllCheckState){
+            //     for(var i = 0; i < allUsers.length; i ++){
+            //         var index = this.indexOfUserInSelected(allUsers[i]);
+            //         if(index != -1){
+            //             this.selectedUsers.splice(index, 1);
+            //         }
+            //     }
+            //     return;
+            // }
+            // else {
+            //     for(var i = 0; i < allUsers.length; i ++){
+            //         var index = this.indexOfUserInSelected(allUsers[i]);
+            //         if(index == -1){
+            //             this.selectedUsers.push(allUsers[i]);
+            //         }
+            //     }
+            // }
+            // this.$nextTick(function(){
+            //     for(var i = 0; i < this.selectedUsers.length; i ++){
+            //         this.getUserImg(this.selectedUsers[i], 'selected');
+            //     }
+            // });
         },
         userCheckBoxClicked(user){
             console.log('haha');
             if(this.indexOfUserInSelected(user) != -1){
                 var index = this.indexOfUserInSelected(user);
                 this.selectedUsers.splice(index, 1);
+                user.isCheck = false;
+                // var tempAllUsers = this.allUsers;
+                // for(var i = 0; i < tempAllUsers.length; i ++){
+                //     if(tempAllUsers[i].user_id == user.user_id){
+                //         this.allUsers[i].isCheck = false;
+                //         break;
+                //     }
+                // }
+                this.curDepartment.isCheck = this.checkDepartmentState(user.belong_to_department_id);
             }
             else{
                 this.selectedUsers.push(user);
+                user.isCheck = true;
+                // var tempAllUsers = this.allUsers;
+                // for(var i = 0; i < tempAllUsers.length; i ++){
+                //     if(tempAllUsers[i].user_id == user.user_id){
+                //         this.allUsers[i].isCheck = true;
+                //         break;
+                //     }
+                // }
+                this.curDepartment.isCheck = this.checkDepartmentState(user.belong_to_department_id);
             }
             this.$nextTick(function(){
                 for(var i = 0; i < this.selectedUsers.length; i ++){
                     this.getUserImg(this.selectedUsers[i], 'selected');
                 }
             });
+        },
+        checkDepartmentState(department_id){
+            var department = this.getDepartment(department_id);
+            var isCheck = true;
+            if(department.subAllUsers.length <= this.selectedUsers.length){
+                for(var i = 0; i < department.subAllUsers.length; i ++){
+                    if(this.indexOfUserInSelected(department.subAllUsers[i]) == -1){
+                        isCheck = false;
+                        break;
+                    }
+                }
+            }else{
+                isCheck = false;
+            }
+            department.isCheck = isCheck;
+            if(department.parent_id){
+                this.checkDepartmentState(department.parent_id);
+            }
+            // var tempDepartments = this.allDepartments;
+            // for(var i = 0; i< tempDepartments.length; i ++){
+            //     if(tempDepartments[i].department_id == department_id){
+            //         this.allDepartments[i].isCheck = isCheck;
+            //         if(tempDepartments[i].parent_id){
+            //             this.checkDepartmentState(tempDepartments[i].parent_id);
+            //         }
+            //         break;
+            //     }
+            // }
+            return isCheck;
         },
         indexOfUserInSelected(user){
             var index = -1;
@@ -345,22 +356,41 @@ export default {
         },
         departmentCheckBoxClicked(department){
             var users = department.subAllUsers;
-            if(this.departmentCheckState(department)){
+            if(department.isCheck){
                 for(var i = 0; i < users.length; i ++){
                     var user = users[i];
+                    user.isCheck = false;
                     var index = this.indexOfUserInSelected(user);
                     this.selectedUsers.splice(index, 1);
                 }
-                return;
+                
             }else{
                 for(var i = 0; i < users.length; i ++){
                     var user = users[i];
+                    user.isCheck = true;
                     if(this.indexOfUserInSelected(user) == -1){
                         this.selectedUsers.push(user);
-                //var index = this.selectedUsers.indexOf(user);
-                //this.selectedUsers.splice(index, 1);
+
+                        // var tempAllUsers = this.allUsers;
+
+                        // for(var j = 0; j < tempAllUsers.length; j ++){
+                        //     if(tempAllUsers[j].user_id == user.user_id){
+                        //         this.allUsers[j].isCheck = true;
+                        //         break;
+                        //     }
+                        // }
                     }
                 }
+            }
+            this.checkDepartmentState(department.department_id);
+            var subDepartmentModels = this.getSubDepartment(department.department_id);
+            for(var i = 0; subDepartmentModels.length > 0; i ++){
+                var temp = [];
+                for(var j = 0; j < subDepartmentModels.length; j++){
+                    var tempDepartment = subDepartmentModels[j];
+                    tempDepartment.isCheck = department.isCheck;
+                }
+                subDepartmentModels = temp;
             }
             this.$nextTick(function(){
                 for(var i = 0; i < this.selectedUsers.length; i ++){
@@ -371,6 +401,14 @@ export default {
         deleteUserFromSelectedUsers(user){
             var index = this.indexOfUserInSelected(user);
             this.selectedUsers.splice(index, 1);
+            var tempAllUsers = this.allUsers;
+            for(var i = 0; i < tempAllUsers.length; i ++){
+                if(tempAllUsers[i].user_id == user.user_id){
+                    this.allUsers[i].isCheck = false;
+                    break;
+                }
+            }
+            this.curDepartment.isCheck = this.checkDepartmentState(user.belong_to_department_id);
             this.$nextTick(function(){
                 for(var i = 0; i < this.selectedUsers.length; i ++){
                     this.getUserImg(this.selectedUsers[i], 'selected');
@@ -378,47 +416,51 @@ export default {
             });
         },
         rootDepartmentClicked:async function (department) {
+            this.curDepartment = this.getDepartment(department.department_id);
             this.showRootDepartmentView = false;
-            var subDepartmentModels = await Department.GetSubDepartment(department.department_id);
-            var subUserModels = await UserInfo.GetSubUserinfo(department.department_id);
-            var tempDepartments = [];
-            for (var i = 0; i < subDepartmentModels.length; i ++) {
-                var temp = {};
-                temp.department_id = subDepartmentModels[i].department_id;
-                temp.display_name = subDepartmentModels[i].display_name;
-                temp.subAllUsers = await this.getDepartmentSubAllUsers(subDepartmentModels[i]);
+            var subDepartmentModels = this.getSubDepartment(department.department_id);
+            var subUserModels = this.getSubUsers(department.department_id);
+            // var tempDepartments = [];
+            // for (var i = 0; i < subDepartmentModels.length; i ++) {
+            //     var temp = {};
+            //     temp.department_id = subDepartmentModels[i].department_id;
+            //     temp.display_name = subDepartmentModels[i].display_name;
+            //     temp.subAllUsers = this.getDepartmentSubAllUsers(subDepartmentModels[i]);
                 
-                tempDepartments.push(temp);
-            }
-            this.curDepartments = tempDepartments;
+            //     tempDepartments.push(temp);
+            // }
+            this.curSubDepartments = subDepartmentModels;
             this.curUsers = this.filterDisabledUsers(subUserModels);
-            this.curSubAllUsers = await this.getDepartmentSubAllUsers(department);
+            this.curSubAllUsers = this.getDepartmentSubAllUsers(department);
             var breadInfo = {};
             breadInfo.department_id = department.department_id;
             breadInfo.display_name = department.display_name;
             this.breadCrumbs.push(breadInfo);
             this.$nextTick(function(){
-                for(var i = 0; i < this.curUsers.length; i ++){
-                    this.getUserImg(this.curUsers[i]);
-                }
+                setTimeout(() => {
+                    for(var i = 0; i < this.curUsers.length; i ++){
+                        this.getUserImg(this.curUsers[i]);
+                    }
+                }, 0)
             });
         },
         subDepartmentClicked:async function (department) {
             this.showRootDepartmentView = false;
-            var subDepartmentModels = await Department.GetSubDepartment(department.department_id);
-            var subUserModels = await UserInfo.GetSubUserinfo(department.department_id);
-            var tempDepartments = [];
-            for (var i = 0; i < subDepartmentModels.length; i ++) {
-                var temp = {};
-                temp.department_id = subDepartmentModels[i].department_id;
-                temp.display_name = subDepartmentModels[i].display_name;
-                temp.subAllUsers = await this.getDepartmentSubAllUsers(subDepartmentModels[i]);
+            this.curDepartment = this.getDepartment(department.department_id);
+            var subDepartmentModels = this.getSubDepartment(department.department_id);
+            var subUserModels = this.getSubUsers(department.department_id);
+            // var tempDepartments = [];
+            // for (var i = 0; i < subDepartmentModels.length; i ++) {
+            //     var temp = {};
+            //     temp.department_id = subDepartmentModels[i].department_id;
+            //     temp.display_name = subDepartmentModels[i].display_name;
+            //     temp.subAllUsers = this.getDepartmentSubAllUsers(subDepartmentModels[i]);
                 
-                tempDepartments.push(temp);
-            }
-            this.curDepartments = tempDepartments;
+            //     tempDepartments.push(temp);
+            // }
+            this.curSubDepartments = subDepartmentModels;
             this.curUsers = this.filterDisabledUsers(subUserModels);
-            this.curSubAllUsers = await this.getDepartmentSubAllUsers(department);
+            this.curSubAllUsers = this.getDepartmentSubAllUsers(department);
             var breadInfo = {};
             breadInfo.department_id = department.department_id;
             breadInfo.display_name = department.display_name;
@@ -429,18 +471,18 @@ export default {
                 }
             });
         },
-        getDepartmentSubAllUsers:async function (department) {
+        getDepartmentSubAllUsers:function (department) {
             var tempAllUsers = [];
 
-            var subDepartmentModels = await Department.GetSubDepartment(department.department_id);
-            var subUserModels = await UserInfo.GetSubUserinfo(department.department_id);
+            var subDepartmentModels = this.getSubDepartment(department.department_id);
+            var subUserModels = this.getSubUsers(department.department_id);
             tempAllUsers = tempAllUsers.concat(this.filterDisabledUsers(subUserModels));
             for(var i = 0; subDepartmentModels.length > 0; i ++){
                 var temp = [];
                 for(var j = 0; j < subDepartmentModels.length; j++){
                     var tempDepartment = subDepartmentModels[j];
-                    var subUsers = await UserInfo.GetSubUserinfo(tempDepartment.department_id);
-                    temp = temp.concat(await Department.GetSubDepartment(tempDepartment.department_id));
+                    var subUsers = this.getSubUsers(tempDepartment.department_id);
+                    temp = temp.concat(this.getSubDepartment(tempDepartment.department_id));
                     tempAllUsers = tempAllUsers.concat(this.filterDisabledUsers(subUsers));
                 }
                 subDepartmentModels = temp;
@@ -472,9 +514,12 @@ export default {
                 return "";
             }
             var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.acatar_t_url;
+            var userAvatarUrl = userInfo.avatar_t_url;
             var localPath = confservice.getUserThumbHeadLocalPath(userId);
             let userIconElement = document.getElementById(key + userInfo.user_id);
+            if(!userIconElement){
+                return;
+            }
             if(fs.existsSync(localPath)){
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();
@@ -502,6 +547,77 @@ export default {
                 let newInnerHtml = splitValue.join('<span style="color:red;">' + '' + "</span>");
                 return newInnerHtml;
             }
+        },
+        getDepartmentModelFromSqlModel(models){
+            var tempArray = [];
+            for(var i = 0; i < models.length; i ++){
+                var temp = {};
+                var tempModel = models[i];
+                temp.department_id = tempModel.department_id;
+                temp.display_name = tempModel.display_name;
+                temp.parent_id = tempModel.parent_id;
+                temp.isCheck = false;
+                tempArray.push(temp);
+            }
+
+            return tempArray;
+        },
+        getUserModelFromSqlModel(models){
+            var tempArray = [];
+            for(var i = 0; i < models.length; i ++){
+                var temp = {};
+                var tempModel = models[i];
+                temp.user_id = tempModel.user_id;
+                temp.user_display_name = tempModel.user_display_name;
+                temp.user_title = tempModel.user_title;
+                temp.belong_to_department_id = tempModel.belong_to_department_id;
+                temp.avatar_t_url = tempModel.avatar_t_url;
+                temp.isCheck = tempModel.isCheck;
+                tempArray.push(temp);
+            }
+            return tempArray;
+        },
+        getSubDepartment(department_id){
+            var subDepartments = [];
+            for(var i = 0; i < this.allDepartments.length; i ++){
+                var tempModel = this.allDepartments[i];
+                if(tempModel.parent_id == department_id){
+                    var temp = tempModel;
+                    subDepartments.push(temp);
+                }
+            }
+            return subDepartments;
+        },
+        getSubUsers(department_id){
+            var subUsers = [];
+            for(var i = 0; i < this.allUsers.length; i ++){
+                var tempModel = this.allUsers[i];
+                if(tempModel.belong_to_department_id == department_id){
+                    var temp = tempModel;
+                    subUsers.push(temp);
+                }
+            }
+            return subUsers;
+        },
+        getDepartment(department_id){
+            var tempDepartment = {};
+            for(var i = 0; i < this.allDepartments.length; i ++){
+                var tempModel = this.allDepartments[i];
+                if(tempModel.department_id == department_id){
+                    tempDepartment = tempModel;
+                }
+            }
+            return tempDepartment;
+        },
+        getUserInfo(user_id){
+            var tempUser = {};
+            for(var i = 0; i < this.allUsers.length; i ++){
+                var tempModel = this.allUsers[i];
+                if(tempModel.user_id == user_id){
+                    tempUser= tempModel;
+                }
+            }
+            return tempUser;
         },
         // getUserAvatarContent:async function(group) {
         //     var targetDir = confservice.getUserThumbHeadPath();
@@ -560,14 +676,21 @@ export default {
             //     }
             // });
     },
-    mounted: function() {
+    mounted:async function() {
         // breadCrumbs
-            var root = {};
+            this.rootDepartments = this.getDepartmentModelFromSqlModel(this.rootDepartments);
             root.department_id = this.rootDepartments[0].parent_id;
             root.display_name = '组织';
             this.breadCrumbs.push(root);
-            this.showRootDepartmentView = true;
-
+            this.allUsers = this.getUserModelFromSqlModel(await UserInfo.GetAllUserInfo());
+            this.allDepartments = this.getDepartmentModelFromSqlModel(await Department.GetAllDepartment());
+            var tempAllDepartments = [];
+            for(var i = 0; i < this.allDepartments.length; i ++){
+                var temp = this.allDepartments[i];
+                temp.subAllUsers = this.getDepartmentSubAllUsers(temp);
+                tempAllDepartments.push(temp);
+            }
+            this.allDepartments = tempAllDepartments;
             console.log(this.disableUsers);
             console.log(this.rootDepartments);
     },
@@ -827,7 +950,7 @@ display: none;
                         .subUser{
                             height: 48px;
                             width: 100%;
-
+                        }
                             .userCheckBox{
                                 display: inline-block;
                             }
@@ -868,7 +991,7 @@ display: none;
                                 }
                             }
                         }
-                    }
+                    
 
                 }
             }
