@@ -382,6 +382,7 @@ const common = {
       currentlogin.save();
       this.data.login = currentlogin;
     }
+    confservice.init(selfuser.id)
     return true;
   },
 
