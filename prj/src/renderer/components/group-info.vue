@@ -261,7 +261,6 @@ export default {
                     return;
                 }
                 let elementImg = document.getElementById("groupInfoImageId");
-                elementImg.setAttribute("src", "");
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 var reader = new FileReader();

@@ -115,22 +115,25 @@ export default {
             if(this.imgSrcInfo == "") {
                 return;
             }
+3
+            console.log("imgsrcinfo is ", this.imgSrcInfo);
 
             var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
             var targetFileName = msgContent.fileName;
+            var ext = path.extname(targetFileName);
             var localPath = "";
             
             var targetPath = await services.common.GetFilePath(this.imgSrcInfo.message_id);
-            // console.log("target 1 = ", targetPath);
+            console.log("target 1 = ", targetPath);
             if(targetPath.length != 0) {
                 targetPath = this.imgSrcInfo.file_local_path;
             }
-            // console.log("target 2 = ", targetPath);
+            console.log("target 2 = ", targetPath);
             if(targetPath.length == 0) {
                 var targetDir = confservice.getFilePath(this.imgSrcInfo.message_timestamp);
-                var targetPath = path.join(targetDir, targetFileName);
+                var targetPath = path.join(targetDir, this.imgSrcInfo.message_id + ext);
             }
-            // console.log("target 3 = ", targetPath);
+            console.log("target 3 = ", targetPath);
             if(fs.existsSync(targetPath)) {
                 // console.log("target exist = ", targetPath);
                 var showfu = new FileUtil(targetPath);
@@ -150,7 +153,7 @@ export default {
                     this.ImgElement.style.top = showPosition.top.toString() + "px";
                 }
             }
-            if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, targetFileName, false))) {
+            if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, this.imgSrcInfo.message_id, false))) {
                 // console.log("localPath is ", localPath);
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();

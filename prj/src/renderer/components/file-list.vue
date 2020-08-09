@@ -1,6 +1,6 @@
 <template>
     <div class="FileListDlg" id="FileListDlgId" @click="hideSth($event)">
-        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
+        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
         <div class="FileListDlgHeader">
             <img class="FileListDlgHeaderImg" id="FileListDlgHeaderImgId" @click="Close()">
             <div class="FileListDlgHeaderTitle">{{GroupName}}</div>
@@ -12,7 +12,7 @@
             </div>
             <ul class="file-list">
                 <li v-for="(item, index) in fileListShow" class="fileItem">
-                    <img class="fileImage" :src="getIcon(item)" @click="openFile(item)">
+                    <img class="fileImage" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
                     <div class="fileInfoDiv" @click="openFile(item)">
                         <label class="fileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
                         <label class="fileInfoDetailLabel">{{getFileInfo(item)}}</label>
@@ -61,6 +61,7 @@ export default {
             needDownload: false,
             originalFileList: [],
             lastSequenceId: 0,
+            pageName: '',
         }
     }, 
     methods: {
@@ -76,8 +77,12 @@ export default {
                 "time_line_id": this.operatedItem.timelineId,
             }
             var transmitInfoStr = JsonMsgContentToString(transmitInfo);
+            var exchangeObj = {
+                "name": this.pageName,
+                "transmitInfo": transmitInfoStr
+            }
             console.log("this.operatedItem.sequenceId ", transmitInfoStr);
-            ipcRenderer.send("transmitFromSoloDlg", transmitInfoStr);
+            ipcRenderer.send("transmitFromSoloDlg", exchangeObj);
         },
         showFile: function() {
             console.log("this.operateItem is ", this.operatedItem);
@@ -129,12 +134,20 @@ export default {
             }
         },
         Close: function() {
-            ipcRenderer.send("AnotherClose");
+            this.clearToEmpyt();
+            ipcRenderer.send("AnotherClose", this.pageName);
             // this.$emit("Close");
+        },
+        clearToEmpyt: async function() {
+            var groupIcoElement = document.getElementById("FileListDlgHeaderImgId");
+            this.GroupName = '';
+            groupIcoElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png");
+
+            this.fileListShow = [];
         },
         Min: function() {
             // this.$emit("Min");
-            ipcRenderer.send("AnotherMin");
+            ipcRenderer.send("AnotherMin", this.pageName);
         },
         showOperate: function(event, operatedItem) {
             console.log("operate item is ", operatedItem);
@@ -181,7 +194,7 @@ export default {
             this.fileListInfo = await services.common.ListGroupFiles(this.groupId, this.lastSequenceId);
             console.log("the fileListInfo is ,", this.fileListInfo)
             confservice.init(this.curUserInfo.id);
-            this.$store.commit("setUserId", this.curUserInfo.id)
+            // this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
             
             this.updatePage();
@@ -248,6 +261,18 @@ export default {
                     groupIcoElement.setAttribute("src", reader.result);
                 }
             }
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    for(var i=0;i<this.fileListShow.length;i++) {
+                        var elementIdTmp = this.getFileIconId(this.fileListShow[i]);
+                        var elementTmp = document.getElementById(elementIdTmp);
+                        console.log("elementtmp is ", elementTmp)
+                        if(elementTmp != undefined) {
+                            elementTmp.setAttribute("src", this.getIcon(this.fileListShow[i]));
+                        }
+                    }
+                }, 0)
+            })
 
         },
         fileNameHeightLight: function(curItem) {
@@ -306,11 +331,15 @@ export default {
             var iconPath = this.getFileIconThroughExt(MsgContent.ext);
             return iconPath;
         },
+        getFileIconId: function(curItem) {
+            return "fileListItem-" + curItem.msgId;
+        },
         getFileList: function() {
             this.fileListShow = [];
             this.originalFileList = [];
             for(var i=0;i<this.fileListInfo.length;i++){
                 this.fileListShow.unshift(this.fileListInfo[i]);
+                console.log("this filelist infor is ", this.fileListInfo[i]);
                 this.originalFileList.unshift(this.fileListInfo[i]);
             }
         },
@@ -324,13 +353,19 @@ export default {
         winHeaderBar,
     },
     created: async function () {
-        await this.getAppBaseData();
     },
     mounted: function() {
         ipcRenderer.on('updateMsgFile', this.updateMsgFile);
-        ipcRenderer.on("distGroupInfo", (event, groupId) => {
+        ipcRenderer.on("distGroupInfo", (event, groupId, pageName) => {
+            console.log("======distgroupinfo is ", groupId, " pagename is ", pageName);
             this.groupId = groupId;
+            this.pageName = pageName;
             this.lastSequenceId = 0;
+            this.$nextTick(() => {
+                setTimeout(async () => {
+                    await this.getAppBaseData();
+                }, 0)
+            })
         })
     }
 }
@@ -345,6 +380,7 @@ export default {
     ::-webkit-scrollbar {
         width: 7px;
         height: 12px;
+        display: none;
     }
 
     ::-webkit-scrollbar-thumb {

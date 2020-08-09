@@ -117,6 +117,10 @@ export default {
             type: Array,
             default: []
         },
+        distPageName: {
+            type: String,
+            default: ''
+        }
     },
     computed: {
         groupChecked() {
@@ -171,7 +175,6 @@ export default {
                 return;
             }
 
-            elementImg.setAttribute("src", "");
             var showfu = new FileUtil(localPath);
             let showfileObj = showfu.GetUploadfileobj();
             var reader = new FileReader();
@@ -204,7 +207,7 @@ export default {
             this.showSearchView = false;
         },
         deleteGroupFromSelectedGroups(group){
-            console.log("delete group from selected groups")
+            console.log("delete group from selected groups ", this.selectedGroups)
             var index = this.selectedGroups.indexOf(group);
             this.selectedGroups.splice(index, 1);
             this.$nextTick(function(){
@@ -284,11 +287,15 @@ export default {
         SearchChatFilter:async function() {
             // get createNewChat Users
             var selectedGroupIds = [];
+            var exchangeObj = {
+                "name": this.distPageName,
+                "selectedGroupIds": selectedGroupIds
+            }
             for(let i=0;i<this.selectedGroups.length;i++) {
                 var selectedGroupId = this.selectedGroups[i].group_id;
-                selectedGroupIds.push(selectedGroupId);
+                exchangeObj["selectedGroupIds"].push(selectedGroupId);
             }
-            ipcRenderer.send("searchAddedMembers", selectedGroupIds);
+            ipcRenderer.send("searchAddedMembers", exchangeObj);
             
             this.$emit("closeSearchChatFilterDlg", "");
         },
@@ -302,7 +309,7 @@ export default {
             console.log(this.recentGroups);
     },
     mounted: async function() {
-        console.log("mounted =======")
+        console.log("mounted ======= ", this.searchSelectedGroupIds)
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);
         for(let i=0;i<this.searchSelectedGroupIds.length;i++) {
             var selectedGroupItem = await Group.FindGroupByID(this.searchSelectedGroupIds[i]);

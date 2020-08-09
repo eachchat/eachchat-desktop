@@ -104,7 +104,7 @@ export default {
             this.memberListShowOriginal = [];
             this.memberIdList = [];
 
-            console.log("GroupInfo is ", this.GroupInfo);
+            // console.log("GroupInfo is ", this.GroupInfo);
             if(this.atDlgElement == null) {
                 this.atDlgElement = document.getElementById("atDlgId");
             }

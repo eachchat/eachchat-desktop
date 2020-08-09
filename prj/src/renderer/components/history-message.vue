@@ -1,8 +1,8 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
-        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
+        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
         <div class="HistoryMsgDlgHeader">
-            <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" @click="Close()">
+            <img class="HistoryMsgDlgHeaderImg" src="../../../static/Img/User/user-40px@2x.png" id="HistoryMsgDlgHeaderImgId" @click="Close()">
             <div class="HistoryMsgDlgHeaderTitle">{{GroupName}}</div>
         </div>
         <div class="HistoryMsgDlgContent">
@@ -12,7 +12,7 @@
             </div>
             <ul class="HistoryMsg-list">
                 <li v-for="(item, index) in messageListShow" class="messageItem">
-                    <img class="messageOwnerImage" :id="getUserHeadImageId(item)" @click="openFile(item)">
+                    <img class="messageOwnerImage" src="../../../static/Img/User/user-40px@2x.png" :id="getUserHeadImageId(item)" @click="openFile(item)">
                     <div class="messageInfoDiv">
                         <div class="messageOwnerTimeDiv">
                             <label class="messageInfoOwnerNameLabel" :id="getUserNameId(item)"></label>
@@ -50,6 +50,7 @@ export default {
             groupId: '',
             originalMessageList: [],
             showEmpty: true,
+            pageName: '',
         }
     },  
     methods: {
@@ -63,11 +64,11 @@ export default {
             return "HistoryMsgListImg-" + id;
         },
         Close: function() {
-            console.log("=======")
-            ipcRenderer.send("AnotherClose");
+            this.clearToEmpyt();
+            ipcRenderer.send("AnotherClose", this.pageName);
         },
         Min: function() {
-            ipcRenderer.send("AnotherMin");
+            ipcRenderer.send("AnotherMin", this.pageName);
         },
         getAppBaseData:async function() {
             // Init services
@@ -79,7 +80,7 @@ export default {
             this.GroupInfo = await Group.FindItemFromGroupByGroupID(this.groupId);
             console.log("the init user id is ,", this.GroupInfo)
             confservice.init(this.curUserInfo.id);
-            this.$store.commit("setUserId", this.curUserInfo.id)
+            // this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
             
             this.updatePage();
@@ -200,6 +201,14 @@ export default {
             //         URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
             //     }
             // })
+        },
+        clearToEmpyt: async function() {
+            var groupIcoElement = document.getElementById("HistoryMsgDlgHeaderImgId");
+            this.GroupName = '';
+            groupIcoElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png");
+
+            this.messageListShow = [];
+            this.originalMessageList = [];
         },
         showGroupInfo: async function(chatGroupItem) {
             console.log("showGroupInfo groupinfo is ", this.GroupInfo)
@@ -395,11 +404,16 @@ export default {
         winHeaderBar,
     },
     created: async function () {
-        await this.getAppBaseData();
     },
     mounted: function() {
-        ipcRenderer.on("distGroupInfo", (event, groupId) => {
+        ipcRenderer.on("distGroupInfo", (event, groupId, pageName) => {
             this.groupId = groupId;
+            this.pageName = pageName;
+            this.$nextTick(() => {
+                setTimeout(async () => {
+                    await this.getAppBaseData();
+                }, 0)
+            })
         })
         ipcRenderer.on('updateUserImage', this.updateUserImage);
     }

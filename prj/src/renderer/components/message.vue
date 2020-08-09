@@ -148,30 +148,17 @@ export default {
                 this.$emit('showImageOfMessage', this.msg);
             }
             else if(msgType === 103)
-            {
-                // var ext = msgContent.ext;
-                // var targetDir = confservice.getFilePath();
+            {                
                 var targetFileName = msgContent.fileName;
                 var ext = path.extname(targetFileName);
-                // var targetPath = path.join(targetDir, targetFileName);
-                var targetPath = await services.common.GetFilePath(this.msg.message_id);
+                var targetPath = this.msg.file_local_path;
                 console.log("targetPath is =========== ", targetPath);
-                // if(msgContent.fileLocalPath != undefined && fs.existsSync(msgContent.fileLocalPath)){
-                //     targetPath = msgContent.fileLocalPath;
-                // }
-                if(targetPath.length == 0) {
-                    targetPath = this.msg.file_local_path;
-                }
-                if(targetPath.length == 0) {
-                    var targetDir = confservice.getFilePath(this.msg.message_timestamp);
-                    var targetPath = path.join(targetDir, this.msg.message_id + ext);
-                }
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
                     shell.openItem(targetPath);
                 }
                 else{
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + ext, needOpen);
+                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
                 }
             }
             else if(msgType == 105) {
@@ -376,7 +363,7 @@ export default {
                     imgMsgImgElement.setAttribute("style", "");
                 }
                 else{
-                    console.log("download msg t thumnail args is ", this.msg)
+                    // console.log("download msg t thumnail args is ", this.msg)
                     services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false);
                     // this.checkAndLoadImg(targetPath);
                 }
@@ -392,21 +379,21 @@ export default {
                 //     targetPath = chatGroupMsgContent.fileLocalPath;
                 // }
                 
-                if(targetPath.length == 0) {
-                    var targetDir = confservice.getFilePath(this.msg.message_timestamp);
-                    var targetPath = path.join(targetDir, this.msg.message_id + theExt);
-                }
+                // if(targetPath.length == 0) {
+                //     var targetDir = confservice.getFilePath(this.msg.message_timestamp);
+                //     var targetPath = path.join(targetDir, targetFileName);
+                // }
                 var needOpen = false;
-                console.log("targetPath is ", targetPath)
+                // console.log("targetPath is ", targetPath)
                 if(!fs.existsSync(targetPath)){
-                    console.log("this.msg.timelineid is ", this.msg.time_line_id)
-                    console.log("targetfilename is ", targetFileName);
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false);
+                    // console.log("this.msg.timelineid is ", this.msg.time_line_id)
+                    // console.log("targetfilename is ", targetFileName);
+                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
-                console.log("icon path is ", iconPath);
-                console.log("filesize is ", chatGroupMsgContent.fileSize);
+                // console.log("icon path is ", iconPath);
+                // console.log("filesize is ", chatGroupMsgContent.fileSize);
                     this.fileName = chatGroupMsgContent.fileName;
                     this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
                     fileMsgImgElement.setAttribute("src", iconPath);
@@ -675,12 +662,15 @@ export default {
             }
 
             if(fs.existsSync(localPath)){
+                if(this.msg.file_local_path.length != 0 && !fs.existsSync(this.msg.file_local_path)) {
+                    return;
+                }
                 services.common.SetFilePath(this.msg.message_id, localPath);
                 // Update message localpath throuth messageId
-                console.log("update msg file path to ", localPath);
+                // console.log("update msg file path to ", localPath);
                 if(this.msg.message_type == 102) {
                     var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-                    console.log("message chatGroupMsgContent ", chatGroupMsgContent);
+                    // console.log("message chatGroupMsgContent ", chatGroupMsgContent);
                     var msg_id = this.msg.message_id;
                     var imgMsgImgElement = document.getElementById(msg_id);
                     services.common.SetFilePath(this.msg.message_id, localPath);

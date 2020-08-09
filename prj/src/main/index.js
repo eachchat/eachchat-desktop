@@ -15,7 +15,16 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let mainPageWindow
-let soloPage
+let soloPages = {
+  /*
+  "historyPage":
+  {
+    "page": pageObj,
+    "loadFinished": false 
+  }
+  */
+}
+let preparedPageId = '';
 let favouriteDetailWindow
 let reportRelationWindow
 let appIcon = null;
@@ -87,6 +96,156 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+function closeAllPage() {
+  console.log("solopagetslength is ", soloPages.length);
+  for(var key in soloPages) {
+    var soloPageObj = soloPages[key];
+    var soloPageTmp = soloPageObj["page"];
+    console.log("get solo page is ", soloPageTmp)
+    try{
+      soloPageTmp.close();
+      soloPageTmp.destroy();
+    }
+    catch(error) {
+      console.log("close solopage exception ", error);
+    }
+  }
+}
+  
+function prepareWindow() {
+  var historyPage = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    height: 468,
+    //useContentSize: true,
+    resizable: resizableValue,
+    width:600,
+    webPreferences: {webSecurity:false},
+    frame:false,
+    show: false,
+    title: "聊天记录"
+  })
+  var historyPageObj = {
+    "page": historyPage,
+    "loadFinished": false
+  }
+  soloPages["historyPage"] = historyPageObj;
+  const historyMsgPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/historyMsgList`
+  : `file://${__dirname}/index.html#historyMsgList`;
+  historyPage.loadURL(historyMsgPageWinURL);
+  historyPage.webContents.on('dom-ready', function() {
+    historyPageObj["loadFinished"] = true;
+  });
+  //openDevToolsInDevelopment(soloPage);
+  
+  var fileListPage = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    height: 468,
+    //useContentSize: true,
+    resizable: resizableValue,
+    width:600,
+    webPreferences: {webSecurity:false},
+    frame:false,
+    show: false,
+    title: "文件列表"
+  })
+  var fileListPageObj = {
+    "page": fileListPage,
+    "loadFinished": false
+  }
+  soloPages["fileListPage"] = fileListPageObj;
+  const fileListPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/fileList`
+  : `file://${__dirname}/index.html#fileList`;
+  fileListPage.loadURL(fileListPageWinURL);
+  fileListPage.webContents.on('dom-ready', function() {
+    fileListPageObj["loadFinished"] = true;
+  });
+  
+  var searchMessageListPage = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    height: 468,
+    //useContentSize: true,
+    resizable: resizableValue,
+    width:600,
+    webPreferences: {webSecurity:false},
+    frame:false,
+    show: false,
+    title: "聊天记录"
+  })
+  var searchMessageListPageObj = {
+    "page": searchMessageListPage,
+    "loadFinished": false
+  }
+  soloPages["searchMessageListPage"] = searchMessageListPageObj;
+  const searchMessageListWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/searchMessageList`
+  : `file://${__dirname}/index.html#searchMessageList`;
+  searchMessageListPage.loadURL(searchMessageListWinURL);
+  searchMessageListPage.webContents.on('dom-ready', function() {
+    searchMessageListPageObj["loadFinished"] = true;
+  });
+  
+  var searchFilesListPage = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    height: 468,
+    //useContentSize: true,
+    resizable: resizableValue,
+    width:600,
+    webPreferences: {webSecurity:false},
+    frame:false,
+    show: false,
+    title: "文件列表"
+  })
+  var searchFilesListPageObj = {
+    "page": searchFilesListPage,
+    "loadFinished": false
+  }
+  soloPages["searchFilesListPage"] = searchFilesListPageObj;
+  const searchFilesListPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/searchFilesList`
+  : `file://${__dirname}/index.html#searchFilesList`;
+  searchFilesListPage.loadURL(searchFilesListPageWinURL);
+  searchFilesListPage.webContents.on('dom-ready', function() {
+    searchFilesListPageObj["loadFinished"] = true;
+  });
+  
+  var TransmitMsgListPage = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    height: 468,
+    //useContentSize: true,
+    resizable: resizableValue,
+    width:600,
+    webPreferences: {webSecurity:false},
+    frame:false,
+    show: false,
+    title: "聊天记录"
+  })
+  var TransmitMsgListPageObj = {
+    "page": TransmitMsgListPage,
+    "loadFinished": false
+  }
+  soloPages["TransmitMsgListPage"] = TransmitMsgListPage;
+  const TransmitMsgListPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/TransmitMsgList`
+  : `file://${__dirname}/index.html#TransmitMsgList`;
+  TransmitMsgListPage.loadURL(TransmitMsgListPageWinURL);
+  TransmitMsgListPage.webContents.on('dom-ready', function() {
+    TransmitMsgListPageObj["loadFinished"] = true;
+  });
+  
+};
+
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
   mainPageWindow = new BrowserWindow({
@@ -108,6 +267,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     mainWindow.close();
     mainPageWindow.show();
   });
+  prepareWindow();
   openDevToolsInDevelopment(mainPageWindow);
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));
@@ -125,6 +285,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     {
       label: "退出",
       click: function() {
+        closeAllPage();
         app.quit();
       }
     }
@@ -188,11 +349,14 @@ ipcMain.on("token-expired", function(event, arg) {
       mainWindow.show();            
     });
     isLogin = false;
+    closeAllPage();
   }
 })
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   Menu.setApplicationMenu(null)
+  console.log("========== close all");
+  closeAllPage();
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,//添加这个即可
@@ -230,77 +394,94 @@ ipcMain.on('setAutoRun', function(event, isAutoRun) {
 });
 
 ipcMain.on('showAnotherWindow', function(event, groupId, path) {
-  var title = "";
+  var index = "";
   if(path == "historyMsgList") {
-    title = "聊天记录";
+    index = "historyPage";
   }
   else if(path == "fileList") {
-    title = "文件列表";
+    index = "fileListPage";
   }
   else if(path == "searchMessageList") {
-    title = "聊天记录";
+    index = "searchMessageListPage";
   }
   else if(path == "searchFilesList") {
-    title = "文件列表";
+    index = "searchFilesListPage";
   }
   else if(path == "TransmitMsgList") {
-    title = "聊天记录";
+    index = "TransmitMsgListPage";
   }
-  soloPage = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
-    height: 508,
-    //useContentSize: true,
-    resizable: resizableValue,
-    width:615,
-    webPreferences: {webSecurity:false},
-    frame:true,
-    title:title
-  })
-  const sonPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + path
-  : `file://${__dirname}/index.html#` + path;
-  soloPage.loadURL(sonPageWinURL);
-  //openDevToolsInDevelopment(soloPage);
-  soloPage.webContents.on('did-finish-load', function() {
-    soloPage.webContents.send("distGroupInfo", groupId);
-  });
-  soloPage.show();
+  var soloPageObj = soloPages[index];
+  console.log("solopage is ", soloPageObj);
+  var distPage = soloPageObj["page"];
+  if(soloPageObj["loadFinished"] == false) {
+    const distPageWinURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/#/` + path
+    : `file://${__dirname}/index.html#` + path;
+    distPage.loadURL(distPageWinURL);
+    distPage.webContents.on('did-finish-load', function() {
+      soloPageObj["loadFinished"] = true;
+      distPage.show();
+      distPage.webContents.send("distGroupInfo", groupId, index);
+    });
+  }
+  else {
+    console.log("============ solo page load finished , ", distPage)
+    distPage.webContents.send("distGroupInfo", groupId, index);
+    distPage.show();
+  }
 });
 
-ipcMain.on('searchAddedMembers', function(event, selectedGroupIds) {
-  soloPage.webContents.send("searchAddedMembers", selectedGroupIds);
-  soloPage.focus();
+ipcMain.on('searchAddedMembers', function(event, exchangeObj) {
+  var index = exchangeObj["name"];
+  var selectedGroupIds = exchangeObj["selectedGroupIds"];
+  var distPageObj = soloPages[index];
+  var distPage = distPageObj["page"];
+  console.log("name is ", index, " page is ", distPage);
+  distPage.webContents.send("searchAddedMembers", selectedGroupIds);
+  distPage.focus();
 })
 
-ipcMain.on('searchAddedSenders', function(event, selectedSenderIds) {
-  soloPage.webContents.send("searchAddedSenders", selectedSenderIds);
-  soloPage.focus();
+ipcMain.on('searchAddedSenders', function(event, exchangeObj) {
+  var index = exchangeObj["name"];
+  var selectedUserId = exchangeObj["selectedUserIds"];
+  var distPageObj = soloPages[index];
+  var distPage = distPageObj["page"];
+  distPage.webContents.send("searchAddedSenders", selectedUserId);
+  distPage.focus();
 })
 
-ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
-  mainPageWindow.webContents.send("SearchAddSenders", selectedSenderIds);
+ipcMain.on('SearchAddSender', function(event, exchangeObj) {
+  console.log("=============== ", exchangeObj);
+  mainPageWindow.webContents.send("SearchAddSenders", exchangeObj);
   mainPageWindow.focus();
 })
 
-ipcMain.on("SearchAddGroup", function(event, selectedGroupIds) {
-  mainPageWindow.webContents.send("SearchAddGroup", selectedGroupIds);
+ipcMain.on("SearchAddGroup", function(event, exchangeObj) {
+  console.log("=============== ", exchangeObj);
+  mainPageWindow.webContents.send("SearchAddGroup", exchangeObj);
   mainPageWindow.focus();
 })
 
-ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
-  console.log("=============== ", transmitInfoStr);
-  mainPageWindow.webContents.send("transmitFromSoloDlg", transmitInfoStr);
+ipcMain.on("transmitFromSoloDlg", function(event, exchangeObj) {
+  console.log("=============== ", exchangeObj);
+  mainPageWindow.webContents.send("transmitFromSoloDlg", exchangeObj["transmitInfo"]);
   mainPageWindow.focus();
 })
 
 ipcMain.on('AnotherClose', function(event, arg) {
-  soloPage.close();
+  var pageNameTmp = arg;
+  var pageObjTmp = soloPages[pageNameTmp];
+  var pageTmp = pageObjTmp["page"];
+  console.log("========pageTmp is ", pageTmp);
+  pageTmp.hide();
 });
 
 ipcMain.on('AnotherMin', function(event, arg) {
-  soloPage.minimize();
+  var pageNameTmp = arg;
+  var pageObjTmp = soloPages[pageNameTmp];
+  var pageTmp = pageObjTmp["page"];
+  console.log("========pageTmp is ", pageTmp);
+  pageTmp.minimize();
 });
 // 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
@@ -595,7 +776,7 @@ function downloadAvarar(event, arg) {
             }));
         });
     }).then(ret => {
-      console.log("====ret is ", ret);
+      // console.log("====ret is ", ret);
     });
   };
 }
@@ -654,7 +835,7 @@ function downloadUserAvarar(event, arg) {
             }));
         });
     }).then(ret => {
-      console.log("====ret is ", ret);
+      // console.log("====ret is ", ret);
     });
   };
 }
@@ -723,7 +904,7 @@ function downloadImage(event, arg) {
             }));
         });
     }).then(ret => {
-      console.log("====ret is ", ret);
+      // console.log("====ret is ", ret);
     });
   };
 }
@@ -793,7 +974,7 @@ function downloadMsgOImage(event, arg) {
             }));
         });
     }).then(ret => {
-      console.log("====ret is ", ret);
+      // console.log("====ret is ", ret);
     });
   };
 }

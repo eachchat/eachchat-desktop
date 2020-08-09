@@ -115,9 +115,9 @@
           <ChatPage :chat="curChat" :newMsg="newMsg" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip"></ChatPage>
         </div>
       </div>
-      <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
+      <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" :distPageName="distPageName" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
       </searchSenderSelecterDlg>
-      <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
+      <searchChatSelecterDlg  v-show="showSearchSelecterDlg" :distPageName="distPageName" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
       </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
       <userInfoContent id="userInfoId" :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
@@ -173,7 +173,7 @@ export default {
   },
   watch: {
     distUserId: async function() {
-      console.log("in chat content distuserid is ", this.distUserId);
+      // console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
         var groupUserIds = [];
         groupUserIds.push(this.distUserId);
@@ -181,12 +181,12 @@ export default {
         var contain_user_ids = groupUserIds.join(",");
         var groupItem = {};
         var userInfos = await services.common.GetDistUserinfo(this.distUserId);
-        console.log("userInfos is ", userInfos);
+        // console.log("userInfos is ", userInfos);
         var chatUserInfo = userInfos[0];
         var chatAvater = chatUserInfo.avatar_t_url;
         var chatName = chatUserInfo.user_display_name;
         var groupCheck = await services.common.GetGroupByName(chatName);
-        console.log("groupCheck is ", groupCheck)
+        // console.log("groupCheck is ", groupCheck)
 
         if(groupCheck.length == 0) {
             groupItem["contain_user_ids"] = contain_user_ids;
@@ -221,8 +221,14 @@ export default {
         }
       }
     },
-    updateImg: function() {
+    updateImg: async function() {
       this.showGroupIcon();
+      if(this.distGroupId.length != 0) {
+        var distInfo = await Group.FindItemFromGroupByGroupID(this.distGroupId);
+        if(distInfo != undefined) {
+          this.getCreateGroupInfo(distInfo);
+        }
+      }
     }
   },
   computed: {
@@ -241,9 +247,9 @@ export default {
         }
       }
       topGroupVar = topGroupVar.sort(this.compare());
-      console.log("topgroupvar is ", topGroupVar)
+      // console.log("topgroupvar is ", topGroupVar)
       this.showGroupList = this.showGroupList.sort(this.compare());
-      console.log("chatGroupVar is ", this.showGroupList)
+      // console.log("chatGroupVar is ", this.showGroupList)
       this.showGroupList = topGroupVar.concat(this.showGroupList);
       for(let i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_type == this.curChat.group_type && this.showGroupList[i].group_id == this.curChat.group_id && this.showGroupList[i].group_name == this.curChat.group_name) {
@@ -279,6 +285,7 @@ export default {
       searchSelectedGroupKey: 99,
       searchSelectedGroupIds:[],
       showSearchSelectedSenderDlg: false,
+      distPageName: '',
       showSearchSelecterDlg: false,
       showSearchMessage: true,
       showSearchFile: true,
@@ -335,16 +342,20 @@ export default {
       this.showSearchSelectedSenderDlg = false;
       this.searchSelectedSenders = [];
     },
-    async SearchAddGroup(event, selectedIds) {
-        console.log("SearchAddGroup ", selectedIds);
+    async SearchAddGroup(event, exchangeObj) {
+      var selectedIds = exchangeObj["selectedGroupIds"];
+        this.distPageName = exchangeObj["name"]
+        console.log("SearchAddGroup ", exchangeObj);
         this.searchSelectedGroupIds = selectedIds;
         
         this.recentGroups = await Group.GetGroupByTime();
         this.searchSelectedGroupKey ++;
         this.showSearchSelecterDlg = true;
     },
-    async searchAddSenders(event, selectedSenderIds) {
-      console.log("selectedSenderIds ", selectedSenderIds);
+    async searchAddSenders(event, exchangeObj) {
+      console.log("eeeeee ", exchangeObj);
+      var selectedSenderIds = exchangeObj["selectedSenderIds"];
+      // console.log("selectedSenderIds ", selectedSenderIds);
         for(let i=0;i<selectedSenderIds.length;i++) {
           let selectedSenderVar = await UserInfo.GetUserInfo(selectedSenderIds[i]);
           if(selectedSenderVar != undefined) {
@@ -362,6 +373,7 @@ export default {
        
         this.searchAddSenderKey ++;
         this.showSearchSelectedSenderDlg = true;
+        this.distPageName = exchangeObj["name"]
         this.searchSelectedSenderDialogTitle = "指定发送人";
     },
     getSearchItemElementId: function(itemId) {
@@ -395,7 +407,7 @@ export default {
       this.showUserInfoTips = false;
     },
     showGroup: async function(groupInfo) {
-      console.log("in chat content distGroupId is ", groupInfo);
+      // console.log("in chat content distGroupId is ", groupInfo);
       if(groupInfo.groupId.length != 0) {
         var distInfo = await Group.FindItemFromGroupByGroupID(groupInfo.groupId);
         if(distInfo != undefined) {
@@ -404,8 +416,8 @@ export default {
       }
     },
     showPeopleInfo: async function(event, tipInfos) {
-      console.log("event is ", event);
-      console.log("tip inso if ", tipInfos);
+      // console.log("event is ", event);
+      // console.log("tip inso if ", tipInfos);
       if(tipInfos == undefined) {
           this.showUserInfoTips = false;
           return;
@@ -617,7 +629,7 @@ export default {
     },
     // Download thumb and show in dist id element
     async updateGroupImg(e, arg) {
-      console.log("=======================updateGroupImg", arg)
+      // console.log("=======================updateGroupImg", arg)
       var state = arg[0];
       var stateInfo = arg[1];
       var id = arg[2];
@@ -627,19 +639,18 @@ export default {
       if(groupInfoTmp == undefined) {
         return;
       }
-      console.log("groupinfotmp is ", groupInfoTmp)
+      // console.log("groupinfotmp is ", groupInfoTmp)
 
       var distId = this.getChatElementId(id, groupInfoTmp.user_id);
-      console.log("updateGroupImg dist id ", distId);
+      // console.log("updateGroupImg dist id ", distId);
       var elementImg = document.getElementById(distId);
 
       if(elementImg == undefined) {
         distId = this.getChatElementId(id, this.curChat.user_id);
-        console.log("updateGroupImg dist id ", distId);
+        // console.log("updateGroupImg dist id ", distId);
         elementImg = document.getElementById(distId);
       }
 
-      elementImg.setAttribute("src", "");
       var showfu = new FileUtil(localPath);
       let showfileObj = showfu.GetUploadfileobj();
       var reader = new FileReader();
@@ -653,8 +664,8 @@ export default {
       var containUidsList = containUids.split(",");
       var distUid = "";
       if(groupInfo.group_name == "微信") {
-        console.log("containUidsList ", containUidsList);
-        console.log("this.curUserInfo.id ", this.curUserInfo.id);
+        // console.log("containUidsList ", containUidsList);
+        // console.log("this.curUserInfo.id ", this.curUserInfo.id);
       }
       for(let i=0;i<containUidsList.length;i++) {
         if(containUidsList[i] != this.curUserInfo.id && containUidsList[i].length != 0) {
@@ -667,9 +678,6 @@ export default {
       setTimeout(async () => {
         console.log("=======================showGroupIcon", this)
         for(var i=0;i<this.showGroupList.length;i++) {
-          if(this.showGroupList[i].group_name == "微信") {
-            console.log("this.showGroupList[i] is ", this.showGroupList[i]);
-          }
           var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
           let elementImg = document.getElementById(distId);
           // console.log("elementImg src is ", elementImg.src)
@@ -880,7 +888,7 @@ export default {
         var groupIndex = -1;
         for(var i=0;i<this.showGroupList.length;i++) {
           if(this.showGroupList[i].group_id != undefined && this.showGroupList[i].group_id === groupInfo.group_id) {
-            console.log("this.originalgorulliset is ", this.showGroupList[i]);
+            // console.log("this.originalgorulliset is ", this.showGroupList[i]);
             groupIndex = i;
             this.scrollToDistPosition(groupIndex);
             break;
@@ -893,7 +901,7 @@ export default {
           }
           // else {
           this.originalGroupList.unshift(groupInfo);
-          console.log("this.curchat is ", groupInfo);
+          // console.log("this.curchat is ", groupInfo);
           this.curChat = this.originalGroupList[0];
           this.curindex = 0;
           this.isEmpty = false;
@@ -1194,7 +1202,7 @@ export default {
         else if(chatGroupMsgContent.type == "groupTransfer") {
             var originalOwner = chatGroupMsgContent.fromUserName;
             var newOwner = chatGroupMsgContent.toUserName;
-            console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+            // console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
             return originalOwner + " 将群主转让给 " + newOwner;
         }
         else
@@ -1240,9 +1248,6 @@ export default {
         var ret = await services.common.GetAllGroups()
         console.log("sql getGroupList is ", ret)
         for(let i=0;i<ret.length;i++) {
-          if(ret[i].group_name == "从你的那些年") {
-            console.log("ret continue is ", ret[i]);
-          }
           if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
             continue;
           }
@@ -1250,7 +1255,7 @@ export default {
           this.unreadCount = this.unreadCount + ret[i].un_read_count;
         }
         // this.originalGroupList = ret;
-        console.log("length is ", ret)
+        // console.log("length is ", ret)
         // if(updateCurPage){
         //   let chatGroupVar = [];
         //   chatGroupVar = this.showGroupList.sort(this.compare());
@@ -1278,7 +1283,7 @@ export default {
           }
         }
         // this.originalGroupList = ret;
-        console.log("length is ", ret)
+        // console.log("length is ", ret)
     },
     compare: function() {
       return function(a, b)
@@ -1290,7 +1295,7 @@ export default {
     },
     async callback(msg) {
       // console.log("chat callback msg is ", msg);
-      console.log("chat callback msg content is ", msg.message_content);
+      // console.log("chat callback msg content is ", msg.message_content);
       console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
       if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
@@ -1418,6 +1423,7 @@ export default {
           if(this.showGroupList[i].group_type == 102) {
             this.showGroupList[i].group_id = msg.group_id;
           }
+          this.showGroupList[i].status = 0;
           if(msg.group_id == this.curChat.group_id) {
             if(msgContent.type == "updateGroupName") {
               this.showGroupList[i].group_name = msgContent.text;
@@ -1461,17 +1467,17 @@ export default {
           break;
         }
         if((this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) && this.showGroupList[i].group_type == 102 && msgContent.type != "invitation") {
-          console.log("no group id item is ", this.showGroupList[i]);
-          console.log("cur msg is ", msg);
+          // console.log("no group id item is ", this.showGroupList[i]);
+          // console.log("cur msg is ", msg);
           // var distFromName = await Group.SearchByNameKey(this.showGroupList[i].group_name);
           var distFromName = await services.common.GetGroupByName(this.showGroupList[i].group_name);
-          console.log("distFromName is ", distFromName)
+          // console.log("distFromName is ", distFromName)
           for(let j=0;j<distFromName.length;j++) {
             let distGroup = distFromName[j];
-            console.log("distGroup is ", distGroup)
-            console.log("this.showGroupList[i].group_name ", this.showGroupList[i].group_name);
+            // console.log("distGroup is ", distGroup)
+            // console.log("this.showGroupList[i].group_name ", this.showGroupList[i].group_name);
             if(distGroup.group_name == this.showGroupList[i].group_name && distGroup.group_type == 102) {
-              console.log("find dist grou pis ", distGroup);
+              // console.log("find dist grou pis ", distGroup);
               this.showGroupList[i].group_id = distGroup.group_id;
               this.showGroupList[i].group_avarar = distGroup.group_avarar;
               // if(distGroup.last_message_time > msg.message_timestamp) {
@@ -1509,18 +1515,19 @@ export default {
             this.curindex = i;
           }
           groupExist = true;
+          this.showGroupIcon();
         }
       }
       if(!groupExist) {
           let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-          console.log("groupinfo is ", groupInfo);
-          console.log("this.mqttGroupVar is ", this.mqttGroupVar);
+          // console.log("groupinfo is ", groupInfo);
+          // console.log("this.mqttGroupVar is ", this.mqttGroupVar);
           if(groupInfo == undefined) {
-            console.log("groupInfo is undefined");
-            console.log("this.mqttGroupVar.length is ", this.mqttGroupVar.length);
+            // console.log("groupInfo is undefined");
+            // console.log("this.mqttGroupVar.length is ", this.mqttGroupVar.length);
             for(let i=0;i<this.mqttGroupVar.length;i++) {
               if(this.mqttGroupVar[i].group_id == msg.group_id) {
-                console.log("this.mqttGroupVar[i] is ", this.mqttGroupVar[i]);
+                // console.log("this.mqttGroupVar[i] is ", this.mqttGroupVar[i]);
                 var groupTmp = {
                   "contain_user_ids": this.mqttGroupVar[i].contain_user_ids,
                   "group_avarar": this.mqttGroupVar[i].group_avarar,
@@ -1555,7 +1562,7 @@ export default {
             // needUpdate ++;
           }
           else {
-            console.log("update groupInfo ", groupInfo);
+            // console.log("update groupInfo ", groupInfo);
             var groupTmp = {
               "contain_user_ids": groupInfo.contain_user_ids,
               "group_avarar": groupInfo.group_avarar,
@@ -1575,18 +1582,18 @@ export default {
               "sequence_id": msg.sequence_id,
               "time_line_id": msg.time_line_id,
             }
-            console.log("groupTmp is ", groupTmp);
+            // console.log("groupTmp is ", groupTmp);
             this.originalGroupList.unshift(groupTmp);
             this.unreadCount += groupInfo.un_read_count;
             if(this.unreadCount < 0) {
               this.unreadCount = 0;
             }
             ipcRenderer.send("updateUnreadCount", this.unreadCount);
-            console.log("update show group list ", this.showGroupList);
+            // console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
           }
+        this.showGroupIcon();
       }
-      this.showGroupIcon();
     },
     delayCallback: function(msg) {
       setTimeout(() => {

@@ -3,19 +3,19 @@
         <div class="Search">
             <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="toSearch"/>
         </div>
-        <el-dropdown class="new-chat-dropdown" trigger="click">
-            <div class="new-chat-content-div">
-                <img class="el-icon-circle-plus-outline" src="../../../static/Img/Main/create-chat-nor-20px@2x.png" height="20px">
-                <el-dropdown-menu class="new-chat-content" slot="dropdown">
-                    <el-dropdown-item class="create-new-group" icon="el-icon-connection" @click.native="showCreateGroup">
-                    发起群聊
-                    </el-dropdown-item>
-                    <!-- <el-dropdown-item class="create-new-secret" icon="el-icon-lock">
-                    进入密聊
-                    </el-dropdown-item> -->
-                </el-dropdown-menu>
+        <div class="new-chat-content-div" id="new-chat-button-id" @click="showCreateNewChatDropDown">
+            <img class="el-icon-circle-plus-outline" src="../../../static/Img/Main/create-chat-nor-20px@2x.png" height="20px">
+        </div>
+        <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
+            <div class="normal-chat" @click="showCreateGroup()">
+                <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
+                <span class="normal-chat-label">聊天记录</span>
             </div>
-        </el-dropdown>
+            <div class="secret-chat-file" @click="showFileList()" v-show="false">
+                <img class="secret-chat-img" src="../../../static/Img/Main/create-secret-chatnor-20px@2x.png">
+                <span class="secret-chat-label">文件</span>
+            </div>
+        </div>
         <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
             <div class="el-dialog-content">
                 <chatGroupCreater :disableUsers="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
@@ -45,7 +45,7 @@ export default {
         cleanSearchKey: {
             type: Boolean,
             default: false
-        }
+        },
     },
     data () {
         return {
@@ -57,9 +57,20 @@ export default {
             searchKey: '',
             dialogVisible: false,
             disabledusers: [],
+            showCreateNewChat: false,
         }
     },
     methods: {
+        showCreateNewChatDropDown: function() {
+            this.showCreateNewChat = true;
+            var createNewChatBtnElement = document.getElementById("new-chat-button-id");
+            var crateNewChatMenuElement = document.getElementById("new-chat-dropdown-content-id");
+            var top = createNewChatBtnElement.offsetTop + createNewChatBtnElement.offsetHeight + 11;
+            var left = createNewChatBtnElement.offsetLeft - 54;
+            // crateNewChatMenuElement.style.display = "block";
+            crateNewChatMenuElement.style.top = top + "px";
+            crateNewChatMenuElement.style.left = left + "px";
+        },
         toSearch (searchKey) {
             this.$emit("toSearch", searchKey);
         },
@@ -206,7 +217,16 @@ export default {
         },
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
-        }
+        },
+        closeInfoTip(e){
+            console.log("e.target.classname ", e.target.className)
+
+            var createNewElement = document.getElementById("new-chat-dropdown-content-id");
+            if(createNewElement != null && !createNewElement.contains(e.target) && e.target.className != "el-icon-circle-plus-outline" && e.target.className != "new-chat-content-div"){
+                console.log("=========== close create new chat ");
+                this.showCreateNewChat = false;
+            }
+        },
     },
     components: {
         chatCreaterDlg,
@@ -216,6 +236,7 @@ export default {
         await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
+        document.addEventListener('click',this.closeInfoTip)
     }
 }
 </script>
@@ -241,23 +262,58 @@ export default {
         margin: 0px 0px 0px 0px;
     }
 
-    .new-chat-dropdown {
-        display: inline-block;
-        font-size: 20px;
-        height: 32px;
-        line-height: 32px;
-        padding: 0px;
-        margin: 0px 0px 2px 0px;
-        overflow: hidden;
-    }
-
     .new-chat-content-div {
         width:30px;
         height:30px;
         background:rgba(255,255,255,1);
         border-radius:16px;
         border:1px solid rgba(221,221,221,1);
+        display: inline-block;
     }
+
+    .new-chat-dropdown-content {
+        display: block;
+        position: absolute;
+        background-color: rgba(255, 255, 255, 1);
+        width: 128px;
+        height: 40px;
+        border-radius: 4px;
+        box-shadow:0px 0px 12px 0px;
+        border:1px solid rgba(221,221,221,1);
+        border-radius: 4px;
+        z-index: 40;
+    }
+
+    .new-chat-dropdown-content div:hover {
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+    }
+
+    .normal-chat {
+        display: block;
+        width: 128px;
+        height: 40px;
+    }
+
+    .normal-chat-img {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 10px 8px 10px 16px;
+        background-color: rgba(0, 0, 0, 0);
+    }
+    
+    .normal-chat-label {
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'Microsoft YaHei';
+        vertical-align: top;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    //////////////////////////////////////
 
     .el-icon-circle-plus-outline {
         background-color: white;
