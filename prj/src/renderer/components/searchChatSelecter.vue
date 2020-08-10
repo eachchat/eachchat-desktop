@@ -99,10 +99,6 @@ export default {
             type: Array,
             default: []
         },
-        distPageName: {
-            type: String,
-            default: ''
-        }
     },
     computed: {
         groupChecked() {
@@ -189,7 +185,7 @@ export default {
             this.showSearchView = false;
         },
         deleteGroupFromSelectedGroups(group){
-            console.log("delete group from selected groups ", this.selectedGroups)
+            console.log("delete group from selected groups")
             var index = this.selectedGroups.indexOf(group);
             this.selectedGroups.splice(index, 1);
             this.$nextTick(function(){
@@ -269,15 +265,11 @@ export default {
         SearchChatFilter:async function() {
             // get createNewChat Users
             var selectedGroupIds = [];
-            var exchangeObj = {
-                "name": this.distPageName,
-                "selectedGroupIds": selectedGroupIds
-            }
             for(let i=0;i<this.selectedGroups.length;i++) {
                 var selectedGroupId = this.selectedGroups[i].group_id;
-                exchangeObj["selectedGroupIds"].push(selectedGroupId);
+                selectedGroupIds.push(selectedGroupId);
             }
-            ipcRenderer.send("searchAddedMembers", exchangeObj);
+            ipcRenderer.send("searchAddedMembers", selectedGroupIds);
             
             this.$emit("closeSearchChatFilterDlg", "");
         },
@@ -292,7 +284,7 @@ export default {
             console.log(this.recentGroups);
     },
     mounted: async function() {
-        console.log("mounted ======= ", this.searchSelectedGroupIds)
+        console.log("mounted =======")
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);
         for(let i=0;i<this.searchSelectedGroupIds.length;i++) {
             var selectedGroupItem = await Group.FindGroupByID(this.searchSelectedGroupIds[i]);

@@ -115,8 +115,6 @@ export default {
             if(this.imgSrcInfo == "") {
                 return;
             }
-3
-            console.log("imgsrcinfo is ", this.imgSrcInfo);
 
             var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
             var targetFileName = msgContent.fileName;
@@ -124,16 +122,16 @@ export default {
             var localPath = "";
             
             var targetPath = await services.common.GetFilePath(this.imgSrcInfo.message_id);
-            console.log("target 1 = ", targetPath);
+            // console.log("target 1 = ", targetPath);
             if(targetPath.length != 0) {
                 targetPath = this.imgSrcInfo.file_local_path;
             }
-            console.log("target 2 = ", targetPath);
+            // console.log("target 2 = ", targetPath);
             if(targetPath.length == 0) {
                 var targetDir = confservice.getFilePath(this.imgSrcInfo.message_timestamp);
                 var targetPath = path.join(targetDir, this.imgSrcInfo.message_id + ext);
             }
-            console.log("target 3 = ", targetPath);
+            // console.log("target 3 = ", targetPath);
             if(fs.existsSync(targetPath)) {
                 // console.log("target exist = ", targetPath);
                 var showfu = new FileUtil(targetPath);

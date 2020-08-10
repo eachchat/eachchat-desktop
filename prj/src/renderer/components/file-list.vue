@@ -1,6 +1,6 @@
 <template>
     <div class="FileListDlg" id="FileListDlgId" @click="hideSth($event)">
-        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="FileListDlgHeader">
             <img class="FileListDlgHeaderImg" id="FileListDlgHeaderImgId" @click="Close()">
             <div class="FileListDlgHeaderTitle">{{GroupName}}</div>
@@ -61,7 +61,6 @@ export default {
             needDownload: false,
             originalFileList: [],
             lastSequenceId: 0,
-            pageName: '',
         }
     }, 
     methods: {
@@ -77,12 +76,8 @@ export default {
                 "time_line_id": this.operatedItem.timelineId,
             }
             var transmitInfoStr = JsonMsgContentToString(transmitInfo);
-            var exchangeObj = {
-                "name": this.pageName,
-                "transmitInfo": transmitInfoStr
-            }
             console.log("this.operatedItem.sequenceId ", transmitInfoStr);
-            ipcRenderer.send("transmitFromSoloDlg", exchangeObj);
+            ipcRenderer.send("transmitFromSoloDlg", transmitInfoStr);
         },
         showFile: function() {
             console.log("this.operateItem is ", this.operatedItem);
@@ -134,20 +129,12 @@ export default {
             }
         },
         Close: function() {
-            this.clearToEmpyt();
-            ipcRenderer.send("AnotherClose", this.pageName);
+            ipcRenderer.send("AnotherClose");
             // this.$emit("Close");
-        },
-        clearToEmpyt: async function() {
-            var groupIcoElement = document.getElementById("FileListDlgHeaderImgId");
-            this.GroupName = '';
-            groupIcoElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png");
-
-            this.fileListShow = [];
         },
         Min: function() {
             // this.$emit("Min");
-            ipcRenderer.send("AnotherMin", this.pageName);
+            ipcRenderer.send("AnotherMin");
         },
         showOperate: function(event, operatedItem) {
             console.log("operate item is ", operatedItem);
@@ -339,7 +326,6 @@ export default {
             this.originalFileList = [];
             for(var i=0;i<this.fileListInfo.length;i++){
                 this.fileListShow.unshift(this.fileListInfo[i]);
-                console.log("this filelist infor is ", this.fileListInfo[i]);
                 this.originalFileList.unshift(this.fileListInfo[i]);
             }
         },
@@ -353,19 +339,13 @@ export default {
         winHeaderBar,
     },
     created: async function () {
+        await this.getAppBaseData();
     },
     mounted: function() {
         ipcRenderer.on('updateMsgFile', this.updateMsgFile);
-        ipcRenderer.on("distGroupInfo", (event, groupId, pageName) => {
-            console.log("======distgroupinfo is ", groupId, " pagename is ", pageName);
+        ipcRenderer.on("distGroupInfo", (event, groupId) => {
             this.groupId = groupId;
-            this.pageName = pageName;
             this.lastSequenceId = 0;
-            this.$nextTick(() => {
-                setTimeout(async () => {
-                    await this.getAppBaseData();
-                }, 0)
-            })
         })
     }
 }
@@ -380,7 +360,6 @@ export default {
     ::-webkit-scrollbar {
         width: 7px;
         height: 12px;
-        display: none;
     }
 
     ::-webkit-scrollbar-thumb {

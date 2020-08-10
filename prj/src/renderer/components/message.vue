@@ -148,7 +148,9 @@ export default {
                 this.$emit('showImageOfMessage', this.msg);
             }
             else if(msgType === 103)
-            {                
+            {
+                // var ext = msgContent.ext;
+                // var targetDir = confservice.getFilePath();
                 var targetFileName = msgContent.fileName;
                 var ext = path.extname(targetFileName);
                 var targetPath = this.msg.file_local_path;

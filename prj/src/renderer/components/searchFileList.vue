@@ -1,6 +1,6 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
-        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader">
             <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
             <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail">文件列表</div>
@@ -106,32 +106,23 @@ export default {
             showEmpty: true,
             selectedGroups: [],
             numIndex: 0,
-            pageName: '',
         }
     },  
     methods: {
         addGroup: function() {
             var selectedGroupsIds = [];
-            var exchangeObj = {
-                "name": this.pageName,
-                "selectedGroupsIds": selectedGroupsIds
-            }
             for(let i=0;i<this.selectedGroups.length;i++) {
-                exchangeObj["selectedGroupsIds"].push(this.selectedGroups[i].group_id);
+                selectedGroupsIds.push(this.selectedGroups[i].group_id);
             }
-            ipcRenderer.send("SearchAddGroup", exchangeObj);
+            ipcRenderer.send("SearchAddGroup", selectedGroupsIds);
         },
         addDisgUser: function() {
             var selectedSenderIds = [];
-            var exchangeObj = {
-                "name": this.pageName,
-                "selectedSenderIds": selectedSenderIds
-            }
             console.log("this.selectedSenders ", this.selectedSenders);
             for(let i=0;i<this.selectedSenders.length;i++) {
-                exchangeObj["selectedSenderIds"].push(this.selectedSenders[i].user_id);
+                selectedSenderIds.push(this.selectedSenders[i].user_id);
             }
-            ipcRenderer.send("SearchAddSender", exchangeObj);
+            ipcRenderer.send("SearchAddSender", selectedSenderIds);
         },
         openFilter: function() {
             this.showFilter = true;
@@ -189,20 +180,12 @@ export default {
         getFilterSenderImageId: function(senderItem) {
             return "FilterGroupListImg-" + senderItem.user_id;
         },
-        clearToEmpyt: async function() {
-            this.selectedGroups = [];
-            this.selectedSenders = [];
-            this.startTime = '';
-            this.messageListShow = [];
-            this.hideFilter();
-        },
         Close: function() {
-            this.showEmpty = true;
-            this.clearToEmpyt();
-            ipcRenderer.send("AnotherClose", this.pageName);
+            console.log("=======")
+            ipcRenderer.send("AnotherClose");
         },
         Min: function() {
-            ipcRenderer.send("AnotherMin", this.pageName);
+            ipcRenderer.send("AnotherMin");
         },
         getAppBaseData:async function() {
             // Init services
@@ -213,7 +196,7 @@ export default {
             this.curUserInfo = await services.common.GetSelfUserModel();
             console.log("the init user id is ,", this.GroupInfo)
             confservice.init(this.curUserInfo.id);
-            // this.$store.commit("setUserId", this.curUserInfo.id)
+            this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
             
             // this.updatePage();
@@ -489,8 +472,9 @@ export default {
                     this.search();
                 }, 0)
             })
+            
         },
-        updateSelectedSenders: async function(event, exchangeObj) {
+        updateSelectedSenders: async function(event, selectedSenderIds) {
             console.log("selectedSenderIds ", selectedSenderIds);
             this.selectedSenders = [];
             for(let i=0;i<selectedSenderIds.length;i++) {
@@ -513,17 +497,12 @@ export default {
         winHeaderBar,
     },
     created: async function () {
+        await this.getAppBaseData();
     },
     mounted: function() {
-        ipcRenderer.on("distGroupInfo", (event, receivedSearchKey, pageName) => {
+        ipcRenderer.on("distGroupInfo", (event, receivedSearchKey) => {
             this.receivedSearchKey = receivedSearchKey;
             this.searchKey = receivedSearchKey;
-            this.pageName = pageName;
-            this.$nextTick(() => {
-                setTimeout(async () => {
-                    await this.getAppBaseData();
-                }, 0)
-            })
         })
         ipcRenderer.on("searchAddedMembers", this.updateSelectedGroups);
         ipcRenderer.on("searchAddedSenders", this.updateSelectedSenders);
@@ -564,7 +543,7 @@ export default {
     }
 
     .HistoryMsgDlgHeader {
-        width: 90%;
+        width: calc(100% - 94px);
         height: 40px;
         background: rgba(255, 255, 255, 1);
         padding-top: 0px;

@@ -173,7 +173,9 @@ const common = {
       $reverse: true
     });
     for(let index in allItems){
-      allItems[index].message = JSON.parse(allItems[index].message_content);
+      if(allItems[index].message_content.length != 0) {
+        allItems[index].message = JSON.parse(allItems[index].message_content);
+      }
     }
     this.data.group = allItems;
     return this.data.group;

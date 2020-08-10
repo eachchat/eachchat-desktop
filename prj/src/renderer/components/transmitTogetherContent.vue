@@ -1,6 +1,6 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
-        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader">
             <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" @click="Close()">
             <div class="HistoryMsgDlgHeaderTitle">{{GroupName}}</div>
@@ -81,7 +81,6 @@ export default {
             groupId: '',
             originalMessageList: [],
             showEmpty: false,
-            pageName: "",
         }
     },  
     methods: {
@@ -281,20 +280,12 @@ export default {
         checkGetUserHedImageId: function(id) {
             return "TransmitTogetherMsgListImg-" + id;
         },
-        clearToEmpyt: async function() {
-            var groupIcoElement = document.getElementById("HistoryMsgDlgHeaderImgId");
-            this.GroupName = '';
-            groupIcoElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png");
-
-            this.messageListShow = [];
-            this.originalMessageList = [];
-        },
         Close: function() {
             console.log("=======")
-            ipcRenderer.send("AnotherClose", this.pageName);
+            ipcRenderer.send("AnotherClose");
         },
         Min: function() {
-            ipcRenderer.send("AnotherMin", this.pageName);
+            ipcRenderer.send("AnotherMin");
         },
         getAppBaseData:async function() {
             // Init services
@@ -626,18 +617,13 @@ export default {
         winHeaderBar,
     },
     created: async function () {
+        await this.getAppBaseData();
     },
     mounted: function() {
-        ipcRenderer.on("distGroupInfo", (event, groupId, pageName) => {
+        ipcRenderer.on("distGroupInfo", (event, groupId) => {
             console.log("groupid is ", groupId)
             this.groupId = groupId[1];
             this.timelineId = groupId[0];
-            this.pageName = pageName;
-            this.$nextTick(() => {
-                setTimeout(async () => {
-                    await this.getAppBaseData();
-                }, 0)
-            })
         })
         ipcRenderer.on('updateUserImage', this.updateUserImage);
     }

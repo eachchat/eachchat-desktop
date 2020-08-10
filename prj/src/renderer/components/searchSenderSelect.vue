@@ -153,10 +153,6 @@ export default {
         isSearchAdd: {
             type:Boolean,
             default: false
-        },
-        distPageName: {
-            type: String,
-            default: ""
         }
     },
     computed: {
@@ -267,16 +263,12 @@ export default {
         },
         async confirm(){
             var selectedUserIds = [];
-            var exchangeObj = {
-                "name": this.distPageName,
-                "selectedUserIds": selectedUserIds
-            }
             console.log("this.selectedusers is ", this.selectedUsers);
             for(let i=0;i<this.selectedUsers.length;i++) {
                 let selectedUserId = this.selectedUsers[i].user_id;
-                exchangeObj["selectedUserIds"].push(selectedUserId);
+                selectedUserIds.push(selectedUserId);
             }
-            ipcRenderer.send("searchAddedSenders", exchangeObj);
+            ipcRenderer.send("searchAddedSenders", selectedUserIds);
             this.$emit("closeSearchSenderSelectDlg", "");
             return;
         },

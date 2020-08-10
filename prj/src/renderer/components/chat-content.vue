@@ -115,9 +115,9 @@
           <ChatPage :chat="curChat" :newMsg="newMsg" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip"></ChatPage>
         </div>
       </div>
-      <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" :distPageName="distPageName" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
+      <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
       </searchSenderSelecterDlg>
-      <searchChatSelecterDlg  v-show="showSearchSelecterDlg" :distPageName="distPageName" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
+      <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
       </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
       <userInfoContent id="userInfoId" :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
@@ -285,7 +285,6 @@ export default {
       searchSelectedGroupKey: 99,
       searchSelectedGroupIds:[],
       showSearchSelectedSenderDlg: false,
-      distPageName: '',
       showSearchSelecterDlg: false,
       showSearchMessage: true,
       showSearchFile: true,
@@ -342,20 +341,16 @@ export default {
       this.showSearchSelectedSenderDlg = false;
       this.searchSelectedSenders = [];
     },
-    async SearchAddGroup(event, exchangeObj) {
-      var selectedIds = exchangeObj["selectedGroupsIds"];
-        this.distPageName = exchangeObj["name"]
-        console.log("SearchAddGroup ", exchangeObj);
+    async SearchAddGroup(event, selectedIds) {
+        console.log("SearchAddGroup ", selectedIds);
         this.searchSelectedGroupIds = selectedIds;
         
         this.recentGroups = await Group.GetGroupByTime();
         this.searchSelectedGroupKey ++;
         this.showSearchSelecterDlg = true;
     },
-    async searchAddSenders(event, exchangeObj) {
-      console.log("eeeeee ", exchangeObj);
-      var selectedSenderIds = exchangeObj["selectedSenderIds"];
-      // console.log("selectedSenderIds ", selectedSenderIds);
+    async searchAddSenders(event, selectedSenderIds) {
+      console.log("selectedSenderIds ", selectedSenderIds);
         for(let i=0;i<selectedSenderIds.length;i++) {
           let selectedSenderVar = await UserInfo.GetUserInfo(selectedSenderIds[i]);
           if(selectedSenderVar != undefined) {
@@ -373,7 +368,6 @@ export default {
        
         this.searchAddSenderKey ++;
         this.showSearchSelectedSenderDlg = true;
-        this.distPageName = exchangeObj["name"]
         this.searchSelectedSenderDialogTitle = "指定发送人";
     },
     getSearchItemElementId: function(itemId) {
@@ -1515,7 +1509,6 @@ export default {
             this.curindex = i;
           }
           groupExist = true;
-          this.showGroupIcon();
         }
       }
       if(!groupExist) {
@@ -1592,8 +1585,8 @@ export default {
             // console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
           }
-        this.showGroupIcon();
       }
+      this.showGroupIcon();
     },
     delayCallback: function(msg) {
       setTimeout(() => {

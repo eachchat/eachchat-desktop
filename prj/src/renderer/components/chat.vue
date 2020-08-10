@@ -118,7 +118,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {getFileSizeNum, generalGuid, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, makeFlieNameForConflict} from '../../packages/core/Utils.js'
+import {getFileSizeNum, generalGuid, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -130,7 +130,6 @@ import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
 import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
-import confservice from '../../packages/data/conf_service.js'
 
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
@@ -2043,7 +2042,7 @@ export default {
                         };
                         // console.log("final cur msg item is ", msgContent.length)
                         var willSendMsgContent = {"text": msgContent};
-                        console.log("will send msg content ", willSendMsgContent)
+                        // console.log("will send msg content ", willSendMsgContent)
                         // console.log("will send msg uid ", uid)
                         var guid = generalGuid();
                         // next is @
@@ -2078,7 +2077,6 @@ export default {
                         }
                         
                         var willShowMsgContent = JsonMsgContentToString(willSendMsgContent);
-                        console.log("willShowMsgContent ", willShowMsgContent)
                         var willSendMsg = {
                             "message_content": willShowMsgContent,
                             "message_from_id": this.curUserInfo.id,
@@ -2142,7 +2140,6 @@ export default {
                                 else {
                                     for(var d=this.messageList.length-1;d>=0;d--){
                                         if(this.messageList[d].message_id == guid){
-                                            console.log("====this.messagelist[i] ", d);
                                             this.messageList[d] = ret;
                                             this.updatemsgStatus = {
                                                 "id": guid,

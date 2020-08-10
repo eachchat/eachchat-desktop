@@ -1,6 +1,6 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
-        <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
+        <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader">
             <img class="HistoryMsgDlgHeaderImg" src="../../../static/Img/User/user-40px@2x.png" id="HistoryMsgDlgHeaderImgId" @click="Close()">
             <div class="HistoryMsgDlgHeaderTitle">{{GroupName}}</div>
@@ -50,7 +50,6 @@ export default {
             groupId: '',
             originalMessageList: [],
             showEmpty: true,
-            pageName: '',
         }
     },  
     methods: {
@@ -64,11 +63,11 @@ export default {
             return "HistoryMsgListImg-" + id;
         },
         Close: function() {
-            this.clearToEmpyt();
-            ipcRenderer.send("AnotherClose", this.pageName);
+            console.log("=======")
+            ipcRenderer.send("AnotherClose");
         },
         Min: function() {
-            ipcRenderer.send("AnotherMin", this.pageName);
+            ipcRenderer.send("AnotherMin");
         },
         getAppBaseData:async function() {
             // Init services
@@ -201,14 +200,6 @@ export default {
             //         URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
             //     }
             // })
-        },
-        clearToEmpyt: async function() {
-            var groupIcoElement = document.getElementById("HistoryMsgDlgHeaderImgId");
-            this.GroupName = '';
-            groupIcoElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png");
-
-            this.messageListShow = [];
-            this.originalMessageList = [];
         },
         showGroupInfo: async function(chatGroupItem) {
             console.log("showGroupInfo groupinfo is ", this.GroupInfo)
@@ -404,16 +395,11 @@ export default {
         winHeaderBar,
     },
     created: async function () {
+        await this.getAppBaseData();
     },
     mounted: function() {
-        ipcRenderer.on("distGroupInfo", (event, groupId, pageName) => {
+        ipcRenderer.on("distGroupInfo", (event, groupId) => {
             this.groupId = groupId;
-            this.pageName = pageName;
-            this.$nextTick(() => {
-                setTimeout(async () => {
-                    await this.getAppBaseData();
-                }, 0)
-            })
         })
         ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
