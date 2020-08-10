@@ -1366,13 +1366,14 @@ const common = {
     let collectionModel;
     let collections = [];
     let sequenceID = 0;
+    let order = 1;
 
     while(bNext){
       result = await this.api.ListAllCollections(this.data.login.access_token,
                                                   type,
                                                   sequenceID,
-                                                  10,
-                                                  1);
+                                                  20,
+                                                  order);
       if (!result.ok || !result.success) {
         break;
       }
@@ -1387,8 +1388,9 @@ const common = {
         if(find == undefined){
           collectionModel.save();
         }
+        sequenceID = collectionModel.sequence_id;
       }
-      sequenceID = await Collection.FindMaxCollectionSequenceID(type[0])
+      order = 0;
     }
     collections = await Collection.FindCollectionByType(type[0])
     for(let index in collections){
