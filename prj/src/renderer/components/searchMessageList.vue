@@ -3,7 +3,7 @@
         <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
         <div class="HistoryMsgDlgHeader" id="HistoryMsgDlgHeaderId">
             <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
-            <div class="HistoryMsgDlgHeaderTitle" v-show="isMsgDetail">{{GroupName}}</div>
+            <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail">聊天记录</div>
             <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px@2x.png" @click="CloseDetail()" v-show="isMsgDetail">
         </div>
         <div class="HistoryMsgDlgContent">
@@ -72,7 +72,7 @@
                     </div>
                 </li>
             </ul>
-            <div class="HistoryMsgEmpty" v-show="showEmpty">
+            <div class="HistoryMsgEmpty" v-show="showEmpty" id="HistoryMsgEmptyId">
                 <img class="HistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
                 <div class="HistoryMsgEmptyText">搜索会话中的消息</div>
             </div>
@@ -155,12 +155,29 @@ export default {
         openFilter: function() {
             this.showFilter = true;
             let distElement = document.getElementById("search-message-list-id");
-            distElement.style.height = "170px";
+            let bgElement = document.getElementById("HistoryMsgEmptyId");
+            ///////////////////
+            if(this.showEmpty) {
+                distElement.style.display = "none";
+                bgElement.style.height = "170px"
+            }
+            else {
+                distElement.style.height = "170px";
+                bgElement.style.display = "none"
+            }
         },
         hideFilter: function() {
             this.showFilter = false;
             let distElement = document.getElementById("search-message-list-id");
-            distElement.style.height = "290px";
+            let bgElement = document.getElementById("HistoryMsgEmptyId");
+            if(this.showEmpty) {
+                distElement.style.display = "none";
+                bgElement.style.height = "290px"
+            }
+            else {
+                distElement.style.height = "290px";
+                bgElement.style.display = "none"
+            }
         },
         openMsgDetail: function(msgItem) {
             console.log("selectedGroups is ", this.selectedGroups)
@@ -681,9 +698,9 @@ export default {
 
     .HistoryMsgDlgHeader {
         width: 90%;
-        height: 20px;
+        height: 40px;
         background: rgba(255, 255, 255, 1);
-        padding-top: 10px;
+        padding-top: 0px;
         // padding-left: 12px;
         -webkit-app-region: drag;
         z-index: 10;
@@ -700,10 +717,10 @@ export default {
 
     .HistoryMsgDlgHeaderTitle {
         width: calc(100% - 100px);
-        height: 52px;
-        line-height: 52px;
+        height: 40px;
+        line-height: 40px;
         display: inline-block;
-        margin-left: 0px;
+        margin-left: 20px;
         vertical-align: top;
         font-size: 14px;
         font-family: 'Microsoft YaHei';

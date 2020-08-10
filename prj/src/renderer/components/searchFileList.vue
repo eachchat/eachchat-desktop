@@ -1,7 +1,11 @@
 <template>
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
         <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
-        <div class="HistoryMsgDlgHeader"></div>
+        <div class="HistoryMsgDlgHeader">
+            <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
+            <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail">聊天记录</div>
+            <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px@2x.png" @click="CloseDetail()" v-show="isMsgDetail">
+        </div>
         <div class="HistoryMsgDlgContent">
             <div class="search">
                 <input class="HistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
@@ -68,7 +72,7 @@
                     </div>
                 </li>
             </ul>
-            <div class="HistoryMsgEmpty" v-show="showEmpty" id="HistoryMsgEmptyId">
+            <div class="HistoryMsgEmpty" v-show="showEmpty" id="FileListEmptyId">
                 <img class="HistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
                 <div class="HistoryMsgEmptyText">搜索用户</div>
             </div>
@@ -132,26 +136,26 @@ export default {
         openFilter: function() {
             this.showFilter = true;
             let distElement = document.getElementById("search-file-list-id");
-            let bgElement = document.getElementById("HistoryMsgEmptyId");
+            let bgElement = document.getElementById("FileListEmptyId");
             if(this.showEmpty) {
                 distElement.style.display = "none";
-                bgElement.style.height = "170px"
+                bgElement.style.height = "150px"
             }
             else {
-                distElement.style.height = "170px";
+                distElement.style.height = "150px";
                 bgElement.style.display = "none"
             }
         },
         hideFilter: function() {
             this.showFilter = false;
             let distElement = document.getElementById("search-file-list-id");
-            let bgElement = document.getElementById("HistoryMsgEmptyId");
+            let bgElement = document.getElementById("FileListEmptyId");
             if(this.showEmpty) {
                 distElement.style.display = "none";
-                bgElement.style.height = "290px"
+                bgElement.style.height = "270px"
             }
             else {
-                distElement.style.height = "290px";
+                distElement.style.height = "270px";
                 bgElement.style.display = "none"
             }
         },
@@ -193,6 +197,7 @@ export default {
             this.hideFilter();
         },
         Close: function() {
+            this.showEmpty = true;
             this.clearToEmpyt();
             ipcRenderer.send("AnotherClose", this.pageName);
         },
@@ -560,10 +565,10 @@ export default {
 
     .HistoryMsgDlgHeader {
         width: 90%;
-        height: 20px;
+        height: 40px;
         background: rgba(255, 255, 255, 1);
-        padding-top: 20px;
-        padding-left: 12px;
+        padding-top: 0px;
+        // padding-left: 12px;
         -webkit-app-region: drag;
     }
 
@@ -578,10 +583,10 @@ export default {
 
     .HistoryMsgDlgHeaderTitle {
         width: calc(100% - 80px);
-        height: 52px;
-        line-height: 52px;
+        height: 40px;
+        line-height: 40px;
         display: inline-block;
-        margin-left: 0px;
+        margin-left: 20px;
         vertical-align: top;
         font-size: 14px;
         font-family: 'Microsoft YaHei';

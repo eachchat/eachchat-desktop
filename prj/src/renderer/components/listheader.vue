@@ -9,11 +9,11 @@
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
             <div class="normal-chat" @click="showCreateGroup()">
                 <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
-                <span class="normal-chat-label">聊天记录</span>
+                <span class="normal-chat-label">发起群聊</span>
             </div>
             <div class="secret-chat-file" @click="showFileList()" v-show="false">
                 <img class="secret-chat-img" src="../../../static/Img/Main/create-secret-chatnor-20px@2x.png">
-                <span class="secret-chat-label">文件</span>
+                <span class="secret-chat-label">发起密聊</span>
             </div>
         </div>
         <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
@@ -278,7 +278,7 @@ export default {
         width: 128px;
         height: 40px;
         border-radius: 4px;
-        box-shadow:0px 0px 12px 0px;
+        box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
         border-radius: 4px;
         z-index: 40;
