@@ -15,32 +15,32 @@
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
-                <li v-show="showStatusDescription" class="userInfo-li">
+                <li v-if="showStatusDescription" class="userInfo-li">
                     <p class="userInfo-key">个人状态</p>
                     <p class="userInfo-value">{{ userInfo.statusDescription }}</p>
                 </li>
-                <li v-show="showWorkDescription">
+                <li v-if="showWorkDescription">
                     <p class="userInfo-key">工作描述</p>
                     <p class="userInfo-value">{{ userInfo.workDescription }}</p>
                 </li>
-                <li v-show="showRelation">
+                <li v-if="showRelation">
                     <p class="userInfo-key">汇报关系</p>
                     <!-- <p class="userInfo-value">查看</p> -->
                     <p class="userInfo-value" @click="reportRelationClicked()">查看</p>
                 </li>
-                <li v-show="showDepartment">
+                <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
                     <p class="userInfo-value">{{ userInfo.department != undefined ? userInfo.department.display_name : '' }}</p>
                 </li>
-                <li v-show="showPhone">
+                <li v-if="showPhone">
                     <p class="userInfo-key">手机</p>
                     <p class="userInfo-phone-value">{{ userInfo.phone.mobile }}</p>
                 </li>
-                <li v-show="showTelephone">
+                <li v-if="showTelephone">
                     <p class="userInfo-key">座机</p>
                     <p class="userInfo-phone-value">{{ userInfo.phone.work }}</p>
                 </li>
-                <li v-show="showEmail">
+                <li v-if="showEmail">
                     <p class="userInfo-key">邮箱</p>
                     <p class="userInfo-value">{{ userInfo.email[0].email_value }}</p>
                 </li>
@@ -136,7 +136,7 @@ export default {
             if (this.userInfo == undefined){
                 return false;
             }
-            return !this.isEmpty(this.userInfo.email[0].email_value);
+            return this.userInfo.email.length > 0;
         },
         showDepartment: function() {
             if (this.userInfo == undefined){

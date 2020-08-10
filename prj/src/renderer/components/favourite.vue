@@ -169,6 +169,7 @@ display: none;
     border: 0px;
     margin: 0px 0px 0px 0px;
     display: block;
+    -webkit-app-region: drag;
 }
 
 .el-header {
