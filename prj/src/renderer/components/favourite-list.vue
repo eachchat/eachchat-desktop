@@ -67,7 +67,7 @@
                     <li class="group"
                         v-for="(group, index) in favourites"
                         :key="index">
-                        <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/Chat/loading.gif" alt= "头像">
+                        <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
                         <div class="group-name">{{ group.collection_content.groupName }}
                         </div>
                         <div class="favourite-group-action">
@@ -100,7 +100,7 @@
                 <ul class="image-list">
                     <li class="image"
                         v-for="(image, index) in searchResults.image" :key="index">
-                        <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Chat/loading.gif" alt= "图片">
+                        <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
                         <p class="image-sender" v-html="msgContentHightLight(image.collection_content.fromUserName)">{{ image.collection_content.fromUserName }}</p>
                         <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
                         <div class="favourite-action">
@@ -138,7 +138,7 @@
                     <li class="group"
                         v-for="(group, index) in searchResults.group"
                         :key="index">
-                        <img ondragstart="return false" class="group-icon" :id="group.collection_content.groupId" src="../../../static/Img/Chat/loading.gif" alt= "头像">
+                        <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
                         <div class="group-name" v-html="msgContentHightLight(group.collection_content.groupName)">{{ group.collection_content.groupName }}
                         </div>
                         <div class="favourite-group-action">
@@ -433,7 +433,7 @@ export default {
         },
         getFileIconThroughExt(ext) {
             var iconPath = getIconPath(ext);
-            return iconPath;
+            return iconPath
         },
         getFileExist(file) {
             var targetDir = confservice.getFilePath(file.timestamp);
@@ -465,7 +465,7 @@ export default {
             else{
 
                 console.log("download collection image ", image)
-                await services.common.downloadMsgTTumbnail(image.collection_content.timelineId, image.timestamp, image.collection_content.fileName, false);
+                await services.common.downloadMsgTTumbnail(image.collection_content.timeline_id, image.timestamp, image.collection_content.fileName, false);
                 //await this.getImageCollectionContent(image);
                 // this.checkAndLoadImg(targetPath);
             }
@@ -775,7 +775,7 @@ display: none;
         padding-left: 0px;
         width: calc(100% - 100px);
     }
-    
+    -webkit-app-region: drag;
 }
 .search-view{
     width: 100%;
