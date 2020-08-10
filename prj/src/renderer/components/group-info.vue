@@ -365,12 +365,12 @@ export default {
             this.$emit("closeGroupInfo");
         },
         leave: async function() {
-            if(this.isOwner) {
-                var ret = await services.common.DeleteGroup(this.groupId);
-            }
-            else {
+            // if(this.isOwner) {
+            //     var ret = await services.common.DeleteGroup(this.groupId);
+            // }
+            // else {
                 var ret = await services.common.QuitGroup(this.groupId);
-            }
+            // }
             this.$emit("leaveGroup", this.groupId);
         },
         dismiss: async function() {
@@ -430,7 +430,7 @@ export default {
         getMemberImage: async function() {
             for(var i=0; i < this.memberListShow.length; i++) {
                 var distUserInfo = this.memberListShow[i];
-                console.log("getMemberImage distuserinfo ", distUserInfo);
+                // console.log("getMemberImage distuserinfo ", distUserInfo);
                 var targetPath = '';
                 if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
                     var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.user_id));
@@ -547,7 +547,19 @@ export default {
                         this.memberListShowOriginal.push(memberInfoTmp[0]);
                     }
                 }
+                if(i%20 == 0 && i != 0) {
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.getMemberImage();
+                        })
+                    }, 0)
+                }
             }
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.getMemberImage();
+                })
+            }, 0)
         },
         cleanCache: function() {
             console.log("cleancache is ", this.cleanCache)

@@ -111,6 +111,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
+import confservice from '../../packages/data/conf_service'
 // import { ImageDrop } from 'quill-image-drop-module'
 import {ipcRenderer, remote} from 'electron'
 
@@ -118,7 +119,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {getFileSizeNum, generalGuid, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
+import {makeFlieNameForConflict, getFileSizeNum, generalGuid, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -2356,25 +2357,40 @@ export default {
             console.log("make a call");
         },
         groupIsInFavourite(groupInfo) {
-            if(groupInfo.status.substr(4, 1) == "1") {
-                return true;
+            if(groupInfo.status == 0) {
+                return false;
             }
-            return false;
+            else {
+                if(groupInfo.status.substr(4, 1) == "1") {
+                    return true;
+                }
+                return false;
+            }
         },
         groupIsSlience(groupInfo) {
-            if(groupInfo.status.substr(7, 1) == "1") {
-                return true;
+            if(groupInfo.status == 0) {
+                return false;
             }
-            return false;
+            else {
+                if(groupInfo.status.substr(7, 1) == "1") {
+                    return true;
+                }
+                return false;
+            }
         },
         groupIsTop(groupInfo) {
             // console.log("groupInfo.status ", groupInfo.status)
             // console.log("groupInfo.status.substring(6, 1) = ", groupInfo.status.substr(6, 1))
             // console.log("groupInfo.status.substring(6, 1) == 1 ", groupInfo.status.substr(6, 1) == 1)
-            if(groupInfo.status.substr(6, 1) == "1") {
-                return true;
+            if(groupInfo.status == 0) {
+                return false;
             }
-            return false;
+            else {
+                if(groupInfo.status.substr(6, 1) == "1") {
+                    return true;
+                }
+                return false;
+            }
         },
         More: async function() {
             this.groupInfo = {};

@@ -1,9 +1,6 @@
 <template>
     <div class="chat-wind">
       <div class="chat-panel" id="chat-panel-id">
-        <div class="win-header">
-          <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
-        </div>
         <div class="chat-list">
           <div class="list-header">
             <listHeader :cleanSearchKey="cleanSearchKey" @getCreateGroupInfo="getCreateGroupInfo" @toSearch="toSearch"/>
@@ -121,6 +118,9 @@
       </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
       <userInfoContent id="userInfoId" :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
+      <div class="win-header">
+        <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+      </div>
     </div>
 </template>
 
@@ -668,26 +668,39 @@ export default {
       }
       return distUid;
     },
-    showGroupIcon: async function() {
+    showGroupIcon: async function(distGroup=undefined) {
       setTimeout(async () => {
         console.log("=======================showGroupIcon", this)
-        for(var i=0;i<this.showGroupList.length;i++) {
-          var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
-          let elementImg = document.getElementById(distId);
-          // console.log("elementImg src is ", elementImg.src)
-          var targetPath = "";
-          if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
-            if(this.showGroupList[i].user_id != undefined && this.showGroupList[i].user_id.length == 0) {
-              this.showGroupList[i].user_id = this.getUidFromUids(this.showGroupList[i]);
-            }
-            var distUserInfo = await UserInfo.GetUserInfo(this.showGroupList[i].user_id);
-            // console.log("distUserInfo is ", distUserInfo);
-            if(distUserInfo != undefined) {
-              if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, this.showGroupList[i].user_id))){
-                  elementImg.setAttribute("src", targetPath);
-                  if(this.showGroupList[i].group_name == "微信") {
-                    console.log("showGroupIcon targetPath is ", targetPath);
-                  }
+        if(distGroup == undefined) {
+          for(var i=0;i<this.showGroupList.length;i++) {
+            var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
+            let elementImg = document.getElementById(distId);
+            // console.log("elementImg src is ", elementImg.src)
+            var targetPath = "";
+            if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
+              if(this.showGroupList[i].user_id != undefined && this.showGroupList[i].user_id.length == 0) {
+                this.showGroupList[i].user_id = this.getUidFromUids(this.showGroupList[i]);
+              }
+              var distUserInfo = await UserInfo.GetUserInfo(this.showGroupList[i].user_id);
+              // console.log("distUserInfo is ", distUserInfo);
+              if(distUserInfo != undefined) {
+                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, this.showGroupList[i].user_id))){
+                    elementImg.setAttribute("src", targetPath);
+                    if(this.showGroupList[i].group_name == "微信") {
+                      console.log("showGroupIcon targetPath is ", targetPath);
+                    }
+                }
+              }
+              else {
+                if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
+                    var showfu = new FileUtil(targetPath);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        elementImg.setAttribute("src", reader.result);
+                    }
+                }
               }
             }
             else {
@@ -700,48 +713,109 @@ export default {
                       elementImg.setAttribute("src", reader.result);
                   }
               }
+              // else {
+              //   var showfu = new FileUtil("../../../static/Img/User/user-40px@2x.png");
+              //   let showfileObj = showfu.GetUploadfileobj();
+              //   let reader = new FileReader();
+              //   reader.readAsDataURL(showfileObj);
+              //   reader.onloadend = () => {
+              //       elementImg.setAttribute("src", reader.result);
+              //   }
+              // }
             }
           }
-          else {
-            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
+        }
+        else {
+          for(var i=0;i<this.showGroupList.length;i++) {
+            if(this.showGroupList[i].groupId == distGroup.group_id) {
+              var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
+              let elementImg = document.getElementById(distId);
+              // console.log("elementImg src is ", elementImg.src)
+              var targetPath = "";
+              if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
+                if(this.showGroupList[i].user_id != undefined && this.showGroupList[i].user_id.length == 0) {
+                  this.showGroupList[i].user_id = this.getUidFromUids(this.showGroupList[i]);
                 }
+                var distUserInfo = await UserInfo.GetUserInfo(this.showGroupList[i].user_id);
+                // console.log("distUserInfo is ", distUserInfo);
+                if(distUserInfo != undefined) {
+                  if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, this.showGroupList[i].user_id))){
+                      elementImg.setAttribute("src", targetPath);
+                      if(this.showGroupList[i].group_name == "微信") {
+                        console.log("showGroupIcon targetPath is ", targetPath);
+                      }
+                  }
+                }
+                else {
+                  if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
+                      var showfu = new FileUtil(targetPath);
+                      let showfileObj = showfu.GetUploadfileobj();
+                      let reader = new FileReader();
+                      reader.readAsDataURL(showfileObj);
+                      reader.onloadend = () => {
+                          elementImg.setAttribute("src", reader.result);
+                      }
+                  }
+                }
+              }
+              else {
+                if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
+                    var showfu = new FileUtil(targetPath);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        elementImg.setAttribute("src", reader.result);
+                    }
+                }
+                // else {
+                //   var showfu = new FileUtil("../../../static/Img/User/user-40px@2x.png");
+                //   let showfileObj = showfu.GetUploadfileobj();
+                //   let reader = new FileReader();
+                //   reader.readAsDataURL(showfileObj);
+                //   reader.onloadend = () => {
+                //       elementImg.setAttribute("src", reader.result);
+                //   }
+                // }
+              }
+            
             }
-            // else {
-            //   var showfu = new FileUtil("../../../static/Img/User/user-40px@2x.png");
-            //   let showfileObj = showfu.GetUploadfileobj();
-            //   let reader = new FileReader();
-            //   reader.readAsDataURL(showfileObj);
-            //   reader.onloadend = () => {
-            //       elementImg.setAttribute("src", reader.result);
-            //   }
-            // }
-          }
+            }
         }
       }, 500)
     },
     groupIsInFavourite(groupInfo) {
+      if(groupInfo.status == 0) {
+        return false;
+      }
+      else {
         if(groupInfo.status.substr(4, 1) == "1") {
             return true;
         }
         return false;
+      }
     },
     groupIsSlience(groupInfo) {
-      if(groupInfo.status.substr(7, 1) == "1") {
-          return true;
+      if(groupInfo.status == 0) {
+        return false;
       }
-      return false;
+      else {
+        if(groupInfo.status.substr(7, 1) == "1") {
+            return true;
+        }
+        return false;
+      }
     },
     groupIsTop(groupInfo) {
-      if(groupInfo.status.substr(6, 1) == "1") {
-          return true;
+      if(groupInfo.status == 0) {
+        return false;
       }
-      return false;
+      else {
+        if(groupInfo.status.substr(6, 1) == "1") {
+            return true;
+        }
+        return false;
+      }
     },
     async toSearch(searchKey) {
       if(searchKey.trim().length != 0) {
@@ -1417,7 +1491,7 @@ export default {
           if(this.showGroupList[i].group_type == 102) {
             this.showGroupList[i].group_id = msg.group_id;
           }
-          this.showGroupList[i].status = 0;
+          this.showGroupList[i].status = "00000000";
           if(msg.group_id == this.curChat.group_id) {
             if(msgContent.type == "updateGroupName") {
               this.showGroupList[i].group_name = msgContent.text;
@@ -1679,7 +1753,7 @@ export default {
 
   .chat-empty {
     width:100%;
-    margin-top: 20px;
+    padding-top: 20px;
     background-color: white;
     display: flex;
     justify-content: center;
@@ -1704,8 +1778,9 @@ export default {
     display: flex;
     flex-direction: column;
     position: relative;
-    margin-top: 20px;
+    padding-top: 20px;
     -webkit-app-region: drag;
+    z-index: 49;
   }
   * {
       

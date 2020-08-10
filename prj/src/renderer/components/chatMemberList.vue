@@ -4,7 +4,7 @@
             <ul class="atList">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @click="atMember(item)">
                     <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage">
+                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" src="../../../static/Img/User/user-40px@2x.png">
                         <label class="groupMemberInfoLabel">{{item.user_display_name}}</label>
                     </div>
                 </li>

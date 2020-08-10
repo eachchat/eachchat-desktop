@@ -71,7 +71,7 @@ export default {
         position: absolute;
         right: 0px;
         top: 0px;
-        z-index: 50;
+        // z-index: 50;
     }
 
     .header-btn-min {

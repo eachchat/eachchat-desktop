@@ -219,11 +219,11 @@ export default {
             this.usersSelected = usersSelected;
         },
         closeInfoTip(e){
-            console.log("e.target.classname ", e.target.className)
+            // console.log("e.target.classname ", e.target.className)
 
             var createNewElement = document.getElementById("new-chat-dropdown-content-id");
             if(createNewElement != null && !createNewElement.contains(e.target) && e.target.className != "el-icon-circle-plus-outline" && e.target.className != "new-chat-content-div"){
-                console.log("=========== close create new chat ");
+                // console.log("=========== close create new chat ");
                 this.showCreateNewChat = false;
             }
         },
@@ -281,7 +281,7 @@ export default {
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
         border-radius: 4px;
-        z-index: 40;
+        z-index: 50;
     }
 
     .new-chat-dropdown-content div:hover {

@@ -14,8 +14,8 @@
             <div class="filter-header">
                 <i class="el-icon-paperclip"></i>
                 <label class="fileter-header-label">筛选条件</label>
-                <i class="el-icon-arrow-down" v-show="showFilter" @click="hideFilter"></i>
-                <i class="el-icon-arrow-up" v-show="!showFilter" @click="openFilter"></i>
+                <i class="el-icon-arrow-up" v-show="showFilter" @click="hideFilter"></i>
+                <i class="el-icon-arrow-down" v-show="!showFilter" @click="openFilter"></i>
             </div>
             <div class="filter-group" v-show="showFilter">
                 <label class="filter-group-label">指定会话</label>
@@ -74,7 +74,7 @@
             </ul>
             <div class="HistoryMsgEmpty" v-show="showEmpty" id="FileListEmptyId">
                 <img class="HistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
-                <div class="HistoryMsgEmptyText">搜索用户</div>
+                <div class="HistoryMsgEmptyText">搜索会话中的文件</div>
             </div>
         </div>
     </div>

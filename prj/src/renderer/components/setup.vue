@@ -1,8 +1,5 @@
 <template>
     <div class="setup-wind">
-      <div class="win-header">
-        <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
-      </div>
       <div class="setup-panel" id="setup-panel-id">
         <div class="setup-list">
           <div class="setup-list-item" @click="jumpToGeneralSetup">
@@ -97,6 +94,9 @@
       </div>
       <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
       <AnnouncementDlg v-show="showAnnouncementDlg" :contentType="contentType" :dialogTitle="dialogTitle"  @closeAnnouncementDlg="closeAnnouncementDlg"/>
+      <div class="win-header">
+        <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+      </div>
     </div>
 </template>
 
@@ -347,10 +347,10 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: row;
-    margin: 20px;
+    padding: 20px;
     overflow-y: hidden;
     -webkit-app-region: drag;
-    z-index: 30;
+    z-index: 0;
   }
 
   * {
@@ -565,7 +565,7 @@ export default {
     padding-top: 10px;
     padding-right: 4px;
     padding-bottom: 4px;
-    width:180px;
+    width:164px;
     height: 20px;
     line-height: 20px;
     font-size: 14px;
@@ -582,7 +582,7 @@ export default {
     padding-top: 4px;
     padding-right: 4px;
     padding-bottom: 4px;;
-    width:180px;
+    width:164px;
     height: 18px;
     line-height: 18px;
     font-size: 12px;
@@ -598,7 +598,7 @@ export default {
     padding-top: 4px;
     padding-right: 4px;
     padding-bottom: 4px;;
-    width:180px;
+    width:164px;
     height: 18px;
     line-height: 18px;
     font-size: 12px;

@@ -14,8 +14,8 @@
             <div class="filter-header" v-show="!isMsgDetail">
                 <i class="el-icon-paperclip"></i>
                 <label class="fileter-header-label">筛选条件</label>
-                <i class="el-icon-arrow-down" v-show="showFilter" @click="hideFilter"></i>
-                <i class="el-icon-arrow-up" v-show="!showFilter" @click="openFilter"></i>
+                <i class="el-icon-arrow-up" v-show="showFilter" @click="hideFilter"></i>
+                <i class="el-icon-arrow-down" v-show="!showFilter" @click="openFilter"></i>
             </div>
             <div class="filter-group" v-show="showFilter">
                 <label class="filter-group-label">指定会话</label>
