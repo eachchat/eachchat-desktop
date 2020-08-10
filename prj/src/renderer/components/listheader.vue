@@ -4,7 +4,7 @@
             <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="toSearch"/>
         </div>
         <div class="new-chat-content-div" id="new-chat-button-id" @click="showCreateNewChatDropDown">
-            <img class="el-icon-circle-plus-outline" src="../../../static/Img/Main/create-chat-nor-20px@2x.png" height="20px">
+            <img class="new-chat-content-div-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
             <div class="normal-chat" @click="showCreateGroup()">
@@ -222,7 +222,7 @@ export default {
             // console.log("e.target.classname ", e.target.className)
 
             var createNewElement = document.getElementById("new-chat-dropdown-content-id");
-            if(createNewElement != null && !createNewElement.contains(e.target) && e.target.className != "el-icon-circle-plus-outline" && e.target.className != "new-chat-content-div"){
+            if(createNewElement != null && !createNewElement.contains(e.target) && e.target.className != "new-chat-content-div-img" && e.target.className != "new-chat-content-div"){
                 // console.log("=========== close create new chat ");
                 this.showCreateNewChat = false;
             }
@@ -267,7 +267,7 @@ export default {
         height:30px;
         background:rgba(255,255,255,1);
         border-radius:16px;
-        border:1px solid rgba(221,221,221,1);
+        border:0px solid rgba(221,221,221,1);
         display: inline-block;
     }
 
@@ -315,13 +315,13 @@ export default {
 
     //////////////////////////////////////
 
-    .el-icon-circle-plus-outline {
+    .new-chat-content-div-img {
         background-color: white;
         line-height: 32px;
-        margin-top: 6px;
-        margin-bottom: 6px;
-        margin-right: 6px;
-        margin-left: 5.5px;
+        margin-top: 0px;
+        margin-bottom: 2.5px;
+        margin-right: 0px;
+        margin-left: 0px;
         color: rgb(211, 211, 211)
     }
 

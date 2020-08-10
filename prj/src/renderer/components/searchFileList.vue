@@ -12,7 +12,7 @@
                 <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <div class="filter-header">
-                <i class="el-icon-paperclip"></i>
+                <img class="filter-img" src="../../../static/Img/SearchDlg/filter-nor-20px@2x.png">
                 <label class="fileter-header-label">筛选条件</label>
                 <i class="el-icon-arrow-up" v-show="showFilter" @click="hideFilter"></i>
                 <i class="el-icon-arrow-down" v-show="!showFilter" @click="openFilter"></i>
@@ -689,11 +689,12 @@ export default {
         color:rgba(102, 102, 102, 1);
     }
 
-    .el-icon-paperclip {
-        width: 14px;
-        height: 14px;
+    .filter-img {
+        width: 16px;
+        height: 16px;
         display: inline-block;
-        margin: 0 6px 0 6px;
+        margin: 0px 6px 2px 6px;
+        vertical-align: middle;
     }
 
     .el-icon-arrow-down {
