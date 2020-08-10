@@ -159,10 +159,10 @@ export default {
             ///////////////////
             if(this.showEmpty) {
                 distElement.style.display = "none";
-                bgElement.style.height = "170px"
+                bgElement.style.height = "150px"
             }
             else {
-                distElement.style.height = "170px";
+                distElement.style.height = "150px";
                 bgElement.style.display = "none"
             }
         },
@@ -172,10 +172,10 @@ export default {
             let bgElement = document.getElementById("HistoryMsgEmptyId");
             if(this.showEmpty) {
                 distElement.style.display = "none";
-                bgElement.style.height = "290px"
+                bgElement.style.height = "270px"
             }
             else {
-                distElement.style.height = "290px";
+                distElement.style.height = "270px";
                 bgElement.style.display = "none"
             }
         },
@@ -793,7 +793,7 @@ export default {
 
     .HistoryMsgEmpty {
         width:100%;
-        height: 320px;
+        height: 300px;
         background-color: white;
         display: flex;
         flex-flow: column;

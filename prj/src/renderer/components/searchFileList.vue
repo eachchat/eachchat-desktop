@@ -3,7 +3,7 @@
         <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar>
         <div class="HistoryMsgDlgHeader">
             <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
-            <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail">聊天记录</div>
+            <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail">文件列表</div>
             <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px@2x.png" @click="CloseDetail()" v-show="isMsgDetail">
         </div>
         <div class="HistoryMsgDlgContent">
@@ -651,7 +651,7 @@ export default {
 
     .HistoryMsgEmpty {
         width:100%;
-        height: 320px;
+        height: 300px;
         background-color: white;
         display: flex;
         flex-flow: column;

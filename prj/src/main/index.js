@@ -135,7 +135,7 @@ function prepareWindow() {
   ? `http://localhost:9080/#/historyMsgList`
   : `file://${__dirname}/index.html#historyMsgList`;
   historyPage.loadURL(historyMsgPageWinURL);
-  historyPage.webContents.on('dom-ready', function() {
+  historyPage.webContents.on('did-finish-load', function() {
     historyPageObj["loadFinished"] = true;
   });
   //openDevToolsInDevelopment(soloPage);
@@ -162,7 +162,7 @@ function prepareWindow() {
   ? `http://localhost:9080/#/fileList`
   : `file://${__dirname}/index.html#fileList`;
   fileListPage.loadURL(fileListPageWinURL);
-  fileListPage.webContents.on('dom-ready', function() {
+  fileListPage.webContents.on('did-finish-load', function() {
     fileListPageObj["loadFinished"] = true;
   });
   
@@ -188,7 +188,7 @@ function prepareWindow() {
   ? `http://localhost:9080/#/searchMessageList`
   : `file://${__dirname}/index.html#searchMessageList`;
   searchMessageListPage.loadURL(searchMessageListWinURL);
-  searchMessageListPage.webContents.on('dom-ready', function() {
+  searchMessageListPage.webContents.on('did-finish-load', function() {
     searchMessageListPageObj["loadFinished"] = true;
   });
   
@@ -214,7 +214,7 @@ function prepareWindow() {
   ? `http://localhost:9080/#/searchFilesList`
   : `file://${__dirname}/index.html#searchFilesList`;
   searchFilesListPage.loadURL(searchFilesListPageWinURL);
-  searchFilesListPage.webContents.on('dom-ready', function() {
+  searchFilesListPage.webContents.on('did-finish-load', function() {
     searchFilesListPageObj["loadFinished"] = true;
   });
   
@@ -240,7 +240,7 @@ function prepareWindow() {
   ? `http://localhost:9080/#/TransmitMsgList`
   : `file://${__dirname}/index.html#TransmitMsgList`;
   TransmitMsgListPage.loadURL(TransmitMsgListPageWinURL);
-  TransmitMsgListPage.webContents.on('dom-ready', function() {
+  TransmitMsgListPage.webContents.on('did-finish-load', function() {
     TransmitMsgListPageObj["loadFinished"] = true;
   });
   

@@ -65,7 +65,7 @@
             </el-container>
             <div class="SearchChatFilterFotter">
                 <button class="SearchChatFilterCancleButton" @click="closeDialog()">取消</button>
-                <button class="SearchChatFilterConfirmButton" @click="SearchChatFilter()" :disabled="selectedGroups.length==0">确认</button>
+                <button class="SearchChatFilterConfirmButton" @click="SearchChatFilter()">确认</button>
             </div>
         </div>
     </div>
@@ -87,24 +87,6 @@ export default {
     name: 'SearchChatFilterDlg',
     components:{
         chatCreaterContent,
-    },
-    watch: {
-        searchSelectedGroupIds: async function() {
-            for(let i=0;i<this.searchSelectedGroupIds.length;i++) {
-                var selectedGroupItem = await Group.FindGroupByID(this.searchSelectedGroupIds[i]);
-                if(selectedGroupItem.length != 0) {
-                    if(this.indexOfGroupInSelected(selectedGroupItem[0]) == -1){
-                        this.selectedGroups.push(selectedGroupItem[0]);
-                    }
-                }
-            }
-            this.$nextTick(function(){
-                for(var i = 0; i < this.selectedGroups.length; i ++){
-                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
-                }
-            });
-            console.log("in init the selected groups is ", this.selectedGroups)
-        }
     },
     props: {
         recentGroups: {
@@ -302,6 +284,7 @@ export default {
     },
     created() {
         console.log("created =======");
+        console.log("mounted ======= ", this.searchSelectedGroupIds)
             var showPosition = this.calcImgPosition();
             console.log(showPosition);
             this.dlgPosition.left = showPosition.left.toString() + "px";

@@ -343,7 +343,7 @@ export default {
       this.searchSelectedSenders = [];
     },
     async SearchAddGroup(event, exchangeObj) {
-      var selectedIds = exchangeObj["selectedGroupIds"];
+      var selectedIds = exchangeObj["selectedGroupsIds"];
         this.distPageName = exchangeObj["name"]
         console.log("SearchAddGroup ", exchangeObj);
         this.searchSelectedGroupIds = selectedIds;

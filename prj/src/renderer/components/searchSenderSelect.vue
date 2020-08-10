@@ -116,7 +116,7 @@
             </el-container>
             <div class="TransmitFotter">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="confirm()" :disabled="selectedUsers.length==0">创建</button>
+                <button class="TransmitConfirmButton" @click="confirm()">创建</button>
             </div>
         </div>
     </div>

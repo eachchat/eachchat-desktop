@@ -84,8 +84,8 @@ export default {
             reader.onloadend = () => {
                 this.ImgElement.setAttribute("src", reader.result);
                 this.ImgElement.setAttribute("height", this.imgHeight);
-                this.ImgElement.style.left = showPosition.left.toString() + "px";
-                this.ImgElement.style.top = showPosition.top.toString() + "px";
+                // this.ImgElement.style.left = showPosition.left.toString() + "px";
+                // this.ImgElement.style.top = showPosition.top.toString() + "px";
             }
         },
     },
@@ -149,8 +149,8 @@ export default {
                 reader.onloadend = () => {
                     this.ImgElement.setAttribute("src", reader.result);
                     this.ImgElement.setAttribute("height", this.imgHeight);
-                    this.ImgElement.style.left = showPosition.left.toString() + "px";
-                    this.ImgElement.style.top = showPosition.top.toString() + "px";
+                    // this.ImgElement.style.left = showPosition.left.toString() + "px";
+                    // this.ImgElement.style.top = showPosition.top.toString() + "px";
                 }
             }
             if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, this.imgSrcInfo.message_id, false))) {
@@ -168,8 +168,8 @@ export default {
                 reader.onloadend = () => {
                     this.ImgElement.setAttribute("src", reader.result);
                     this.ImgElement.setAttribute("height", this.imgHeight);
-                    this.ImgElement.style.left = showPosition.left.toString() + "px";
-                    this.ImgElement.style.top = showPosition.top.toString() + "px";
+                    // this.ImgElement.style.left = showPosition.left.toString() + "px";
+                    // this.ImgElement.style.top = showPosition.top.toString() + "px";
                 }
             }
             else {
@@ -231,6 +231,18 @@ export default {
         left:0px;
         background: rgba(0, 0, 0, 0.6);
         z-index: 60;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .image-layers-image {
+        position: absolute;
+        // margin:0;
+        // background: rgb(1, 1, 1);
+        // border: none;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 
     .image-layers-buttons {
@@ -262,11 +274,4 @@ export default {
         color: red;
     }
     
-    .image-layers-image {
-        position: absolute;
-        margin:0;
-        background: rgb(1, 1, 1);
-        border: none;
-    }
-
 </style>
