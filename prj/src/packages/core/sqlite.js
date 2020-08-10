@@ -34,12 +34,32 @@ class Sqlite {
       this.db.run("PRAGMA KEY = " + password);
       this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
     })
-    
-    let version = await this.SyncAll("PRAGMA user_version");
-    if(version.length == 0)
-      return false;
-    let oldVersion = version[0].user_version;
     let newVersion = 2;
+    let version = await this.SyncAll("PRAGMA user_version");
+    if(version == undefined || version.length == 0)
+    {
+      this.db.close();
+      function sleep(millisecond) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve()
+            }, millisecond)
+        })
+      }
+      await sleep(500)
+      console.log("sleep end");
+      fs.unlinkSync(environment.path.sqlite);
+      console.log("file is not sqlcipher,remove " + filename);
+      this.db = new sqlite3.Database(this.filename);
+      this.db.serialize(() => {
+        this.db.run("PRAGMA KEY = " + password);
+        this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
+      })
+      this.SyncAll("PRAGMA user_version =" + newVersion);
+      return this;
+    }
+
+    let oldVersion = version[0].user_version;
     if(oldVersion == newVersion)
       console.log("version is same as before");
     else
