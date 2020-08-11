@@ -1,11 +1,12 @@
 import { models } from './models.js'
 import { servicemodels } from './servicemodels.js'
-import { sqliteutil } from './sqliteutil.js'
+import { sqliteutil, Group } from './sqliteutil.js'
 import * as fs from 'fs-extra'
 //import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from './conf_service.js'
 import {services} from './index.js';
+import * as path from 'path'
 class BaseIncrement{
     constructor(type, item, service){
         this.type = type;
@@ -57,9 +58,27 @@ class UserIncrement extends BaseIncrement{
                             if(err){
                                 console.log(err);
                             }
-                        })
+                        });
                     }
                     await services.common.downloadUserTAvatar(findUserInfo.avatar_t_url, findUserInfo.user_id);
+                    var groupsTmp = await Group.SearchByNameKey(findUserInfo.user_display_name);
+                    console.log("get group from name is ", groupsTmp);
+                    for(var i=0;i<groupsTmp.length;i++) {
+                        if(groupsTmp[i].group_type == 102) {
+                            var targetDir = confservice.getUserThumbHeadPath();
+                            var targetPath = path.join(targetDir, groupsTmp[i].group_id + '.png');
+                            if(fs.existsSync(targetPath)){
+                                console.log("group target path is ", targetPath);
+                                fs.unlink(targetPath, function(err){
+                                    if(err){
+                                        console.log(err);
+                                    }
+                                });
+                            }
+                            await services.common.downloadGroupAvatar(findUserInfo.avatar_t_url, groupsTmp[i].group_id);
+                            break;
+                        }
+                    }
                 }
             }
             updatetime = userInfoModel.updatetime;
