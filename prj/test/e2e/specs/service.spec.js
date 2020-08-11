@@ -223,7 +223,6 @@ describe('ServiceTest', function () {
 
 //response = await services.common.SearchAll("测试");
 
-
 //response = await Department.SearchByNameKey("公")
 //response = await UserInfo.SearchByNameKey("测试")
 //response = await Group.SearchByNameKey("程方")
