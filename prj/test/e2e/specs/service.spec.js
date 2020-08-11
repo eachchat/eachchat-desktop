@@ -221,7 +221,6 @@ describe('ServiceTest', function () {
 // = await services.common.UpdateUserAvatar("C:\\Users\\chengfang\\Desktop\\laofuzi.png");
 //response = await services.common.UpdateGroupAvatar("5ec4fda7cc101002783bcb77", "C:\\Users\\chengfang\\Desktop\\laofuzi.png");
 
-
 //response = await services.common.SearchAll("测试");
 
 
