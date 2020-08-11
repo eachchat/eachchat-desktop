@@ -303,7 +303,14 @@ export default {
                     var chatUserInfo = userInfos[0];
                     var chatAvater = chatUserInfo.avatar_t_url;
                     var chatName = chatUserInfo.user_display_name;
-                    var groupCheck = await services.common.GetGroupByName(chatName);
+                    var groupCheck = '';
+                    console.log("chat name is ", chatName)
+                    try {
+                        groupCheck = await services.common.GetGroupByName(chatName);
+                    }
+                    catch(error) {
+                        console.log("get grou name exception and err is ", error);
+                    }
                     console.log("groupCheck is ", groupCheck)
                     if(groupCheck.length == 0) {
                         groupItem["contain_user_ids"] = contain_user_ids;

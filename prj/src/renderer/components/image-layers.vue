@@ -3,7 +3,8 @@
         <div class="image-layers-buttons">
             <i class="el-icon-close" @click="Close()"></i>
         </div>
-        <img class="image-layers-image" id="imageLayersImage">
+        <i class="el-icon-loading" v-show="isLoading"></i>
+        <img class="image-layers-image" id="imageLayersImage" v-show="!isLoading">
     </div>
 </template>
 
@@ -26,6 +27,7 @@ export default {
             imgHeight: 400,
             imgWidth: 600,
             ipcInited: false,
+            isLoading: true,
         }
     },
     methods: {
@@ -82,6 +84,7 @@ export default {
             let reader = new FileReader();
             reader.readAsDataURL(showfileObj);
             reader.onloadend = () => {
+                    this.isLoading = false;
                 this.ImgElement.setAttribute("src", reader.result);
                 this.ImgElement.setAttribute("height", this.imgHeight);
                 // this.ImgElement.style.left = showPosition.left.toString() + "px";
@@ -106,6 +109,7 @@ export default {
     },
     watch: {
         imgSrcInfo: async function() {
+            this.isLoading = true;
             if(this.ImgElement == null) {
                 this.ImgElement = document.getElementById("imageLayersImage");
             }
@@ -121,17 +125,17 @@ export default {
             var ext = path.extname(targetFileName);
             var localPath = "";
             
-            var targetPath = await services.common.GetFilePath(this.imgSrcInfo.message_id);
-            // console.log("target 1 = ", targetPath);
-            if(targetPath.length != 0) {
-                targetPath = this.imgSrcInfo.file_local_path;
-            }
+            // var targetPath = await services.common.GetFilePath(this.imgSrcInfo.message_id);
+            // // console.log("target 1 = ", targetPath);
+            // if(targetPath.length != 0) {
+            //     targetPath = this.imgSrcInfo.file_local_path;
+            // }
             // console.log("target 2 = ", targetPath);
-            if(targetPath.length == 0) {
-                var targetDir = confservice.getFilePath(this.imgSrcInfo.message_timestamp);
-                var targetPath = path.join(targetDir, this.imgSrcInfo.message_id + ext);
-            }
-            // console.log("target 3 = ", targetPath);
+            // if(targetPath.length == 0) {
+            var targetDir = confservice.getThumbImagePath(this.imgSrcInfo.message_timestamp);
+            var targetPath = path.join(targetDir, this.imgSrcInfo.message_id + ext);
+            // }
+            console.log("target 3 = ", targetPath);
             if(fs.existsSync(targetPath)) {
                 // console.log("target exist = ", targetPath);
                 var showfu = new FileUtil(targetPath);
@@ -145,6 +149,7 @@ export default {
                 let reader = new FileReader();
                 reader.readAsDataURL(showfileObj);
                 reader.onloadend = () => {
+                    this.isLoading = false;
                     this.ImgElement.setAttribute("src", reader.result);
                     this.ImgElement.setAttribute("height", this.imgHeight);
                     // this.ImgElement.style.left = showPosition.left.toString() + "px";
@@ -164,6 +169,7 @@ export default {
                 let reader = new FileReader();
                 reader.readAsDataURL(showfileObj);
                 reader.onloadend = () => {
+                    this.isLoading = false;
                     this.ImgElement.setAttribute("src", reader.result);
                     this.ImgElement.setAttribute("height", this.imgHeight);
                     // this.ImgElement.style.left = showPosition.left.toString() + "px";
@@ -231,6 +237,16 @@ export default {
         z-index: 60;
         text-align: center;
         vertical-align: middle;
+    }
+
+    .el-icon-loading{
+        position: absolute;
+        // margin:0;
+        // background: rgb(1, 1, 1);
+        // border: none;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 
     .image-layers-image {

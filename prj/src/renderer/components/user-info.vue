@@ -172,7 +172,14 @@ export default {
                 console.log("userInfos is ", this.userInfo);
                 var chatAvater = this.userInfo.avatarTUrl;
                 var chatName = this.userInfo.displayName;
-                var groupCheck = await services.common.GetGroupByName(chatName)
+                var groupCheck = '';
+                // console.log("chat name is ", chatName)
+                try {
+                    groupCheck = await services.common.GetGroupByName(chatName);
+                }
+                catch(error) {
+                    console.log("get grou name exception and err is ", error);
+                }
                 var contain_user_ids = [this.curUserInfo.id, this.userInfo.id].join(",");
                 console.log("groupCheck is ", groupCheck)
                 if(groupCheck.length == 0) {
@@ -308,6 +315,7 @@ export default {
     border-radius: 4px;
     position: absolute;
     cursor: default;
+    z-index: 50;
 }
 .userInfoBaseInfo-view {
     height: 128px;

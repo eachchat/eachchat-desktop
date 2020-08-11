@@ -331,7 +331,7 @@ export default {
     },
     updateChatList(newMsg) {
       // ++this.needUpdate;
-      this.callback(newMsg);
+      this.callback(newMsg, true);
     },
     closeSearchChatFilterDlg() {
         this.showSearchSelecterDlg = false;
@@ -1319,6 +1319,9 @@ export default {
           if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
             continue;
           }
+          if(ret[i].status.substr(5, 1) == "1") {
+            continue;
+          }
           this.originalGroupList.push(ret[i]);
           this.unreadCount = this.unreadCount + ret[i].un_read_count;
         }
@@ -1361,22 +1364,39 @@ export default {
         return value2 - value1;
       }
     },
-    async callback(msg) {
+    async callback(msg, isUpdate=false) {
       // console.log("chat callback msg is ", msg);
       // console.log("chat callback msg content is ", msg.message_content);
       console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
+      var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+      if(groupInfo.group_type == 101 && groupInfo.status.substr(5, 1) == "1") {
+        return;
+      }
+      if(groupInfo.group_type == 102 && groupInfo.status.substr(5, 1) == "1") {
+        console.log("update status")
+        services.common.UpdateGroupStatus(msg.group_id, "00000000");
+      }
       if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
         var msgExist = await Message.ExistMessageBySequenceID(msg.sequence_id);
         // console.log("msg exist is ", msgExist);
         if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
+          if(isUpdate) {
+            this.showGroupIcon();
+          }
           this.dealedMsgSequenceId.push(msg.sequence_id);
         }
         else if(msgExist) {
           // console.log("return it ")
+          if(isUpdate) {
+            this.showGroupIcon();
+          }
           return;
         }
         else {
+          if(isUpdate) {
+            this.showGroupIcon();
+          }
           return;
         }
       }
@@ -1393,7 +1413,7 @@ export default {
         var fromUserName = "";
         // console.log("msg.messagefromid ", msg.message_from_id);
         var fromUserInfo = await UserInfo.GetUserInfo(msg.message_from_id);
-        var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
+        // var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
         var notificateContent = this.getShowMsgContent(msg);
         console.log("fromUserInfo ", fromUserInfo);
         if(fromUserInfo != undefined) {
@@ -1433,7 +1453,7 @@ export default {
       var groupExist = false;
       for(let i=0;i<this.showGroupList.length;i++) {
         if((this.showGroupList[i].group_id === msg.group_id)) {
-          console.log("exit group is ", this.showGroupList[i])
+          console.log("exit group is ", this.showGroupList[i], "and i is ", i)
           if(msgContent.type != undefined && msgContent.type == "invitation") {
             if(msgContent.userInfos != undefined) {
               let addUsers = msgContent.userInfos;
@@ -1576,6 +1596,7 @@ export default {
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
               groupExist = true;
               this.needUpdate ++;
+              this.showGroupIcon(this.showGroupList[i]);
               break;
             }
           }
@@ -1659,8 +1680,8 @@ export default {
             // console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
           }
+        this.showGroupIcon();
       }
-      this.showGroupIcon();
     },
     delayCallback: function(msg) {
       setTimeout(() => {

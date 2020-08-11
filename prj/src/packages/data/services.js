@@ -721,12 +721,12 @@ const common = {
         {
           continue
         }
-        if(groupmodel.status[5] != 1){
+        // if(groupmodel.status[5] != 1){
           groupmodel.save()
           groupmodel.message = JSON.parse(groupmodel.message_content);
           if(++count >= perPageNotDelete)
             return;
-        }
+        // }
         
       }
     }
@@ -764,7 +764,7 @@ const common = {
       {
         continue
       }
-      if(groupmodel.status[5] != 1){
+      // if(groupmodel.status[5] != 1){
         groupmodel.save()
         groupmodel.message = JSON.parse(groupmodel.message_content);
         
@@ -773,7 +773,7 @@ const common = {
         {
           messageModel.save();
         }
-      }
+      // }
       
       
     }
@@ -926,9 +926,9 @@ const common = {
       if(callback != undefined){
         callback(groupModel);
       }
-      if(groupModel.status[5] == 1){
-        await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
-      }
+      // if(groupModel.status[5] == 1){
+      //   await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
+      // }
     }
     if(groupModel != undefined)
     {
@@ -1198,15 +1198,15 @@ const common = {
     var ret = "FILE_DOWNLOADING";
     var targetDir = confservice.getFilePath(message_time);
     var targetPath = path.join(targetDir, fileName);
-    // console.log("targetPath is ", targetPath);
-    if(fs.existsSync(targetPath)) {
-      return targetPath;
-    }
-    else {
+    // // console.log("targetPath is ", targetPath);
+    // if(fs.existsSync(targetPath)) {
+    //   return targetPath;
+    // }
+    // else {
       targetPath = await makeFlieNameForConflict(targetPath);
       ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen]);
       return ret;
-    }
+    // }
   },
 
   async downloadVoiceFile(timelineId, message_time, fileName, needOpen) {
@@ -1219,7 +1219,7 @@ const common = {
       return targetPath;
     }
     else {
-      targetPath = await makeFlieNameForConflict(targetPath);
+      // targetPath = await makeFlieNameForConflict(targetPath);
       ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen]);
       return ret;
     }
@@ -1235,7 +1235,7 @@ const common = {
       return targetPath;
     }
     else {
-      targetPath = await makeFlieNameForConflict(targetPath);
+      // targetPath = await makeFlieNameForConflict(targetPath);
       ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, "T", needOpen]);
       return ret;
     }
@@ -1250,7 +1250,7 @@ const common = {
       return targetPath;
     }
     else {
-      targetPath = await makeFlieNameForConflict(targetPath);
+      // targetPath = await makeFlieNameForConflict(targetPath);
       console.log("downloadMsgOTumbnail targetPath is ", targetPath);
       ipcRenderer.send('download-mgs-oimage', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, "M", needOpen]);
       return ret;
@@ -1504,7 +1504,9 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
-    await sqliteutil.DeleteGroupByGroupID(groupID);
+    let status = result.data.obj.status;
+    console.log("status is ", status)
+    await sqliteutil.UpdateGroupStatus(groupID, status)
     return true;
   },
 
@@ -1551,6 +1553,11 @@ const common = {
       return result;
     }
     let status = result.data.obj.status;
+    await sqliteutil.UpdateGroupStatus(groupID, status)
+    return status
+  },
+
+  async UpdateGroupStatus(groupID, status){
     await sqliteutil.UpdateGroupStatus(groupID, status)
     return status
   },

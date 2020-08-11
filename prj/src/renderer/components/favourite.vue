@@ -171,6 +171,9 @@ display: none;
     display: block;
     -webkit-app-region: drag;
 }
+* {
+    -webkit-app-region: no-drag;
+}
 
 .el-header {
     height: 24px !important;

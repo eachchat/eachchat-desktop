@@ -153,7 +153,7 @@ export default {
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = msgContent.fileName;
                 var ext = path.extname(targetFileName);
-                var targetPath = this.msg.file_local_path;
+                var targetPath = await services.common.GetFilePath(this.msg.message_id);
                 console.log("targetPath is =========== ", targetPath);
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
@@ -326,34 +326,12 @@ export default {
             }
             else if(chatGroupMsgType === 102)
             {
-                // var targetDir = confservice.getFilePath();
                 var targetFileName = chatGroupMsgContent.fileName;
                 var theExt = path.extname(targetFileName);
-                // var targetPath = path.join(targetDir, targetFileName);
-                var targetPath = this.msg.file_local_path;
-                // var targetDir = confservice.getFilePath();
-                // var targetFileName = this.msg.message_id.toString() + "." + chatGroupMsgContent.ext;
-                // var targetPath = this.msg.file_local_path;
-                // if(chatGroupMsgContent.thumbnailImage != undefined && fs.existsSync(chatGroupMsgContent.thumbnailImage)){
-                //     targetPath = chatGroupMsgContent.thumbnailImage;
-                // }
                 var needOpen = false;
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
                 imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
-                if(targetPath.length == 0) {
-                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false))) {
-                        //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("src", targetPath);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                        imgMsgImgElement.setAttribute("style", "");
-                    }
-                }
-                else if(fs.existsSync(targetPath)){
+                if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false))) {
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                     let imageHeight = 100;
                     if(chatGroupMsgContent.imgHeight < 100){
@@ -364,19 +342,22 @@ export default {
                     imgMsgImgElement.setAttribute("height", imageHeight);
                     imgMsgImgElement.setAttribute("style", "");
                 }
-                else{
-                    // console.log("download msg t thumnail args is ", this.msg)
-                    services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false);
-                    // this.checkAndLoadImg(targetPath);
-                }
             }
             else if(chatGroupMsgType === 103)
             {
-                // var targetDir = confservice.getFilePath();
+                var fileMsgImgElement = document.getElementById(this.msg.message_id);
+                var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
+                
+                this.fileName = chatGroupMsgContent.fileName;
+                this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
+                fileMsgImgElement.setAttribute("src", iconPath);
+                fileMsgImgElement.setAttribute("height", 40);
+                
                 var targetFileName = chatGroupMsgContent.fileName;
                 var theExt = path.extname(targetFileName);
                 // var targetPath = path.join(targetDir, targetFileName);
-                var targetPath = this.msg.file_local_path;
+                // var targetPath = this.msg.file_local_path;
+                var targetPath = await services.common.GetFilePath(this.msg.message_id);
                 // if(chatGroupMsgContent.fileLocalPath != undefined && fs.existsSync(chatGroupMsgContent.fileLocalPath)){
                 //     targetPath = chatGroupMsgContent.fileLocalPath;
                 // }
@@ -392,14 +373,6 @@ export default {
                     // console.log("targetfilename is ", targetFileName);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
                 }
-                var fileMsgImgElement = document.getElementById(this.msg.message_id);
-                var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
-                // console.log("icon path is ", iconPath);
-                // console.log("filesize is ", chatGroupMsgContent.fileSize);
-                    this.fileName = chatGroupMsgContent.fileName;
-                    this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                    fileMsgImgElement.setAttribute("src", iconPath);
-                    fileMsgImgElement.setAttribute("height", 40);
             }
             else if(chatGroupMsgType === 104)
             {

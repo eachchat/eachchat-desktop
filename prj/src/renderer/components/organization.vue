@@ -351,6 +351,9 @@ display: none;
     display: block;
     -webkit-app-region: drag;
 }
+* {
+    -webkit-app-region: no-drag;
+}
 .organization-view{
     margin-top: -13px;
 }

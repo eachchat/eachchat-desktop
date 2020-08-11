@@ -109,7 +109,7 @@ import winHeaderBar from './win-header.vue'
 import {ipcRenderer, remote} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 // import listItem from './list-item.vue'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, getdirsize, deleteall} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, getdirsize, deleteall, getFileSizeByNumber} from '../../packages/core/Utils.js'
 import {shell} from 'electron'
 import AlertDlg from './alert-dlg.vue'
 import AnnouncementDlg from './announcement.vue'
@@ -203,8 +203,14 @@ export default {
       this.showAlertDlg = false;
     },
     clearCache: function() {
-      deleteall(this.localStorePath);
-      getdirsize(this.localStorePath, this.updateCacheSize);
+      try{
+        deleteall(this.localStorePath);
+        getdirsize(this.localStorePath, this.updateCacheSize);
+      }
+      catch(error) {
+        this.updateCacheSize('', 0);
+        console.log("clear cache exception ", error);
+      }
       this.showAlertDlg = false;
     },
     openLocalStorageDir: function() {
@@ -259,9 +265,9 @@ export default {
         this.ulDiv.scrollTop = this.ulDiv.scrollHeight;
     },
     updateCacheSize: function(err, size) {
-      var sizeM = size / (1024*1024);
-      var strSize = sizeM.toFixed(2) + "M";
-      console.log("size is ", strSize);
+      // console.log("err is ", err);
+      // console.log("size is ", size);
+      var strSize = getFileSizeByNumber(size);
       var cacheStoreElement = document.getElementById("setup-general-clear-cache-label2-id");
       if(cacheStoreElement != null) {
         cacheStoreElement.innerHTML = strSize;
@@ -305,6 +311,7 @@ export default {
     this.recentDevice = await services.common.GetRecentDevice();
     this.localStorePath = await confservice.getCurFilesDir();
     console.log("this.recentdeivce ", this.recentDevice);
+    // console.log("this.localStorePath ", this.localStorePath);
     getdirsize(this.localStorePath, this.updateCacheSize);
   }
 };
