@@ -196,7 +196,7 @@ describe('ServiceTest', function () {
     expect(result).to.not.equal(false);
 
     //expect(result).to.not.equal(false);
-  }),
+  })
 
   it("UpdateUserAvatarTestCase", async function{
     //let tmp = await services.common.UpdateUserAvatar("C:\\Users\\chengfang\\Desktop\\laofuzi.png");
