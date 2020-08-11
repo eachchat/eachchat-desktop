@@ -160,7 +160,7 @@ export default {
                     shell.openItem(targetPath);
                 }
                 else{
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
+                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true);
                 }
             }
             else if(msgType == 105) {
@@ -185,7 +185,7 @@ export default {
                     }
                 }
                 else{
-                    services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
+                    services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true);
                 }
                 this.$emit('playAudioOfMessage', this.msg.message_id);
             }

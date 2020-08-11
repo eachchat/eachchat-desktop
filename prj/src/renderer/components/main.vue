@@ -160,7 +160,7 @@ export default {
             // console.log("22222222222222222222222222")
             console.log("the init user id is ,", this.curUserInfo.id)
             confservice.init(this.curUserInfo.id);
-            // this.$store.commit("setUserId", this.curUserInfo.id)
+            this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
             this.$router.push("/main/ChatContent");
             
