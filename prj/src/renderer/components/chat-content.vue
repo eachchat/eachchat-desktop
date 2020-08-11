@@ -106,9 +106,15 @@
           </div>
         </div>
         <div class="chat-empty" v-show="isEmpty">
+          <div class="win-header">
+            <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+          </div>
           <img class="chat-empty-bg" src="../../../static/Img/Chat/empyt2@2x.png">
         </div>
         <div class="chat" v-show="!isEmpty">
+          <div class="win-header">
+            <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+          </div>
           <ChatPage :chat="curChat" :newMsg="newMsg" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip"></ChatPage>
         </div>
       </div>
@@ -118,9 +124,6 @@
       </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
       <userInfoContent id="userInfoId" :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
-      <div class="win-header">
-        <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
-      </div>
     </div>
 </template>
 
@@ -1511,7 +1514,7 @@ export default {
           if(this.showGroupList[i].group_type == 102) {
             this.showGroupList[i].group_id = msg.group_id;
           }
-          this.showGroupList[i].status = "00000000";
+          // this.showGroupList[i].status = "00000000";
           if(msg.group_id == this.curChat.group_id) {
             if(msgContent.type == "updateGroupName") {
               this.showGroupList[i].group_name = msgContent.text;
@@ -1801,7 +1804,7 @@ export default {
     position: relative;
     padding-top: 20px;
     -webkit-app-region: drag;
-    z-index: 49;
+    z-index: 1;
   }
   * {
       

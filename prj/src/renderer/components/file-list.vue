@@ -2,7 +2,7 @@
     <div class="FileListDlg" id="FileListDlgId" @click="hideSth($event)">
         <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="FileListDlgHeader">
-            <img class="FileListDlgHeaderImg" id="FileListDlgHeaderImgId" @click="Close()">
+            <img class="FileListDlgHeaderImg" id="FileListDlgHeaderImgId">
             <div class="FileListDlgHeaderTitle">{{GroupName}}</div>
         </div>
         <div class="FileListDlgContent">

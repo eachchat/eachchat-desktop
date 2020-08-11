@@ -252,7 +252,7 @@ export default {
     height: 48px;
     position: absolute;
     border-radius: 4px;
-    z-index: 100;
+    z-index: 3;
     background-color: rgba(0,0,0,0.4);;
     .personalCenter-cameraIcon{
         width: 24px;
@@ -349,7 +349,7 @@ export default {
     border-radius:4px;
     border:1px solid rgba(221,221,221,1);
     padding: 0px;
-    z-index: 100;
+    z-index: 3;
     .personalCenter-stateSelectList{
         width: 80px;
         height: 100%;

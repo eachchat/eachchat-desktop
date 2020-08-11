@@ -3,7 +3,7 @@
         <div class="NoticeDlg" id="NoticeDlgId">
             <div class="NoticeHeader">
                 <div class="NoticeHeaderTitle">群公告</div>
-                <img class="NoticeClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="Close()">
+                <img class="NoticeClose" src="../../../static/Img/Chat/delete-20px@2x.png">
             </div>
             <div class="NoticeContent">
                 <textarea class="NoticeTextArea" v-model="noticeContent" placeholder="输入群公告"></textarea>

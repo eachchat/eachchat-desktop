@@ -50,17 +50,7 @@ class UserIncrement extends BaseIncrement{
                 if(findUserInfo.avatar_t_url != userInfoModel.avatar_t_url || findUserInfo.avatar_o_url){
                     
                     console.log(userInfoModel.user_id + " url is changed");
-                    var userId = findUserInfo.user_id;
-                    confservice.init(foundUsers[0].user_id);
-                    var localPath = confservice.getUserThumbHeadLocalPath(userId);
-                    if(fs.existsSync(localPath)){
-                        fs.unlink(localPath, function(err){
-                            if(err){
-                                console.log(err);
-                            }
-                        });
-                    }
-                    await services.common.downloadUserTAvatar(findUserInfo.avatar_t_url, findUserInfo.user_id);
+                    
                     var groupsTmp = await Group.SearchByNameKey(findUserInfo.user_display_name);
                     console.log("get group from name is ", groupsTmp);
                     for(var i=0;i<groupsTmp.length;i++) {
@@ -79,6 +69,18 @@ class UserIncrement extends BaseIncrement{
                             break;
                         }
                     }
+                    
+                    var userId = findUserInfo.user_id;
+                    confservice.init(foundUsers[0].user_id);
+                    var localPath = confservice.getUserThumbHeadLocalPath(userId);
+                    if(fs.existsSync(localPath)){
+                        fs.unlink(localPath, function(err){
+                            if(err){
+                                console.log(err);
+                            }
+                        });
+                    }
+                    await services.common.downloadUserTAvatar(findUserInfo.avatar_t_url, findUserInfo.user_id);
                 }
             }
             updatetime = userInfoModel.updatetime;

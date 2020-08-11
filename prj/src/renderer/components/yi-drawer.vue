@@ -113,7 +113,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 10;
+    z-index: 3;
     background-color: rgba(221,0,0,.5);
     opacity: 1;
     transition: opacity .5s;
@@ -126,7 +126,7 @@ export default {
   /* 滑块 */
 .main {
     position: fixed;
-    z-index: 10;
+    z-index: 3;
     top: 0;
     height: 100%;
     background: #fff;

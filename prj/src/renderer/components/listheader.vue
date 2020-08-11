@@ -281,7 +281,7 @@ export default {
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
         border-radius: 4px;
-        z-index: 50;
+        z-index: 2;
     }
 
     .new-chat-dropdown-content div:hover {

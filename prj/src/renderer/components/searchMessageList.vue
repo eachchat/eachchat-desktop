@@ -680,7 +680,7 @@ export default {
         padding-top: 0px;
         // padding-left: 12px;
         -webkit-app-region: drag;
-        z-index: 10;
+        z-index: 1;
     }
 
     .HistoryMsgDlgHeaderImg {

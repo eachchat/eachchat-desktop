@@ -132,7 +132,7 @@
             </el-container>
             <div class="TransmitFotter">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="confirm()" :disabled="selectedUsers.length==0">创建</button>
+                <button class="TransmitConfirmButton" @click="confirm()" :disabled="selectedUsers.length==0">确定</button>
             </div>
         </div>
     </div>
@@ -950,7 +950,7 @@ display: none;
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
-        z-index:99;
+        z-index:3;
     }
 
     .ChatCreaterDlg {

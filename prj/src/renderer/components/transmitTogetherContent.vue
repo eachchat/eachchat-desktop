@@ -2,7 +2,7 @@
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
         <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader">
-            <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" @click="Close()">
+            <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId">
             <div class="HistoryMsgDlgHeaderTitle">{{GroupName}}</div>
         </div>
         <div class="HistoryMsgDlgContent">

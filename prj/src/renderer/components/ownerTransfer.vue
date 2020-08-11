@@ -3,7 +3,7 @@
         <div class="OwnerTransferDlg" id="OwnerTransferDlgId">
             <div class="OwnerTransferHeader">
                 <div class="OwnerTransferHeaderTitle">转让群主</div>
-                <img class="OwnerTransferClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="Close()">
+                <img class="OwnerTransferClose" src="../../../static/Img/Chat/delete-20px@2x.png">
             </div>
             <div class="OwnerTransferContent">
                 <div class="search">
@@ -217,7 +217,7 @@ export default {
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
-        z-index: 51;
+        z-index: 3;
     }
 
     .OwnerTransferDlg {

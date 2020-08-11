@@ -132,7 +132,7 @@ export default {
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
-        z-index: 60;
+        z-index: 3;
     }
 
     .AnnouncementDlg {

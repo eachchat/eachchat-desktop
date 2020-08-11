@@ -315,7 +315,7 @@ export default {
     border-radius: 4px;
     position: absolute;
     cursor: default;
-    z-index: 50;
+    z-index: 3;
 }
 .userInfoBaseInfo-view {
     height: 128px;

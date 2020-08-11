@@ -71,7 +71,7 @@ export default {
         position: absolute;
         right: 0px;
         top: 0px;
-        z-index: 50;
+        z-index: 2;
     }
 
     .header-btn-min {
@@ -83,6 +83,7 @@ export default {
         margin: 0px 6px 0px 6px;
         background-color: rgb(255, 255, 255);
         border: 0px;
+        z-index: 2;
     }
 
     .header-btn-min:hover {
@@ -95,6 +96,7 @@ export default {
         color: red;
         background-color: rgb(255, 255, 255);
         border: 0px;
+        z-index: 2;
     }
 
     .header-btn-max {
@@ -106,6 +108,7 @@ export default {
         margin: 0px 6px 0px 6px;
         background-color: rgb(255, 255, 255);
         border: 0px;
+        z-index: 2;
     }
 
     .header-btn-max:hover {
@@ -118,6 +121,7 @@ export default {
         color: red;
         background-color: rgb(255, 255, 255);
         border: 0px;
+        z-index: 2;
     }
 
     .header-btn-close {
@@ -129,6 +133,7 @@ export default {
         margin: 0px 6px 0px 6px;
         background-color: rgb(255, 255, 255);
         border: 0px;
+        z-index: 2;
     }
 
     .header-btn-close:hover {
@@ -141,6 +146,7 @@ export default {
         margin: 0px 6px 0px 6px;
         background-color: rgb(255, 255, 255);
         border: 0px;
+        z-index: 2;
     }
 
 </style>
