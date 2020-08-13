@@ -310,6 +310,7 @@ const common = {
     if("desktopType" in config){
       this.config.desktopType = config.desktopType;
     }
+    this.api = null;
     this.initServiceApi();
     let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.model, config.deviceID, config.desktopType);
 
