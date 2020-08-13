@@ -165,7 +165,9 @@ export default {
     .AlertContentAbstraceContent {
         width: calc(100% - 40px);
         font-size: 16px;
-        font-family: "Microsoft Yahei";
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 2px;
         vertical-align: top;
         margin-left: 16px;
     }
@@ -180,7 +182,9 @@ export default {
     .AlertContentDetailsContent {
         width: 336px;
         font-size: 14px;
-        font-family: "Microsoft Yahei";
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         vertical-align: top;
     }
 
@@ -202,6 +206,7 @@ export default {
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .AlertConfirmButton:hover {
@@ -215,6 +220,7 @@ export default {
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .AlertCancleButton {
@@ -227,6 +233,7 @@ export default {
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
+        font-family: PingFangSC-Regular;
     }
  
 </style>

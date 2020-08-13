@@ -3,14 +3,19 @@
         <div class="NoticeDlg" id="NoticeDlgId">
             <div class="NoticeHeader">
                 <div class="NoticeHeaderTitle">群公告</div>
-                <img class="NoticeClose" src="../../../static/Img/Chat/delete-20px@2x.png">
+                <img class="NoticeClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="Close">
             </div>
             <div class="NoticeContent">
-                <textarea class="NoticeTextArea" v-model="noticeContent" placeholder="输入群公告"></textarea>
+                <textarea class="NoticeTextArea" v-model="noticeContent" placeholder="输入群公告" :disabled="!isOwner"></textarea>
             </div>
             <div class="NoticeFotter">
-                <button class="NoticeCancleButton" @click="Close()">取消</button>
-                <button class="NoticeConfirmButton" @click="UpdateNotice()">发布</button>
+                <div class="" v-show="isOwner">
+                    <button class="NoticeCancleButton" @click="Close()">取消</button>
+                    <button class="NoticeConfirmButton" @click="UpdateNotice()">发布</button>
+                </div>
+                <div class="" v-show="!isOwner">
+                    <button class="NoticeCloseButton" @click="Close()">关闭</button>
+                </div>
             </div>
         </div>
     </div>
@@ -34,6 +39,7 @@ export default {
             ipcInited: false,
             noticeContent: "",
             groupId: "",
+            isOwner: false,
         }
     },
     methods: {
@@ -97,6 +103,7 @@ export default {
 
             this.noticeContent = this.noticeInfo.originalNotice;
             this.groupId = this.noticeInfo.groupId; 
+            this.isOwner = this.noticeInfo.isOwner;
 
             var showPosition = this.calcImgPosition();
             this.NoticeDlgElement.style.left = showPosition.left.toString() + "px";
@@ -114,6 +121,7 @@ export default {
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
+        z-index: 4;
     }
 
     .NoticeDlg {
@@ -137,6 +145,9 @@ export default {
         display: inline-block;
         margin-left: 32px;
         vertical-align: top;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 2px;
     }
 
     .NoticeClose {
@@ -163,11 +174,11 @@ export default {
         margin-right: 32px;
         padding: 0px;
         font-size: 14px;
-        text-indent: 4px;
         color: rgba(153, 153, 153, 1);
+        text-indent: 4px;
         letter-spacing:1px;
         font-weight:400;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
         line-height:20px;
         padding: 16px;
     }
@@ -183,10 +194,9 @@ export default {
         padding: 0px;
         font-size: 14px;
         text-indent: 4px;
-        color: rgba(153, 153, 153, 1);
         letter-spacing:1px;
         font-weight:400;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
         line-height:20px;
         padding: 16px;
         outline: none;
@@ -206,10 +216,11 @@ export default {
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
-        background: rgba(167, 224, 196, 1);
+        background: rgba(36,179,107,1);
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .NoticeCancleButton {
@@ -222,6 +233,20 @@ export default {
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
+        font-family: PingFangSC-Regular;
+    }
+
+    .NoticeCloseButton {
+        width: 100px;
+        height: 32px;
+        margin-right: 5px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-left: 0px;
+        background: white;
+        border-radius:4px;
+        border:1px solid rgba(221,221,221,1);
+        font-family: PingFangSC-Regular;
     }
  
 </style>

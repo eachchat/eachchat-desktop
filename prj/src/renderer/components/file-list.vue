@@ -414,7 +414,9 @@ export default {
         margin-left: 0px;
         vertical-align: top;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         -webkit-app-region: drag;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -463,7 +465,9 @@ export default {
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -528,8 +532,9 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 14px;
-        font-family:Microsoft Yahei;
-        font-weight: 590;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 1px;
     }
 
     .fileInfoDetailLabel {
@@ -538,7 +543,9 @@ export default {
         height: 18px;
         line-height: 18px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         color: rgba(153, 153, 153, 1);
     }
 
@@ -565,7 +572,9 @@ export default {
         line-height: 32px;
         font-size: 12px;
         color: rgba(51, 51, 51, 1);
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }
@@ -577,7 +586,9 @@ export default {
         line-height: 32px;
         font-size: 12px;
         color: rgba(51, 51, 51, 1);
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }
@@ -589,7 +600,9 @@ export default {
         line-height: 32px;
         font-size: 12px;
         color: rgba(51, 51, 51, 1);
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }

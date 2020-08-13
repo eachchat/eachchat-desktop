@@ -235,6 +235,8 @@ display: none;
     color:rgba(0,0,0,1);
     line-height:20px;
     letter-spacing:1px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
 }
 .item-arrow {
     display: inline-block;
@@ -337,7 +339,8 @@ display: none;
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
         font-size: 12px;
         
         background-color: rgba(1, 1, 1, 0);

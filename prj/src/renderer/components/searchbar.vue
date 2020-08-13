@@ -83,7 +83,7 @@ export default {
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family:PingFangSC-Regular;
         font-weight:400;
         line-height:18px;
         letter-spacing:1px;

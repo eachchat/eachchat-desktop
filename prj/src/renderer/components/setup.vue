@@ -412,7 +412,9 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: "Microsoft Yahei";
+      font-family: PingFangSC-Medium;
+      font-weight: 400;
+      letter-spacing: 1px;
       vertical-align: top;
   }
 
@@ -430,7 +432,9 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: "Microsoft Yahei";
+      font-family: PingFangSC-Medium;
+      font-weight: 400;
+      letter-spacing: 1px;
       vertical-align: top;
   }
 
@@ -448,7 +452,9 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: "Microsoft Yahei";
+      font-family: PingFangSC-Medium;
+      font-weight: 400;
+      letter-spacing: 1px;
       vertical-align: top;
   }
 
@@ -466,7 +472,9 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: "Microsoft Yahei";
+      font-family: PingFangSC-Medium;
+      font-weight: 400;
+      letter-spacing: 1px;
       vertical-align: top;
   }
 
@@ -489,9 +497,10 @@ export default {
     height: 48px;
     line-height: 48px;
     background:rgba(255,255,255,1);
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+    letter-spacing: 2px;
     font-size: 16px;
-    font-weight: bold;
   }
 
   .setup-language {
@@ -507,7 +516,9 @@ export default {
     width:100%;
     height:48px;
     background:rgba(255,255,255,1);
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     font-size: 14px;
     display: inline-block;
   }
@@ -524,7 +535,9 @@ export default {
     width:calc(100% - 88px);
     height:48px;
     background:rgba(255,255,255,1);
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     font-size: 14px;
     display: inline-block;
   }
@@ -545,7 +558,9 @@ export default {
     line-height: 48px;
     background:rgba(255,255,255,1);
     display: block;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     font-size: 14px;
   }
 
@@ -564,7 +579,7 @@ export default {
     border-radius:4px;
     border:1px solid rgba(221,221,221,1);
     display: inline-block;
-    margin-left: 12px;
+    margin-right: 12px;
   }
 
   .device-one-name {
@@ -576,8 +591,9 @@ export default {
     height: 20px;
     line-height: 20px;
     font-size: 14px;
-    font-family: "Microsoft Yahei";
-    letter-spacing:1px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     display: block;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -593,7 +609,8 @@ export default {
     height: 18px;
     line-height: 18px;
     font-size: 12px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
     letter-spacing:1px;
     color:rgba(153,153,153,1);
     letter-spacing:1px;
@@ -609,7 +626,8 @@ export default {
     height: 18px;
     line-height: 18px;
     font-size: 12px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
     letter-spacing:1px;
     color:rgba(153,153,153,1);
     letter-spacing:1px;
@@ -629,7 +647,9 @@ export default {
     height:48px;
     line-height: 48px;
     background:rgba(255,255,255,1);
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     font-size: 14px;
     display: inline-block;
     letter-spacing:1px;
@@ -653,7 +673,9 @@ export default {
       line-height: 24px;
       width: 288px;
       font-size: 12px;
-      font-family:Microsoft Yahei;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      letter-spacing: 1px;
       padding: 0px;
       border: 0px;
       cursor: pointer;
@@ -670,7 +692,9 @@ export default {
       margin-bottom: 12px;
       width: 288px;
       font-size: 14px;
-      font-family:Microsoft Yahei;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      letter-spacing: 1px;
       padding: 0px;
       border: 0px;
       outline: none;
@@ -728,7 +752,7 @@ export default {
     width:calc(100% - 90px);
     height:48px;
     line-height: 48px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
     font-size: 14px;
     display: inline-block;
     font-size:14px;
@@ -741,7 +765,7 @@ export default {
     width:45px;
     height:48px;
     line-height: 48px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
     font-size: 14px;
     display: inline-block;
     font-size:14px;
@@ -769,10 +793,10 @@ export default {
     height: 48px;
     line-height: 48px;
     background:rgba(255,255,255,1);
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+    letter-spacing: 2px;
     font-size: 16px;
-    font-weight: bold;
-    letter-spacing:1px;
   }
 
   .setup-notice-message-notice {
@@ -791,7 +815,9 @@ export default {
     height:48px;
     line-height: 48px;
     font-size: 14px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     background:rgba(255,255,255,1);
     display: inline-block;
     letter-spacing:1px;
@@ -823,7 +849,9 @@ export default {
     height:48px;
     line-height: 48px;
     font-size: 14px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     background:rgba(255,255,255,1);
     display: inline-block;
     letter-spacing:1px;
@@ -844,10 +872,10 @@ export default {
     height: 48px;
     line-height: 48px;
     background:rgba(255,255,255,1);
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+    letter-spacing: 2px;
     font-size: 16px;
-    font-weight: bold;
-    letter-spacing:1px;
   }
 
   .setup-update-cur-version {
@@ -867,7 +895,9 @@ export default {
     line-height: 48px;
     font-size: 14px;
     letter-spacing:1px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     background:rgba(255,255,255,1);
     display: inline-block;
     vertical-align: top;
@@ -877,7 +907,7 @@ export default {
     width:110px;
     height:48px;
     line-height: 48px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
     font-size: 14px;
     display: inline-block;
     font-size:14px;
@@ -912,7 +942,9 @@ export default {
     width:calc(100% - 40px);
     height:48px;
     background:rgba(255,255,255,1);
-    font-family: Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     font-size: 14px;
     display: inline-block;
     vertical-align: top;
@@ -933,9 +965,11 @@ export default {
     height: 48px;
     line-height: 48px;
     background:rgba(255,255,255,1);
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+    letter-spacing: 2px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: bold
   }
 
   .setup-about-introduce {
@@ -955,7 +989,9 @@ export default {
     line-height: 48px;
     font-size: 14px;
     letter-spacing:1px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     background:rgba(255,255,255,1);
     display: inline-block;
     vertical-align: top;
@@ -989,7 +1025,9 @@ export default {
     line-height: 48px;
     font-size: 14px;
     letter-spacing:1px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     background:rgba(255,255,255,1);
     display: inline-block;
     vertical-align: top;
@@ -1023,7 +1061,9 @@ export default {
     line-height: 48px;
     font-size: 14px;
     letter-spacing:1px;
-    font-family: "Microsoft Yahei";
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     background:rgba(255,255,255,1);
     display: inline-block;
     vertical-align: top;
@@ -1046,6 +1086,8 @@ export default {
     line-height: 40px;
     background:rgba(36,179,107,1);
     border-radius:4px;
+    font-family: PingFangSC-Regular;
+    letter-spacing: 1px;
     text-align:center;
     margin: 10px auto;
   }

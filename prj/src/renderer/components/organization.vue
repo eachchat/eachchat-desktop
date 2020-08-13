@@ -399,6 +399,8 @@ display: none;
     font-size: 14px;
     line-height: 20px;
     letter-spacing: 1px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
 }
 .item-arrow {
     display: inline-block;
@@ -457,6 +459,7 @@ display: none;
     font-weight:400;
     letter-spacing:1px;
     color:rgba(0,0,0,1);
+    font-family: PingFangSC-Regular;
 }
 .manager-title {
     height: 18px;
@@ -472,6 +475,7 @@ display: none;
     font-weight:400;
     color:rgba(153,153,153,1);
     letter-spacing:1px;
+    font-family: PingFangSC-Regular;
 }
 }
 .manager:hover {
@@ -573,7 +577,7 @@ display: none;
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
         font-size: 12px;
         
         background-color: rgba(1, 1, 1, 0);

@@ -293,7 +293,7 @@ export default {
             height: 18px;
             outline:none;
             border: 0px;
-            font-family: 'Microsoft YaHei';
+            font-family: PingFangSC-Regular;
             font-size: 12px;
             margin-top: 2px;
             background-color: rgba(1, 1, 1, 0);
@@ -321,6 +321,7 @@ export default {
         .personalCenter-stateInput{
             text-indent: 4px;
             color: black;
+            font-family: PingFangSC-Regular;
         }
     }
 }
@@ -336,7 +337,7 @@ export default {
     line-height:22px;
     letter-spacing:2px;
     margin-top: 2px;
-
+    font-family: PingFangSC-Medium;
 }
 .personalCenter-stateSelectListView{
     position: absolute;
@@ -377,6 +378,7 @@ export default {
                 line-height:18px;
                 letter-spacing:1px;
                 display: inline-block;
+                font-family: PingFangSC-Regular;
             }
             .personalCenter-stateSelectCheck{
                 width: 20px;
@@ -411,7 +413,7 @@ export default {
             height: 18px;
             outline:none;
             border: 0px;
-            font-family: 'Microsoft YaHei';
+            font-family: PingFangSC-Regular;
             font-size: 12px;
             border: none;
             background-color: rgba(1, 1, 1, 0);

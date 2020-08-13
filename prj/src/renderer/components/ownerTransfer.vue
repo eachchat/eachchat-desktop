@@ -3,7 +3,7 @@
         <div class="OwnerTransferDlg" id="OwnerTransferDlgId">
             <div class="OwnerTransferHeader">
                 <div class="OwnerTransferHeaderTitle">转让群主</div>
-                <img class="OwnerTransferClose" src="../../../static/Img/Chat/delete-20px@2x.png">
+                <img class="OwnerTransferClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="Close">
             </div>
             <div class="OwnerTransferContent">
                 <div class="search">
@@ -241,6 +241,9 @@ export default {
         display: inline-block;
         margin-left: 32px;
         vertical-align: top;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 2px;
     }
 
     .OwnerTransferClose {
@@ -295,7 +298,9 @@ export default {
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         font-size: 12px;
         color: rgb(102, 102, 102);
         background-color: rgba(1, 1, 1, 0);
@@ -405,7 +410,9 @@ export default {
         line-height: 48px;
         vertical-align: top;
         font-size: 14px;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         padding-left: 8px;
     }
 
@@ -423,10 +430,25 @@ export default {
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
+        background: rgba(36, 179, 107, 1);
+        border:1px solid rgba(221,221,221,1);
+        color: white;
+        border-radius:4px;
+        font-family: PingFangSC-Regular;
+    }
+
+    .OwnerTransferConfirmButton:disabled{
+        width: 100px;
+        height: 32px;
+        margin-left: 5px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-right: 110px;
         background: rgba(167, 224, 196, 1);
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .OwnerTransferConfirmButton:hover {
@@ -440,6 +462,7 @@ export default {
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .OwnerTransferCancleButton {

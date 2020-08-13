@@ -1111,12 +1111,12 @@ export default {
           return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
         }
         else{
-          return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
+          return y + "/" + Appendzero(mon) + "/" + Appendzero(d);
         }
       }
       else
       {
-        return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
+        return y + "/" + Appendzero(mon) + "/" + Appendzero(d);
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
@@ -1869,6 +1869,9 @@ export default {
     margin: 0;
     background-color: rgba(247, 248, 250, 1);
     display: block;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
   }
 
   .search-list-content-content {
@@ -1941,8 +1944,9 @@ export default {
     width: 100%;
     height: 20px;
     font-size: 14px;
-    font-weight: medium;
-    font-family:Microsoft Yahei;
+    font-weight: 400;
+    font-family:PingFangSC-Regular;
+    letter-spacing: 1px;
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
@@ -1955,16 +1959,19 @@ export default {
 
   .search-item-position {
     width: 100%;
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(153, 153, 153, 1);
     overflow: hidden;
     margin-left: 0px;
-    margin-top: 2px;
+    margin-top: 0px;
     margin-right: 0px;
     margin-bottom: 7px;
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
+    font-family:PingFangSC-Regular;
+    letter-spacing: 1px;
+    font-weight: 400;
   }
 
   .search-list-content-more-div {
@@ -1978,6 +1985,9 @@ export default {
     background-color: rgba(255, 255, 255, 1);
     display: block;
     cursor: pointer;
+    font-family:PingFangSC-Regular;
+    letter-spacing: 1px;
+    font-weight: 400;
   }
 
   .search-list-content-message {
@@ -2155,7 +2165,7 @@ export default {
   .group-info {
     display: inline-block;
     height: 100%;
-    width: calc(100% - 120px);
+    width: calc(100% - 130px);
     margin-left: 12px;
   }
 
@@ -2163,8 +2173,8 @@ export default {
     width: 100%;
     height: 20px;
     font-size: 14px;
-    font-weight: medium;
-    font-family:Microsoft Yahei;
+    font-weight: 500;
+    font-family:PingFangSC-Medium;
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
@@ -2173,13 +2183,16 @@ export default {
     margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
+    letter-spacing:1px;
   }
 
   .group-content {
     width: 100%;
     font-size: 13px;
+    font-weight:400;
     color: rgba(153, 153, 153, 1);
     overflow: hidden;
+    font-family:PingFangSC-Regular;
     margin-left: 0px;
     margin-top: 2px;
     margin-right: 0px;
@@ -2187,24 +2200,28 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
+    letter-spacing:1px;
   }
 
   .group-notice {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: 56px;
+    width: 63px;
     margin-right: 5px;
   }
 
   .group-time {
-    font-size: 12px;
     color: rgba(187, 187, 187, 1);
     margin-left: 0px;
     margin-top: 10px;
+    font-family:PingFangSC-Light;
+    font-size: 11px;
     margin-right: 0px;
     margin-bottom: 2px;
+    font-weight:400;
     height: 18px;
+    line-height:18px;
     text-align: right;
   }
 
@@ -2213,7 +2230,7 @@ export default {
     top: -4px;
     right: -4px;
     font-size: 0px;
-    font-family:Microsoft Yahei;
+    font-family:PingFangSC-Medium;
     float: right;
     color: rgb(255, 255, 255);
     margin: 0px;
@@ -2231,7 +2248,7 @@ export default {
     top: -7px;
     right: -7px;
     font-size: 10px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Medium;
     float: right;
     color: rgb(255, 255, 255);
     margin: 0px;
@@ -2249,7 +2266,7 @@ export default {
     top: 7px;
     right: 7px;
     font-size: 10px;
-    font-family:Microsoft Yahei;
+    font-family:PingFangSC-Medium;
     float: right;
     color: rgb(255, 255, 255);
     margin: 0px;
@@ -2266,7 +2283,7 @@ export default {
     top: 7px;
     right: 7px;
     font-size: 10px;
-    font-family:Microsoft Yahei;
+    font-family:PingFangSC-Medium;
     float: right;
     color: rgb(255, 255, 255);
     margin: 0px;

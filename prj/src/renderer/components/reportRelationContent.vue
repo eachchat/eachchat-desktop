@@ -113,6 +113,7 @@ export default {
                 line-height:20px;
                 letter-spacing:1px;
                 text-align: center;
+                font-family: PingFangSC-Medium;
             }
             .reportTitle{
                 text-align: center;
@@ -125,6 +126,7 @@ export default {
                 color:rgba(153,153,153,1);
                 line-height:18px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .reportArraw{
                 display: inline-block;

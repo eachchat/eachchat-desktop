@@ -743,6 +743,9 @@ display: none;
         display: inline-block;
         margin-left: 32px;
         vertical-align: top;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 2px;
     }
 
     .TransmitClose {
@@ -798,6 +801,7 @@ display: none;
                     color:rgba(0,0,0,1);
                     line-height:20px;
                     letter-spacing:1px;
+                    font-family: PingFangSC-Regular;
                 }
             }
             .RecentChatHeader {
@@ -809,6 +813,7 @@ display: none;
                 color:rgba(153,153,153,1);
                 line-height:18px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .RecentChatView {
                 height: 214px;
@@ -856,6 +861,7 @@ display: none;
                             overflow: hidden;
                             padding-left: 12px;
                             text-align: left;
+                            font-family: PingFangSC-Regular;
                         }
 
                     }
@@ -908,6 +914,7 @@ display: none;
                             overflow: hidden;
                             padding-left: 12px;
                             text-align: left;
+                            font-family: PingFangSC-Regular;
                         }
 
                     }
@@ -931,6 +938,7 @@ display: none;
                 color:rgba(0,0,0,1);
                 line-height:20px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .selectedContentView {
                 height: 292px;
@@ -972,6 +980,7 @@ display: none;
                             overflow: hidden;
                             padding-left: 12px;
                             text-align: left;
+                            font-family: PingFangSC-Regular;
                         }
                         .group-delete-icon {
                             width: 20px;
@@ -1053,7 +1062,8 @@ display: none;
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular'
+        font-weight 400;
         font-size: 12px;
         
         background-color: rgba(1, 1, 1, 0);
@@ -1121,6 +1131,8 @@ display: none;
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
     }
  
     .TransmitConfirmButton:disabled{
@@ -1134,6 +1146,8 @@ display: none;
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
     }
  
     .TransmitCancleButton {
@@ -1146,6 +1160,8 @@ display: none;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
     }
  .multiSelectCheckbox {
         display: inline-block;

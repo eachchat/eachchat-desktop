@@ -294,7 +294,9 @@ export default {
         line-height: 40px;
         vertical-align: top;
         font-size: 14px;
-        font-family:Microsoft Yahei;
+        font-family:PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         padding-left: 8px;
     }
 

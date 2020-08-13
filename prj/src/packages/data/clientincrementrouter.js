@@ -49,12 +49,15 @@ class UserIncrement extends BaseIncrement{
                 findUserInfo.save();
                 if(findUserInfo.avatar_t_url != userInfoModel.avatar_t_url || findUserInfo.avatar_o_url){
                     
-                    console.log(userInfoModel.user_id + " url is changed");
+                    var userId = findUserInfo.user_id;
+                    confservice.init(foundUsers[0].user_id);
+                    console.log(findUserInfo.user_display_name + " url is changed");
+                    console.log(findUserInfo.avatar_t_url + " avatar_t_url");
                     
                     var groupsTmp = await Group.SearchByNameKey(findUserInfo.user_display_name);
-                    console.log("get group from name is ", groupsTmp);
                     for(var i=0;i<groupsTmp.length;i++) {
                         if(groupsTmp[i].group_type == 102) {
+                            console.log("get group from name is ", groupsTmp[i]);
                             var targetDir = confservice.getUserThumbHeadPath();
                             var targetPath = path.join(targetDir, groupsTmp[i].group_id + '.png');
                             if(fs.existsSync(targetPath)){
@@ -70,8 +73,6 @@ class UserIncrement extends BaseIncrement{
                         }
                     }
                     
-                    var userId = findUserInfo.user_id;
-                    confservice.init(foundUsers[0].user_id);
                     var localPath = confservice.getUserThumbHeadLocalPath(userId);
                     if(fs.existsSync(localPath)){
                         fs.unlink(localPath, function(err){

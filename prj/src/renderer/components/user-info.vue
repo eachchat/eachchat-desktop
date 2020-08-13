@@ -346,6 +346,7 @@ export default {
     color:rgba(0,0,0,1);
     line-height:22px;
     letter-spacing:2px;
+    font-family: PingFangSC-Medium;
 }
 .userInfo-title {
     height: 18px;
@@ -356,6 +357,7 @@ export default {
     line-height: 18px;
     letter-spacing: 1px;
     color: rgb(153, 153, 153);
+    font-family: PingFangSC-Regular;
 }
 .userInfoAction-view {
     height: 48px;
@@ -406,6 +408,8 @@ export default {
     margin-bottom: 9px;
     font-size: 12px;
     color: rgb(153, 153, 153);
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
 }
 .userInfo-value {
     display:inline-block;
@@ -420,6 +424,9 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: bottom;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
 }
 .userInfo-phone-value{
     display:inline-block;
@@ -430,6 +437,8 @@ export default {
     margin-top: 9px;
     margin-bottom: 9px;
     color: rgb(62, 180, 240);
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
     
 }
 

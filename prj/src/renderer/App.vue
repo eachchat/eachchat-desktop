@@ -11,6 +11,7 @@
 </script>
 
 <style>
+  @import '../../static/font.css';
   html,body,#app {
     margin: 0;
     padding: 0;

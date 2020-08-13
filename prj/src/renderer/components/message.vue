@@ -792,12 +792,14 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
 
     .chat-msg-content-others-txt-div:hover {
@@ -809,12 +811,14 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
     
     .chat-msg-content-others-txt{
@@ -825,12 +829,14 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
 
     .chat-msg-content-others-txt:hover{
@@ -841,12 +847,14 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
 
     .chat-msg-content-others-img {
@@ -856,7 +864,6 @@ export default {
         min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -871,7 +878,6 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -886,7 +892,6 @@ export default {
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -901,7 +906,6 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -934,7 +938,7 @@ export default {
         max-width: 150px;
         font-size: 14px;
         font-weight: 550;
-        font-family:Microsoft Yahei;
+        font-family: 'PingFangSC-Regular';
         color: rgb(51, 51, 51);
         overflow: hidden;
         margin-left: 10px;
@@ -948,7 +952,7 @@ export default {
 
     .file-size {
         font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-family: 'PingFangSC-Regular';
         color: rgb(153, 153, 153);
         overflow: hidden;
         margin-left: 10px;
@@ -968,12 +972,14 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
 
     .chat-msg-content-mine-txt-div:hover{
@@ -985,12 +991,14 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
 
     .chat-msg-content-mine-txt {
@@ -1001,12 +1009,14 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
 
     .chat-msg-content-mine-txt:hover {
@@ -1017,12 +1027,14 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
     }
 
     .chat-msg-content-mine-img {
@@ -1032,7 +1044,6 @@ export default {
         min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -1040,14 +1051,13 @@ export default {
 
     .chat-msg-content-mine-file {
         float:right;
-        background-color: rgba(233, 247, 240, 1);
+        background:rgba(247,248,250,1);
         max-width: 260px;
         min-width: 20px;
         min-height: 40px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -1055,14 +1065,13 @@ export default {
     
     .chat-msg-content-mine-file:hover {
         float:right;
-        background-color: rgb(220,244,233);
+        background-color: rgb(233,234,235);
         max-width: 260px;
         min-width: 20px;
         min-height: 40px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -1077,7 +1086,6 @@ export default {
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -1091,7 +1099,6 @@ export default {
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -1105,7 +1112,6 @@ export default {
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -1119,9 +1125,9 @@ export default {
         border: 0px solid rgba(221, 221, 221, 1);
         padding-bottom: 10px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-medium';
         text-align: left;
-        font-weight: 590;
+        font-weight: 500;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -1136,7 +1142,9 @@ export default {
         border-radius: 5px;
         padding-top: 10px;
         font-size: 12px;
-        font-family: 'Microsoft YaHei';
+        font-weight: 400;
+        font-family: 'PingFangSC-Regular';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;

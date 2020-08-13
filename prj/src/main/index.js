@@ -95,7 +95,9 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     height: 600,
     useContentSize: true,
     width:960,
-    webPreferences: {webSecurity:false},
+    webPreferences: {
+      webSecurity:false,
+    },
     frame:false
   })
   isLogin = true;

@@ -753,6 +753,9 @@ display: none;
     padding-left: 16px;
     margin-top: 18px;
     margin-bottom: 18px;
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+    letter-spacing: 1px;
 }
 .organization-list {
     overflow: scroll;
@@ -831,9 +834,12 @@ display: none;
     padding-top: 10px;
     padding-left: 16px;
     background:rgba(247,248,250,1);
+    color:rgba(102,102,102,1);
     font-size: 12px;
     line-height: 18px;
     letter-spacing: 1px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
 }
 .managers-list {
     width: 100%;
@@ -907,6 +913,7 @@ display: none;
     font-weight:400;
     letter-spacing:1px;
     color:rgba(0,0,0,1);
+    font-family: PingFangSC-Regular;
 }
 .manager-title {
     height: 18px;
@@ -919,6 +926,7 @@ display: none;
     font-weight:400;
     color:rgba(153,153,153,1);
     letter-spacing:1px;
+    font-family: PingFangSC-Regular;
 }
 .department-info {
     display: inline-block;
@@ -936,6 +944,8 @@ display: none;
     font-size: 14px;
     line-height: 20px;
     letter-spacing: 1px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
 }
 .item-arrow {
     display: inline-block;

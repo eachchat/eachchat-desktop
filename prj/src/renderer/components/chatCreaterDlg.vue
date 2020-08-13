@@ -974,6 +974,9 @@ display: none;
         display: inline-block;
         margin-left: 32px;
         vertical-align: top;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 2px;
     }
 
     .ChatCreaterClose {
@@ -1089,6 +1092,9 @@ display: none;
                         font-size: 14px;
                         line-height: 20px;
                         padding-left: 0px;
+                        font-family: PingFangSC-Regular;
+                        font-weight: 400;
+                        letter-spacing: 1px;
                     }
                 }
                 .organizationSelectAllHeader{
@@ -1114,6 +1120,7 @@ display: none;
                         color:rgba(0,0,0,1);
                         line-height:20px;
                         letter-spacing:1px;
+                        font-family: PingFangSC-Regular;
                     }
                     .checkBox-label{
                         display: inline-block;
@@ -1164,6 +1171,7 @@ display: none;
                                     color:rgba(0,0,0,1);
                                     line-height:20px;
                                     letter-spacing:1px;
+                                    font-family: PingFangSC-Regular;
                                 }
                             }
                             .item-arrow {
@@ -1224,6 +1232,7 @@ display: none;
                                 color:rgba(0,0,0,1);
                                 line-height:20px;
                                 letter-spacing:1px;
+                                font-family: PingFangSC-Regular;
                                 }
                                 .subUserTitle{
                                     margin: 0px;
@@ -1234,6 +1243,7 @@ display: none;
                                     letter-spacing:1px;
                                     height:18px;
                                     font-size:12px;
+                                    font-family: PingFangSC-Regular;
                                 }
                             }
                         }
@@ -1284,6 +1294,7 @@ display: none;
                     overflow: hidden;
                     padding-left: 12px;
                     text-align: left;
+                    font-family: PingFangSC-Regular;
                 }
             }
             .item-arrow {
@@ -1318,6 +1329,7 @@ display: none;
                 color:rgba(0,0,0,1);
                 line-height:20px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .selectedContentView {
                 height: 294px;
@@ -1360,6 +1372,7 @@ display: none;
                             overflow: hidden;
                             padding-left: 12px;
                             text-align: left;
+                            font-family: PingFangSC-Regular;
                         }
                         .user-delete-icon {
                             width: 20px;
@@ -1469,6 +1482,7 @@ display: none;
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .TransmitConfirmButton:disabled{
@@ -1482,6 +1496,7 @@ display: none;
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .TransmitCancleButton {
@@ -1494,6 +1509,7 @@ display: none;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
+        font-family: PingFangSC-Regular;
     }
     .multiSelectCheckbox {
         display: inline-block;

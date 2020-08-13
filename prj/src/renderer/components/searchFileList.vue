@@ -3,7 +3,7 @@
         <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader">
             <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
-            <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail">文件列表</div>
+            <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail"></div>
             <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px@2x.png" @click="CloseDetail()" v-show="isMsgDetail">
         </div>
         <div class="HistoryMsgDlgContent">
@@ -544,7 +544,7 @@ export default {
 
     .HistoryMsgDlgHeader {
         width: calc(100% - 94px);
-        height: 40px;
+        height: 20px;
         background: rgba(255, 255, 255, 1);
         padding-top: 0px;
         // padding-left: 12px;
@@ -622,7 +622,9 @@ export default {
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -644,8 +646,9 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 14px;
-        font-family:Microsoft Yahei;
-        font-weight: 590;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 1px;
     }
 
     .fileInfoDetailLabel {
@@ -654,7 +657,9 @@ export default {
         height: 18px;
         line-height: 18px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         color: rgba(153, 153, 153, 1);
     }
 
@@ -668,7 +673,7 @@ export default {
         width:104px;
         height:18px;
         font-size:12px;
-        font-family:"Microsoft YaHei";
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153,153,153,1);
         line-height:18px;
@@ -685,7 +690,9 @@ export default {
         height: 40px;
         line-height: 40px;
         font-size: 12px;
-        font-family:"Microsoft YaHei";
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         color:rgba(102, 102, 102, 1);
     }
 
@@ -724,7 +731,9 @@ export default {
         height: 40px;
         line-height: 40px;
         font-size: 12px;
-        font-family:"Microsoft YaHei";
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         color:rgba(102, 102, 102, 1);
         margin-left: 6px;
         vertical-align: top;
@@ -764,7 +773,9 @@ export default {
         height: 40px;
         line-height: 40px;
         font-size: 12px;
-        font-family:"Microsoft YaHei";
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         color:rgba(102, 102, 102, 1);
         margin-left: 6px;
         vertical-align: top;
@@ -804,7 +815,9 @@ export default {
         height: 40px;
         line-height: 40px;
         font-size: 12px;
-        font-family:"Microsoft YaHei";
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         color:rgba(102, 102, 102, 1);
         margin-left: 6px;
         vertical-align: top;
@@ -816,7 +829,9 @@ export default {
         height: 40px;
         line-height: 40px;
         font-size: 12px;
-        font-family:"Microsoft YaHei";
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         color:rgba(102, 102, 102, 1);
         margin: 0 3px 0 3px;
         float: right;
@@ -839,7 +854,7 @@ export default {
     
     .SearchFileList {
         list-style: none;
-        max-height: 290px;
+        max-height: 320px;
         width: 100%;
         margin-top: 20px;
         padding: 0;
@@ -865,9 +880,9 @@ export default {
     .messageOwnerImage {
         display: inline-block;
         margin: 0 0 0 4px;
-        padding: 12px 0px 12px 0px;
-        width: 40px;
-        height: 40px;
+        padding: 16px 0px 16px 0px;
+        width: 32px;
+        height: 32px;
         border-radius:4px;
     }
 
@@ -895,8 +910,10 @@ export default {
         width: 70%;
         height: 20px;
         line-height: 20px;
-        font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-size: 14px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         float: left;
     }
 
@@ -907,7 +924,9 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         float: right;
     }
 
@@ -917,7 +936,9 @@ export default {
         min-height: 18px;
         line-height: 18px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
     }
 
 </style>

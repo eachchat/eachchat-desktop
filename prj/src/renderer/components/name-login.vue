@@ -486,6 +486,9 @@ export default {
                 color:rgba(39,45,52,1);
                 line-height:36px;
                 padding-left: 8px;
+                font-family: PingFangSC-Semibold;
+                font-weight: 600;
+
             }
         }
 
@@ -505,6 +508,7 @@ export default {
                 color:rgba(102,102,102,1);
                 line-height:18px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .item-input {
                 margin-top: 4px;
@@ -521,6 +525,7 @@ export default {
                 padding-left: 12px;
                 font-size:14px;
                 outline: none;
+                font-family: PingFangSC-Regular;
             }
         }
 
@@ -538,6 +543,7 @@ export default {
                 color:rgba(102,102,102,1);
                 line-height:18px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .item-input {
                 margin-top: 4px;
@@ -554,6 +560,7 @@ export default {
                 padding-left: 12px;
                 font-size:14px;
                 outline: none;
+                font-family: PingFangSC-Regular;
             }
         }
         .accountLogin-state {
@@ -569,6 +576,7 @@ export default {
                 color:rgba(228,49,43,1);
                 line-height:17px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
         }
         .btn {
@@ -582,7 +590,7 @@ export default {
                 height: 36px;
                 border-radius:4px;
                 color: white;
-                font-family: 'Microsoft Yahei';
+                font-family: PingFangSC-Regular;
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
@@ -597,7 +605,7 @@ export default {
                 height: 36px;
                 border-radius:4px;
                 color: white;
-                font-family: 'Microsoft Yahei';
+                font-family: PingFangSC-Regular;
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
@@ -632,6 +640,7 @@ export default {
                 color:rgba(0,0,0,1);
                 line-height:20px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
         }
 }
@@ -668,6 +677,7 @@ export default {
                 color:rgba(39,45,52,1);
                 line-height:36px;
                 padding-left: 8px;
+                font-family: PingFangSC-Semibold;
             }
         }
         .item-organization{
@@ -684,6 +694,7 @@ export default {
                 color:rgba(102,102,102,1);
                 line-height:18px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .item-input {
                 margin-top: 4px;
@@ -700,10 +711,11 @@ export default {
                 padding-left: 12px;
                 font-size:14px;
                 outline: none;
+                font-family: PingFangSC-Regular;
             }
             .organization-input-label{
                 position: absolute;
-                left: 221px;
+                left: 216px;
                 top: 174px;
                 margin: 0px;
                 width:77px;
@@ -712,8 +724,8 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
                 text-align: right;
+                font-family: PingFangSC-Regular;
             }
         }
 
@@ -728,7 +740,7 @@ export default {
                 height: 36px;
                 border-radius:4px;
                 color: white;
-                font-family: 'Microsoft Yahei';
+                font-family: PingFangSC-Regular;
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
@@ -743,7 +755,7 @@ export default {
                 height: 36px;
                 border-radius:4px;
                 color: white;
-                font-family: 'Microsoft Yahei';
+                font-family: PingFangSC-Regular;
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
@@ -766,6 +778,7 @@ export default {
                 color:rgba(228,49,43,1);
                 line-height:17px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
         }
         .organization-finder-tip{
@@ -782,6 +795,7 @@ export default {
                 color:rgba(102,102,102,1);
                 line-height:18px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
             .finder-title{
                 margin: 0px;
@@ -793,6 +807,7 @@ export default {
                 line-height:18px;
                 letter-spacing:1px;
                 cursor: pointer;
+                font-family: PingFangSC-Regular;
             }
         }
                 .login-footer{
@@ -838,6 +853,7 @@ export default {
                 line-height:22px;
                 letter-spacing:2px;
                 margin: 0px;
+                font-family: PingFangSC-Medium;
             }
             .header-tip{
                 width: 100%;
@@ -850,6 +866,7 @@ export default {
                 letter-spacing:1px;
                 margin: 0px;
                 margin-top: 12px;
+                font-family: PingFangSC-Regular;
             }
 
         }
@@ -869,6 +886,7 @@ export default {
                 color:rgba(102,102,102,1);
                 line-height:18px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
                 }
                 .item-server-input{
                 margin-top: 4px;
@@ -885,6 +903,7 @@ export default {
                 padding-left: 12px;
                 font-size:14px;
                 outline: none;
+                font-family: PingFangSC-Regular;
                 }
             }
             .organizationFinder-state {
@@ -900,6 +919,7 @@ export default {
                 color:rgba(228,49,43,1);
                 line-height:17px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
         }
             .btn-item{
@@ -915,7 +935,7 @@ export default {
                 height: 36px;
                 border-radius:4px;
                 color: white;
-                font-family: 'Microsoft Yahei';
+                font-family: PingFangSC-Regular;
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
@@ -931,7 +951,7 @@ export default {
                 height: 36px;
                 border-radius:4px;
                 color: white;
-                font-family: 'Microsoft Yahei';
+                font-family: PingFangSC-Regular;
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
@@ -964,6 +984,7 @@ export default {
                 color:rgba(0,0,0,1);
                 line-height:20px;
                 letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
         }
     }

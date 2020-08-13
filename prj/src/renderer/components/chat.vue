@@ -72,11 +72,27 @@
                 </div>
             </div>
             <div class="multiSelectTools" v-show="multiSelect">
-                <img class="multiSelectTransmit" src="../../../static/Img/Chat/transmit-44px@2x.png" @click="multiTransMit">
-                <img class="multiSelectTransmitTogether" src="../../../static/Img/Chat/transmitTogether-44px@2x.png" @click="multTtransMitTogether">
-                <img class="multiSelectFav" src="../../../static/Img/Chat/favourite-44px@2x.png" @click="multiFav">
-                <img class="multiSelectDel" src="../../../static/Img/Chat/delete-44px@2x.png" @click="multiDel">
-                <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px@2x.png" @click="multiToolsClose">
+                <div class="multiSelectToolsDiv">
+                    <div class="multiSelectTransmitDiv">
+                        <div class="multiSelectTransmit" @click="multiTransMit"></div>
+                        <div class="multiSelectTransmitText">逐条转发</div>
+                    </div>
+                    <div class="multiSelectTransmitTogetherDiv">
+                        <div class="multiSelectTransmitTogether" @click="multTtransMitTogether"></div>
+                        <div class="multiSelectTransmitTogetherText">合并转发</div>
+                    </div>
+                    <div class="multiSelectFavDiv">
+                        <div class="multiSelectFav" @click="multiFav"></div>
+                        <div class="multiSelectFavText">收藏</div>
+                    </div>
+                    <div class="multiSelectDelDiv">
+                        <div class="multiSelectDel" @click="multiDel"></div>
+                        <div class="multiSelectDelText">删除</div>
+                    </div>
+                    <div class="multiSelectToolCloseDiv">
+                        <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px@2x.png" @click="multiToolsClose">
+                    </div>
+                </div>
             </div>
         </div>
         <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
@@ -2641,12 +2657,13 @@ export default {
             this.$emit("leaveGroup", groupId);
             this.showGroupInfoTips = false;
         },
-        updateChatGroupNotice(groupId, originalNotice) {
+        updateChatGroupNotice(groupId, originalNotice, isOwner) {
             // console.log("==========")
             this.noticeDialogVisible = true;
             this.groupNoticeInfo = {};
             this.groupNoticeInfo.originalNotice = originalNotice;
             this.groupNoticeInfo.groupId = groupId;
+            this.groupNoticeInfo.isOwner = isOwner;
         },
         closeNoticeDlg(content) {
             if(content.length == 0) {
@@ -2911,10 +2928,10 @@ export default {
     .chat-title {
         display: float;
         width: 100%;
-        height: 29px;
+        height: 32px;
         background-color: rgb(255, 255, 255);
         border-bottom: 0px solid rgb(242, 242, 246);
-        margin-bottom: 12px;
+        margin-bottom: 9px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -2928,11 +2945,19 @@ export default {
         margin:0px 0px 0px 0px;
         float: left;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
-        font-weight: 590;
+        font-family: 'PingFangSC-Medium';
+        font-weight: 500;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        letter-spacing:1px;
+    }
+
+    .chatInfo{
+        margin:0;
+        float: left;
+        height: 100%;
+        width: calc(100% - 250px);
     }
 
     .chat-img {
@@ -2947,15 +2972,16 @@ export default {
     .chat-name-state {
         height: 32px;
         line-height: 32px;
-        margin:0px 0px 0px 12px;
+        margin:0px 0px 0px 8px;
         max-width: 100px;
         float: left;
         white-space: nowrap;
         text-overflow: ellipsis;
         font-size: 12px;
-        font-family: 'Microsoft YaHei';
-        font-weight: 590;
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
         color: rgba(153, 153, 153, 1);
+        letter-spacing:1px;
     }
 
     .chat-group-content-num {
@@ -2965,9 +2991,10 @@ export default {
         margin:0px 0px 0px 0px;
         float: left;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
-        font-weight: 590;
+        font-family: 'PingFangSC-Medium';
+        font-weight: 500;
         overflow: hidden;
+        letter-spacing:1px;
     }
 
     .chat-tools {
@@ -3070,18 +3097,20 @@ export default {
         width: 100%;
         text-align: center;
         font-size: 12px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         color: rgba(187, 187, 187, 1);
         margin: 5px 10px 5px 10px;
+        font-weight:400;
     }
 
     .chat-notice {
         width: 100%;
         text-align: center;
-        font-size: 14px;
-        font-family: 'Microsoft YaHei';
-        color: rgba(187, 187, 187, 1);
+        font-size: 12px;
+        font-family: 'PingFangSC-Regular';
+        color: rgba(153, 153, 153, 1);
         margin: 10px 10px 10px 10px;
+        letter-spacing:1px;
     }
 
     .message-right {
@@ -3158,66 +3187,182 @@ export default {
     .multiSelectTools {
         width: 100%;
         height: 170px;
-        font-family: 'Microsoft YaHei';
-        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        color: rgba(153, 153, 153, 1);
+        letter-spacing: 1px;
+        font-size: 12px;
+    }
+
+    .multiSelectToolsDiv {
+        margin: 0 auto;
+        width: 540px;
     }
 
     .chat-input {
         width: 100%;
         height: 170px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
         font-size: 14px;
+        letter-spacing: 1px;
     }
 
-    .multiSelectTools {
-        width: 100%;
-        height: 170px;
-        text-align: center;
+    .multiSelectTransmitDiv {
+        width: 44px;
+        height: 44px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+        margin-left: 30px;
+        margin-right: 30px;
+        display: inline-block;
     }
 
     .multiSelectTransmit {
         width: 44px;
         height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        background-image: url("../../../static/Img/Chat/transmit-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectTransmit:hover {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        background-image: url("../../../static/Img/Chat/transmit-hover-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectTransmitText {
+        width: 60px;
+        text-align: center;
+    }
+
+    .multiSelectTransmitTogetherDiv {
+        width: 44px;
+        height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 130px;
-        margin-right: 15px;
+        margin-left: 30px;
+        margin-right: 30px;
+        display: inline-block;
     }
 
     .multiSelectTransmitTogether {
         width: 44px;
         height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        background-image: url("../../../static/Img/Chat/transmitTogether-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectTransmitTogether:hover {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        background-image: url("../../../static/Img/Chat/transmitTogether-hover-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectTransmitTogetherText {
+        width: 60px;
+        text-align: center;
+    }
+
+    .multiSelectFavDiv {
+        width: 44px;
+        height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 15px;
-        margin-right: 15px;
+        margin-left: 30px;
+        margin-right: 30px;
+        display: inline-block;
     }
 
     .multiSelectFav {
         width: 44px;
         height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        display: block;
+        background-image: url("../../../static/Img/Chat/favourite-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectFav:hover {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        display: block;
+        background-image: url("../../../static/Img/Chat/favourite-hover-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectFavText {
+        width: 60px;
+        text-align: center;
+    }
+
+    .multiSelectDelDiv {
+        width: 44px;
+        height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 15px;
-        margin-right: 15px;
+        margin-left: 30px;
+        margin-right: 30px;
+        display: inline-block;
     }
 
     .multiSelectDel {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        background-image: url("../../../static/Img/Chat/delete-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectDel:hover {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 8px;
+        margin-left: 8px;
+        margin-right: 8px;
+        background-image: url("../../../static/Img/Chat/delete-hover-44px@2x.png");
+        background-size: contain;
+    }
+
+    .multiSelectDelText {
+        width: 60px;
+        text-align: center;
+    }
+
+    .multiSelectToolCloseDiv {
+        width: 44px;
+        height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 15px;
-        margin-right: 15px;
+        margin-left: 30px;
+        margin-right: 30px;
+        display: inline-block;
     }
 
     .multiSelectToolClose {
         width: 24px;
         height: 24px;
-        margin-top: 68px;
-        margin-bottom: 68px;
-        margin-left: 15px;
-        margin-right: 58px;
+        margin-bottom: 31px;
     }
 
     .chat-input-operate {
@@ -3342,7 +3487,9 @@ export default {
         line-height: 40px;
         font-size: 14px;
         color: rgba(51, 51, 51, 1);
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 1px;
         vertical-align: top;
         background-color: rgba(0, 0, 0, 0);
     }
@@ -3366,7 +3513,9 @@ export default {
         line-height: 40px;
         font-size: 14px;
         color: rgba(51, 51, 51, 1);
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 1px;
         vertical-align: top;
         background-color: rgba(0, 0, 0, 0);
     }
@@ -3392,7 +3541,7 @@ export default {
         margin: 0px;
         padding: 0px;
         font-size: 13px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
     }
 
     // .ql-editor{
@@ -3402,7 +3551,7 @@ export default {
     .text-input {
         border: 0px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         height: 150px;
         max-height: 150px;
         width: 100%;
@@ -3417,7 +3566,7 @@ export default {
         max-height: 150px;
         width: 100%;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         overflow-y: scroll;
         overflow-x: hidden;
     }
@@ -3427,30 +3576,6 @@ export default {
         padding-left: 32px;
         padding-right: 32px;
         padding-bottom: 0px;
-    }
-
-    .groupNotice {
-        font-size: 14px;
-        font-family: 'Microsoft YaHei';
-        text-indent: 10px;
-        width:376px;
-        height:280px;
-        background:rgba(255,255,255,1);
-        border-radius:4px 0px 0px 4px;
-        border:1px solid rgba(221,221,221,1);
-        color: rgba(153, 153, 153, 1);
-    }
-
-    .groupNotice:focus {
-        font-size: 14px;
-        font-family: 'Microsoft YaHei';
-        text-indent: 10px;
-        width:376px;
-        height:280px;
-        background:rgba(255,255,255,1);
-        border-radius:4px 0px 0px 4px;
-        border:1px solid rgba(221,221,221,1);
-        color: rgba(153, 153, 153, 1);
     }
 
     .notice-dialog-footer {

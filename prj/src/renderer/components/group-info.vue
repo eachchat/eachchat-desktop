@@ -14,7 +14,7 @@
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
                 </div>
                 <div class="groupInfoNotice" @click="updateGroupNotice">
-                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" v-show="isOwner" :disabled="!isOwner" v-model="groupNotice" name="groupInfoNotice" placeholder="未设置" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
+                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" :disabled="!isOwner" v-model="groupNotice" name="groupInfoNotice" placeholder="未设置" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
                     <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
                 </div>
             </div>
@@ -356,10 +356,7 @@ export default {
             this.groupName = this.newGroupName;
         },
         updateGroupNotice: function(event) {
-            if(!this.isOwner) {
-                return;
-            }
-            this.$emit("updateChatGroupNotice", this.groupId, this.groupNotice);
+            this.$emit("updateChatGroupNotice", this.groupId, this.groupNotice, this.isOwner);
         },
         Close: function() {
             this.$emit("closeGroupInfo");
@@ -641,10 +638,12 @@ export default {
 
 .groupInfoTitle {
     font-size: 16px;
-    font-weight: 590;
+    font-weight: 500;
     height: 56px;
     line-height: 56px;
     margin: 0 0 0 16px;
+    font-family: PingFangSC-Medium;
+    letter-spacing: 2px;
 }
 
 .groupMember-view {
@@ -701,7 +700,9 @@ export default {
     line-height: 48px;
     vertical-align: top;
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     padding-left: 8px;
     cursor: pointer;
 }
@@ -764,33 +765,37 @@ export default {
 .groupInfoNameInput {
     width: calc(100% - 30px);
     border: 0px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+    letter-spacing: 2px;
     font-size: 15px;
-    font-weight: 590;
     white-space: nowrap;
     text-overflow: ellipsis;
+    letter-spacing: 1px;
 }
 
 .groupInfoNameInput:disabled {
     width: calc(100% - 30px);
     border: 0px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
     font-size: 15px;
-    font-weight: 590;
     white-space: nowrap;
     text-overflow: ellipsis;
     background-color: white;
+    letter-spacing: 1px;
 }
 
 .groupInfoNameInput:focus {
     width: calc(100% - 30px);
     border: 0px;
     outline: none;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
     font-size: 15px;
-    font-weight: 590;
     border: 0px;
     outline: none;
+    letter-spacing: 1px;
 }
 
 .groupInfoNameEdit {
@@ -820,36 +825,42 @@ export default {
 .groupInfoNoticeInput {
     width: calc(100% - 30px);
     border: 0px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
     font-size: 12px;
     color: rgba(153, 153, 153, 0.24);
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
+    letter-spacing: 1px;
 }
 
 .groupInfoNoticeInput:disabled {
     width: calc(100% - 30px);
     border: 0px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
     font-size: 12px;
     color: rgba(103, 103, 103, 0.24);
     white-space: nowrap;
     text-overflow: ellipsis;
     background-color: white;
     cursor: pointer;
+    letter-spacing: 1px;
 }
 
 .groupInfoNoticeInput:focus {
     width: calc(100% - 30px);
     border: 0px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
     font-size: 12px;
     color: rgba(103, 103, 103, 0.24);
     outline: none;
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
+    letter-spacing: 1px;
 }
 
 .groupInfoNoticeEdit {
@@ -873,7 +884,10 @@ export default {
     line-height: 48px;
     width: calc(100% - 68px);
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
 }
 
 .groupSettingSlienceSwitch {
@@ -898,7 +912,10 @@ export default {
     line-height: 48px;
     width: calc(100% - 68px);
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
 }
 
 .groupSettingTopSwitch {
@@ -923,7 +940,10 @@ export default {
     line-height: 48px;
     width: calc(100% - 68px);
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
 }
 
 .groupSettingFavouriteSwitch {
@@ -949,7 +969,10 @@ export default {
     line-height: 48px;
     width: calc(100% - 68px);
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
 }
 
 .groupSettingOwnerTransferImage {
@@ -983,7 +1006,10 @@ export default {
     margin-bottom: 12px;
     width: calc(100% - 56px);
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
     padding: 0px;
     border: 1px solid rgb(221, 221, 221);
     border-radius: 2px;
@@ -997,7 +1023,10 @@ export default {
     margin-bottom: 12px;
     width: calc(100% - 56px);
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
     padding: 0px;
     border: 1px solid rgb(221, 221, 221);
     border-radius: 2px;
@@ -1013,6 +1042,9 @@ export default {
     float: right;
     font-size: 14px;
     cursor: pointer;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     color: rgba(153, 153, 153, 1);
 }
 
@@ -1025,6 +1057,9 @@ export default {
     float: right;
     font-size: 14px;
     cursor: pointer;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     color: rgba(36, 179, 107, 1);
 }
 
@@ -1037,7 +1072,10 @@ export default {
     line-height: 48px;
     width: calc(100% - 136px);
     font-size: 14px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
 }
 
 .groupMemberAddDivImage {
@@ -1081,9 +1119,10 @@ export default {
     border: 0px;
     padding: 0px;
     margin: 0px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     font-size: 14px;
-    font-weight: bold;
     color: red;
     text-align: center;
     cursor: pointer;
@@ -1105,9 +1144,10 @@ export default {
     margin: 0px;
     width: 100%;
     border: 0px;
-    font-family:Microsoft Yahei;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
     font-size: 14px;
-    font-weight: bold;
     color: red;
     text-align: center;
     cursor: pointer;

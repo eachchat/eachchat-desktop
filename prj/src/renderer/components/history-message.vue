@@ -464,7 +464,9 @@ export default {
         margin-left: 0px;
         vertical-align: top;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         -webkit-app-region: drag;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -518,7 +520,9 @@ export default {
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -544,7 +548,7 @@ export default {
         width:104px;
         height:18px;
         font-size:12px;
-        font-family:"Microsoft YaHei";
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153,153,153,1);
         line-height:18px;
@@ -579,10 +583,10 @@ export default {
     .messageOwnerImage {
         display: inline-block;
         margin: 0 0 0 4px;
-        padding: 12px 0px 12px 0px;
+        padding: 16px 0px 16px 0px;
+        width: 32px;
+        height: 32px;
         border-radius:4px;
-        width: 40px;
-        height: 40px;
     }
 
     .messageInfoDiv {
@@ -610,7 +614,9 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         float: left;
     }
 
@@ -621,7 +627,9 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
         float: right;
     }
 
@@ -630,8 +638,10 @@ export default {
         width: 100%;
         min-height: 18px;
         line-height: 18px;
-        font-size: 12px;
-        font-family:Microsoft Yahei;
+        font-size: 13px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
     }
 
 </style>

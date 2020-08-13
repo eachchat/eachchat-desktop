@@ -214,6 +214,7 @@ export default {
                     color:rgba(0,0,0,1);
                     line-height:22px;
                     letter-spacing:2px;
+                    font-family: PingFangSC-Medium;
                 }
                 .cropper-close{
                     display: inline-block;
@@ -283,6 +284,7 @@ export default {
                     background: white;
                     border-radius:4px;
                     border:1px solid rgba(221,221,221,1);
+                    font-family: PingFangSC-Regular;
                 }
                 .cropperConfirmButton{
                     outline: none;
@@ -296,6 +298,7 @@ export default {
                     border:1px solid rgba(221,221,221,1);
                     color: white;
                     border-radius:4px;
+                    font-family: PingFangSC-Regular;
                 }
             }
         }

@@ -214,15 +214,17 @@ display: none;
             color:rgba(0,0,0,1);
             line-height:20px;
             letter-spacing:1px;
+            font-family: PingFangSC-Regular;
         }
         .userTime{
             display: inline-block;
             height:20px;
-            font-size:14px;
+            font-size:12px;
             font-weight:400;
             color:rgba(153,153,153,1);
             line-height:20px;
             letter-spacing:1px;
+            font-family: PingFangSC-Regular;
         }
     }
 }
@@ -245,6 +247,7 @@ display: none;
             color:rgba(0,0,0,1);
             line-height:20px;
             letter-spacing:1px;
+            font-family: PingFangSC-Regular;
         }
     }
     .imageContent{

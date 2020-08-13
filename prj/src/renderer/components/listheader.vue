@@ -285,7 +285,7 @@ export default {
     }
 
     .new-chat-dropdown-content div:hover {
-        background-color: rgba(221, 221, 221, 1);
+        background-color: rgba(243, 244, 247, 1);
         cursor: pointer;
     }
 
@@ -308,7 +308,7 @@ export default {
         line-height: 40px;
         font-size: 14px;
         color: rgba(51, 51, 51, 1);
-        font-family: 'Microsoft YaHei';
+        font-family: PingFangSC-Regular;
         vertical-align: top;
         background-color: rgba(0, 0, 0, 0);
     }
