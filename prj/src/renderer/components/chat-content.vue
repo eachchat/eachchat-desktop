@@ -2215,7 +2215,7 @@ export default {
     color: rgba(187, 187, 187, 1);
     margin-left: 0px;
     margin-top: 10px;
-    font-family:PingFangSC-Light;
+    font-family:PingFangSC-Regular;
     font-size: 11px;
     margin-right: 0px;
     margin-bottom: 2px;

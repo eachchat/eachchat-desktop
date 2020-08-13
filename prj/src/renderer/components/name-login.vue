@@ -486,7 +486,7 @@ export default {
                 color:rgba(39,45,52,1);
                 line-height:36px;
                 padding-left: 8px;
-                font-family: PingFangSC-Semibold;
+                font-family: PingFangSC-Medium;
                 font-weight: 600;
 
             }
@@ -677,7 +677,7 @@ export default {
                 color:rgba(39,45,52,1);
                 line-height:36px;
                 padding-left: 8px;
-                font-family: PingFangSC-Semibold;
+                font-family: PingFangSC-Medium;
             }
         }
         .item-organization{
