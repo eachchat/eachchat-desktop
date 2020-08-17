@@ -490,7 +490,6 @@ export default {
                 return;
             }
             // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
-            var distTAvarar = this.userInfo.avatar_t_url;
             var targetDir = confservice.getFilePath();
             var targetFileName = this.userInfo.user_id + ".png";
             var targetPath = confservice.getUserThumbHeadLocalPath(this.userInfo.user_id);
@@ -498,15 +497,16 @@ export default {
 
             if(fs.existsSync(targetPath)){
                 //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    this.userIconElement.setAttribute("src", reader.result);
-                }
+                // var showfu = new FileUtil(targetPath);
+                // let showfileObj = showfu.GetUploadfileobj();
+                // let reader = new FileReader();
+                // reader.readAsDataURL(showfileObj);
+                // reader.onloadend = () => {
+                    this.userIconElement.setAttribute("src", targetPath);
+                // }
             }
             else{
+                var distTAvarar = this.userInfo.avatar_t_url;
                 // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
                 // console.log("message downloag group avatar target path is ", targetPath);
                 services.common.downloadUserTAvatar(distTAvarar, this.userInfo.user_id);
@@ -534,8 +534,8 @@ export default {
             }
 
             this.userInfo = userInfos[0];
-            this.userInfo.phone = await services.common.GetDistUserPhone(this.msg.message_from_id);
-            this.userInfo.email = await services.common.GetDistUserEmail(this.msg.message_from_id);
+            // this.userInfo.phone = await services.common.GetDistUserPhone(this.msg.message_from_id);
+            // this.userInfo.email = await services.common.GetDistUserEmail(this.msg.message_from_id);
             // console.log("this.userInfo is ", this.userInfo)
         },
         compare: function(){
@@ -571,13 +571,13 @@ export default {
     mounted: async function() {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
         await this.msgUserInfo();
-        var userIconElementId = this.getUserIconId();
-        if(this.userIconElement == undefined) {
-            this.userIconElement = document.getElementById(userIconElementId);
-        }
-        this.MsgBelongUserImg();
+        // var userIconElementId = this.getUserIconId();
+        // if(this.userIconElement == undefined) {
+        //     this.userIconElement = document.getElementById(userIconElementId);
+        // }
         setTimeout(() => {
             this.$nextTick(() => {
+                this.MsgBelongUserImg();
                 if(this.MsgIsMine()) {
                     this.MsgContent(true);
                 }

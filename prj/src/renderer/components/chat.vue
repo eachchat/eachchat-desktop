@@ -32,7 +32,7 @@
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
-                            <input class="multiSelectCheckbox" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
+                            <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
                             <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
                         </div>
                     </li>
@@ -684,6 +684,19 @@ export default {
         msgMultiSelect(msg) {
             console.log("multitransmit msg is ", msg);
             this.multiSelect = true;
+            var elementTmp = document.getElementById(this.msgCheckBoxId(msg));
+            if(elementTmp != undefined) {
+                elementTmp.checked = true;
+            }
+            this.selectChanged(msg);
+        },
+        cleanSelected() {
+            for(let i=0;i<this.selectedMsgs.length;i++) {
+                var elementTmp = document.getElementById(this.msgCheckBoxId(this.selectedMsgs[i]));
+                if(elementTmp != undefined) {
+                    elementTmp.checked = false;
+                }
+            }
         },
         selectChanged: function(curMsg) {
             if(curMsg == null){
@@ -703,6 +716,7 @@ export default {
         },
         closeTransmitDlg() {
             this.showTransmitDlg = false;
+            this.cleanSelected();
             this.selectedMsgs = [];
             this.multiSelect = false;
         },
@@ -2120,7 +2134,7 @@ export default {
                                     div.scrollTop = div.scrollHeight;
                                 })
                             }
-                        }, 0)
+                        }, 10)
                         
                         this.cleanEditor();
                         willSendMsg.content = willSendMsgContent;
@@ -2351,6 +2365,9 @@ export default {
         },
         ChatMessageId: function (curMsg) {
             return "message-" + curMsg.message_id;
+        },
+        msgCheckBoxId: function(curMsg) {
+            return "message-checkbox-" + curMsg.message_id;
         },
         msgSelectOrNotClassName: function(curMsg) {
             //class="msgContent"
@@ -3146,7 +3163,7 @@ export default {
         border: 1px solid rgb(221,221,221);
         border-radius: 50%;
         font-size: 10px;
-        margin-top: 14px;
+        margin-top: 6px;
         margin-bottom: 14px;
         vertical-align:top;
         cursor: pointer;

@@ -157,7 +157,7 @@ export default {
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
             services.common.InitDbData();
-            // console.log("22222222222222222222222222")
+            var ret = await services.common.GetAllGroups()
             console.log("the init user id is ,", this.curUserInfo.id)
             confservice.init(this.curUserInfo.id);
             this.$store.commit("setUserId", this.curUserInfo.id)

@@ -517,6 +517,9 @@ export default {
             for(var i=0;i<distGroups.length;i++){
 
                     var curMsg = collection;
+                    if(curMsg.message_type == 105) {
+                        return;
+                    }
                     var curMsgContent = collection.collection_content;
                     console.log("curMsgCintent is ", curMsgContent);
 
@@ -548,6 +551,9 @@ export default {
             for(var i=0;i<distGroups.length;i++){
                 for(var j=0;j<msgs.length;j++) {
                     var curMsg = msgs[j];
+                    if(curMsg.message_type == 105) {
+                        return;
+                    }
                     var curMsgContent = strMsgContentToJson(curMsg.message_content);
                     console.log("curMsgCintent is ", curMsgContent);
 
@@ -585,19 +591,23 @@ export default {
             console.log("this.curchat is ", this.curChat.group_type);
             if(this.curChat.group_type == 102) {
 
-                var nameTemp = '';
-                var userInfos = await services.common.GetDistUserinfo(this.curChat.uid);
-                var distUserInfo = userInfos[0];
-                if(distUserInfo != undefined){
-                    nameTemp = distUserInfo.user_display_name;
-                }
+                var nameTemp = this.curChat.group_name;
+                // var userInfos = await services.common.GetDistUserinfo(this.curChat.uid);
+                // var userInfos = await UserInfo.GetUserInfo(this.curChat.uid);
+                // var distUserInfo = userInfos[0];
+                // if(distUserInfo != undefined){
+                //     nameTemp = distUserInfo.user_display_name;
+                // }
 
                 contentTitle = this.curUserInfo.name + "与" + nameTemp + "的聊天记录";
             }
             else {
-                contentTitle = this.curChat.group_name;
+                contentTitle = "[群聊]";
             }
             for(let i=0;i<msgs.length;i++) {
+                if(msgs[i].message_type == 105) {
+                    continue;
+                }
                 if(i < 4) {
                     if(i == 3) {
                         contentText = contentText + await this.getMsgContent(msgs[i]);
@@ -628,12 +638,13 @@ export default {
             let chatGroupMsgType = msg.message_type;
             var chatGroupMsgContent = strMsgContentToJson(msg.message_content);
 
-            var nameTemp = '';
-            var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
-            var distUserInfo = userInfos[0];
-            if(distUserInfo != undefined){
-                nameTemp = distUserInfo.user_display_name;
-            }
+            var nameTemp = this.curChat.group_name;
+            // var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
+            // var userInfos = await UserInfo.GetUserInfo(this.curChat.uid);
+            // var distUserInfo = userInfos[0];
+            // if(distUserInfo != undefined){
+            //     nameTemp = distUserInfo.user_display_name;
+            // }
 
             console.log("chatGroupMsgContent is ", nameTemp)
             // console.log("this. msg is ", this.msg)
