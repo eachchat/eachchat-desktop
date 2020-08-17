@@ -21,7 +21,7 @@
   },
   "build": {
     "productName": "EachChat",
-    "appId": "worklyai.com",
+    "appId": "com.worklyai.eachchat.desktop.testing",
     "directories": {
       "output": "build"
     },
@@ -44,7 +44,7 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/mac/icon.icns"
     },
     "win": {
       "icon": "./static/Img/logo.ico"
