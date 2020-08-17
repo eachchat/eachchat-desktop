@@ -480,7 +480,7 @@ export default {
 
   .setup-details {
     width:100%;
-    height: 100%;
+    height: 99%;
     background-color: white;
     position: relative;
     margin-left: 16px;
