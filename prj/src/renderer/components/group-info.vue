@@ -828,7 +828,7 @@ export default {
     font-family: PingFangSC-Regular;
     font-weight: 400;
     font-size: 12px;
-    color: rgba(153, 153, 153, 0.24);
+    color: rgba(153, 153, 153, 1);
     white-space: nowrap;
     text-overflow: ellipsis;
     cursor: pointer;
@@ -841,7 +841,7 @@ export default {
     font-family: PingFangSC-Regular;
     font-weight: 400;
     font-size: 12px;
-    color: rgba(103, 103, 103, 0.24);
+    color: rgba(103, 103, 103, 1);
     white-space: nowrap;
     text-overflow: ellipsis;
     background-color: white;
@@ -855,7 +855,7 @@ export default {
     font-family: PingFangSC-Regular;
     font-weight: 400;
     font-size: 12px;
-    color: rgba(103, 103, 103, 0.24);
+    color: rgba(103, 103, 103, 1);
     outline: none;
     white-space: nowrap;
     text-overflow: ellipsis;

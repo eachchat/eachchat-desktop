@@ -354,7 +354,6 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: row;
-    padding: 20px;
     overflow-y: hidden;
     -webkit-app-region: drag;
     z-index: 0;
@@ -368,6 +367,7 @@ export default {
     height: 100%;
     width: 280px;
     display: flex;
+    padding-top: 10px;
     flex-direction: column;
     border-right: 1px solid rgb(242, 242, 246);
   }
@@ -412,7 +412,7 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: PingFangSC-Medium;
+      font-family: PingFangSC-Regular;
       font-weight: 400;
       letter-spacing: 1px;
       vertical-align: top;
@@ -432,7 +432,7 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: PingFangSC-Medium;
+      font-family: PingFangSC-Regular;
       font-weight: 400;
       letter-spacing: 1px;
       vertical-align: top;
@@ -452,7 +452,7 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: PingFangSC-Medium;
+      font-family: PingFangSC-Regular;
       font-weight: 400;
       letter-spacing: 1px;
       vertical-align: top;
@@ -472,7 +472,7 @@ export default {
       height: 44px;
       line-height: 44px;
       font-size: 14px;
-      font-family: PingFangSC-Medium;
+      font-family: PingFangSC-Regular;
       font-weight: 400;
       letter-spacing: 1px;
       vertical-align: top;
@@ -486,7 +486,7 @@ export default {
     margin-left: 16px;
     margin-bottom: 10px;
     padding-left: 0px;
-    padding-top: 0px;
+    padding-top: 10px;
     padding-right: 20px;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -749,7 +749,7 @@ export default {
   }
 
   .setup-general-clear-cache-label {
-    width:calc(100% - 90px);
+    width:calc(100% - 120px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -762,7 +762,7 @@ export default {
   }
 
   .setup-general-clear-cache-label2 {
-    width:45px;
+    width:65px;
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1086,10 +1086,11 @@ export default {
     line-height: 40px;
     background:rgba(36,179,107,1);
     border-radius:4px;
-    font-family: PingFangSC-Regular;
+    font-family: PingFangSC-Medium;
     letter-spacing: 1px;
     text-align:center;
     margin: 10px auto;
+    color: rgba(255,255,255,1);
   }
 
 </style>
