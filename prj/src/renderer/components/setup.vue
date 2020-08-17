@@ -486,7 +486,7 @@ export default {
     margin-left: 16px;
     margin-bottom: 10px;
     padding-left: 0px;
-    padding-top: 10px;
+    margin-top: 10px;
     padding-right: 20px;
     overflow-y: scroll;
     overflow-x: hidden;
