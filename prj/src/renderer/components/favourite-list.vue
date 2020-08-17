@@ -465,7 +465,7 @@ export default {
             else{
 
                 console.log("download collection image ", image)
-                await services.common.downloadMsgTTumbnail(image.collection_content.timeline_id, image.timestamp, image.collection_content.fileName, false);
+                await services.common.downloadMsgTTumbnail(image.timeline_id, image.timestamp, image.collection_content.fileName, false);
                 //await this.getImageCollectionContent(image);
                 // this.checkAndLoadImg(targetPath);
             }
