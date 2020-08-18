@@ -624,7 +624,7 @@ const common = {
     }
 
     this.data.login.access_token = result.headers["access-token"];
-    this.data.login.save()
+    await this.data.login.save()
     confservice.init(this.data.login.id)
 
     return ret;
