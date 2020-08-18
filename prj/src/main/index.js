@@ -106,10 +106,10 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   : `file://${__dirname}/index.html#main`
   mainPageWindow.hide();
   mainPageWindow.loadURL(mainPageWinURL);
-  mainPageWindow.webContents.on('dom-ready', function(){
+  //mainPageWindow.webContents.on('did-finish-load', function(){
     mainWindow.close();
     mainPageWindow.show();
-  });
+  //});
   openDevToolsInDevelopment(mainPageWindow);
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));
