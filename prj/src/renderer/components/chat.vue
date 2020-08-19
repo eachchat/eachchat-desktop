@@ -33,7 +33,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
                         </div>
                     </li>
                 </ul>
@@ -2733,6 +2733,7 @@ export default {
     },
     data() {
         return {
+            isGroup: true,
             updatemsgStatus: {
                 "id": ""
             },
@@ -2806,7 +2807,7 @@ export default {
             idToPath: {},
             constStyle: 'display:inline-block;outline:none;border-radius: 2px;border: 1px solid rgb(218,218,221);height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;',
             imgConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;',
-            atConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;font-size:14px;font-family:Microsoft YaHei',
+            atConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;font-size:14px;font-family:PingFangSC-Regular',
         }
     },
     mounted: function() {
@@ -2865,6 +2866,7 @@ export default {
                 
                 this.getHistoryMessage();
                 this.showGroupName(this.chat);
+                this.isGroup = this.chat.group_type == 101 ? true : false;
             }
         },
         newMsg: function() {

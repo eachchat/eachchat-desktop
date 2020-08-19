@@ -11,7 +11,7 @@
                 <div class="msgState" v-else>
                 </div>
                 <div class="about-msg">
-                    <div class="msg-info-username-mine" v-show=false>{{MsgBelongUserName()}}</div>
+                    <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
                         <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
@@ -41,12 +41,13 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip" v-if="isGroup">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip" v-else>
                 <div class="about-msg">
-                    <div class="msg-info-username-others" v-show=false>{{MsgBelongUserName()}}</div>
+                    <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
                         <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
@@ -100,11 +101,12 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
 import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import { UserInfo } from '../../packages/data/sqliteutil.js'
 
 export default {
     components: {
     },
-    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus'],
+    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup'],
     methods: {
         sendAgain: function() {
             this.$emit("sendAgain", this.msg);
@@ -132,6 +134,9 @@ export default {
             console.log("emit absoluteLeft ", curAbsoluteLeft);
             // console.log("emit openUserInfoTip ", tipInfos);
             this.$emit("openUserInfoTip", tipInfos);
+        },
+        msgNameId: function() {
+            return this.msg.message_id + "-username";
         },
         getUserIconId: function() {
             return this.msg.message_id + "-usericon"
@@ -250,58 +255,6 @@ export default {
             else{
                 return false;
             }
-        },
-        checkAndLoadImg: function(distPath) {
-            var checkingPath = distPath;
-            var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            var msg_id = this.msg.message_id;
-            var imgMsgImgElement = document.getElementById(msg_id);
-            var checking = function () {
-                setTimeout(function () {
-                    if(fs.existsSync(checkingPath)){
-                        var showfu = new FileUtil(checkingPath);
-                        let showfileObj = showfu.GetUploadfileobj();
-                        let reader = new FileReader();
-                        reader.readAsDataURL(showfileObj);
-                        reader.onloadend = () => {
-                            let imageHeight = 100;
-                            if(chatGroupMsgContent.imgHeight < 100){
-                                imageHeight = chatGroupMsgContent.imgHeight;
-                            }
-                            this.imageHeight = imageHeight;
-                            imgMsgImgElement.setAttribute("src", reader.result);
-                            imgMsgImgElement.setAttribute("height", imageHeight);
-                            imgMsgImgElement.setAttribute("style", "");
-                        }
-                        return;
-                    }
-                    checking();
-                }, 200)
-            }
-            checking();
-        },
-        checkAndLoadUserImage: function(distPath) {
-            var checkingPath = distPath;
-            
-            var userIconElementId = this.getUserIconId();
-            var userIconElement = document.getElementById(userIconElementId);
-                
-            var checking = function () {
-                setTimeout(function () {
-                    if(fs.existsSync(checkingPath)){
-                        var showfu = new FileUtil(checkingPath);
-                        let showfileObj = showfu.GetUploadfileobj();
-                        let reader = new FileReader();
-                        reader.readAsDataURL(showfileObj);
-                        reader.onloadend = () => {
-                            userIconElement.setAttribute("src", reader.result);
-                        }
-                        return;
-                    }
-                    checking();
-                }, 200)
-            }
-            checking();
         },
         MsgContent: async function(is_mine=false) {
             if(this.msg === null) {
@@ -486,6 +439,17 @@ export default {
             }
             var userIconElementId = this.getUserIconId();
             this.userIconElement = document.getElementById(userIconElementId);
+
+            var userNameElementId = this.msgNameId();
+            var userNameElement = document.getElementById(userNameElementId);
+
+            var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
+            var fromUserName = fromUserInfo == undefined ? "" : fromUserInfo.user_display_name;
+
+            if(userNameElement != undefined) {
+                userNameElement.innerHTML = fromUserName;
+            }
+                
             if(this.userIconElement == undefined) {
                 return;
             }
@@ -739,7 +703,7 @@ export default {
         margin-left: 8px;
     }
 
-    .msg-info-user-img {
+    .msg-info-user-img-no-name {
         display: inline-block;
         vertical-align: top;
         width: 32px;
@@ -747,13 +711,32 @@ export default {
         border-radius:4px;
     }
 
-    .msg-info-user-img:hover {
+    .msg-info-user-img-no-name:hover {
         display: inline-block;
         vertical-align: top;
         width: 32px;
         height: 32px;
         border-radius:4px;
         cursor: pointer;
+    }
+
+    .msg-info-user-img-with-name {
+        display: inline-block;
+        vertical-align: top;
+        width: 32px;
+        height: 32px;
+        border-radius:4px;
+        margin-top: 4px;
+    }
+
+    .msg-info-user-img-with-name:hover {
+        display: inline-block;
+        vertical-align: top;
+        width: 32px;
+        height: 32px;
+        border-radius:4px;
+        cursor: pointer;
+        margin-top: 4px;
     }
 
     .about-msg {
@@ -779,8 +762,10 @@ export default {
 
     .msg-info-username-others {
         display: block;
-        font-size: 10px;
+        font-size: 12px;
         color: rgb(153, 153, 153);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
     }
     
     .chat-msg-content-others-txt-div {
