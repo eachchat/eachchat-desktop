@@ -334,7 +334,12 @@ export default {
     },
     updateChatList(newMsg) {
       // ++this.needUpdate;
-      this.callback(newMsg, true);
+      if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
+        this.callback(newMsg, true);
+      }
+      else{
+        this.callback(newMsg, false);
+      }
     },
     closeSearchChatFilterDlg() {
         this.showSearchSelecterDlg = false;
@@ -672,8 +677,7 @@ export default {
       return distUid;
     },
     showGroupIcon: async function(distGroup=undefined) {
-      setTimeout(async () => {
-        console.log("=======================showGroupIcon", this)
+      // setTimeout(async () => {
         if(distGroup == undefined) {
           for(var i=0;i<this.showGroupList.length;i++) {
             var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
@@ -785,7 +789,7 @@ export default {
             }
             }
         }
-      }, 500)
+      // }, 0)
     },
     groupIsInFavourite(groupInfo) {
       if(groupInfo.status == 0) {
@@ -964,6 +968,11 @@ export default {
             this.scrollToDistPosition(groupIndex);
             break;
           }
+          if(this.showGroupList[i].group_name == groupInfo.group_name && this.showGroupList[i].group_type == 102) {
+            groupIndex = i;
+            this.scrollToDistPosition(groupIndex);
+            break;
+          }
         }
         if(groupIndex == -1) {
           if(groupInfo.group_type != 102) {
@@ -980,7 +989,7 @@ export default {
             this.$nextTick(() => {
               this.showGroupIcon();
             })
-          }, 1000)
+          }, 0)
           // }
         }
         else {

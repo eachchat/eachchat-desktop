@@ -1194,7 +1194,7 @@ display: none;
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         font-size: 12px;
         
         background-color: rgba(1, 1, 1, 0);

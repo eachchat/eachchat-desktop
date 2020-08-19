@@ -603,7 +603,7 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 14px;
-        font-family:Microsoft Yahei;
+        font-family:PingFangSC-Regular;
         font-weight: 590;
     }
 

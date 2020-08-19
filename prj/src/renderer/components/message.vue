@@ -1,14 +1,16 @@
 <template>
-    <div class="message" :id="getMessageTemplateId()">
-        <div class="chat-msg-body" :key="updateStatus">
+    <div class="message" :id="getMessageTemplateId()" v-cloak>
+        <div class="chat-msg-body">
             <div class="msg-info-mine" v-if="MsgIsMine()">
-                <div class="msgState" v-if="MsgIsSending()">
-                    <i class="el-icon-loading"></i>
-                </div>
-                <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
-                    <i class="el-icon-warning"></i>
-                </div>
-                <div class="msgState" v-else>
+                <div class="msgStageDiv" :key="updateStatus">
+                    <div class="msgState" v-if="MsgIsSending()">
+                        <i class="el-icon-loading"></i>
+                    </div>
+                    <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
+                        <i class="el-icon-warning"></i>
+                    </div>
+                    <div class="msgState" v-else>
+                    </div>
                 </div>
                 <div class="about-msg">
                     <div class="msg-info-username-mine" v-show=false></div>
@@ -18,7 +20,7 @@
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -159,12 +161,12 @@ export default {
                 var targetFileName = msgContent.fileName;
                 var ext = path.extname(targetFileName);
                 var targetPath = await services.common.GetFilePath(this.msg.message_id);
-                console.log("targetPath is =========== ", targetPath);
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
                     shell.openItem(targetPath);
                 }
                 else{
+                    console.log("=======target path download ", targetPath);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true);
                 }
             }
@@ -215,6 +217,12 @@ export default {
             }
         },
         getFileIconThroughExt: function(ext) {
+            var iconPath = getIconPath(ext);
+            return iconPath;
+        },
+        getMsgFileIcon: function() {
+            var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
+            var ext = chatGroupMsgContent.ext
             var iconPath = getIconPath(ext);
             return iconPath;
         },
@@ -298,27 +306,13 @@ export default {
             }
             else if(chatGroupMsgType === 103)
             {
-                var fileMsgImgElement = document.getElementById(this.msg.message_id);
-                var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
-                
                 this.fileName = chatGroupMsgContent.fileName;
                 this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                fileMsgImgElement.setAttribute("src", iconPath);
-                fileMsgImgElement.setAttribute("height", 40);
                 
                 var targetFileName = chatGroupMsgContent.fileName;
                 var theExt = path.extname(targetFileName);
-                // var targetPath = path.join(targetDir, targetFileName);
-                // var targetPath = this.msg.file_local_path;
                 var targetPath = await services.common.GetFilePath(this.msg.message_id);
-                // if(chatGroupMsgContent.fileLocalPath != undefined && fs.existsSync(chatGroupMsgContent.fileLocalPath)){
-                //     targetPath = chatGroupMsgContent.fileLocalPath;
-                // }
                 
-                // if(targetPath.length == 0) {
-                //     var targetDir = confservice.getFilePath(this.msg.message_timestamp);
-                //     var targetPath = path.join(targetDir, targetFileName);
-                // }
                 var needOpen = false;
                 // console.log("targetPath is ", targetPath)
                 if(!fs.existsSync(targetPath)){
@@ -589,7 +583,6 @@ export default {
             if(this.updateMsg.length == 0) {
                 return;
             }
-
             var state = this.updateMsg[0];
             var stateInfo = this.updateMsg[1];
             var id = this.updateMsg[2];
@@ -680,6 +673,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    [v-cloak]{
+        display: none;
+    }
+    
     .message {
         font-size: 15px;
     }
@@ -744,6 +741,12 @@ export default {
         margin: 0px 10px 5px 10px;
         width: calc(100% - 95px);
         vertical-align: top;
+    }
+
+    .msgStageDiv {
+        display: inline-block;
+        width: 20px;
+        height: 30px;
     }
 
     .msgState {

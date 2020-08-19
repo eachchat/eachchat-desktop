@@ -568,7 +568,7 @@ export default {
         margin-left: 20px;
         vertical-align: top;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
+        font-family: 'PingFangSC-Regular';
         -webkit-app-region: drag;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -900,7 +900,7 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 14px;
-        font-family:Microsoft Yahei;
+        font-family:PingFangSC-Regular;
         font-weight: 590;
     }
 

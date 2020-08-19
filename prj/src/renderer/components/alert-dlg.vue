@@ -174,7 +174,7 @@ export default {
 
     .AlertContentDetails {
         display: block;
-        width: 100%;
+        width: calc(100% - 32px);
         height: 60px;
         margin: 12px 32px 0px 42px;
     }

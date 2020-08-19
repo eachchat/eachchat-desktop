@@ -804,7 +804,7 @@ export default {
     height:48px;
     line-height: 48px;
     font-size: 14px;
-    font-family: "Microsoft Yahei";
+    font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
     letter-spacing:1px;
@@ -838,7 +838,7 @@ export default {
     height:48px;
     line-height: 48px;
     font-size: 14px;
-    font-family: "Microsoft Yahei";
+    font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
     letter-spacing:1px;
@@ -883,7 +883,7 @@ export default {
     height:48px;
     line-height: 48px;
     font-size: 14px;
-    font-family: "Microsoft Yahei";
+    font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
     letter-spacing:1px;
@@ -932,7 +932,7 @@ export default {
     height:48px;
     line-height: 48px;
     font-size: 14px;
-    font-family: "Microsoft Yahei";
+    font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
     letter-spacing:1px;
@@ -978,7 +978,7 @@ export default {
     line-height: 48px;
     font-size: 14px;
     letter-spacing:1px;
-    font-family: "Microsoft Yahei";
+    font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
   }
@@ -1014,7 +1014,7 @@ export default {
     line-height: 48px;
     font-size: 14px;
     letter-spacing:1px;
-    font-family: "Microsoft Yahei";
+    font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
   }
@@ -1050,7 +1050,7 @@ export default {
     line-height: 48px;
     font-size: 14px;
     letter-spacing:1px;
-    font-family: "Microsoft Yahei";
+    font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
   }

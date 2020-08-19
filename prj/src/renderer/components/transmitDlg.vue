@@ -93,7 +93,7 @@ import confservice from '../../packages/data/conf_service';
 import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
 import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
-import {UserInfo, Department, Group} from '../../packages/data/sqliteutil.js';
+import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
 export default {
     name: 'TransmitDlg',
     components:{
@@ -337,9 +337,14 @@ export default {
             //
             this.curUserInfo = await services.common.GetSelfUserModel();
             if(this.transmitCollection){
-                await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
+                var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                 this.$emit("closeTransmitDlg", "");
-                this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+                if(suc == false) {
+                    this.$toastMessage({message:'转发失败', time:1500, type:'success'});
+                }
+                else {
+                    this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+                }
                 return;
             }
             await this.sendMsg(this.selectedGroups, this.transmitMessages);
@@ -415,9 +420,14 @@ export default {
 
                 this.selectedGroups = [groupItem];
                 if(this.transmitCollection){
-                    await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
+                    var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                     this.$emit("closeTransmitDlg", "");
-                    this.$message('转发成功');
+                    if(suc == false) {
+                        this.$message('转发失败');
+                    }
+                    else {
+                        this.$message('转发成功');
+                    }
                     return;
                 }
                 var newmsgret = await this.sendMsg(this.selectedGroups, this.transmitMessages);
@@ -459,9 +469,14 @@ export default {
                         setTimeout(async () => {
                             this.selectedGroups = [groupItem];
                             if(this.transmitCollection){
-                                await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
+                                var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                                 this.$emit("closeTransmitDlg", "");
-                                this.$message('转发成功');
+                                if(suc == false) {
+                                    this.$message('转发失败');
+                                }
+                                else {
+                                    this.$message('转发成功');
+                                }
                                 return;
                             }
                             await this.sendMsg(this.selectedGroups, this.transmitMessages);
@@ -517,10 +532,44 @@ export default {
             for(var i=0;i<distGroups.length;i++){
 
                     var curMsg = collection;
-                    if(curMsg.message_type == 105) {
-                        return;
+                    console.log("curMsg is ", curMsg);
+                    if(curMsg.collection_type == 105) {
+                        continue;
                     }
-                    var curMsgContent = collection.collection_content;
+                    var isOk = true;
+                    var curMsgContent = {};
+                    if(curMsg.collection_type == 101) {
+                        if(curMsg.collection_content["text"] == undefined){
+                            isOk = false;
+                        }
+                        else{
+                            curMsgContent["text"] = curMsg.collection_content["text"];
+                        }
+                    }
+                    else if(curMsg.collection_type == 102) {
+                        curMsgContent["ext"] = curMsg.collection_content["ext"];
+                        curMsgContent["fileName"] = curMsg.collection_content["fileName"];
+                        curMsgContent["url"] = curMsg.collection_content["url"];
+                        curMsgContent["middleImage"] = curMsg.collection_content["middleImage"];
+                        curMsgContent["thumbnailImage"] = curMsg.collection_content["thumbnailImage"];
+                        curMsgContent["imgWidth"] = curMsg.collection_content["imgWidth"];
+                        curMsgContent["imgHeight"] = curMsg.collection_content["imgHeight"];
+                        curMsgContent["fileSize"] = curMsg.collection_content["fileSize"];
+                    }
+                    else if(curMsg.collection_type == 103) {
+                        curMsgContent["ext"] = curMsg.collection_content["ext"];
+                        curMsgContent["fileName"] = curMsg.collection_content["fileName"];
+                        curMsgContent["url"] = curMsg.collection_content["url"];
+                        curMsgContent["fileSize"] = curMsg.collection_content["fileSize"];
+                    }
+                    for(var key in curMsgContent) {
+                        if(curMsgContent[key] == undefined) {
+                            isOk = false;
+                        }
+                    }
+                    if(!isOk) {
+                        return false;
+                    }
                     console.log("curMsgCintent is ", curMsgContent);
 
                     var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
@@ -552,7 +601,7 @@ export default {
                 for(var j=0;j<msgs.length;j++) {
                     var curMsg = msgs[j];
                     if(curMsg.message_type == 105) {
-                        return;
+                        continue;
                     }
                     var curMsgContent = strMsgContentToJson(curMsg.message_content);
                     console.log("curMsgCintent is ", curMsgContent);

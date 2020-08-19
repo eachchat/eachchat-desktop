@@ -188,7 +188,7 @@ export default {
         width: 336px;
         height: 340px;
         font-size: 14px;
-        font-family: "Microsoft Yahei";
+        font-family: "PingFangSC-Regular";
         vertical-align: top;
     }
 

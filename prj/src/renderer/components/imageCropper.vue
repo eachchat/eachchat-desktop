@@ -188,6 +188,7 @@ export default {
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.3);
+        z-index: 3;
         .cropper-content{
             position: absolute;
             width: 380px;

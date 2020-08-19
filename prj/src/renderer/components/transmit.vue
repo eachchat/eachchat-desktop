@@ -635,7 +635,7 @@ export default {
     line-height: 50px;
     font-size: 14px;
     font-weight: medium;
-    font-family:Microsoft Yahei;
+    font-family:PingFangSC-Regular;
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
@@ -656,7 +656,7 @@ export default {
     line-height: 50px;
     font-size: 14px;
     font-weight: medium;
-    font-family:Microsoft Yahei;
+    font-family:PingFangSC-Regular;
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
@@ -677,7 +677,7 @@ export default {
     line-height: 50px;
     font-size: 14px;
     font-weight: medium;
-    font-family:Microsoft Yahei;
+    font-family:PingFangSC-Regular;
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
@@ -699,7 +699,7 @@ export default {
     line-height: 50px;
     font-size: 12px;
     font-weight: medium;
-    font-family:Microsoft Yahei;
+    font-family:PingFangSC-Regular;
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
