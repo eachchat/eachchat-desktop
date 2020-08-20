@@ -8,19 +8,14 @@ global.navigator = {
     userAgent: 'node.js'
 }
 */
-//const JSEncrypt = require('jsencrypt');
 import JSEncrypt from 'jsencrypt'
-const fs = require('fs');
+import CryptoJS from "crypto-js"
+import KJUR from 'jsrsasign'
+
 class SqliteEncrypt{
     constructor(path){
         this.path = path;
-    }
-
-    decrypt(crypted){
-        var decrypt = new JSEncrypt();
-        
-        //let privateKey = fs.readFileSync(this.path + "/private", "utf-8");;
-        let privateKey = "-----BEGIN PRIVATE KEY-----\
+        this.privateKey = "-----BEGIN PRIVATE KEY-----\
         MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCiZvLmBJpnCC7X\
         mDfgqB6lFTPVMm2UenMZP0z5SAXvqfqb+MyXCK8QVX5QBXp58xu9xqvHxTSdNcN+\
         /VmyZ5BiMwnXBYBwU/bzUDN76GzfeomSg8+sDFuoXlzzP11jmfZiduahL9fhbMts\
@@ -47,39 +42,41 @@ class SqliteEncrypt{
         4UJZh39ANpQU/PA8WSfOC8bOCogSwo/8Ao0RpXqMTmTXyCRc/0dYUHiXxOwaEsXK\
         51W1bUnZl3Jg9KvDO0/bES0qiYjcbAsdXi8osTVL1cdL81UY/x6xCXP2At2MgpJX\
         BA9p2MGJh+b+En2LhSPlASVg\
-        -----END PRIVATE KEY-----"
-        decrypt.setPrivateKey(privateKey);
-        var encrypted = decrypt.decrypt(crypted);
-        return encrypted;
-        
-        /*
-        crypted = new Buffer(crypted, 'base64').toString('binary');
-        var decipher = crypto.createDecipheriv('aes-128-cbc', privatekey, iv);
-        var decoded = decipher.update(crypted, 'binary', 'utf8');
-        decoded += decipher.final('utf8');
-        return decoded;
-        */
+        -----END PRIVATE KEY-----";
+
+        this.pubkeyOriginal = "-----BEGIN PUBLIC KEY-----\
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAomby5gSaZwgu15g34Kge\
+        pRUz1TJtlHpzGT9M+UgF76n6m/jMlwivEFV+UAV6efMbvcarx8U0nTXDfv1ZsmeQ\
+        YjMJ1wWAcFP281Aze+hs33qJkoPPrAxbqF5c8z9dY5n2YnbmoS/X4WzLbPwkG9ey\
+        7haigXBcDr8R5r2h9Yu5sin7mOHvAHKuWzYMyc5DgvXMQFyAw6fQ1BUpKB7rHLWl\
+        eACWQTVGLnzONEWL/h7+z+7YawrsnThQUaF7HP1zRQ3YbiqATlZSEgJ7gtzOZWGw\
+        ww1NozZDspZY7s8hGxNbS0DM3n4eA7EggVVmKDRiHWRk9hybbv1kkqUIR1vCVcEY\
+        MQIDAQAB\
+        -----END PUBLIC KEY-----";
+        this.decryption = new JSEncrypt(); 
+    }
+
+    decrypt(crypted){
+        this.decryption.setPrivateKey(this.privateKey);
+        var value = this.decryption.decrypt(crypted);
+        return value;
     }
 
     encrypt(data){        
-        let pubkeyOriginal = fs.readFileSync(this.path + "/public", "utf-8");
-        
-        //let pubKey = pubkeyOriginal.replace(/[\r\n]/g,"");
+        this.decryption.setPublicKey(this.pubkeyOriginal);
+        return this.decryption.encrypt(data);
+    }
 
-        let jsencrypt = new JSEncrypt();
-        //jsencrypt.setPublicKey('-----BEGIN PUBLIC KEY----- ' + pubkeyOriginal + ' -----END PUBLIC KEY-----');
-        jsencrypt.setPublicKey(pubkeyOriginal);
+    sign(plainText){
+        let shaValue = CryptoJS.SHA1(plainText);
+        this.decryption.setPrivateKey(this.privateKey);
+        return this.decryption.sign(shaValue, CryptoJS.SHA256, "sha256");
+    }
 
-        var encrypted = jsencrypt.encrypt(data);
-        return encrypted;
-        
-        /*
-        var cipher = crypto.createCipheriv('aes-128-cbc', pubkey, this.iv);
-        var crypted = cipher.update(data, 'utf8', 'binary');
-        crypted += cipher.final('binary');
-        crypted = new Buffer(crypted, 'binary').toString('base64');
-        return crypted;
-        */
+    verify(plainText, signature){
+        let shaValue = CryptoJS.SHA1(plainText);
+        this.decryption.setPublicKey(this.pubkeyOriginal);
+        return this.decryption.verify(shaValue, signature, CryptoJS.SHA256);
     }
 
     getAesString(data,key,iv){
