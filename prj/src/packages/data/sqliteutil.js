@@ -556,6 +556,10 @@ const Collection = {
         let collections = await(await models.Collection).find(
             {
                 collection_type: type,
+                $order: {
+                    by: 'timestamp',
+                    reverse: true
+                },
             }
         );
         return collections;
