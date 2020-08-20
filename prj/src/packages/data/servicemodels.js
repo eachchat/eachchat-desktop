@@ -575,6 +575,34 @@ const servicemodels = {
       collectionvalue["collection_content"] = JSON.stringify(value["content"]);  
       collectionmodel = await new(await models.Collection)(collectionvalue);
       return collectionmodel; 
+    },
+
+    async SecretModel(secret){
+      let secretValue = {
+        arithmetic: undefined,
+        key_id: undefined,
+        key:    undefined,
+        model: undefined,
+        padding: undefined,
+        vector: undefined
+      };
+
+      var secretMap = {
+        "arithmetic": "arithmetic",
+        "id": "key_id",
+        "key": "key",
+        "model": "model",
+        "padding": "padding",
+        "sequenceValue": "sequence_id",
+        "vector": "vector"
+      };
+
+      for(let key in secret)
+      {  
+        secretValue[secretMap[key]] = secret[key];
+      }
+      let secretModel = await new(await models.Secret)(secretValue);
+      return secretModel; 
     }
 }
 

@@ -303,6 +303,23 @@ var models = {
         }
       });
     })();
+
+    this.secret = await (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: "secret",
+        fields: {  
+          //id:          types.integer,
+          arithmetic:  types.string,
+          key_id:      types.string,
+          key:         types.string,
+          model:       types.string,
+          padding:     types.string,
+          vector:      types.string,   
+        },
+        primaryKey: "key_id"
+      });
+    })();
     return true;
   },
 
@@ -384,6 +401,10 @@ var models = {
 
   get Config(){
     return this.config;
+  },
+
+  get Secret(){
+    return this.secret;
   }
 }
 

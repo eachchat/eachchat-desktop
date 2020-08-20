@@ -3,17 +3,19 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
 import * as path from 'path'
 import * as fs from 'fs-extra'
-import { makeFlieNameForConflict } from '../core/Utils.js'
+import { makeFlieNameForConflict, generalGuid } from '../core/Utils.js'
 import axios from "axios";
 import {Base64} from "js-base64";
 import {environment} from "./environment.js";
 import {globalConfig} from "../core/config.js"
+import {SqliteEncrypt} from "../core/encrypt.js"
+
 
 const mqtt = require('mqtt')
 
@@ -42,7 +44,8 @@ const commonData = {
   userphone: [],
   userim: [],
   group: [],
-  historymessage: []
+  historymessage: [],
+  aesSecret : []
 }; // model in here
 
 const common = {
@@ -277,6 +280,7 @@ const common = {
       return;
     console.log("initServiceApi")
     this.api = new APITransaction(this.config.hostname, this.config.apiPort, this.config.hostTls);
+    this.api.SetMqtt(this);
   },
 
   async login(config) {
@@ -386,6 +390,7 @@ const common = {
       this.data.login = currentlogin;
     }
     confservice.init(selfuser.id)
+    this.GetAesSecret();
     return true;
   },
 
@@ -1015,9 +1020,20 @@ const common = {
                         groupID,
                         userID,
                         timestamp,
-                        content) {
+                        content,
+                        secret = false) {
     
-    let result = await this.api.sendNewMessage(this.data.login.access_token,
+    let result;
+    if(secret){
+      if(this.data.aesSecret.length == 0){
+        this.data.aesSecret = Secret.GetAllSecret();
+      }
+      if(this.data.aesSecret.length == 0){
+        this.GetAesSecret();
+      }
+    }
+
+    result = await this.api.sendNewMessage(this.data.login.access_token,
                                   messageID, 
                                   messageContentType,
                                   fromID,
@@ -1844,8 +1860,26 @@ const common = {
     return true;
   },
 
-  async testfunction(){
-    await this.gmsConfiguration("dev.eachchat.net");
+  async GetAesSecret(){
+    let randomGuid = generalGuid();
+    let encryption = new SqliteEncrypt();
+    let signValue = encryption.sign(randomGuid);
+    let response = await this.api.GetAesSecret(this.data.login.access_token, randomGuid, signValue, "windows");
+    if (!response.ok || !response.success) {
+      return false;
+    }
+    let secrets = response.data.results;
+    let secretModel;
+    for(let item of secrets){
+      item.key = encryption.decrypt(item.key);
+      item.key = Base64.encode(item.key, true);
+      item.vector = encryption.decrypt(item.vector);
+      item.vector = Base64.encode(item.vector);
+      secretModel = await servicemodels.SecretModel(item);
+      secretModel.save();
+      this.data.aesSecret.push(secretModel);
+      //Secret.InsertSecret(secretModel);
+    }
   }
 };
 

@@ -19,6 +19,10 @@ class APITransaction {
     this.mqtt = mqtt;
   }
 
+  SetService(service){
+    this.service = service;
+  }
+
   parseStatus(response) {
     if (typeof response != "object") {
       return response;
@@ -38,7 +42,10 @@ class APITransaction {
         {
           ipcRenderer.send('token-expired');
           if(this.mqtt != undefined)
+          {
             this.mqtt.close();
+            this.service.logout();
+          }
         }
 
         return this.data.code >= 200 && this.data.code < 300;
@@ -840,6 +847,19 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async GetAesSecret(accessToken, plainText, signature, osType){
+    var response = await this.commonApi.post(
+      "/api/services/security/v1/aes",
+      {
+        signature : signature,
+        plaintext : plainText,
+        os : osType
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

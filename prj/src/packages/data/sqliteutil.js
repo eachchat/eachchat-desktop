@@ -673,6 +673,20 @@ const Config = {
     }
 }
 
+const Secret = {
+    async InsertSecret(secret){
+        let secrets = await (await models.Secret).find({
+            key_id: secret.key_id
+        })
+        if(secrets.length == 0)
+            secret.save();
+    },
+
+    async GetAllSecret(){
+        return await (await model.Secret).find();
+    }
+}
+
 export{
     sqliteutil,
     Department,
@@ -680,5 +694,6 @@ export{
     Message,
     Group,
     Collection,
-    Config
+    Config,
+    Secret
 }
