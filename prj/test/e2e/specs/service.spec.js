@@ -215,7 +215,21 @@ describe('ServiceTest', function () {
 
   })
 
+  it("SignAndVerify", function(){
+    let decryption = new SqliteEncrypt();
+    let text = "hello,你好YiQiLiao&^^%$#";
+    let encryptValue = decryption.encrypt(text)
+    let decryptText = this.decryption.decrypt(encryptValue);
+    expect(text).to.not.equal(decryptText);
+    
+    let plainText = "dasjhdkusahdkjdsadsa";
+    let sign = decryption.sign(plainText);
+    let signValue = "aF+pxksjwJk8LtQM9U99eNcbRSbLk+90sbXYLndFWmb84UriN6weZWT5eqo5/DQtAanSHHhajsRIw0o1kgGsQKVhPVJDG6Y5Tmb9T84pYcTOCNwVThw4+hPgQs1p+ExXLf4yZzvLKxjr0AOvpTPtH/A6kNZgSipQU/f09OLHahtuYPLpEsgu/lQM7OTSx+J1HJYdHhGvAIj2RNXpFRhF/iisnTUFGEl+7TUGvpZ0Hp6aqdGwxHBPtuUokqnTr799m/plmExICKhUvUzlgCMG40EDf54MHWXU7ewtSezEOAtzWY2AadAdLTa2986qDqaoRQ+UYqLelw255HYj5Y6qOQ=="
+    expect(sign).to.not.equal(signValue);
 
+    let verify = this.decryption.verify(plainText, sign);
+    expect(verify).to.not.equal(true);
+  })
 })
 
 // = await services.common.UpdateUserAvatar("C:\\Users\\chengfang\\Desktop\\laofuzi.png");
