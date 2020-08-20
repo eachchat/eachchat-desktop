@@ -1081,10 +1081,10 @@ export default {
         },
         insertPic: function() {
             // File
-            ipcRenderer.send('open-directory-dialog', 'openFile');
+            ipcRenderer.send('open-image-dialog', 'openFile');
             if(!this.ipcInited){
                 this.ipcInited = true;
-                ipcRenderer.on('selectedItem', this.nHandleFiles);
+                ipcRenderer.on('selectedImageItem', this.nHandleFiles);
             }
         },
         insertFiles: function() {
