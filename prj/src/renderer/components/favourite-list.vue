@@ -312,7 +312,7 @@ export default {
         fileListClicked:async function(file) {
             if(!this.getFileExist(file)){
                 console.log("download start");
-                await services.common.downloadFile(file.timeline_id, file.timestamp, file.collection_content.fileName, false);
+                await services.common.downloadFile(file.collection_content.timeline_id, file.timestamp, file.collection_content.fileName, false);
                 shell.openItem(targetPath);
             }
             var targetDir = confservice.getFilePath(file.timestamp);
@@ -327,7 +327,7 @@ export default {
                 
             }else{
                 console.log("download start");
-                await services.common.downloadFile(file.timeline_id, file.timestamp, file.collection_content.fileName, false);
+                await services.common.downloadFile(file.collection_content.timeline_id, file.timestamp, file.collection_content.fileName, false);
             }
         },
         updateFileCollectionList() {
@@ -1020,15 +1020,20 @@ display: none;
                 vertical-align: top;
                 width: calc(100% - 110px);
                 .file-name {
+                    width: calc(100% - 13px);
                     height:20px;
                     font-size:14px;
                     margin-top: 0px;
                     margin-bottom: 0px;
+                    overflow: hidden;
+                    text-overflow:ellipsis;
+                    white-space: nowrap;
                     font-weight:500;
                     color:rgba(0,0,0,1);
                     line-height:20px;
                     letter-spacing:1px;
                     font-family: PingFangSC-Medium;
+                    
                 }
                 .file-size {
                     height:18px;
