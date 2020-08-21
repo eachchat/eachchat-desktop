@@ -819,7 +819,7 @@ ipcMain.on('open-image-dialog', function(event, arg) {
   dialog.showOpenDialog({
     properties: [arg, ],
     filters: [
-      { name: 'Images', extensions: ['jpg', 'png', 'gif']},
+      { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
     ]
   },function(files) {
     if(files && files.length > 0) {

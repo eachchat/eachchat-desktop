@@ -1021,7 +1021,9 @@ const common = {
                         userID,
                         timestamp,
                         content,
-                        secret = false) {
+                        local_path = '',
+                        secret = false,
+                        ) {
     
     let result;
     if(secret){
@@ -1050,7 +1052,8 @@ const common = {
         group_id: groupID,
         message_timestamp: timestamp,
         message_content: JSON.stringify(content),
-        message_direction: 0
+        message_direction: 0,
+        file_local_path: local_path
       }
       let tmpmsgmodel = await new(await models.Message)(tmpmsg);
       tmpmsgmodel.save();
@@ -1200,7 +1203,57 @@ const common = {
     return msg_models;
   },
 
-  async uploadFile(filepath) {
+  async uploadFile(filepath, msgInfo) {
+    let tmpmsg = {
+      message_id: msgInfo.message_id,
+      message_type: msgInfo.message_type,
+      message_from_id: msgInfo.message_from_id,
+      group_id: msgInfo.group_id,
+      message_timestamp: msgInfo.message_timestamp,
+      message_content: msgInfo.message_content,
+      message_direction: 0,
+      file_local_path: msgInfo.file_local_path,
+      message_status: 2
+    }
+
+    console.log("uploadfile info ", tmpmsg);
+
+    var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.data.selfuser.id) + 1;
+    console.log("uploadfile curMaxSequenceId ", curMaxSequenceId);
+    tmpmsg["sequence_id"] = curMaxSequenceId;
+    
+    await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, curMaxSequenceId);
+    this.data.selfuser.msg_max_sequenceid = curMaxSequenceId;
+    console.log("this.data.selfuser.msg_max_sequenceid ", this.data.selfuser.msg_max_sequenceid);
+
+    let tmpmsgmodel = await new(await models.Message)(tmpmsg);
+
+    console.log("tmpmsgmodel ", tmpmsgmodel);
+    let group;
+    group = await Group.FindItemFromGroupByGroupID(tmpmsgmodel.group_id);
+    console.log("======== services upload file group is ", group);
+    if(group == undefined)
+    {
+      group = await servicemodels.MessageGroup(tmpmsg);
+    }
+    else
+    { 
+      var msgUpdate = {
+        "userId": this.data.selfuser.id,
+        "sequenceValue": tmpmsgmodel.sequence_id,
+        "fromId":     tmpmsgmodel.message_from_id,
+        "msgContentType":tmpmsgmodel.message_type,
+        "timestamp": tmpmsgmodel.message_timestamp,
+        "msgId":     tmpmsgmodel.message_id,
+        "content": JSON.parse(tmpmsgmodel.message_content),
+      }
+      group = await servicemodels.UpdateGroupMessage(group, msgUpdate);
+    }
+    
+    console.log("======== final upload file group is ", group);
+    group.save();
+    tmpmsgmodel.save();
+
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 

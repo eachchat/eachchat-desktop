@@ -1393,9 +1393,10 @@ export default {
         var msgExist = await Message.ExistMessageBySequenceID(msg.sequence_id);
         // console.log("msg exist is ", msgExist);
         if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
-          if(isUpdate) {
-            this.showGroupIcon();
-          }
+          // if(isUpdate) {
+          //   console.log("111111111111111")
+          //   this.showGroupIcon();
+          // }
           this.dealedMsgSequenceId.push(msg.sequence_id);
         }
         else if(msgExist) {
@@ -1607,8 +1608,9 @@ export default {
               }
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
               groupExist = true;
-              this.needUpdate ++;
-              this.showGroupIcon(this.showGroupList[i]);
+              // this.needUpdate ++;
+              // console.log("44444444444444444444")
+              this.showGroupIcon();
               break;
             }
           }

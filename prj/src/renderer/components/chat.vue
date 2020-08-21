@@ -145,7 +145,7 @@ import ownerTransferDlg from './ownerTransfer.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
-import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
+import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
@@ -1039,38 +1039,36 @@ export default {
             }
             else {
                 for(var i=0;i<fileList.length;i++) {
-                    if(this.waitForSendingFiles.indexOf(fileList[i] != -1)) {
-                        var range = this.editor.getSelection();
-                        var curIndex = range==null ? 0 : range.index;
-                        var reader = new FileReader();
-                        var curPath = fileList[i].path;
-                        var fileType = fileList[i].type;
-                        var fileSize = fileList[i].size;
-                        var fileName = path.basename(fileList[i]);//getFileNameInPath(fileList[i].path)
-                        if(fileType.split("/")[0] == "image"){
-                            // Image
-                            reader.readAsDataURL(fileList[i]);
-                            reader.onloadend = () => {
-                                var img = new Image();
-                                img.src = reader.result;
-                                img.onload = function(){
-                                    let srcHeight = img.height;
-                                    this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
-                                    this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                                }
-                            }
-                        }
-                        else {
-                            // File
-                            var fileExt = fileTypeFromMIME(fileType);
-                            var iconPath = getIconPath(fileExt);
-                            var showfu = new FileUtil(iconPath);
-                            let showfileObj = showfu.GetUploadfileobj();
-                            reader.readAsDataURL(showfileObj);
-                            reader.onloadend = () => {
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: fileSize, style:"vertical-align:middle;"})
+                    var range = this.editor.getSelection();
+                    var curIndex = range==null ? 0 : range.index;
+                    var reader = new FileReader();
+                    var curPath = fileList[i].path;
+                    var fileType = fileList[i].type;
+                    var fileSize = fileList[i].size;
+                    var fileName = path.basename(fileList[i]);//getFileNameInPath(fileList[i].path)
+                    if(fileType.split("/")[0] == "image"){
+                        // Image
+                        reader.readAsDataURL(fileList[i]);
+                        reader.onloadend = () => {
+                            var img = new Image();
+                            img.src = reader.result;
+                            img.onload = function(){
+                                let srcHeight = img.height;
+                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
                                 this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                             }
+                        }
+                    }
+                    else {
+                        // File
+                        var fileExt = fileTypeFromMIME(fileType);
+                        var iconPath = getIconPath(fileExt);
+                        var showfu = new FileUtil(iconPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: fileSize, style:"vertical-align:middle;"})
+                            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
                         }
                     }
                 }
@@ -1082,8 +1080,8 @@ export default {
         insertPic: function() {
             // File
             ipcRenderer.send('open-image-dialog', 'openFile');
-            if(!this.ipcInited){
-                this.ipcInited = true;
+            if(!this.ipcPicInited){
+                this.ipcPicInited = true;
                 ipcRenderer.on('selectedImageItem', this.nHandleFiles);
             }
         },
@@ -1097,7 +1095,7 @@ export default {
         insertImg: function() {
             // console.log("============== this is ", this);
         },
-        nHandleFiles: function(e, paths) {
+        nHandleFiles: async function(e, paths) {
             // Select Same File Failed.
             var fileList = paths;
             // console.log("======", fileList)
@@ -1107,71 +1105,48 @@ export default {
             else {
                 for(var i=0;i<fileList.length;i++) {
                     var curPath = fileList[i]
+                    let fileSize = await getFileSizeNum(curPath);
+                    if(fileSize > 100 * 1024 * 1024) {
+                        this.$toastMessage({message:"发送的文件大小不能大于100M", time: 3000, type:'success'});
+                        continue
+                    }
                     // console.log("filelist[i] = ", fileList[i])
-                    if(this.waitForSendingFiles.indexOf(fileList[i] != -1)) {
-                        var range = this.editor.getSelection();
-                        var curIndex = range==null ? 0 : range.index;
+                    var range = this.editor.getSelection();
+                    var curIndex = range==null ? 0 : range.index;
 
-                        var showfu = new FileUtil(fileList[i]);
-                        var showfileObj = showfu.GetUploadfileobj();
-                        var imgurl = URL.createObjectURL(showfileObj)
-                        var fileType = showfu.GetMimename();
-                        if(fileType == undefined) {
-                            fileType = path.extname(fileList[i]);
-                        }
-                        var fileExt = showfu.GetExtname();
-                        var fileName = path.basename(fileList[i]);//showfu.GetFilename()
+                    var showfu = new FileUtil(fileList[i]);
+                    var showfileObj = showfu.GetUploadfileobj();
+                    var imgurl = URL.createObjectURL(showfileObj)
+                    var fileType = showfu.GetMimename();
+                    if(fileType == undefined) {
+                        fileType = path.extname(fileList[i]);
+                    }
+                    var fileExt = showfu.GetExtname();
+                    var fileName = path.basename(fileList[i]);//showfu.GetFilename()
 
-                        if(fileType.split("/")[0] == "image"){
-                            // Image
-                            var img = new Image();
-                            img.src = fileList[i];
-                            img.onload = () => {
-                                var imgHeight = 46;
-                                var imgWidth = img.width * (46/img.height);
-                                var range = this.editor.getSelection();
-                                var curIndex = range==null ? 0 : range.index;
-                                var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
-                                complexSpan.id = generalGuid();
-                                complexSpan.innerHTML = " ";
-                                var indexUrl = this.imgConstStyle.indexOf("background-image: url(") + "background-image: url(".length;
-                                var distStyle = insertStr(this.imgConstStyle, indexUrl, imgurl);
-                                var indexWidth = this.imgConstStyle.indexOf(";width:") + ";width:".length;
-                                distStyle = insertStr(distStyle, indexWidth, imgWidth.toString() + "px");
-                                // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
-                                complexSpan.style = distStyle;
-                                let msgInfo = {
-                                    "path": curPath,
-                                    "type": "image",
-                                    "height": img.height,
-                                    "width": img.width
-                                };
-                                this.idToPath[complexSpan.id] = msgInfo;
-
-                                this.editor.insertEmbed(curIndex, 'span', complexSpan);
-                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                                this.editor.insertText(curIndex + 1, " ");
-                            }
-                        }
-                        else {
-                            // File
-                            var iconPath = getIconPath(fileExt);
-                            // console.log("iconpath is ", iconPath)
+                    if(fileType.split("/")[0] == "image"){
+                        // Image
+                        var img = new Image();
+                        img.src = fileList[i];
+                        img.onload = () => {
+                            var imgHeight = 46;
+                            var imgWidth = img.width * (46/img.height);
                             var range = this.editor.getSelection();
                             var curIndex = range==null ? 0 : range.index;
                             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
                             complexSpan.id = generalGuid();
-                            complexSpan.innerHTML = "            " + fileName;
-                            var indexTemp = this.constStyle.indexOf("background-image: url(") + "background-image: url(".length;
-                            var distStyle = insertStr(this.constStyle, indexTemp, iconPath);
+                            complexSpan.innerHTML = " ";
+                            var indexUrl = this.imgConstStyle.indexOf("background-image: url(") + "background-image: url(".length;
+                            var distStyle = insertStr(this.imgConstStyle, indexUrl, imgurl);
+                            var indexWidth = this.imgConstStyle.indexOf(";width:") + ";width:".length;
+                            distStyle = insertStr(distStyle, indexWidth, imgWidth.toString() + "px");
                             // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
-                            // console.log("diststyle is ", distStyle);
                             complexSpan.style = distStyle;
                             let msgInfo = {
                                 "path": curPath,
-                                "type": "file",
-                                "height": 0,
-                                "width": 0
+                                "type": "image",
+                                "height": img.height,
+                                "width": img.width
                             };
                             this.idToPath[complexSpan.id] = msgInfo;
 
@@ -1180,8 +1155,34 @@ export default {
                             this.editor.insertText(curIndex + 1, " ");
                         }
                     }
-                    // console.log("finished")
+                    else {
+                        // File
+                        var iconPath = getIconPath(fileExt);
+                        // console.log("iconpath is ", iconPath)
+                        var range = this.editor.getSelection();
+                        var curIndex = range==null ? 0 : range.index;
+                        var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
+                        complexSpan.id = generalGuid();
+                        complexSpan.innerHTML = "            " + fileName;
+                        var indexTemp = this.constStyle.indexOf("background-image: url(") + "background-image: url(".length;
+                        var distStyle = insertStr(this.constStyle, indexTemp, iconPath);
+                        // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
+                        // console.log("diststyle is ", distStyle);
+                        complexSpan.style = distStyle;
+                        let msgInfo = {
+                            "path": curPath,
+                            "type": "file",
+                            "height": 0,
+                            "width": 0
+                        };
+                        this.idToPath[complexSpan.id] = msgInfo;
+
+                        this.editor.insertEmbed(curIndex, 'span', complexSpan);
+                        this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                        this.editor.insertText(curIndex + 1, " ");
+                    }
                 }
+                // console.log("finished")
             }
         },
         getDistUidThroughUids: function(uids) {
@@ -1226,7 +1227,8 @@ export default {
                     "message_type": sendingMsgContentType,
                     "message_id": guid,
                     "file_local_path": filePath,
-                    "message_status": 1
+                    "message_status": 1,
+                    "sequence_id": curMsgItem.sequence_id,
                     };
                 for(var i=0;i<this.messageList.length;i++){
                     if(this.messageList[i].message_id == guid){
@@ -1252,7 +1254,7 @@ export default {
                 
                 this.cleanEditor();
 
-                services.common.uploadFile(pathDeal(filePath))
+                services.common.uploadFile(pathDeal(filePath), willSendMsg)
                     .then((ret) => {
                         // ToDo Failed List
                         // console.log("UploadFile response ", ret);
@@ -1297,7 +1299,8 @@ export default {
                                 gorupId, 
                                 uid, 
                                 curTimeSeconds, 
-                                willSendMsgContent)
+                                willSendMsgContent,
+                                finalPath)
                             .then(async (ret) => {
                                 // console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -1343,7 +1346,8 @@ export default {
                     "message_type": sendingMsgContentType,
                     "message_id": guid,
                     "file_local_path": filePath,
-                    "message_status": 1
+                    "message_status": 1,
+                    "sequence_id": curMsgItem.sequence_id,
                     };
                 for(var i=0;i<this.messageList.length;i++){
                     if(this.messageList[i].message_id == guid){
@@ -1368,7 +1372,7 @@ export default {
                 
                 this.cleanEditor();
 
-                services.common.uploadFile(pathDeal(filePath))
+                services.common.uploadFile(pathDeal(filePath), willSendMsg)
                     .then((ret) => {
                         if (!ret.ok || !ret.success) 
                         {
@@ -1416,7 +1420,8 @@ export default {
                                 gorupId, 
                                 uid, 
                                 curTimeSeconds, 
-                                willSendMsgContent)
+                                willSendMsgContent,
+                                finalPath)
                             .then(async (ret) => {
                                 // console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -1672,6 +1677,21 @@ export default {
                                 "fileSize": fileSize
                             })
                             let guid = generalGuid();
+                            
+                            var nameTmp = path.basename(filePath);
+                            var dirTmp = confservice.getFilePath(curTimeSeconds);
+                            var pathTmp = path.join(dirTmp, nameTmp);
+                            var finalPath = await makeFlieNameForConflict(pathTmp);
+                            try{
+                                console.log("copy file from ", filePath, " to ", filePath);
+                                fs.copyFileSync(filePath, finalPath);
+                            }
+                            catch(error) {
+                                console.log("copyFile except ", error);
+                            }
+
+                            var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.curUserInfo.id) + 1;
+                                
                             let willSendMsg = {
                                 "message_content": willShowMsgContent,
                                 "message_from_id": this.curUserInfo.id,
@@ -1679,8 +1699,11 @@ export default {
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
-                                "message_status": 1
+                                "message_status": 1,
+                                "file_local_path": finalPath,
+                                "sequence_id": curMaxSequenceId,
                                 };
+
                             this.messageList.push(willSendMsg);
                             this.needToBottom = true;
                             // console.log("willsendmsg is ", willSendMsg);
@@ -1697,7 +1720,9 @@ export default {
                             
                             this.cleanEditor();
 
-                            services.common.uploadFile(pathDeal(filePath))
+                            this.$emit('updateChatList', willSendMsg);
+
+                            services.common.uploadFile(pathDeal(filePath), willSendMsg)
                                 .then((ret) => {
                                     // ToDo Failed List
                                     // console.log("UploadFile response ", ret);
@@ -1745,7 +1770,8 @@ export default {
                                             gorupId, 
                                             send_uid, 
                                             curTimeSeconds, 
-                                            willSendMsgContent)
+                                            willSendMsgContent,
+                                            finalPath)
                                         .then(async (ret) => {
                                             console.log("send img message ret ", ret)
                                             if(ret == undefined) {
@@ -1764,23 +1790,12 @@ export default {
                                             else {
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].message_id == guid){
-                                                        var nameTmp = ret.message.fileName;
-                                                        var dirTmp = confservice.getFilePath(ret.message_timestamp);
-                                                        var pathTmp = path.join(dirTmp, nameTmp);
-                                                        var finalPath = await makeFlieNameForConflict(pathTmp);
-                                                        try{
-                                                            console.log("copy file from ", filePath, " to ", filePath);
-                                                            fs.copyFileSync(filePath, finalPath);
-                                                        }
-                                                        catch(error) {
-                                                            console.log("copyFile except ", error);
-                                                        }
                                                         ret.file_local_path = finalPath;
                                                         services.common.SetFilePath(ret.message_id, finalPath);
                                                         this.messageList[i] = ret;
                                                         this.updatemsgStatus = {
                                                             "id": guid,
-                                                            "status": 2
+                                                            "status": 0
                                                         };
                                                         break;
                                                     }
@@ -1926,6 +1941,21 @@ export default {
                                 "fileSize": 0,
                             });
                             let guid = generalGuid();
+                            
+                            var nameTmp = path.basename(filePath);
+                            var dirTmp = confservice.getFilePath(curTimeSeconds);
+                            var pathTmp = path.join(dirTmp, nameTmp);
+                            var finalPath = await makeFlieNameForConflict(pathTmp);
+                            try{
+                                console.log("copy file from ", filePath, " to ", filePath);
+                                fs.copyFileSync(filePath, finalPath);
+                            }
+                            catch(error) {
+                                console.log("copyFile except ", error);
+                            }
+
+                            var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.curUserInfo.id) + 1;
+                                
                             let willSendMsg = {
                                 "message_content": willShowMsgContent,
                                 "message_from_id": this.curUserInfo.id,
@@ -1933,8 +1963,9 @@ export default {
                                 "message_timestamp": curTimeSeconds,
                                 "message_type": sendingMsgContentType,
                                 "message_id": guid,
-                                "file_local_path": filePath,
-                                "message_status": 1
+                                "file_local_path": finalPath,
+                                "message_status": 1,
+                                "sequence_id": curMaxSequenceId,
                                 };
                             this.messageList.push(willSendMsg);
                             this.needToBottom = true;
@@ -1951,7 +1982,9 @@ export default {
                             
                             this.cleanEditor();
 
-                            services.common.uploadFile(pathDeal(filePath))
+                            this.$emit('updateChatList', willSendMsg);
+
+                            services.common.uploadFile(pathDeal(filePath), willSendMsg)
                                 .then((ret) => {
                                     if (!ret.ok || !ret.success) 
                                     {
@@ -2003,7 +2036,8 @@ export default {
                                             gorupId, 
                                             send_uid, 
                                             curTimeSeconds, 
-                                            willSendMsgContent)
+                                            willSendMsgContent,
+                                            finalPath)
                                         .then(async (ret) => {
                                             console.log("send img message ret ", ret)
                                             if(ret == undefined) {
@@ -2025,20 +2059,6 @@ export default {
                                                     // console.log("the messagelist guid is ", this.messageList[i].message_id)
                                                     if(this.messageList[i].message_id == guid){
                                                         // console.log("update ret")
-                                                        var nameTmp = ret.message.fileName;
-                                                        var extTmp = path.extname(nameTmp);
-                                                        // console.log("nameTmp is ", nameTmp);
-                                                        var dirTmp = confservice.getThumbImagePath(ret.message_timestamp);
-                                                        // console.log("dirTmp is ", dirTmp);
-                                                        var finalPath = path.join(dirTmp, ret.message_id + extTmp);
-                                                        // console.log("finalPath is ", finalPath);
-                                                        try{
-                                                            console.log("copy file from ", filePath, " to ", finalPath);
-                                                            fs.copyFileSync(filePath, finalPath);
-                                                        }
-                                                        catch(error) {
-                                                            console.log("copyFile except ", error);
-                                                        }
                                                         ret.file_local_path = finalPath;
 
                                                         this.messageList[i] = ret;
@@ -2778,6 +2798,7 @@ export default {
             groupInfo: {},
             groupContainUserIds: [],
             ipcInited: false,
+            ipcPicInited: false,
             showGroupInfoTips: false,
             showTransmitDlg: false,
             transmitKey:199,
@@ -2786,7 +2807,6 @@ export default {
             selectedMsgs: [],
             editor:null,
             messageList: [],
-            waitForSendingFiles: [],
             curGroupId: '',
             editorOption : {
                 placeholder: "",

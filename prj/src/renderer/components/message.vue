@@ -56,7 +56,7 @@
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -78,14 +78,6 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-others-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
-                </div>
-                <div class="msgState" v-if="MsgIsSending()">
-                    <i class="el-icon-loading"></i>
-                </div>
-                <div class="msgState" v-else-if="MsgIsFailed()">
-                    <i class="el-icon-warning"></i>
-                </div>
-                <div class="msgState" v-else>
                 </div>
             </div>
         </div>
@@ -287,14 +279,10 @@ export default {
             }
             else if(chatGroupMsgType === 102)
             {
-                var targetFileName = chatGroupMsgContent.fileName;
-                var theExt = path.extname(targetFileName);
-                var needOpen = false;
-                var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
-                if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false))) {
-                    //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                    let imageHeight = 100;
+                var targetPath = this.msg.file_local_path;
+                if(fs.existsSync(targetPath)) {
+                    var imgMsgImgElement = document.getElementById(this.msg.message_id);
+                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");let imageHeight = 100;
                     if(chatGroupMsgContent.imgHeight < 100){
                         imageHeight = chatGroupMsgContent.imgHeight;
                     }
@@ -302,6 +290,24 @@ export default {
                     imgMsgImgElement.setAttribute("src", targetPath);
                     imgMsgImgElement.setAttribute("height", imageHeight);
                     imgMsgImgElement.setAttribute("style", "");
+                }
+                else {
+                    var targetFileName = chatGroupMsgContent.fileName;
+                    var theExt = path.extname(targetFileName);
+                    var needOpen = false;
+                    var imgMsgImgElement = document.getElementById(this.msg.message_id);
+                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
+                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false))) {
+                        //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+                        let imageHeight = 100;
+                        if(chatGroupMsgContent.imgHeight < 100){
+                            imageHeight = chatGroupMsgContent.imgHeight;
+                        }
+                        this.imageHeight = imageHeight;
+                        imgMsgImgElement.setAttribute("src", targetPath);
+                        imgMsgImgElement.setAttribute("height", imageHeight);
+                        imgMsgImgElement.setAttribute("style", "");
+                    }
                 }
             }
             else if(chatGroupMsgType === 103)

@@ -55,6 +55,7 @@ export default {
     height: 60px;
     box-shadow:0px 0px 15px 0px rgba(103,103,103,0.24);
     border-radius:4px;
+    z-index: 4;
     .message-icon{
         display: inline-block;
         width: 24px;

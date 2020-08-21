@@ -383,7 +383,7 @@ class APITransaction {
         "Content-Type": "multipart/form-data"
       },
       {
-        timeout: 15000
+        timeout: 60000*2
       });
     return this.parseStatus(response);
   }
