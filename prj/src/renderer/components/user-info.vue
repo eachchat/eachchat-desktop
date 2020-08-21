@@ -294,7 +294,12 @@ export default {
         if((pageHeight + topPosition + 40) > showScreenHeight){
             topPosition = showScreenHeight - pageHeight - 20;
         }
-        this.originPosition.left += 45;
+        if(this.originPosition.left + 45 + pageWidth > showScreenWidth){
+            this.originPosition.left = this.originPosition.left - pageWidth - 17;
+        }else{
+            this.originPosition.left += 45;
+        }
+        
         
         this.pagePosition.left = this.originPosition.left.toString() + "px";
         this.pagePosition.top = topPosition.toString() + "px";
