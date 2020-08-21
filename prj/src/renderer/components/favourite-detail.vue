@@ -1,5 +1,5 @@
 <template>
-    <div class="detailPage">
+    <div class="detailPage" v-if="showView">
         <div class="detailHeader" v-if="showMessageContent">
             <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user-40px@2x.png">
             <div class="userInfo">
@@ -30,7 +30,7 @@ export default {
             collectionInfo: {},
             showMessageContent: true,
             loginInfo:{},
-            
+            showView: false,
         }
     },
     methods:{
@@ -149,6 +149,7 @@ export default {
         
         ipcRenderer.on("clickedCollectionInfo", (event, collectionInfo) => {
             this.collectionInfo = collectionInfo;
+            this.showView = true;
             var favouriteType = collectionInfo.collection_type;
             
             if (favouriteType == 101){
@@ -189,7 +190,7 @@ display: none;
     margin: 0px;
     padding: 0px;
     padding-left: 20px;
-
+    font-size: 0px;
     .userIcon{
         display: inline-block;
         width: 32px;
@@ -202,9 +203,10 @@ display: none;
     .userInfo{
         display: inline-block;
         vertical-align: top;
+        width: calc(100% - 32px);
         .userName{
             display: inline-block;
-            width: 432px;
+            width: calc(100% - 110px); 
             margin-top: 18px;
             margin-bottom: 18px;
             padding-left: 12px;
@@ -217,7 +219,9 @@ display: none;
             font-family: PingFangSC-Regular;
         }
         .userTime{
+            text-align: right;
             display: inline-block;
+            width: 98px;
             height:20px;
             font-size:12px;
             font-weight:400;
