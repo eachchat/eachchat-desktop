@@ -312,7 +312,7 @@ export default {
         fileListClicked:async function(file) {
             if(!this.getFileExist(file)){
                 console.log("download start");
-                await services.common.downloadFile(file.collection_content.timeline_id, file.timestamp, file.collection_content.fileName, false);
+                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false);
                 shell.openItem(targetPath);
             }
             var targetDir = confservice.getFilePath(file.timestamp);
@@ -327,7 +327,7 @@ export default {
                 
             }else{
                 console.log("download start");
-                await services.common.downloadFile(file.collection_content.timeline_id, file.timestamp, file.collection_content.fileName, false);
+                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false);
             }
         },
         updateFileCollectionList() {
@@ -386,7 +386,7 @@ export default {
             for(var i = 0; i < this.favourites.length; i ++){
                     var file = this.favourites[i];
                     file.local_exist = this.getFileExist(file);
-                    file.collection_content.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
+                    file.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
                     tempFiles[i] = file;
             }
             this.favourites = tempFiles;
