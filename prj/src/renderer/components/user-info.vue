@@ -26,7 +26,7 @@
                 <li v-if="showRelation">
                     <p class="userInfo-key">汇报关系</p>
                     <!-- <p class="userInfo-value">查看</p> -->
-                    <p class="userInfo-value" @click="reportRelationClicked()">查看</p>
+                    <p class="userInfo-report-value" @click="reportRelationClicked()">查看</p>
                 </li>
                 <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
@@ -42,7 +42,7 @@
                 </li>
                 <li v-if="showEmail">
                     <p class="userInfo-key">邮箱</p>
-                    <p class="userInfo-value">{{ userInfo.email[0].email_value }}</p>
+                    <p class="userInfo-email-value">{{ userInfo.email[0].email_value }}</p>
                 </li>
             </ul>
         </div>
@@ -422,7 +422,40 @@ export default {
     width: 158px;
     font-size: 12px;
     padding-left: 26px;
+    margin-top: 9px;
+    margin-bottom: 9px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
+}
+.userInfo-report-value {
+    display:inline-block;
     cursor: pointer;
+    line-height: 18px;
+    width: 158px;
+    font-size: 12px;
+    padding-left: 26px;
+    margin-top: 9px;
+    margin-bottom: 9px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
+}
+.userInfo-email-value {
+    -webkit-user-select: text;
+    display:inline-block;
+    line-height: 18px;
+    width: 158px;
+    font-size: 12px;
+    padding-left: 26px;
     margin-top: 9px;
     margin-bottom: 9px;
     overflow: hidden;
@@ -434,6 +467,7 @@ export default {
     color: rgba(51, 51, 51, 1);
 }
 .userInfo-phone-value{
+    -webkit-user-select: text;
     display:inline-block;
     line-height: 18px;
     width: 158px;
