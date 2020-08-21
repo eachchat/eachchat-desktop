@@ -10,7 +10,6 @@ global.navigator = {
 */
 import JSEncrypt from 'jsencrypt'
 import CryptoJS from "crypto-js"
-import KJUR from 'jsrsasign'
 
 class SqliteEncrypt{
     constructor(path){
