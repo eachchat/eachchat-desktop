@@ -473,7 +473,7 @@ function downloadFile(event, arg) {
         Authorization: "Bearer " + token
       };
       var appendix = {
-        timeout: 35000,
+        timeout: 1000 * 60 * 2,
         responseType: "stream"
       };
     
@@ -507,7 +507,10 @@ function downloadFile(event, arg) {
               console.log("rename file failed and details is ", e);
             }
           });
-        });
+        })
+        // .catch(function(ret){
+        //   console.log("9999999999 downloadfile exception is ", ret);
+        // })
     })
   }
 }

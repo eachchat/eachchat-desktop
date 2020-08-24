@@ -51,7 +51,7 @@
                   </li>
                 </ul>
               </div>
-              <div class="search-list-content-more-div" @click="showAllSearchUsers">查看全部 >></div>
+              <div class="search-list-content-more-div" @click="showAllSearchUsers" v-show="showSearchAllMember">查看全部 >></div>
             </div>
             <div class="search-list-content-message" id="search-list-content-message-id" v-show="showSearchMessage">
               <div class="search-list-content-label">聊天记录</div>
@@ -69,7 +69,7 @@
                       <p class="search-item-position">包含{{searchMessageItem.count}}条相关聊天记录</p>
                     </div>
                   </li>
-                  <li class="search-item">
+                  <li class="search-item" v-show="showSearchAllChat">
                     <div class="search-item-img-div">
                       <img class="search-item-img-ico" src="../../../static/Img/User/user-40px@2x.png"/>
                     </div>
@@ -99,7 +99,7 @@
                   </li>
                 </ul>
               </div>
-              <div class="search-list-content-more-div">
+              <div class="search-list-content-more-div" v-show="showsearchAllFile">
                 <div class="search-list-content-more-label" @click="showAllSearchFiles">查看全部 >></div>
               </div>
             </div>
@@ -271,6 +271,9 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      showSearchAllChat: false,
+      showSearchAllMember: false,
+      showsearchAllFile: false,
       showUserInfoTips: false,
       isOwn: false,
       userInfo: {},
@@ -384,22 +387,24 @@ export default {
     getFileNameItemElementId: function(itemId) {
       return "file-name-element-" + itemId;
     },
-    showFileInfo: function(fileInfo) {
+    showFileInfo: async function(fileInfo) {
       console.log("showfileINfo file info is ", fileInfo);
+      var targetPath = await services.common.GetFilePath(fileInfo.msgId);
       var chatGroupMsgContent = fileInfo.content;
-      targetDir = confservice.getFilePath();
       var targetFileName = chatGroupMsgContent.fileName;
       var theExt = path.extname(targetFileName);
-      
-      var targetDir = confservice.getFilePath(fileInfo.timestamp);
-      var targetPath = path.join(targetDir, fileInfo.msgId + theExt);
-      
+      if(!fs.existsSync(targetPath)) {
+        var targetDir = confservice.getFilePath(fileInfo.timestamp);
+        var targetPath = path.join(targetDir, targetFileName);
+      }
       var needOpen = false;
       console.log("targetPath is ", targetPath)
       if(!fs.existsSync(targetPath)){
         // console.log("this.msg.timelineid is ", fileInfo.timelineId)
         // console.log("targetfilename is ", targetFileName);
-        services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, fileInfo.msgId + theExt, true);
+        
+        services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, targetFileName, true);
+        this.$toastMessage({message:'文件正在下载，请稍后', time:1500, type:'success'});
       }
       else {
         shell.openItem(targetPath);
@@ -825,10 +830,11 @@ export default {
       }
     },
     async toSearch(searchKey) {
-      if(searchKey.trim().length != 0) {
-        this.searchKey = searchKey;
+      console.log("searchkey is ", searchKey);
+      console.log("searchkey is ", searchKey.trim());
+      this.searchKey = searchKey.trim();
+      if(this.searchKey.length != 0) {
         var curSearchId = new Date().getTime();
-        // console.log("searchkey is ", this.searchKey);
         var searchResult = {
             "id": curSearchId,
             "searchList": []
@@ -848,6 +854,12 @@ export default {
               else {
                 this.showSearchMessage = true;
               }
+              if(searcheRet[i].groups.length > 3) {
+                this.showSearchAllChat = true;
+              }
+              else {
+                this.showSearchAllChat = false;
+              }
             }
             if(searcheRet[i].files != undefined) {
               this.searchFileItems = searcheRet[i].files.slice(0, 3);
@@ -856,6 +868,12 @@ export default {
               }
               else {
                 this.showSearchFile = true;
+              }
+              if(searcheRet[i].files.length > 3) {
+                this.showsearchAllFile = true;
+              }
+              else {
+                this.showsearchAllFile = false;
               }
             }
             if(searcheRet[i].persons != undefined) {
@@ -866,6 +884,12 @@ export default {
               else {
                 this.showSearchPeople = true;
               }
+              if(searcheRet[i].persons.length > 3) {
+                this.showSearchAllMember = true;
+              }
+              else {
+                this.showSearchAllMember = false;
+              }
             }
           }
         }
@@ -874,7 +898,14 @@ export default {
             this.showSearchResultIcon();
           })
         })
-        this.isSearch = true;
+        if(this.searchKey.length == 0) {
+          this.isSearch = false;
+          console.log("this.issearch = ", this.isSearch)
+        }
+        else {
+          this.isSearch = true;
+          console.log("this.issearch = ", this.isSearch)
+        }
       }
       else{
         this.isSearch = false;
@@ -920,9 +951,8 @@ export default {
         elementImg.setAttribute("src", iconPath);
         elementImg.setAttribute("height", 32);
 
-        if(fs.existsSync(targetPath = await services.common.downloadFile(this.searchFileItems[i].time_line_id, this.searchFileItems[i].timestamp, this.searchFileItems[i].content.fileName, false))){
-            elementImg.setAttribute("src", targetPath);
-        }
+        var targetDir = confservice.getFilePath(this.searchFileItems[i].timestamp);
+        var targetPath = path.join(targetDir, this.searchFileItems[i].content.fileName);
       }
     },
     showAllSearchUsers: function() {

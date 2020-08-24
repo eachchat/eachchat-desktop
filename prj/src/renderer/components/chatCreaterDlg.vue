@@ -428,7 +428,7 @@ export default {
                             groupItem["group_name"] = ret.group_name;
                             groupItem["group_type"] = ret.group_type;
                             groupItem["last_message_time"] = ret.last_message_time;
-                            groupItem["message_content"] = null;
+                            groupItem["message_content"] = undefined;
                             groupItem["message_content_type"] = ret.message_content_type;
                             groupItem["message_from_id"] = ret.message_from_id;
                             groupItem["message_id"] = ret.message_id;

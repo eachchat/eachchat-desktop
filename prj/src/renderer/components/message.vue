@@ -160,6 +160,7 @@ export default {
                 else{
                     console.log("=======target path download ", targetPath);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true);
+                    this.$toastMessage({message:'文件正在下载，请稍后', time:1500, type:'success'});
                 }
             }
             else if(msgType == 105) {
