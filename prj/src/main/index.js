@@ -15,7 +15,7 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let mainPageWindow
-let soloPage
+let soloPage = null
 let favouriteDetailWindow
 let reportRelationWindow
 let appIcon = null;
@@ -249,9 +249,6 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     title = "聊天记录";
   }
   soloPage = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
     height: 508,
     //useContentSize: true,
     resizable: resizableValue,

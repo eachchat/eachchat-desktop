@@ -252,7 +252,9 @@ export default {
             confservice.init(this.curUserInfo.id);
             // this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
-            
+            if(this.searchKey.length != 0) {
+                this.search();
+            }
             // this.updatePage();
         },
         MsgBelongUserName: function(curMsg) {

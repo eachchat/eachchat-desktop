@@ -2,9 +2,9 @@
     <div class="HistoryMsgDlg" id="HistoryMsgDlgId">
         <!-- <winHeaderBar :showMax="false" @Close="Close" @Min="Min"></winHeaderBar> -->
         <div class="HistoryMsgDlgHeader">
-            <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="isMsgDetail">
-            <div class="HistoryMsgDlgHeaderTitle" v-show="!isMsgDetail"></div>
-            <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px@2x.png" @click="CloseDetail()" v-show="isMsgDetail">
+            <img class="HistoryMsgDlgHeaderImg" id="HistoryMsgDlgHeaderImgId" v-show="showFilter">
+            <div class="HistoryMsgDlgHeaderTitle" v-show="!showFilter"></div>
+            <img class="HistoryMsgDlgHeaderGoback" src="../../../static/Img/Login/back-20px@2x.png" @click="CloseDetail()" v-show="showFilter">
         </div>
         <div class="HistoryMsgDlgContent">
             <div class="search">
@@ -198,7 +198,9 @@ export default {
             confservice.init(this.curUserInfo.id);
             this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
-            
+            if(this.searchKey.length != 0) {
+                this.search();
+            }
             // this.updatePage();
         },
         MsgBelongUserName: function(curMsg) {
@@ -503,6 +505,11 @@ export default {
         ipcRenderer.on("distGroupInfo", (event, receivedSearchKey) => {
             this.receivedSearchKey = receivedSearchKey;
             this.searchKey = receivedSearchKey;
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.search();
+                }, 0)
+            })
         })
         ipcRenderer.on("searchAddedMembers", this.updateSelectedGroups);
         ipcRenderer.on("searchAddedSenders", this.updateSelectedSenders);

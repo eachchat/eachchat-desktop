@@ -968,12 +968,12 @@ export default {
         this.toSearch("");
     },
     showAllSearchFiles: function() {
-      ipcRenderer.send("showAnotherWindow", "", "searchFilesList");
+      ipcRenderer.send("showAnotherWindow", this.searchKey, "searchFilesList");
       this.cleanSearchKey = !this.cleanSearchKey;
       this.toSearch("");
     },
     showAllSearchMessages: function() {
-      ipcRenderer.send("showAnotherWindow", "", "searchMessageList");
+      ipcRenderer.send("showAnotherWindow", this.searchKey, "searchMessageList");
       this.cleanSearchKey = !this.cleanSearchKey;
       this.toSearch("");
     },
