@@ -1379,7 +1379,7 @@ export default {
     async callback(msg, isUpdate=false) {
       // console.log("chat callback msg is ", msg);
       // console.log("chat callback msg content is ", msg.message_content);
-      console.log("chat callback msg is ", msg)
+      // console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
       var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
       if(groupInfo.group_type == 101 && groupInfo.status.substr(5, 1) == "1") {
@@ -1520,7 +1520,7 @@ export default {
           this.showGroupList[i].message_content_type = msg.message_type != undefined ? msg.message_type : msg.message_content_type;
           this.showGroupList[i].message_from_id = msg.message_from_id;
           this.showGroupList[i].message_id = msg.message_id;
-          this.showGroupList[i].sequence_id = msg.sequence_id;
+          this.showGroupList[i].sequence_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.sequence_id : this.showGroupList[i].sequence_id;
           if(this.showGroupList[i].group_type == 102) {
             this.showGroupList[i].group_id = msg.group_id;
           }

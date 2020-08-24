@@ -703,10 +703,10 @@ export default {
                                 else if(curMsg.message_type == 102) {
                                     var fileName = strMsgContentToJson(curMsg.message_content)['fileName'];
                                     var ext = path.extname(fileName);
-                                    var fileDir = confservice.getFilePath(curMsg.message_timestamp);
+                                    var fileDir = confservice.getThumbImagePath(curMsg.message_timestamp);
                                     var filePath = path.join(fileDir, curMsg.message_id + ext);
                                     if(fs.existsSync(filePath)) {
-                                        var dirTmp = confservice.getFilePath(ret.message_timestamp);
+                                        var dirTmp = confservice.getThumbImagePath(ret.message_timestamp);
                                         var pathTmp = path.join(dirTmp, ret.message_id + ext);
                                         var finalPath = await makeFlieNameForConflict(pathTmp);
                                         try{
