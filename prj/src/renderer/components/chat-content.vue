@@ -1228,7 +1228,7 @@ export default {
       }
       else if(chatGroupMsgType === 102)
       {
-        return "[图片]:" + chatGroupMsgContent.fileName;
+        return "[图片]";
       }
       else if(chatGroupMsgType === 103)
       {
@@ -1729,6 +1729,7 @@ export default {
       ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
       ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
       ipcRenderer.on('updateGroupList', this.updateGroupList)
+      ipcRenderer.on('transmitFromFavDlg', this.updateChatList)
   },
   created: async function() {
     await services.common.init();

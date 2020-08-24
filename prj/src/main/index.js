@@ -297,6 +297,10 @@ ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
   mainPageWindow.focus();
 })
 
+ipcMain.on("favourite-update-chatlist", function(event, newMsgInfo) {
+  mainPageWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
+})
+
 ipcMain.on('AnotherClose', function(event, arg) {
   soloPage.close();
 });

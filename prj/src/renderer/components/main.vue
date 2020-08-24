@@ -308,6 +308,14 @@ export default {
             setTimeout(() => {
                 checkUpgrade(this);
             }, 1000 * 3600)
+        },
+        startRefreshToken: function() {
+            async function refreshToken(self) {
+                services.common.refreshToken();
+            }
+            setTimeout(() => {
+                refreshToken(this);
+            }, 1000 * 3600 * 3.5)
         }
     },
     components: {
@@ -339,7 +347,7 @@ export default {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
         await this.getAppBaseData();
         this.startCheckUpgrade();
-
+        this.startRefreshToken();
     },
 }
 </script>

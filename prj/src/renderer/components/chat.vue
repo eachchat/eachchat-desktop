@@ -95,7 +95,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -236,6 +236,9 @@ export default {
         userInfoContent,
     },
     methods: {
+        updateChatList: function(ret) {
+            this.$emit("updateChatList", ret);
+        },
         openUserInfoTip:async function(tipInfos) {
             console.log("tip inso if ", tipInfos);
             if(this.showUserInfoTips && tipInfos.userInfo == undefined) {

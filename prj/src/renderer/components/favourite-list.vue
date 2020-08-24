@@ -155,7 +155,7 @@
             <!-- <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
 
             </chatCreaterDlg> -->
-            <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :transmitCollection="true" :key="transmitKey">
+            <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :transmitCollection="true" :key="transmitKey">
 
             </transmitDlg>
         </el-container>
@@ -272,6 +272,9 @@ export default {
         },
     },
     methods: {
+        updateChatList: function(ret) {
+            ipcRenderer.send("favourite-update-chatlist", ret);
+        },
         testChatCreaterDialog:async function() {
             this.chatCreaterKey ++;
             var self = await services.common.GetSelfUserModel();

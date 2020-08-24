@@ -90,7 +90,7 @@ import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
 import { object } from '../../packages/core/types'
 import confservice from '../../packages/data/conf_service';
-import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
+import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict } from '../../packages/core/Utils.js'
 import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
@@ -522,6 +522,12 @@ export default {
                         willSendMsgContent)
                     .then((ret) => {
                         console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
+                            if(ret == undefined) {
+                                return false;
+                            }
+                            else {
+                                this.$emit('updateChatList', ret);
+                            }
                     })
             }
         },
@@ -538,6 +544,7 @@ export default {
                     }
                     var isOk = true;
                     var curMsgContent = {};
+                    let curTimeSeconds = new Date().getTime();
                     if(curMsg.collection_type == 101) {
                         if(curMsg.collection_content["text"] == undefined){
                             isOk = false;
@@ -574,7 +581,6 @@ export default {
 
                     var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
                     var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
-                    let curTimeSeconds = new Date().getTime();
                     
                     let sendingMsgContentType = curMsg.collection_type;
                     let willSendMsgContent = curMsgContent;
@@ -588,8 +594,53 @@ export default {
                             uid, 
                             curTimeSeconds, 
                             willSendMsgContent)
-                        .then((ret) => {
-                            console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
+                        .then(async (ret) => {
+                            console.log("send sendNewMessage message ret ", ret)
+                            if(ret == undefined) {
+                                return false;
+                            }
+                            else {
+                                if(curMsg.collection_type == 103) {
+                                    var fileDir = confservice.getFilePath(curMsg.timestamp);
+                                    var filePath = path.join(fileDir, curMsg.collection_content.fileName);
+                                    if(fs.existsSync(filePath)) {
+                                        var nameTmp = strMsgContentToJson(ret.message_content)["fileName"];
+                                        var dirTmp = confservice.getFilePath(ret.message_timestamp);
+                                        var pathTmp = path.join(dirTmp, nameTmp);
+                                        var finalPath = await makeFlieNameForConflict(pathTmp);
+                                        try{
+                                            console.log("copy file from ", filePath, " to ", finalPath);
+                                            fs.copyFileSync(filePath, finalPath);
+                                            services.common.SetFilePath(ret.message_id, finalPath);
+                                        }
+                                        catch(error) {
+                                            console.log("copyFile except ", error);
+                                        }
+
+                                    }
+                                }
+                                else if(curMsg.collection_type == 102) {
+                                    var fileDir = confservice.getThumbImagePath(curMsg.timestamp);
+                                    var filePath = path.join(fileDir, curMsg.collection_content.fileName);
+                                    console.log("the img path is ", filePath);
+                                    if(fs.existsSync(filePath)) {
+                                        var nameTmp = strMsgContentToJson(ret.message_content)["fileName"];
+                                        var dirTmp = confservice.getThumbImagePath(ret.message_timestamp);
+                                        var pathTmp = path.join(dirTmp, nameTmp);
+                                        var finalPath = await makeFlieNameForConflict(pathTmp);
+                                        try{
+                                            console.log("copy file from ", filePath, " to ", finalPath);
+                                            fs.copyFileSync(filePath, finalPath);
+                                            services.common.SetFilePath(ret.message_id, finalPath);
+                                        }
+                                        catch(error) {
+                                            console.log("copyFile except ", error);
+                                        }
+
+                                    }
+                                }
+                                this.$emit('updateChatList', ret);
+                            }
                         })
                 }
         },
@@ -600,6 +651,7 @@ export default {
             for(var i=0;i<distGroups.length;i++){
                 for(var j=0;j<msgs.length;j++) {
                     var curMsg = msgs[j];
+                    console.log("curMsg is ", curMsg);
                     if(curMsg.message_type == 105) {
                         continue;
                     }
@@ -622,8 +674,52 @@ export default {
                             uid, 
                             curTimeSeconds, 
                             willSendMsgContent)
-                        .then((ret) => {
+                        .then(async (ret) => {
                             console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
+                            if(ret == undefined) {
+                                return false;
+                            }
+                            else {
+                                if(curMsg.message_type == 103) {
+                                    var filePath = await services.common.GetFilePath(curMsg.message_id);
+                                    if(!fs.existsSync(filePath)) {
+                                        var fileDir = confservice.getFilePath(curMsg.message_timestamp);
+                                        var filePath = path.join(fileDir, strMsgContentToJson(curMsg.message_content)['fileName']);
+                                    }
+                                    if(fs.existsSync(filePath)) {
+                                        var nameTmp = strMsgContentToJson(ret.message_content)["fileName"];
+                                        var dirTmp = confservice.getFilePath(ret.message_timestamp);
+                                        var pathTmp = path.join(dirTmp, nameTmp);
+                                        var finalPath = await makeFlieNameForConflict(pathTmp);
+                                        try{
+                                            console.log("copy file from ", filePath, " to ", filePath);
+                                            fs.copyFileSync(filePath, finalPath);
+                                        }
+                                        catch(error) {
+                                            console.log("copyFile except ", error);
+                                        }
+                                    }
+                                }
+                                else if(curMsg.message_type == 102) {
+                                    var fileName = strMsgContentToJson(curMsg.message_content)['fileName'];
+                                    var ext = path.extname(fileName);
+                                    var fileDir = confservice.getFilePath(curMsg.message_timestamp);
+                                    var filePath = path.join(fileDir, curMsg.message_id + ext);
+                                    if(fs.existsSync(filePath)) {
+                                        var dirTmp = confservice.getFilePath(ret.message_timestamp);
+                                        var pathTmp = path.join(dirTmp, ret.message_id + ext);
+                                        var finalPath = await makeFlieNameForConflict(pathTmp);
+                                        try{
+                                            console.log("copy file from ", filePath, " to ", finalPath);
+                                            fs.copyFileSync(filePath, finalPath);
+                                        }
+                                        catch(error) {
+                                            console.log("copyFile except ", error);
+                                        }
+                                    }
+                                }
+                                this.$emit('updateChatList', ret);
+                            }
                         })
                 }
             }

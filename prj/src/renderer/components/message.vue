@@ -43,11 +43,11 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip" v-if="isGroup">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src='../../../static/Img/User/user-40px@2x.png' alt="头像" @click="showUserInfoTip" v-else>
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()"  :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip" v-if="isGroup">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
@@ -429,6 +429,22 @@ export default {
             }
             else {
                 return false;
+            }
+        },
+        getMsgBelongUserImg: function() {
+            if(this.userInfo != undefined) {
+                var targetDir = confservice.getFilePath();
+                var targetFileName = this.userInfo.user_id + ".png";
+                var targetPath = confservice.getUserThumbHeadLocalPath(this.userInfo.user_id);
+                if(fs.existsSync(targetPath)) {
+                    return targetPath;
+                }
+                else {
+                    return "../../../static/Img/User/user-40px@2x.png";
+                }
+            }
+            else {
+                return "../../../static/Img/User/user-40px@2x.png";
             }
         },
         MsgBelongUserImg: async function () {
