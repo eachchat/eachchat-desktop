@@ -1516,10 +1516,10 @@ export default {
             }
           }
           this.showGroupList[i].last_message_time = msg.message_timestamp;
-          this.showGroupList[i].message_content = msg.message_content;
           this.showGroupList[i].message_content_type = msg.message_type != undefined ? msg.message_type : msg.message_content_type;
-          this.showGroupList[i].message_from_id = msg.message_from_id;
-          this.showGroupList[i].message_id = msg.message_id;
+          this.showGroupList[i].message_from_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_from_id : this.showGroupList[i].message_from_id;
+          this.showGroupList[i].message_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_id : this.showGroupList[i].message_id;
+          this.showGroupList[i].message_content = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_content : this.showGroupList[i].message_content;
           this.showGroupList[i].sequence_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.sequence_id : this.showGroupList[i].sequence_id;
           if(this.showGroupList[i].group_type == 102) {
             this.showGroupList[i].group_id = msg.group_id;
