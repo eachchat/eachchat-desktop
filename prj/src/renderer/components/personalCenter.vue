@@ -73,8 +73,8 @@ export default {
         },
         personalCenterIconClicked(){
             const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('open-image-dialog', 'openFile');
-            ipcRenderer.on('selectedImageItem', this.nHandleFiles);
+            ipcRenderer.send('open-image-dialog-avatar', 'openFile');
+            ipcRenderer.on('selectedAvatarImageItem', this.nHandleFiles);
             
         },
         nHandleFiles:async function(e, paths) {
