@@ -13,7 +13,10 @@
                     <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
                 </div>
-                <div class="groupInfoNotice" @click="updateGroupNotice">
+                <div class="peopleInfo" v-if="!isGroup">
+                    <input class="peopleInfoInput" id="peopleInfoInputId" type="text" :disabled="!isOwner" v-model="peopleState" name="peopleInfo" placeholder="未设置"/>
+                </div>
+                <div class="groupInfoNotice" @click="updateGroupNotice" v-else>
                     <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" :disabled="!isOwner" v-model="groupNotice" name="groupInfoNotice" placeholder="未设置" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
                     <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
                 </div>
@@ -85,6 +88,7 @@ import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
+import { UserInfo } from '../../packages/data/sqliteutil.js'
 export default {
     name: 'group-info',
     data() {
@@ -99,6 +103,7 @@ export default {
             groupName: '',
             groupAvarar: '',
             groupNotice: '',
+            peopleState: '',
             slienceState: true,
             groupTopState: true,
             groupFavouriteState: true,
@@ -472,7 +477,7 @@ export default {
                 this.wholeTipElement = document.getElementById("groupInfoTipId");
                 // console.log("this.wholeTipElement ", this.wholeTipElement)
             }
-            // console.log("this.showGroupInfo ", this.showGroupInfo)
+            console.log("this.showGroupInfo ", this.showGroupInfo)
             // console.log("this.wholeTipElement ", this.wholeTipElement)
             if(this.showGroupInfo.groupNotice == undefined || this.wholeTipElement == null) {
                 return;
@@ -488,7 +493,14 @@ export default {
             this.groupFavouriteState = this.showGroupInfo.isFav;
             this.isOwner = this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
             this.ownerId = this.showGroupInfo.ownerId;
-            // console.log("this.groupTopState ", this.groupTopState)
+            if(this.showGroupInfo.groupType == 102) {
+                var ownerUserInfo = await UserInfo.GetUserInfo(this.ownerId);
+                console.log("ownerUserInfo ", ownerUserInfo);
+                if(ownerUserInfo != undefined) {
+                    this.peopleState = ownerUserInfo.status_description;
+                }
+            }
+            console.log("this.peopleState ", this.peopleState)
             // console.log("this.slienceState ", this.slienceState)
             var adddedMemberId = [];
             for(var i=0;i<this.memberList.length;i++) {
@@ -815,6 +827,52 @@ export default {
     background-size: auto 100%;
     background-image: url("../../../static/Img/Chat/edit-20px@2x.png");
     background-repeat: no-repeat;
+}
+
+.peopleInfo{
+    width: 100%;
+    display: inline-block;
+}
+
+.peopleInfoInput {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    font-size: 12px;
+    color: rgba(153, 153, 153, 1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+
+.peopleInfoInput:disabled {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    font-size: 12px;
+    color: rgba(103, 103, 103, 1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: white;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+
+.peopleInfoInput:focus {
+    width: calc(100% - 30px);
+    border: 0px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    font-size: 12px;
+    color: rgba(103, 103, 103, 1);
+    outline: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    letter-spacing: 1px;
 }
 
 .groupInfoNotice {
