@@ -10,6 +10,7 @@ global.navigator = {
 */
 import JSEncrypt from 'jsencrypt'
 import CryptoJS from "crypto-js"
+import {Base64} from "js-base64"
 
 class SqliteEncrypt{
     constructor(path){
@@ -53,6 +54,10 @@ class SqliteEncrypt{
         MQIDAQAB\
         -----END PUBLIC KEY-----";
         this.decryption = new JSEncrypt(); 
+        this.rsaPrivate = new NodeRSA();
+        this.rsaPublic = new NodeRSA();
+        this.rsaPrivate.importKey(this.privateKey, "pkcs8-private");
+        this.rsaPublic.importKey(this.pubkeyOriginal, "pkcs8-public");
     }
 
     decrypt(crypted){
@@ -78,28 +83,20 @@ class SqliteEncrypt{
         return this.decryption.verify(shaValue, signature, CryptoJS.SHA256);
     }
 
-    getAesString(data,key,iv){
-        var key  = CryptoJS.enc.Utf8.parse(key);
-        var iv   = CryptoJS.enc.Utf8.parse(iv);
-        var encrypted =CryptoJS.AES.encrypt(data,key,
-            {
-                iv:iv,
-                mode:CryptoJS.mode.CBC,
-                padding:CryptoJS.pad.Pkcs7
-            });
-        return encrypted.toString();    //返回的是base64格式的密文
+    decryptAes(crypted){
+        crypted = "hauW3QAJ2aH9FRLyIucm9i7J4t/2WneiP1p+U175qtpWpaeDpSFMDnVlB40rj8P9RIbwH325JdGR18JMOHyp1Be+bw2c9GEViKpMFnp2AcvbDCqlNbaY+JzrfuZzpFNPccbxQ45WzJDycoCrUqx8Sq55pDCf1wZ+YNpM+5b0WOowOvlKCS4g38FO3uwdbkXSW5KUHAUSJ/3s4dEDKCUp0wH/RckMGRw0FHOXtsNhi7iMf5tpTxbTOMCHjCsIs5cMJdBV+Kc16/IQYWeN9XIRT6+N+vOc/q06+hZXJiBlCH71gExnQn3f9Z+GviZP8OyU9aIpBLwuD26Xu3zY0KPc6g==";
+        let tt = this.rsaPublic.encrypt("secret", "utf8");
+        //crypted = Base64.decode(crypted);
+        let utf8data =  this.rsaPrivate.decrypt(crypted, "utf8");
+        let base64Data = this.rsaPrivate.decrypt(crypted, "base64");
+        let bufferData =this.rsaPrivate.decrypt(crypted, "buffer");
+        let binData =this.rsaPrivate.decrypt(crypted, "binary");
+        console.log(binData)
     }
 
-    getDAesString(encrypted,key,iv){//解密
-        var key  = CryptoJS.enc.Utf8.parse(key);
-        var iv   = CryptoJS.enc.Utf8.parse(iv);
-        var decrypted =CryptoJS.AES.decrypt(encrypted,key,
-            {
-                iv:iv,
-                mode:CryptoJS.mode.CBC,
-                padding:CryptoJS.pad.Pkcs7
-            });
-        return decrypted.toString(CryptoJS.enc.Utf8);
+    
+
+    getDAesString(){//解密
     }
 
     uint8ToString(uint8){
@@ -122,6 +119,64 @@ class SqliteEncrypt{
 
 }
 
+class AESEncrypt{
+    encrypt(data,key,iv){
+        //let keyValue  = CryptoJS.enc.Utf8.parse(key);
+        //let ivValue   = CryptoJS.enc.Utf8.parse(iv);
+        
+        var encrypted = CryptoJS.AES.encrypt(data, key,
+            {
+                iv: iv,
+                mode:CryptoJS.mode.CBC,
+                padding:CryptoJS.pad.Pkcs7
+            });
+        return encrypted.toString();    //返回的是base64格式的密文
+        //return encrypted.ciphertext.toString();
+    }
+
+    decrypt(encrypted,key,iv)
+    {
+        var decrypted = CryptoJS.AES.decrypt(encrypted,
+            key,
+            {
+                iv: iv,
+                mode:CryptoJS.mode.CBC,
+                padding:CryptoJS.pad.Pkcs7
+            });
+        //let text = decrypted.toString();
+        let tt = CryptoJS.enc.Utf8.stringify(decrypted).toString()
+        let text = decrypted.toString(CryptoJS.enc.Utf8).toString();
+        return text;
+    }
+
+    test(){
+        let base64CryptoMsg = "O03pNk4ofXeMp4Lr2U4y2Q==";
+        let hexSecretKey = "03c49bf5e1f9b0ce334938d20acfecbef517cbed282bbab32cea3b2bfd1b08c8";
+        let IosSecretKey = "A8Sb5aG5zrNJONKKz6zutZfLrSgr6rOs6rur7ZuIyIA";
+        let base64SecretKey = "6LCmY9-XIM6UK-uNlO-3teOTvcm555q75YeS7p-bPA";
+        let secretiv = "VXl4akZuOXRWb1hSWWRadw=="
+
+        //let base64decodeMsg = Base64.decode(base64CryptoMsg);
+        let base64decodeKey = Base64.decode(base64SecretKey);
+        let base64decodeIV = Base64.decode(secretiv);
+
+        let arrayKey = CryptoJS.enc.Utf8.parse(base64decodeKey);
+        let arrayIV = CryptoJS.enc.Utf8.parse(base64decodeIV);
+
+
+        let message = "hello";
+        let messageHex = CryptoJS.enc.Utf8.parse(message);
+        let encryptData = this.encrypt(messageHex, arrayKey, arrayIV);
+        //encryptData = "DVP0F5BKVhe7jYpjMc2jJgz5dtrAhG7d2xhwmcfwUSA=";
+        //encryptData = "Hi8EEtoWqWROop4viYdgXwQ/tzykWuTWx48RhUBK0adeL6QGLQFwuTSrSW5znkQT";
+        //var encryptedHexStr = CryptoJS.enc.Hex.parse(encryptData);
+        //var srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
+        let dccryptData = this.decrypt(encryptData, arrayKey, arrayIV);
+        return dccryptData;
+    }
+}
+
 export{
-    SqliteEncrypt
+    SqliteEncrypt,
+    AESEncrypt
 }

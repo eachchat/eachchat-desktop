@@ -314,7 +314,8 @@ const servicemodels = {
         un_read_count :         undefined,
         draft :                 undefined,
         message_id:             undefined,
-        updatetime:             undefined
+        updatetime:             undefined,
+        key_id:                 undefined
       }
 
       var groupmap = 
@@ -337,7 +338,8 @@ const servicemodels = {
         "fromId":     "message_from_id",  
         "msgContentType":"message_content_type",
         "timestamp": "last_message_time",
-        "msgId":      "message_id"
+        "msgId":      "message_id",
+        "secretId":   "key_id"
       }
       var objmap = {
         "noReaderCount": "un_read_count" 
@@ -364,7 +366,10 @@ const servicemodels = {
       {
         groupvalue[messagemap[key]] = groupitem["message"][key];
       }
-      groupvalue["message_content"] = JSON.stringify(groupitem["message"]["content"]);  
+      if(groupitem["message"].secretId == undefined)
+        groupvalue["message_content"] = JSON.stringify(groupitem["message"]["content"]);  
+      else
+        groupvalue["message_content"] = groupitem["message"]["content"]; 
 
       for(let key in objmap)
       {

@@ -250,7 +250,8 @@ var models = {
           un_read_count:         types.integer,
           draft:                 types.string,
           message_id:            types.string,
-          updatetime:            types.integer
+          updatetime:            types.integer,
+          key_id:                types.string
         },
         primaryKey: "group_id"
       });
@@ -271,7 +272,8 @@ var models = {
           sequence_id:        types.string,
           message_timestamp:  types.integer,
           message_content:    types.string,
-          file_local_path:    types.string
+          file_local_path:    types.string,
+          key_id:             types.string
         },
         primaryKey: "message_id"
       });

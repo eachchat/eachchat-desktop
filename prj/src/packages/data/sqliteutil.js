@@ -684,7 +684,18 @@ const Secret = {
 
     async GetAllSecret(){
         return await (await model.Secret).find();
+    },
+
+    async FindByKeyID(keyID){
+        let secrets = await (await models.Secret).find({
+            key_id: keyID
+        })
+        if(secrets.length != 0)
+            return secrets[0];
+        return undefined;
     }
+
+
 }
 
 export{

@@ -1914,6 +1914,7 @@ const common = {
   },
 
   async GetAesSecret(){
+    this.data.aesSecret = [];
     let randomGuid = generalGuid();
     let encryption = new SqliteEncrypt();
     let signValue = encryption.sign(randomGuid);
@@ -1924,15 +1925,70 @@ const common = {
     let secrets = response.data.results;
     let secretModel;
     for(let item of secrets){
-      item.key = encryption.decrypt(item.key);
-      item.key = Base64.encode(item.key, true);
+      let decryptKey = encryption.decrypt(item.key);
+      //let tt = encryption.decryptAes(item.key)
+      item.key = Base64.encode(decryptKey, true);
       item.vector = encryption.decrypt(item.vector);
       item.vector = Base64.encode(item.vector);
       secretModel = await servicemodels.SecretModel(item);
       secretModel.save();
       this.data.aesSecret.push(secretModel);
-      //Secret.InsertSecret(secretModel);
     }
+  },
+
+  async UpdateSecretGroups(){
+
+  },
+
+  async ListSecretGroups(){
+    let sequenceID = 0;
+    let perPage = 50;
+    let result;
+    let bNext = true;
+    let messageModel;
+    let groupmodel;
+    let groupvalue;
+    while(bNext){
+      result = await this.api.ListAllSecretGroup(this.data.login.access_token, 0, perPage);
+      if (!result.ok || !result.success) {
+        return result;
+      }
+  
+      if (result.data == undefined) {
+        return result;
+      }
+      bNext = result.data.hasNext;
+      for(let item of result.data.results){
+        groupvalue = item;
+        groupmodel = await servicemodels.GroupsModel(groupvalue)
+        if(groupmodel == undefined)
+        {
+          continue
+        }
+        // if(groupmodel.status[5] != 1){
+        let keyID = groupmodel.key_id;
+        let findKeyID = await Secret.FindByKeyID(keyID);
+        if(findKeyID == undefined){
+          await this.GetAesSecret();
+          findKeyID = await Secret.FindByKeyID(keyID);
+        }
+        let sourceKey = Base64.decode(findKeyID.key_id);
+        let sourceVector = Base64.decode(findKeyID.vector);
+
+        groupmodel.save();
+        //groupmodel.message = JSON.parse(groupmodel.message_content);
+        messageModel = await servicemodels.MessageModel(groupvalue.message)
+        if(!await Message.ExistMessageBySequenceID(messageModel.sequence_id))
+        {
+          messageModel.save();
+        }          
+      }
+    }
+  
+  },
+
+  async IncrementSecretGroups(){
+
   }
 };
 
