@@ -397,12 +397,12 @@ export default {
                 }));
             }
             else if(msgItem.message_type == 102) {
-                this.menu.append(new MenuItem({
-                    label: "复制",
-                    click: () => {
-                        this.menuCopy(msgItem)
-                    }
-                }));
+                // this.menu.append(new MenuItem({
+                //     label: "复制",
+                //     click: () => {
+                //         this.menuCopy(msgItem)
+                //     }
+                // }));
                 this.menu.append(new MenuItem({
                     label: "转发",
                     click: () => {
@@ -676,6 +676,7 @@ export default {
         },
         multiToolsClose() {
             this.multiSelect = false;
+            this.cleanSelected();
             this.selectedMsgs = [];
         },
         showCheckboxOrNot(curMsg) {
@@ -1692,6 +1693,7 @@ export default {
                             catch(error) {
                                 console.log("copyFile except ", error);
                             }
+                            services.common.SetFilePath(guid, finalPath);
 
                             var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.curUserInfo.id) + 1;
                                 
@@ -1794,7 +1796,6 @@ export default {
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].message_id == guid){
                                                         ret.file_local_path = finalPath;
-                                                        services.common.SetFilePath(ret.message_id, finalPath);
                                                         this.messageList[i] = ret;
                                                         this.updatemsgStatus = {
                                                             "id": guid,
@@ -1946,8 +1947,9 @@ export default {
                             let guid = generalGuid();
                             
                             var nameTmp = path.basename(filePath);
+                            var extTmp = path.extname(nameTmp);
                             var dirTmp = confservice.getFilePath(curTimeSeconds);
-                            var pathTmp = path.join(dirTmp, nameTmp);
+                            var pathTmp = path.join(dirTmp, guid + extTmp);
                             var finalPath = await makeFlieNameForConflict(pathTmp);
                             try{
                                 console.log("copy file from ", filePath, " to ", filePath);
@@ -1956,6 +1958,7 @@ export default {
                             catch(error) {
                                 console.log("copyFile except ", error);
                             }
+                            services.common.SetFilePath(guid, finalPath);
 
                             var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.curUserInfo.id) + 1;
                                 

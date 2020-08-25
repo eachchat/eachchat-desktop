@@ -344,6 +344,16 @@ export default {
         this.callback(newMsg, false);
       }
     },
+    eventUpdateChatList(event, newMsg) {
+      console.log("updateChatList newMsg ", newMsg);
+      // ++this.needUpdate;
+      if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
+        this.callback(newMsg, true);
+      }
+      else{
+        this.callback(newMsg, false);
+      }
+    },
     closeSearchChatFilterDlg() {
         this.showSearchSelecterDlg = false;
         this.searchSelectedGroupIds = [];
@@ -1474,13 +1484,18 @@ export default {
             }
           }
         }
+        var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
         if(this.isWindows()) {
           if(this.$store.getters.flashNotice()) {
-            ipcRenderer.send("flashIcon", fromName, notificateContent);
+            if(!this.groupIsSlience(groupInfo)) {
+              ipcRenderer.send("flashIcon", fromName, notificateContent);
+            }
           }
           try{
             if(this.$store.getters.soundNotice()) {
-              this.amr.play();
+              if(!this.groupIsSlience(groupInfo)) {
+                this.amr.play();
+              }
             }
           }
           catch(e) {
@@ -1489,7 +1504,9 @@ export default {
         }
         else {
           if(this.$store.getters.flashNotice()) {
-            ipcRenderer.send("showNotice", fromName, notificateContent);
+            if(!this.groupIsSlience(groupInfo)) {
+              ipcRenderer.send("showNotice", fromName, notificateContent);
+            }
           }
         }
       }
@@ -1549,7 +1566,7 @@ export default {
           this.showGroupList[i].message_content_type = msg.message_type != undefined ? msg.message_type : msg.message_content_type;
           this.showGroupList[i].message_from_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_from_id : this.showGroupList[i].message_from_id;
           this.showGroupList[i].message_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_id : this.showGroupList[i].message_id;
-          this.showGroupList[i].message_content = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_content : this.showGroupList[i].message_content;
+          this.showGroupList[i].message_content = msg.message_content;
           this.showGroupList[i].sequence_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.sequence_id : this.showGroupList[i].sequence_id;
           if(this.showGroupList[i].group_type == 102) {
             this.showGroupList[i].group_id = msg.group_id;
@@ -1759,7 +1776,7 @@ export default {
       ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
       ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
       ipcRenderer.on('updateGroupList', this.updateGroupList)
-      ipcRenderer.on('transmitFromFavDlg', this.updateChatList)
+      ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
     await services.common.init();

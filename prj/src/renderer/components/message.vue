@@ -108,7 +108,7 @@ export default {
         getMessageTemplateId: function() {
             return "message-template-" + this.msg.message_id;
         },
-        showUserInfoTip: function() {
+        showUserInfoTip: async function() {
             if(this.userIconElement == undefined) {
                 this.userIconElement = document.getElementById(userIconElementId);
             }
@@ -118,6 +118,9 @@ export default {
             }
             var curAbsoluteTop = getElementTop(this.userIconElement);
             var curAbsoluteLeft = getElementLeft(this.userIconElement);
+            if(this.userInfo == undefined) {
+                await this.msgUserInfo()
+            }
             var tipInfos = {
                 "userInfo": this.userInfo,
                 "absoluteTop": curAbsoluteTop,
@@ -280,10 +283,14 @@ export default {
             }
             else if(chatGroupMsgType === 102)
             {
+                var imgMsgImgElement = document.getElementById(this.msg.message_id);
+                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
                 var targetPath = this.msg.file_local_path;
+                if(!fs.existsSync(targetPath)) {
+                    targetPath = await services.common.GetFilePath(this.msg.message_id);
+                }
                 if(fs.existsSync(targetPath)) {
-                    var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");let imageHeight = 100;
+                    let imageHeight = 100;
                     if(chatGroupMsgContent.imgHeight < 100){
                         imageHeight = chatGroupMsgContent.imgHeight;
                     }
@@ -296,8 +303,6 @@ export default {
                     var targetFileName = chatGroupMsgContent.fileName;
                     var theExt = path.extname(targetFileName);
                     var needOpen = false;
-                    var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
                     if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false))) {
                         //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                         let imageHeight = 100;
@@ -316,8 +321,8 @@ export default {
                 this.fileName = chatGroupMsgContent.fileName;
                 this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
                 
-                var targetFileName = chatGroupMsgContent.fileName;
-                var theExt = path.extname(targetFileName);
+                // var targetFileName = chatGroupMsgContent.fileName;
+                // var theExt = path.extname(targetFileName);
                 var targetPath = await services.common.GetFilePath(this.msg.message_id);
                 
                 var needOpen = false;
@@ -433,10 +438,10 @@ export default {
             }
         },
         getMsgBelongUserImg: function() {
-            if(this.userInfo != undefined) {
+            if(this.msg != undefined) {
                 var targetDir = confservice.getFilePath();
-                var targetFileName = this.userInfo.user_id + ".png";
-                var targetPath = confservice.getUserThumbHeadLocalPath(this.userInfo.user_id);
+                var targetFileName = this.msg.message_from_id + ".png";
+                var targetPath = confservice.getUserThumbHeadLocalPath(this.msg.message_from_id);
                 if(fs.existsSync(targetPath)) {
                     return targetPath;
                 }
@@ -451,7 +456,7 @@ export default {
         MsgBelongUserImg: async function () {
             // var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
             // console.log("MsgBelongUserImg this.userInfo is ", this.userInfo)
-            if(this.userInfo == undefined || this.userInfo == null) {
+            if(this.msg == undefined) {
                 return;
             }
             var userIconElementId = this.getUserIconId();
@@ -472,8 +477,8 @@ export default {
             }
             // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
             var targetDir = confservice.getFilePath();
-            var targetFileName = this.userInfo.user_id + ".png";
-            var targetPath = confservice.getUserThumbHeadLocalPath(this.userInfo.user_id);
+            var targetFileName = this.msg.message_from_id + ".png";
+            var targetPath = confservice.getUserThumbHeadLocalPath(this.msg.message_from_id);
             // console.log("msg target path is ", targetPath);
 
             if(fs.existsSync(targetPath)){
@@ -487,10 +492,19 @@ export default {
                 // }
             }
             else{
+                var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
+                // console.log("userInfo is ", userInfos)
+                if(userInfos == undefined || userInfos.length == 0) {
+                    console.log("err");
+                    this.userInfo = {};
+                    return;
+                }
+
+                this.userInfo = userInfos[0];
                 var distTAvarar = this.userInfo.avatar_t_url;
                 // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
                 // console.log("message downloag group avatar target path is ", targetPath);
-                services.common.downloadUserTAvatar(distTAvarar, this.userInfo.user_id);
+                services.common.downloadUserTAvatar(distTAvarar, this.msg.message_from_id);
                 // this.checkAndLoadUserImage(targetPath);
             }
 
@@ -551,7 +565,7 @@ export default {
     },
     mounted: async function() {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
-        await this.msgUserInfo();
+        // await this.msgUserInfo();
         // var userIconElementId = this.getUserIconId();
         // if(this.userIconElement == undefined) {
         //     this.userIconElement = document.getElementById(userIconElementId);
@@ -575,7 +589,7 @@ export default {
     },
     watch: {
         msg: async function() {
-            await this.msgUserInfo();
+            // await this.msgUserInfo();
             var userIconElementId = this.getUserIconId();
             if(this.userIconElement == undefined) {
                 this.userIconElement = document.getElementById(userIconElementId);
@@ -670,7 +684,7 @@ export default {
             var id = this.updateUser[2];
             var localPath = this.updateUser[3];
 
-            if(this.userInfo != undefined && id == this.userInfo.user_id) {
+            if(id == this.msg.message_from_id) {
                 var userIconElementId = this.getUserIconId();
                 var userIconElement = document.getElementById(userIconElementId);
                 if(fs.existsSync(localPath)){

@@ -173,6 +173,11 @@ export default {
             if(this.GroupInfo.group_id == undefined) {
                 return;
             }
+            var showPosition = this.calcImgPosition();
+            console.log("showPositon is ", showPosition)
+            this.OwnerTransferDlgElement.style.left = showPosition.left.toString() + "px";
+            this.OwnerTransferDlgElement.style.top = showPosition.top.toString() + "px";
+            
             this.memberIdList = [];
             this.memberIdList = this.GroupInfo.contain_user_ids.split(",");
             console.log("this member list is ", this.memberIdList);
@@ -194,10 +199,6 @@ export default {
             this.ownerId = this.GroupInfo.owner;
             this.groupId = this.GroupInfo.group_id; 
 
-            var showPosition = this.calcImgPosition();
-            console.log("showPositon is ", showPosition)
-            this.OwnerTransferDlgElement.style.left = showPosition.left.toString() + "px";
-            this.OwnerTransferDlgElement.style.top = showPosition.top.toString() + "px";
         }
     }
 }

@@ -132,8 +132,11 @@ export default {
             // }
             // console.log("target 2 = ", targetPath);
             // if(targetPath.length == 0) {
-            var targetDir = confservice.getThumbImagePath(this.imgSrcInfo.message_timestamp);
-            var targetPath = path.join(targetDir, this.imgSrcInfo.message_id + ext);
+            var targetPath = this.imgSrcInfo.file_local_path;
+            if(!fs.existsSync(targetPath)) {
+                var targetDir = confservice.getThumbImagePath(this.imgSrcInfo.message_timestamp);
+                targetPath = path.join(targetDir, this.imgSrcInfo.message_id + ext);
+            }
             // }
             console.log("target 3 = ", targetPath);
             if(fs.existsSync(targetPath)) {
