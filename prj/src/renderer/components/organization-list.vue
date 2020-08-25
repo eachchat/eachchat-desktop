@@ -734,7 +734,7 @@ display: none;
     width: 100%;
     height: 56px;
     background-color: rgb(255, 255, 255);
-    //border-bottom: 1px solid rgb(221, 221, 221);
+    border-bottom: 1px solid rgb(238, 238, 238);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
     -webkit-app-region: drag;
     //-webkit-app-region: drag;

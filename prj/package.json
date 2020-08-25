@@ -29,6 +29,7 @@
       "dist/electron/**/*"
     ],
     "dmg": {
+      "sign": false,
       "contents": [
         {
           "x": 410,
@@ -44,8 +45,14 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/mac/icon.icns"
+      "icon": "build/icons/mac/icon.icns",
+      "identity": "Beijing Yunify Technology Co., Ltd.",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
     },
+    "afterSign": "scripts/notarize.js",
     "win": {
       "icon": "./static/Img/logo.ico"
     },
@@ -115,6 +122,7 @@
     "electron-builder": "^20.19.2",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
+    "electron-notarize": "^1.0.0",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
     "js-base64": "^2.5.2",
