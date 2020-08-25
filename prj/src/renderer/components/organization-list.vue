@@ -512,7 +512,7 @@ export default {
             //     tempDepartments[departmentModels[i].show_order] = departmentModels[i];
             // }
             var organization = {};
-            organization.departments = departmentModels; //tempDepartments;
+            organization.departments = departmentModels.sort(this.compare("show_order")); //tempDepartments;
             organization.users = await UserInfo.GetSubUserinfo(id);
             if (level == this.organizationList.length - 1) {
                 this.organizationList.push(organization);
@@ -677,6 +677,13 @@ export default {
             }
             
         },
+        compare(property){
+            return function(a,b){
+                var value1 = a[property];
+                var value2 = b[property];
+                return value1 - value2;
+            }
+        }
     },
     created: async function() {
         await this.getAppBaseData();
@@ -927,6 +934,9 @@ display: none;
     color:rgba(153,153,153,1);
     letter-spacing:1px;
     font-family: PingFangSC-Regular;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
 }
 .department-info {
     display: inline-block;
@@ -935,6 +945,8 @@ display: none;
     width: calc(100% - 92px);
 }
 .department-name {
+    display: flex;
+    place-items: center;
     text-align: left;
     height: 20px;
     width: 70%;

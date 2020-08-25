@@ -354,6 +354,7 @@ export default {
     font-family: PingFangSC-Medium;
 }
 .userInfo-title {
+    width: 100%;
     height: 18px;
     margin: 0px;
     font-weight: 400;
@@ -363,6 +364,9 @@ export default {
     letter-spacing: 1px;
     color: rgb(153, 153, 153);
     font-family: PingFangSC-Regular;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
 }
 .userInfoAction-view {
     height: 48px;

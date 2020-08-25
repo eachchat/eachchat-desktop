@@ -65,7 +65,7 @@
                                 <p class="checkBox-label">已选{{ selectedUsers.length }}人</p>
                             </div>
                         </div>
-                        <div class="OrganizationSubViewContent">
+                        <div class="OrganizationSubViewContent" :style="{height:viewContentHeight}">
                             <div class="subDepartmentView">
                                 <ul class="subDepartmentList">
                                     <li class="subDepartment" v-for="(department, index) in curSubDepartments"  :key="index" >
@@ -191,6 +191,7 @@ export default {
             imgHeight: 468,
             imgWidth: 624,
             dlgPosition:{},
+            viewContentHeight:202,
 
             showRootDepartmentView:true,
             showOrganizationView:true,
@@ -707,6 +708,12 @@ export default {
                     this.getUserImg(this.curUsers[i]);
                 }
             });
+            this.updateViewHeight();
+        },
+        updateViewHeight:function(){
+            var headerElement = document.getElementsByClassName("OrganizationSubViewHeader")[0];
+            //var contentElement = document.getElementsByClassName("OrganizationSubViewContent")[0];
+            this.viewContentHeight = 282 - headerElement.clientHeight + "px";
         },
         getDepartmentSubAllUsers:function (department) {
             var tempAllUsers = [];
@@ -896,6 +903,13 @@ export default {
             }
             return tempUser;
         },
+        compare(property){
+            return function(a,b){
+                var value1 = a[property];
+                var value2 = b[property];
+                return value1 - value2;
+            }
+        }
     },
     components: {
     },
@@ -1057,6 +1071,9 @@ display: none;
                                 font-family: PingFangSC-Regular;
                                 }
                                 .subUserTitle{
+                                    overflow: hidden;
+                                    text-overflow:ellipsis;
+                                    white-space: nowrap;
                                     margin: 0px;
                                     padding: 0px;
                                     font-weight:400;
@@ -1079,12 +1096,12 @@ display: none;
             overflow: hidden;
             .OrganizationSubViewHeader {
                 width: 100%;
-                height: 80px;
+                //height: 80px;
                 padding: 0px;
                 margin: 0px;
                 .organizationBreadCrumbsHeader{
                     width: 100%;
-                    height: 40px;
+                    //height: 40px;
                     margin: 0px;
                     padding: 0px;
                     .el-breadcrumb{
@@ -1236,6 +1253,9 @@ display: none;
                                 font-family: PingFangSC-Regular;
                                 }
                                 .subUserTitle{
+                                    overflow: hidden;
+                                    text-overflow:ellipsis;
+                                    white-space: nowrap;
                                     margin: 0px;
                                     padding: 0px;
                                     font-weight:400;

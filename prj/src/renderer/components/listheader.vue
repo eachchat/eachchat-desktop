@@ -100,17 +100,19 @@ export default {
             console.log("root is ", root);
             var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
             console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = [];
-            for(var i = 0; i < rootDepartmentModels.length; i ++) {
-                var department = rootDepartmentModels[i];
-                temp[department.show_order] = department;
-            }
-            console.log("tempt is ", temp);
-            this.chatCreaterDialogRootDepartments =  temp;
+            var temp = rootDepartmentModels;
+            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
             
             this.chatCreaterKey ++;
             this.showChatCreaterDlg = true;
             this.chatCreaterDialogTitle = "添加成员";
+        },
+        compare(property){
+            return function(a,b){
+                var value1 = a[property];
+                var value2 = b[property];
+                return value1 - value2;
+            }
         },
         createGroup: async function() {
             var groupUserIds = [];
