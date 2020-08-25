@@ -1958,7 +1958,7 @@ export default {
                             catch(error) {
                                 console.log("copyFile except ", error);
                             }
-                            services.common.SetFilePath(ret.message_id, finalPath);
+                            services.common.SetFilePath(guid, finalPath);
 
                             var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.curUserInfo.id) + 1;
                                 
