@@ -860,6 +860,94 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+    
+  async ListAllSecretGroup(accessToken, sequenceID, perPage){
+    let response = await this.commonApi.post(
+      "/api/apps/secretchat/v1/group",
+      {
+        sequenceId: sequenceID,
+        perPage: perPage
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async historySecretMessage(accessToken, groupID, sequenceID){
+    let response = await this.commonApi.post(
+      "/api/apps/secretchat/v1/message/group/" + groupID + "/sequence/" + sequenceID,
+      {
+        sequenceId: sequenceID,
+        groupId: groupID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async SendSecretMessage(accessToken,
+                          msgId,
+                          msgContentType,
+                          fromId,
+                          groupId,
+                          userId,
+                          timestamp,
+                          content
+                          )
+  {
+    let response = await this.commonApi.post(
+      "/api/apps/secretchat/v1/message",
+      {
+        msgId: msgId,
+        msgContentType:msgContentType,
+        fromId:fromId,
+        groupId:groupId,
+        userId:userId,
+        timestamp:timestamp,
+        content:content
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+     return this.parseStatus(response);
+  }
+
+  async ReceiveNewSecretMessage(accessToken, sequenceId){
+    let response = await this.commonApi.get(
+      "/api/apps/secretchat/v1/message/sequence/" + sequenceId,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+     return this.parseStatus(response);
+  }
+
+  async SecretMessageRead(accessToken, groupId, sequenceId){
+    let response = await this.commonApi.post(
+      "/api/apps/secretchat/v1/message/reader",
+      {
+        groupId: groupId,
+        sequenceId: sequenceId
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      })
+      return this.parseStatus(response);
+  }
+
+  async SecretGroupIncretment(accessToken, updateTime){
+    let response = await this.commonApi.post(
+      "/api/apps/secretchat/v1/group/" + updateTime,
+      {
+        updateTime: updateTime
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      })
+      return this.parseStatus(response);
+  }
+
 }
 
 class MQTTTransaction {}
