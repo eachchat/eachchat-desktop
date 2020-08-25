@@ -54,10 +54,10 @@ class SqliteEncrypt{
         MQIDAQAB\
         -----END PUBLIC KEY-----";
         this.decryption = new JSEncrypt(); 
-        this.rsaPrivate = new NodeRSA();
-        this.rsaPublic = new NodeRSA();
-        this.rsaPrivate.importKey(this.privateKey, "pkcs8-private");
-        this.rsaPublic.importKey(this.pubkeyOriginal, "pkcs8-public");
+        //this.rsaPrivate = new NodeRSA();
+        //this.rsaPublic = new NodeRSA();
+        //this.rsaPrivate.importKey(this.privateKey, "pkcs8-private");
+        //this.rsaPublic.importKey(this.pubkeyOriginal, "pkcs8-public");
     }
 
     decrypt(crypted){
