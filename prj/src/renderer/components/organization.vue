@@ -401,6 +401,8 @@ display: none;
     letter-spacing: 1px;
     font-family: PingFangSC-Regular;
     font-weight: 400;
+    display: flex;
+    place-items: center;
 }
 .item-arrow {
     display: inline-block;
