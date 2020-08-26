@@ -1016,7 +1016,8 @@ export default {
         }
         if(groupIndex == -1) {
           if(groupInfo.group_type != 102) {
-            this.mqttGroupVar.push(groupInfo);
+            this.originalGroupList.unshift(groupInfo);
+            this.mqttGroupVar.push(groupInfo)
             return;
           }
           // else {

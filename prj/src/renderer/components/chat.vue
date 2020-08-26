@@ -2916,6 +2916,7 @@ export default {
                     }
                 }
                 this.messageList.push(this.newMsg);
+                this.messageList = this.messageList.sort(this.compare());
                 this.existingMsgId.push(this.newMsg.message_id);
                 let div = document.getElementById("message-show-list");
                 if(div) {
