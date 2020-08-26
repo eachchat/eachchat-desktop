@@ -149,30 +149,16 @@ class AESEncrypt{
         return text;
     }
 
-    test(){
-        let base64CryptoMsg = "O03pNk4ofXeMp4Lr2U4y2Q==";
-        let hexSecretKey = "03c49bf5e1f9b0ce334938d20acfecbef517cbed282bbab32cea3b2bfd1b08c8";
-        let IosSecretKey = "A8Sb5aG5zrNJONKKz6zutZfLrSgr6rOs6rur7ZuIyIA";
-        let base64SecretKey = "6LCmY9-XIM6UK-uNlO-3teOTvcm555q75YeS7p-bPA";
-        let secretiv = "VXl4akZuOXRWb1hSWWRadw=="
+    decryptMesage(cryptMessage, key, IV){
+        let arrayKey = CryptoJS.enc.Base64.parse(key); 
+        let arrayIV = CryptoJS.enc.Utf8.parse(IV);
+        return this.decrypt(cryptMessage, arrayKey, arrayIV);
+    }
 
-        //let base64decodeMsg = Base64.decode(base64CryptoMsg);
-        let base64decodeKey = Base64.decode(base64SecretKey);
-        let base64decodeIV = Base64.decode(secretiv);
-
-        let arrayKey = CryptoJS.enc.Utf8.parse(base64decodeKey);
-        let arrayIV = CryptoJS.enc.Utf8.parse(base64decodeIV);
-
-
-        let message = "hello";
-        let messageHex = CryptoJS.enc.Utf8.parse(message);
-        let encryptData = this.encrypt(messageHex, arrayKey, arrayIV);
-        //encryptData = "DVP0F5BKVhe7jYpjMc2jJgz5dtrAhG7d2xhwmcfwUSA=";
-        //encryptData = "Hi8EEtoWqWROop4viYdgXwQ/tzykWuTWx48RhUBK0adeL6QGLQFwuTSrSW5znkQT";
-        //var encryptedHexStr = CryptoJS.enc.Hex.parse(encryptData);
-        //var srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
-        let dccryptData = this.decrypt(encryptData, arrayKey, arrayIV);
-        return dccryptData;
+    encryptMessage(message, key, iv){
+        let arrayKey = CryptoJS.enc.Base64.parse(key); 
+        let arrayIV = CryptoJS.enc.Utf8.parse(iv);
+        return this.encrypt(message, arrayKey, arrayIV);
     }
 }
 

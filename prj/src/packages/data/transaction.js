@@ -849,11 +849,12 @@ class APITransaction {
 
   async GetAesSecret(accessToken, plainText, signature, osType){
     var response = await this.commonApi.post(
-      "/api/services/security/v1/aes",
+      "/api/services/security/v1/security",
       {
         signature : signature,
         plaintext : plainText,
-        os : osType
+        os : osType,
+        securityType: "aes"
       },
       {
         Authorization: "Bearer " + accessToken
@@ -894,7 +895,8 @@ class APITransaction {
                           groupId,
                           userId,
                           timestamp,
-                          content
+                          content,
+                          secretID
                           )
   {
     let response = await this.commonApi.post(
@@ -906,7 +908,8 @@ class APITransaction {
         groupId:groupId,
         userId:userId,
         timestamp:timestamp,
-        content:content
+        content:content,
+        secretId:secretID
       },
       {
         Authorization: "Bearer " + accessToken
@@ -937,11 +940,8 @@ class APITransaction {
   }
 
   async SecretGroupIncretment(accessToken, updateTime){
-    let response = await this.commonApi.post(
+    let response = await this.commonApi.get(
       "/api/apps/secretchat/v1/group/" + updateTime,
-      {
-        updateTime: updateTime
-      },
       {
         Authorization: "Bearer " + accessToken
       })

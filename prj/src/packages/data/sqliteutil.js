@@ -528,6 +528,22 @@ const Group = {
         return await(await models.Groups).find({
             group_id: groupID
           });
+    },
+
+    async GetMaxSecretGroupUpdateTime(){
+        let groups = await(await models.Groups).find({
+            key_id:{
+                ne: ""
+            },
+            $order:{
+                by: "updatetime",
+                reverse: true
+            },
+            $size: 1
+        });
+        if(groups.length == 1)
+            return groups[0].updatetime;
+        return 0;
     }
 }
 
@@ -684,6 +700,19 @@ const Secret = {
 
     async GetAllSecret(){
         return await (await model.Secret).find();
+    },
+
+    async GetNewSecret(){
+        let secrets = await (await models.Secret).find({
+            $order: {
+                by: 'key_id',
+                reverse: true
+                }
+        })
+        if(secrets.length != 0)
+            return secrets[0];
+        else
+            return undefined;
     },
 
     async FindByKeyID(keyID){

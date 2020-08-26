@@ -366,10 +366,7 @@ const servicemodels = {
       {
         groupvalue[messagemap[key]] = groupitem["message"][key];
       }
-      if(groupitem["message"].secretId == undefined)
-        groupvalue["message_content"] = JSON.stringify(groupitem["message"]["content"]);  
-      else
-        groupvalue["message_content"] = groupitem["message"]["content"]; 
+      groupvalue["message_content"] = JSON.stringify(groupitem["message"]["content"]);  
 
       for(let key in objmap)
       {
@@ -528,7 +525,8 @@ const servicemodels = {
         sequence_id:        undefined,
         message_timestamp:  undefined,
         message_content:    undefined,
-        file_local_path:    undefined
+        file_local_path:    undefined,
+        key_id:             undefined
       }
 
       var messagemap = {
@@ -539,7 +537,8 @@ const servicemodels = {
         "fromId": "message_from_id",
         "sequenceValue": "sequence_id",
         "timestamp": "message_timestamp",
-        "content": "message_content"
+        "content": "message_content",
+        "secretId":   "key_id"
       }
 
       for(let key in messagemap)

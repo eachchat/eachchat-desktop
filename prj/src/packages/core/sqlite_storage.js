@@ -171,6 +171,10 @@ class SQLiteStorage extends Storage {
           comparations.push([field, '>=', value.gte]);
         }
 
+        if("ne" in value){
+          comparations.push([field, '!=', value.ne]);
+        }
+
         if (isOr) {
           if (comparations.length == 0) {
             continue;

@@ -14,7 +14,7 @@ import axios from "axios";
 import {Base64} from "js-base64";
 import {environment} from "./environment.js";
 import {globalConfig} from "../core/config.js"
-import {SqliteEncrypt} from "../core/encrypt.js"
+import {SqliteEncrypt, AESEncrypt} from "../core/encrypt.js"
 
 
 const mqtt = require('mqtt')
@@ -45,7 +45,11 @@ const commonData = {
   userim: [],
   group: [],
   historymessage: [],
-  aesSecret : []
+  aesSecret : [],
+  maxSecretGroupUpdateTime: 0,
+  maxSecretMsgSequenceID: 0,
+  aseEncryption:  new AESEncrypt()
+
 }; // model in here
 
 const common = {
@@ -390,7 +394,7 @@ const common = {
       this.data.login = currentlogin;
     }
     confservice.init(selfuser.id)
-    this.GetAesSecret();
+    await this.GetAesSecret();
     return true;
   },
 
@@ -1027,22 +1031,36 @@ const common = {
     
     let result;
     if(secret){
-      if(this.data.aesSecret.length == 0){
-        this.data.aesSecret = Secret.GetAllSecret();
+      let newKey = await Secret.GetNewSecret();
+      if(newKey == undefined){
+        if(await !this.GetAesSecret())
+          return undefined;
+        newKey = await Secret.GetNewSecret();
       }
-      if(this.data.aesSecret.length == 0){
-        this.GetAesSecret();
-      }
+      let strConstent = JSON.stringify(content);
+      let encryptContent = this.data.aseEncryption.encryptMessage(strConstent, newKey.key, newKey.vector);
+      result = await this.api.SendSecretMessage(this.data.login.access_token,
+                                                messageID,
+                                                messageContentType,
+                                                fromID,
+                                                groupID,
+                                                userID,
+                                                timestamp,
+                                                encryptContent,
+                                                newKey.key_id
+                                                );
     }
-
-    result = await this.api.sendNewMessage(this.data.login.access_token,
-                                  messageID, 
-                                  messageContentType,
-                                  fromID,
-                                  groupID,
-                                  userID,
-                                  timestamp,
-                                  content)
+    else{
+      result = await this.api.sendNewMessage(this.data.login.access_token,
+        messageID, 
+        messageContentType,
+        fromID,
+        groupID,
+        userID,
+        timestamp,
+        content)
+    }
+    
     if (!result.ok || !result.success) 
     {
       let tmpmsg = {
@@ -1068,7 +1086,8 @@ const common = {
         group_id: groupID,
         message_timestamp: timestamp,
         message_content: JSON.stringify(content),
-        message_direction: 0
+        message_direction: 0,
+        file_local_path: local_path
       }
       let tmpmsgmodel = await new(await models.Message)(tmpmsg);
       tmpmsgmodel.save();
@@ -1076,13 +1095,20 @@ const common = {
     }
 
     let msg = result.data.obj.message;
+    msg.content = content;
     let msgmodel = await servicemodels.MessageModel(msg)
     msgmodel.save();
     //let findMsgs = await Message.FindMessageByMesssageID(msgmodel.message_id);
     //findMsgs[0].values = msgmodel.values;
     //findMsgs[0].save();
-    await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, msgmodel.sequence_id)
-    this.data.selfuser.msg_max_sequenceid = msgmodel.sequence_id
+    if(secret == false)
+    {
+      await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, msgmodel.sequence_id);
+      this.data.selfuser.msg_max_sequenceid = msgmodel.sequence_id;
+    }
+    else{
+      this.data.maxSecretMsgSequenceID = msgmodel.sequence_id;
+    }
 
     let group;
     group = await Group.FindItemFromGroupByGroupID(msgmodel.group_id);
@@ -1098,9 +1124,8 @@ const common = {
       group = await servicemodels.UpdateGroupMessage(group, msg);
     }
     
-    
     group.save();
-    msgmodel.message = JSON.parse(msgmodel.message_content);
+    msgmodel.message = content;
     return msgmodel;
   },
 
@@ -1918,7 +1943,7 @@ const common = {
     let randomGuid = generalGuid();
     let encryption = new SqliteEncrypt();
     let signValue = encryption.sign(randomGuid);
-    let response = await this.api.GetAesSecret(this.data.login.access_token, randomGuid, signValue, "windows");
+    let response = await this.api.GetAesSecret(this.data.login.access_token, randomGuid, signValue, "desktop");
     if (!response.ok || !response.success) {
       return false;
     }
@@ -1926,10 +1951,8 @@ const common = {
     let secretModel;
     for(let item of secrets){
       let decryptKey = encryption.decrypt(item.key);
-      //let tt = encryption.decryptAes(item.key)
-      item.key = Base64.encode(decryptKey, true);
+      item.key = decryptKey;
       item.vector = encryption.decrypt(item.vector);
-      item.vector = Base64.encode(item.vector);
       secretModel = await servicemodels.SecretModel(item);
       secretModel.save();
       this.data.aesSecret.push(secretModel);
@@ -1937,7 +1960,11 @@ const common = {
   },
 
   async UpdateSecretGroups(){
-
+    let updateTime = await Group.GetMaxSecretGroupUpdateTime();
+    if(updateTime == 0)
+      this.ListSecretGroups();
+    else
+      this.IncrementSecretGroups();
   },
 
   async ListSecretGroups(){
@@ -1948,6 +1975,7 @@ const common = {
     let messageModel;
     let groupmodel;
     let groupvalue;
+
     while(bNext){
       result = await this.api.ListAllSecretGroup(this.data.login.access_token, 0, perPage);
       if (!result.ok || !result.success) {
@@ -1959,36 +1987,85 @@ const common = {
       }
       bNext = result.data.hasNext;
       for(let item of result.data.results){
+        if(item.message == "" || item.message == null || item.message == undefined)
+        {
+          continue;
+        }
+        let keyID = item.message.secretId;
+        let findKey = await Secret.FindByKeyID(keyID);
+        if(findKey == undefined){
+          await this.GetAesSecret();
+          findKey = await Secret.FindByKeyID(keyID);
+        }
+        let sourceKey = findKey.key;
+        let sourceVector = findKey.vector;
+        let decryptMsg = this.data.aseEncryption.decryptMesage(item.message.content, sourceKey, sourceVector);
+        item.message.content = JSON.parse(decryptMsg);
+
         groupvalue = item;
         groupmodel = await servicemodels.GroupsModel(groupvalue)
         if(groupmodel == undefined)
         {
           continue
         }
-        // if(groupmodel.status[5] != 1){
-        let keyID = groupmodel.key_id;
-        let findKeyID = await Secret.FindByKeyID(keyID);
-        if(findKeyID == undefined){
-          await this.GetAesSecret();
-          findKeyID = await Secret.FindByKeyID(keyID);
-        }
-        let sourceKey = Base64.decode(findKeyID.key_id);
-        let sourceVector = Base64.decode(findKeyID.vector);
-
+        
         groupmodel.save();
-        //groupmodel.message = JSON.parse(groupmodel.message_content);
+        groupmodel.message = JSON.parse(groupmodel.message_content);
         messageModel = await servicemodels.MessageModel(groupvalue.message)
         if(!await Message.ExistMessageBySequenceID(messageModel.sequence_id))
         {
           messageModel.save();
-        }          
+        }        
       }
     }
   
   },
 
-  async IncrementSecretGroups(){
+  async IncrementSecretGroups(callback = undefined){
+    if(this.data.maxSecretGroupUpdateTime == 0)
+    {
+      this.data.maxSecretGroupUpdateTime = await Group.GetMaxSecretGroupUpdateTime();
+    }
+    let result = await this.api.SecretGroupIncretment(this.data.login.access_token, this.data.maxSecretGroupUpdateTime);
+    if (!result.ok || !result.success) {
+      return undefined;
+    };
 
+    let groupModel = undefined;
+    let findGroups;
+    let groupId;
+
+    for(let groupItem of result.data.results){
+      groupId = groupItem.groupId;
+      findGroups = await (await models.Groups).find({
+        group_id: groupId
+      })
+      if(findGroups.length != 0){
+        if(groupItem.groupAvatar != findGroups[0].group_avarar){
+          var targetDir = confservice.getUserThumbHeadPath();
+          var targetPath = path.join(targetDir, groupId + '.png');
+          if(fs.existsSync(targetPath)) {
+              fs.unlinkSync(targetPath);
+          }
+        }
+        await this.downloadGroupAvatar(groupItem.groupAvatar, groupId);
+        groupModel = servicemodels.UpdateGroupGroup(findGroups[0], groupItem);
+      }
+      else{
+        groupModel = await servicemodels.IncrementGroupModel(groupItem);//key_id的处理
+      }
+      groupModel.save();
+      if(callback != undefined){
+        callback(groupModel);
+      }
+      // if(groupModel.status[5] == 1){
+      //   await sqliteutil.DeleteGroupByGroupID(groupModel.group_id);
+      // }
+    }
+    if(groupModel != undefined)
+    {
+      this.data.maxSecretGroupUpdateTime = groupModel.updatetime;
+    }
   }
 };
 
