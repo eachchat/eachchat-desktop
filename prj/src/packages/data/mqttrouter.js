@@ -1,4 +1,5 @@
 import { models } from './models.js';
+import { Group, Message } from './sqliteutil.js'
 
 class BaseMqttHandler{
     constructor(message, callback, services){
@@ -18,11 +19,8 @@ class MessageHandler extends BaseMqttHandler{
     async handle(){
         if(this.type == "newMessage"){
             let maxsequenceid;
-            if(this.services.data.currentsequenceid == undefined)
-            {
-                let selfmodel = await(this.services.GetSelfUserModel());
-                maxsequenceid = selfmodel.msg_max_sequenceid;
-            }
+            let selfmodel = await(this.services.GetSelfUserModel());
+            maxsequenceid = selfmodel.msg_max_sequenceid;
             await this.services.ReveiveNewMessage(maxsequenceid, 0, this.callback);
         }
         else{
@@ -143,6 +141,56 @@ class TopicCountHandler extends BaseMqttHandler{
     async handle(){
         if(this.type == "updateReplyTopic"){
             console.log(this.type);
+        }
+        else{
+            let handler = new NewEncryptionHandler(this.message, this.callback, this.services);
+            handler.handle();
+        }
+    }
+}
+
+class NewEncryptionHandler extends BaseMqttHandler{
+    constructor(message, callback, services){
+        super(message, callback, services)
+    }
+
+    async handle(){
+        if(this.type == "newEncryptionMessage"){
+            if(this.services.data.maxSecretMsgSequenceID == 0)
+                this.services.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
+            await this.services.ReveiveNewMessage(this.services.data.maxSecretMsgSequenceID, 0, this.callback, true);
+        }
+        else{
+            let handler = new UpdateEncryptionGroupHanlder(this.message, this.callback, this.services);
+            handler.handle();
+        }
+    }
+}
+
+class UpdateEncryptionGroupHanlder extends BaseMqttHandler{
+    constructor(message, callback, services){
+        super(message, callback, services);
+    }
+
+    async handle(){
+        if(this.type == "updateEncryptionGroup"){
+            this.services.IncrementSecretGroups();
+        }
+        else{
+            let handler = new UpdateMessageReaderHanlder(this.message, this.callback, this.services);
+            handler.handle();
+        }
+    }
+}
+
+class UpdateMessageReaderHanlder extends BaseMqttHandler{
+    constructor(message, callback, services){
+        super(message, callback, services);
+    }
+
+    async handle(){
+        if(this.type == "updateMessageReader"){
+            
         }
         else{
             console.log("unknow mqtt messagetype:" + this.type);

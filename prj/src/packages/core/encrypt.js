@@ -143,16 +143,23 @@ class AESEncrypt{
                 mode:CryptoJS.mode.CBC,
                 padding:CryptoJS.pad.Pkcs7
             });
-        //let text = decrypted.toString();
-        let tt = CryptoJS.enc.Utf8.stringify(decrypted).toString()
-        let text = decrypted.toString(CryptoJS.enc.Utf8).toString();
-        return text;
+        return decrypted.toString(CryptoJS.enc.Utf8).toString();
     }
 
     decryptMesage(cryptMessage, key, IV){
         let arrayKey = CryptoJS.enc.Base64.parse(key); 
         let arrayIV = CryptoJS.enc.Utf8.parse(IV);
-        return this.decrypt(cryptMessage, arrayKey, arrayIV);
+        let decryptMsg;
+        try{
+            decryptMsg = this.decrypt(cryptMessage, arrayKey, arrayIV);
+        }
+        catch(e){
+            console.log(e);
+            console.log("cryptMessage:" + cryptMessage);
+            console.log("key:" + key);
+            console.log("IV:" + IV);
+        }
+        return decryptMsg;
     }
 
     encryptMessage(message, key, iv){

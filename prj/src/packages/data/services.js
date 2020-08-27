@@ -1014,7 +1014,7 @@ const common = {
       {
         message = resultvalues[item]
         if(secret){
-          message.content = this.DecryptMessage(message.secretId, message.content);
+          message.content = await this.DecryptMessage(message.secretId, message.content);
         }
         if(await sqliteutil.ExistMsg(message.msgId)){
           next = false;
@@ -1202,7 +1202,11 @@ const common = {
         for(message_key in group_msgs)
         {
           message_item = group_msgs[message_key];
-          message_item.content = this.DecryptMessage(message_item.secretId, message_item.content);
+          if(message_item.secretId == undefined)
+          {
+            console.log(message_item);
+          }
+          message_item.content = await this.DecryptMessage(message_item.secretId, message_item.content);
           tmpmodel = await servicemodels.MessageModel(message_item)
           findmsgs = await(await models.Message).find(
             {
@@ -1236,7 +1240,7 @@ const common = {
         group.un_read_count = group_item.noReaderCount;
         group.save();
       }
-      sequenceId = result.data.obj.maxSequenceId;
+      sequenceId = result.data.obj.maxSequenceId;//需要等后端修改完成后改为字符串获取
       if (result.data.hasNext == true) {
         hasNext = true;
       }
@@ -1258,12 +1262,33 @@ const common = {
     let findKey = await Secret.FindByKeyID(secretID);
     if(findKey == undefined){
       await this.GetAesSecret();
-      findKey = await Secret.FindByKeyID(keyID);
+      findKey = await Secret.FindByKeyID(secretID);
     }
+    if(findKey == undefined){
+      return {
+        text: "找不到aes密钥",
+        secretContent: encryptContent
+      }
+    }
+
     let sourceKey = findKey.key;
     let sourceVector = findKey.vector;
     let decryptMsg = this.data.aseEncryption.decryptMesage(encryptContent, sourceKey, sourceVector);
-    return JSON.parse(decryptMsg);
+    console.log(decryptMsg)
+    if(decryptMsg == "")
+    {
+      return {
+        text: "不支持的消息类型，请升级客户端",
+        secretContent: encryptContent
+      }
+    }
+    try{
+      decryptMsg = JSON.parse(decryptMsg);
+    }
+    catch(e){
+      console.log(e)
+    }
+    return decryptMsg;
   },
 
   async uploadFile(filepath, msgInfo) {
@@ -2025,7 +2050,7 @@ const common = {
         {
           continue;
         }
-        item.message.content = this.DecryptMessage(item.message.secretId, item.message.content);
+        item.message.content = await this.DecryptMessage(item.message.secretId, item.message.content);
 
         groupvalue = item;
         groupmodel = await servicemodels.GroupsModel(groupvalue)

@@ -733,6 +733,8 @@ const Secret = {
     },
 
     async FindByKeyID(keyID){
+        if(keyID == undefined)
+            return undefined;
         let secrets = await (await models.Secret).find({
             key_id: keyID
         })
