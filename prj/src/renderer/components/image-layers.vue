@@ -159,7 +159,7 @@ export default {
                     // this.ImgElement.style.top = showPosition.top.toString() + "px";
                 }
             }
-            if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, this.imgSrcInfo.message_id, false))) {
+            if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, this.imgSrcInfo.message_id + ext, false))) {
                 // console.log("localPath is ", localPath);
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification} from 'electron'
+import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
@@ -138,6 +138,13 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon.on("click", function() {
     showMain();
   });
+
+  if(process.platform == 'darwin') {
+    let content = mainPageWindow.webContents;
+    globalShortcut.register('CommandOrControl+V', () => {
+      content.paste();
+    })
+  }
 
   // setAutoRun(true);
 });
@@ -814,9 +821,7 @@ ipcMain.on('open-directory-dialog', function(event, arg) {
   dialog.showOpenDialog(mainPageWindow,{
     properties: [arg, 'multiSelections']
   },function(files) {
-    if(files && files.length > 0) {
-      event.sender.send('selectedItem', files);
-    }
+    event.sender.send('selectedItem', files);
   })
 });
 ipcMain.on('open-image-dialog', function(event, arg) {
@@ -826,9 +831,7 @@ ipcMain.on('open-image-dialog', function(event, arg) {
       { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
     ]
   },function(files) {
-    if(files && files.length > 0) {
-      event.sender.send('selectedImageItem', files);
-    }
+    event.sender.send('selectedImageItem', files);
   })
 });
 ipcMain.on('open-image-dialog-avatar', function(event, arg) {

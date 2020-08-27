@@ -76,6 +76,7 @@
             </div>
         </div>
         <image-cropper v-if="showImageCropper" :groupId="groupId" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
+        <AlertDlg :AlertContnts="alertContnets" :alertType="alertType" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
     </div>
 </template>
 <script>
@@ -89,10 +90,15 @@ import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils
 import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
 import { UserInfo } from '../../packages/data/sqliteutil.js'
+import AlertDlg from './alert-dlg.vue'
 export default {
     name: 'group-info',
     data() {
         return {
+            canSelecteFile: true,
+            alertContnets: {},
+            alertType: '',
+            showAlertDlg: false,
             showImageCropper:false,
             selectImageSource: '',
             newGroupName: '',
@@ -121,7 +127,8 @@ export default {
         }
     },
     components: {
-        imageCropper
+        imageCropper,
+        AlertDlg
     },
     props: {
         "showGroupInfo": { 
@@ -144,6 +151,9 @@ export default {
     computed: {
     },
     methods: {
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+        },
         closeCropperDlg(){
             this.showImageCropper = false;
         },
@@ -203,8 +213,12 @@ export default {
             this.isSearch = true;
         },
         showAdd: function() {
+            this.searchKey = '';
             this.memberListShow = this.memberListShowOriginal;
             this.isSearch = false;
+            this.$nextTick(()=> {
+                this.getMemberImage();
+            })
         },
         showNameEdit: function(e) {
             // console.log("show name edit ", e)
@@ -275,30 +289,34 @@ export default {
                 }
             }
             else {
-                remote.dialog.showOpenDialog({
-                        defaultPath: 'c:/',
-                        filters: [
-                                { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
-                            ],
-                    }, async (files) => {
-                    if(files && files.length > 0) {
-                        this.showImageCropper = true;
-                        this.selectImageSource = files[0];
-                        // var targetDir = confservice.getUserThumbHeadPath();
-                        // var targetPath = path.join(targetDir, this.groupId + '.png');
-                        // if(fs.existsSync(targetPath)) {
-                        //     fs.unlinkSync(targetPath);
-                        // }
-                        // var distFilePath = pathDeal(files[0]);
-                        
-                        // var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
-                        // console.log("ret is ", ret);
-                        // if(ret.ok == true && ret.success == true) {
-                        //     ipcRenderer.send('modifyGroupImg', [this.groupId, distFilePath]);
-                        // }
-                        
-                    }
-                })
+                if(this.canSelecteFile) {
+                    this.canSelecteFile = false;
+                    remote.dialog.showOpenDialog({
+                            defaultPath: 'c:/',
+                            filters: [
+                                    { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
+                                ],
+                        }, async (files) => {
+                            this.canSelecteFile = true;
+                            if(files && files.length > 0) {
+                                this.showImageCropper = true;
+                                this.selectImageSource = files[0];
+                                // var targetDir = confservice.getUserThumbHeadPath();
+                                // var targetPath = path.join(targetDir, this.groupId + '.png');
+                                // if(fs.existsSync(targetPath)) {
+                                //     fs.unlinkSync(targetPath);
+                                // }
+                                // var distFilePath = pathDeal(files[0]);
+                                
+                                // var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
+                                // console.log("ret is ", ret);
+                                // if(ret.ok == true && ret.success == true) {
+                                //     ipcRenderer.send('modifyGroupImg', [this.groupId, distFilePath]);
+                                // }
+                                
+                            }
+                    })
+                }
             }
         },
         showUserInfoTip: async function(e, item) {
@@ -345,6 +363,10 @@ export default {
                 if(this.newGroupName == this.groupName){
                     return;
                 }
+                if(this.newGroupName.trim().length > 25) {
+                    this.$toastMessage({message:'群名称超长，最多只支持25个字符，请重新输入。', time:1500, type:'success'});
+                    return;
+                }
                 var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
                 updateGroupNameInputElement.blur();
                 services.common.UpdateGroupName(this.groupId, this.newGroupName);
@@ -353,6 +375,10 @@ export default {
         },
         updateGroupName: function() {
             if(this.newGroupName == this.groupName){
+                return;
+            }
+            if(this.newGroupName.trim().length > 25) {
+                this.$toastMessage({message:'群名称超长，最多只支持25个字符，请重新输入。', time:1500, type:'success'});
                 return;
             }
             var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
@@ -366,18 +392,32 @@ export default {
         Close: function() {
             this.$emit("closeGroupInfo");
         },
-        leave: async function() {
-            // if(this.isOwner) {
-            //     var ret = await services.common.DeleteGroup(this.groupId);
-            // }
-            // else {
+        clearCache: async function(alertType) {
+            if(alertType == "leaveGroup") {
                 var ret = await services.common.QuitGroup(this.groupId);
-            // }
-            this.$emit("leaveGroup", this.groupId);
+                this.$emit("leaveGroup", this.groupId);
+            }
+            else if(alertType == "dismissGroup") {
+                var ret = await services.common.DeleteGroup(this.groupId);
+                this.$emit("leaveGroup", this.groupId);
+            }
+            this.closeAlertDlg();
+        },
+        leave: async function() {
+            this.alertContnets = {
+                "Details": "确定要退出群聊吗？",
+                "Abstrace": "提醒"
+            };
+            this.alertType = "leaveGroup";
+            this.showAlertDlg = true;
         },
         dismiss: async function() {
-            var ret = await services.common.DeleteGroup(this.groupId);
-            this.$emit("leaveGroup", this.groupId);
+            this.alertContnets = {
+                "Details": "确定要解散群聊吗？",
+                "Abstrace": "提醒"
+            };
+            this.alertType = "dismissGroup";
+            this.showAlertDlg = true;
         },
         clearAll: function() {
             console.log("clear all");

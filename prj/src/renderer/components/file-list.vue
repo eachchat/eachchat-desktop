@@ -224,9 +224,10 @@ export default {
                 return "";
             }
             var groupIcoElement = document.getElementById("FileListDlgHeaderImgId");
+            var groupContentNum = "";
+            var aboutUids = this.GroupInfo.contain_user_ids.split(",");
             this.GroupName = this.GroupInfo.group_name;
             if(this.GroupName.length == 0) {
-                var aboutUids = this.GroupInfo.contain_user_ids.split(",");
                 var groupUidNameList = [];
                 for(var i=0;i<aboutUids.length;i++) {
                     let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
@@ -236,6 +237,9 @@ export default {
                         }
                 }
                 this.GroupName = groupUidNameList.join(",");
+            }
+            if(this.GroupInfo.group_type == 101) {
+                this.GroupName = this.GroupName + ' (' + aboutUids.length + ')';
             }
             
             var targetPath = "";
@@ -270,7 +274,7 @@ export default {
             }
             if(showContent.indexOf(this.searchKey) != -1) {
                 let splitValue = showContent.split(this.searchKey);
-                let newInnerHtml = splitValue.join('<span style="color:red;">' + this.searchKey + "</span>");
+                let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
                 return newInnerHtml;
             }
         },
@@ -360,6 +364,7 @@ export default {
     ::-webkit-scrollbar {
         width: 7px;
         height: 12px;
+        display: none;
     }
 
     ::-webkit-scrollbar-thumb {
@@ -431,7 +436,7 @@ export default {
     .search {
         margin: 0;
         text-align: left;
-        width: 100%;
+        width: calc(100%-2px);
         height: 32px;
         border: 1px solid rgb(221, 221, 221);
         border-radius: 2px;

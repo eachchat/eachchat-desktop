@@ -323,7 +323,10 @@ export default {
                 
                 // var targetFileName = chatGroupMsgContent.fileName;
                 // var theExt = path.extname(targetFileName);
-                var targetPath = await services.common.GetFilePath(this.msg.message_id);
+                var targetPath = this.msg.file_local_path;
+                if(!fs.existsSync(targetPath)) {
+                    targetPath = await services.common.GetFilePath(this.msg.message_id);
+                }
                 
                 var needOpen = false;
                 // console.log("targetPath is ", targetPath)

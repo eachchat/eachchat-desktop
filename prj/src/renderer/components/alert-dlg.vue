@@ -45,6 +45,10 @@ export default {
         confirmButtonText: {
             type: String,
             default: "确定"
+        },
+        alertType: {
+            type: String,
+            default: ''
         }
     },//['AlertContnts'],
     data () {
@@ -60,7 +64,7 @@ export default {
             this.$emit("closeAlertDlg", "");
         },
         ClearCache: function() {
-            this.$emit("clearCache", '');
+            this.$emit("clearCache", this.alertType);
         },
         calcImgPosition: function() {
             if(this.AlertDlgElement == null) {

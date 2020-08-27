@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
-                <div class="text-input" @keyup="keyHandle($event)">
+                <div class="text-input" @keydown="keyHandle($event)">
                     <quillEditor
                         ref="chatQuillEditor"
                         :options="editorOption"
@@ -837,7 +837,7 @@ export default {
                 }
                 return true;
             }
-            else if(event.keyCode == 50 && event.key == "@") {
+            else if(event.keyCode == 229) {
                 if(this.chat.group_type == 102) {
                     return;
                 }
@@ -1080,14 +1080,20 @@ export default {
         },
         insertPic: function() {
             // File
-            ipcRenderer.send('open-image-dialog', 'openFile');
+            if(this.canSelecteFile) {
+                this.canSelecteFile = false;
+                ipcRenderer.send('open-image-dialog', 'openFile');
+            }
             if(!this.ipcPicInited){
                 this.ipcPicInited = true;
                 ipcRenderer.on('selectedImageItem', this.nHandleFiles);
             }
         },
         insertFiles: function() {
-            ipcRenderer.send('open-directory-dialog', 'openFile');
+            if(this.canSelecteFile) {
+                this.canSelecteFile = false;
+                ipcRenderer.send('open-directory-dialog', 'openFile');
+            }
             if(!this.ipcInited){
                 this.ipcInited = true;
                 ipcRenderer.on('selectedItem', this.nHandleFiles);
@@ -1098,10 +1104,12 @@ export default {
         },
         nHandleFiles: async function(e, paths) {
             // Select Same File Failed.
+            this.canSelecteFile = true;
             var fileList = paths;
             // console.log("======", fileList)
             if(fileList === null || fileList.length === 0) {
-                alert("请选择一个文件/文件夹。");
+                // alert("请选择一个文件/文件夹。");
+                return;
             }
             else {
                 for(var i=0;i<fileList.length;i++) {
@@ -1301,7 +1309,7 @@ export default {
                                 uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent,
-                                finalPath)
+                                filePath)
                             .then(async (ret) => {
                                 // console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -1422,7 +1430,7 @@ export default {
                                 uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent,
-                                finalPath)
+                                filePath)
                             .then(async (ret) => {
                                 // console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -1684,13 +1692,12 @@ export default {
                             var pathTmp = path.join(dirTmp, nameTmp);
                             var finalPath = await makeFlieNameForConflict(pathTmp);
                             try{
-                                console.log("copy file from ", filePath, " to ", filePath);
+                                console.log("copy file from ", filePath, " to ", finalPath, " of ", guid);
                                 fs.copyFileSync(filePath, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);
                             }
-                            services.common.SetFilePath(guid, finalPath);
 
                             var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.curUserInfo.id) + 1;
                                 
@@ -1790,6 +1797,7 @@ export default {
                                                 await Message.SetMessageStatus(guid, 2);
                                             }
                                             else {
+                                                services.common.SetFilePath(guid, finalPath);
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].message_id == guid){
                                                         ret.file_local_path = finalPath;
@@ -1946,16 +1954,15 @@ export default {
                             var nameTmp = path.basename(filePath);
                             var extTmp = path.extname(nameTmp);
                             var dirTmp = confservice.getFilePath(curTimeSeconds);
-                            var pathTmp = path.join(dirTmp, guid + extTmp);
-                            var finalPath = await makeFlieNameForConflict(pathTmp);
+                            var finalPath = path.join(dirTmp, guid + extTmp);
+                            // var finalPath = await makeFlieNameForConflict(pathTmp);
                             try{
-                                console.log("copy file from ", filePath, " to ", filePath);
+                                console.log("copy file from ", filePath, " to ", finalPath, " of ", guid);
                                 fs.copyFileSync(filePath, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);
                             }
-                            services.common.SetFilePath(guid, finalPath);
 
                             var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.curUserInfo.id) + 1;
                                 
@@ -2057,6 +2064,7 @@ export default {
                                                 await Message.SetMessageStatus(guid, 2);
                                             }
                                             else {
+                                                services.common.SetFilePath(guid, finalPath);
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     // console.log("cur guie is ", guid)
                                                     // console.log("the messagelist guid is ", this.messageList[i].message_id)
@@ -2756,6 +2764,7 @@ export default {
     },
     data() {
         return {
+            canSelecteFile: true,
             isGroup: true,
             updatemsgStatus: {
                 "id": ""
@@ -2994,6 +3003,10 @@ export default {
         text-overflow: ellipsis;
         overflow: hidden;
         letter-spacing:1px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
     }
 
     .chatInfo{
@@ -3001,6 +3014,10 @@ export default {
         float: left;
         height: 100%;
         width: calc(100% - 250px);
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
     }
 
     .chat-img {
@@ -3010,6 +3027,10 @@ export default {
         float: left;
         border: 0px solid rgba(0, 0, 0, 0);
         border-radius:4px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
     }
     
     .chat-name-state {
@@ -3025,6 +3046,10 @@ export default {
         font-weight: 400;
         color: rgba(153, 153, 153, 1);
         letter-spacing:1px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
     }
 
     .chat-group-content-num {
@@ -3038,6 +3063,10 @@ export default {
         font-weight: 500;
         overflow: hidden;
         letter-spacing:1px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
     }
 
     .chat-tools {
@@ -3045,6 +3074,10 @@ export default {
         float: right;
         height: 100%;
         width: 200px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
     }
 
     .chat-tool-more-div {
