@@ -484,8 +484,8 @@ const common = {
         //await servers.UpdateGroups();
         let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(servers.data.selfuser.id);
         await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback);
-        this.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
-        await this.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback, true)
+        servers.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
+        await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback, true)
         //servers.callback("reconnect");
         bClose = false;
       }
