@@ -460,7 +460,7 @@ const Message = {
     async SequenceIDtoTimeStamp(sequenceID){
         let msgs = await this.FindMessageBySequenceID(sequenceID);
         if(msgs.length == 0)
-            return;
+            return 0;
         console.log(msgs);
         return msgs[0].message_timestamp;
     },
@@ -474,6 +474,23 @@ const Message = {
             msgs[0].save();
         }
         return true;
+    },
+
+    async GetMaxSecretMsgSequenceID(){
+        let messages = await(await models.Groups).find({
+            key_id:{
+                ne: ""
+            },
+            $order:{
+                by: "sequence_id",
+                reverse: true
+            },
+            $size: 1
+        });
+
+        if(messages.length == 1)
+            return messages[0].sequence_id;
+        return 0;
     }
 }
 

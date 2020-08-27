@@ -430,9 +430,22 @@ const common = {
       await this.groupIncrement(updatetime, 0);
   },
 
+  async UpdateSecretGroups(){
+    let updateTime = await Group.GetMaxSecretGroupUpdateTime();
+    if(updateTime == 0)
+      this.ListSecretGroups();
+    else
+      this.IncrementSecretGroups();
+  },
+
   async UpdateMessages(){
     let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(this.data.selfuser.id);
     await this.ReveiveNewMessage(maxSequenceIdFromGroup, 0)
+  },
+
+  async UpdateSecretMessage(){
+    this.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
+    await this.ReveiveNewMessage(this.data.maxSecretMsgSequenceID, 0, undefined, true)
   },
 
   async initmqtt(){
@@ -471,6 +484,8 @@ const common = {
         //await servers.UpdateGroups();
         let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(servers.data.selfuser.id);
         await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback);
+        this.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
+        await this.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback, true)
         //servers.callback("reconnect");
         bClose = false;
       }
@@ -947,7 +962,7 @@ const common = {
     }
   },
 
-  async historyMessage(groupId, sequenceId, count) { 
+  async historyMessage(groupId, sequenceId, count, secret = false) { 
     let result;
     let resultvalues;
     let next = true;
@@ -981,7 +996,10 @@ const common = {
     }
 
     while(next){
-      result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
+      if(secret)
+        result = await this.api.historySecretMessage(this.data.login.access_token, groupId, sequenceId)
+      else
+        result = await this.api.historyMessage(this.data.login.access_token, groupId, sequenceId)
       if (!result.ok || !result.success) {
         return historymessage;
       }
@@ -995,6 +1013,9 @@ const common = {
       for(let item in resultvalues)
       {
         message = resultvalues[item]
+        if(secret){
+          message.content = this.DecryptMessage(message.secretId, message.content);
+        }
         if(await sqliteutil.ExistMsg(message.msgId)){
           next = false;
           console.log("historyMessage exist message");
@@ -1129,7 +1150,7 @@ const common = {
     return msgmodel;
   },
 
-  async ReveiveNewMessage(sequenceId, notificationId, callback = undefined)
+  async ReveiveNewMessage(sequenceId, notificationId, callback = undefined, secret = false)
   {
     let result;
     let hasNext = true;
@@ -1152,7 +1173,11 @@ const common = {
 
     while(hasNext)
     {
-      result = await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId);
+      if(secret == false)
+        result = await this.api.ReceiveNewMessage(this.data.login.access_token, sequenceId, notificationId);
+      else
+        result = await this.api.ReceiveNewSecretMessage(this.data.login.access_token, this.data.maxSecretMsgSequenceID);
+      
       if (!result.ok || !result.success) {
         return undefined;
       }
@@ -1177,10 +1202,7 @@ const common = {
         for(message_key in group_msgs)
         {
           message_item = group_msgs[message_key];
-          //if(message_item.msgContentType)//101 104
-          //{
-            
-          //}
+          message_item.content = this.DecryptMessage(message_item.secretId, message_item.content);
           tmpmodel = await servicemodels.MessageModel(message_item)
           findmsgs = await(await models.Message).find(
             {
@@ -1221,11 +1243,27 @@ const common = {
       else{
         hasNext = false;
       }
-      await sqliteutil.UpdateMaxMsgSequenceID(this.data.login.user_id, sequenceId);
-      this.data.selfuser.msg_max_sequenceid = sequenceId;
-
+      if(secret == false)
+      {
+        await sqliteutil.UpdateMaxMsgSequenceID(this.data.login.user_id, sequenceId);
+        this.data.selfuser.msg_max_sequenceid = sequenceId;
+      }
+      else
+        this.data.maxSecretMsgSequenceID = sequenceId;
     }
     return msg_models;
+  },
+
+  async DecryptMessage(secretID, encryptContent){
+    let findKey = await Secret.FindByKeyID(secretID);
+    if(findKey == undefined){
+      await this.GetAesSecret();
+      findKey = await Secret.FindByKeyID(keyID);
+    }
+    let sourceKey = findKey.key;
+    let sourceVector = findKey.vector;
+    let decryptMsg = this.data.aseEncryption.decryptMesage(encryptContent, sourceKey, sourceVector);
+    return JSON.parse(decryptMsg);
   },
 
   async uploadFile(filepath, msgInfo) {
@@ -1419,8 +1457,12 @@ const common = {
     return groupModel;
   },
 
-  async MessageRead(groupid, sequenceid){
-    let result = await this.api.MessageRead(this.data.login.access_token, groupid, sequenceid);
+  async MessageRead(groupid, sequenceid, secret = false){
+    let result;
+    if(secret)
+      result = await this.api.SecretMessageRead(this.data.login.access_token, groupid, sequenceid);
+    else
+      result = await this.api.MessageRead(this.data.login.access_token, groupid, sequenceid);
     if (!result.ok || !result.success) {
       return false;
     }
@@ -1959,14 +2001,6 @@ const common = {
     }
   },
 
-  async UpdateSecretGroups(){
-    let updateTime = await Group.GetMaxSecretGroupUpdateTime();
-    if(updateTime == 0)
-      this.ListSecretGroups();
-    else
-      this.IncrementSecretGroups();
-  },
-
   async ListSecretGroups(){
     let sequenceID = 0;
     let perPage = 50;
@@ -1991,16 +2025,7 @@ const common = {
         {
           continue;
         }
-        let keyID = item.message.secretId;
-        let findKey = await Secret.FindByKeyID(keyID);
-        if(findKey == undefined){
-          await this.GetAesSecret();
-          findKey = await Secret.FindByKeyID(keyID);
-        }
-        let sourceKey = findKey.key;
-        let sourceVector = findKey.vector;
-        let decryptMsg = this.data.aseEncryption.decryptMesage(item.message.content, sourceKey, sourceVector);
-        item.message.content = JSON.parse(decryptMsg);
+        item.message.content = this.DecryptMessage(item.message.secretId, item.message.content);
 
         groupvalue = item;
         groupmodel = await servicemodels.GroupsModel(groupvalue)
