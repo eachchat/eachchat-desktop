@@ -704,14 +704,23 @@ export default {
             breadInfo.display_name = department.display_name;
             this.breadCrumbs.push(breadInfo);
             this.$nextTick(function(){
+                this.updateViewHeight();
                 for(var i = 0; i < this.curUsers.length; i ++){
                     this.getUserImg(this.curUsers[i]);
                 }
             });
-            this.updateViewHeight();
+            
         },
         updateViewHeight:function(){
-            var headerElement = document.getElementsByClassName("OrganizationSubViewHeader")[0];
+            var elementArray = document.getElementsByClassName("OrganizationSubViewHeader");
+            var headerElement;
+            for(var i = 0; i < elementArray.length; i ++){
+                var temp = elementArray[i];
+                if (temp.clientHeight != 0){
+                    headerElement = temp;
+                    break;
+                }
+            }
             //var contentElement = document.getElementsByClassName("OrganizationSubViewContent")[0];
             this.viewContentHeight = 282 - headerElement.clientHeight + "px";
         },
@@ -1082,6 +1091,7 @@ display: none;
                                     letter-spacing:1px;
                                     height:18px;
                                     font-size:12px;
+                                    font-family: PingFangSC-Regular;
                                 }
                             }
                         }
@@ -1147,6 +1157,7 @@ display: none;
                         font-size: 14px;
                         text-align: right;
                         line-height: 20px;
+                        font-family: PingFangSC-Regular;
                     }
                 }
             }
@@ -1475,7 +1486,7 @@ display: none;
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'PingFangSC-Regular';
+        font-family: PingFangSC-Regular;
         font-size: 12px;
         
         background-color: rgba(1, 1, 1, 0);

@@ -249,14 +249,17 @@ export default {
             this.chatCreaterDisableUsers.push(self.id);
             var root = await Department.GetRoot();
             var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            var temp = [];
-            for(var i = 0; i < rootDepartmentModels.length; i ++) {
-                var department = rootDepartmentModels[i];
-                temp[department.show_order] = department;
-            }
-            this.rootDepartments =  temp;
+            var temp = rootDepartmentModels;
+            this.rootDepartments =  temp.sort(this.compare("show_order"));
             this.showCreateNewChat = true;
             
+        },
+        compare(property){
+            return function(a,b){
+                var value1 = a[property];
+                var value2 = b[property];
+                return value1 - value2;
+            }
         },
         indexOfGroupInSelected(group){
             var index = -1;
