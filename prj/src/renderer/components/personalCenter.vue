@@ -11,7 +11,7 @@
                 
                 <p class="personalCenter-name">{{ userInfo.user_display_name }}</p>
                 <div class="personalCenter-state">
-                    <input class="personalCenter-stateInput" v-model="stateInput" @keyup.enter="stateChangeConfirm()">
+                    <input class="personalCenter-stateInput" v-model="stateInput" @keyup.enter="stateChangeConfirm()" @input="checkStateInputLength()">
                     <img ondragstart="return false" class="personalCenter-stateSelectArrow"  @click="stateListArrowClicked()" src="../../../static/Img/personalCenter/statusArrow-20px@2x.png">
                 </div>
             </div>
@@ -26,7 +26,7 @@
                 </div>
         <div class="personalCenter-workDescription">
             <img ondragstart="return false" class="personalCenter-descriptionIcon" src="../../../static/Img/personalCenter/workDescription-20px@2x.png">
-            <input class="personalCenter-descriptionInput" placeholder="请添加工作描述" v-model="workDescriptionInput" @keyup.enter="workDescriptionChangeConfirm()">
+            <input class="personalCenter-descriptionInput" placeholder="请添加工作描述" v-model="workDescriptionInput" @input="checkDescriptionInputLength()" @keyup.enter="workDescriptionChangeConfirm()">
         </div>
         <image-cropper v-if="showImageCropper" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
     </div>
@@ -112,18 +112,37 @@ export default {
             this.stateList = temp;
             this.showStateList = false;
             await this.stateChangeConfirm();
-
+        },
+        checkStateInputLength: function(){
+            if(this.stateInput.length > 15){
+                this.$toastMessage({message:'最多15字符', time:1500, type:'error'});
+                this.stateInput = this.stateInput.substring(0, 15);
+            }
+        },
+        checkDescriptionInputLength:function(){
+            if(this.workDescriptionInput.length > 30){
+                this.$toastMessage({message:'最多30字符', time:1500, type:'error'});
+                this.workDescriptionInput = this.workDescriptionInput.substring(0, 30);
+            }
         },
         stateChangeConfirm:async function(){
-            await services.common.updateUserStatusDescription(this.stateInput);
-            
+            var response = await services.common.updateUserStatusDescription(this.stateInput);
+            if(response){
+                this.$toastMessage({message:'状态修改成功', time:1500, type:'success'});
+            }else{
+                this.$toastMessage({message:'状态修改失败', time:1500, type:'error'});
+            }
         },
         workDescriptionChangeConfirm:async function(){
             if(this.workDescriptionInput == this.userInfo.work_description){
                 return;
             }
-            await services.common.updateUserWorkDescription(this.workDescriptionInput);
-            
+            var response = await services.common.updateUserWorkDescription(this.workDescriptionInput);
+                        if(response){
+                this.$toastMessage({message:'描述修改成功', time:1500, type:'success'});
+            }else{
+                this.$toastMessage({message:'描述修改失败', time:1500, type:'error'});
+            }
         },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){
