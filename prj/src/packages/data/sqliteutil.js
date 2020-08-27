@@ -460,7 +460,7 @@ const Message = {
     async SequenceIDtoTimeStamp(sequenceID){
         let msgs = await this.FindMessageBySequenceID(sequenceID);
         if(msgs.length == 0)
-            return;
+            return 0;
         console.log(msgs);
         return msgs[0].message_timestamp;
     },
