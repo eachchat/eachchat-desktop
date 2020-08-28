@@ -21,6 +21,7 @@ class APITransaction {
 
   SetService(service){
     this.service = service;
+    this.commonApi.SetService(service);
   }
 
   parseStatus(response) {

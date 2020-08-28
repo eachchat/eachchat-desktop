@@ -284,7 +284,7 @@ const common = {
       return;
     console.log("initServiceApi")
     this.api = new APITransaction(this.config.hostname, this.config.apiPort, this.config.hostTls);
-    this.api.SetMqtt(this);
+    this.api.SetService(this);
   },
 
   async login(config) {

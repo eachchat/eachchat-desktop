@@ -109,6 +109,10 @@ class HTTP {
     return result;
   }
 
+  SetService(service){
+    this.service = service;
+  }
+
   async head(path, headers, appendix) {
     if (typeof headers == "undefined") {
       headers = {};
@@ -123,7 +127,28 @@ class HTTP {
     }, appendix);
 
     var response = await this.sender.head(path, config);
+  
+    return this.parseResponse(response);
+  }
 
+  async RequestAgain(asiosfunc, ...args){
+    await this.service.refreshToken();
+    let accessToken = this.service.data.login.access_token;
+    let headers = {Authorization: "Bearer " + accessToken};
+
+    let path = args[0];
+    let appendix = args[args.length - 1]
+    let config = Object.assign({
+      headers: headers,
+    }, appendix);
+    var response;
+    if(args.length == 2){
+      response = await asiosfunc(path, config);
+    }
+    else if(args.length == 3){
+      let data = args[1];
+      response = await asiosfunc(path, data, config);
+    }
     return this.parseResponse(response);
   }
 
@@ -141,8 +166,11 @@ class HTTP {
     }, appendix);
 
     var response = await this.sender.get(path, config);
-
-    return this.parseResponse(response);
+    let parseValue = this.parseResponse(response);
+    if(parseValue.data != undefined && parseValue.data.code == 401){
+      return await this.RequestAgain(this.sender.get, path, appendix);
+    }
+    return parseValue;
   }
 
   async post(path, data, headers, appendix) {
@@ -164,12 +192,15 @@ class HTTP {
 
     try {
       var response = await this.sender.post(path, data, config);
-
     } catch (e) {
       console.log(e);
     }
 
-    return this.parseResponse(response);
+    let parseValue = this.parseResponse(response);
+    if(parseValue.data != undefined && parseValue.data.code == 401){
+      return await this.RequestAgain(this.sender.post, path, data, appendix);
+    }
+    return parseValue;
   }
 
   async put(path, data, headers, appendix) {
@@ -191,7 +222,11 @@ class HTTP {
 
     var response = await this.sender.put(path, data, config);
 
-    return this.parseResponse(response);
+    let parseValue = this.parseResponse(response);
+    if(parseValue.data != undefined && parseValue.data.code == 401){
+      return await this.RequestAgain(this.sender.put, path, data, appendix);
+    }
+    return parseValue;
   }
 
   async patch(path, data, headers, appendix) {
@@ -212,8 +247,11 @@ class HTTP {
     }, appendix);
 
     var response = await this.sender.patch(path, data, config);
-
-    return this.parseResponse(response);
+    let parseValue = this.parseResponse(response);
+    if(parseValue.data != undefined && parseValue.data.code == 401){
+      return await this.RequestAgain(this.sender.patch, path, data, appendix);
+    }
+    return parseValue;
   }
 
   async delete(path, headers, appendix) {
@@ -231,7 +269,11 @@ class HTTP {
 
     var response = await this.sender.delete(path, config);
 
-    return this.parseResponse(response);
+    let parseValue = this.parseResponse(response);
+    if(parseValue.data != undefined && parseValue.data.code == 401){
+      return await this.put(this.sender.delete, path, appendix);
+    }
+    return parseValue;
   }
 }
 
