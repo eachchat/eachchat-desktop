@@ -1206,7 +1206,8 @@ const common = {
           {
             console.log(message_item);
           }
-          message_item.content = await this.DecryptMessage(message_item.secretId, message_item.content);
+          if(secret)
+            message_item.content = await this.DecryptMessage(message_item.secretId, message_item.content);
           tmpmodel = await servicemodels.MessageModel(message_item)
           findmsgs = await(await models.Message).find(
             {
