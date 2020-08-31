@@ -1241,7 +1241,7 @@ const common = {
         group.un_read_count = group_item.noReaderCount;
         group.save();
       }
-      sequenceId = result.data.obj.maxSequenceId;//需要等后端修改完成后改为字符串获取
+      sequenceId = result.data.obj.maxSequenceValue;//需要等后端修改完成后改为字符串获取
       if (result.data.hasNext == true) {
         hasNext = true;
       }
@@ -1785,10 +1785,10 @@ const common = {
     return Message.GetAfterMessage(groupID, sequenceID, count);
   },
 
-  async ListAllMessage(groupID, sequenceID){
+  async ListAllMessage(groupID, sequenceID, secret = false){
     let allMessage = {};
     if(await Message.ExistMessageBySequenceID(sequenceID))    {
-      let history = await this.historyMessage(groupID, sequenceID, 20);
+      let history = await this.historyMessage(groupID, sequenceID, 20, secret);
       let after = await this.AfterMessage(groupID, sequenceID, 20);
       allMessage.before = history;
       allMessage.after = after;
@@ -2037,7 +2037,7 @@ const common = {
     let groupvalue;
 
     while(bNext){
-      result = await this.api.ListAllSecretGroup(this.data.login.access_token, 0, perPage);
+      result = await this.api.ListAllSecretGroup(this.data.login.access_token, sequenceID, perPage);
       if (!result.ok || !result.success) {
         return result;
       }
@@ -2047,6 +2047,7 @@ const common = {
       }
       bNext = result.data.hasNext;
       for(let item of result.data.results){
+        sequenceID++;
         if(item.message == "" || item.message == null || item.message == undefined)
         {
           continue;
