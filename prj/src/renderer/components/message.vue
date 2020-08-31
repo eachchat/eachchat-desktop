@@ -197,7 +197,7 @@ export default {
             }
         },
         MsgIsFailed: function() {
-            if(this.msg.message_status == 2) {
+            if(this.msg.message_status == 2 && this.showState) {
                 return true;
             }
             else {
@@ -205,7 +205,7 @@ export default {
             }
         },
         MsgIsSending: function() {
-            if(this.msg.message_status == 1) {
+            if(this.msg.message_status == 1 && this.showState) {
                 return true;
             }
             else {
@@ -333,7 +333,7 @@ export default {
                 if(!fs.existsSync(targetPath)){
                     // console.log("this.msg.timelineid is ", this.msg.time_line_id)
                     // console.log("targetfilename is ", targetFileName);
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, false);
+                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false);
                 }
             }
             else if(chatGroupMsgType === 104)
@@ -547,6 +547,7 @@ export default {
     },
     data() {
         return {
+            showState: false,
             updateStatus: false,
             messageContent: '',
             transmitMsgContent: '',
@@ -593,6 +594,9 @@ export default {
     watch: {
         msg: async function() {
             // await this.msgUserInfo();
+            setTimeout(() => {
+                this.showState = true;
+            }, 500)
             var userIconElementId = this.getUserIconId();
             if(this.userIconElement == undefined) {
                 this.userIconElement = document.getElementById(userIconElementId);
@@ -600,14 +604,12 @@ export default {
             this.MsgBelongUserImg();
             this.$nextTick(() => {
                 setTimeout(() => {
-                    this.$nextTick(() => {
-                        if(this.MsgIsMine()) {
-                            this.MsgContent(true);
-                        }
-                        else {
-                            this.MsgContent(false);
-                        }
-                    })
+                    if(this.MsgIsMine()) {
+                        this.MsgContent(true);
+                    }
+                    else {
+                        this.MsgContent(false);
+                    }
                 }, 0)
             })
         },
@@ -623,6 +625,9 @@ export default {
             if(this.updateMsg.length == 0) {
                 return;
             }
+            setTimeout(() => {
+                this.showState = true;
+            }, 500)
             var state = this.updateMsg[0];
             var stateInfo = this.updateMsg[1];
             var id = this.updateMsg[2];
@@ -805,6 +810,7 @@ export default {
 
     .msg-info-username-others {
         display: block;
+        min-height: 17px;
         font-size: 12px;
         color: rgb(153, 153, 153);
         font-family: 'PingFangSC-Regular';

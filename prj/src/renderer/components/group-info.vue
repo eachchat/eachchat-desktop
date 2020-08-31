@@ -10,7 +10,7 @@
             </div>
             <div class="groupInfoNoticeAndName">
                 <div class="groupInfoName">
-                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
+                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
                 </div>
                 <div class="peopleInfo" v-if="!isGroup">
@@ -357,6 +357,12 @@ export default {
         },
         showAddMembers: function() {
             this.$emit("showAddMembers", this.memberList);
+        },
+        inputChanget: function(event) {
+            console.log(this.newGroupName)
+            if(this.newGroupName.length > 25) {
+                this.newGroupName = this.newGroupName.substring(0, 25);
+            }
         },
         keyUpdateGroupName: function(event) {
             if(event.code == "Enter") {

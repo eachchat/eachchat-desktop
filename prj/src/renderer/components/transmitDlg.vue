@@ -678,7 +678,7 @@ export default {
                         }
                         if(fs.existsSync(filePath)) {
                             var nameTmp = path.basename(filePath);
-                            var dirTmp = confservice.getFilePath(ret.message_timestamp);
+                            var dirTmp = confservice.getFilePath(curTimeSeconds);
                             var pathTmp = path.join(dirTmp, nameTmp);
                             var finalPath = await makeFlieNameForConflict(pathTmp);
                             try{

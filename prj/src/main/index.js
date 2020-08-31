@@ -436,6 +436,25 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
 
 });
 
+function downloadExist(distTemp) {
+  try{
+    var state = fs.statSync(distTemp);
+    if(state && state.atime) {
+      var curTimeMSeconds = new Date().getTime();
+      var fileATimeMSeconds = state.atime.getTime();
+      if(fileATimeMSeconds - curTimeMSeconds < 1000 * 35) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  }
+  catch(error) {
+    return false;
+  }
+}
+
 function showMain() {
   mainPageWindow.show();
 
@@ -463,6 +482,11 @@ function downloadFile(event, arg) {
       var distTemp = distPath + "_tmp";
       var needOpen = arg[5]; 
       var baseURL = hostname;
+
+      if(downloadExist(distTemp)) {
+        console.log("distTemp is downloading ", distTemp);
+        return;
+      }
     
       if (typeof port == "number") {
         port = port;
@@ -570,6 +594,10 @@ function downloadAvarar(event, arg) {
       var distPath = arg[3];
       var distTemp = distPath + "_tmp";
       // console.log("distPath is ", distPath);
+      if(downloadExist(distTemp)) {
+        console.log("distTemp is downloading ", distTemp);
+        return;
+      }
     
       if(downloadingList.indexOf(baseURL) != -1){
         return;
@@ -629,6 +657,10 @@ function downloadUserAvarar(event, arg) {
       var sequenceId = arg[4];
       var distTemp = distPath + "_tmp";
       // console.log("distPath is ", distPath);
+      if(downloadExist(distTemp)) {
+        console.log("distTemp is downloading ", distTemp);
+        return;
+      }
     
       if(downloadingList.indexOf(baseURL) != -1){
         return;
@@ -690,6 +722,11 @@ function downloadImage(event, arg) {
       var thumbType = arg[5];
       var needOpen = arg[6];
       var baseURL = hostname;
+
+      if(downloadExist(distTemp)) {
+        console.log("distTemp is downloading ", distTemp);
+        return;
+      }
     
       if (typeof port == "number") {
         port = port;
@@ -759,6 +796,11 @@ function downloadMsgOImage(event, arg) {
       var thumbType = arg[5];
       var needOpen = arg[6];
       var baseURL = hostname;
+    
+      if(downloadExist(distTemp)) {
+        console.log("distTemp is downloading ", distTemp);
+        return;
+      }
     
       if (typeof port == "number") {
         port = port;
