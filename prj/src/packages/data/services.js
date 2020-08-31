@@ -394,7 +394,7 @@ const common = {
       this.data.login = currentlogin;
     }
     confservice.init(selfuser.id)
-    await this.GetAesSecret();
+    //await this.GetAesSecret();
     return true;
   },
 
