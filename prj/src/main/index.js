@@ -140,10 +140,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   });
 
   if(process.platform == 'darwin') {
-    let content = mainPageWindow.webContents;
-    globalShortcut.register('CommandOrControl+V', () => {
-      content.paste();
-    })
+    if(mainPageWindow.isFocused()) {
+      let content = mainPageWindow.webContents;
+      globalShortcut.register('CommandOrControl+V', () => {
+        content.paste();
+      })
+    }
   }
 
   // setAutoRun(true);

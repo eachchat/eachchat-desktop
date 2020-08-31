@@ -87,7 +87,7 @@
                     <p class="server-title">
                         邮箱
                     </p>
-                    <input class="item-server-input" prefix="ios-contact-outline" v-model="emialAddress" placeholder="请输入邮箱" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationFinderConfirmClicked()"/>
+                    <input class="item-server-input" prefix="ios-contact-outline" :disabled="organizationButtonDisabled" v-model="emialAddress" placeholder="请输入邮箱" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationFinderConfirmClicked()"/>
                 </div>
                 <div class="organizationFinder-state">
                     <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
@@ -134,6 +134,7 @@ export default {
             loadingProcess: '正在验证登录信息',
 
             emailSendButtonValue:'发送',
+            organizationButtonDisabled: false,
             emialAddressButtonDisabled:false,
             time:0,
             organizationAddress:'',
@@ -159,12 +160,14 @@ export default {
             this.loginState = "";
         },
         organizationConfirmButtonClicked:async function(){
+            this.organizationButtonDisabled = true;
             if(this.organizationAddress == "worklyai-open-dev-tools"){
                 ipcRenderer.send("openDevTools");
                 return;
             }
             if (this.organizationAddress == undefined || this.organizationAddress == ""){
                 this.loginState = "请输入组织ID";
+                this.organizationButtonDisabled = false;
                 return;
             }
             var address = this.organizationAddress + ".eachchat.net";
@@ -172,8 +175,10 @@ export default {
             console.log(result);
             if(!result){
                 this.loginState = "未找到该组织";
+                this.organizationButtonDisabled = false;
                 return;
             }
+            this.organizationButtonDisabled = false;
             this.resetLoginStateTitle();
             await services.common.init();
             this.showLoginView = true;
