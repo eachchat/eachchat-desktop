@@ -1670,7 +1670,7 @@ export default {
       }
       if(!groupExist) {
           let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-          // console.log("groupinfo is ", groupInfo);
+          console.log("groupinfo is ", groupInfo);
           // console.log("this.mqttGroupVar is ", this.mqttGroupVar);
           if(groupInfo == undefined) {
             // console.log("groupInfo is undefined");
@@ -1713,6 +1713,7 @@ export default {
           }
           else {
             // console.log("update groupInfo ", groupInfo);
+            var groupTmpExist = false;
             var groupTmp = {
               "contain_user_ids": groupInfo.contain_user_ids,
               "group_avarar": groupInfo.group_avarar,
@@ -1733,7 +1734,21 @@ export default {
               "time_line_id": msg.time_line_id,
             }
             // console.log("groupTmp is ", groupTmp);
-            this.originalGroupList.unshift(groupTmp);
+            for(let i=0;i<this.originalGroupList.length;i++) {
+              if(this.originalGroupList[i].group_id == groupInfo.group_id) {
+                groupTmpExist = true;
+                this.originalGroupList[i].message_content = msg.message_content;
+                this.originalGroupList[i].message_content_type = msg.message_type;
+                this.originalGroupList[i].message_from_id = msg.message_from_id;
+                this.originalGroupList[i].message_id = msg.message_id;
+                this.originalGroupList[i].last_message_time = msg.message_timestamp;
+                this.originalGroupList[i].sequence_id = msg.sequence_id;
+                this.originalGroupList[i].time_line_id = msg.time_line_id;
+              }
+            }
+            if(!groupTmpExist) {
+              this.originalGroupList.unshift(groupTmp);
+            }
             this.unreadCount += groupInfo.un_read_count;
             if(this.unreadCount < 0) {
               this.unreadCount = 0;

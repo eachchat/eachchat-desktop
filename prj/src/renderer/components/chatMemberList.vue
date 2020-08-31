@@ -20,6 +20,7 @@ import {downloadGroupAvatar, FileUtil, sliceReturnsOfString} from '../../package
 import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
+import { nextTick } from 'process'
 export default {
     name: 'atDlg',
     data() {
@@ -164,12 +165,53 @@ export default {
             // console.log("this showposition is ", this.showPosition)
         },
         chatMemberSearchKey: function() {
-            this.memberListShow = [];
-            if((this.chatMemberSearchKey != null && this.chatMemberSearchKey.length == 0) || this.chatMemberSearchKey == null) {
-                console.log("toall ========")
-                this.memberListShow = this.memberListShowOriginal;
-                this.getMemberImage();
-                
+            nextTick(() => {
+                this.memberListShow = [];
+                if((this.chatMemberSearchKey != null && this.chatMemberSearchKey.length == 0) || this.chatMemberSearchKey == null) {
+                    console.log("toall ========")
+                    for(var i=0;i<this.memberListShowOriginal.length;i++) {
+                        if(this.memberListShow.indexOf(this.memberListShowOriginal[i]) == -1) {
+                            this.memberListShow.push(this.memberListShowOriginal[i]);
+                        }
+                    }
+                    
+                    this.getMemberImage();
+                    
+                    if(this.showPosition.length != 0) {
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                this.atDlgElement.style.left = this.showPosition.left.toString() + "px";
+                                this.atDlgElement.style.top = (this.showPosition.top - this.atDlgElement.clientHeight).toString() + "px";
+                            })
+                        }, 0)
+                    }
+                    return
+                }
+                var curSearchId = new Date().getTime();
+                this.chatMemberSearchKey = sliceReturnsOfString(this.chatMemberSearchKey);
+                console.log("chatMemberSearchKey is ", this.chatMemberSearchKey);
+                var searchResult = {
+                    "id": curSearchId,
+                    "searchList": []
+                };
+                console.log("this.memberListShowOriginal.length is ", this.memberListShowOriginal.length);
+
+                this.searchId = curSearchId;
+                for(var i=0;i<this.memberListShowOriginal.length;i++) {
+                    console.log("searchResult is ", this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey));
+                    if(this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey) != -1) {
+                        if(searchResult.searchList.indexOf(this.memberListShowOriginal[i]) == -1) {
+                            searchResult.searchList.push(this.memberListShowOriginal[i]);
+                        }
+                    }
+                }
+
+                console.log("searchResult ", searchResult);
+                if(searchResult.id == this.searchId) {
+                    this.memberListShow = searchResult.searchList;
+                    this.getMemberImage();
+                }
+
                 if(this.showPosition.length != 0) {
                     setTimeout(() => {
                         this.$nextTick(() => {
@@ -178,41 +220,7 @@ export default {
                         })
                     }, 0)
                 }
-                return
-            }
-            var curSearchId = new Date().getTime();
-            this.chatMemberSearchKey = sliceReturnsOfString(this.chatMemberSearchKey);
-            console.log("chatMemberSearchKey is ", this.chatMemberSearchKey);
-            var searchResult = {
-                "id": curSearchId,
-                "searchList": []
-            };
-            console.log("this.memberListShowOriginal.length is ", this.memberListShowOriginal.length);
-
-            this.searchId = curSearchId;
-            for(var i=0;i<this.memberListShowOriginal.length;i++) {
-                console.log("searchResult is ", this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey));
-                if(this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey) != -1) {
-                    if(searchResult.searchList.indexOf(this.memberListShowOriginal[i]) == -1) {
-                        searchResult.searchList.push(this.memberListShowOriginal[i]);
-                    }
-                }
-            }
-
-            console.log("searchResult ", searchResult);
-            if(searchResult.id == this.searchId) {
-                this.memberListShow = searchResult.searchList;
-                this.getMemberImage();
-            }
-
-            if(this.showPosition.length != 0) {
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        this.atDlgElement.style.left = this.showPosition.left.toString() + "px";
-                        this.atDlgElement.style.top = (this.showPosition.top - this.atDlgElement.clientHeight).toString() + "px";
-                    })
-                }, 0)
-            }
+            })
         }
     }
 }

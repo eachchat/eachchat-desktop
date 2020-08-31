@@ -727,11 +727,24 @@ export default {
         inputChanged(content) {
             // console.log("content is ", content);
             this.curContent = content.text;
+            var range = this.editor.getSelection();
+            var content = this.editor.getContents();
+            var curInputIndexTmp = 0;
             // console.log("this.curContent is ", this.curContent);
+            if(range == null) {
+                curInputIndexTmp = 0;
+            }
+            else {
+                curInputIndexTmp = range.index;
+            }
+            if(range != null) {
+                console.log("range.index is ", range.index);
+            }
             var atIndex = this.curContent.lastIndexOf("@");
-            // console.log("atIndex is ", atIndex);
+            console.log("atIndex is ", atIndex);
+            console.log("this.curInputIndex is ", curInputIndexTmp);
             if(this.chatMemberDlgVisible) {
-                var getSearchKey = this.curContent.substring(atIndex + 1, this.curInputIndex).trim();
+                var getSearchKey = this.curContent.substring(atIndex + 1, curInputIndexTmp + 1).trim();
                 this.chatMemberSearchKey = getSearchKey;
                 // console.log("inputchange this.chatmembersearchkey is ", this.chatMemberSearchKey);
                 // console.log("inputchange this.chatmembersearchkey.length is ", this.chatMemberSearchKey.length);
@@ -777,10 +790,19 @@ export default {
             var content = this.editor.getContents();
             var index = 0;
             var distContent = "@";
+            var range = this.editor.getSelection();
+            var content = this.editor.getContents();
+            // console.log("this.chatMembersearchkey ", this.chatMemberSearchKey);
             if(this.chatMemberSearchKey != null) {
                 distContent = distContent + this.chatMemberSearchKey;
             }
             distContent = distContent.trim();
+            if(range == null) {
+                this.curInputIndex = 0;
+            }
+            else {
+                this.curInputIndex = range.index;
+            }
             for(var i=0;i<content.ops.length;i++) {
                 if(content.ops[i].insert.span == undefined) {
                     // console.log("content.ops[i].insert ", content.ops[i].insert);
@@ -789,12 +811,12 @@ export default {
                         // console.log("curInputIndex is ", this.curInputIndex);
                         content.ops[i].insert = content.ops[i].insert.replace(distContent, "");
                         // console.log("curInputIndex is ", this.curInputIndex);
-                        // console.log("content.ops[i].insert ", content.ops[i].insert);
+                        // console.log("content ", content);
                         this.editor.setContents(content);
                         // this.editor.setSelection(500);
                         // console.log("curInputIndex is ", this.curInputIndex);
-                        // console.log("cursor index is ", this.curInputIndex - distContent.length);
-                        this.curInputIndex = this.curInputIndex - distContent.length;
+                        // console.log("distContent.length is ", distContent.length);
+                        this.curInputIndex = this.curInputIndex > distContent.length ? this.curInputIndex - distContent.length : 0;
                         break;
                     }
                 }
@@ -805,8 +827,6 @@ export default {
             // console.log("clipboard ", clipboard.readImage())
             var range = this.editor.getSelection();
             var content = this.editor.getContents();
-            this.curInputIndex = range==null ? 0 : range.index;
-            // console.log("this.curInputIndex is ", this.curInputIndex);
 
             if(event.code == "Enter" && !event.ctrlKey) {
                 this.sendMsg();
@@ -837,7 +857,7 @@ export default {
                 }
                 return true;
             }
-            else if(event.keyCode == 229) {
+            else if(event.code == "Digit2" && event.shiftKey == true) {
                 if(this.chat.group_type == 102) {
                     return;
                 }
@@ -2494,7 +2514,7 @@ export default {
             this.cleanCache = false;
             console.log("more more more ", this.groupInfoObj)
         },
-        compare: function(){
+        compareMsg: function(){
             return function(a, b)
             {
                 var value1 = a.sequence_id;
@@ -2548,7 +2568,7 @@ export default {
                                     this.needScroll = false;
                                 }
                                 this.needToBottom = false;
-                                var messageListTmp = ret.sort(this.compare());
+                                var messageListTmp = ret.sort(this.compareMsg());
                                 for(var i=0;i<messageListTmp.length;i++){
                                     console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
                                     if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
@@ -2607,7 +2627,7 @@ export default {
                     if(retBefore.length < 20) {
                         this.needScrollTop = false;
                     }
-                    var messageListTmp = retBefore.sort(this.compare());
+                    var messageListTmp = retBefore.sort(this.compareMsg());
                     this.messageList = [];
                     for(var i=0;i<messageListTmp.length;i++){
                         // console.log("this.chat.sequence_id is ", this.chat.sequence_id);
@@ -2647,6 +2667,19 @@ export default {
                             }
                         }
                     }
+                    this.$nextTick(() => {
+                        this.needToBottom = true;
+                        setTimeout(() => {
+                            let div = document.getElementById("message-show-list");
+                            if(div) {
+                                div.scrollTop = div.scrollHeight - div.clientHeight;
+                                // The left msg get through scroll event
+                                div.addEventListener('scroll', this.handleScroll);
+                                // div.addEventListener('onresize', this.checkResize);
+                            }
+                            this.isRefreshing = false;
+                        }, 100)
+                    })
                     // console.log("this.messageList is ", this.messageList);
                     
                     // console.log("this.messageList is ", this.messageList);
@@ -2682,19 +2715,6 @@ export default {
                     //     }
                     //     // console.log("this.messagelist is ", this.messageList)
                     // }
-                    setTimeout(() => {
-                        this.needToBottom = true;
-                        this.$nextTick(() => {
-                            let div = document.getElementById("message-show-list");
-                            if(div) {
-                                div.scrollTop = div.scrollHeight - div.clientHeight;
-                                // The left msg get through scroll event
-                                div.addEventListener('scroll', this.handleScroll);
-                                // div.addEventListener('onresize', this.checkResize);
-                            }
-                            this.isRefreshing = false;
-                        })
-                    }, 300)
                 })
         },
         updateChatGroupStatus(groupId, groupStatus, updateType) {
@@ -2922,7 +2942,7 @@ export default {
                     }
                 }
                 this.messageList.push(this.newMsg);
-                this.messageList = this.messageList.sort(this.compare());
+                // this.messageList = this.messageList.sort(this.compareMsg());
                 this.existingMsgId.push(this.newMsg.message_id);
                 let div = document.getElementById("message-show-list");
                 if(div) {

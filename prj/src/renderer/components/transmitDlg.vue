@@ -674,7 +674,7 @@ export default {
                         var filePath = await services.common.GetFilePath(curMsg.message_id);
                         if(!fs.existsSync(filePath)) {
                             var fileDir = confservice.getFilePath(curMsg.message_timestamp);
-                            var filePath = path.join(fileDir, strMsgContentToJson(curMsg.message_id)['fileName']);
+                            var filePath = path.join(fileDir, strMsgContentToJson(curMsg.message_content)['fileName']);
                         }
                         if(fs.existsSync(filePath)) {
                             var nameTmp = path.basename(filePath);

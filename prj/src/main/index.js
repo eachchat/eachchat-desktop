@@ -442,7 +442,7 @@ function downloadExist(distTemp) {
     if(state && state.atime) {
       var curTimeMSeconds = new Date().getTime();
       var fileATimeMSeconds = state.atime.getTime();
-      if(fileATimeMSeconds - curTimeMSeconds < 1000 * 35) {
+      if(fileATimeMSeconds - curTimeMSeconds < 1000 * 5) {
         return true;
       }
       else {
