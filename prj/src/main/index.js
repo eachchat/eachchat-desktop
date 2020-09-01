@@ -29,8 +29,11 @@ let emptyIconPath;
 let isLogin = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
-  if(process.platform == 'darwin' || process.platform == 'linux'){
+  if(process.platform == 'darwin'){
     iconPath = "../../static/Img/Main/macMenuIcon.png";
+  }
+  else if(process.platform == 'linux') {
+    iconPath = "../../static/Img/Main/icon.png";
   }
   
   emptyIconPath = "../../static/Img/Main/logo-empty.ico";
@@ -38,8 +41,11 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "../../static/Img/Main/logo@2x.png";
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
-  if(process.platform == 'darwin' || process.platform == 'linux'){
+  if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/macMenuIcon.png";
+  }
+  else if(process.platform == 'linux') {
+    iconPath = "/static/Img/Main/icon.png";
   }
   emptyIconPath = "/static/Img/Main/logo-empty.ico";
   soundPath = "/static/sound.wav";
@@ -98,7 +104,8 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     webPreferences: {
       webSecurity:false,
     },
-    frame:false
+    frame:false,
+    icon: path.join(__dirname, iconPath)
   })
   isLogin = true;
   const mainPageWinURL = process.env.NODE_ENV === 'development'
@@ -207,7 +214,8 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     /**
      * Across Domains Problem
      */
-    webPreferences: {webSecurity:false}
+    webPreferences: {webSecurity:false},
+    icon: path.join(__dirname, iconPath)
   })
   mainWindow.hide();
   mainPageWindow.close();
@@ -905,7 +913,12 @@ ipcMain.on('win-max', function(event, arg) {
   }
 });
 ipcMain.on('login-win-close', function(event, arg) {
-  mainWindow.hide();
+  if(process.platform == "darwin") {
+    mainWindow.hide();
+  }
+  else {
+    mainWindow.close();
+  }
 });
 
 ipcMain.on('login-win-min', function(event, arg) {
@@ -941,7 +954,8 @@ function createWindow () {
     /**
      * Across Domains Problem
      */
-    webPreferences: {webSecurity:false}
+    webPreferences: {webSecurity:false},
+    icon: path.join(__dirname, iconPath)
   })
   mainWindow.hide();
   mainWindow.loadURL(winURL);

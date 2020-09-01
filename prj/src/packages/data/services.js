@@ -1364,7 +1364,7 @@ const common = {
     // else {
       targetPath = await makeFlieNameForConflict(targetPath);
       ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen]);
-      return ret;
+      return targetPath;
     // }
   },
 

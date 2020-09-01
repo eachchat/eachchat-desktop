@@ -44,6 +44,7 @@
                     </div>
                 </div>
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip">
+                <el-progress class="my-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
             <div class="msg-info-others" v-else>
                 <img class="msg-info-user-img-with-name" :id="getUserIconId()"  :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip" v-if="isGroup">
@@ -78,6 +79,7 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-others-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
+                    <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
                 </div>
             </div>
         </div>
@@ -163,7 +165,6 @@ export default {
                 else{
                     console.log("=======target path download ", targetPath);
                     services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true);
-                    this.$toastMessage({message:'文件正在下载，请稍后', time:1500, type:'success'});
                 }
             }
             else if(msgType == 105) {
@@ -319,6 +320,7 @@ export default {
             else if(chatGroupMsgType === 103)
             {
                 this.fileName = chatGroupMsgContent.fileName;
+                this.fileSizeNum = chatGroupMsgContent.fileSize;
                 this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
                 
                 // var targetFileName = chatGroupMsgContent.fileName;
@@ -333,7 +335,22 @@ export default {
                 if(!fs.existsSync(targetPath)){
                     // console.log("this.msg.timelineid is ", this.msg.time_line_id)
                     // console.log("targetfilename is ", targetFileName);
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false);
+                    this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false);
+                    this.checkingTmpPath = this.checkingPath + "_tmp";
+                    this.downloadingInterval = setInterval(() => {
+                        if(fs.existsSync(this.checkingTmpPath)) {
+                            this.showProgress = true;
+                            var checkingState = fs.statSync(this.checkingTmpPath);
+                            this.curPercent = parseInt(checkingState.size*100/Number(this.fileSizeNum))
+                            console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
+                        }
+                        if(fs.existsSync(this.checkingPath)) {
+                            this.showProgress = false;
+                            if(this.downloadingInterval) {
+                                clearInterval(this.downloadingInterval);
+                            }
+                        }
+                    }, 200);
                 }
             }
             else if(chatGroupMsgType === 104)
@@ -547,6 +564,11 @@ export default {
     },
     data() {
         return {
+            showProgress: false,
+            curPercent: 0,
+            downloadingInterval: undefined,
+            checkingTmpPath: '',
+            checkingPath: '',
             showState: false,
             updateStatus: false,
             messageContent: '',
@@ -555,6 +577,7 @@ export default {
             fileName: '',
             fileIcon: '',
             fileSize: 0,
+            fileSizeNum: 0,
             voiceLenth: 0,
             imageHeight: 100,
             editorOption : {
@@ -638,10 +661,16 @@ export default {
                 return;
             }
 
+            this.showProgress = false;
+            if(this.downloadingInterval) {
+                clearInterval(this.downloadingInterval);
+            }
+
             if(fs.existsSync(localPath)){
-                if(this.msg.file_local_path.length != 0 && !fs.existsSync(this.msg.file_local_path)) {
-                    return;
-                }
+                // if(this.msg.file_local_path.length != 0 && !fs.existsSync(this.msg.file_local_path)) {
+                //     return;
+                // }
+                console.log("Update db locak path ", localPath);
                 services.common.SetFilePath(this.msg.message_id, localPath);
                 // Update message localpath throuth messageId
                 // console.log("update msg file path to ", localPath);
@@ -743,6 +772,20 @@ export default {
         float: left;
         display: block;
         margin-left: 8px;
+    }
+
+    .my-file-progress {
+        display: block;
+        margin-right: 61px;
+        width: 100px;
+        float: right;
+    }
+
+    .others-file-progress {
+        display: block;
+        margin-left: 61px;
+        width: 100px;
+        float: left;
     }
 
     .msg-info-user-img-no-name {
