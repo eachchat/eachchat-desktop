@@ -139,15 +139,6 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     showMain();
   });
 
-  if(process.platform == 'darwin') {
-    if(mainPageWindow.isFocused()) {
-      let content = mainPageWindow.webContents;
-      globalShortcut.register('CommandOrControl+V', () => {
-        content.paste();
-      })
-    }
-  }
-
   // setAutoRun(true);
 });
 
@@ -959,6 +950,16 @@ function createWindow () {
   mainWindow.webContents.on('dom-ready', function(){
     mainWindow.show();            
   });
+  
+  if(process.platform == 'darwin') {
+    if(mainPageWindow != undefined && mainPageWindow.isFocused()) {
+        let content = mainPageWindow.webContents;
+        globalShortcut.register('CommandOrControl+V', () => {
+          content.paste();
+        })
+    }
+  }
+
 }
 
 ipcMain.on("openDevTools", function(event) {
