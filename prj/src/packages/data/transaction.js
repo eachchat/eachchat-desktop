@@ -56,7 +56,7 @@ class APITransaction {
     return response;
   }
 
-  async login(username, password, identityType, identityValue, model, deviceID, desktopType) {
+  async login(username, password, identityType, identityValue, identytiCode, model, deviceID, desktopType) {
     let osType;
     
     if(environment.os.isWindows){
@@ -78,12 +78,40 @@ class APITransaction {
         {
           type: identityType,
           value: identityValue,
+          code:  identytiCode
         },
         osType: osType,
         model:  model,
         deviceId: deviceID,
         desktopType: desktopType
       });
+    return this.parseStatus(response);
+  }
+
+  async MobileCodeLogin(mobile){
+    let response = this.commonApi.post(
+      "/api/services/auth/v1/user/mobile",
+      {
+        mobile: mobile
+      });
+    return this.parseStatus(response);
+  }
+
+  async EmailCodeLogin(email){
+    let response = this.commonApi.post(
+      "/api/services/auth/v1/user/email",
+      {
+        email: email
+      })
+    return this.parseStatus(response);
+  }
+
+  async EmailCodeVerify(emailCode){
+    let response = this.commonApi.post(
+      "/api/apps/org/v1/user/email/code/check",
+      {
+        code: emailCode
+      })
     return this.parseStatus(response);
   }
 

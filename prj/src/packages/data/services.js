@@ -30,6 +30,7 @@ const commonConfig = {
   password:       undefined,
   identityType:   undefined,
   identityValue:  undefined,
+  identityCode:   undefined,
   model:          undefined,
   deviceID:       undefined
 }; // config info
@@ -287,40 +288,40 @@ const common = {
     this.api.SetService(this);
   },
 
+  async MobileCodeLogin(mobile){
+    this.api = null;
+    this.initServiceApi();
+    let result = await this.api.MobileCodeLogin(mobile);
+    if (!result.ok || !result.success) {
+      return result.data;
+    }
+    return true;
+  },
+
+  async EmailCodeLogin(email){
+    this.api = null;
+    this.initServiceApi();
+    let res = await this.api.EmailCodeLogin(email);
+    if (!result.ok || !result.success) {
+      return result.data;
+    }
+    return true;
+  },
+
+  async EmailCodeVerify(emailCode){
+    this.api = null;
+    this.initServiceApi();
+    this.api.EmailCodeVerify(emailCode);
+  },
+
   async login(config) {
     if (typeof config != "object") {
       return;
     }
-    if ("username" in config) {
-      this.config.username = config.username;
-    }
-
-    if ("password" in config) {
-      this.config.password = config.password;
-    }
-
-    if("identityType" in config){
-      this.config.identityType = config.identityType;
-    }
-
-    if("identityValue" in config){
-      this.config.identityValue = config.identityValue;
-    }
-
-    if("model" in config){
-      this.config.model = config.model;
-    }
-
-    if("deviceID" in config){
-      this.config.deviceID = config.deviceID;
-    }
-
-    if("desktopType" in config){
-      this.config.desktopType = config.desktopType;
-    }
+  
     this.api = null;
     this.initServiceApi();
-    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.model, config.deviceID, config.desktopType);
+    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.identityCode, config.model, config.deviceID, config.desktopType);
 
     if (!result.ok || !result.success) {
       return result.data;
@@ -474,7 +475,6 @@ const common = {
 
     this.mqttclient.on('connect', async function(){
       console.log("mqtt connect success")
-      console.log(hostname);
       servers.reconnectTime = 0;
       if(servers.retSetTimer != undefined)
         clearTimeout(servers.retSetTimer);
@@ -489,7 +489,6 @@ const common = {
         //servers.callback("reconnect");
         bClose = false;
       }
-      console.log(userid)
       api.SetMqtt(mqttclient);
       mqttclient.subscribe(userid, function (err) {
           if (err) {
@@ -1275,7 +1274,6 @@ const common = {
     let sourceKey = findKey.key;
     let sourceVector = findKey.vector;
     let decryptMsg = this.data.aseEncryption.decryptMesage(encryptContent, sourceKey, sourceVector);
-    console.log(decryptMsg)
     if(decryptMsg == "")
     {
       return {
@@ -1983,7 +1981,6 @@ const common = {
     this.config.mqttHost = mqtt.host;
     this.config.mqttPort = mqtt.port;
     this.config.mqttTls = mqtt.tls;
-    console.log("gmsConfiguration end");
     return identities;
   },
 
