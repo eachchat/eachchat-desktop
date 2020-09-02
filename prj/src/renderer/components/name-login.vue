@@ -44,38 +44,109 @@
                 </div> -->
             </div>
             <div class="account-content" v-show="!showOrganizationView">
-                <div class="title">
-                    <div class="title-ico">
-                        <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
-                    </div><div class="tltle-content">
-                        易企聊
+                <div class="username-content" v-show="showUsernameLoginView">
+                    <div class="title">
+                            用户名登录
+                    </div>
+                    <div class="item-account">
+                        <p class="account-title">
+                            用户名
+                        </p>
+                        <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                    </div>
+                    <div class="item-pwd">
+                        <p class="password-title">
+                            密码
+                        </p>
+                        <input prefix="ios-lock-outline" type="password" v-model="password" placeholder="请输入密码" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                    </div>
+                    <div class="accountLogin-state">
+                            <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                    </div>
+                    <div class="btn item">
+                        <Button type="success" id="loginButton" @click="login()">登录</Button>
+                    </div>
+                    <div class="otherlogin" v-show="false">
+                        <div class="userphone-login" @click="userPhoneLoginClicked()">
+                            手机验证码登录
+                        </div><div class="useremail-login" @click="userEmailLoginClicked()">
+                            邮箱验证码登录
+                            </div>
+                    </div>
+                    <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
+                            <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                            <p class="back-title">返回</p>
                     </div>
                 </div>
+                <div class="userphone-content" v-show="showUserphoneLoginView">
+                    <div class="title">
+                        手机验证码登录
+                    </div>
+                    <div class="item-account">
+                        <p class="account-title">
+                            +86
+                        </p>
+                        <div class="account-separate">
+                        </div>
+                        <input prefix="ios-contact-outline" v-model="username" placeholder="请输入手机号" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                    </div>
+                    <div class="item-pwd">
 
-            <div class="item-account">
-                <p class="account-title">
-                    用户名
-                </p>
-                <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                        <input prefix="ios-lock-outline"  v-model="password" placeholder="请输入验证码" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                        <p class="password-title" :style="{'color': userPhoneSendColor}" @click="userPhoneSendCodeClicked()">
+                            {{ userPhoneSendCodeValue }}
+                        </p>
+                    </div>
+                    <div class="accountLogin-state">
+                            <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                    </div>
+                    <div class="btn item">
+                        <Button type="success" id="loginButton" @click="login()">登录</Button>
+                    </div>
+                    <div class="otherlogin">
+                        <div class="userphone-login" @click="userNameLoginClicked()">
+                            用户名密码登录
+                        </div><div class="useremail-login" @click="userEmailLoginClicked()">
+                            邮箱验证码登录
+                            </div>
+                    </div>
+                    <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
+                            <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                            <p class="back-title">返回</p>
+                    </div>
+                </div>
+                <div class="useremail-content" v-show="showUseremailLoginView">
+                    <div class="title">
+                        邮箱验证码登录
+                    </div>
+                    <div class="item-account">
+                        <input prefix="ios-contact-outline" v-model="username" placeholder="请输入邮箱账号" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                    </div>
+                    <div class="item-pwd">
+                        <input prefix="ios-lock-outline"  v-model="password" placeholder="请输入验证码" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                        <p class="password-title" :style="{'color': userEmailSendColor}" @click="userEmailSendCodeClicked()">
+                            {{ userEmailSendCodeValue }}
+                        </p>
+                    </div>
+                    <div class="accountLogin-state">
+                            <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                    </div>
+                    <div class="btn item">
+                        <Button type="success" id="loginButton" @click="login()">登录</Button>
+                    </div>
+                    <div class="otherlogin">
+                        <div class="userphone-login" @click="userNameLoginClicked()">
+                            用户名密码登录
+                        </div><div class="useremail-login" @click="userPhoneLoginClicked()">
+                            手机验证码登录
+                            </div>
+                    </div>
+                    <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
+                            <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                            <p class="back-title">返回</p>
+                    </div>
+                </div>
             </div>
-            <div class="item-pwd">
-                <p class="password-title">
-                    密码
-                </p>
-                <input prefix="ios-lock-outline" type="password" v-model="password" placeholder="请输入密码" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
-            </div>
-            <div class="accountLogin-state">
-                    <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
-            </div>
-            <div class="btn item">
-                <Button type="success" id="loginButton" @click="login()">登录</Button>
-            </div>
-            <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
-                    <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
-                    <p class="back-title">返回</p>
-            </div>
-            </div>
-
         </div>
         <div class="organizationFinder-panel" v-show="showOrganizationFinderView">
             <div class="finder-header">
@@ -134,16 +205,43 @@ export default {
             loadingProcess: '正在验证登录信息',
 
             emailSendButtonValue:'发送',
+            userEmailSendCodeValue:'发送验证码',
+            userPhoneSendCodeValue:'发送验证码',
+            userPhoneSendCodeTime: 0,
+            userEmailSendCodeTime: 0,
+
+
             organizationButtonDisabled: false,
             emialAddressButtonDisabled:false,
-            time:0,
+
+            organizationFinderEmailTime:0,
             organizationAddress:'',
             emialAddress:'',
             showLoginView: false,
+            showUsernameLoginView: true,
+            showUserphoneLoginView: false,
+            showUseremailLoginView: false,
             //showServerSettingView: false,
             showOrganizationView: true,
             showOrganizationFinderView: false,
             showLoadingView: true,
+        }
+    },
+    computed:{
+        userPhoneSendColor:function(){
+            if(this.userPhoneSendCodeTime > 0){
+                return 'rgba(153, 153, 153, 1)';
+            }else{
+                return 'rgba(36, 179, 107, 1)'
+            }
+
+        },
+        userEmailSendColor:function(){
+            if(this.userEmailSendCodeTime > 0){
+                return 'rgba(153, 153, 153, 1)';
+            }else{
+                return 'rgba(36, 179, 107, 1)'
+            }
         }
     },
     methods: {
@@ -211,6 +309,10 @@ export default {
 
             return reg.test(email); 
         },
+        phoneFormatTest(phone){
+            var re = /^1\d{10}$/;
+            return re.test(phone);
+        },
         timer() {
             if (this.time > 0) {
                     this.time--;
@@ -220,6 +322,100 @@ export default {
                 this.time = 0;
                 this.emailSendButtonValue = "发送";
                 this.emialAddressButtonDisabled = false;
+            }
+        },
+        userPhoneSendCodeTimer(){
+            if (this.userPhoneSendCodeTime > 1) {
+                    this.userPhoneSendCodeTime --;
+                    this.userPhoneSendCodeValue = "重新发送" + this.userPhoneSendCodeTime + "s";
+                    setTimeout(this.userPhoneSendCodeTimer, 1000);
+            } else{
+                this.userPhoneSendCodeValue = "重新发送";
+                this.userPhoneSendCodeTime = 0;
+            }
+        },
+        userEmailSendCodeTimer(){
+            if (this.userEmailSendCodeTime > 1) {
+                    this.userEmailSendCodeTime --;
+                    this.userEmailSendCodeValue = "重新发送" + this.userEmailSendCodeTime + "s";
+                    setTimeout(this.userEmailSendCodeTimer, 1000);
+            } else{
+                this.userEmailSendCodeValue = "重新发送";
+                this.userEmailSendCodeTime = 0;
+            }
+        },
+        userNameLoginClicked(){
+            this.resetLoginStateTitle();
+            this.showLoginView = true;
+            this.showOrganizationView = false;
+            this.showOrganizationFinderView = false;
+            this.showUserphoneLoginView = false;
+            this.showUseremailLoginView = false;
+
+            this.showUsernameLoginView = true;
+        },
+        userPhoneLoginClicked(){
+            this.resetLoginStateTitle();
+            this.showLoginView = true;
+            this.showOrganizationView = false;
+            this.showOrganizationFinderView = false;
+            this.showUsernameLoginView = false;
+            this.showUseremailLoginView = false;
+
+            this.showUserphoneLoginView = true;
+        },
+        userPhoneSendCodeClicked:async function(){
+            if(this.userPhoneSendCodeTime > 1){
+                return;
+            }
+            this.resetLoginStateTitle();
+            if(this.isEmpty(this.username)){
+                this.loginState = '请输入手机号';
+            }
+            if(!this.phoneFormatTest(this.username)){
+                this.loginState = '手机号格式不正确';
+                return;
+            }
+            var result = await services.common.MobileCodeLogin(this.username);
+            if(result == true){
+                this.userPhoneSendCodeTime = 11;
+                this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                this.userPhoneSendCodeTimer();
+            }else{
+                this.loginState = result.message;
+            }
+            
+        },
+
+        userEmailLoginClicked(){
+            this.resetLoginStateTitle();
+            this.showLoginView = true;
+            this.showOrganizationView = false;
+            this.showOrganizationFinderView = false;
+            this.showUsernameLoginView = false;
+            this.showUserphoneLoginView = false;
+            
+            this.showUseremailLoginView = true;
+        },
+        userEmailSendCodeClicked:async function(){
+            if(this.userEmailSendCodeTime > 1){
+                return;
+            }
+            this.resetLoginStateTitle();
+            if(this.isEmpty(this.username)){
+                this.loginState = '请输入手机号';
+            }
+            if(!this.emailFormatTest(this.username)){
+                this.loginState = '手机号格式不正确';
+                return;
+            }
+            var result = await services.common.EmailCodeLogin(this.username);
+            if(result == true){
+                this.userEmailSendCodeTime = 11;
+                this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                this.userEmailSendCodeTimer();
+            }else{
+                this.loginState = result.message;
             }
         },
         organizationFinderBackToLoginClicked(){
@@ -272,31 +468,76 @@ export default {
         },
         login:async function() {
             if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
+                if(this.showUsernameLoginView){
+                    this.loginState = "请输入用户名和密码";
+                    return;
+                }else if(this.showUserphoneLoginView){
+                    this.loginState = "请输入手机号和验证码";
+                    return;
+                }else if(this.showUseremailLoginView){
+                    this.loginState = "请输入邮箱账号和验证码";
+                    return;
+                }
                 
-                this.loginState = "请输入用户名和密码";
-                return;
             }
             if(this.isEmpty(this.username)){
-                this.loginState = "请输入用户名";
-                return;
+                if(this.showUsernameLoginView){
+                    this.loginState = "请输入用户名";
+                    return;
+                }else if(this.showUserphoneLoginView){
+                    this.loginState = "请输入手机号";
+                    return;
+                }else if(this.showUseremailLoginView){
+                    this.loginState = "请输入邮箱账号";
+                    return;
+                }
             }
             if(this.isEmpty(this.password)){
-                this.loginState = "请输入密码";
-                return;
+                if(this.showUsernameLoginView){
+                    this.loginState = "请输入密码";
+                    return;
+                }else if(this.showUserphoneLoginView){
+                    this.loginState = "请输入验证码";
+                    return;
+                }else if(this.showUseremailLoginView){
+                    this.loginState = "请输入验证码";
+                    return;
+                }
             }
             var mac = environment.os.mac;
             var version = this.getOSVersion();
             var hostname = environment.os.hostName;
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
-            let config = {
-                username: this.username,
-                password: this.password,
-                identityType: 'password',
-                model: hostname,
-                deviceID: mac,
-                desktopType: version
-            };
+            var config = {};
+            if(this.showUsernameLoginView){
+                config = {
+                    username: this.username,
+                    password: this.password,
+                    identityType: 'password',
+                    model: hostname,
+                    deviceID: mac,
+                    desktopType: version
+            }
+            }else if(this.showUserphoneLoginView){
+                config = {
+                    identityType: 'mobile',
+                    identityValue: this.username,
+                    identityCode: this.password,
+                    model: hostname,
+                    deviceID: mac,
+                    desktopType: version
+                }
+            }else if(this.showUseremailLoginView){
+                config = {
+                    identityType: 'email',
+                    identityValue: this.username,
+                    identityCode: this.password,
+                    model: hostname,
+                    deviceID: mac,
+                    desktopType: version
+                }
+            }
             let oldLoginModel = await services.common.GetGlobalLogin();
             let response = await services.common.login(config);
             console.log(response);
@@ -460,41 +701,20 @@ export default {
         height: calc(100% - 36px);
         overflow: hidden;
 .account-content{
+    .username-content{
             .title {
-            height: 36px;
-            width: 100%;
-            padding: 0px;
-            margin: 0px;
-            padding-top: 34px;
-            //margin-top: 34px;
-
-            .title-ico {
-                display: inline-block;
-                width: 36px;
-                height: 36px;
-                margin-left: 117px;
-                padding: 0px;
-                .login-logo{
-                    width: 36px;
-                    height: 36px;
-                    margin: 0px;
-                    padding: 0px;
-                }
-            }
-
-            .tltle-content {
                 display: inline-block;
                 vertical-align: top;
-                height:36px;
-                font-size:24px;
+                height:22px;
+                font-size:16px;
                 font-weight:600;
                 color:rgba(39,45,52,1);
-                line-height:36px;
-                padding-left: 8px;
+                line-height:22px;
                 font-family: PingFangSC-Medium;
                 font-weight: 600;
-
-            }
+                text-align: center;
+                width: 100%;
+                margin-top: 36px;
         }
 
 
@@ -620,11 +840,42 @@ export default {
             }
 
         }
+        .otherlogin{
+            width: 260px;
+            height: 18px;
+            margin: 0px;
+            margin-left: 50px;
+            margin-top: 16px;
+            .userphone-login{
+                display: inline-block;
+                width: calc(100% - 95px);
+                height: 18px;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #24B36B;
+                line-height: 18px;
+                letter-spacing: 1px;
+                cursor: pointer;
+            }
+            .useremail-login{
+                display: inline-block;
+                width: 95px;
+                height: 18px;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #24B36B;
+                line-height: 18px;
+                letter-spacing: 1px;
+                cursor: pointer;
+            }
+        }
                 .login-footer{
             width: 100%;
             height: 20px;
             margin-bottom: 15px;
-            margin-top: 68px;
+            margin-top: 48px;
             cursor: pointer;
             .back-image{
                 cursor: pointer;
@@ -648,6 +899,436 @@ export default {
                 font-family: PingFangSC-Regular;
             }
         }
+    }
+    .userphone-content{
+            .title {
+                display: inline-block;
+                vertical-align: top;
+                height:22px;
+                font-size:16px;
+                font-weight:600;
+                color:rgba(39,45,52,1);
+                line-height:22px;
+                font-family: PingFangSC-Medium;
+                font-weight: 600;
+                text-align: center;
+                width: 100%;
+                margin-top: 36px;
+        }
+
+
+
+        .item-account{
+            margin-top: 42px;
+            width: 260px;
+            margin-left: 50px;
+            height: 36px;
+            .account-title{
+                display: inline-block;
+                position: absolute;
+                top: 136px;
+                left: 62px;
+                width: 30px;
+                height: 36px;
+                line-height: 36px;
+                z-index: 20;
+                margin: 0px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
+            }
+            .account-separate{
+                    display: inline;
+                    position: absolute;
+                    width: 1px;
+                    height: 18px;
+                    left: 100px;
+                    top: 145px;
+                    z-index: 30;
+                    background-color: rgba(221, 221, 221, 1);
+            }
+            .item-input {
+                display: inline-block;
+                position: absolute;
+                left: 50px;
+                text-indent: 61px;
+                width:260px;
+                height:36px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0px;
+                box-sizing: border-box;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                
+                font-size:14px;
+                outline: none;
+                font-family: PingFangSC-Regular;
+            }
+        }
+
+        .item-pwd {
+            margin-top: 12px;
+            width: 260px;
+            margin-left: 50px;
+            height: 36px;
+            .password-title{
+                width: 90px;
+                margin: 0px;
+                display: inline-block;
+                position: absolute;
+                left: 207px;
+                top: 192px;
+                height: 20px;
+                line-height: 20px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(36,179,107,1);
+                line-height:20px;
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
+                cursor: pointer;
+                text-align: right;
+            }
+            .item-input {
+                display: inline-block;
+                position: absolute;
+                left: 50px;
+                top: 184px;
+                width:260px;
+                height:36px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 12px;
+                font-size:14px;
+                outline: none;
+                font-family: PingFangSC-Regular;
+            }
+        }
+        .accountLogin-state {
+            width: 100%;
+            padding-left: 50px;
+            height: 17px;
+            .state-title{
+                text-align: left;
+                margin: 0px;
+                height:17px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(228,49,43,1);
+                line-height:17px;
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
+            }
+        }
+        .btn {
+            margin-top: 7px;
+            text-align: center;
+
+            button {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                outline: none;
+            }
+            
+            button:hover {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+            }
+
+        }
+        .otherlogin{
+            width: 260px;
+            height: 18px;
+            margin: 0px;
+            margin-left: 50px;
+            margin-top: 16px;
+            .userphone-login{
+                display: inline-block;
+                width: calc(100% - 95px);
+                height: 18px;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #24B36B;
+                line-height: 18px;
+                letter-spacing: 1px;
+                cursor: pointer;
+            }
+            .useremail-login{
+                display: inline-block;
+                width: 95px;
+                height: 18px;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #24B36B;
+                line-height: 18px;
+                letter-spacing: 1px;
+                cursor: pointer;
+            }
+        }
+                .login-footer{
+            width: 100%;
+            height: 20px;
+            margin-bottom: 15px;
+            margin-top: 48px;
+            cursor: pointer;
+            .back-image{
+                cursor: pointer;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-left: 24px;
+            }
+            .back-title{
+                cursor: pointer;
+                display: inline-block;
+                
+                height:20px;
+                font-size:14px;
+                margin: 0px;
+                vertical-align: top;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
+            }
+        }
+    }
+    .useremail-content{
+            .title {
+                display: inline-block;
+                vertical-align: top;
+                height:22px;
+                font-size:16px;
+                font-weight:600;
+                color:rgba(39,45,52,1);
+                line-height:22px;
+                font-family: PingFangSC-Medium;
+                font-weight: 600;
+                text-align: center;
+                width: 100%;
+                margin-top: 36px;
+        }
+
+
+
+        .item-account{
+            margin-top: 42px;
+            width: 260px;
+            margin-left: 50px;
+            height: 36px;
+
+            .item-input {
+                display: inline-block;
+                position: absolute;
+                left: 50px;
+                text-indent: 12px;
+                width:260px;
+                height:36px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0px;
+                box-sizing: border-box;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                
+                font-size:14px;
+                outline: none;
+                font-family: PingFangSC-Regular;
+            }
+        }
+
+        .item-pwd {
+            margin-top: 12px;
+            width: 260px;
+            margin-left: 50px;
+            height: 36px;
+            .password-title{
+                width: 90px;
+                margin: 0px;
+                display: inline-block;
+                position: absolute;
+                left: 207px;
+                top: 192px;
+                height: 20px;
+                line-height: 20px;
+                font-size:14px;
+                font-weight:400;
+                color:rgba(36,179,107,1);
+                line-height:20px;
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
+                cursor: pointer;
+                text-align: right;
+            }
+            .item-input {
+                display: inline-block;
+                position: absolute;
+                left: 50px;
+                top: 184px;
+                width:260px;
+                height:36px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border:1px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 12px;
+                font-size:14px;
+                outline: none;
+                font-family: PingFangSC-Regular;
+            }
+        }
+        .accountLogin-state {
+            width: 100%;
+            padding-left: 50px;
+            height: 17px;
+            .state-title{
+                text-align: left;
+                margin: 0px;
+                height:17px;
+                font-size:12px;
+                font-weight:400;
+                color:rgba(228,49,43,1);
+                line-height:17px;
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
+            }
+        }
+        .btn {
+            margin-top: 7px;
+            text-align: center;
+
+            button {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                outline: none;
+            }
+            
+            button:hover {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+            }
+
+        }
+        .otherlogin{
+            width: 260px;
+            height: 18px;
+            margin: 0px;
+            margin-left: 50px;
+            margin-top: 16px;
+            .userphone-login{
+                display: inline-block;
+                width: calc(100% - 95px);
+                height: 18px;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #24B36B;
+                line-height: 18px;
+                letter-spacing: 1px;
+                cursor: pointer;
+            }
+            .useremail-login{
+                display: inline-block;
+                width: 95px;
+                height: 18px;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #24B36B;
+                line-height: 18px;
+                letter-spacing: 1px;
+                cursor: pointer;
+            }
+        }
+                .login-footer{
+            width: 100%;
+            height: 20px;
+            margin-bottom: 15px;
+            margin-top: 48px;
+            cursor: pointer;
+            .back-image{
+                cursor: pointer;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-left: 24px;
+            }
+            .back-title{
+                cursor: pointer;
+                display: inline-block;
+                
+                height:20px;
+                font-size:14px;
+                margin: 0px;
+                vertical-align: top;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
+            }
+        }
+    }
 }
 
     .organization-content{
