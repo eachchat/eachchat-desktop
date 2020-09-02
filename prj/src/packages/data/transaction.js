@@ -89,7 +89,7 @@ class APITransaction {
   }
 
   async MobileCodeLogin(mobile){
-    let response = this.commonApi.post(
+    let response = await this.commonApi.post(
       "/api/services/auth/v1/user/mobile",
       {
         mobile: mobile
@@ -98,7 +98,7 @@ class APITransaction {
   }
 
   async EmailCodeLogin(email){
-    let response = this.commonApi.post(
+    let response = await this.commonApi.post(
       "/api/services/auth/v1/user/email",
       {
         email: email
@@ -107,7 +107,7 @@ class APITransaction {
   }
 
   async EmailCodeVerify(emailCode){
-    let response = this.commonApi.post(
+    let response = await this.commonApi.post(
       "/api/apps/org/v1/user/email/code/check",
       {
         code: emailCode
