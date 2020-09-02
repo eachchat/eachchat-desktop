@@ -1354,14 +1354,15 @@ const common = {
   async downloadFile(timelineId, message_time, fileName, needOpen) {
     var ret = "FILE_DOWNLOADING";
     var targetDir = confservice.getFilePath(message_time);
-    var targetPath = path.join(targetDir, fileName);
+    var targetPath = path.join(targetDir, timelineId);
+    var originalPath = path.join(targetDir, fileName);
     // // console.log("targetPath is ", targetPath);
     // if(fs.existsSync(targetPath)) {
     //   return targetPath;
     // }
     // else {
-      targetPath = await makeFlieNameForConflict(targetPath);
-      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen]);
+      // targetPath = await makeFlieNameForConflict(targetPath);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen, originalPath]);
       return targetPath;
     // }
   },
@@ -1370,14 +1371,15 @@ const common = {
     var ret = "FILE_DOWNLOADING";
     // console.log("downloadFile fileName ", fileName);
     var targetDir = confservice.getVoiceFilePath();
-    var targetPath = path.join(targetDir, fileName);
+    var targetPath = path.join(targetDir, timelineId);
+    var originalPath = path.join(targetDir, fileName);
     // console.log("targetPath is ", targetPath);
     if(fs.existsSync(targetPath)) {
       return targetPath;
     }
     else {
       // targetPath = await makeFlieNameForConflict(targetPath);
-      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen]);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen, originalPath]);
       return ret;
     }
   },

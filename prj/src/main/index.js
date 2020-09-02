@@ -3,7 +3,7 @@ import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
-import {ClearDB} from '../packages/core/Utils.js';
+import {makeFlieNameForConflict} from '../packages/core/Utils.js';
 
 /**
  * Set `__static` path to static files in production
@@ -443,7 +443,7 @@ function downloadExist(distTemp) {
     if(state && state.atime) {
       var curTimeMSeconds = new Date().getTime();
       var fileATimeMSeconds = state.atime.getTime();
-      if(fileATimeMSeconds - curTimeMSeconds < 1000 * 5) {
+      if(curTimeMSeconds - fileATimeMSeconds < 1000 * 5) {
         return true;
       }
       else {
@@ -482,6 +482,7 @@ function downloadFile(event, arg) {
       var distPath = arg[4];
       var distTemp = distPath + "_tmp";
       var needOpen = arg[5]; 
+      var originalPath = arg[6];
       var baseURL = hostname;
 
       if(downloadExist(distTemp)) {
@@ -514,22 +515,25 @@ function downloadFile(event, arg) {
         .then(function (ret) {
           // console.log("sender get is ", ret);
           ret.data.pipe(fs.createWriteStream(distTemp))
-          .on('finish', function() {
+          .on('finish', async function() {
+            // console.log("finished ")
             try{
-              if(fs.existsSync(distPath)) {
-                // fs.unlinkSync(distPath);
-                resolve(arg);
-              }
-              fs.renameSync(distTemp, distPath);
+              // if(fs.existsSync(distPath)) {
+              //   // fs.unlinkSync(distPath);
+              //   resolve(arg);
+              // }
+              var finalName = await makeFlieNameForConflict(originalPath);
+              // console.log("get final name ", finalName)
+              fs.renameSync(distTemp, finalName);
               if(needOpen) {
-                shell.openExternal(distPath);
+                shell.openExternal(finalName);
               }
-              // console.log("sender is ", event.sender);
+              // console.log("finalName is ", finalName);
               // let a = (new Date()).getTime();
               // console.log(countTmp + "~" + (a - timeTmp) + "： downloadFile distPath is ", distPath);
               // timeTmp = a;
               // countTmp += 1;
-              event.sender.send('updateMsgFile', [true, '', timelineID, distPath]);
+              event.sender.send('updateMsgFile', [true, '', timelineID, finalName]);
               resolve(true);
             }
             catch(e) {
@@ -781,7 +785,7 @@ function downloadImage(event, arg) {
 
 ipcMain.on("download-image", function(event, arg) {
   //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
-  console.log("download-image arg is ", arg);
+  // console.log("download-image arg is ", arg);
   queue.put(downloadImage(event, arg));
 });
 
