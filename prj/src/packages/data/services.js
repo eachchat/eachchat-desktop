@@ -301,7 +301,7 @@ const common = {
   async EmailCodeLogin(email){
     this.api = null;
     this.initServiceApi();
-    let res = await this.api.EmailCodeLogin(email);
+    let result = await this.api.EmailCodeLogin(email);
     if (!result.ok || !result.success) {
       return result.data;
     }
