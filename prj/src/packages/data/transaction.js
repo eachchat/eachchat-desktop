@@ -22,6 +22,11 @@ class APITransaction {
   SetService(service){
     this.service = service;
     this.commonApi.SetService(service);
+    this.SetTransaction();
+  }
+
+  SetTransaction(){
+    this.commonApi.SetTransaction(this);
   }
 
   parseStatus(response) {
@@ -143,6 +148,10 @@ class APITransaction {
         Authorization: "Bearer " + accessToken
       });
     return this.parseStatus(response);
+  }
+
+  IsRefreshToken(url){
+    return url == "/api/services/auth/v1/token/refresh";
   }
 
   async refreshToken(originRefreshToken) {

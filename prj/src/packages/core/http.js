@@ -113,6 +113,10 @@ class HTTP {
     this.service = service;
   }
 
+  SetTransaction(transaction){
+    this.transaction = transaction;
+  }
+
   async head(path, headers, appendix) {
     if (typeof headers == "undefined") {
       headers = {};
@@ -141,7 +145,7 @@ class HTTP {
     let config = Object.assign({
       headers: headers,
     }, appendix);
-    var response;
+    var response = undefined;
     if(args.length == 2){
       response = await asiosfunc(path, config);
     }
@@ -198,6 +202,8 @@ class HTTP {
 
     let parseValue = this.parseResponse(response);
     if(parseValue.data != undefined && parseValue.data.code == 401){
+      if(this.transaction.IsRefreshToken(path))
+        return this.parseResponse(response);
       return await this.RequestAgain(this.sender.post, path, data, appendix);
     }
     return parseValue;
