@@ -79,8 +79,8 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-others-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
-                    <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
                 </div>
+                <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
         </div>
     </div>
@@ -344,12 +344,12 @@ export default {
                             this.curPercent = parseInt(checkingState.size*100/Number(this.fileSizeNum))
                             console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
                         }
-                        if(fs.existsSync(this.checkingPath)) {
-                            this.showProgress = false;
-                            if(this.downloadingInterval) {
-                                clearInterval(this.downloadingInterval);
-                            }
-                        }
+                        // if(fs.existsSync(this.checkingPath)) {
+                        //     this.showProgress = false;
+                        //     if(this.downloadingInterval) {
+                        //         clearInterval(this.downloadingInterval);
+                        //     }
+                        // }
                     }, 200);
                 }
             }
@@ -606,6 +606,11 @@ export default {
                 else {
                     this.MsgContent(false);
                 }
+                setTimeout(() => {
+                    // console.log("show state");
+                    this.showState = true;
+                    this.updateStatus = !this.updateStatus;
+                }, 500)
             })
         }, 0)
     },
@@ -618,7 +623,9 @@ export default {
         msg: async function() {
             // await this.msgUserInfo();
             setTimeout(() => {
+                // console.log("show state");
                 this.showState = true;
+                this.updateStatus = !this.updateStatus;
             }, 500)
             var userIconElementId = this.getUserIconId();
             if(this.userIconElement == undefined) {
@@ -644,12 +651,13 @@ export default {
             }
         },
         updateMsg: function() {
-            // console.log("in message update message is ", this.updateMsg);
             if(this.updateMsg.length == 0) {
                 return;
             }
             setTimeout(() => {
+                // console.log("updateMsg show state");
                 this.showState = true;
+                this.updateStatus = !this.updateStatus;
             }, 500)
             var state = this.updateMsg[0];
             var stateInfo = this.updateMsg[1];
@@ -783,7 +791,7 @@ export default {
 
     .others-file-progress {
         display: block;
-        margin-left: 61px;
+        margin-left: 47px;
         width: 100px;
         float: left;
     }
