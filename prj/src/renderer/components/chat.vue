@@ -1702,7 +1702,6 @@ export default {
                             try{
                                 console.log("copy file from ", filePath, " to ", finalPath, " of ", guid);
                                 fs.copyFileSync(filePath, finalPath);
-                                services.common.SetFilePath(guid, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);
@@ -1806,7 +1805,8 @@ export default {
                                             else {
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].message_id == guid){
-                                                        ret.file_local_path = finalPath;
+                                                        services.common.SetFilePath(guid, this.messageList[i].file_local_path);
+                                                        ret.file_local_path = this.messageList[i].file_local_path;
                                                         this.messageList[i] = ret;
                                                         this.updatemsgStatus = {
                                                             "id": guid,
@@ -1963,7 +1963,6 @@ export default {
                             try{
                                 console.log("copy file from ", filePath, " to ", finalPath, " of ", guid);
                                 fs.copyFileSync(filePath, finalPath);
-                                services.common.SetFilePath(guid, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);
@@ -2075,8 +2074,8 @@ export default {
                                                         // console.log("update ret")
                                                         // ret.file_local_path = finalPath;
 
-                                                        var targetPathTmp = await services.common.GetFilePath(ret.message_id);
-                                                        ret.file_local_path = targetPathTmp;
+                                                        services.common.SetFilePath(guid, this.messageList[i].file_local_path);
+                                                        ret.file_local_path = this.messageList[i].file_local_path;
                                                         this.messageList[i] = ret;
                                                         this.updatemsgStatus = {
                                                             "id": guid,
