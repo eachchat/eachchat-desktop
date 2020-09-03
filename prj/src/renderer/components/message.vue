@@ -342,7 +342,7 @@ export default {
                             this.showProgress = true;
                             var checkingState = fs.statSync(this.checkingTmpPath);
                             this.curPercent = parseInt(checkingState.size*100/Number(this.fileSizeNum))
-                            console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
+                            // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
                         }
                         // if(fs.existsSync(this.checkingPath)) {
                         //     this.showProgress = false;
@@ -425,7 +425,7 @@ export default {
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 this.voiceLenth = chatGroupMsgContent.length;
                 this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/voiceAudio@2x.png");
+                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
                 fileMsgImgElement.setAttribute("height", 12);
             }
             else if(chatGroupMsgType === 106)

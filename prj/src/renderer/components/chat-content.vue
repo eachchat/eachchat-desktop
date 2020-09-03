@@ -7,7 +7,8 @@
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
-            <ul class="group-list">
+            <!-- <ul class="group-list"> -->
+            <transition-group class="group-list" name="group-list" tag="ul">
               <li :class="groupOrTopClassName(chatGroupItem, index)"
                   v-for="(chatGroupItem, index) in dealShowGroupList"
                   @click="showChat(chatGroupItem, index)"
@@ -30,7 +31,8 @@
                   </div>
                 </div>
               </li>
-            </ul>
+            <!-- </ul> -->
+            </transition-group>
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
             <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
@@ -240,20 +242,20 @@ export default {
         return;
       }
       this.showGroupList = [];
-      var topGroupVar = [];
+      this.topGroupVar = [];
       for(let i=0;i<this.originalGroupList.length;i++) {
         if(this.groupIsTop(this.originalGroupList[i])) {
-          topGroupVar.push(this.originalGroupList[i]);
+          this.topGroupVar.push(this.originalGroupList[i]);
         }
         else {
           this.showGroupList.push(this.originalGroupList[i]);
         }
       }
-      topGroupVar = topGroupVar.sort(this.compare());
+      this.topGroupVar = this.topGroupVar.sort(this.compare());
       // console.log("topgroupvar is ", topGroupVar)
       this.showGroupList = this.showGroupList.sort(this.compare());
       // console.log("chatGroupVar is ", this.showGroupList)
-      this.showGroupList = topGroupVar.concat(this.showGroupList);
+      this.showGroupList = this.topGroupVar.concat(this.showGroupList);
       for(let i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_type == this.curChat.group_type && this.showGroupList[i].group_id == this.curChat.group_id && this.showGroupList[i].group_name == this.curChat.group_name) {
           this.curindex = i;
@@ -308,6 +310,7 @@ export default {
       encryptGroupList: [],
       originalGroupList: [],
       showGroupList: [],
+      topGroupVar: [],
       showImageLayers: false,
       imageLayersSrcInfo: '',
       clickedGroupList: [],
@@ -1017,6 +1020,11 @@ export default {
         if(groupIndex == -1) {
           if(groupInfo.group_type != 102) {
             this.originalGroupList.unshift(groupInfo);
+            this.$nextTick(() => {
+              this.scrollToDistPosition(this.topGroupVar.length + 1);
+              this.curindex = this.topGroupVar.length;
+              this.curChat = this.showGroupList[0];
+            })
             this.mqttGroupVar.push(groupInfo)
             return;
           }
@@ -2102,6 +2110,28 @@ export default {
     ::-webkit-scrollbar-track {
       border-radius: 10px;
     }
+  }
+
+  .group-list-move {
+    transition: transform .5s;
+  }
+
+  .group-list-enter-active {
+    transition: all .5s;
+  }
+
+  .group-list-leave-active {
+    transition: all .2s;
+  }
+
+  .group-list-enter {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+
+  .group-list-leave-to  {
+    opacity: 0;
+    transform: translateX(5px);
   }
 
   .group-list {

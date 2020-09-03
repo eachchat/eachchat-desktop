@@ -9,10 +9,8 @@
             </div>
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click="More()">
-                    <img class="chat-tool-more-img" src="../../../static/Img/Chat/more@2x.png">
                 </div>
                 <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
-                    <img class="chat-tool-invite-img" src="../../../static/Img/Chat/addMember@2x.png">
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
@@ -21,8 +19,9 @@
         </div>
         <div class="chat-main" id="chat-main">
             <div class="chat-main-message" id="message-show">
-                <ul class="msg-list" id="message-show-list">
-                    <li class="msg-loading" v-show="isRefreshing">
+                <!-- <ul class="msg-list" id="message-show-list"> -->
+                <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
+                    <li class="msg-loading" v-show="isRefreshing" v-bind:key="123">
                         <i class="el-icon-loading"></i>
                     </li>
                     <li v-for="(item, index) in messageListShow"
@@ -36,23 +35,20 @@
                             <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
                         </div>
                     </li>
-                </ul>
+                <!-- </ul> -->
+                </transition-group>
             </div>
             <div class="chat-input" id="chat-input-id" v-show="!multiSelect">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
                         <Faces v-show="showFace" id="face-box-id" @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
                         <div class="chat-input-expression" @click="showExpression()">
-                            <img class="el-icon-emoji" src="../../../static/Img/Chat/emoji@2x.png">
                         </div>
                         <div class="chat-input-picture" @click="insertPic()">
-                            <img class="el-icon-picture" src="../../../static/Img/Chat/pic@2x.png">
                         </div>
                         <div class="chat-input-file" @click="insertFiles()">
-                            <img class="el-icon-files" src="../../../static/Img/Chat/file@2x.png">
                         </div>
                         <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()">
-                            <img class="el-icon-historys" src="../../../static/Img/Chat/chatHistory-24px@2x.png">
                         </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
@@ -1273,13 +1269,11 @@ export default {
                 // console.log("willsendmsg is ", willSendMsg);
 
                 let div = document.getElementById("message-show-list");
-                setTimeout(() => {
-                    if(div) {
-                        this.$nextTick(() => {
-                            div.scrollTop = div.scrollHeight;
-                        })
-                    }
-                }, 0)
+                if(div) {
+                    this.$nextTick(() => {
+                        div.scrollTop = div.scrollHeight;
+                    })
+                }
                 
                 this.cleanEditor();
 
@@ -1391,13 +1385,11 @@ export default {
                 this.needToBottom = true;
 
                 let div = document.getElementById("message-show-list");
-                setTimeout(() => {
-                    if(div) {
-                        this.$nextTick(() => {
-                            div.scrollTop = div.scrollHeight;
-                        })
-                    }
-                }, 0)
+                if(div) {
+                    this.$nextTick(() => {
+                        div.scrollTop = div.scrollHeight;
+                    })
+                }
                 
                 this.cleanEditor();
 
@@ -1521,14 +1513,12 @@ export default {
                 this.needToBottom = true;
                 
                 let div = document.getElementById("message-show-list");
-                setTimeout(() => {
-                    if(div) {
-                        this.$nextTick(() => {
-                            console.log("div scrolltop is ", div.scrollHeight)
-                            div.scrollTop = div.scrollHeight;
-                        })
-                    }
-                }, 0)
+                if(div) {
+                    this.$nextTick(() => {
+                        console.log("div scrolltop is ", div.scrollHeight)
+                        div.scrollTop = div.scrollHeight;
+                    })
+                }
                 
                 this.cleanEditor();
 
@@ -1608,14 +1598,12 @@ export default {
                 this.needToBottom = true;
                 
                 let div = document.getElementById("message-show-list");
-                setTimeout(() => {
-                    if(div) {
-                        this.$nextTick(() => {
-                            console.log("div scrolltop is ", div.scrollHeight)
-                            div.scrollTop = div.scrollHeight;
-                        })
-                    }
-                }, 0)
+                if(div) {
+                    this.$nextTick(() => {
+                        console.log("div scrolltop is ", div.scrollHeight)
+                        div.scrollTop = div.scrollHeight;
+                    })
+                }
                 
                 this.cleanEditor();
 
@@ -1739,13 +1727,11 @@ export default {
                             this.existingMsgId.push(willSendMsg.message_id);
 
                             let div = document.getElementById("message-show-list");
-                            setTimeout(() => {
-                                if(div) {
-                                    this.$nextTick(() => {
-                                        div.scrollTop = div.scrollHeight;
-                                    })
-                                }
-                            }, 0)
+                            if(div) {
+                                this.$nextTick(() => {
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
                             
                             this.cleanEditor();
 
@@ -1892,14 +1878,12 @@ export default {
                             this.existingMsgId.push(willSendMsg.message_id);
                             
                             let div = document.getElementById("message-show-list");
-                            setTimeout(() => {
-                                if(div) {
-                                    this.$nextTick(() => {
-                                        console.log("div scrolltop is ", div.scrollHeight)
-                                        div.scrollTop = div.scrollHeight;
-                                    })
-                                }
-                            }, 0)
+                            if(div) {
+                                this.$nextTick(() => {
+                                    console.log("div scrolltop is ", div.scrollHeight)
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
                             
                             this.cleanEditor();
                             willSendMsg.content = willSendMsgContent;
@@ -2002,13 +1986,11 @@ export default {
                             this.existingMsgId.push(willSendMsg.message_id);
 
                             let div = document.getElementById("message-show-list");
-                            setTimeout(() => {
-                                if(div) {
-                                    this.$nextTick(() => {
-                                        div.scrollTop = div.scrollHeight;
-                                    })
-                                }
-                            }, 0)
+                            if(div) {
+                                this.$nextTick(() => {
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
                             
                             this.cleanEditor();
 
@@ -2178,14 +2160,12 @@ export default {
                         };
                         
                         var div = document.getElementById("message-show-list");
-                        setTimeout(() => {
-                            if(div) {
-                                this.$nextTick(() => {
-                                    console.log("div scrolltop is ", div.scrollHeight)
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
-                        }, 10)
+                        if(div) {
+                            this.$nextTick(() => {
+                                console.log("div scrolltop is ", div.scrollHeight)
+                                div.scrollTop = div.scrollHeight;
+                            })
+                        }
                         
                         this.cleanEditor();
                         willSendMsg.content = willSendMsgContent;
@@ -2669,16 +2649,17 @@ export default {
                     }
                     this.$nextTick(() => {
                         this.needToBottom = true;
-                        setTimeout(() => {
-                            let div = document.getElementById("message-show-list");
-                            if(div) {
-                                div.scrollTop = div.scrollHeight - div.clientHeight;
-                                // The left msg get through scroll event
-                                div.addEventListener('scroll', this.handleScroll);
-                                // div.addEventListener('onresize', this.checkResize);
-                            }
-                            this.isRefreshing = false;
-                        }, 100)
+                        
+                        let div = document.getElementById("message-show-list");
+                        if(div) {
+                            div.scrollTop = div.scrollHeight - div.clientHeight;
+                            // The left msg get through scroll event
+                            div.addEventListener('scroll', this.handleScroll);
+                            // div.addEventListener('onresize', this.checkResize);
+                            this.showScrollBar();
+                        }
+                        this.isRefreshing = false;
+                        
                     })
                     // console.log("this.messageList is ", this.messageList);
                     
@@ -2909,6 +2890,7 @@ export default {
                 return;
             }
             if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
+                this.hideScrollBar();
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
                 this.needScrollTop = true;
@@ -3103,11 +3085,23 @@ export default {
     .chat-tool-more-div {
         display: inline-block;
         float: right;
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
         line-height: 100%;
-        padding: 0px 6px 0px 6px;
-        margin: 0px;
+        margin: 4px 16px 0px 6px;
+        background-image: url("../../../static/Img/Chat/chat-set@2x.png");
+        background-size: contain;
+    }
+
+    .chat-tool-more-div:hover {
+        display: inline-block;
+        float: right;
+        width: 24px;
+        height: 24px;
+        line-height: 100%;
+        margin: 4px 16px 0px 6px;
+        background-image: url("../../../static/Img/Chat/chat-set@2x-hover.png");
+        background-size: contain;
     }
 
     .chat-tool-more-img {
@@ -3120,11 +3114,23 @@ export default {
     .chat-tool-invite-div {
         display: inline-block;
         float: right;
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
         line-height: 100%;
-        padding: 0px 6px 0px 6px;
-        margin: 0px;
+        margin: 4px 6px 0px 6px;
+        background-image: url("../../../static/Img/Chat/addMember@2x.png");
+        background-size: contain;
+    }
+
+    .chat-tool-invite-div:hover {
+        display: inline-block;
+        float: right;
+        width: 24px;
+        height: 24px;
+        line-height: 100%;
+        margin: 4px 6px 0px 6px;
+        background-image: url("../../../static/Img/Chat/addMember@2x-hover.png");
+        background-size: contain;
     }
 
     .chat-tool-invite-img {
@@ -3161,7 +3167,7 @@ export default {
         overflow-y: hidden;
         overflow-x: hidden;
     }
-
+    
     .msg-list {
         min-height: 99%;
         list-style: none;
@@ -3177,6 +3183,15 @@ export default {
         li {
             list-style-type: none;
         }
+    }
+
+    .msg-list-enter-active, .msg-list-leave-active {
+        transition: all .1s;
+    }
+
+    .msg-list-enter, .msg-list-leave-to {
+        opacity: 0;
+        transform: translateX(0px);
     }
 
     .msg-loading {
@@ -3486,15 +3501,20 @@ export default {
 
     .chat-input-expression {
         display: inline-block;
-        margin: 0;
-        padding: 11px 11px 11px 11px;
-    }
-
-    .el-icon-emoji {
         width: 24px;
         height: 24px;
-        margin: 0px;
-        padding: 0px;
+        margin: 8px 6px 8px 16px;
+        background-image: url("../../../static/Img/Chat/emoji@2x.png");
+        background-size: contain;
+    }
+
+    .chat-input-expression:hover {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 16px;
+        background-image: url("../../../static/Img/Chat/emoji@2x-hover.png");
+        background-size: contain;
     }
 
     .chat-input-more {
@@ -3511,34 +3531,56 @@ export default {
 
     .chat-input-picture {
         display: inline-block;
-        margin: 0;
-        padding: 11px 11px 11px 11px;
-    }
-
-    .el-icon-picture {
         width: 24px;
         height: 24px;
-        margin: 0px;
-        padding: 0px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/pic@2x.png");
+        background-size: contain;
+    }
+
+    .chat-input-picture:hover {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/pic@2x-hover.png");
+        background-size: contain;
     }
 
     .chat-input-file {
         display: inline-block;
-        margin: 0;
-        padding: 11px 11px 11px 11px;
-    }
-
-    .el-icon-files {
         width: 24px;
         height: 24px;
-        margin: 0px;
-        padding: 0px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/file@2x.png");
+        background-size: contain;
     }
-    
+
+    .chat-input-file:hover {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/file@2x-hover.png");
+        background-size: contain;
+    }
+
     .chat-input-history {
         display: inline-block;
-        margin: 0;
-        padding: 11px 11px 11px 11px;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/chatHistory-24px@2x.png");
+        background-size: contain;
+    }
+
+    .chat-input-history:hover {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/chatHistory-24px@2x-hover.png");
+        background-size: contain;
     }
 
     .el-icon-historys {

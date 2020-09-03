@@ -985,43 +985,43 @@ function getIconPath(ext) {
     }
 
     if(distExt == "zip"){
-        distIconPath = iconDirPath + "/" + "filesZip@3x.png";
+        distIconPath = iconDirPath + "/" + "filesZip@2x.png";
     }
     else if(distExt == "apk"){
-        distIconPath = iconDirPath + "/" + "apk@3x.png";
+        distIconPath = iconDirPath + "/" + "apk@2x.png";
     }
     else if(distExt == "exe"){
-        distIconPath = iconDirPath + "/" + "exe@3x.png";
+        distIconPath = iconDirPath + "/" + "exe@2x.png";
     }
     else if(distExt == "excel"){
-        distIconPath = iconDirPath + "/" + "xls@3x.png";
+        distIconPath = iconDirPath + "/" + "xls@2x.png";
     }
     else if(distExt == "ipa"){
-        distIconPath = iconDirPath + "/" + "ipa@3x.png";
+        distIconPath = iconDirPath + "/" + "ipa@2x.png";
     }
     else if(distExt == "iso"){
-        distIconPath = iconDirPath + "/" + "dmg@3x.png";
+        distIconPath = iconDirPath + "/" + "dmg@2x.png";
     }
     else if(distExt == "music"){
-        distIconPath = iconDirPath + "/" + "voiceAudio@3x.png";
+        distIconPath = iconDirPath + "/" + "voiceAudio@2x.png";
     }
     else if(distExt == "pdf"){
         distIconPath = iconDirPath + "/" + "pdf@2x.png";
     }
     else if(distExt == "ppt"){
-        distIconPath = iconDirPath + "/" + "ppt@3x.png";
+        distIconPath = iconDirPath + "/" + "ppt@2x.png";
     }
     else if(distExt == "video"){
-        distIconPath = iconDirPath + "/" + "Audio@3x.png";
+        distIconPath = iconDirPath + "/" + "Audio@2x.png";
     }
     else if(distExt == "word"){
-        distIconPath = iconDirPath + "/" + "doc@3x.png";
+        distIconPath = iconDirPath + "/" + "doc@2x.png";
     }
     else if(distExt == "txt"){
-        distIconPath = iconDirPath + "/" + "txt@3x.png";
+        distIconPath = iconDirPath + "/" + "txt@2x.png";
     }
     else{
-        distIconPath = iconDirPath + "/" + "unknown@3x.png";
+        distIconPath = iconDirPath + "/" + "unknown@2x.png";
     }
     return distIconPath
 }
