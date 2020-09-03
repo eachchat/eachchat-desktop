@@ -105,7 +105,7 @@ class ConfService {
             curMonth = distdate.getMonth() + 1;
         }
         var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        console.log("YearMonth is ", YearMonth);
+        // console.log("YearMonth is ", YearMonth);
         var userFilesPath = path.join(this.filesPath, this.uid);
         if(!fs.existsSync(userFilesPath)){
             fs.ensureDirSync(userFilesPath);
@@ -179,7 +179,7 @@ class ConfService {
         let curDate = new Date();
         let curYeat = curDate.getFullYear();
         let curMonth = curDate.getMonth();
-        if(fileTime == 0) {
+        if(fileTime != 0) {
             var secondsTime = Number(fileTime);
             var distdate = new Date(secondsTime);
             curYeat = distdate.getFullYear();
@@ -200,7 +200,7 @@ class ConfService {
         let curDate = new Date();
         let curYeat = curDate.getFullYear();
         let curMonth = curDate.getMonth();
-        if(fileTime == 0) {
+        if(fileTime != 0) {
             var secondsTime = Number(fileTime);
             var distdate = new Date(secondsTime);
             curYeat = distdate.getFullYear();
@@ -221,7 +221,7 @@ class ConfService {
         let curDate = new Date();
         let curYeat = curDate.getFullYear();
         let curMonth = curDate.getMonth();
-        if(fileTime == 0) {
+        if(fileTime != 0) {
             var secondsTime = Number(fileTime);
             var distdate = new Date(secondsTime);
             curYeat = distdate.getFullYear();

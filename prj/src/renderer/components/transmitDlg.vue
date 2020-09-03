@@ -684,6 +684,7 @@ export default {
                             try{
                                 console.log("copy file from ", filePath, " to ", filePath);
                                 fs.copyFileSync(filePath, finalPath);
+                                services.common.SetFilePath(guid, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);
@@ -702,6 +703,7 @@ export default {
                             try{
                                 console.log("copy file from ", filePath, " to ", finalPath);
                                 fs.copyFileSync(filePath, finalPath);
+                                services.common.SetFilePath(guid, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);

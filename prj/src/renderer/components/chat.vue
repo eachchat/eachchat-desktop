@@ -1702,6 +1702,7 @@ export default {
                             try{
                                 console.log("copy file from ", filePath, " to ", finalPath, " of ", guid);
                                 fs.copyFileSync(filePath, finalPath);
+                                services.common.SetFilePath(guid, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);
@@ -1803,7 +1804,6 @@ export default {
                                                 await Message.SetMessageStatus(guid, 2);
                                             }
                                             else {
-                                                services.common.SetFilePath(guid, finalPath);
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     if(this.messageList[i].message_id == guid){
                                                         ret.file_local_path = finalPath;
@@ -1957,12 +1957,13 @@ export default {
                             
                             var nameTmp = path.basename(filePath);
                             var extTmp = path.extname(nameTmp);
-                            var dirTmp = confservice.getFilePath(curTimeSeconds);
+                            var dirTmp = confservice.getThumbImagePath(curTimeSeconds);
                             var finalPath = path.join(dirTmp, guid + extTmp);
                             // var finalPath = await makeFlieNameForConflict(pathTmp);
                             try{
                                 console.log("copy file from ", filePath, " to ", finalPath, " of ", guid);
                                 fs.copyFileSync(filePath, finalPath);
+                                services.common.SetFilePath(guid, finalPath);
                             }
                             catch(error) {
                                 console.log("copyFile except ", error);
@@ -2066,14 +2067,16 @@ export default {
                                                 await Message.SetMessageStatus(guid, 2);
                                             }
                                             else {
-                                                services.common.SetFilePath(guid, finalPath);
+                                                // console.log("set path is ======== ", finalPath)
                                                 for(var i=0;i<this.messageList.length;i++){
                                                     // console.log("cur guie is ", guid)
                                                     // console.log("the messagelist guid is ", this.messageList[i].message_id)
                                                     if(this.messageList[i].message_id == guid){
                                                         // console.log("update ret")
-                                                        ret.file_local_path = finalPath;
+                                                        // ret.file_local_path = finalPath;
 
+                                                        var targetPathTmp = await services.common.GetFilePath(ret.message_id);
+                                                        ret.file_local_path = targetPathTmp;
                                                         this.messageList[i] = ret;
                                                         this.updatemsgStatus = {
                                                             "id": guid,

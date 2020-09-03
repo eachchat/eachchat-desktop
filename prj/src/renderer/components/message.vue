@@ -285,7 +285,7 @@ export default {
             else if(chatGroupMsgType === 102)
             {
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
+                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
                 var targetPath = this.msg.file_local_path;
                 if(!fs.existsSync(targetPath)) {
                     targetPath = await services.common.GetFilePath(this.msg.message_id);
@@ -311,9 +311,9 @@ export default {
                             imageHeight = chatGroupMsgContent.imgHeight;
                         }
                         this.imageHeight = imageHeight;
+                        imgMsgImgElement.setAttribute("style", "");
                         imgMsgImgElement.setAttribute("src", targetPath);
                         imgMsgImgElement.setAttribute("height", imageHeight);
-                        imgMsgImgElement.setAttribute("style", "");
                     }
                 }
             }
