@@ -109,7 +109,7 @@ export default {
                 var needOpen = false;
                 var imgMsgImgElement = document.getElementById(distId);
                 imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:20px;height:20px;");
-                if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(item.timelineId, item.timestamp, item.sequenceId.toString() + ext, false))) {
+                if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(item.timelineId, item.timestamp, item.msgId + ext, false))) {
                     //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                     let imageHeight = 100;
                     if(chatGroupMsgContent.imgHeight < 100){
@@ -132,7 +132,7 @@ export default {
 
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
-                    services.common.downloadFile(item.timelineId, item.timestamp, item.sequenceId + ext, false);
+                    services.common.downloadFile(item.timelineId, item.timestamp, item.msgId + ext, false);
                 }
                 var fileMsgImgElement = document.getElementById(distId);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
@@ -286,6 +286,36 @@ export default {
         },
         Min: function() {
             ipcRenderer.send("AnotherMin");
+        },
+        updateMsgFile: function(e, args) {
+            var state = args[0];
+            var stateInfo = args[1];
+            var id = args[2];
+            var localPath = args[3];
+            var needOpen = args[4];
+            
+            for(var i=0;i<this.originalMessageList.length;i++) {
+                if(this.originalMessageList[i].timelineId == id) {
+                    var item = this.originalMessageList[i];
+                    
+                    let chatGroupMsgType = item.msgContentType;
+                    var chatGroupMsgContent = item.content;
+                    var distId = this.getTransmitTogetherContentItemId(item.msgId);
+                    if(chatGroupMsgType === 102)
+                    {
+                        var imgMsgImgElement = document.getElementById(getTransmitTogetherContentItemId(distId));
+                        var showfu = new FileUtil(localPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        let reader = new FileReader();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            imgMsgImgElement.setAttribute("src", reader.result);
+                            imgMsgImgElement.setAttribute("height", 100);
+                            imgMsgImgElement.setAttribute("style", "");
+                        }
+                    }
+                }
+            }
         },
         getAppBaseData:async function() {
             // Init services
@@ -485,10 +515,10 @@ export default {
             console.log("group info updateuserimage args ", args)
 
             if(sequenceId.length != 0 ) {
-                var distElement = document.getElementById(this.checkGetUserHedImageId(sequenceId));
+                var distElement = document.getElementById(this.getTransmitTogetherContentItemId(sequenceId));
             }
             if(distElement == undefined) {
-                var distElement = document.getElementById(this.checkGetUserHedImageId(id));
+                var distElement = document.getElementById(this.getTransmitTogetherContentItemId(id));
             }
             if(distElement != undefined) {
                 distElement.setAttribute("src", localPath);
@@ -626,6 +656,7 @@ export default {
             this.timelineId = groupId[0];
         })
         ipcRenderer.on('updateUserImage', this.updateUserImage);
+        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
     }
 }
 </script>
@@ -639,6 +670,7 @@ export default {
     ::-webkit-scrollbar {
         width: 7px;
         height: 12px;
+        display: none;
     }
 
     ::-webkit-scrollbar-thumb {
@@ -777,7 +809,7 @@ export default {
 
     .HistoryMsg-list {
         list-style: none;
-        max-height: 320px;
+        max-height: 350px;
         width: 100%;
         margin: 0;
         padding: 0;
