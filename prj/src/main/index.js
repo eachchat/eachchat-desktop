@@ -162,6 +162,7 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
       app.dock.setBadge(arg.toString());
     }
   }
+  mainPageWindow.webContents.send("setUnreadCount", arg);
 })
 
 ipcMain.on("token-expired", function(event, arg) {

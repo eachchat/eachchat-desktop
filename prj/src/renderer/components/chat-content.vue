@@ -117,7 +117,7 @@
           <div class="win-header">
             <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
           </div>
-          <ChatPage :chat="curChat" :newMsg="newMsg" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip"></ChatPage>
+          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -178,7 +178,7 @@ export default {
   },
   watch: {
     distUserId: async function() {
-      // console.log("in chat content distuserid is ", this.distUserId);
+      console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
         var groupUserIds = [];
         groupUserIds.push(this.distUserId);
@@ -227,12 +227,19 @@ export default {
       }
     },
     updateImg: async function() {
+      // console.log("in chat content updateImg ");
       this.showGroupIcon();
       if(this.distGroupId.length != 0) {
         var distInfo = await Group.FindItemFromGroupByGroupID(this.distGroupId);
         if(distInfo != undefined) {
           this.getCreateGroupInfo(distInfo);
         }
+      }
+      else {
+        this.toBottom = true;
+        this.$nextTick(() => {
+          this.toBottom = false;
+        })
       }
     }
   },
@@ -273,6 +280,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      toBottom: false,
       showSearchAllChat: false,
       showSearchAllMember: false,
       showsearchAllFile: false,

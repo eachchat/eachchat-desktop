@@ -21,6 +21,7 @@
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
             </div>
+            <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
@@ -81,6 +82,7 @@ export default {
     },
     data () {
         return {
+            unReadCount: 0,
             updateImg: false,
             upgradeInfo: {},
             upgradeCanCancel: true,
@@ -126,6 +128,19 @@ export default {
         }
     },
     methods: {
+        getUnReadCount(unReadCount) {
+            if(unReadCount === 0) return "";
+            else return unReadCount > 100 ? "99+" : unReadCount;
+        },
+        getUnreadClass(unReadCount) {
+            var endPoint = "-unselected";
+            if(unReadCount === 0) {
+                return "nav-readall" + endPoint;
+            }
+            else {
+                return "nav-unread";
+            }
+        },
         closeUpgradeAlertDlg: function() {
             this.showUpgradeAlertDlg = false;
         },
@@ -342,6 +357,9 @@ export default {
 
             }
         });
+        ipcRenderer.on('setUnreadCount', (e, count) => {
+            this.unReadCount = count;
+        })
     },
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
@@ -394,6 +412,41 @@ export default {
         width: 40px;
         height: 40px;
         border-radius:4px;
+    }
+
+    .nav-unread {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+        // z-index:-1;
+    }
+
+    .nav-readall-unselected {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        font-size: 10px;
+        font-family:PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0);
     }
 
     .nav-item {

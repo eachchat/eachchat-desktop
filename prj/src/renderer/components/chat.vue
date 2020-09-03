@@ -2883,7 +2883,7 @@ export default {
             }
         }
     },
-    props: ['chat', 'newMsg'],
+    props: ['chat', 'newMsg', 'toBottom'],
     watch: {
         chat: function() {
             console.log("chat ============", this.chat);
@@ -2928,6 +2928,16 @@ export default {
                 this.messageList.push(this.newMsg);
                 // this.messageList = this.messageList.sort(this.compareMsg());
                 this.existingMsgId.push(this.newMsg.message_id);
+                let div = document.getElementById("message-show-list");
+                if(div) {
+                    this.$nextTick(() => {
+                        div.scrollTop = div.scrollHeight;
+                    })
+                }
+            }
+        },
+        toBottom: function() {
+            if(this.toBottom == true) {
                 let div = document.getElementById("message-show-list");
                 if(div) {
                     this.$nextTick(() => {
