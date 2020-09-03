@@ -242,6 +242,12 @@ ipcMain.on('setAutoRun', function(event, isAutoRun) {
 
 ipcMain.on('showAnotherWindow', function(event, groupId, path) {
   var title = "";
+  var width = 615;
+  var height = 508;
+  if(process.platform == "darwin") {
+    height = 470;
+    width = 600;
+  }
   if(path == "historyMsgList") {
     title = "聊天记录";
   }
@@ -258,10 +264,10 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     title = "聊天记录";
   }
   soloPage = new BrowserWindow({
-    height: 508,
+    height: height,
     //useContentSize: true,
     resizable: resizableValue,
-    width:615,
+    width:width,
     webPreferences: {webSecurity:false},
     frame:true,
     title:title
