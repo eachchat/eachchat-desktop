@@ -171,6 +171,7 @@ export default {
         openMsgDetail: function(msgItem) {
             console.log("selectedGroups is ", this.selectedGroups)
             console.log("msgItem is ", msgItem)
+            this.numIndex = 0;
             this.isMsgDetail = true;
             var clickedMsgInfo = null;
             this.GroupInfo = msgItem;
@@ -494,6 +495,7 @@ export default {
             if(this.searchKey.length == 0) {
                 this.showEmpty = true;
                 this.messageListShow = [];
+                this.numIndex = 0;
                 return;
             }
 
