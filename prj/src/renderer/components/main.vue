@@ -46,7 +46,7 @@ import {services} from '../../packages/data/index.js'
 //import {ServerApi} from '../server/serverapi.js'
 import {downloadGroupAvatar} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, remote} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
@@ -135,9 +135,20 @@ export default {
         getUnreadClass(unReadCount) {
             var endPoint = "-unselected";
             if(unReadCount === 0) {
-                return "nav-readall" + endPoint;
+                if(remote.process.platform == 'darwin') {
+                    return "mac-nav-readall" + endPoint;
+                }
+                else {
+                    return "nav-readall" + endPoint;
+                }
             }
             else {
+                if(remote.process.platform == 'darwin') {
+                    return "mac-nav-unread" + endPoint;
+                }
+                else {
+                    return "nav-unread";
+                }
                 return "nav-unread";
             }
         },
@@ -416,8 +427,26 @@ export default {
 
     .nav-unread {
         position: absolute;
-        top: 7px;
-        right: 7px;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+        // z-index:-1;
+    }
+
+    .mac-nav-unread {
+        position: absolute;
+        top: 136px;
+        left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
         float: right;
@@ -434,8 +463,25 @@ export default {
 
     .nav-readall-unselected {
         position: absolute;
-        top: 7px;
-        right: 7px;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family:PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0);
+    }
+
+    .mac-nav-readall-unselected {
+        position: absolute;
+        top: 136px;
+        left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;
         float: right;
