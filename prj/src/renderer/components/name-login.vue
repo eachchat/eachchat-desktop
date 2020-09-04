@@ -27,7 +27,7 @@
                         加入您的组织
                     </p>
                     <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
-                    <p class="organization-input-label">.eachchat.net</p>
+                    <p class="organization-input-label">.each.chat</p>
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
@@ -268,7 +268,7 @@ export default {
                 this.organizationButtonDisabled = false;
                 return;
             }
-            var address = this.organizationAddress + ".eachchat.net";
+            var address = this.organizationAddress + ".each.chat";
             var result = await services.common.gmsConfiguration(address);
             console.log(result);
             if(!result){

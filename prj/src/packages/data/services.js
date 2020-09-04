@@ -95,12 +95,14 @@ const common = {
       return;
     }
     this.data.selfuser = foundUsers[0];
-    this.config.hostname = foundUsers[0].entry_host;
-    this.config.apiPort = foundUsers[0].entry_port;
-    this.config.hostTls = foundUsers[0].entry_tls;
-    this.config.mqttHost = foundUsers[0].mqtt_host;
-    this.config.mqttPort = foundUsers[0].mqtt_port;
-    this.config.mqttTls = foundUsers[0].mqtt_tls;
+    if(this.config.hostname == undefined){
+      this.config.hostname = foundUsers[0].entry_host;
+      this.config.apiPort = foundUsers[0].entry_port;
+      this.config.hostTls = foundUsers[0].entry_tls;
+      this.config.mqttHost = foundUsers[0].mqtt_host;
+      this.config.mqttPort = foundUsers[0].mqtt_port;
+      this.config.mqttTls = foundUsers[0].mqtt_tls;
+    }
     return this.data.selfuser;
   },
 
@@ -1952,11 +1954,11 @@ const common = {
     let value = Base64.encode(domainBase64, true);
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
-      response = await axios.get("https://gmsdev.eachchat.net/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
-      response = await axios.get("https://gmspre.eachchat.net/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
     else//正式环境
-      response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
     
     if (response.status != 200 
       || response.data == undefined
@@ -1990,11 +1992,11 @@ const common = {
     let value = Base64.encode(key, true);
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
-      response = await axios.get("https://gmsdev.eachchat.net/api/sys/gms/v1/domain/user/" + value)
+      response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/domain/user/" + value)
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
-      response = await axios.get("https://gmspre.eachchat.net/api/sys/gms/v1/domain/user/" + value)
+      response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/domain/user/" + value)
     else
-      response = await axios.get("https://gms.eachchat.net/api/sys/gms/v1/domain/user/" + value)
+      response = await axios.get("https://gms.each.chat/api/sys/gms/v1/domain/user/" + value)
     
     if (response.status != 200 
       || response.data == undefined
