@@ -1261,6 +1261,12 @@ const common = {
   },
 
   async DecryptMessage(secretID, encryptContent){
+    if(secretID == undefined){
+      return {
+        text: "找不到aes密钥",
+        secretContent: encryptContent
+      }
+    }
     let findKey = await Secret.FindByKeyID(secretID);
     if(findKey == undefined){
       await this.GetAesSecret();
