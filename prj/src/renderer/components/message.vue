@@ -698,9 +698,9 @@ export default {
                             imageHeight = chatGroupMsgContent.imgHeight;
                         }
                         this.imageHeight = imageHeight;
+                        imgMsgImgElement.setAttribute("style", "");
                         imgMsgImgElement.setAttribute("src", reader.result);
                         imgMsgImgElement.setAttribute("height", imageHeight);
-                        imgMsgImgElement.setAttribute("style", "");
                     }
                 }
                 else if(this.msg.message_type == 105 && needOpen) {
