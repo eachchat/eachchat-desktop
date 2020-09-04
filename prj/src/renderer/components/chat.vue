@@ -973,7 +973,7 @@ export default {
             }
 
             var faceElement = document.getElementById("face-box-id");
-            if(faceElement != null && !faceElement.contains(e.target) && e.target.className != "el-icon-emoji"){
+            if(faceElement != null && !faceElement.contains(e.target) && e.target.className != "chat-input-expression"){
                 this.showFace = false;
             }
         },
@@ -1045,6 +1045,7 @@ export default {
             var range = this.editor.getSelection();
             var curIndex = range==null ? 0 : range.index;
             this.editor.insertText(curIndex, uncodeUtf16(item));
+            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
             this.showFace = false;
         },
         handleFiles: function() {
@@ -2764,6 +2765,13 @@ export default {
             console.log("updateUserImage ", args);
             this.updateUser = args;
         },
+        setFocuse(e) {
+            if(this.editor == undefined) {
+                this.editor = this.$refs.chatQuillEditor.quill;
+            }
+            this.editor.setSelection(this.editor.selection.savedRange.index);
+            this.showFace = false;
+        }
     },
     data() {
         return {
@@ -2853,6 +2861,7 @@ export default {
                 ipcRenderer.on('updateMsgFile', this.updateMsgFile);
                 ipcRenderer.on('updateUserImage', this.updateUserImage);
                 ipcRenderer.on('transmitFromSoloDlg', this.transmitFromSoloDlg);
+                ipcRenderer.on('setFocuse', this.setFocuse);
                 this.editor = this.$refs.chatQuillEditor.quill;
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
@@ -2902,7 +2911,10 @@ export default {
                 
                 this.getHistoryMessage();
                 this.showGroupName(this.chat);
-                this.isGroup = this.chat.group_type == 101 ? true : false;
+                if(this.editor == undefined) {
+                    this.editor = this.$refs.chatQuillEditor.quill;
+                }
+                this.editor.setSelection(this.editor.selection.savedRange.index);
             }
         },
         newMsg: function() {
@@ -2944,6 +2956,10 @@ export default {
                         div.scrollTop = div.scrollHeight;
                     })
                 }
+                if(this.editor == undefined) {
+                    this.editor = this.$refs.chatQuillEditor.quill;
+                }
+                this.editor.focuse(this.editor.selection.savedRange.index);
             }
         }
     }

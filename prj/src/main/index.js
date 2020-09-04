@@ -1026,9 +1026,16 @@ app.on('window-all-closed', () => {
   }
 })
 
+app.on('browser-window-focus', () => {
+  if(isLogin) {
+    mainPageWindow.webContents.send("setFocuse");
+  }
+})
+
 app.on('activate', () => {
   if(isLogin) {
     mainPageWindow.show();
+    mainPageWindow.webContents.send("setFocuse");
   }
   else {
     if (mainWindow === null) {
