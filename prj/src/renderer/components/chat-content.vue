@@ -1786,7 +1786,9 @@ export default {
             // console.log("update show group list ", this.showGroupList);
             // needUpdate ++;
           }
-        this.showGroupIcon();
+        this.$nextTick(() => {
+          this.showGroupIcon();
+        })
       }
     },
     delayCallback: function(msg) {
