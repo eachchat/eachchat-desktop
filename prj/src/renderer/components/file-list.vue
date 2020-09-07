@@ -97,7 +97,7 @@ export default {
                 if(curItem.timelineId == id) {
                     distName = curItem.content.fileName;
                 }
-                this.$message(distName, '下载完成');
+                this.$toastMessage({message:distName + ' 下载完成', time: 2000, type:'success'});
             }
         },
         download: async function(curItem) {
