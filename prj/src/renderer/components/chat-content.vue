@@ -631,7 +631,11 @@ export default {
       services.common.GroupStatus(groupItem.group_id, groupIsTop, true)
           .then((ret) => {
               this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
-              console.log("slienceStateChange ", ret);
+              this.unreadCount = this.unreadCount - groupItem.un_read_count;
+              if(this.unreadCount < 0) {
+                this.unreadCount = 0;
+              }
+              ipcRenderer.send("updateUnreadCount", this.unreadCount);
           })
     },
     setUnSlience: async function(groupItem){
@@ -639,6 +643,11 @@ export default {
       services.common.GroupStatus(groupItem.group_id, groupIsTop, false)
           .then((ret) => {
               this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
+              this.unreadCount = this.unreadCount + groupItem.un_read_count;
+              if(this.unreadCount < 0) {
+                this.unreadCount = 0;
+              }
+              ipcRenderer.send("updateUnreadCount", this.unreadCount);
               console.log("slienceStateChange ", ret);
           })
     },
@@ -1392,7 +1401,9 @@ export default {
             continue;
           }
           this.originalGroupList.push(ret[i]);
-          this.unreadCount = this.unreadCount + ret[i].un_read_count;
+          if(!this.groupIsSlience(ret[i])) {
+            this.unreadCount = this.unreadCount + ret[i].un_read_count;
+          }
         }
         // this.originalGroupList = ret;
         // console.log("length is ", ret)
@@ -1570,11 +1581,13 @@ export default {
           if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {
             let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
               this.showGroupList[i].un_read_count += 1;
-              this.unreadCount += 1;
-              // console.log("callback this.unreadCount ", this.unreadCount)
-              if(this.unreadCount < 0) {
-                this.unreadCount = 0;
+              if(!this.groupIsSlience(groupInfo)) {
+                this.unreadCount += 1;
+                if(this.unreadCount < 0) {
+                  this.unreadCount = 0;
+                }
               }
+              // console.log("callback this.unreadCount ", this.unreadCount)
             if(!this.groupIsSlience(groupInfo)) {
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
             }
