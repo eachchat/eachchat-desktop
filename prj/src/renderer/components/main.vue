@@ -144,7 +144,7 @@ export default {
             }
             else {
                 if(remote.process.platform == 'darwin') {
-                    return "mac-nav-unread" + endPoint;
+                    return "mac-nav-unread";
                 }
                 else {
                     return "nav-unread";
