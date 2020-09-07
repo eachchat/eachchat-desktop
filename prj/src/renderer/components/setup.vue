@@ -141,7 +141,7 @@ export default {
       cacheStoreSize: '0M',
       alertContnets: {},
       showAlertDlg: false,
-      contentType: 'agreement'
+      contentType: ''
     };
   },
   methods: {

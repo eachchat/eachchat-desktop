@@ -206,7 +206,7 @@ export default {
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
-        background: rgba(167, 224, 196, 1);
+        background: rgba(36, 179, 107, 1);
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
