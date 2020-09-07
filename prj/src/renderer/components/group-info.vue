@@ -52,7 +52,7 @@
                 <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
             </div>
         </div>
-        <div class="groupMember-view" v-show="isGroup">
+        <div :class="groupListViewClassName()" v-show="isGroup">
             <ul class="groupMember-list">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
                     <div class="groupMemberInfoDiv">
@@ -151,6 +151,14 @@ export default {
     computed: {
     },
     methods: {
+        groupListViewClassName: function() {
+            if(this.isOwner) {
+                return "groupMember-view-owner"
+            }
+            else {
+                return "groupMember-view"
+            }
+        },
         closeAlertDlg: function() {
             this.showAlertDlg = false;
         },
@@ -705,8 +713,17 @@ export default {
 }
 
 .groupMember-view {
-    max-height: 144px;
-    height: 144px;
+    height: calc(100% - 348px);
+    width: 100%;
+    padding: 0px;
+    border: 0px;
+    background: rgba(255, 255, 255, 1);
+    cursor: default;
+    border-bottom: 1 solid rgba(221, 221, 221, 1);
+}
+
+.groupMember-view-owner {
+    height: calc(100% - 420px);
     width: 100%;
     padding: 0px;
     border: 0px;
@@ -716,9 +733,8 @@ export default {
 }
 
 .groupMember-list {
+    height: 100%;
     list-style: none;
-    max-height: 144px;
-    height: 144px;
     margin: 0;
     padding: 0;
     display: block;
@@ -1232,6 +1248,23 @@ export default {
     cursor: pointer;
 }
 
+.groupLeaveDiv:hover{
+    height: 48px;
+    line-height: 48px;
+    width: 100%;
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 14px;
+    color: red;
+    text-align: center;
+    cursor: pointer;
+    background: #F7F8FA;
+}
+
 .groupDismiss-view{
     height: 48px;
     padding: 0px;
@@ -1257,4 +1290,22 @@ export default {
     cursor: pointer;
 }
 
+.groupDismissDiv{
+    height: 48px;
+    line-height: 48px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    border: 0px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 14px;
+    color: red;
+    text-align: center;
+    cursor: pointer;
+    background: #F7F8FA;
+}
 </style>
