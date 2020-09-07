@@ -1661,6 +1661,7 @@ export default {
             // console.log("this.chat is ", this.chat);
             if(this.chat.group_id == undefined && this.chat.user_id == undefined) {
                 this.$message('请选择一个群组');
+                this.$toastMessage({message:'请选择一个群组', time: 2000, type:'success'});
                 return;
             }
             
@@ -3324,7 +3325,7 @@ export default {
                 if(this.editor == undefined) {
                     this.editor = this.$refs.chatQuillEditor.quill;
                 }
-                this.editor.focuse(this.editor.selection.savedRange.index);
+                this.editor.setSelection(this.editor.selection.savedRange.index);
             }
         }
     }
