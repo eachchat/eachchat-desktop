@@ -156,7 +156,6 @@ class NewEncryptionHandler extends BaseMqttHandler{
 
     async handle(){
         if(this.type == "newEncryptionMessage"){
-            return;
             if(this.services.data.maxSecretMsgSequenceID == 0)
                 this.services.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
             await this.services.ReveiveNewMessage(this.services.data.maxSecretMsgSequenceID, 0, this.callback, true);
