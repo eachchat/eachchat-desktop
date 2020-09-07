@@ -255,6 +255,9 @@ export default {
                 this.isOwn = true;
             }
             else {
+                if(tipInfos.showLeft) {
+                    this.userInfoPosition.left = this.userInfoPosition.left - 280 - 45;
+                }
                 this.isOwn = false;
             }
             // console.log(iconElement.getBoundingClientRect());

@@ -356,7 +356,8 @@ export default {
                 "absoluteTop": this.cursorY,
                 // "absoluteLeft": curAbsoluteLeft + wholeWinLeft,
                 "absoluteLeft": this.cursorX - 330,
-                "isMine": true,
+                "isMine": isMine,
+                "showLeft": true,
             }
             // console.log("emit absoluteTop ", curAbsoluteTop + wholeWinTop);
             // console.log("emit absoluteLeft ", curAbsoluteLeft + wholeWinLeft);

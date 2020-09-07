@@ -144,10 +144,20 @@ export default {
             }
             else {
                 if(remote.process.platform == 'darwin') {
-                    return "mac-nav-unread";
+                    if(this.curindex == 0) {
+                        return "mac-nav-unread";
+                    }
+                    else {
+                        return "mac-nav-unread-no-focuse";
+                    }
                 }
                 else {
-                    return "nav-unread";
+                    if(this.curindex == 0) {
+                        return "nav-unread";
+                    }
+                    else {
+                        return "nav-unread-no-focuse";
+                    }
                 }
                 return "nav-unread";
             }
@@ -443,6 +453,23 @@ export default {
         // z-index:-1;
     }
 
+    .nav-unread-no-focuse {
+        position: absolute;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
     .mac-nav-unread {
         position: absolute;
         top: 136px;
@@ -459,6 +486,23 @@ export default {
         border-radius: 20px;
         background-color: rgba(228, 49, 43, 1);
         // z-index:-1;
+    }
+
+    .mac-nav-unread-no-focuse {
+        position: absolute;
+        top: 136px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
     }
 
     .nav-readall-unselected {
