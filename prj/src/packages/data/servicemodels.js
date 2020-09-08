@@ -395,7 +395,8 @@ const servicemodels = {
         message_id:         undefined,
         message_content_type: undefined,
         message_from_id:    undefined,
-        message_content:    undefined
+        message_content:    undefined,
+        key_id:             undefined
       }
 
       var groupmap = 
@@ -406,7 +407,8 @@ const servicemodels = {
         "msgContentType": "message_content_type",        
         "msgId": "message_id",     
         "sequenceValue": "sequence_id",             
-        "timestamp": "last_message_time"   
+        "timestamp": "last_message_time",
+        "secretId":   "key_id" 
       }
       for(let key in groupmap)
       {
@@ -482,7 +484,8 @@ const servicemodels = {
         "msgContentType":"message_content_type",
         "timestamp": "last_message_time",
         "msgId":      "message_id",
-        "content":  "message_content"
+        "content":  "message_content",
+        "secretId":   "key_id"
       }
       return this.UpdateGroup(groupmodel, messagevalue, messagemap);
     },
