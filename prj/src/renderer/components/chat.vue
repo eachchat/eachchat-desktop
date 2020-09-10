@@ -1131,7 +1131,7 @@ export default {
             var fileList = paths;
             // console.log("======", fileList)
             if(fileList === null || fileList.length === 0) {
-                this.$toastMessage({message:'请选择最少一个文件', time: 2000, type:'success'});
+                // this.$toastMessage({message:'请选择最少一个文件', time: 2000, type:'success'});
                 return;
             }
             else if(this.chat.group_id == undefined && this.chat.user_id == undefined) {
@@ -3128,10 +3128,6 @@ export default {
             }
 
             var files = e.dataTransfer.files;
-            this.sendFileInfos = {
-                paths: [],
-                distGroupInfo: {}
-            };
             var varTmp = [];
             for(let i=0;i<files.length;i++) {
                 let fileSize = await getFileSizeNum(files[i].path);
@@ -3145,8 +3141,10 @@ export default {
                 return;
             }
             this.showSendFileDlg = true;
-            this.sendFileInfos.distGroupInfo = this.chat;
-            this.sendFileInfos.paths = varTmp;
+            this.sendFileInfos = {
+                distGroupInfo: this.chat,
+                paths: varTmp
+            }
         },
         checkClipboard(e) {
             console.log("e is ", e.clipboardData);

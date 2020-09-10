@@ -123,8 +123,11 @@ export default {
         calcImgPosition: function() {
             var showScreenHeight = document.documentElement.clientHeight;
             var showScreenWidth = document.documentElement.clientWidth;
-            var left = (showScreenWidth - this.imgWidth) / 2;
-            var top = (showScreenHeight - this.imgHeight) / 2;
+            var dlgElement = document.getElementById("SendFileDlgId");
+            console.log("dlgElement.clientWidth ", dlgElement.clientWidth);
+            console.log("dlgElement.clientHeight ", dlgElement.clientHeight);
+            var left = (showScreenWidth - dlgElement.clientWidth) / 2;
+            var top = (showScreenHeight - dlgElement.clientHeight) / 2;
             var ret = {
                 "left": left,
                 "top": top
@@ -136,11 +139,6 @@ export default {
     created() {
     },
     mounted: function() {
-        this.$nextTick(() => {
-            var showPosition = this.calcImgPosition();
-            this.dlgPosition.left = showPosition.left.toString() + "px";
-            this.dlgPosition.top = showPosition.top.toString() + "px";
-        })
     },
     watch: {
         /**
@@ -150,7 +148,9 @@ export default {
          * }
          */
         sendInfos: async function() {
+            console.log("this.sendInfos is ", this.sendInfos.distGroupInfo)
             if(this.sendInfos.distGroupInfo.group_name == undefined) {
+                console.log("aaa return ")
                 return;
             }
 
@@ -174,6 +174,14 @@ export default {
                     }
                 }
             }
+
+            var showPosition = this.calcImgPosition();
+            var dlgElement = document.getElementById("SendFileDlgId");
+            dlgElement.style.left = showPosition.left.toString() + "px";
+            dlgElement.style.top = showPosition.top.toString() + "px";
+            // this.dlgPosition.left = showPosition.left.toString() + "px";
+            // this.dlgPosition.top = showPosition.top.toString() + "px";
+            // console.log("showPositoin is ", this.dlgPosition)
             
             // var filePaths = this.sendInfos.paths;
             // var showfuTmp = new FileUtil(filePath);
