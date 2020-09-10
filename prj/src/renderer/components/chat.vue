@@ -1148,7 +1148,7 @@ export default {
                 for(let i=0;i<fileList.length;i++) {
                     let fileSize = await getFileSizeNum(fileList[i]);
                     if(fileSize > 100 * 1024 * 1024) {
-                        this.$toastMessage({message:"文件 " + path.basename(fileList[i]) + " 大于100M，无法发送。", time: 3000, type:'success'});
+                        this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                         continue
                     }
                     varTmp.push(fileList[i]);
@@ -3136,7 +3136,7 @@ export default {
             for(let i=0;i<files.length;i++) {
                 let fileSize = await getFileSizeNum(files[i].path);
                 if(fileSize > 100 * 1024 * 1024) {
-                    this.$toastMessage({message:"文件 " + path.basename(files[i].path) + " 大于100M，无法发送。", time: 3000, type:'success'});
+                    this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                     continue
                 }
                 varTmp.push(files[i].path);
