@@ -130,7 +130,7 @@ export default {
     methods: {
         getUnReadCount(unReadCount) {
             if(unReadCount === 0) return "";
-            else return unReadCount > 100 ? "99+" : unReadCount;
+            else return unReadCount > 99 ? "···" : unReadCount;
         },
         getUnreadClass(unReadCount) {
             var endPoint = "-unselected";

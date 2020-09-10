@@ -103,7 +103,7 @@
         <userInfoContent :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
         <chatCreaterDlg v-show="showChatCreaterDlg" :addMemberGroupType="addMemberGroupType" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
-        <!-- <SendFileDlg v-show="showSendFileDlg" :sendInfos="sendFileInfos"></SendFileDlg> -->
+        <SendFileDlg v-show="showSendFileDlg" :sendInfos="sendFileInfos" @closeSendFileDlg="closeSendFileDlg" @SendFiles="SendFiles"></SendFileDlg>
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">
                 <img class="history-msg-img" src="../../../static/Img/Chat/chatHistoryMsg-20px@2x.png">
@@ -142,7 +142,7 @@ import ownerTransferDlg from './ownerTransfer.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
-// import SendFileDlg from './send-file-dlg.vue'
+import SendFileDlg from './send-file-dlg.vue'
 import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 
@@ -232,7 +232,7 @@ export default {
         transmitDlg,
         chatCreaterDlg,
         userInfoContent,
-        // SendFileDlg,
+        SendFileDlg,
     },
     methods: {
         updateChatList: function(ret) {
@@ -1131,89 +1131,109 @@ export default {
             var fileList = paths;
             // console.log("======", fileList)
             if(fileList === null || fileList.length === 0) {
-                // alert("请选择一个文件/文件夹。");
+                this.$toastMessage({message:'请选择最少一个文件', time: 2000, type:'success'});
                 return;
             }
+            else if(this.chat.group_id == undefined && this.chat.user_id == undefined) {
+                    this.$toastMessage({message:'请选择一个群组', time: 2000, type:'success'});
+                    return;
+                }
             else {
-                for(var i=0;i<fileList.length;i++) {
-                    var curPath = fileList[i]
-                    let fileSize = await getFileSizeNum(curPath);
+                this.sendFileInfos = {
+                    paths: [],
+                    distGroupInfo: {}
+                };
+                this.showSendFileDlg = true;
+                var varTmp = [];
+                for(let i=0;i<fileList.length;i++) {
+                    let fileSize = await getFileSizeNum(fileList[i]);
                     if(fileSize > 100 * 1024 * 1024) {
-                        this.$toastMessage({message:"发送的文件大小不能大于100M", time: 3000, type:'success'});
+                        this.$toastMessage({message:"文件 " + path.basename(fileList[i]) + " 大于100M，无法发送。", time: 3000, type:'success'});
                         continue
                     }
-                    // console.log("filelist[i] = ", fileList[i])
-                    var range = this.editor.getSelection();
-                    var curIndex = range==null ? 0 : range.index;
-
-                    var showfu = new FileUtil(fileList[i]);
-                    var showfileObj = showfu.GetUploadfileobj();
-                    var imgurl = URL.createObjectURL(showfileObj)
-                    var fileType = showfu.GetMimename();
-                    if(fileType == undefined) {
-                        fileType = path.extname(fileList[i]);
-                    }
-                    var fileExt = showfu.GetExtname();
-                    var fileName = path.basename(fileList[i]);//showfu.GetFilename()
-
-                    if(fileType.split("/")[0] == "image"){
-                        // Image
-                        var img = new Image();
-                        img.src = fileList[i];
-                        img.onload = () => {
-                            var imgHeight = 46;
-                            var imgWidth = img.width * (46/img.height);
-                            var range = this.editor.getSelection();
-                            var curIndex = range==null ? 0 : range.index;
-                            var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
-                            complexSpan.id = generalGuid();
-                            complexSpan.innerHTML = " ";
-                            var indexUrl = this.imgConstStyle.indexOf("background-image: url(") + "background-image: url(".length;
-                            var distStyle = insertStr(this.imgConstStyle, indexUrl, imgurl);
-                            var indexWidth = this.imgConstStyle.indexOf(";width:") + ";width:".length;
-                            distStyle = insertStr(distStyle, indexWidth, imgWidth.toString() + "px");
-                            // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
-                            complexSpan.style = distStyle;
-                            let msgInfo = {
-                                "path": curPath,
-                                "type": "image",
-                                "height": img.height,
-                                "width": img.width
-                            };
-                            this.idToPath[complexSpan.id] = msgInfo;
-
-                            this.editor.insertEmbed(curIndex, 'span', complexSpan);
-                            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                            this.editor.insertText(curIndex + 1, " ");
-                        }
-                    }
-                    else {
-                        // File
-                        var iconPath = getIconPath(fileExt);
-                        // console.log("iconpath is ", iconPath)
-                        var range = this.editor.getSelection();
-                        var curIndex = range==null ? 0 : range.index;
-                        var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
-                        complexSpan.id = generalGuid();
-                        complexSpan.innerHTML = "            " + fileName;
-                        var indexTemp = this.constStyle.indexOf("background-image: url(") + "background-image: url(".length;
-                        var distStyle = insertStr(this.constStyle, indexTemp, iconPath);
-                        // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
-                        // console.log("diststyle is ", distStyle);
-                        complexSpan.style = distStyle;
-                        let msgInfo = {
-                            "path": curPath,
-                            "type": "file",
-                            "height": 0,
-                            "width": 0
-                        };
-                        this.idToPath[complexSpan.id] = msgInfo;
-
-                        this.editor.insertEmbed(curIndex, 'span', complexSpan);
-                        this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                        this.editor.insertText(curIndex + 1, " ");
-                    }
+                    varTmp.push(fileList[i]);
                 }
+                this.sendFileInfos.distGroupInfo = this.chat;
+                this.sendFileInfos.paths = varTmp;
+                // for(var i=0;i<fileList.length;i++) {
+                //     var curPath = fileList[i]
+                //     let fileSize = await getFileSizeNum(curPath);
+                //     if(fileSize > 100 * 1024 * 1024) {
+                //         this.$toastMessage({message:"发送的文件大小不能大于100M", time: 3000, type:'success'});
+                //         continue
+                //     }
+                //     // console.log("filelist[i] = ", fileList[i])
+                //     var range = this.editor.getSelection();
+                //     var curIndex = range==null ? 0 : range.index;
+
+                //     var showfu = new FileUtil(fileList[i]);
+                //     var showfileObj = showfu.GetUploadfileobj();
+                //     var imgurl = URL.createObjectURL(showfileObj)
+                //     var fileType = showfu.GetMimename();
+                //     if(fileType == undefined) {
+                //         fileType = path.extname(fileList[i]);
+                //     }
+                //     var fileExt = showfu.GetExtname();
+                //     var fileName = path.basename(fileList[i]);//showfu.GetFilename()
+
+                //     if(fileType.split("/")[0] == "image"){
+                //         // Image
+                //         var img = new Image();
+                //         img.src = fileList[i];
+                //         img.onload = () => {
+                //             var imgHeight = 46;
+                //             var imgWidth = img.width * (46/img.height);
+                //             var range = this.editor.getSelection();
+                //             var curIndex = range==null ? 0 : range.index;
+                //             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
+                //             complexSpan.id = generalGuid();
+                //             complexSpan.innerHTML = " ";
+                //             var indexUrl = this.imgConstStyle.indexOf("background-image: url(") + "background-image: url(".length;
+                //             var distStyle = insertStr(this.imgConstStyle, indexUrl, imgurl);
+                //             var indexWidth = this.imgConstStyle.indexOf(";width:") + ";width:".length;
+                //             distStyle = insertStr(distStyle, indexWidth, imgWidth.toString() + "px");
+                //             // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
+                //             complexSpan.style = distStyle;
+                //             let msgInfo = {
+                //                 "path": curPath,
+                //                 "type": "image",
+                //                 "height": img.height,
+                //                 "width": img.width
+                //             };
+                //             this.idToPath[complexSpan.id] = msgInfo;
+
+                //             this.editor.insertEmbed(curIndex, 'span', complexSpan);
+                //             this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                //             this.editor.insertText(curIndex + 1, " ");
+                //         }
+                //     }
+                //     else {
+                //         // File
+                //         var iconPath = getIconPath(fileExt);
+                //         // console.log("iconpath is ", iconPath)
+                //         var range = this.editor.getSelection();
+                //         var curIndex = range==null ? 0 : range.index;
+                //         var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
+                //         complexSpan.id = generalGuid();
+                //         complexSpan.innerHTML = "            " + fileName;
+                //         var indexTemp = this.constStyle.indexOf("background-image: url(") + "background-image: url(".length;
+                //         var distStyle = insertStr(this.constStyle, indexTemp, iconPath);
+                //         // 'display:inline-block;border-radius: 5px;border: 1px solid rgb(218,218,221);width: 200px;height: 46px;background-repeat: no-repeat;background-image: url("/static/Img/Chat/doc@2x.png");background-size: contain;line-height: 46px;text-indent:40px;'
+                //         // console.log("diststyle is ", distStyle);
+                //         complexSpan.style = distStyle;
+                //         let msgInfo = {
+                //             "path": curPath,
+                //             "type": "file",
+                //             "height": 0,
+                //             "width": 0
+                //         };
+                //         this.idToPath[complexSpan.id] = msgInfo;
+
+                //         this.editor.insertEmbed(curIndex, 'span', complexSpan);
+                //         this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+                //         this.editor.insertText(curIndex + 1, " ");
+                //     }
+                // }
                 // console.log("finished")
             }
         },
@@ -1660,14 +1680,14 @@ export default {
             }
 
         },
-        sendFiles: async function(filePath) {
-            // console.log("this.chat is ", this.chat);
-            if(this.chat.group_id == undefined && this.chat.user_id == undefined) {
-                this.$message('请选择一个群组');
-                this.$toastMessage({message:'请选择一个群组', time: 2000, type:'success'});
-                return;
+        SendFiles: function(filePaths) {
+            console.log("filePaths is ", filePaths);
+            for(let i=0;i<filePaths.length;i++) {
+                this.sendFile(filePaths[i]);
             }
-            
+            this.closeSendFileDlg();
+        },
+        sendFile: async function(filePath) {
             var uid = this.chat.user_id;
             var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
             let curTimeSeconds = new Date().getTime();
@@ -3089,13 +3109,41 @@ export default {
             this.editor.setSelection(this.editor.selection.savedRange.index);
             this.showFace = false;
         },
+        closeSendFileDlg() {
+            this.showSendFileDlg = false;
+            this.sendFileInfos = {
+                paths: [],
+                distGroupInfo: {}
+            };
+        },
         dealDrop(e) {
+            console.log("------ ", this.$route.name)
             e.preventDefault();
-            var files = e.dataTransfer.files;
-            console.log("drop files is ", files);
-            for(var i=0;i<files.length;i++) {
-                this.sendFiles(files[i].path);
+            if(this.$route.name != "ChatContent") {
+                return;
             }
+            if(this.chat.group_id == undefined && this.chat.user_id == undefined) {
+                this.$toastMessage({message:'请选择一个群组', time: 2000, type:'success'});
+                return;
+            }
+
+            var files = e.dataTransfer.files;
+            this.sendFileInfos = {
+                paths: [],
+                distGroupInfo: {}
+            };
+            this.showSendFileDlg = true;
+            var varTmp = [];
+            for(let i=0;i<files.length;i++) {
+                let fileSize = await getFileSizeNum(files[i].path);
+                if(fileSize > 100 * 1024 * 1024) {
+                    this.$toastMessage({message:"文件 " + path.basename(files[i].path) + " 大于100M，无法发送。", time: 3000, type:'success'});
+                    continue
+                }
+                varTmp.push(files[i].path);
+            }
+            this.sendFileInfos.distGroupInfo = this.chat;
+            this.sendFileInfos.paths = varTmp;
         },
         checkClipboard(e) {
             console.log("e is ", e.clipboardData);

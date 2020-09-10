@@ -2,16 +2,26 @@
     <div class="SendFileLayers" id="SendFileLayersId" >
         <div :style="dlgPosition" class="SendFileDlg" id="SendFileDlgId">
             <div class="SendFileHeader">
-                <div class="SendFileHeaderTitle">{{ dialogTitle }}</div>
+                <div class="SendFileHeaderTitle">发送给：</div>
                 <img ondragstart="return false" class="SendFileClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
             <div class="ReceiverInfoDiv">
-                <image class="ReceiverImage" id="ReceiverImageId" src="../../../static/Img/User/user-40px@2x.png">
-                <p class="ReceiverName" id="ReceiverNameId">
-                </p>
+                <img class="ReceiverImage" id="ReceiverImageId" src="../../../static/Img/User/user-40px@2x.png">
+                <p class="ReceiverName" id="ReceiverNameId">{{getDistName()}}</p>
             </div>
             <div class="SendFileImageDiv">
-                <img class="SendFileImage" id="SendFileImageId">
+                <ul class="SendFileList" id="SendFileListId">
+                    <li v-for="item in sendInfos.paths"
+                        class="SendFileItem"> <!-- <listItem @groupInfo="chatGroupItem"/> -->
+                        <div class="SendFileImgDiv">
+                            <img class="SendFileImg" :src="getFilePath(item)"/>
+                        </div>
+                        <div class="SendFileInfo">
+                            <p class="SendFileName" >{{getSendFileName(item)}}</p>
+                            <p class="SendFileSize">{{getSendFileSize(item)}}</p>
+                        </div>
+                    </li>
+                </ul>
             </div>
             <div class="SendFileFotter">
                 <button class="SendFileCancleButton" @click="closeDialog()">取消</button>
@@ -26,7 +36,7 @@ import {services, environment} from '../../packages/data/index.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
 import confservice from '../../packages/data/conf_service';
-import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict, GetMimename, getIconPath } from '../../packages/core/Utils.js'
+import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict, getIconPath, getFileSizeByNumber } from '../../packages/core/Utils.js'
 import * as path from 'path'
 import {UserInfo, Group} from '../../packages/data/sqliteutil.js';
 export default {
@@ -42,7 +52,10 @@ export default {
              * }
              */
             type: Object,
-            default: {}
+            default: {
+                paths: [],
+                distGroupInfo: {}
+            }
         }
     },
     data () {
@@ -50,7 +63,7 @@ export default {
             SendFileDlgElement: null,
             SendFileLayersElement: null,
             imgHeight: 468,
-            imgWidth: 624,
+            imgWidth: 436,
             ipcInited: false,
             SendFileContent: "",
             groupId: "",
@@ -67,10 +80,45 @@ export default {
         }
     },
     methods: {
+        getDistName() {
+            if(this.sendInfos.distGroupInfo != undefined && this.sendInfos.distGroupInfo.group_name != undefined){
+                return this.sendInfos.distGroupInfo.group_name.substring(0, 20);
+            }
+            else {
+                return "";
+            }
+        },
+        getFilePath(item) {
+            if(fs.existsSync(item)) {
+                var showfuTmp = new FileUtil(item);
+                var fileMime = showfuTmp.GetMimename();
+                if(fileMime != undefined && fileMime.split('/')[0] == 'image') {
+                    return item;
+                }
+                
+                var ext = path.extname(item).split('.')[1];
+                var iconPath = getIconPath(ext);
+                return iconPath
+            }
+            return '../../../static/Img/Chat/unknown@2x.png';
+        },
+        getSendFileName(item) {
+            console.log("item is ", item);
+            return path.basename(item);
+        },
+        getSendFileSize(item) {
+            if(fs.existsSync(item)) {
+                var itemState = fs.statSync(item);
+                return getFileSizeByNumber(itemState.size);
+            }
+        },
         closeDialog() {
-            this.display = false;
-            this.$emit("closeSendFileDlg", "");
-            
+            this.$emit("closeSendFileDlg");
+        },
+        SendFile() {
+            var distFiles = this.sendInfos.paths;
+            console.log("var dist files is ", distFiles)
+            this.$emit("SendFiles", distFiles);
         },
         calcImgPosition: function() {
             var showScreenHeight = document.documentElement.clientHeight;
@@ -86,28 +134,26 @@ export default {
         },
     },
     created() {
+    },
+    mounted: function() {
+        this.$nextTick(() => {
             var showPosition = this.calcImgPosition();
             this.dlgPosition.left = showPosition.left.toString() + "px";
             this.dlgPosition.top = showPosition.top.toString() + "px";
-    },
-    mounted: function() {
+        })
     },
     watch: {
         /**
          * {
-         *  "path": '',
+         *  "paths": [''],
          *  "distGroupInfo": {},
          * }
          */
-        sendInfos: function() {
-            if(this.distGroupInfo.type == undefined) {
+        sendInfos: async function() {
+            if(this.sendInfos.distGroupInfo.group_name == undefined) {
                 return;
             }
-            var distGroupElement = document.getElementById("ReceiverNameId");
-            if(distGroupElement != undefined ) {
-                distGroupElement.innerHTML = this.sendInfos.distGroupInfo.group_name;
-            }
-            
+
             var distGroupImageElement = document.getElementById("ReceiverImageId");
             var distId = '';
             if(this.sendInfos.distGroupInfo.group_id != undefined && this.sendInfos.distGroupInfo.group_id.length != 0) {
@@ -116,6 +162,7 @@ export default {
             else {
                 distId = this.sendInfos.distGroupInfo.user_id;
             }
+            var targetPath = '';
             if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.sendInfos.distGroupInfo.group_avarar, distId))){
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
@@ -128,21 +175,21 @@ export default {
                 }
             }
             
-            var filePath = this.sendInfos.path;
-            var showfuTmp = new FileUtil(filePath);
-            var fileMime = showfuTmp.GetMimename();
-            var fileExt = showfu.GetExtname();
-            var sendFileImageElement = document.getElementById("SendFileImageId");
+            // var filePaths = this.sendInfos.paths;
+            // var showfuTmp = new FileUtil(filePath);
+            // var fileMime = showfuTmp.GetMimename();
+            // var fileExt = showfu.GetExtname();
+            // var sendFileImageElement = document.getElementById("SendFileImageId");
 
-            if(sendFileImageElement != undefined) {
-                if(fileMime.split('/')[0] == 'image') {
-                    sendFileImageElement.setAttribute("src", filePath);
-                }
-                else {
-                    var iconPath = getIconPath(fileExt);
-                    sendFileImageElement.setAttribute("src", iconPath);
-                }
-            }
+            // if(sendFileImageElement != undefined) {
+            //     if(fileMime.split('/')[0] == 'image') {
+            //         sendFileImageElement.setAttribute("src", filePath);
+            //     }
+            //     else {
+            //         var iconPath = getIconPath(fileExt);
+            //         sendFileImageElement.setAttribute("src", iconPath);
+            //     }
+            // }
 
         }
     }
@@ -150,10 +197,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-::-webkit-scrollbar {
-/*隐藏滚轮*/
-display: none;
-}
+    ::-webkit-scrollbar {
+    /*隐藏滚轮*/
+    display: none;
+    }
     .SendFileLayers {
         height: 100%;
         width: 100%;
@@ -166,7 +213,7 @@ display: none;
 
     .SendFileDlg {
         position: absolute;
-        max-width: 624px;
+        max-width: 436px;
         max-height: 468px;
         display: block;
         background: rgba(255, 255, 255, 1);
@@ -174,14 +221,14 @@ display: none;
 
     .SendFileHeader {
         width: 100%;
-        height: 56px;
+        height: 46px;
         background: rgba(255, 255, 255, 1);
     }
 
     .SendFileHeaderTitle {
         width: calc(100% - 68px);
-        height: 56px;
-        line-height: 56px;
+        height: 46px;
+        line-height: 46px;
         display: inline-block;
         margin-left: 32px;
         vertical-align: top;
@@ -199,8 +246,9 @@ display: none;
     }
 
     .ReceiverInfoDiv {
-        width: 560px;
-        max-height: 40x;
+        width: 400px;
+        height: 40px;
+        margin-left: 32px;
     }
     
     .ReceiverImage {
@@ -216,20 +264,106 @@ display: none;
         height: 32px;
         line-height: 32px;
         margin:0px 0px 0px 8px;
-        max-width: 100px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        width: 300px;
         font-size: 12px;
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
         color: rgba(153, 153, 153, 1);
         letter-spacing:1px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        vertical-align: top;
     }
 
     .SendFileImageDiv {
-        width: 560px;
-        max-height: 440x;
+        width: 370px;
         border: 1px solid rgba(211, 211, 211, 1);
+        margin: 0px 32px 0px 32px;
+    }
+    
+    .SendFileList {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        max-height: 310px;
+        overflow: scroll;
+    }
+
+    .SendFileItem {
+        height: 60px;
+        margin-left: 16px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        font-size: 0px;
+        box-sizing: border-box;
+    }
+
+    .SendFileImgDiv {
+        position:relative;
+        width: 40px;
+        height: 40px;
+        display: inline-block;
+        margin-left: 0px;
+        margin-top: 10px;
+        margin-right: 0px;
+        margin-bottom: 10px;
+    }
+
+    .SendFileImg {
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        width: 40px;
+        height: 40px;
+        margin-left: 16px;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        border-radius:4px;
+        // z-index:-1;
+    }
+  
+    .SendFileInfo {
+        display: inline-block;
+        height: 100%;
+        width: calc(100% - 130px);
+        margin-left: 12px;
+    }
+
+    .SendFileName {
+        width: 100%;
+        height: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family:PingFangSC-Medium;
+        color: rgba(0, 0, 0, 1);
+        overflow: hidden;
+        margin-left: 0px;
+        margin-top: 10px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing:1px;
+    }
+
+    .SendFileSize {
+        width: 100%;
+        font-size: 13px;
+        font-weight:400;
+        color: rgba(153, 153, 153, 1);
+        overflow: hidden;
+        font-family:PingFangSC-Regular;
+        margin-left: 0px;
+        margin-top: 2px;
+        margin-right: 0px;
+        margin-bottom: 10px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        height: 18px;
+        letter-spacing:1px;
     }
 
     .SendFileImage {
