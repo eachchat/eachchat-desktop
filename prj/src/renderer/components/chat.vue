@@ -3116,7 +3116,7 @@ export default {
                 distGroupInfo: {}
             };
         },
-        dealDrop(e) {
+        async dealDrop(e) {
             console.log("------ ", this.$route.name)
             e.preventDefault();
             if(this.$route.name != "ChatContent") {
@@ -3132,7 +3132,6 @@ export default {
                 paths: [],
                 distGroupInfo: {}
             };
-            this.showSendFileDlg = true;
             var varTmp = [];
             for(let i=0;i<files.length;i++) {
                 let fileSize = await getFileSizeNum(files[i].path);
@@ -3142,6 +3141,10 @@ export default {
                 }
                 varTmp.push(files[i].path);
             }
+            if(varTmp.length == 0) {
+                return;
+            }
+            this.showSendFileDlg = true;
             this.sendFileInfos.distGroupInfo = this.chat;
             this.sendFileInfos.paths = varTmp;
         },
