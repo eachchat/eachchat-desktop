@@ -141,7 +141,7 @@
 <script>
 //import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
-import {Department, UserInfo} from '../../packages/data/sqliteutil.js'
+import {Department, Group, UserInfo} from '../../packages/data/sqliteutil.js'
 //import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer} from 'electron'
@@ -182,6 +182,10 @@ export default {
             default: 102,
         },
         isSearchAdd: {
+            type:Boolean,
+            default: false
+        },
+        isSecret: {
             type:Boolean,
             default: false
         }
@@ -307,7 +311,12 @@ export default {
                     var groupCheck = '';
                     console.log("chat name is ", chatName)
                     try {
-                        groupCheck = await services.common.GetGroupByName(chatName);
+                        if(this.isSecret) {
+                            groupCheck = await Group.SearchSecretByNameKey(chatName);
+                        }
+                        else {
+                            groupCheck = await services.common.GetGroupByName(chatName);
+                        }
                     }
                     catch(error) {
                         console.log("get grou name exception and err is ", error);
@@ -329,9 +338,19 @@ export default {
                         groupItem["un_read_count"] = 0;
                         groupItem["updatetime"] = new Date().getTime();
                         groupItem["user_id"] = selectedId.user_id;
+                        groupItem["key_id"] = this.isSecret == true ? "xxxxxx" : "";
                     }
                     else {
-                        groupItem = groupCheck[0];
+                        for(let k=0;k<groupCheck.length;k++) {
+                            if(this.isSecret && groupCheck[k].key_id.length != 0) {
+                                groupItem = groupCheck[k];
+                                break;
+                            }
+                            else if(!this.isSecret && groupCheck[k].key_id.length == 0) {
+                                groupItem = groupCheck[k];
+                                break;
+                            }
+                        }
                     }
 
                     this.$emit('getCreateGroupInfo', groupItem);

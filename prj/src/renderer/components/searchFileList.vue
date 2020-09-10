@@ -165,7 +165,7 @@ export default {
             if(!fs.existsSync(targetPath)){
                 // console.log("this.msg.timelineid is ", fileInfo.timelineId)
                 // console.log("targetfilename is ", targetFileName);
-                services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, fileInfo.msgId + theExt, true);
+                services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, fileInfo.msgId + theExt, true, chatGroupMsgContent.fileSize);
             }
             else {
                 shell.openItem(targetPath);

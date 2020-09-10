@@ -365,6 +365,10 @@ export default {
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
             }
+            var isSecret = false;
+            if(msgItem.key_id != undefined && msgItem.key_id.length != 0) {
+                isSecret = true;
+            }
             this.menu = new Menu();
             if(msgItem.message_type == 101) {
                 this.menu.append(new MenuItem({
@@ -373,30 +377,34 @@ export default {
                         this.menuCopy(msgItem)
                     }
                 }));
-                this.menu.append(new MenuItem({
-                    label: "转发",
-                    click: () => {
-                        this.transMit(msgItem)
-                    }
-                }));
-                this.menu.append(new MenuItem({
-                    label: "收藏",
-                    click: () => {
-                        this.menuFav(msgItem)
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                    this.menu.append(new MenuItem({
+                        label: "收藏",
+                        click: () => {
+                            this.menuFav(msgItem)
+                        }
+                    }));
+                }
                 this.menu.append(new MenuItem({
                     label: "删除",
                     click: () => {
                         this.menuDelete(msgItem)
                     }
                 }));
-                this.menu.append(new MenuItem({
-                    label: "多选",
-                    click: () => {
-                        this.msgMultiSelect(msgItem);
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "多选",
+                        click: () => {
+                            this.msgMultiSelect(msgItem);
+                        }
+                    }));
+                }
             }
             else if(msgItem.message_type == 102) {
                 // this.menu.append(new MenuItem({
@@ -405,96 +413,112 @@ export default {
                 //         this.menuCopy(msgItem)
                 //     }
                 // }));
-                this.menu.append(new MenuItem({
-                    label: "转发",
-                    click: () => {
-                        this.transMit(msgItem)
-                    }
-                }));
-                this.menu.append(new MenuItem({
-                    label: "收藏",
-                    click: () => {
-                        this.menuFav(msgItem)
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                    this.menu.append(new MenuItem({
+                        label: "收藏",
+                        click: () => {
+                            this.menuFav(msgItem)
+                        }
+                    }));
+                }
                 this.menu.append(new MenuItem({
                     label: "删除",
                     click: () => {
                         this.menuDelete(msgItem)
                     }
                 }));
-                this.menu.append(new MenuItem({
-                    label: "多选",
-                    click: () => {
-                        this.msgMultiSelect(msgItem);
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "多选",
+                        click: () => {
+                            this.msgMultiSelect(msgItem);
+                        }
+                    }));
+                }
             }
             else if(msgItem.message_type == 103) {
-                this.menu.append(new MenuItem({
-                    label: "转发",
-                    click: () => {
-                        this.transMit(msgItem)
-                    }
-                }));
-                this.menu.append(new MenuItem({
-                    label: "收藏",
-                    click: () => {
-                        this.menuFav(msgItem)
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                    this.menu.append(new MenuItem({
+                        label: "收藏",
+                        click: () => {
+                            this.menuFav(msgItem)
+                        }
+                    }));
+                }
                 this.menu.append(new MenuItem({
                     label: "删除",
                     click: () => {
                         this.menuDelete(msgItem)
                     }
                 }));
-                this.menu.append(new MenuItem({
-                    label: "多选",
-                    click: () => {
-                        this.msgMultiSelect(msgItem);
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "多选",
+                        click: () => {
+                            this.msgMultiSelect(msgItem);
+                        }
+                    }));
+                }
             }
             else if(msgItem.message_type == 105) {
-                this.menu.append(new MenuItem({
-                    label: "收藏",
-                    click: () => {
-                        this.menuFav(msgItem)
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "收藏",
+                        click: () => {
+                            this.menuFav(msgItem)
+                        }
+                    }));
+                }
                 this.menu.append(new MenuItem({
                     label: "删除",
                     click: () => {
                         this.menuDelete(msgItem)
                     }
                 }));
-                this.menu.append(new MenuItem({
-                    label: "多选",
-                    click: () => {
-                        this.msgMultiSelect(msgItem);
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "多选",
+                        click: () => {
+                            this.msgMultiSelect(msgItem);
+                        }
+                    }));
+                }
             }
             else if(msgItem.message_type == 106) {
-                this.menu.append(new MenuItem({
-                    label: "转发",
-                    click: () => {
-                        this.transMit(msgItem)
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                }
                 this.menu.append(new MenuItem({
                     label: "删除",
                     click: () => {
                         this.menuDelete(msgItem)
                     }
                 }));
-                this.menu.append(new MenuItem({
-                    label: "多选",
-                    click: () => {
-                        this.msgMultiSelect(msgItem);
-                    }
-                }));
+                if(!isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "多选",
+                        click: () => {
+                            this.msgMultiSelect(msgItem);
+                        }
+                    }));
+                }
             }
 
             this.menu.popup(remote.getCurrentWindow());
@@ -973,6 +997,11 @@ export default {
                 msgHistoryMenuElement.style.display = "none";
             }
 
+            var secretOptionMenuElement = document.getElementById("secretTypeDropdownContentId");
+            if(secretOptionMenuElement != undefined && e.target.className != "secretType" && e.target.className != "secretTypeButton" && e.target.className != "secretGroupDiv") {
+                secretOptionMenuElement.style.display = "none";
+            }
+
             console.log("e.target.classname ", e.target.className)
             if(e.target.className.indexOf('userInfo') == -1){
                 this.showUserInfoTips = false;
@@ -1350,7 +1379,8 @@ export default {
                                 uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent,
-                                filePath)
+                                filePath,
+                                this.isSecret)
                             .then(async (ret) => {
                                 // console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -1469,7 +1499,8 @@ export default {
                                 uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent,
-                                filePath)
+                                filePath,
+                                this.isSecret)
                             .then(async (ret) => {
                                 // console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -1556,7 +1587,9 @@ export default {
                         gorupId, 
                         uid, 
                         curTimeSeconds, 
-                        willSendMsgContent)
+                        willSendMsgContent,
+                        '',
+                        this.isSecret)
                     .then(async (ret) => {
                         // console.log("sendNewMessage ret is ", ret);
                         console.log("guid is ", guid);
@@ -1641,7 +1674,9 @@ export default {
                         gorupId, 
                         uid, 
                         curTimeSeconds, 
-                        willSendMsgContent)
+                        willSendMsgContent,
+                        '',
+                        this.isSecret)
                     .then(async (ret) => {
                         // console.log("sendNewMessage ret is ", ret);
                         // console.log("guid is ", guid);
@@ -1805,7 +1840,8 @@ export default {
                                 send_uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent,
-                                finalPath)
+                                finalPath,
+                                this.isSecret)
                             .then(async (ret) => {
                                 console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -1954,7 +1990,8 @@ export default {
                                 send_uid, 
                                 curTimeSeconds, 
                                 willSendMsgContent,
-                                finalPath)
+                                finalPath,
+                                this.isSecret)
                             .then(async (ret) => {
                                 console.log("send img message ret ", ret)
                                 if(ret == undefined) {
@@ -2124,7 +2161,8 @@ export default {
                                             send_uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent,
-                                            finalPath)
+                                            finalPath,
+                                            this.isSecret)
                                         .then(async (ret) => {
                                             console.log("send img message ret ", ret)
                                             if(ret == undefined) {
@@ -2238,7 +2276,9 @@ export default {
                                     gorupId, 
                                     send_uid, 
                                     curTimeSeconds, 
-                                    willSendMsgContent)
+                                    willSendMsgContent,
+                                    '',
+                                    this.isSecret)
                                 .then(async (ret) => {
                                     // console.log("sendNewMessage ret is ", ret);
 
@@ -2387,7 +2427,8 @@ export default {
                                             send_uid, 
                                             curTimeSeconds, 
                                             willSendMsgContent,
-                                            finalPath)
+                                            finalPath,
+                                            this.isSecret)
                                         .then(async (ret) => {
                                             console.log("send img message ret ", ret)
                                             if(ret == undefined) {
@@ -2522,7 +2563,9 @@ export default {
                                 gorupId, 
                                 send_uid, 
                                 curTimeSeconds, 
-                                willSendMsgContent)
+                                willSendMsgContent,
+                                '',
+                                this.isSecret)
                             .then(async (ret) => {
                                 console.log("sendNewMessage ret is ", ret);
                                 console.log("guid is ", guid);
@@ -2824,6 +2867,7 @@ export default {
                 "isFav": this.groupIsInFavourite(this.chat),
                 "ownerId": this.chat.owner,
                 "groupType": this.chat.group_type,
+                "isSecret": (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
             }
             this.groupInfo = groupInfoObj;
             // console.log("more more more ", this.chat.contain_user_ids.split(","))
@@ -3184,6 +3228,7 @@ export default {
     },
     data() {
         return {
+            isSecret: false,
             canSelecteFile: true,
             isGroup: true,
             updatemsgStatus: {
@@ -3319,6 +3364,7 @@ export default {
                 return;
             }
             if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
+                this.isSecret = (this.chat.key_id.length != 0 && this.chat.group_type == 102);
                 this.hideScrollBar();
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;

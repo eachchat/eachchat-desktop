@@ -132,7 +132,7 @@ export default {
 
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
-                    services.common.downloadFile(item.timelineId, item.timestamp, item.msgId + ext, false);
+                    services.common.downloadTransmitMsgFile(item.timelineId, item.timestamp, item.msgId + ext, false, chatGroupMsgContent.fileSize, item.fromId);
                 }
                 var fileMsgImgElement = document.getElementById(distId);
                 var iconPath = this.getFileIconThroughExt(chatGroupMsgContent.ext);
@@ -200,7 +200,7 @@ export default {
                     shell.openItem(targetPath);
                 }
                 else{
-                    services.common.downloadFile(item.timelineId, item.timestamp, item.msgId + ext, true);
+                    services.common.downloadTransmitMsgFile(item.timelineId, item.timestamp, item.msgId + ext, true, msgContent.fileSize, item.fromId);
                 }
             }
             else if(msgType == 105) {

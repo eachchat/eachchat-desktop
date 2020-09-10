@@ -164,7 +164,12 @@ export default {
                 }
                 else{
                     console.log("=======target path download ", targetPath);
-                    services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true);
+                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
+                        services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize, msgContent.url);
+                    }
+                    else {
+                        services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize);
+                    }
                 }
             }
             else if(msgType == 105) {
@@ -189,7 +194,12 @@ export default {
                     }
                 }
                 else{
-                    services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true);
+                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
+                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize, msgContent.url);
+                    }
+                    else {
+                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize);
+                    }
                 }
                 this.$emit('playAudioOfMessage', this.msg.message_id);
             }
@@ -304,7 +314,11 @@ export default {
                     var targetFileName = chatGroupMsgContent.fileName;
                     var theExt = path.extname(targetFileName);
                     var needOpen = false;
-                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false))) {
+                    var secretUrl = '';
+                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
+                        secretUrl = chatGroupMsgContent.url;
+                    }
+                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false, secretUrl))) {
                         //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                         let imageHeight = 100;
                         if(chatGroupMsgContent.imgHeight < 100){
@@ -335,7 +349,12 @@ export default {
                 if(!fs.existsSync(targetPath)){
                     // console.log("this.msg.timelineid is ", this.msg.time_line_id)
                     // console.log("targetfilename is ", targetFileName);
-                    this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false);
+                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
+                        this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false, chatGroupMsgContent.fileSize, chatGroupMsgContent.url); 
+                    }
+                    else {
+                        this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false, chatGroupMsgContent.fileSize);
+                    }
                     this.checkingTmpPath = this.checkingPath + "_tmp";
                     this.downloadingInterval = setInterval(() => {
                         if(fs.existsSync(this.checkingTmpPath)) {
@@ -418,8 +437,12 @@ export default {
                 // }
                 var needOpen = false;
                 if(!fs.existsSync(targetPath)){
-                    // ipcRenderer.send('download-file', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, false]);
-                    services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen);
+                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
+                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen, chatGroupMsgContent.fileSize, chatGroupMsgContent.url);
+                    }
+                    else {
+                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen, chatGroupMsgContent.fileSize);
+                    }
                 }
                 var fileMsgImgElement = document.getElementById(this.msg.message_id);
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);

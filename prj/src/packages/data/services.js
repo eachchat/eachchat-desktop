@@ -403,7 +403,7 @@ const common = {
 
   async InitDbData()
   {
-    Promise.all([this.UpdateGroups(), this.UpdateMessages(), this.UpdateUserinfo(), this.UpdateDepartment()])
+    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateUserinfo(), this.UpdateDepartment()])
     //await this.UpdateMessages();
     //await this.ListAllCollections();
   },
@@ -1298,7 +1298,7 @@ const common = {
     return decryptMsg;
   },
 
-  async uploadFile(filepath, msgInfo) {
+  async uploadFile(filepath, msgInfo, isSecret=false) {
     let tmpmsg = {
       message_id: msgInfo.message_id,
       message_type: msgInfo.message_type,
@@ -1313,41 +1313,47 @@ const common = {
 
     console.log("uploadfile info ", tmpmsg);
 
-    var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.data.selfuser.id) + 1;
-    console.log("uploadfile curMaxSequenceId ", curMaxSequenceId);
-    tmpmsg["sequence_id"] = curMaxSequenceId;
+    // if(isSecret) {
+    //   this.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID() + 1;
+    //   tmpmsg["sequence_id"] = this.data.maxSecretMsgSequenceID;
+    //   console.log("uploadfile maxSecretMsgSequenceID ", this.data.maxSecretMsgSequenceID);
+    // }
+    // else {
+    //   var curMaxSequenceId = await sqliteutil.GetMaxMsgSequenceID(this.data.selfuser.id) + 1;
+    //   tmpmsg["sequence_id"] = curMaxSequenceId;
+    //   await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, curMaxSequenceId);
+    //   this.data.selfuser.msg_max_sequenceid = curMaxSequenceId;
+    //   console.log("this.data.selfuser.msg_max_sequenceid ", this.data.selfuser.msg_max_sequenceid);
+    // }
     
-    await sqliteutil.UpdateMaxMsgSequenceID(this.data.selfuser.id, curMaxSequenceId);
-    this.data.selfuser.msg_max_sequenceid = curMaxSequenceId;
-    console.log("this.data.selfuser.msg_max_sequenceid ", this.data.selfuser.msg_max_sequenceid);
 
-    let tmpmsgmodel = await new(await models.Message)(tmpmsg);
+    // let tmpmsgmodel = await new(await models.Message)(tmpmsg);
 
-    console.log("tmpmsgmodel ", tmpmsgmodel);
-    let group;
-    group = await Group.FindItemFromGroupByGroupID(tmpmsgmodel.group_id);
-    console.log("======== services upload file group is ", group);
-    if(group == undefined)
-    {
-      group = await servicemodels.MessageGroup(tmpmsg);
-    }
-    else
-    { 
-      var msgUpdate = {
-        "userId": this.data.selfuser.id,
-        "sequenceValue": tmpmsgmodel.sequence_id,
-        "fromId":     tmpmsgmodel.message_from_id,
-        "msgContentType":tmpmsgmodel.message_type,
-        "timestamp": tmpmsgmodel.message_timestamp,
-        "msgId":     tmpmsgmodel.message_id,
-        "content": JSON.parse(tmpmsgmodel.message_content),
-      }
-      group = await servicemodels.UpdateGroupMessage(group, msgUpdate);
-    }
+    // console.log("tmpmsgmodel ", tmpmsgmodel);
+    // let group;
+    // group = await Group.FindItemFromGroupByGroupID(tmpmsgmodel.group_id);
+    // console.log("======== services upload file group is ", group);
+    // if(group == undefined)
+    // {
+    //   group = await servicemodels.MessageGroup(tmpmsg);
+    // }
+    // else
+    // { 
+    //   var msgUpdate = {
+    //     "userId": this.data.selfuser.id,
+    //     "sequenceValue": tmpmsgmodel.sequence_id,
+    //     "fromId":     tmpmsgmodel.message_from_id,
+    //     "msgContentType":tmpmsgmodel.message_type,
+    //     "timestamp": tmpmsgmodel.message_timestamp,
+    //     "msgId":     tmpmsgmodel.message_id,
+    //     "content": JSON.parse(tmpmsgmodel.message_content),
+    //   }
+    //   group = await servicemodels.UpdateGroupMessage(group, msgUpdate);
+    // }
     
-    console.log("======== final upload file group is ", group);
-    group.save();
-    tmpmsgmodel.save();
+    // console.log("======== final upload file group is ", group);
+    // group.save();
+    // tmpmsgmodel.save();
 
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
@@ -1359,7 +1365,7 @@ const common = {
     return ret;
   },
 
-  async downloadFile(timelineId, message_time, fileName, needOpen) {
+  async downloadFile(timelineId, message_time, fileName, needOpen, fileSize, url='') {
     var ret = "FILE_DOWNLOADING";
     var targetDir = confservice.getFilePath(message_time);
     var targetPath = path.join(targetDir, timelineId);
@@ -1370,12 +1376,28 @@ const common = {
     // }
     // else {
       // targetPath = await makeFlieNameForConflict(targetPath);
-      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen, originalPath]);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen, originalPath, fileSize, url]);
       return targetPath;
     // }
   },
 
-  async downloadVoiceFile(timelineId, message_time, fileName, needOpen) {
+  async downloadTransmitMsgFile(timelineId, message_time, fileName, needOpen, fileSize, ownerId) {
+    var ret = "FILE_DOWNLOADING";
+    var targetDir = confservice.getFilePath(message_time);
+    var targetPath = path.join(targetDir, timelineId);
+    var originalPath = path.join(targetDir, fileName);
+    // // console.log("targetPath is ", targetPath);
+    // if(fs.existsSync(targetPath)) {
+    //   return targetPath;
+    // }
+    // else {
+      // targetPath = await makeFlieNameForConflict(targetPath);
+      ipcRenderer.send('download-file', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, needOpen, originalPath, fileSize, ownerId]);
+      return targetPath;
+    // }
+  },
+
+  async downloadVoiceFile(timelineId, message_time, fileName, needOpen, fileSize, url='') {
     var ret = "FILE_DOWNLOADING";
     // console.log("downloadFile fileName ", fileName);
     var targetDir = confservice.getVoiceFilePath();
@@ -1392,7 +1414,7 @@ const common = {
     }
   },
 
-  async downloadMsgTTumbnail(timelineId, message_time, fileName, needOpen) {
+  async downloadMsgTTumbnail(timelineId, message_time, fileName, needOpen, url='') {
     var ret = "FILE_DOWNLOADING";
     var targetDir = confservice.getThumbImagePath(message_time);
     var targetPath = path.join(targetDir, fileName);
@@ -1403,7 +1425,7 @@ const common = {
     }
     else {
       // targetPath = await makeFlieNameForConflict(targetPath);
-      ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, "T", needOpen]);
+      ipcRenderer.send('download-image', [timelineId, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, "T", needOpen, url]);
       return ret;
     }
   },

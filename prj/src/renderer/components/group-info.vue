@@ -22,12 +22,22 @@
                 </div>
             </div>
         </div>
+        <div class="secretGroupDiv" v-show="!isGroup && isSecret" @click="showSecretType()">
+            <span class="secretTypeButton" @click="showSecretType()">加密等级</span>
+            <span class="secretType" id="secretTypeId" @click="showSecretType()">自动</span>
+            <!-- <img class="secretTypeImg" src="../../../static/Img/Chat/secretArrow-20px@2x.png"> -->
+        </div>
+        <div class="secretTypeDropdownContent" id="secretTypeDropdownContentId" v-show="showSecretOption">
+            <div class="secretTypeAuto" @click="selectAuto()">
+                <span class="secretTypeAutoLabel">自动</span>
+            </div>
+        </div>
         <div class="groupSettingSilenceDiv" v-show="isGroup">
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch class="groupSettingSlienceSwitch" v-model="slienceState" @change="slienceStateChange(slienceState)">
             </el-switch>
         </div>
-        <div class="groupSettingTopDiv">
+        <div class="groupSettingTopDiv" v-show="!isSecret">
             <label class="groupSettingTopLabel">置顶聊天</label>
             <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
             </el-switch>
@@ -74,6 +84,11 @@
                     解散群聊
                 </p>
             </div>
+            <div class="groupDelete-view" v-show="!isGroup">
+                <p class="groupDeleteDiv" @click="dismiss()">
+                    删除聊天
+                </p>
+            </div>
         </div>
         <image-cropper v-if="showImageCropper" :groupId="groupId" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
         <AlertDlg :AlertContnts="alertContnets" :alertType="alertType" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
@@ -95,6 +110,8 @@ export default {
     name: 'group-info',
     data() {
         return {
+            showSecretOption: false,
+            isSecret: false,
             canSelecteFile: true,
             alertContnets: {},
             alertType: '',
@@ -151,6 +168,19 @@ export default {
     computed: {
     },
     methods: {
+        showSecretType: function() {
+            this.showSecretOption = true;
+            var secretTypeBtnElement = document.getElementById("secretTypeId");
+            var secretOptionMenuElement = document.getElementById("secretTypeDropdownContentId");
+            var top = secretTypeBtnElement.offsetTop + secretTypeBtnElement.offsetHeight;
+            var left = secretTypeBtnElement.offsetLeft;
+            secretOptionMenuElement.style.display = "block";
+            secretOptionMenuElement.style.top = top + "px";
+            secretOptionMenuElement.style.left = left + "px";
+        },
+        selectAuto: function() {
+            this.showSecretOption = false;
+        },
         groupListViewClassName: function() {
             if(this.isOwner) {
                 return "groupMember-view-owner"
@@ -555,6 +585,7 @@ export default {
                     this.peopleState = ownerUserInfo.status_description;
                 }
             }
+            this.isSecret = this.showGroupInfo.isSecret;
             console.log("this.peopleState ", this.peopleState)
             // console.log("this.slienceState ", this.slienceState)
             var adddedMemberId = [];
@@ -991,6 +1022,82 @@ export default {
     cursor: pointer;
 }
 
+.secretGroupDiv {
+    background: rgba(255, 255, 255, 1);
+    height: 48px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.secretTypeButton {
+    display: inline-block;
+    height: 48px;
+    line-height: 48px;
+    width: calc(100% - 168px);
+    font-size: 14px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    vertical-align: top;
+    color: rgba(51, 51, 51, 1);
+}
+
+.secretType {
+    display: inline-block;
+    height: 30px;
+    text-indent: 5px;
+    line-height: 30px;
+    width: 132px;
+    margin: 8px 10px 8px 10px;
+    font-size: 14px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    vertical-align: top;
+    background-repeat: no-repeat;
+    background-position:center right;
+    background-image: url("../../../static/Img/Chat/secretArrow-20px@2x.png");
+    background-size: auto 60%;
+    border: 1px solid rgba(211, 211, 211, 1);
+    border-radius: 2px;
+}
+
+.secretTypeDropdownContent {
+    display: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0);
+    width: 132px;
+    height: 30px;
+    border-radius: 4px;
+    box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);
+    border:1px solid rgba(221,221,221,1);
+}
+
+.secretTypeDropdownContent div:hover {
+    background-color: rgba(221, 221, 221, 1);
+    cursor: pointer;
+}
+
+.secretTypeAuto {
+    display: block;
+    width: 132px;
+    height: 30px;
+}
+
+.secretTypeAutoLabel {
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    color: rgba(51, 51, 51, 1);
+    font-family: 'PingFangSC-Regular';
+    font-weight: 400;
+    letter-spacing: 1px;
+    vertical-align: top;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .groupSettingSilenceDiv {
     background: rgba(255, 255, 255, 1);
     height: 48px;
@@ -1273,6 +1380,50 @@ export default {
     border: 0px;
 }
 
+.groupDelete-view {
+    height: 48px;
+    padding: 0px;
+    background: rgba(255, 255, 255, 1);
+    border: 0px;
+}
+
+.groupDeleteDiv {
+    height: 48px;
+    line-height: 48px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    border: 0px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 14px;
+    color: red;
+    text-align: center;
+    cursor: pointer;
+}
+
+.groupDeleteDiv:hover{
+    height: 48px;
+    line-height: 48px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    border: 0px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 14px;
+    color: red;
+    text-align: center;
+    cursor: pointer;
+    background: #F7F8FA;
+}
+
 .groupDismissDiv{
     height: 48px;
     line-height: 48px;
@@ -1291,7 +1442,7 @@ export default {
     cursor: pointer;
 }
 
-.groupDismissDiv{
+.groupDismissDiv:hover{
     height: 48px;
     line-height: 48px;
     margin-top: 5px;

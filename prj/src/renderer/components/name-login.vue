@@ -561,7 +561,8 @@ export default {
             this.showLoadingView = true;
             setTimeout(async () => {
                 this.tokenRefreshing = true;
-                await services.common.UpdateGroups();         
+                await services.common.UpdateGroups();
+                await services.common.UpdateSecretGroups();
                 ipcRenderer.send('showMainPageWindow', true); 
             }, 1000);
         }

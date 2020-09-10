@@ -490,6 +490,8 @@ function downloadFile(event, arg) {
       var distTemp = distPath + "_tmp";
       var needOpen = arg[5]; 
       var originalPath = arg[6];
+      var fileSize = arg[7];
+      var fileUrl = arg[8];
       var baseURL = hostname;
 
       if(downloadExist(distTemp)) {
@@ -507,8 +509,12 @@ function downloadFile(event, arg) {
     
       var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
       var headers = {
-        Authorization: "Bearer " + token
+        Authorization: "Bearer " + token,
+        "File-Size": fileSize,
       };
+      if(fileUrl.length != 0) {
+        headers["Encryption-File"] = fileUrl;
+      }
       var appendix = {
         timeout: 1000 * 60 * 2,
         responseType: "stream"
@@ -724,7 +730,7 @@ ipcMain.on("download-user-avarar", function(event, arg) {
 function downloadImage(event, arg) {
   return function f() {
     return new Promise(resolve => {
-      // console.log("download-image arg is ", arg);
+      console.log("download-image arg is ", arg);
       var timelineID = arg[0];
       var token = arg[1];
       var hostname = arg[2];
@@ -733,6 +739,7 @@ function downloadImage(event, arg) {
       var distTemp = distPath + "_tmp";
       var thumbType = arg[5];
       var needOpen = arg[6];
+      var secretUrl = arg[7];
       var baseURL = hostname;
 
       if(downloadExist(distTemp)) {
@@ -752,6 +759,9 @@ function downloadImage(event, arg) {
       var headers = {
         Authorization: "Bearer " + token
       };
+      if(secretUrl.length != 0) {
+        headers["Encryption-File"] = secretUrl;
+      }
       var appendix = {
         timeout: 35000,
         responseType: "stream"

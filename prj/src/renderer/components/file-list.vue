@@ -101,24 +101,24 @@ export default {
             }
         },
         download: async function(curItem) {
-            // console.log(curItem);
             // console.log("this.fileListShow ", this.fileListShow);
             if(curItem == undefined) {
                 curItem = this.operatedItem;
             }
+            console.log(curItem);
             var targetFileName = curItem.content.fileName;
             var ext = path.extname(targetFileName);
-            await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, false)
+            await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, false, curItem.content.fileSize)
         },
         openFile: async function(curItem) {
-            // console.log(curItem);
             if(curItem == undefined) {
                 curItem = this.operatedItem;
             }
+            console.log(curItem);
             var targetPath = "";
             var targetFileName = curItem.content.fileName;
             var ext = path.extname(targetFileName);
-            if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, true))) {
+            if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, true, curItem.content.fileSize))) {
                 shell.openItem(targetPath);
             }
         },

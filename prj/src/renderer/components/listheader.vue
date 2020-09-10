@@ -11,7 +11,7 @@
                 <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
-            <div class="secret-chat-file" @click="showFileList()" v-show="false">
+            <div class="secret-chat" @click="showCreateGroup(true)">
                 <img class="secret-chat-img" src="../../../static/Img/Main/create-secret-chatnor-20px@2x.png">
                 <span class="secret-chat-label">发起密聊</span>
             </div>
@@ -25,7 +25,7 @@
                 <el-button class="dialog-confirm-button" type="primary" @click="createGroup()">确 定</el-button>
             </span>
         </el-dialog> -->
-        <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
+        <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
     </div>
 </template>
@@ -58,6 +58,7 @@ export default {
             dialogVisible: false,
             disabledusers: [],
             showCreateNewChat: false,
+            isSecret: false,
         }
     },
     methods: {
@@ -81,11 +82,12 @@ export default {
             this.showChatCreaterDlg = false;
             this.chatCreaterDisableUsers = [];
         },
-        showCreateGroup: async function(){
+        showCreateGroup: async function(isSecret=false){
             // this.disabledusers = [this.curUserInfo.id];
             // this.dialogVisible = true;
             // console.log("this disabledusers is ", this.disabledusers)
             /////////////////////////////////////////////////////////
+            this.isSecret = isSecret;
             var self = await services.common.GetSelfUserModel();
             var selfUserInfo = await UserInfo.GetUserInfo(self.id);
             if(selfUserInfo == undefined) {
@@ -278,7 +280,7 @@ export default {
         position: absolute;
         background-color: rgba(255, 255, 255, 1);
         width: 128px;
-        height: 40px;
+        height: 80px;
         border-radius: 4px;
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
@@ -306,6 +308,30 @@ export default {
     }
     
     .normal-chat-label {
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: PingFangSC-Regular;
+        vertical-align: top;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    .secret-chat {
+        display: block;
+        width: 128px;
+        height: 40px;
+    }
+
+    .secret-chat-img {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 10px 8px 10px 16px;
+        background-color: rgba(0, 0, 0, 0);
+    }
+    
+    .secret-chat-label {
         height: 40px;
         line-height: 40px;
         font-size: 14px;

@@ -315,7 +315,7 @@ export default {
         fileListClicked:async function(file) {
             if(!this.getFileExist(file)){
                 console.log("download start");
-                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false);
+                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false, file.collection_content.fileSize);
                 shell.openItem(targetPath);
             }
             var targetDir = confservice.getFilePath(file.timestamp);
@@ -330,7 +330,7 @@ export default {
                 
             }else{
                 console.log("download start");
-                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false);
+                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false, file.collection_content.fileSize);
             }
         },
         updateFileCollectionList() {

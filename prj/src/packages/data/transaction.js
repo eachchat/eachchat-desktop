@@ -541,7 +541,7 @@ class APITransaction {
   }
 
   async SecretMessageRead(accessToken, groupId, sequenceId){
-    let response = await this.commonApi.put(
+    let response = await this.commonApi.post(
       "/api/apps/secretchat/v1/message/reader",
       {
         groupId: groupId,

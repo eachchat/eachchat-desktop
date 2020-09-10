@@ -20,6 +20,7 @@
                   <div class="group-img">
                     <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex, chatGroupItem.status)">{{getUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
                     <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
@@ -330,6 +331,12 @@ export default {
     };
   },
   methods: {
+    isSecret(item) {
+      if(item.group_type == 102 && item.key_id != undefined && item.key_id.length != 0) {
+        return true;
+      }
+      return false;
+    },
     ChatGroupId(item) {
       if(item.group_id != undefined && item.user_id != undefined) {
         if(item.user_id.length == 0) {
@@ -424,7 +431,7 @@ export default {
         // console.log("this.msg.timelineid is ", fileInfo.timelineId)
         // console.log("targetfilename is ", targetFileName);
         
-        services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, targetFileName, true);
+        services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, targetFileName, true, chatGroupMsgContent.fileSize);
         this.$toastMessage({message:'文件正在下载，请稍后', time:1500, type:'success'});
       }
       else {
@@ -554,6 +561,10 @@ export default {
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
         //     return;
         // }
+        var isSecret = false;
+        if(groupItem.key_id != undefined && groupItem.key_id.length != 0 && groupItem.group_type == 102) {
+          isSecret = true;
+        }
         this.menu = new Menu();
         // console.log("this.unreadCount ", this.unreadCount)
         // console.log("groupItem.un_read_count ", groupItem.un_read_count)
@@ -568,37 +579,39 @@ export default {
               }
           }));
         }
-        if(this.groupIsSlience(groupItem)) {
-          this.menu.append(new MenuItem({
-              label: "允许消息通知",
-              click: () => {
-                  this.setUnSlience(groupItem)
-              }
-          }));
-        }
-        else {
-          this.menu.append(new MenuItem({
-              label: "消息免打扰",
-              click: () => {
-                  this.setSlience(groupItem)
-              }
-          }));
-        }
-        if(this.groupIsInFavourite(groupItem)) {
-          this.menu.append(new MenuItem({
-              label: "取消收藏",
-              click: () => {
-                  this.unFavouriteIt(groupItem)
-              }
-          }));
-        }
-        else {
-          this.menu.append(new MenuItem({
-              label: "收藏",
-              click: () => {
-                  this.favouriteIt(groupItem)
-              }
-          }));
+        if(!isSecret) {
+          if(this.groupIsSlience(groupItem)) {
+            this.menu.append(new MenuItem({
+                label: "允许消息通知",
+                click: () => {
+                    this.setUnSlience(groupItem)
+                }
+            }));
+          }
+          else {
+            this.menu.append(new MenuItem({
+                label: "消息免打扰",
+                click: () => {
+                    this.setSlience(groupItem)
+                }
+            }));
+          }
+          if(this.groupIsInFavourite(groupItem)) {
+            this.menu.append(new MenuItem({
+                label: "取消收藏",
+                click: () => {
+                    this.unFavouriteIt(groupItem)
+                }
+            }));
+          }
+          else {
+            this.menu.append(new MenuItem({
+                label: "收藏",
+                click: () => {
+                    this.favouriteIt(groupItem)
+                }
+            }));
+          }
         }
         this.menu.append(new MenuItem({
             label: "删除",
@@ -653,7 +666,11 @@ export default {
     },
     clesrUnread(groupItem) {
       // this.isEmpty = false;
-      services.common.MessageRead(groupItem.group_id, groupItem.sequence_id);
+      var isSecret = false;
+      if(groupItem.key_id != undefined && groupItem.key_id.length != 0 && groupItem.group_type == 102) {
+        isSecret = true;
+      }
+      services.common.MessageRead(groupItem.group_id, groupItem.sequence_id, isSecret);
       this.unreadCount = this.unreadCount - groupItem.un_read_count;
       // console.log("clesrUnread ", this.unreadCount);
       // console.log("groupItem ", groupItem);
@@ -1029,9 +1046,16 @@ export default {
             break;
           }
           if(this.showGroupList[i].group_name == groupInfo.group_name && this.showGroupList[i].group_type == 102) {
-            groupIndex = i;
-            this.scrollToDistPosition(groupIndex);
-            break;
+            if((groupInfo.key_id != undefined && groupInfo.key_id.length != 0) && (this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length != 0)) {
+              groupIndex = i;
+              this.scrollToDistPosition(groupIndex);
+              break;
+            }
+            if((groupInfo.key_id == undefined || (groupInfo.key_id != undefined && groupInfo.key_id.length == 0)) && (this.showGroupList[i].key_id == undefined || (this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length == 0))) {
+              groupIndex = i;
+              this.scrollToDistPosition(groupIndex);
+              break;
+            }
           }
         }
         if(groupIndex == -1) {
@@ -1370,6 +1394,10 @@ export default {
       this.isEmpty = false;
       // console.log("this.unreadcount is ", this.unreadCount);
       // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
+      var isSecret = false;
+      if(chatGroup.key_id != undefined && chatGroup.key_id.length != 0 && chatGroup.group_type == 102) {
+        isSecret = true;
+      }
       if(this.curChat.un_read_count != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
         // console.log("showchat this.unreadCount ", this.unreadCount)
@@ -1377,7 +1405,7 @@ export default {
           this.unreadCount = 0;
         }
         ipcRenderer.send("updateUnreadCount", this.unreadCount);
-        services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
+        services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       }
       this.curChat = chatGroup;
       this.curindex = index;
@@ -1387,7 +1415,7 @@ export default {
         this.unreadCount = 0;
       }
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
-      services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id);
+      services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
     getGroupList: async function(updateCurPage=false) {
@@ -1445,7 +1473,7 @@ export default {
       }
     },
     async callback(msg, isUpdate=false) {
-      // console.log("chat callback msg is ", msg);
+      console.log("chat callback msg is ", msg);
       // console.log("chat callback msg content is ", msg.message_content);
       // console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
@@ -1598,6 +1626,7 @@ export default {
           this.showGroupList[i].message_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_id : this.showGroupList[i].message_id;
           this.showGroupList[i].message_content = msg.message_content;
           this.showGroupList[i].sequence_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.sequence_id : this.showGroupList[i].sequence_id;
+          this.showGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
           if(this.showGroupList[i].group_type == 102) {
             this.showGroupList[i].group_id = msg.group_id;
           }
@@ -1674,6 +1703,7 @@ export default {
                 this.showGroupList[i].message_id = msg.message_id;
                 this.showGroupList[i].sequence_id = msg.sequence_id;
                 this.showGroupList[i].time_line_id = msg.time_line_id;
+                this.showGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
               // }
               this.showGroupList[i].owner = distGroup.owner;
               let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
@@ -1725,6 +1755,7 @@ export default {
                   "last_message_time": msg.message_timestamp,
                   "sequence_id": msg.sequence_id,
                   "time_line_id": msg.time_line_id,
+                  "key_id": msg.key_id == undefined ? "" : msg.key_id
                 }
                 // console.log("groupTmp is ", groupTmp);
                 this.showGroupList.unshift(groupTmp);
@@ -1761,6 +1792,7 @@ export default {
               "last_message_time": msg.message_timestamp,
               "sequence_id": msg.sequence_id,
               "time_line_id": msg.time_line_id,
+              "key_id": msg.key_id == undefined ? "" : msg.key_id
             }
             // console.log("groupTmp is ", groupTmp);
             for(let i=0;i<this.originalGroupList.length;i++) {
@@ -1773,6 +1805,7 @@ export default {
                 this.originalGroupList[i].last_message_time = msg.message_timestamp;
                 this.originalGroupList[i].sequence_id = msg.sequence_id;
                 this.originalGroupList[i].time_line_id = msg.time_line_id;
+                this.originalGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
               }
             }
             if(!groupTmpExist) {
@@ -2369,6 +2402,16 @@ export default {
     border-radius: 20px;
     background-color: rgba(228, 49, 43, 1);
     // z-index:-1;
+  }
+
+  .secret-flag {
+    position: absolute;
+    bottom: -5px;
+    right: -8px;
+    float: right;
+    margin: 0px;
+    height: 16px;
+    width: 16px;
   }
 
   .group-unread {
