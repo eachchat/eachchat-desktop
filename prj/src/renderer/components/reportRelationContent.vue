@@ -127,6 +127,9 @@ export default {
                 line-height:18px;
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
             }
             .reportArraw{
                 display: inline-block;

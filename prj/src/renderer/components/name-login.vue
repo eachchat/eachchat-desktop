@@ -66,7 +66,7 @@
                     <div class="btn item">
                         <Button type="success" id="loginButton" @click="login()">登录</Button>
                     </div>
-                    <div class="otherlogin" v-show="false">
+                    <div class="otherlogin" v-show="true">
                         <div class="userphone-login" @click="userPhoneLoginClicked()">
                             手机验证码登录
                         </div><div class="useremail-login" @click="userEmailLoginClicked()">
@@ -293,7 +293,7 @@ export default {
                 var result = await services.common.gmsGetUser(this.emialAddress);
                 if(result){
                     this.emialAddressButtonDisabled = true;
-                    this.time = 60;
+                    this.time = 61;
                     this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
                     this.timer();
                 }
@@ -314,7 +314,7 @@ export default {
             return re.test(phone);
         },
         timer() {
-            if (this.time > 0) {
+            if (this.time > 1) {
                     this.time--;
                     this.emailSendButtonValue = "重新发送(" + this.time + "s)";
                     setTimeout(this.timer, 1000);
@@ -378,7 +378,7 @@ export default {
             }
             var result = await services.common.MobileCodeLogin(this.username);
             if(result == true){
-                this.userPhoneSendCodeTime = 11;
+                this.userPhoneSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
                 this.userPhoneSendCodeTimer();
             }else{
@@ -411,7 +411,7 @@ export default {
             }
             var result = await services.common.EmailCodeLogin(this.username);
             if(result == true){
-                this.userEmailSendCodeTime = 11;
+                this.userEmailSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
                 this.userEmailSendCodeTimer();
             }else{
@@ -721,7 +721,7 @@ export default {
 
 
         .item-account{
-            margin-top: 28px;
+            margin-top: 20px;
             width: 260px;
             margin-left: 50px;
             height: 58px;
@@ -1103,7 +1103,7 @@ export default {
             width: 100%;
             height: 20px;
             margin-bottom: 15px;
-            margin-top: 48px;
+            margin-top: 66px;
             cursor: pointer;
             .back-image{
                 cursor: pointer;
@@ -1305,7 +1305,7 @@ export default {
             width: 100%;
             height: 20px;
             margin-bottom: 15px;
-            margin-top: 48px;
+            margin-top: 66px;
             cursor: pointer;
             .back-image{
                 cursor: pointer;
