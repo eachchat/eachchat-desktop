@@ -1,0 +1,2 @@
+把https://github.com/travist/jsencrypt/blob/master/bin/jsencrypt.js 源码拷贝到小程序目录，增加以下代码到源码，测试了是可以加密的。
+var navigator = { appName: 'Netscape', userAgent: '', }; var window = {};
