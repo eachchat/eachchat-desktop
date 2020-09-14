@@ -267,12 +267,16 @@ export default {
       this.showGroupList = this.topGroupVar.concat(this.showGroupList);
       for(let i=0;i<this.showGroupList.length;i++) {
         if(this.showGroupList[i].group_type == this.curChat.group_type && this.showGroupList[i].group_id == this.curChat.group_id && this.showGroupList[i].group_name == this.curChat.group_name) {
+          // this.scrollToDistPosition(i)
           this.curindex = i;
+          // if(this.needScroll) {
+          //   this.scrollToDistPosition(this.curindex)
+          // }
           break;
         }
       }
       if(this.needScroll) {
-        this.scrollToDistPosition()
+        this.scrollToDistPosition(this.topGroupVar.length)
       }
       
       // this.$store.commit("setShowGroupList", this.showGroupList);
@@ -356,6 +360,7 @@ export default {
     },
     updateChatList(newMsg) {
       // ++this.needUpdate;
+      this.needScroll = true;
       if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
         this.callback(newMsg, true);
       }
@@ -2001,6 +2006,7 @@ export default {
   .search-list-content {
     height: 100%;
     overflow-y: scroll;
+    scroll-behavior:smooth;
     
     ::-webkit-scrollbar-track {
       border-radius: 10px;
@@ -2179,6 +2185,7 @@ export default {
   .list-content {
     height: 100%;
     overflow: scroll;
+    scroll-behavior:smooth;
     
     ::-webkit-scrollbar-track {
       border-radius: 10px;
@@ -2212,6 +2219,7 @@ export default {
     height: 100%;
     padding: 0;
     margin: 0;
+    scroll-behavior:smooth;
   }
 
   .group-div {

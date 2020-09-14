@@ -302,7 +302,7 @@ export default {
                 }
                 if(fs.existsSync(targetPath)) {
                     let imageHeight = 100;
-                    if(chatGroupMsgContent.imgHeight < 100){
+                    if(chatGroupMsgContent.imgHeight < 100 && chatGroupMsgContent.imgHeight != 0){
                         imageHeight = chatGroupMsgContent.imgHeight;
                     }
                     this.imageHeight = imageHeight;
