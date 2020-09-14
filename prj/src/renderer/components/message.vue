@@ -482,8 +482,6 @@ export default {
         },
         getMsgBelongUserImg: function() {
             if(this.msg != undefined) {
-                var targetDir = confservice.getFilePath();
-                var targetFileName = this.msg.message_from_id + ".png";
                 var targetPath = confservice.getUserThumbHeadLocalPath(this.msg.message_from_id);
                 if(fs.existsSync(targetPath)) {
                     return targetPath;
@@ -502,9 +500,10 @@ export default {
             if(this.msg == undefined) {
                 return;
             }
-            var userIconElementId = this.getUserIconId();
-            this.userIconElement = document.getElementById(userIconElementId);
-
+            if(this.userIconElement == undefined) {
+                var userIconElementId = this.getUserIconId();
+                this.userIconElement = document.getElementById(userIconElementId);
+            }
             var userNameElementId = this.msgNameId();
             var userNameElement = document.getElementById(userNameElementId);
 
@@ -540,6 +539,7 @@ export default {
                 if(userInfos == undefined || userInfos.length == 0) {
                     console.log("err");
                     this.userInfo = {};
+                    this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
                     return;
                 }
 
@@ -547,7 +547,12 @@ export default {
                 var distTAvarar = this.userInfo.avatar_t_url;
                 // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
                 // console.log("message downloag group avatar target path is ", targetPath);
-                services.common.downloadUserTAvatar(distTAvarar, this.msg.message_from_id);
+                if(fs.existsSync(targetPath == await services.common.downloadUserTAvatar(distTAvarar, this.msg.message_from_id))) {
+                    this.userIconElement.setAttribute("src", targetPath);
+                }
+                else {
+                    this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
+                }
                 // this.checkAndLoadUserImage(targetPath);
             }
 
