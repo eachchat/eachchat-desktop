@@ -358,9 +358,9 @@ export default {
         return "chat-v-bind-" + item.group_id;
       }
     },
-    updateChatList(newMsg) {
+    updateChatList(newMsg, needScroll=true) {
       // ++this.needUpdate;
-      this.needScroll = true;
+      this.needScroll = needScroll;
       if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
         this.callback(newMsg, true);
       }

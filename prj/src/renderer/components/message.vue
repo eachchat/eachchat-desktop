@@ -2,16 +2,6 @@
     <div class="message" :id="getMessageTemplateId()" v-cloak>
         <div class="chat-msg-body">
             <div class="msg-info-mine" v-if="MsgIsMine()">
-                <div class="msgStageDiv" :key="updateStatus">
-                    <div class="msgState" v-if="MsgIsSending()">
-                        <i class="el-icon-loading"></i>
-                    </div>
-                    <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
-                        <i class="el-icon-warning"></i>
-                    </div>
-                    <div class="msgState" v-else>
-                    </div>
-                </div>
                 <div class="about-msg">
                     <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
@@ -41,6 +31,16 @@
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
+                    </div>
+                    <div class="msgStageDiv" :key="updateStatus">
+                        <div class="msgState" v-if="MsgIsSending()">
+                            <i class="el-icon-loading"></i>
+                        </div>
+                        <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
+                            <i class="el-icon-warning"></i>
+                        </div>
+                        <div class="msgState" v-else>
+                        </div>
                     </div>
                 </div>
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip">
@@ -871,6 +871,9 @@ export default {
         display: inline-block;
         width: 20px;
         height: 30px;
+        float: right;
+        margin-right: 10px;
+        margin-top: 2px;
     }
 
     .msgState {

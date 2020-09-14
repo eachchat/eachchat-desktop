@@ -10,7 +10,7 @@
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click="More()">
                 </div>
-                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
+                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()" v-show="!isSecret">
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
@@ -237,7 +237,7 @@ export default {
     },
     methods: {
         updateChatList: function(ret) {
-            this.$emit("updateChatList", ret);
+            this.$emit("updateChatList", ret, false);
         },
         openUserInfoTip:async function(tipInfos) {
             console.log("tip inso if ", tipInfos);
