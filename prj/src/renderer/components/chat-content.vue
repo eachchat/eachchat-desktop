@@ -1689,10 +1689,10 @@ export default {
           // console.log("cur msg is ", msg);
           // var distFromName = await Group.SearchByNameKey(this.showGroupList[i].group_name);
           if(msg.key_id != undefined && msg.key_id.length != 0) {
-            var distFromName = await Group.SearchSecretByNameKey(chatName)
+            var distFromName = await Group.SearchSecretByNameKey(this.showGroupList[i].group_name)
           }
           else {
-            var distFromName = await Group.SearchChatByNameKey(chatName)
+            var distFromName = await Group.SearchChatByNameKey(this.showGroupList[i].group_name)
           }
           // var distFromName = await services.common.GetGroupByName(this.showGroupList[i].group_name);
           // console.log("distFromName is ", distFromName)
