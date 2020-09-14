@@ -11,7 +11,7 @@
                 <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
-            <div class="secret-chat" @click="showCreateGroup(true)">
+            <div class="secret-chat" @click="showCreateEncryptGroup(true)">
                 <img class="secret-chat-img" src="../../../static/Img/Main/create-secret-chatnor-20px@2x.png">
                 <span class="secret-chat-label">发起密聊</span>
             </div>
@@ -27,6 +27,8 @@
         </el-dialog> -->
         <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
+        <encryptChatCreater v-show="showencryptChatCreaterDlg" @getCreateGroupInfo="getEncryptCreateGroupInfo" @closeChatCreaterDlg="closeEncryptChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatEncryptCreaterKey">
+        </encryptChatCreater>
     </div>
 </template>
 
@@ -38,6 +40,7 @@ import {services} from '../../packages/data/index.js'
 import eSearch from './searchbar.vue'
 import {strMsgContentToJson} from '../../packages/core/Utils.js'
 import chatCreaterDlg from './chatCreaterDlg.vue'
+import encryptChatCreater from './encryptChatCreater.vue'
 import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
 export default {
     name: 'listHeadbar',
@@ -52,8 +55,10 @@ export default {
             chatCreaterDisableUsers: [],
             chatCreaterDialogRootDepartments:[],
             chatCreaterKey:1,
+            chatEncryptCreaterKey: 9,
             chatCreaterDialogTitle: '',
             showChatCreaterDlg: false,
+            showencryptChatCreaterDlg: false,
             searchKey: '',
             dialogVisible: false,
             disabledusers: [],
@@ -78,9 +83,43 @@ export default {
         getCreateGroupInfo(groupinfo) {
             this.$emit("getCreateGroupInfo", groupinfo);
         },
+        getEncryptCreateGroupInfo(groupinfo) {
+            this.$emit("getCreateGroupInfo", groupinfo);
+        },
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
             this.chatCreaterDisableUsers = [];
+        },
+        closeEncryptChatCreaterDlg(content) {
+            this.showencryptChatCreaterDlg = false;
+            this.chatCreaterDisableUsers = [];
+        },
+        showCreateEncryptGroup: async function(isSecret=false) {
+            // this.disabledusers = [this.curUserInfo.id];
+            // this.dialogVisible = true;
+            // console.log("this disabledusers is ", this.disabledusers)
+            /////////////////////////////////////////////////////////
+            this.isSecret = isSecret;
+            var self = await services.common.GetSelfUserModel();
+            var selfUserInfo = await UserInfo.GetUserInfo(self.id);
+            if(selfUserInfo == undefined) {
+                selfUserInfo = {
+                    "user_id": self.id,
+                }
+            }
+            console.log("self is ", self);
+            this.chatCreaterDisableUsers.push(selfUserInfo.user_id);
+            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
+            var root = await Department.GetRoot();
+            console.log("root is ", root);
+            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+            console.log("rootDepartmentModels is ", rootDepartmentModels);
+            var temp = rootDepartmentModels;
+            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
+            
+            this.chatEncryptCreaterKey ++;
+            this.showencryptChatCreaterDlg = true;
+            this.chatCreaterDialogTitle = "选择密聊";
         },
         showCreateGroup: async function(isSecret=false){
             // this.disabledusers = [this.curUserInfo.id];
@@ -234,7 +273,8 @@ export default {
     },
     components: {
         chatCreaterDlg,
-        eSearch
+        eSearch,
+        encryptChatCreater
     },
     created: async function () {
         await services.common.init();
