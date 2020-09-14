@@ -1171,7 +1171,7 @@ display: none;
                     }
                     .checkBox-label{
                         display: inline-block;
-                        width: 179px;
+                        width: 178px;
                         color: rgb(153, 153, 153);
                         font-size: 14px;
                         text-align: right;
@@ -1212,7 +1212,7 @@ display: none;
                                     margin-top: 14px;
                                     padding: 0px;
                                     padding-left: 8px;
-                                    width:189px;
+                                    width:188px;
                                     height:20px;
                                     font-size:14px;
                                     font-weight:400;
