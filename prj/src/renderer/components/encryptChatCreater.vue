@@ -315,7 +315,7 @@ export default {
                             groupCheck = await Group.SearchSecretByNameKey(chatName);
                         }
                         else {
-                        groupCheck = await services.common.GetGroupByName(chatName);
+                        groupCheck = await Group.SearchChatByNameKey(chatName);
                         }
                     }
                     catch(error) {

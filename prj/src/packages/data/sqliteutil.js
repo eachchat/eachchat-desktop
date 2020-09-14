@@ -546,6 +546,19 @@ const Group = {
         return distGroups;
     },
 
+    async SearchChatByNameKey(name){
+        let allGroups = await this.SearchByNameKey(name);
+        let distGroups = [];
+        for(let index in allGroups){
+            console.log("SearchSecretByNameKey ", allGroups)
+            if(allGroups[index].group_type == 102 && (allGroups[index].key_id == undefined || (allGroups[index].key_id != undefined && allGroups[index].key_id.length == 0))) {
+                allGroups[index].message = JSON.parse(allGroups[index].message_content);
+                distGroups.unshift(allGroups[index]);
+            }
+        }
+        return distGroups;
+    },
+
     async UpdateGroupAvatar(groupID, avatar){
         var groups = await this.FindGroupByID(groupID);
         if(groups.length == 1){

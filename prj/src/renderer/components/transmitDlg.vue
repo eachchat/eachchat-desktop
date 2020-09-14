@@ -394,7 +394,7 @@ export default {
                 console.log("userInfos is ", chatUserInfo);
                 var chatAvater = chatUserInfo.avatar_t_url;
                 var chatName = chatUserInfo.user_display_name;
-                var groupCheck = await services.common.GetGroupByName(chatName);
+                var groupCheck = await Group.SearchChatByNameKey(chatName);
                 console.log("groupCheck is ", groupCheck)
                 groupUserIds.push(selfUser.id);
                 var contain_user_ids = groupUserIds.join(",");

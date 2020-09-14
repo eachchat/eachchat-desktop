@@ -191,7 +191,7 @@ export default {
         var chatUserInfo = userInfos[0];
         var chatAvater = chatUserInfo.avatar_t_url;
         var chatName = chatUserInfo.user_display_name;
-        var groupCheck = await services.common.GetGroupByName(chatName);
+        var groupCheck = await await Group.SearchChatByNameKey(chatName);
         // console.log("groupCheck is ", groupCheck)
 
         if(groupCheck.length == 0) {
@@ -251,6 +251,7 @@ export default {
       }
       this.showGroupList = [];
       this.topGroupVar = [];
+      // console.log("this.originalGroupList is ", this.originalGroupList)
       for(let i=0;i<this.originalGroupList.length;i++) {
         if(this.groupIsTop(this.originalGroupList[i])) {
           this.topGroupVar.push(this.originalGroupList[i]);
@@ -844,6 +845,9 @@ export default {
       // }, 0)
     },
     groupIsInFavourite(groupInfo) {
+      if(groupInfo.status == undefined) {
+        return false;
+      }
       if(groupInfo.status == 0) {
         return false;
       }
@@ -855,6 +859,9 @@ export default {
       }
     },
     groupIsSlience(groupInfo) {
+      if(groupInfo.status == undefined) {
+        return false;
+      }
       if(groupInfo.status == 0) {
         return false;
       }
@@ -866,6 +873,10 @@ export default {
       }
     },
     groupIsTop(groupInfo) {
+      if(groupInfo.status == undefined) {
+        return false;
+      }
+      // console.log("groupInfo is ", groupInfo)
       if(groupInfo.status == 0) {
         return false;
       }
@@ -1281,7 +1292,7 @@ export default {
         return "";
       }
       var groupName = chatGroupItem.group_name;
-      if(groupName.length == 0) {
+      if(groupName != undefined && groupName.length == 0) {
         var aboutUids = chatGroupItem.contain_user_ids.split(",");
         var groupUidNameList = [];
         for(var i=0;i<aboutUids.length;i++) {
@@ -1677,7 +1688,13 @@ export default {
           // console.log("no group id item is ", this.showGroupList[i]);
           // console.log("cur msg is ", msg);
           // var distFromName = await Group.SearchByNameKey(this.showGroupList[i].group_name);
-          var distFromName = await services.common.GetGroupByName(this.showGroupList[i].group_name);
+          if(msg.key_id != undefined && msg.key_id.length != 0) {
+            var distFromName = await Group.SearchSecretByNameKey(chatName)
+          }
+          else {
+            var distFromName = await Group.SearchChatByNameKey(chatName)
+          }
+          // var distFromName = await services.common.GetGroupByName(this.showGroupList[i].group_name);
           // console.log("distFromName is ", distFromName)
           for(let j=0;j<distFromName.length;j++) {
             let distGroup = distFromName[j];

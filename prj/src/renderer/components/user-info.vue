@@ -175,7 +175,7 @@ export default {
                 var groupCheck = '';
                 // console.log("chat name is ", chatName)
                 try {
-                    groupCheck = await services.common.GetGroupByName(chatName);
+                    groupCheck = await Group.SearchChatByNameKey(chatName);
                 }
                 catch(error) {
                     console.log("get grou name exception and err is ", error);
