@@ -3371,7 +3371,7 @@ export default {
                 return;
             }
             if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
-                this.isSecret = (this.chat.key_id.length != 0 && this.chat.group_type == 102);
+                this.isSecret = (this.chat.key_id != undefined && this.chat.key_id.length != 0 && this.chat.group_type == 102);
                 this.hideScrollBar();
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;

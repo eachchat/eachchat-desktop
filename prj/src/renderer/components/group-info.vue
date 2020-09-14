@@ -751,7 +751,7 @@ export default {
 }
 
 .groupMember-view-owner {
-    height: calc(100% - 420px);
+    height: calc(100% - 440px);
     width: 100%;
     padding: 0px;
     border: 0px;

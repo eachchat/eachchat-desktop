@@ -276,7 +276,7 @@ export default {
         }
       }
       if(this.needScroll) {
-        this.scrollToDistPosition(this.topGroupVar.length)
+        this.scrollToDistPosition(this.topGroupVar.length > 3 ? this.topGroupVar.length - 3 : 0);
       }
       
       // this.$store.commit("setShowGroupList", this.showGroupList);
@@ -1078,9 +1078,9 @@ export default {
           if(groupInfo.group_type != 102) {
             this.originalGroupList.unshift(groupInfo);
             this.$nextTick(() => {
-              this.scrollToDistPosition(this.topGroupVar.length + 1);
-              this.curindex = this.topGroupVar.length;
-              this.curChat = this.showGroupList[0];
+              this.scrollToDistPosition(this.topGroupVar.length);
+              this.curindex = this.topGroupVar.length + 1;
+              this.curChat = this.originalGroupList[0];
             })
             this.mqttGroupVar.push(groupInfo)
             return;
