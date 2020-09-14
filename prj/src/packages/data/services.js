@@ -1055,7 +1055,7 @@ const common = {
     if(secret){
       let newKey = await Secret.GetNewSecret();
       if(newKey == undefined){
-        if(await !this.GetAesSecret())
+        if((await this.GetAesSecret()) == false)
           return undefined;
         newKey = await Secret.GetNewSecret();
       }
@@ -2054,6 +2054,7 @@ const common = {
       secretModel.save();
       this.data.aesSecret.push(secretModel);
     }
+    return true;
   },
 
   async ListSecretGroups(){
