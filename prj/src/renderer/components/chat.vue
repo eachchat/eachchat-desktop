@@ -62,6 +62,7 @@
                 <div class="text-input" @keydown="keyHandle($event)">
                     <quillEditor
                         ref="chatQuillEditor"
+                        v-model="content"
                         :options="editorOption"
                         @change="inputChanged">
                     </quillEditor>
@@ -752,7 +753,12 @@ export default {
         },
         inputChanged(content) {
             // console.log("content is ", content);
-            this.curContent = content.text;
+            if(content == undefined) {
+                this.curContent = this.content;
+            }
+            else {
+                this.curContent = content.text;
+            }
             var range = this.editor.getSelection();
             var content = this.editor.getContents();
             var curInputIndexTmp = 0;
@@ -3228,6 +3234,7 @@ export default {
     },
     data() {
         return {
+            content: '',
             isSecret: false,
             canSelecteFile: true,
             isGroup: true,
