@@ -1494,10 +1494,10 @@ export default {
       // console.log("chat callback msg is ", msg)
       var msgContent = strMsgContentToJson(msg.message_content);
       var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-      if(groupInfo.group_type == 101 && groupInfo.status.substr(5, 1) == "1") {
+      if(groupInfo != undefined && groupInfo.group_type == 101 && groupInfo.status.substr(5, 1) == "1") {
         return;
       }
-      if(groupInfo.group_type == 102 && groupInfo.status.substr(5, 1) == "1") {
+      if(groupInfo != undefined && groupInfo.group_type == 102 && groupInfo.status.substr(5, 1) == "1") {
         console.log("update status")
         services.common.UpdateGroupStatus(msg.group_id, "00000000");
       }
