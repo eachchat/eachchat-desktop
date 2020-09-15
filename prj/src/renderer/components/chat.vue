@@ -3,6 +3,7 @@
         <div class="chat-title">
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img">
+                <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret">
                 <p class="chat-name" id="chat-group-name"></p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <p class="chat-name-state" id="chat-group-state"></p>
@@ -3485,6 +3486,17 @@ export default {
         background-color: rgb(255, 255, 255);
         border-bottom: 0px solid rgb(242, 242, 246);
         margin-bottom: 9px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .encrypt-chat-img {
+        height: 20px;
+        width: 20px;
+        margin:6px 0px 6px 0px;
+        float: left;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
