@@ -403,6 +403,12 @@ ipcMain.on("showNotice", (event, title, contnet) => {
   }
 
 })
+
+ipcMain.on("stopFlash", (event) => {
+  clearFlashIconTimer();
+  appIcon.setImage(path.join(__dirname, iconPath));
+})
+
 // 闪烁任务栏
 ipcMain.on("flashIcon", (event, title, contnet) => {
   console.log("title ",title)

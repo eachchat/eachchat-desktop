@@ -1414,6 +1414,7 @@ export default {
       if(chatGroup.key_id != undefined && chatGroup.key_id.length != 0 && chatGroup.group_type == 102) {
         isSecret = true;
       }
+      
       if(this.curChat.un_read_count != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
         // console.log("showchat this.unreadCount ", this.unreadCount)
@@ -1424,6 +1425,10 @@ export default {
         services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       }
       this.curChat = chatGroup;
+      if(this.curChat.un_read_count != undefined && this.curChat.un_read_count != 0) {
+        console.log("lslsljfkjfdlakdsf;aljkdsf ")
+        ipcRenderer.send("stopFlash");
+      }
       this.curindex = index;
       this.unreadCount = this.unreadCount - chatGroup.un_read_count;
       // console.log("showchat this.unreadCount ", this.unreadCount)
