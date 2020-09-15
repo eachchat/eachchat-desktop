@@ -403,10 +403,11 @@ export default {
             }
             this.resetLoginStateTitle();
             if(this.isEmpty(this.username)){
-                this.loginState = '请输入手机号';
+                this.loginState = '请输入邮箱账号';
+                return;
             }
             if(!this.emailFormatTest(this.username)){
-                this.loginState = '手机号格式不正确';
+                this.loginState = '邮箱格式不正确';
                 return;
             }
             var result = await services.common.EmailCodeLogin(this.username);
