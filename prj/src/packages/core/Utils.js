@@ -59,7 +59,7 @@ function makeFlieNameForConflict(checkPath) {
           }
           for (let i = 0; i < files.length; i++) {
             let newName = ''
-            newName = name.replace(exp, `$1 (${i + 2})${extName}`)
+            newName = name.replace(exp, `$1(${i + 2})${extName}`)
             if (files.indexOf(newName) < 0) {
               resolve(path.join(path.dirname(checkPath), newName))
             }
@@ -67,7 +67,7 @@ function makeFlieNameForConflict(checkPath) {
           resolve(
             path.join(
               path.dirname(checkPath),
-              name.replace(exp, `$1 (${files.length + 1})${extName}`)
+              name.replace(exp, `$1(${files.length + 1})${extName}`)
             )
           )
         })

@@ -157,7 +157,7 @@ export default {
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = msgContent.fileName;
                 var ext = path.extname(targetFileName);
-                var targetPath = await services.common.GetFilePath(this.msg.message_id);
+                var targetPath = decodeURIComponent(await services.common.GetFilePath(this.msg.message_id));
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
                     shell.openItem(targetPath);
@@ -339,7 +339,7 @@ export default {
                 
                 // var targetFileName = chatGroupMsgContent.fileName;
                 // var theExt = path.extname(targetFileName);
-                var targetPath = this.msg.file_local_path;
+                var targetPath = decodeURIComponent(this.msg.file_local_path);
                 if(!fs.existsSync(targetPath)) {
                     targetPath = await services.common.GetFilePath(this.msg.message_id);
                 }
