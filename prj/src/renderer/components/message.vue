@@ -2,6 +2,10 @@
     <div class="message" :id="getMessageTemplateId()" v-cloak>
         <div class="chat-msg-body">
             <div class="msg-info-mine" v-if="MsgIsMine()">
+                <div class="msgStageDivEmpty" :key="updateStatus">
+                    <div class="msgState">
+                    </div>
+                </div>
                 <div class="about-msg">
                     <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
@@ -865,6 +869,12 @@ export default {
         margin: 0px 10px 5px 10px;
         width: calc(100% - 95px);
         vertical-align: top;
+    }
+
+    .msgStageDivEmpty {
+        display: inline-block;
+        width: 20px;
+        height: 30px;
     }
 
     .msgStageDiv {
