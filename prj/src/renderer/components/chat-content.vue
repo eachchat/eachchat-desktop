@@ -1411,10 +1411,10 @@ export default {
       // console.log("this.unreadcount is ", this.unreadCount);
       // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
       var isSecret = false;
-      if(chatGroup.key_id != undefined && chatGroup.key_id.length != 0 && chatGroup.group_type == 102) {
+      if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
         isSecret = true;
       }
-      
+
       if(this.curChat.un_read_count != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
         // console.log("showchat this.unreadCount ", this.unreadCount)
@@ -1436,6 +1436,10 @@ export default {
         this.unreadCount = 0;
       }
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
+      isSecret = false;
+      if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
+        isSecret = true;
+      }
       services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
