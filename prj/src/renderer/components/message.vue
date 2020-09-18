@@ -47,12 +47,12 @@
                         </div>
                     </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" alt="头像" @click="showUserInfoTip">
                 <el-progress class="my-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()"  :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip" v-if="isGroup">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip" v-else>
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" alt="头像" @click="showUserInfoTip" v-if="isGroup">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" alt="头像" @click="showUserInfoTip" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
@@ -816,7 +816,7 @@ export default {
 
     .my-file-progress {
         display: block;
-        margin-right: 61px;
+        margin-right: 86px;
         width: 100px;
         float: right;
     }
