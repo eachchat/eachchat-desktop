@@ -816,7 +816,7 @@ export default {
 
     .my-file-progress {
         display: block;
-        margin-right: 86px;
+        margin-right: 61px;
         width: 100px;
         float: right;
     }
