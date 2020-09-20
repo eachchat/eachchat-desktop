@@ -190,7 +190,7 @@ class UpdateMessageReaderHanlder extends BaseMqttHandler{
 
     async handle(){
         if(this.type == "updateMessageReader"){
-            
+            this.callback(this.message);
         }
         else{
             console.log("unknow mqtt messagetype:" + this.type);
