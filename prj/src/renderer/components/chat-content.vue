@@ -1699,34 +1699,42 @@ export default {
           break;
         }
         if((this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) && this.showGroupList[i].group_type == 102 && msgContent.type != "invitation") {
-          // console.log("no group id item is ", this.showGroupList[i]);
           // console.log("cur msg is ", msg);
           // var distFromName = await Group.SearchByNameKey(this.showGroupList[i].group_name);
+          var distFromName = [];
+          var isSecretTmp = false;
           if(msg.key_id != undefined && msg.key_id.length != 0) {
-            var distFromName = await Group.SearchSecretByNameKey(this.showGroupList[i].group_name)
+            if(this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length != 0) {
+              distFromName = await Group.SearchSecretByNameKey(this.showGroupList[i].group_name)
+              isSecretTmp = true;
+            }
+            else {
+              continue;
+            }
           }
           else {
-            var distFromName = await Group.SearchChatByNameKey(this.showGroupList[i].group_name)
+            if(this.showGroupList[i].key_id == undefined || (this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length == 0)) {
+              distFromName = await Group.SearchChatByNameKey(this.showGroupList[i].group_name)
+            }
+            else {
+              continue;
+            }
           }
           // var distFromName = await services.common.GetGroupByName(this.showGroupList[i].group_name);
           // console.log("distFromName is ", distFromName)
+          var isBreak = false;
           for(let j=0;j<distFromName.length;j++) {
             let distGroup = distFromName[j];
             // console.log("distGroup is ", distGroup)
             // console.log("this.showGroupList[i].group_name ", this.showGroupList[i].group_name);
             if(distGroup.group_name == this.showGroupList[i].group_name && distGroup.group_type == 102) {
-              // console.log("find dist grou pis ", distGroup);
-              this.showGroupList[i].group_id = distGroup.group_id;
-              this.showGroupList[i].group_avarar = distGroup.group_avarar;
-              // if(distGroup.last_message_time > msg.message_timestamp) {
-              //   this.showGroupList[i].last_message_time = distGroup.last_message_time;
-              //   this.showGroupList[i].message_content = distGroup.message_content;
-              //   this.showGroupList[i].message_content_type = distGroup.message_content_type;
-              //   this.showGroupList[i].message_from_id = distGroup.message_from_id;
-              //   this.showGroupList[i].message_id = distGroup.message_id;
-              //   this.showGroupList[i].sequence_id = distGroup.sequence_id;
-              // }
-              // else {
+              if((isSecretTmp && (distGroup.key_id != undefined && distGroup.key_id.length != 0)) || 
+                (!isSecretTmp && (distGroup.key_id == undefined || (distGroup.key_id == undefined && distGroup.key_id.length == 0)))) {
+                // console.log("find dist grou pis ", distGroup);
+                // console.log("distGroup.key_id is ", distGroup.key_id);
+                // console.log("msg.key_id is ", msg.key_id);
+                this.showGroupList[i].group_id = distGroup.group_id;
+                this.showGroupList[i].group_avarar = distGroup.group_avarar;
                 this.showGroupList[i].last_message_time = msg.message_timestamp;
                 this.showGroupList[i].message_content = msg.message_content;
                 this.showGroupList[i].message_content_type = msg.message_type;
@@ -1735,27 +1743,31 @@ export default {
                 this.showGroupList[i].sequence_id = msg.sequence_id;
                 this.showGroupList[i].time_line_id = msg.time_line_id;
                 this.showGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
-              // }
-              this.showGroupList[i].owner = distGroup.owner;
-              let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
-              this.showGroupList[i].un_read_count = distGroup.un_read_count;
-              this.unreadCount += tmp;
-              // console.log("callback this.unreadCount ", this.unreadCount)
-              if(this.unreadCount < 0) {
-                this.unreadCount = 0;
+                this.showGroupList[i].owner = distGroup.owner;
+                let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
+                this.showGroupList[i].un_read_count = distGroup.un_read_count;
+                this.unreadCount += tmp;
+                // console.log("callback this.unreadCount ", this.unreadCount)
+                if(this.unreadCount < 0) {
+                  this.unreadCount = 0;
+                }
+                ipcRenderer.send("updateUnreadCount", this.unreadCount);
+                groupExist = true;
+                // this.needUpdate ++;
+                // console.log("44444444444444444444")
+                this.showGroupIcon();
+                isBreak = true;
+                break;
               }
-              ipcRenderer.send("updateUnreadCount", this.unreadCount);
-              groupExist = true;
-              // this.needUpdate ++;
-              // console.log("44444444444444444444")
-              this.showGroupIcon();
-              break;
             }
           }
           if(msg.message_from_id != undefined && msg.message_from_id == this.curUserInfo.id) {
             this.curindex = i;
           }
           groupExist = true;
+          if(isBreak) {
+            break;
+          }
         }
       }
       if(!groupExist) {

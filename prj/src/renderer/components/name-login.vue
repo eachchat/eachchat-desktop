@@ -560,10 +560,10 @@ export default {
             this.loginState = "登录成功";
             this.showLoginView = false;
             this.showLoadingView = true;
+            this.tokenRefreshing = true;
+            await services.common.UpdateGroups();
+            await services.common.UpdateSecretGroups();
             setTimeout(async () => {
-                this.tokenRefreshing = true;
-                await services.common.UpdateGroups();
-                await services.common.UpdateSecretGroups();
                 ipcRenderer.send('showMainPageWindow', true); 
             }, 1000);
         }
