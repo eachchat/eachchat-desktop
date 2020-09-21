@@ -22,7 +22,7 @@ class ConfService {
         this.companyName = 'Workly';
         this.productName = 'EachChat';
         this.localAnyBoxDirName = 'AnyBoxSpaces';
-        this.filesDirName = 'EachChatFiles';
+        this.filesDirName = 'EachChatFile';
         this.filesFilesDirName = 'Files';
         this.headImageDirName = 'General';
         this.headThumbDirName = 'HeadImage';
