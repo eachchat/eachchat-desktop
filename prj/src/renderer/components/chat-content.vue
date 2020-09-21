@@ -1728,9 +1728,9 @@ export default {
             // console.log("distGroup is ", distGroup)
             // console.log("this.showGroupList[i].group_name ", this.showGroupList[i].group_name);
             if(distGroup.group_name == this.showGroupList[i].group_name && distGroup.group_type == 102) {
-              if((isSecretTmp && (distGroup.key_id != undefined && distGroup.key_id.length != 0)) || 
-                (!isSecretTmp && (distGroup.key_id == undefined || (distGroup.key_id == undefined && distGroup.key_id.length == 0)))) {
-                // console.log("find dist grou pis ", distGroup);
+              // if((isSecretTmp && (distGroup.key_id != undefined && distGroup.key_id.length != 0)) || 
+              //   (!isSecretTmp && (distGroup.key_id == undefined || (distGroup.key_id == undefined && distGroup.key_id.length == 0)))) {
+                console.log("find dist grou pis ", distGroup);
                 // console.log("distGroup.key_id is ", distGroup.key_id);
                 // console.log("msg.key_id is ", msg.key_id);
                 this.showGroupList[i].group_id = distGroup.group_id;
@@ -1758,7 +1758,7 @@ export default {
                 this.showGroupIcon();
                 isBreak = true;
                 break;
-              }
+              // }
             }
           }
           if(msg.message_from_id != undefined && msg.message_from_id == this.curUserInfo.id) {
