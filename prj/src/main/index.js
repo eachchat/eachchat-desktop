@@ -3,7 +3,7 @@ import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
-import {makeFlieNameForConflict} from '../packages/core/Utils.js';
+import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 
 /**
  * Set `__static` path to static files in production
@@ -74,6 +74,8 @@ console.log("isShouldQuit: " + iShouldQuit)
 if (iShouldQuit) {
   app.exit();
 }
+
+ClearDB(1);
 
 let resizableValue = false;
 
