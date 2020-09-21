@@ -47,12 +47,12 @@
                         </div>
                     </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip">
                 <el-progress class="my-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" alt="头像" @click="showUserInfoTip" v-if="isGroup">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" alt="头像" @click="showUserInfoTip" v-else>
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-if="isGroup">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
@@ -543,7 +543,7 @@ export default {
                 if(userInfos == undefined || userInfos.length == 0) {
                     console.log("err");
                     this.userInfo = {};
-                    this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
+                    // this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
                     return;
                 }
 
@@ -552,10 +552,12 @@ export default {
                 // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
                 // console.log("message downloag group avatar target path is ", targetPath);
                 if(fs.existsSync(targetPath == await services.common.downloadUserTAvatar(distTAvarar, this.msg.message_from_id))) {
+                    console.log("targetpath is ", targetPath);
                     this.userIconElement.setAttribute("src", targetPath);
                 }
                 else {
-                    this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
+                    console.log("attriub  is ");
+                    // this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
                 }
                 // this.checkAndLoadUserImage(targetPath);
             }
