@@ -1044,9 +1044,26 @@ app.on('window-all-closed', () => {
   }
 })
 
+app.on('browser-window-blur', () => {
+  if(process.platform == 'darwin') {
+    if(mainPageWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
+      globalShortcut.unregister('CommandOrControl+V');
+    }
+  }
+})
+
 app.on('browser-window-focus', () => {
   if(isLogin) {
     mainPageWindow.webContents.send("setFocuse");
+    if(process.platform == 'darwin') {
+      if(mainPageWindow != undefined) {
+          let content = mainPageWindow.webContents;
+          globalShortcut.register('CommandOrControl+V', () => {
+            content.paste();
+          })
+      }
+    }
+  
   }
 })
 
