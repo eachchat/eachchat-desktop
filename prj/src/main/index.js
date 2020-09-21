@@ -75,7 +75,7 @@ if (iShouldQuit) {
   app.exit();
 }
 
-ClearDB(1);
+//ClearDB(1);
 
 let resizableValue = false;
 
