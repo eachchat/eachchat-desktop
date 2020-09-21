@@ -1,0 +1,42 @@
+1 保证电脑上的node.js和electron都是32位或者64位。
+
+2 我用node.js12.16.3 64位，在安装ffi的时候报v8 C++代码的错误，上网查资料后需要使用9以下的node版本，然后我重新安装8.17.0版本成功。在安装成功之前我已经把python 2.7设置为环境变量。
+
+3 安装完ffi和ref后，需要重新编译，我使用的命名是node-gyp rebuild --target=2.0.4 --arch=x64  --dist-url=https://npm.taobao.org/mirrors/atom-shell --msvs_version=2017
+
+target是electron版本号。
+dist-url是下载地址，开始用国外的一直下不了，后来换成淘宝镜像成功
+msvs_version是vs的编译器版本
+
+
+4 编译完成后运行代码报Win32 error 126，这个是因为动态库路径不正确，我用var dllPath = path.join(__dirname, '/sqlciphercpp.dll');然后传入dllPath解决。
+
+这个编译到测试用例的写成我花了整整两天时间，这些是我踩过的坑，希望对大家有帮助，但是每台电脑上安装的软件都不一样，可能在安装的过程中还有新的问题，到时候在交流。
+    
+C++代码正常导出动态库就行。
+js代码：
+    const ffi = require('ffi')
+        var dllPath = path.join(__dirname, '/sqlciphercpp.dll');
+        const Dll =new ffi.Library(dllPath, {
+                // 第一个参数为返回值,第二个参数是参数
+            add: ['int', ['int','int']]
+        })
+
+
+    console.log(Dll.add);
+        debug('invoking proxy function')
+
+            if (arguments.length !== numArgs) {
+            throw new TypeError('Expected ' + numArgs +
+                ' arguments, got ' + arguments.length)
+            }
+
+            // sto…
+
+
+    console.log(Dll.add(1, 2));
+    输出结果是3.
+    
+    
+    
+
