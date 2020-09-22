@@ -3,7 +3,7 @@ import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
-import {makeFlieNameForConflict} from '../packages/core/Utils.js';
+import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 
 /**
  * Set `__static` path to static files in production
@@ -75,6 +75,8 @@ if (iShouldQuit) {
   app.exit();
 }
 
+//ClearDB(1);
+
 let resizableValue = false;
 
 const Bobolink = require('bobolink');
@@ -84,7 +86,7 @@ const queue = new Bobolink({
   concurrency: 20,
   retryPrior: true,
   taskMode:Bobolink.TASK_MODE_FUNCTION,
-  newPrior: false,
+  newPrior: true,
 });
 let timeTmp = 0;
 let countTmp = 1;
@@ -1042,9 +1044,26 @@ app.on('window-all-closed', () => {
   }
 })
 
+app.on('browser-window-blur', () => {
+  if(process.platform == 'darwin') {
+    if(mainPageWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
+      globalShortcut.unregister('CommandOrControl+V');
+    }
+  }
+})
+
 app.on('browser-window-focus', () => {
   if(isLogin) {
     mainPageWindow.webContents.send("setFocuse");
+    if(process.platform == 'darwin') {
+      if(mainPageWindow != undefined) {
+          let content = mainPageWindow.webContents;
+          globalShortcut.register('CommandOrControl+V', () => {
+            content.paste();
+          })
+      }
+    }
+  
   }
 })
 

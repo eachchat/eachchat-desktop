@@ -27,6 +27,7 @@ var globalModels = {
         index: 'login',
         fields: {
           user_id: types.string,
+          org_id:  types.string
         },
         primaryKey: 'user_id'
       });
@@ -330,22 +331,37 @@ var models = {
       return undefined;
     }
     await globalModels.init();
-    let userID = await Config.GetCurrentUserID();
-    if(userID == undefined)
+    let userInfo = await Config.GetCurrentUserID();
+    console.log(userInfo)
+    if(userInfo == undefined)
       return;
+    let userID = userInfo.user_id;
+    let orgID =  userInfo.org_id;
     let dbPath;
     let dbFolder;
     if(environment.os.isWindows){
-      dbFolder = environment.path.base + "\\" + userID; 
+      dbFolder = environment.path.base + "\\" + orgID; 
+      if (!fs.existsSync(dbFolder)) {
+        fs.mkdirSync(dbFolder);
+      }
+      dbFolder = dbFolder + "\\" + userID;
+      if (!fs.existsSync(dbFolder)) {
+        fs.mkdirSync(dbFolder);
+      }
       dbPath = dbFolder + "\\eachchat.db";
     }
     else{
-      dbFolder = environment.path.base + "/" + userID; 
-      dbPath = dbFolder + "/achchat.db"
+      dbFolder = environment.path.base + "/" + orgID;
+      if (!fs.existsSync(dbFolder)) {
+        fs.mkdirSync(dbFolder);
+      }
+      dbFolder = dbFolder + "/" +userID;
+      if (!fs.existsSync(dbFolder)) {
+        fs.mkdirSync(dbFolder);
+      }
+      dbPath = dbFolder + "/achchat.db";
     }
-    if (!fs.existsSync(dbFolder)) {
-      fs.mkdirSync(dbFolder);
-    }
+    
     var sqlite = new storage.SQLiteStorage({
       filename: dbPath
     });
