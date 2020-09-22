@@ -219,8 +219,11 @@ export default {
             emialAddress:'',
             showLoginView: false,
             showUsernameLoginView: true,
+            defaultIdentity: '',
             showUserphoneLoginView: false,
             showUseremailLoginView: false,
+            showUserWeiXinView: false,
+            showUserZhifubaoView: false,
             //showServerSettingView: false,
             showOrganizationView: true,
             showOrganizationFinderView: false,
@@ -276,6 +279,8 @@ export default {
                 this.organizationButtonDisabled = false;
                 return;
             }
+            this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
+            
             this.organizationButtonDisabled = false;
             this.resetLoginStateTitle();
             await services.common.init();
@@ -351,6 +356,8 @@ export default {
             this.showOrganizationFinderView = false;
             this.showUserphoneLoginView = false;
             this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
 
             this.showUsernameLoginView = true;
         },
@@ -361,6 +368,8 @@ export default {
             this.showOrganizationFinderView = false;
             this.showUsernameLoginView = false;
             this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
 
             this.showUserphoneLoginView = true;
         },
@@ -394,6 +403,8 @@ export default {
             this.showOrganizationFinderView = false;
             this.showUsernameLoginView = false;
             this.showUserphoneLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
             
             this.showUseremailLoginView = true;
         },
@@ -485,6 +496,9 @@ export default {
                 if(this.showUsernameLoginView){
                     this.loginState = "请输入用户名";
                     return;
+                }else if(this.showUserLdapView){
+                    this.loginState = "请输入用户名、邮箱或手机号";
+                    return;
                 }else if(this.showUserphoneLoginView){
                     this.loginState = "请输入手机号";
                     return;
@@ -515,7 +529,7 @@ export default {
                 config = {
                     username: this.username,
                     password: this.password,
-                    identityType: 'password',
+                    identityType: this.defaultIdentity.length != 0 ? this.defaultIdentity : 'password',
                     model: hostname,
                     deviceID: mac,
                     desktopType: version
