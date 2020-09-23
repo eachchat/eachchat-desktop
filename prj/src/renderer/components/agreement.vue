@@ -4,7 +4,7 @@
 
         <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><b><span style="font-size:16.0pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
-        &quot;Times New Roman&quot;">易企聊沟通与协作平台</span></b><b><span lang="EN-US" style="font-size:
+        &quot;Times New Roman&quot;">亿洽沟通与协作平台</span></b><b><span lang="EN-US" style="font-size:
         16.0pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
         宋体"><o:p></o:p></span></b></p>
 
@@ -39,25 +39,25 @@
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">尊敬的用户，感谢您使用由北京爱工作科技有限公司（以下简称“<b>爱工作</b>”或“<b>我们</b>”）提供的易企聊沟通与协作平台（以下简称“<b>本平台</b>”或“易企聊平台”）的产品及服务。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">尊敬的用户，感谢您使用由北京爱工作科技有限公司（以下简称“<b>爱工作</b>”或“<b>我们</b>”）提供的亿洽沟通与协作平台（以下简称“<b>本平台</b>”或“亿洽平台”）的产品及服务。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
         line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">在使用本平台的产品及服务之前，请您仔细阅读《易企聊沟通与协作平台用户协议》（以下简称“本协议”）及《隐私政策》条款，特别是其中涉及免除或者限制我们责任的条款、对您权利限制的条款、争议解决和法律适用条款。免除或限制我们责任、对您权利限制的条款可能将以加粗字体或加下划线的方式显示，提示您重点阅读。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">在使用本平台的产品及服务之前，请您仔细阅读《亿洽沟通与协作平台用户协议》（以下简称“本协议”）及《隐私政策》条款，特别是其中涉及免除或者限制我们责任的条款、对您权利限制的条款、争议解决和法律适用条款。免除或限制我们责任、对您权利限制的条款可能将以加粗字体或加下划线的方式显示，提示您重点阅读。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></b></p>
 
         <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
         line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">当您充分阅读并同意本协议内容，应依本协议约定方式签署本协议。在您未签署本协议前，我们无法向您提供实质的易企聊产品及服务。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">当您充分阅读并同意本协议内容，应依本协议约定方式签署本协议。在您未签署本协议前，我们无法向您提供实质的亿洽产品及服务。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></b></p>
 
         <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
         line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">当您按照易企聊相关注册页面提示填写信息、阅读并同意本协议且完成全部注册程序后，或您按照易企聊相关激活页面提示填写信息、阅读并同意本协议且完成全部激活程序后，或您以其他方式使用易企聊平台的产品及服务时，即代表您已经充分理解并同意全部协议内容，承诺遵守本协议约定，本协议内容对您产生约束力。</span></b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">当您按照亿洽相关注册页面提示填写信息、阅读并同意本协议且完成全部注册程序后，或您按照亿洽相关激活页面提示填写信息、阅读并同意本协议且完成全部激活程序后，或您以其他方式使用亿洽平台的产品及服务时，即代表您已经充分理解并同意全部协议内容，承诺遵守本协议约定，本协议内容对您产生约束力。</span></b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
@@ -79,9 +79,9 @@
         10.5pt;line-height:150%;font-family:宋体">数字化办公平台（</span><span style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
         mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">网站</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为</span><span lang="EN-US"><a href="https://workly.ai/"><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">https://workly.ai/</span></a></span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">）中的易企聊沟通与协作平台管理后台</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+        line-height:150%;font-family:宋体">https://workly.ai/</span></a></span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">）中的亿洽沟通与协作平台管理后台</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
-        &quot;Times New Roman&quot;">、易企聊移动客户端、</span><span lang="EN-US" style="mso-bidi-font-size:
+        &quot;Times New Roman&quot;">、亿洽移动客户端、</span><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
         宋体">PC</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
@@ -103,7 +103,7 @@
 
         <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:-18.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l31 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
-        mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">易企聊企业<span lang="EN-US">/</span>机构用户（“您的组织”）：指通过开户、认证、经由其管理员用户的易企聊</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+        mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">亿洽企业<span lang="EN-US">/</span>机构用户（“您的组织”）：指通过开户、认证、经由其管理员用户的亿洽</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
         &quot;Times New Roman&quot;">帐号上传企业</span><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
@@ -115,10 +115,10 @@
         mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构组织</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
-        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">管理架构，开通、管理和使用易企聊产品及服务的企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">管理架构，开通、管理和使用亿洽产品及服务的企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
-        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构。易企聊企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构。亿洽企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
         mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构用户包括但不限于法人、政府机构、其他组织、合伙或个体工商户等。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
@@ -127,19 +127,19 @@
         <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:0cm;mso-char-indent-count:
         0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">易企聊企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">亿洽企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
-        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构管理员用户（“管理员用户”）：指经您的组织合法授权或指定而开通管理员账号的个人用户，该管理员账号拥有您的组织的易企聊平台中管理操作权限，代表您的组织上传您的组织的成员通讯录等数据，并开通、管理和使用易企聊产品及服务；管理员用户可根据您的组织的实际需要设立多层级管理员用户，在其享有的权限之下搭建多层级管理员架构并逐级设置相应的管理权限。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构管理员用户（“管理员用户”）：指经您的组织合法授权或指定而开通管理员账号的个人用户，该管理员账号拥有您的组织的亿洽平台中管理操作权限，代表您的组织上传您的组织的成员通讯录等数据，并开通、管理和使用亿洽产品及服务；管理员用户可根据您的组织的实际需要设立多层级管理员用户，在其享有的权限之下搭建多层级管理员架构并逐级设置相应的管理权限。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:0cm;mso-char-indent-count:
         0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">易企聊企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">亿洽企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
-        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构授权成员用户（“授权成员用户”）：是指您的组织为使上传之成员通讯录（包括成员账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等）中的成员使用易企聊产品及服务，而由管理员用户直接为该等成员开设并分发给该等成员相应的易企聊个人账号，因该等开设、分发而持有并使用此类易企聊账号的个人用户。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构授权成员用户（“授权成员用户”）：是指您的组织为使上传之成员通讯录（包括成员账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等）中的成员使用亿洽产品及服务，而由管理员用户直接为该等成员开设并分发给该等成员相应的亿洽个人账号，因该等开设、分发而持有并使用此类亿洽账号的个人用户。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:-18.0pt;
@@ -167,7 +167,7 @@
         mso-char-indent-count:0;line-height:150%;mso-list:l6 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
-        &quot;Times New Roman&quot;">本协议内容包括本协议正文及我们未来可能发布的与易企聊产品及服务有关的各项规则、政策、声明、通知、提示等（以下简称“<b>规则</b>”）。前述规则为本协议的一部分，具有与正文同等法律效力。如各项规则内容产生不一致，以生效时间在后的规则为准。</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+        &quot;Times New Roman&quot;">本协议内容包括本协议正文及我们未来可能发布的与亿洽产品及服务有关的各项规则、政策、声明、通知、提示等（以下简称“<b>规则</b>”）。前述规则为本协议的一部分，具有与正文同等法律效力。如各项规则内容产生不一致，以生效时间在后的规则为准。</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
         宋体;mso-font-kerning:0pt">若该等规则与本协议存在歧义或冲突的，则以本协议约定为准，除非我们在该等规则中明确约定若发生冲突时以该等规则的约定为准。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
@@ -234,7 +234,7 @@
         mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
-        &quot;Times New Roman&quot;">您应当自我们的网站或我们已经授权的第三方下载本平台以获取易企聊平台产品及服务；否则，我们无法保证您自其它途径获得的该版本的服务能够正常使用，您应自行对该种获取方式和使用行为负责；若因此导致我们受损，您应赔偿爱工作因此遭受的损失。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;">您应当自我们的网站或我们已经授权的第三方下载本平台以获取亿洽平台产品及服务；否则，我们无法保证您自其它途径获得的该版本的服务能够正常使用，您应自行对该种获取方式和使用行为负责；若因此导致我们受损，您应赔偿爱工作因此遭受的损失。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
@@ -300,7 +300,7 @@
         mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
-        &quot;Times New Roman&quot;">您了解并同意，您的易企聊账号所有权归属于爱工作，您仅享有本协议约定范围内的使用权。同时，您的账号应限于您使用，不得以任何方式转让或许可他人使用，如有违反，爱工作有权在未经通知的情况下视情况选择中止或终止向该账号提供服务，或直接注销该账号，由此带来的因您使用本服务产生的损失，您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;">您了解并同意，您的亿洽账号所有权归属于爱工作，您仅享有本协议约定范围内的使用权。同时，您的账号应限于您使用，不得以任何方式转让或许可他人使用，如有违反，爱工作有权在未经通知的情况下视情况选择中止或终止向该账号提供服务，或直接注销该账号，由此带来的因您使用本服务产生的损失，您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
         mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织应自行承担。若涉及管理员账号，我们有权视情况中止、终止该管理员账号及其所有通讯录成员账号的服务，或直接注销该管理员账号以及其通讯录成员账号。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
@@ -623,7 +623,7 @@
         mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织与第三方供应商另行缔结的协议约束；第三方供应商产品及服务内容、价格政策、售后维护等，受您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
-        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织与第三方服务提供商另行约定的协议、规则约束；爱工作关于易企聊产品及服务的承诺不适用任何第三方供应商产品及服务；但本协议中涉及使用第三方产品及服务的约定您仍需遵守。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织与第三方服务提供商另行约定的协议、规则约束；爱工作关于亿洽产品及服务的承诺不适用任何第三方供应商产品及服务；但本协议中涉及使用第三方产品及服务的约定您仍需遵守。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
@@ -663,14 +663,14 @@
         mso-char-indent-count:0;line-height:150%;mso-list:l16 level1 lfo25"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
-        &quot;Times New Roman&quot;">易企聊产品及服务针对企业</span><span lang="EN-US" style="mso-bidi-font-size:
+        &quot;Times New Roman&quot;">亿洽产品及服务针对企业</span><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
         宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
         宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
         mso-bidi-font-family:&quot;Times New Roman&quot;">机构的需求而设立，除特殊行业机构（比如教育机构）外，原则上未满</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体">18</span><span style="mso-bidi-font-size:10.5pt;
         line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
-        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">周岁的未成年人不应成为易企聊产品及服务的授权成员用户。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">周岁的未成年人不应成为亿洽产品及服务的授权成员用户。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
@@ -681,7 +681,7 @@
         line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
         宋体">18</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">周岁的未成年人，在符合适用法律的前提下成为易企聊产品及服务的授权成员用户时，您的组织应在提供成员通讯录时明示；且您在使用易企聊产品及服务前，应在您的父母或其他监护人监护、指导下共同阅读并同意本协议。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">周岁的未成年人，在符合适用法律的前提下成为亿洽产品及服务的授权成员用户时，您的组织应在提供成员通讯录时明示；且您在使用亿洽产品及服务前，应在您的父母或其他监护人监护、指导下共同阅读并同意本协议。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
@@ -697,7 +697,7 @@
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
         0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">爱工作充分尊重对您个人信息的保护，并按照相关适用法律法规的规定收集、使用及保护您的个人信息。对于您的个人信息保护的约定，具体详见《隐私政策》；您确认并同意，一旦您同意本协议、《隐私政策》或使用易企聊产品及服务，您即同意爱工作按照本协议及《隐私政策》的约定来收集、使用和披露您的个人信息。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">爱工作充分尊重对您个人信息的保护，并按照相关适用法律法规的规定收集、使用及保护您的个人信息。对于您的个人信息保护的约定，具体详见《隐私政策》；您确认并同意，一旦您同意本协议、《隐私政策》或使用亿洽产品及服务，您即同意爱工作按照本协议及《隐私政策》的约定来收集、使用和披露您的个人信息。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
@@ -714,7 +714,7 @@
         mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo23"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
-        &quot;Times New Roman&quot;">您使用易企聊产品及服务及使用易企聊产品及服务期间，爱工作提供给您的易企聊产品及服务涉及的产品、技术、软件、程序、数据及其他相关资料（包括但不限于文字、图像、照片、音频、版面设计等）的知识产权归爱工作所有（第三方服务涉及的软件、技术资料除外），您仅在合法合规为本协议之目的使用本服务时享有非独占、非排他、无再许可、分许可的一般使用权，该等一般使用许可自无论因任何原因终止本服务时均自动终止。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;">您使用亿洽产品及服务及使用亿洽产品及服务期间，爱工作提供给您的亿洽产品及服务涉及的产品、技术、软件、程序、数据及其他相关资料（包括但不限于文字、图像、照片、音频、版面设计等）的知识产权归爱工作所有（第三方服务涉及的软件、技术资料除外），您仅在合法合规为本协议之目的使用本服务时享有非独占、非排他、无再许可、分许可的一般使用权，该等一般使用许可自无论因任何原因终止本服务时均自动终止。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
@@ -876,7 +876,7 @@
         line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
         宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
         宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
-        mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织违反法律法规的相关规定，为配合相关部门调查，爱工作有权不经您或您的组织的同意，将您使用易企聊产品及服务产生的全部信息、数据交予相关部门，该行为不应视为爱工作违反本协议约定。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织违反法律法规的相关规定，为配合相关部门调查，爱工作有权不经您或您的组织的同意，将您使用亿洽产品及服务产生的全部信息、数据交予相关部门，该行为不应视为爱工作违反本协议约定。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
@@ -917,7 +917,7 @@
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
         0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
         mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
-        宋体;mso-font-kerning:0pt">爱工作仅就易企聊平台服务本身提供运营维护，您<span lang="EN-US">/</span>您的组织应当保证自身设备、网络等安全、稳定、具备适于开通易企聊服务的必要条件，若因您<span lang="EN-US">/</span>您的组织不能提供上述必要条件而导致您的组织所购买的本服务不能提供、迟延提供或造成本服务缺陷的，爱工作不承担因此导致的责任或损失。此种情况下，爱工作提供服务责任相应延迟，在合理期限内您<span lang="EN-US">/</span>您的组织不能消除自身所造成的障碍的，则爱工作有权终止本协议，因此造成爱工作损失的，您<span lang="EN-US">/</span>您的组织应予以赔偿。<span lang="EN-US"><o:p></o:p></span></span></p>
+        宋体;mso-font-kerning:0pt">爱工作仅就亿洽平台服务本身提供运营维护，您<span lang="EN-US">/</span>您的组织应当保证自身设备、网络等安全、稳定、具备适于开通亿洽服务的必要条件，若因您<span lang="EN-US">/</span>您的组织不能提供上述必要条件而导致您的组织所购买的本服务不能提供、迟延提供或造成本服务缺陷的，爱工作不承担因此导致的责任或损失。此种情况下，爱工作提供服务责任相应延迟，在合理期限内您<span lang="EN-US">/</span>您的组织不能消除自身所造成的障碍的，则爱工作有权终止本协议，因此造成爱工作损失的，您<span lang="EN-US">/</span>您的组织应予以赔偿。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
@@ -953,7 +953,7 @@
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
         0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
         mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">9、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
-        宋体;mso-font-kerning:0pt">您理解并同意，易企聊服务是按照现有技术和条件所能达到的现状提供。爱工作并不能保证所提供服务毫无瑕疵；所以，即使爱工作提供的该等服务存在瑕疵，但若上述瑕疵是其时行业技术水平所无法避免的，其将不视为爱工作违约，您<span lang="EN-US">/</span>您的组织同意与爱工作一同就上述问题共同协商寻求解决方式。<span lang="EN-US"><o:p></o:p></span></span></p>
+        宋体;mso-font-kerning:0pt">您理解并同意，亿洽服务是按照现有技术和条件所能达到的现状提供。爱工作并不能保证所提供服务毫无瑕疵；所以，即使爱工作提供的该等服务存在瑕疵，但若上述瑕疵是其时行业技术水平所无法避免的，其将不视为爱工作违约，您<span lang="EN-US">/</span>您的组织同意与爱工作一同就上述问题共同协商寻求解决方式。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
@@ -991,7 +991,7 @@
 
         <p class="MsoListParagraph" style="line-height:150%"><span style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
-        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">如果您对本协议或使用易企聊产品及服务有任何疑问、意见或建议，可通过以下方式与爱工作联系。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">如果您对本协议或使用亿洽产品及服务有任何疑问、意见或建议，可通过以下方式与爱工作联系。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
