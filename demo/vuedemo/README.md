@@ -1,4 +1,4 @@
-# vuedemo
+# matrixdemo
 
 > An electron-vue project
 

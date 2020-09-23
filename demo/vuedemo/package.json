@@ -1,5 +1,5 @@
 {
-  "name": "vuedemo",
+  "name": "matrixdemo",
   "version": "0.0.1",
   "author": "chengfang.ai <chengfang.ai@yunify.com>",
   "description": "An electron-vue project",
@@ -22,7 +22,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "vuedemo",
+    "productName": "matrixdemo",
     "appId": "com.example.yourapp",
     "directories": {
       "output": "build"
@@ -58,7 +58,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "matrix-js-sdk": "^8.3.0",
-    "olm": "3.1.5",
+    "olm": "^3.1.5",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
