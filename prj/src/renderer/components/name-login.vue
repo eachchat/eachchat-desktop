@@ -26,7 +26,7 @@
                     <p class="organizaiton-title">
                         加入您的组织
                     </p>
-                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label">.each.chat</p>
                 </div>
                 <div class="organizationLogin-state">
@@ -52,7 +52,7 @@
                         <p class="account-title">
                             用户名
                         </p>
-                        <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                        <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名、邮箱或手机号" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
                     </div>
                     <div class="item-pwd">
                         <p class="password-title">
@@ -481,7 +481,7 @@ export default {
         login:async function() {
             if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
                 if(this.showUsernameLoginView){
-                    this.loginState = "请输入用户名和密码";
+                    this.loginState = "请输入账号和密码";
                     return;
                 }else if(this.showUserphoneLoginView){
                     this.loginState = "请输入手机号和验证码";
