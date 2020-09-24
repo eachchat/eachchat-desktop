@@ -53,29 +53,29 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "/static/Img/Main/logo@2x.png";
 }
 
-// let iShouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-//   console.log("isShouldQuit ", iShouldQuit);
-//   try{
-//     if(isLogin) {
-//       mainPageWindow.show();
-//       mainPageWindow.focus();
-//     }
-//     else {
-//       mainWindow.show();
-//       mainWindow.focus();
-//     }
-//     return true;
-//   }
-//   catch(error) {
-//     console.log("========= ", error);
-//     return true;
-//   }
-// });
-// console.log("isShouldQuit: " + iShouldQuit)
-// if (iShouldQuit) {
-//   app.exit();
-// }
-
+const singleInstanceLock = app.requestSingleInstanceLock();
+if(!singleInstanceLock) {
+  app.quit();
+}
+else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+      try{
+        if(isLogin) {
+          mainPageWindow.show();
+          mainPageWindow.focus();
+        }
+        else {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+        return true;
+      }
+      catch(error) {
+        console.log("========= ", error);
+        return true;
+      }
+  })
+}
 //ClearDB(1);
 
 let resizableValue = false;
@@ -126,7 +126,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon = new Tray(path.join(__dirname, iconPath));
 
   appIcon.on('mouse-move', function(event, position){
-    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
+    console.log("trayIcon Mouse MoveIN")
     // if(isLeave) {
     //   console.log("****************************************")
     //   isLeave = false;
