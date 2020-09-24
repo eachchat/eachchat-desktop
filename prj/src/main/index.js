@@ -4,7 +4,8 @@ import fs from 'fs'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
-
+app.allowRendererProcessReuse = false;
+app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -52,28 +53,28 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "/static/Img/Main/logo@2x.png";
 }
 
-let iShouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-  console.log("isShouldQuit ", iShouldQuit);
-  try{
-    if(isLogin) {
-      mainPageWindow.show();
-      mainPageWindow.focus();
-    }
-    else {
-      mainWindow.show();
-      mainWindow.focus();
-    }
-    return true;
-  }
-  catch(error) {
-    console.log("========= ", error);
-    return true;
-  }
-});
-console.log("isShouldQuit: " + iShouldQuit)
-if (iShouldQuit) {
-  app.exit();
-}
+// let iShouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+//   console.log("isShouldQuit ", iShouldQuit);
+//   try{
+//     if(isLogin) {
+//       mainPageWindow.show();
+//       mainPageWindow.focus();
+//     }
+//     else {
+//       mainWindow.show();
+//       mainWindow.focus();
+//     }
+//     return true;
+//   }
+//   catch(error) {
+//     console.log("========= ", error);
+//     return true;
+//   }
+// });
+// console.log("isShouldQuit: " + iShouldQuit)
+// if (iShouldQuit) {
+//   app.exit();
+// }
 
 //ClearDB(1);
 
@@ -105,6 +106,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     width:960,
     webPreferences: {
       webSecurity:false,
+      nodeIntegration:true,
     },
     frame:false,
     icon: path.join(__dirname, iconPath)
@@ -177,9 +179,6 @@ ipcMain.on("token-expired", function(event, arg) {
     Menu.setApplicationMenu(null)
     queue.destory();
     mainWindow = new BrowserWindow({
-      webPreferences: {
-        nodeIntegration: true,//添加这个即可
-      },
       height: 420,
       useContentSize: true,
       width: 360,
@@ -188,7 +187,10 @@ ipcMain.on("token-expired", function(event, arg) {
       /**
        * Across Domains Problem
        */
-      webPreferences: {webSecurity:false}
+      webPreferences: {
+        webSecurity:false,
+        nodeIntegration:true,
+      }
     })
     mainWindow.hide();
     mainPageWindow.close();
@@ -206,9 +208,6 @@ ipcMain.on("token-expired", function(event, arg) {
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
     height: 420,
     useContentSize: true,
     width: 360,
@@ -217,7 +216,10 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     /**
      * Across Domains Problem
      */
-    webPreferences: {webSecurity:false},
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+    },
     icon: path.join(__dirname, iconPath)
   })
   mainWindow.hide();
@@ -270,7 +272,10 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     //useContentSize: true,
     resizable: resizableValue,
     width:width,
-    webPreferences: {webSecurity:false},
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+    },
     frame:true,
     title:title
   })
@@ -325,16 +330,16 @@ ipcMain.on('AnotherMin', function(event, arg) {
 // 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
     favouriteDetailWindow = new BrowserWindow({
+      height: 468,
+      resizable: resizableValue,
+      width:600,
       webPreferences: {
-        nodeIntegration: true,//添加这个即可
+        webSecurity:false,
+        nodeIntegration:true,
       },
-    height: 468,
-    resizable: resizableValue,
-    width:600,
-    webPreferences: {webSecurity:false},
-    //frame:false,
-    title:"收藏详情"
-    
+      //frame:false,
+      title:"收藏详情"
+      
   })
   const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/` + 'favouriteDetail'
@@ -358,13 +363,13 @@ ipcMain.on('favouriteDetailMin', function(event, arg) {
 // 汇报关系窗口
 ipcMain.on('showReportRelationWindow', function(event, leaders) {
   reportRelationWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
     height: 340,
     resizable: resizableValue,
     width: 520,
-    webPreferences: {webSecurity:false},
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+    },
     //frame:false,
     title:"汇报关系"
   })
@@ -972,9 +977,6 @@ function createWindow () {
 
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
     height: 420,
     useContentSize: true,
     width: 360,
@@ -983,7 +985,10 @@ function createWindow () {
     /**
      * Across Domains Problem
      */
-    webPreferences: {webSecurity:false},
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true
+    },
     icon: path.join(__dirname, iconPath)
   })
   mainWindow.hide();
