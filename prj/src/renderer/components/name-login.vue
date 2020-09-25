@@ -19,7 +19,7 @@
                     <div class="title-ico">
                         <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
-                        亿洽
+                        易企聊
                     </div>
                 </div>
                 <div class="item-organization">

@@ -28,7 +28,7 @@
                 </el-dropdown>
             </div> -->
             <div class="setup-general-autorun">
-                <label class="setup-general-autorun-label">电脑开机时，自动启动亿洽</label>
+                <label class="setup-general-autorun-label">电脑开机时，自动启动易企聊</label>
                 <el-switch class="setup-general-autorun-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)">
                 </el-switch>
             </div>
