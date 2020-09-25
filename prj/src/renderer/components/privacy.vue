@@ -2,7 +2,7 @@
     <div class="privacy">
         <div class="WordSection1" style="layout-grid:15.6pt">
 
-        <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><span style="font-size:16.0pt;line-height:150%;font-family:宋体">易企聊沟通与协作平台隐私政策<span lang="EN-US"><o:p></o:p></span></span></p>
+        <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><span style="font-size:16.0pt;line-height:150%;font-family:宋体">易企聊团队沟通与协作平台隐私政策<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -11,7 +11,7 @@
         10.5pt;line-height:150%;font-family:宋体">发布时间：<span lang="EN-US">2020</span>年<span lang="EN-US">7</span>月<span lang="EN-US">1</span>日<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">易企聊团队沟通与协作平台隐私政策（以下简称“本隐私政策”）适用于通过北京爱工作科技有限公司（以下简称“本公司”或“爱工作”）运营的<span lang="EN-US">workly.ai</span>数字化办公平台（网站<a name="_Hlk43726265">为<span lang="EN-US">https://workly.ai/</span></a>）<a name="_Hlk43726289">中的易企聊沟通与协作平台管理后台</a>、易企聊桌面<span lang="EN-US">/</span>移动<span lang="EN-US">/WEB</span>客户端等方式（以下简称“易企聊平台”）使用易企聊产品及服务的用户。若本公司之关联公司或其他第三方的产品或服务中使用了本公司提供的易企聊产品或服务但未设独立的隐私政策的，则本政策同样适用于该部分产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
+        10.5pt;line-height:150%;font-family:宋体">易企聊团队沟通与协作平台隐私政策（以下简称“本隐私政策”）适用于通过北京爱工作科技有限公司（以下简称“本公司”或“爱工作”）运营的<span lang="EN-US">workly.ai</span>数字化办公平台（网站<a name="_Hlk43726265">为<span lang="EN-US">https://workly.ai/</span></a>）<a name="_Hlk43726289">中的易企聊团队沟通与协作平台管理后台</a>、易企聊桌面<span lang="EN-US">/</span>移动<span lang="EN-US">/WEB</span>客户端等方式（以下简称“易企聊平台”）使用易企聊产品及服务的用户。若本公司之关联公司或其他第三方的产品或服务中使用了本公司提供的易企聊产品或服务但未设独立的隐私政策的，则本政策同样适用于该部分产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体">本公司深知个人信息对您的重要性，并将按照适用法律法规之要求保护您的个人信息安全可靠，在收集、使用您的用户信息时恪守合法、正当、必要的原则。同时，本公司承诺，我们将按业界成熟的安全标准，采取相应的安全保护措施来保护您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>

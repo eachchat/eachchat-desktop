@@ -39,13 +39,13 @@
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">尊敬的用户，感谢您使用由北京爱工作科技有限公司（以下简称“<b>爱工作</b>”或“<b>我们</b>”）提供的易企聊沟通与协作平台（以下简称“<b>本平台</b>”或“易企聊平台”）的产品及服务。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">尊敬的用户，感谢您使用由北京爱工作科技有限公司（以下简称“<b>爱工作</b>”或“<b>我们</b>”）提供的易企聊团队沟通与协作平台（以下简称“<b>本平台</b>”或“易企聊平台”）的产品及服务。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
         line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
         font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
-        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">在使用本平台的产品及服务之前，请您仔细阅读《易企聊沟通与协作平台用户协议》（以下简称“本协议”）及《隐私政策》条款，特别是其中涉及免除或者限制我们责任的条款、对您权利限制的条款、争议解决和法律适用条款。免除或限制我们责任、对您权利限制的条款可能将以加粗字体或加下划线的方式显示，提示您重点阅读。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+        &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">在使用本平台的产品及服务之前，请您仔细阅读《易企聊团队沟通与协作平台用户协议》（以下简称“本协议”）及《隐私政策》条款，特别是其中涉及免除或者限制我们责任的条款、对您权利限制的条款、争议解决和法律适用条款。免除或限制我们责任、对您权利限制的条款可能将以加粗字体或加下划线的方式显示，提示您重点阅读。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
         mso-fareast-font-family:宋体"><o:p></o:p></span></b></p>
 
         <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
@@ -79,7 +79,7 @@
         10.5pt;line-height:150%;font-family:宋体">数字化办公平台（</span><span style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
         mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">网站</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为</span><span lang="EN-US"><a href="https://workly.ai/"><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">https://workly.ai/</span></a></span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">）中的易企聊沟通与协作平台管理后台</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+        line-height:150%;font-family:宋体">https://workly.ai/</span></a></span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">）中的易企聊团队沟通与协作平台管理后台</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
         &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
         &quot;Times New Roman&quot;">、易企聊移动客户端、</span><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
