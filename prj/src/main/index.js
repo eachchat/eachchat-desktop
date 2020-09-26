@@ -593,7 +593,7 @@ ipcMain.on("download-upgrade", function(event, arg) {
     Authorization: "Bearer " + token
   };
   var appendix = {
-    timeout: 35000,
+    timeout: 60000,
     responseType: "stream"
   };
 
@@ -631,7 +631,7 @@ function downloadAvarar(event, arg) {
       downloadingList.push(baseURL);
       var headers={Authorization:"Bearer " + token};
       var appendix = {
-              timeout: 35000,
+              timeout: 60000,
               responseType: "stream"
           };
       var config = Object.assign({
@@ -694,7 +694,7 @@ function downloadUserAvarar(event, arg) {
       downloadingList.push(baseURL);
       var headers={Authorization:"Bearer " + token};
       var appendix = {
-              timeout: 35000,
+              timeout: 60000,
               responseType: "stream"
           };
       var config = Object.assign({
@@ -771,7 +771,7 @@ function downloadImage(event, arg) {
         headers["Encryption-File"] = secretUrl;
       }
       var appendix = {
-        timeout: 35000,
+        timeout: 60000,
         responseType: "stream"
       };
     
@@ -845,7 +845,7 @@ function downloadMsgOImage(event, arg) {
         Authorization: "Bearer " + token
       };
       var appendix = {
-        timeout: 35000,
+        timeout: 60000,
         responseType: "stream"
       };
     
