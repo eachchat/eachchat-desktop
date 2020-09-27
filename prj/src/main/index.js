@@ -3,7 +3,7 @@ import axios from "axios"
 import fs from 'fs'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
-import {makeFlieNameForConflict} from '../packages/core/Utils.js';
+import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 
 /**
  * Set `__static` path to static files in production
@@ -74,6 +74,8 @@ console.log("isShouldQuit: " + iShouldQuit)
 if (iShouldQuit) {
   app.exit();
 }
+
+//ClearDB(1);
 
 let resizableValue = false;
 
@@ -403,6 +405,12 @@ ipcMain.on("showNotice", (event, title, contnet) => {
   }
 
 })
+
+ipcMain.on("stopFlash", (event) => {
+  clearFlashIconTimer();
+  appIcon.setImage(path.join(__dirname, iconPath));
+})
+
 // 闪烁任务栏
 ipcMain.on("flashIcon", (event, title, contnet) => {
   console.log("title ",title)
@@ -1036,9 +1044,26 @@ app.on('window-all-closed', () => {
   }
 })
 
+app.on('browser-window-blur', () => {
+  if(process.platform == 'darwin') {
+    if(mainPageWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
+      globalShortcut.unregister('CommandOrControl+V');
+    }
+  }
+})
+
 app.on('browser-window-focus', () => {
   if(isLogin) {
     mainPageWindow.webContents.send("setFocuse");
+    if(process.platform == 'darwin') {
+      if(mainPageWindow != undefined) {
+          let content = mainPageWindow.webContents;
+          globalShortcut.register('CommandOrControl+V', () => {
+            content.paste();
+          })
+      }
+    }
+  
   }
 })
 

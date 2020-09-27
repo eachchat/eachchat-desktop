@@ -345,7 +345,7 @@ const UserInfo = {
                 return undefined;
             }
             array = infos;
-            if(infos[0].manager_id == "")
+            if(infos[0].manager_id == "" || userID == infos[0].manager_id)
                 return array;
             return array.concat(await this.GetLeaders(infos[0].manager_id));
         }
@@ -546,6 +546,19 @@ const Group = {
         return distGroups;
     },
 
+    async SearchChatByNameKey(name){
+        let allGroups = await this.SearchByNameKey(name);
+        let distGroups = [];
+        for(let index in allGroups){
+            console.log("SearchSecretByNameKey ", allGroups)
+            if(allGroups[index].group_type == 102 && (allGroups[index].key_id == undefined || (allGroups[index].key_id != undefined && allGroups[index].key_id.length == 0))) {
+                allGroups[index].message = JSON.parse(allGroups[index].message_content);
+                distGroups.unshift(allGroups[index]);
+            }
+        }
+        return distGroups;
+    },
+
     async UpdateGroupAvatar(groupID, avatar){
         var groups = await this.FindGroupByID(groupID);
         if(groups.length == 1){
@@ -700,21 +713,23 @@ const Config = {
     async GetCurrentUserID(){
         let login = await (await globalModels.Login).find();
         if(login.length != 0)
-            return login[0].user_id;
+            return login[0];
     },
 
-    async SetLoginInfo(userID){
+    async SetLoginInfo(userID, orgID){
         let login = await (await globalModels.Login).find();
         if(login.length == 0){
             const LoginModel = await globalModels.Login;
             let loginvalue = {
-                user_id: userID
+                user_id: userID,
+                org_id:  orgID
             }
             let loginmodel = new LoginModel(loginvalue);
             loginmodel.save();
         }
         else{
             login[0].user_id = userID;
+            login[0].org_id = orgID;
             login[0].save();
         }
     }

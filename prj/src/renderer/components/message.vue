@@ -2,14 +2,8 @@
     <div class="message" :id="getMessageTemplateId()" v-cloak>
         <div class="chat-msg-body">
             <div class="msg-info-mine" v-if="MsgIsMine()">
-                <div class="msgStageDiv" :key="updateStatus">
-                    <div class="msgState" v-if="MsgIsSending()">
-                        <i class="el-icon-loading"></i>
-                    </div>
-                    <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
-                        <i class="el-icon-warning"></i>
-                    </div>
-                    <div class="msgState" v-else>
+                <div class="msgStageDivEmpty" :key="updateStatus">
+                    <div class="msgState">
                     </div>
                 </div>
                 <div class="about-msg">
@@ -42,13 +36,23 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
                     </div>
+                    <div class="msgStageDiv" :key="updateStatus">
+                        <div class="msgState" v-if="MsgIsSending()">
+                            <i class="el-icon-loading"></i>
+                        </div>
+                        <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
+                            <i class="el-icon-warning"></i>
+                        </div>
+                        <div class="msgState" v-else>
+                        </div>
+                    </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip">
                 <el-progress class="my-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()"  :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip" v-if="isGroup">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  :src='getMsgBelongUserImg()' alt="头像" @click="showUserInfoTip" v-else>
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-if="isGroup">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
@@ -157,7 +161,7 @@ export default {
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = msgContent.fileName;
                 var ext = path.extname(targetFileName);
-                var targetPath = await services.common.GetFilePath(this.msg.message_id);
+                var targetPath = decodeURIComponent(await services.common.GetFilePath(this.msg.message_id));
                 var needOpen = true;
                 if(fs.existsSync(targetPath)){
                     shell.openItem(targetPath);
@@ -302,7 +306,7 @@ export default {
                 }
                 if(fs.existsSync(targetPath)) {
                     let imageHeight = 100;
-                    if(chatGroupMsgContent.imgHeight < 100){
+                    if(chatGroupMsgContent.imgHeight < 100 && chatGroupMsgContent.imgHeight != 0){
                         imageHeight = chatGroupMsgContent.imgHeight;
                     }
                     this.imageHeight = imageHeight;
@@ -339,7 +343,7 @@ export default {
                 
                 // var targetFileName = chatGroupMsgContent.fileName;
                 // var theExt = path.extname(targetFileName);
-                var targetPath = this.msg.file_local_path;
+                var targetPath = decodeURIComponent(this.msg.file_local_path);
                 if(!fs.existsSync(targetPath)) {
                     targetPath = await services.common.GetFilePath(this.msg.message_id);
                 }
@@ -482,8 +486,6 @@ export default {
         },
         getMsgBelongUserImg: function() {
             if(this.msg != undefined) {
-                var targetDir = confservice.getFilePath();
-                var targetFileName = this.msg.message_from_id + ".png";
                 var targetPath = confservice.getUserThumbHeadLocalPath(this.msg.message_from_id);
                 if(fs.existsSync(targetPath)) {
                     return targetPath;
@@ -502,9 +504,10 @@ export default {
             if(this.msg == undefined) {
                 return;
             }
-            var userIconElementId = this.getUserIconId();
-            this.userIconElement = document.getElementById(userIconElementId);
-
+            if(this.userIconElement == undefined) {
+                var userIconElementId = this.getUserIconId();
+                this.userIconElement = document.getElementById(userIconElementId);
+            }
             var userNameElementId = this.msgNameId();
             var userNameElement = document.getElementById(userNameElementId);
 
@@ -540,6 +543,7 @@ export default {
                 if(userInfos == undefined || userInfos.length == 0) {
                     console.log("err");
                     this.userInfo = {};
+                    // this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
                     return;
                 }
 
@@ -547,7 +551,14 @@ export default {
                 var distTAvarar = this.userInfo.avatar_t_url;
                 // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
                 // console.log("message downloag group avatar target path is ", targetPath);
-                services.common.downloadUserTAvatar(distTAvarar, this.msg.message_from_id);
+                if(fs.existsSync(targetPath == await services.common.downloadUserTAvatar(distTAvarar, this.msg.message_from_id))) {
+                    console.log("targetpath is ", targetPath);
+                    this.userIconElement.setAttribute("src", targetPath);
+                }
+                else {
+                    console.log("attriub  is ");
+                    // this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
+                }
                 // this.checkAndLoadUserImage(targetPath);
             }
 
@@ -862,10 +873,19 @@ export default {
         vertical-align: top;
     }
 
+    .msgStageDivEmpty {
+        display: inline-block;
+        width: 20px;
+        height: 30px;
+    }
+
     .msgStageDiv {
         display: inline-block;
         width: 20px;
         height: 30px;
+        float: right;
+        margin-right: 10px;
+        margin-top: 2px;
     }
 
     .msgState {

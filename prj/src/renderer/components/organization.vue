@@ -1,6 +1,6 @@
 <template>
     <el-container>
-        <el-aside width="280px">
+        <el-aside width="292px">
             <div class="list-header">
                 <div class="search">
                     <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
@@ -392,7 +392,7 @@ display: none;
 .department-name {
     text-align: left;
     height: 20px;
-    width: 168px;
+    width: 180px;
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 12px;

@@ -11,7 +11,7 @@
             </el-breadcrumb> -->
         </el-header>
         <el-main>
-            <el-container class="bottom-container">
+            <el-container class="bottom-container" id="organization-main-container">
                 
                     <div class="organization-view-one">
                         <div class="departments-view" v-show="organizationList[0].departments.length">
@@ -522,11 +522,14 @@ export default {
             }
             
             this.$nextTick(function(){
+                var element = document.getElementById("organization-main-container");
+                element.scroll(element.offsetWidth,0);
                 for(var i = 0; i < organization.users.length; i ++){
                     this.getUserImg(organization.users[i]);
                 }
             });
             
+
         },
         userMenuItemClicked:async function(id) {
             

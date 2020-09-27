@@ -59,7 +59,7 @@ function makeFlieNameForConflict(checkPath) {
           }
           for (let i = 0; i < files.length; i++) {
             let newName = ''
-            newName = name.replace(exp, `$1 (${i + 2})${extName}`)
+            newName = name.replace(exp, `$1(${i + 2})${extName}`)
             if (files.indexOf(newName) < 0) {
               resolve(path.join(path.dirname(checkPath), newName))
             }
@@ -67,7 +67,7 @@ function makeFlieNameForConflict(checkPath) {
           resolve(
             path.join(
               path.dirname(checkPath),
-              name.replace(exp, `$1 (${files.length + 1})${extName}`)
+              name.replace(exp, `$1(${files.length + 1})${extName}`)
             )
           )
         })
@@ -165,7 +165,7 @@ async function downloadGroupAvatar(url, accesstoken)
   return axios.get(url,config);
 }
 
-function rmdir(dir) {
+function rmDbData(dir) {
     let arr = [dir]
     let current = null
     let index = 0
@@ -187,16 +187,24 @@ function rmdir(dir) {
         let stat = fs.statSync(arr[i])
         // 目录和文件的删除方法不同
         if (stat.isDirectory()) {
-            fs.rmdirSync(arr[i])
+            //fs.rmdirSync(arr[i])
         } else {
-            fs.unlinkSync(arr[i])
+            //只删除eachchat.db文件
+            if(arr[i].search("eachchat.db") != -1)
+                fs.unlinkSync(arr[i])
         }
     }
 }
 
 function ClearDB(curVersion){
     let filepath = environment.path.base;
-    let filename = filepath + "/version.txt";
+    let filename
+    if(environment.os.isWindows){
+        filename = filepath + "\\version.txt";
+    }
+    else{
+        filename = filepath + "/version.txt";
+    }
     let bExist = fs.existsSync(filename);
     if(bExist)
     {
@@ -208,18 +216,19 @@ function ClearDB(curVersion){
             return ;
         }
     }
-    let dbname = filepath + "/EachChat.db";
-    if(fs.existsSync(dbname))
-    {
+    //let dbname = filepath + "/EachChat.db";
+    //if(fs.existsSync(dbname))
+    //{
         try{
-            fs.unlinkSync(dbname);
+            rmDbData(filepath);
+            //fs.unlinkSync(dbname);
         }
         catch(e){
             console.log(e)
-            console.log("please delete file:" + dbname);
+            console.log("please delete folder:" + filepath);
             return;
         }
-    }
+    //}
     fs.writeFile(filename, curVersion, 'utf8', function(error){
         if(error){
             console.log(error);

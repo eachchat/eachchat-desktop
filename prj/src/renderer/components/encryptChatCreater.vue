@@ -184,6 +184,10 @@ export default {
         isSearchAdd: {
             type:Boolean,
             default: false
+        },
+        isSecret: {
+            type:Boolean,
+            default: false
         }
     },
     data () {
@@ -307,7 +311,12 @@ export default {
                     var groupCheck = '';
                     console.log("chat name is ", chatName)
                     try {
-                        groupCheck = await services.common.GetGroupByName(chatName);
+                        if(this.isSecret) {
+                            groupCheck = await Group.SearchSecretByNameKey(chatName);
+                        }
+                        else {
+                        groupCheck = await Group.SearchChatByNameKey(chatName);
+                        }
                     }
                     catch(error) {
                         console.log("get grou name exception and err is ", error);
@@ -329,11 +338,20 @@ export default {
                         groupItem["un_read_count"] = 0;
                         groupItem["updatetime"] = new Date().getTime();
                         groupItem["user_id"] = selectedId.user_id;
+                        groupItem["key_id"] = this.isSecret == true ? "xxxxxx" : "";
                     }
                     else {
-                        groupItem = groupCheck[0];
+                        for(let k=0;k<groupCheck.length;k++) {
+                            if(this.isSecret && groupCheck[k].key_id.length != 0) {
+                                groupItem = groupCheck[k];
+                                break;
+                            }
+                            else if(!this.isSecret && groupCheck[k].key_id.length == 0) {
+                                groupItem = groupCheck[k];
+                                break;
+                            }
+                        }
                     }
-
                     this.$emit('getCreateGroupInfo', groupItem);
                     this.$emit("closeChatCreaterDlg", "");
                 }

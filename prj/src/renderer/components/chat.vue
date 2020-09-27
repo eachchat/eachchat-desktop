@@ -3,6 +3,7 @@
         <div class="chat-title">
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img">
+                <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret">
                 <p class="chat-name" id="chat-group-name"></p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <p class="chat-name-state" id="chat-group-state"></p>
@@ -10,7 +11,7 @@
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click="More()">
                 </div>
-                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
+                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()" v-show="!isSecret">
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
@@ -62,6 +63,7 @@
                 <div class="text-input" @keydown="keyHandle($event)">
                     <quillEditor
                         ref="chatQuillEditor"
+                        v-model="content"
                         :options="editorOption"
                         @change="inputChanged">
                     </quillEditor>
@@ -236,7 +238,7 @@ export default {
     },
     methods: {
         updateChatList: function(ret) {
-            this.$emit("updateChatList", ret);
+            this.$emit("updateChatList", ret, false);
         },
         openUserInfoTip:async function(tipInfos) {
             console.log("tip inso if ", tipInfos);
@@ -752,7 +754,12 @@ export default {
         },
         inputChanged(content) {
             // console.log("content is ", content);
-            this.curContent = content.text;
+            if(content == undefined) {
+                this.curContent = this.content;
+            }
+            else {
+                this.curContent = content.text;
+            }
             var range = this.editor.getSelection();
             var content = this.editor.getContents();
             var curInputIndexTmp = 0;
@@ -3228,6 +3235,7 @@ export default {
     },
     data() {
         return {
+            content: '',
             isSecret: false,
             canSelecteFile: true,
             isGroup: true,
@@ -3364,7 +3372,7 @@ export default {
                 return;
             }
             if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
-                this.isSecret = (this.chat.key_id.length != 0 && this.chat.group_type == 102);
+                this.isSecret = (this.chat.key_id != undefined && this.chat.key_id.length != 0 && this.chat.group_type == 102);
                 this.hideScrollBar();
                 this.curGroupId = this.chat.group_id;
                 var curSequenceId = this.chat.sequence_id;
@@ -3478,6 +3486,17 @@ export default {
         background-color: rgb(255, 255, 255);
         border-bottom: 0px solid rgb(242, 242, 246);
         margin-bottom: 9px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .encrypt-chat-img {
+        height: 20px;
+        width: 20px;
+        margin:6px 0px 6px 0px;
+        float: left;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;

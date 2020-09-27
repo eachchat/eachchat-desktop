@@ -62,7 +62,7 @@ export default {
         return {
             SendFileDlgElement: null,
             SendFileLayersElement: null,
-            imgHeight: 468,
+            imgHeight: 220,
             imgWidth: 436,
             ipcInited: false,
             SendFileContent: "",
@@ -149,7 +149,7 @@ export default {
          */
         sendInfos: async function() {
             console.log("this.sendInfos is ", this.sendInfos.distGroupInfo)
-            if(this.sendInfos.distGroupInfo.group_name == undefined) {
+            if(this.sendInfos.distGroupInfo == undefined) {
                 console.log("aaa return ")
                 return;
             }
@@ -175,10 +175,12 @@ export default {
                 }
             }
 
-            var showPosition = this.calcImgPosition();
-            var dlgElement = document.getElementById("SendFileDlgId");
-            dlgElement.style.left = showPosition.left.toString() + "px";
-            dlgElement.style.top = showPosition.top.toString() + "px";
+            this.$nextTick(() => {
+                var showPosition = this.calcImgPosition();
+                var dlgElement = document.getElementById("SendFileDlgId");
+                dlgElement.style.left = showPosition.left.toString() + "px";
+                dlgElement.style.top = showPosition.top.toString() + "px";
+            })
             // this.dlgPosition.left = showPosition.left.toString() + "px";
             // this.dlgPosition.top = showPosition.top.toString() + "px";
             // console.log("showPositoin is ", this.dlgPosition)

@@ -315,7 +315,7 @@ export default {
                             groupCheck = await Group.SearchSecretByNameKey(chatName);
                         }
                         else {
-                            groupCheck = await services.common.GetGroupByName(chatName);
+                            groupCheck = await Group.SearchChatByNameKey(chatName);
                         }
                     }
                     catch(error) {
@@ -328,7 +328,7 @@ export default {
                         groupItem["group_name"] = chatName;
                         groupItem["group_type"] = 102;
                         groupItem["last_message_time"] = 0;
-                        groupItem["message_content"] = null;
+                        groupItem["message_content"] = '';
                         groupItem["message_content_type"] = 101;
                         groupItem["message_from_id"] = this.curUserInfo.id;
                         groupItem["message_id"] = '';
@@ -373,7 +373,7 @@ export default {
                             groupItem["group_name"] = ret.group_name;
                             groupItem["group_type"] = ret.group_type;
                             groupItem["last_message_time"] = ret.last_message_time;
-                            groupItem["message_content"] = null;
+                            groupItem["message_content"] = '';
                             groupItem["message_content_type"] = ret.message_content_type;
                             groupItem["message_from_id"] = ret.message_from_id;
                             groupItem["message_id"] = ret.message_id;
@@ -448,7 +448,7 @@ export default {
                             groupItem["group_name"] = ret.group_name;
                             groupItem["group_type"] = ret.group_type;
                             groupItem["last_message_time"] = ret.last_message_time;
-                            groupItem["message_content"] = undefined;
+                            groupItem["message_content"] = '';
                             groupItem["message_content_type"] = ret.message_content_type;
                             groupItem["message_from_id"] = ret.message_from_id;
                             groupItem["message_id"] = ret.message_id;
@@ -1171,7 +1171,7 @@ display: none;
                     }
                     .checkBox-label{
                         display: inline-block;
-                        width: 179px;
+                        width: 178px;
                         color: rgb(153, 153, 153);
                         font-size: 14px;
                         text-align: right;
@@ -1212,7 +1212,7 @@ display: none;
                                     margin-top: 14px;
                                     padding: 0px;
                                     padding-left: 8px;
-                                    width:189px;
+                                    width:188px;
                                     height:20px;
                                     font-size:14px;
                                     font-weight:400;

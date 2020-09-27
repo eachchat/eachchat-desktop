@@ -408,10 +408,6 @@ export default {
                 if(this.newGroupName == this.groupName){
                     return;
                 }
-                if(this.newGroupName.trim().length > 25) {
-                    this.$toastMessage({message:'群名称超长，最多只支持25个字符，请重新输入。', time:1500, type:'success'});
-                    return;
-                }
                 var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
                 updateGroupNameInputElement.blur();
                 services.common.UpdateGroupName(this.groupId, this.newGroupName);
@@ -755,7 +751,7 @@ export default {
 }
 
 .groupMember-view-owner {
-    height: calc(100% - 420px);
+    height: calc(100% - 440px);
     width: 100%;
     padding: 0px;
     border: 0px;

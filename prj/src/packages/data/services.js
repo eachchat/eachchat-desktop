@@ -49,7 +49,8 @@ const commonData = {
   aesSecret : [],
   maxSecretGroupUpdateTime: 0,
   maxSecretMsgSequenceID: 0,
-  aseEncryption:  new AESEncrypt()
+  aseEncryption:  new AESEncrypt(),
+  orgValue: ""
 
 }; // model in here
 
@@ -329,7 +330,7 @@ const common = {
       return result.data;
     }
     let userid = result.data.obj.id;
-    await Config.SetLoginInfo(userid);
+    await Config.SetLoginInfo(userid, this.data.orgValue);
     await models.init();
 
     
@@ -403,7 +404,7 @@ const common = {
 
   async InitDbData()
   {
-    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateUserinfo(), this.UpdateDepartment()])
+    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateSecretMessage(), this.UpdateUserinfo(), this.UpdateDepartment()])
     //await this.UpdateMessages();
     //await this.ListAllCollections();
   },
@@ -1055,7 +1056,7 @@ const common = {
     if(secret){
       let newKey = await Secret.GetNewSecret();
       if(newKey == undefined){
-        if(await !this.GetAesSecret())
+        if((await this.GetAesSecret()) == false)
           return undefined;
         newKey = await Secret.GetNewSecret();
       }
@@ -1980,6 +1981,7 @@ const common = {
 
   async gmsConfiguration(domainBase64){
     let value = Base64.encode(domainBase64, true);
+    this.data.orgValue = value;
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
       response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
@@ -2054,6 +2056,7 @@ const common = {
       secretModel.save();
       this.data.aesSecret.push(secretModel);
     }
+    return true;
   },
 
   async ListSecretGroups(){

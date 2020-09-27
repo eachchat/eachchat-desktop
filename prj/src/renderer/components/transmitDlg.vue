@@ -42,7 +42,7 @@
                     </div>
                     <div class="RecentChatView" v-show="!showSearchView">
                             <ul class="recentChatList">
-                                <li class="recentChat" v-for="(group, index) in recentGroups" :key="index">
+                                <li class="recentChat" v-for="(group, index) in showRecentChat" :key="index">
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
                                     <img ondragstart="return false" class="group-icon" :id="group.group_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="group-info">
@@ -94,6 +94,7 @@ import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeF
 import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
+import conf_service from '../../packages/data/conf_service'
 export default {
     name: 'TransmitDlg',
     components:{
@@ -134,6 +135,17 @@ export default {
         },
 
     },
+    watch: {
+        recentGroups: function() {
+            for(var i = 0; i < this.recentGroups.length; i ++){
+                if(this.recentGroups[i].key_id != undefined && this.recentGroups[i].key_id.length != 0) {
+                    continue;
+                }
+                this.showRecentChat.push(this.recentGroups[i]);
+                this.getGroupAvatarContent(this.recentGroups[i]);
+            }
+        }
+    },
     computed: {
         groupChecked() {
             return function(group) {
@@ -156,6 +168,7 @@ export default {
     },
     data () {
         return {
+            showRecentChat: [],
             showCreateNewChat: false,
             TransmitDlgElement: null,
             TransmitLayersElement: null,
@@ -394,7 +407,7 @@ export default {
                 console.log("userInfos is ", chatUserInfo);
                 var chatAvater = chatUserInfo.avatar_t_url;
                 var chatName = chatUserInfo.user_display_name;
-                var groupCheck = await services.common.GetGroupByName(chatName);
+                var groupCheck = await Group.SearchChatByNameKey(chatName);
                 console.log("groupCheck is ", groupCheck)
                 groupUserIds.push(selfUser.id);
                 var contain_user_ids = groupUserIds.join(",");
@@ -862,6 +875,10 @@ export default {
             this.$nextTick(function(){
                 console.log(this.recentGroups.length)
                 for(var i = 0; i < this.recentGroups.length; i ++){
+                    if(this.recentGroups[i].key_id != undefined && this.recentGroups[i].key_id.length != 0) {
+                        continue;
+                    }
+                    this.showRecentChat.push(this.recentGroups[i]);
                     this.getGroupAvatarContent(this.recentGroups[i]);
                 }
             });

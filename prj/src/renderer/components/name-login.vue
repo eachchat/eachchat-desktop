@@ -19,7 +19,7 @@
                     <div class="title-ico">
                         <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
-                        易企聊
+                        亿洽
                     </div>
                 </div>
                 <div class="item-organization">
@@ -403,10 +403,11 @@ export default {
             }
             this.resetLoginStateTitle();
             if(this.isEmpty(this.username)){
-                this.loginState = '请输入手机号';
+                this.loginState = '请输入邮箱账号';
+                return;
             }
             if(!this.emailFormatTest(this.username)){
-                this.loginState = '手机号格式不正确';
+                this.loginState = '邮箱格式不正确';
                 return;
             }
             var result = await services.common.EmailCodeLogin(this.username);
@@ -559,10 +560,10 @@ export default {
             this.loginState = "登录成功";
             this.showLoginView = false;
             this.showLoadingView = true;
+            this.tokenRefreshing = true;
+            await services.common.UpdateGroups();
+            await services.common.UpdateSecretGroups();
             setTimeout(async () => {
-                this.tokenRefreshing = true;
-                await services.common.UpdateGroups();
-                await services.common.UpdateSecretGroups();
                 ipcRenderer.send('showMainPageWindow', true); 
             }, 1000);
         }
