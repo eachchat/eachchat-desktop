@@ -115,13 +115,16 @@ export default {
             
             this.memberIdList = this.GroupInfo.contain_user_ids.split(",");
             // console.log("this member list is ", this.memberIdList);
-            
+            var existUids = [];
             for(var i=0;i<this.memberIdList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
                 if(memberInfoTmp.length != 0) {
-                    memberInfoTmp[0].checkState = false;
-                    this.memberListShow.push(memberInfoTmp[0]);
-                    this.memberListShowOriginal.push(memberInfoTmp[0]);
+                    if(this.memberListShow.indexOf(memberInfoTmp[0]) == -1) {
+                        memberInfoTmp[0].checkState = false;
+                        this.memberListShow.push(memberInfoTmp[0]);
+                        this.memberListShowOriginal.push(memberInfoTmp[0]);
+                        existUids.push(memberInfoTmp[0].user_id);
+                    }
                 }
 
                 if(i == 6){
@@ -144,9 +147,9 @@ export default {
 
             for(var i=0;i<this.memberIdList.length;i++) {
                 let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
-                console.log("memgerinfotmep is ", memberInfoTmp)
                 if(memberInfoTmp.length != 0) {
-                    if(this.memberListShow.indexOf(memberInfoTmp[0]) == -1) {
+                    // console.log("this.memberListShow.indexOf(memberInfoTmp[0]) is ", this.existUids.indexOf(memberInfoTmp[0].user_id))
+                    if(existUids.indexOf(memberInfoTmp[0].user_id) == -1) {
                         memberInfoTmp[0].checkState = false;
                         this.memberListShow.push(memberInfoTmp[0]);
                         this.memberListShowOriginal.push(memberInfoTmp[0]);
@@ -306,6 +309,8 @@ export default {
         font-weight: 400;
         letter-spacing: 1px;
         padding-left: 8px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
 </style>

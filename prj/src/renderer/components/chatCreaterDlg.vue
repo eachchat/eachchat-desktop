@@ -84,7 +84,7 @@
                                 <RecycleScroller class="subUsersList" :items="curUsers" :item-size="48" key-field="user_id" v-slot="{ item }">
                                         <input type="checkBox" class="multiSelectCheckbox" :checked="item.isCheck"
                                             @click="userCheckBoxClicked(item)">
-                                        <img ondragstart="return false" class="subUserIcon" :id="item.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                                        <img ondragstart="return false" class="subUserIcon" :id="'department' + item.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                         <div class="subUserInfo">
                                             <p class="subUserName">{{ item.user_display_name }}</p>
                                             <p class="subUserTitle">{{ item.user_title }}</p>
@@ -234,11 +234,13 @@ export default {
                 }
             }
             this.searchUser = result;
-            this.$nextTick(function(){
-                for(var i = 0; i < this.searchUser.length; i ++){
-                    this.getUserImg(this.searchUser[i], 'search');
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.searchUser.length; i ++){
+                        this.getUserImg(this.searchUser[i], 'search');
+                    }
+                });
+            })
         },
         searchDeleteClicked(){
             this.searchKey = '';
@@ -501,11 +503,13 @@ export default {
             this.curSubDepartments = subDepartmentModels;
             this.curUsers = this.filterDisabledUsers(subUserModels);
             this.curSubAllUsers = this.getDepartmentSubAllUsers(department);
-            this.$nextTick(function(){
-                for(var i = 0; i < this.curUsers.length; i ++){
-                    this.getUserImg(this.curUsers[i]);
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.curUsers.length; i ++){
+                        this.getUserImg(this.curUsers[i], 'department');
+                    }
+                });
+            })
 
         },
         currentDepartmentSelectAllClicked(){
@@ -565,11 +569,13 @@ export default {
                 // }
                 this.curDepartment.isCheck = this.checkDepartmentState(user.belong_to_department_id);
             }
-            this.$nextTick(function(){
-                for(var i = 0; i < this.selectedUsers.length; i ++){
-                    this.getUserImg(this.selectedUsers[i], 'selected');
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.selectedUsers.length; i ++){
+                        this.getUserImg(this.selectedUsers[i], 'selected');
+                    }
+                });
+            })
         },
         checkDepartmentState(department_id){
             var department = this.getDepartment(department_id);
@@ -649,11 +655,13 @@ export default {
                 }
                 subDepartmentModels = temp;
             }
-            this.$nextTick(function(){
-                for(var i = 0; i < this.selectedUsers.length; i ++){
-                    this.getUserImg(this.selectedUsers[i], 'selected');
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.selectedUsers.length; i ++){
+                        this.getUserImg(this.selectedUsers[i], 'selected');
+                    }
+                });
+            })
         },
         deleteUserFromSelectedUsers(user){
             var index = this.indexOfUserInSelected(user);
@@ -666,11 +674,13 @@ export default {
                 }
             }
             this.curDepartment.isCheck = this.checkDepartmentState(user.belong_to_department_id);
-            this.$nextTick(function(){
-                for(var i = 0; i < this.selectedUsers.length; i ++){
-                    this.getUserImg(this.selectedUsers[i], 'selected');
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.selectedUsers.length; i ++){
+                        this.getUserImg(this.selectedUsers[i], 'selected');
+                    }
+                });
+            })
         },
         rootDepartmentClicked:async function (department) {
             this.curDepartment = this.getDepartment(department.department_id);
@@ -696,7 +706,7 @@ export default {
             this.$nextTick(function(){
                 setTimeout(() => {
                     for(var i = 0; i < this.curUsers.length; i ++){
-                        this.getUserImg(this.curUsers[i]);
+                        this.getUserImg(this.curUsers[i], 'department');
                     }
                 }, 0)
             });
@@ -722,12 +732,14 @@ export default {
             breadInfo.department_id = department.department_id;
             breadInfo.display_name = department.display_name;
             this.breadCrumbs.push(breadInfo);
-            this.$nextTick(function(){
-                this.updateViewHeight();
-                for(var i = 0; i < this.curUsers.length; i ++){
-                    this.getUserImg(this.curUsers[i]);
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    this.updateViewHeight();
+                    for(var i = 0; i < this.curUsers.length; i ++){
+                        this.getUserImg(this.curUsers[i], 'department');
+                    }
+                });
+            })
             
         },
         updateViewHeight:function(){
@@ -790,6 +802,7 @@ export default {
             var localPath = confservice.getUserThumbHeadLocalPath(userId);
             let userIconElement = document.getElementById(key + userInfo.user_id);
             if(!userIconElement){
+                console.log("do not find is ", userInfo)
                 return;
             }
             if(fs.existsSync(localPath)){
