@@ -402,9 +402,9 @@ const common = {
     return true;
   },
 
-  async InitDbData()
+  async InitDbData(msgcallback)
   {
-    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateSecretMessage(), this.UpdateUserinfo(), this.UpdateDepartment()])
+    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(msgcallback), this.UpdateSecretMessage(msgcallback), this.UpdateUserinfo(), this.UpdateDepartment()])
     //await this.UpdateMessages();
     //await this.ListAllCollections();
   },
@@ -442,14 +442,14 @@ const common = {
       this.IncrementSecretGroups();
   },
 
-  async UpdateMessages(){
+  async UpdateMessages(callback){
     let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(this.data.selfuser.id);
-    await this.ReveiveNewMessage(maxSequenceIdFromGroup, 0)
+    await this.ReveiveNewMessage(maxSequenceIdFromGroup, 0, callback)
   },
 
-  async UpdateSecretMessage(){
+  async UpdateSecretMessage(callback){
     this.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
-    await this.ReveiveNewMessage(this.data.maxSecretMsgSequenceID, 0, undefined, true)
+    await this.ReveiveNewMessage(this.data.maxSecretMsgSequenceID, 0, callback, true)
   },
 
   async initmqtt(){
