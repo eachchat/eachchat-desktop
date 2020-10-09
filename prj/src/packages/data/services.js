@@ -1998,7 +1998,6 @@ const common = {
     
     let entry = response.data.obj.entry;
     let mqtt = response.data.obj.mqtt;
-    let identities = response.data.obj.identities;
     if(entry.tls == true)
       entry.tls = 1
     else
@@ -2015,7 +2014,7 @@ const common = {
     this.config.mqttHost = mqtt.host;
     this.config.mqttPort = mqtt.port;
     this.config.mqttTls = mqtt.tls;
-    return identities;
+    return response.data.obj;
   },
 
   async gmsGetUser(key){
