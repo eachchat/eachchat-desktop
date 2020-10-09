@@ -2,7 +2,7 @@
     <div class="privacy">
         <div class="WordSection1" style="layout-grid:15.6pt">
 
-        <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><span style="font-size:16.0pt;line-height:150%;font-family:宋体">易企聊沟通与协作平台隐私政策<span lang="EN-US"><o:p></o:p></span></span></p>
+        <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><span style="font-size:16.0pt;line-height:150%;font-family:宋体">亿洽沟通与协作平台隐私政策<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -11,13 +11,13 @@
         10.5pt;line-height:150%;font-family:宋体">发布时间：<span lang="EN-US">2020</span>年<span lang="EN-US">7</span>月<span lang="EN-US">1</span>日<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">易企聊沟通与协作平台隐私政策（以下简称“本隐私政策”）适用于通过北京爱工作科技有限公司（以下简称“本公司”或“爱工作”）运营的<span lang="EN-US">workly.ai</span>数字化办公平台（网站<a name="_Hlk43726265">为<span lang="EN-US">https://workly.ai/</span></a>）<a name="_Hlk43726289">中的易企聊沟通与协作平台管理后台</a>、易企聊桌面<span lang="EN-US">/</span>移动<span lang="EN-US">/WEB</span>客户端等方式（以下简称“易企聊平台”）使用易企聊产品及服务的用户。若本公司之关联公司或其他第三方的产品或服务中使用了本公司提供的易企聊产品或服务但未设独立的隐私政策的，则本政策同样适用于该部分产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
+        10.5pt;line-height:150%;font-family:宋体">亿洽沟通与协作平台隐私政策（以下简称“本隐私政策”）适用于通过北京爱工作科技有限公司（以下简称“本公司”或“爱工作”）运营的<span lang="EN-US">workly.ai</span>数字化办公平台（网站<a name="_Hlk43726265">为<span lang="EN-US">https://workly.ai/</span></a>）<a name="_Hlk43726289">中的亿洽沟通与协作平台管理后台</a>、亿洽桌面<span lang="EN-US">/</span>移动<span lang="EN-US">/WEB</span>客户端等方式（以下简称“亿洽平台”）使用亿洽产品及服务的用户。若本公司之关联公司或其他第三方的产品或服务中使用了本公司提供的亿洽产品或服务但未设独立的隐私政策的，则本政策同样适用于该部分产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体">本公司深知个人信息对您的重要性，并将按照适用法律法规之要求保护您的个人信息安全可靠，在收集、使用您的用户信息时恪守合法、正当、必要的原则。同时，本公司承诺，我们将按业界成熟的安全标准，采取相应的安全保护措施来保护您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">本隐私政策旨在向您介绍及说明，在您使用易企聊产品或服务过程中，本公司对可能收集、使用的您的个人信息的具体处理方式，因此，在使用易企聊产品或服务前，请您务必仔细阅读并透彻理解本隐私政策的全部内容，在确认充分理解并同意后使用相关产品或服务。一旦您开始使用易企聊产品或服务，即表示您已充分理解并同意本隐私政策。<span lang="EN-US"><o:p></o:p></span></span></p>
+        10.5pt;line-height:150%;font-family:宋体">本隐私政策旨在向您介绍及说明，在您使用亿洽产品或服务过程中，本公司对可能收集、使用的您的个人信息的具体处理方式，因此，在使用亿洽产品或服务前，请您务必仔细阅读并透彻理解本隐私政策的全部内容，在确认充分理解并同意后使用相关产品或服务。一旦您开始使用亿洽产品或服务，即表示您已充分理解并同意本隐私政策。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -80,15 +80,15 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><a name="_Hlk39846091"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">易企聊</span></a><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">企业<span lang="EN-US">/</span>机构用户（“您的组织”）：指通过开户、认证、经由其管理员用户的易企聊帐号上传企业<span lang="EN-US">/</span>机构成员通讯录搭建企业<span lang="EN-US">/</span>机构组织<span lang="EN-US">/</span>管理架构，开通、管理和使用易企聊产品或服务的企业<span lang="EN-US">/</span>机构。易企聊企业<span lang="EN-US">/</span>机构用户包括但不限于法人、政府机构、其他组织、合伙或个体工商户等。<span lang="EN-US"><o:p></o:p></span></span></p>
+        10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">亿洽</span></a><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">企业<span lang="EN-US">/</span>机构用户（“您的组织”）：指通过开户、认证、经由其管理员用户的亿洽帐号上传企业<span lang="EN-US">/</span>机构成员通讯录搭建企业<span lang="EN-US">/</span>机构组织<span lang="EN-US">/</span>管理架构，开通、管理和使用亿洽产品或服务的企业<span lang="EN-US">/</span>机构。亿洽企业<span lang="EN-US">/</span>机构用户包括但不限于法人、政府机构、其他组织、合伙或个体工商户等。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="margin-left:21.0pt;mso-para-margin-left:2.0gd;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">易企聊企业<span lang="EN-US">/</span>机构管理员用户（“管理员用户”）：指经您的组织合法授权或指定而开通管理员账号的个人用户，该管理员账号拥有您的组织的易企聊平台中管理操作权限，代表您的组织上传您的组织的成员通讯录等数据，并开通、管理和使用易企聊产品或服务；管理员用户可根据您的组织的实际需要设立多层级管理员用户，在其享有的权限之下搭建多层级管理员架构并逐级设置相应的管理权限。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">亿洽企业<span lang="EN-US">/</span>机构管理员用户（“管理员用户”）：指经您的组织合法授权或指定而开通管理员账号的个人用户，该管理员账号拥有您的组织的亿洽平台中管理操作权限，代表您的组织上传您的组织的成员通讯录等数据，并开通、管理和使用亿洽产品或服务；管理员用户可根据您的组织的实际需要设立多层级管理员用户，在其享有的权限之下搭建多层级管理员架构并逐级设置相应的管理权限。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="margin-left:21.0pt;mso-para-margin-left:2.0gd;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">易企聊企业<span lang="EN-US">/</span>机构授权成员用户（“授权成员用户”）：是指您的组织为使上传之成员通讯录（包括成员账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等）中的成员使用易企聊产品或服务，而由管理员用户直接为该等成员开设并分发给该等成员相应的易企聊个人账号，因该等开设、分发而持有并使用此类易企聊账号的个人用户。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">亿洽企业<span lang="EN-US">/</span>机构授权成员用户（“授权成员用户”）：是指您的组织为使上传之成员通讯录（包括成员账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等）中的成员使用亿洽产品或服务，而由管理员用户直接为该等成员开设并分发给该等成员相应的亿洽个人账号，因该等开设、分发而持有并使用此类亿洽账号的个人用户。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -96,11 +96,11 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您已知悉，您的组织为您使用易企聊产品或服务而开设、分发给您相应的易企聊账号，开通易企聊产品或服务的相关功能，为您提供或控制您使用该等产品或服务的权限，并对您使用易企聊产品或服务的行为进行管理；在上述过程中，您的组织将代表您、或您将按照您的组织的要求向本公司提供或可能提供与您相关的若干个人信息，包括账号名、工作或组织事务电邮、姓名、电话、所属部门及职位等。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您已知悉，您的组织为您使用亿洽产品或服务而开设、分发给您相应的亿洽账号，开通亿洽产品或服务的相关功能，为您提供或控制您使用该等产品或服务的权限，并对您使用亿洽产品或服务的行为进行管理；在上述过程中，您的组织将代表您、或您将按照您的组织的要求向本公司提供或可能提供与您相关的若干个人信息，包括账号名、工作或组织事务电邮、姓名、电话、所属部门及职位等。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
         0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">您的组织已经或在此陈述和保证，其为上述信息的控制方，其通过管理员账号向本公司提供您的任何个人信息或者要求您提供任何个人信息之前，已经事先获得您的明确授权，并已经充分告知您收集您的个人信息的目的、范围、使用方式，其收集您个人信息的范围仅限于实现本协议目的必要范围。如您并不知悉并同意本款内容，请立即停止使用易企聊产品或服务，并与您的组织就前述事项进行确认。对于上述信息，本公司仅作为数据处理者根据您的组织的要求处理您的个人信息，我们对您的组织收集和使用您个人信息的行为不承担任何法律责任；请及时与您的组织沟通以详细了解对您的个人信息的控制、保护等相关政策或规定。</span></p>
+        font-family:宋体">您的组织已经或在此陈述和保证，其为上述信息的控制方，其通过管理员账号向本公司提供您的任何个人信息或者要求您提供任何个人信息之前，已经事先获得您的明确授权，并已经充分告知您收集您的个人信息的目的、范围、使用方式，其收集您个人信息的范围仅限于实现本协议目的必要范围。如您并不知悉并同意本款内容，请立即停止使用亿洽产品或服务，并与您的组织就前述事项进行确认。对于上述信息，本公司仅作为数据处理者根据您的组织的要求处理您的个人信息，我们对您的组织收集和使用您个人信息的行为不承担任何法律责任；请及时与您的组织沟通以详细了解对您的个人信息的控制、保护等相关政策或规定。</span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -108,11 +108,11 @@
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.1<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">易企聊产品或服务针对企业<span lang="EN-US">/</span>机构的需求而设立，除特殊行业机构（比如教育机构）外，原则上未满<span lang="EN-US">18</span>周岁的未成年人不应成为易企聊产品及服务的个人用户。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.1<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">亿洽产品或服务针对企业<span lang="EN-US">/</span>机构的需求而设立，除特殊行业机构（比如教育机构）外，原则上未满<span lang="EN-US">18</span>周岁的未成年人不应成为亿洽产品及服务的个人用户。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.2<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">若您是未满<span lang="EN-US">18</span>周岁的未成年人，在符合适用法律的前提下成为易企聊产品及服务的用户时，您的组织应在提供成员通讯录时明示，且您在使用易企聊产品及服务前，应在您的父母或其他监护人监护、指导下共同阅读并同意本隐私政策。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.2<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">若您是未满<span lang="EN-US">18</span>周岁的未成年人，在符合适用法律的前提下成为亿洽产品及服务的用户时，您的组织应在提供成员通讯录时明示，且您在使用亿洽产品及服务前，应在您的父母或其他监护人监护、指导下共同阅读并同意本隐私政策。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -124,11 +124,11 @@
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.5<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">若涉及儿童（即不满十四周岁的未成年人）使用易企聊产品或服务的，您的组织应在提供成员通讯录之前或之时、或者您的组织开户前向本公司明示，本公司将依据儿童个人信息保护的相关法律法规之规定，设立并执行特殊的保护规定、政策及保护机制。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.5<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">若涉及儿童（即不满十四周岁的未成年人）使用亿洽产品或服务的，您的组织应在提供成员通讯录之前或之时、或者您的组织开户前向本公司明示，本公司将依据儿童个人信息保护的相关法律法规之规定，设立并执行特殊的保护规定、政策及保护机制。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">本隐私政策不适用于其他第三方通过易企聊客户端直接向您提供的产品或服务（统称“第三方服务”）。如管理员用户通过易企聊平台开通并由您确认使用任何第三方应用服务，您的组织代表您或您向该第三方服务提供者提供的信息不适用于本隐私政策，而适用于您与该等第三方服务提供者之间的相关政策或规定。您在选择使用该等第三方服务前，请充分了解第三方服务的产品功能及隐私保护政策，再选择是否开通功能。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">本隐私政策不适用于其他第三方通过亿洽客户端直接向您提供的产品或服务（统称“第三方服务”）。如管理员用户通过亿洽平台开通并由您确认使用任何第三方应用服务，您的组织代表您或您向该第三方服务提供者提供的信息不适用于本隐私政策，而适用于您与该等第三方服务提供者之间的相关政策或规定。您在选择使用该等第三方服务前，请充分了解第三方服务的产品功能及隐私保护政策，再选择是否开通功能。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -146,7 +146,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为了向您及您的组织提供易企聊产品或服务，维护易企聊产品或服务的正常运行，改进及优化相应的用户体验并保障您的账号安全，本公司会出于本隐私政策下述目的及方式收集您在注册、使用易企聊产品或服务时主动提供、授权提供或基于您的组织要求提供的信息，以及基于您使用易企聊产品或服务时产生的信息：<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">为了向您及您的组织提供亿洽产品或服务，维护亿洽产品或服务的正常运行，改进及优化相应的用户体验并保障您的账号安全，本公司会出于本隐私政策下述目的及方式收集您在注册、使用亿洽产品或服务时主动提供、授权提供或基于您的组织要求提供的信息，以及基于您使用亿洽产品或服务时产生的信息：<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -161,7 +161,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为注册成为易企聊授权成员用户，您的组织将通过本隐私政策第一条<span lang="EN-US">2</span>、<span lang="EN-US">3</span>款中的方式向本公司提供您的若干个人信息，包括账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等，用以注册并创建您的易企聊个人账号，否则您将不能使用易企聊产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">为注册成为亿洽授权成员用户，您的组织将通过本隐私政策第一条<span lang="EN-US">2</span>、<span lang="EN-US">3</span>款中的方式向本公司提供您的若干个人信息，包括账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等，用以注册并创建您的亿洽个人账号，否则您将不能使用亿洽产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l0 level1 lfo6"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -169,25 +169,25 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为使用易企聊的产品或服务，您的组织在向本公司申请开户时将向本公司提供企业<span lang="EN-US">/</span>机构名称、统一社会信用代码以及联系人信息等。开户并经分配产生管理员账号后，在您使用易企聊相关产品或服务前，您的组织应完成相应的实名认证。进行实名认证时，您作为您的组织的管理员，需代表您的组织根据页面指示继续提供特定信息和资料，包括但不限于您的组织的营业执照（或起到同等功能的资质证照）复印件、统一社会信用代码、企业组织名称、地址、法人代表（或负责人）姓名、法人代表（负责人）身份证号、指定管理员的合规授权委托、指定管理员的身份证号等基本信息。您理解并同意，您在向本公司提供上述相关指定管理员、法定代表人（负责人）等人员的该等个人信息之前，您需确保您已经取得其授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">为使用亿洽的产品或服务，您的组织在向本公司申请开户时将向本公司提供企业<span lang="EN-US">/</span>机构名称、统一社会信用代码以及联系人信息等。开户并经分配产生管理员账号后，在您使用亿洽相关产品或服务前，您的组织应完成相应的实名认证。进行实名认证时，您作为您的组织的管理员，需代表您的组织根据页面指示继续提供特定信息和资料，包括但不限于您的组织的营业执照（或起到同等功能的资质证照）复印件、统一社会信用代码、企业组织名称、地址、法人代表（或负责人）姓名、法人代表（负责人）身份证号、指定管理员的合规授权委托、指定管理员的身份证号等基本信息。您理解并同意，您在向本公司提供上述相关指定管理员、法定代表人（负责人）等人员的该等个人信息之前，您需确保您已经取得其授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l0 level1 lfo6"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">开通易企聊产品或服务功能<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">开通亿洽产品或服务功能<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">基于您的组织在劳动、事务管理、办公应用等方面需要，管理员用户选择开通易企聊提供的产品或服务时，根据使用该等产品或服务的必须而涉及需要由您的组织代表您或您按照您的组织的要求提供其他相应的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
+        10.5pt;line-height:150%;font-family:宋体">基于您的组织在劳动、事务管理、办公应用等方面需要，管理员用户选择开通亿洽提供的产品或服务时，根据使用该等产品或服务的必须而涉及需要由您的组织代表您或您按照您的组织的要求提供其他相应的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l12 level1 lfo5"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">使用易企聊产品或服务过程中收集信息<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">使用亿洽产品或服务过程中收集信息<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">当您在使用易企聊产品或服务、您在使用我们服务过程中为获得技术支持、协助、改进及优化易企聊产品或服务的用户体验、以及保障账号安全等，而向本公司提供或本公司收集的用户个人信息，包括当不限于：
+        font-family:宋体">当您在使用亿洽产品或服务、您在使用我们服务过程中为获得技术支持、协助、改进及优化亿洽产品或服务的用户体验、以及保障账号安全等，而向本公司提供或本公司收集的用户个人信息，包括当不限于：
         <span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
@@ -196,7 +196,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们会收集您使用易企聊产品或服务时提交或产生的信息。如您使用易企聊进行即时通讯（<span lang="EN-US">IM</span>）聊天，我们需要记录您的聊天信息及语音通话状态信息（非通话内容）以便实现信息的传输与交互。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">我们会收集您使用亿洽产品或服务时提交或产生的信息。如您使用亿洽进行即时通讯（<span lang="EN-US">IM</span>）聊天，我们需要记录您的聊天信息及语音通话状态信息（非通话内容）以便实现信息的传输与交互。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -204,11 +204,11 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">您在使用易企聊产品或服务过程中，我们会根据您在软件安装及使用中授予的具体权限，接收并记录您所使用的设备相关信息（例如设备型号、操作系统版本、设备设置、唯一设备标识符等软硬件特征信息）、设备所在位置相关信息（例如<span lang="EN-US">IP</span>地址以及移动装置地址设定的地点信息、以及<span lang="EN-US">GPS</span>所得地点信息（如果您的移动装置启动该功能）等，且只在您需要使用时）。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">您在使用亿洽产品或服务过程中，我们会根据您在软件安装及使用中授予的具体权限，接收并记录您所使用的设备相关信息（例如设备型号、操作系统版本、设备设置、唯一设备标识符等软硬件特征信息）、设备所在位置相关信息（例如<span lang="EN-US">IP</span>地址以及移动装置地址设定的地点信息、以及<span lang="EN-US">GPS</span>所得地点信息（如果您的移动装置启动该功能）等，且只在您需要使用时）。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">当您使用易企聊产品或服务时，我们会自动收集您对我们服务的详细使用情况，作为有关网络日志保存。例如您的搜索查询内容、<span lang="EN-US">IP</span>地址、浏览器的类型、电信运营商、使用的语言、访问日期和时间、您访问的网页记录、通话状态信息、交易日志信息等操作日志信息。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">当您使用亿洽产品或服务时，我们会自动收集您对我们服务的详细使用情况，作为有关网络日志保存。例如您的搜索查询内容、<span lang="EN-US">IP</span>地址、浏览器的类型、电信运营商、使用的语言、访问日期和时间、您访问的网页记录、通话状态信息、交易日志信息等操作日志信息。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -216,11 +216,11 @@
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为实现您的组织的管理功能在使用易企聊相关功能<span lang="EN-US">/</span>应用过程中提交或产生的信息<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为实现您的组织的管理功能在使用亿洽相关功能<span lang="EN-US">/</span>应用过程中提交或产生的信息<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">管理员用户选择开通、管理易企聊相关产品或服务的，我们会根据管理员用户的指令记录您使用易企聊相关功能<span lang="EN-US">/</span>应用过程中提交或产生的信息和数据：该等信息和数据中涉及的个人信息，您知悉并同意，您的组织作为上述信息和数据的控制者，我们仅根据管理员用户的指令管理和使用上述数据和信息，其中涉及您的个人信息的，则仍是受限于本协议第一条第<span lang="EN-US">3</span>款的约定。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">管理员用户选择开通、管理亿洽相关产品或服务的，我们会根据管理员用户的指令记录您使用亿洽相关功能<span lang="EN-US">/</span>应用过程中提交或产生的信息和数据：该等信息和数据中涉及的个人信息，您知悉并同意，您的组织作为上述信息和数据的控制者，我们仅根据管理员用户的指令管理和使用上述数据和信息，其中涉及您的个人信息的，则仍是受限于本协议第一条第<span lang="EN-US">3</span>款的约定。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -228,7 +228,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">在易企聊产品或服务使用过程中，您可以对易企聊的产品、功能、应用及服务的体验反馈问题，帮助我们更好地了解您使用我们产品或服务的体验和需求，改善我们的产品或服务<span lang="EN-US">,</span>为此我们会记录您的联系信息、反馈的问题或建议，以便我们进一步联系您反馈我们的处理意见。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">在亿洽产品或服务使用过程中，您可以对亿洽的产品、功能、应用及服务的体验反馈问题，帮助我们更好地了解您使用我们产品或服务的体验和需求，改善我们的产品或服务<span lang="EN-US">,</span>为此我们会记录您的联系信息、反馈的问题或建议，以便我们进一步联系您反馈我们的处理意见。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -252,7 +252,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">比如，基于麦克风的语音技术相关服务：您可在开启麦克风权限后使用麦克风实现在易企聊内的单聊<span lang="EN-US">/</span>群聊中语音输入功能，或与客服联系或与客服机器人实现语音交互。请您知晓，即使您已同意开启麦克风权限，我们也仅会在您主动点击客户端内麦克风图标或录制视频时通过麦克风获取语音信息。您理解并同意，该等服务可能需要您在您的设备中开启麦克风（语音）的访问权限，以实现这些权限所涉及信息的收集和使用。您可在您的客户端<span lang="EN-US">“</span>我的<span lang="EN-US">-</span>设置<span lang="EN-US">-</span>通用或隐私<span lang="EN-US">”</span>中查看上述权限的状态，并可自行决定这些权限随时的开启或关闭。请您注意，您开启任一权限即代表您授权我们可以收集和使用相关个人信息来为您提供对应服务，您一旦关闭任一权限即代表您取消了授权，我们将不再基于对应权限继续收集和使用相关个人信息，也无法为您提供该权限所对应的服务。但是，您关闭权限的决定不会影响此前基于您的授权所进行的信息收集及使用。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">比如，基于麦克风的语音技术相关服务：您可在开启麦克风权限后使用麦克风实现在亿洽内的单聊<span lang="EN-US">/</span>群聊中语音输入功能，或与客服联系或与客服机器人实现语音交互。请您知晓，即使您已同意开启麦克风权限，我们也仅会在您主动点击客户端内麦克风图标或录制视频时通过麦克风获取语音信息。您理解并同意，该等服务可能需要您在您的设备中开启麦克风（语音）的访问权限，以实现这些权限所涉及信息的收集和使用。您可在您的客户端<span lang="EN-US">“</span>我的<span lang="EN-US">-</span>设置<span lang="EN-US">-</span>通用或隐私<span lang="EN-US">”</span>中查看上述权限的状态，并可自行决定这些权限随时的开启或关闭。请您注意，您开启任一权限即代表您授权我们可以收集和使用相关个人信息来为您提供对应服务，您一旦关闭任一权限即代表您取消了授权，我们将不再基于对应权限继续收集和使用相关个人信息，也无法为您提供该权限所对应的服务。但是，您关闭权限的决定不会影响此前基于您的授权所进行的信息收集及使用。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -278,12 +278,12 @@
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
         0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您使用我们提供的包括单人、多人参与、发送语音短信、文字和图片等即时通讯服务、或为实现您的组织的管理要求而使用易企聊相关组织内部展示、组织内部沟通等企业功能服务的。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您使用我们提供的包括单人、多人参与、发送语音短信、文字和图片等即时通讯服务、或为实现您的组织的管理要求而使用亿洽相关组织内部展示、组织内部沟通等企业功能服务的。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
         0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">根据您在软件安装及使用中授予的具体权限，为了基于相关技术信息而提供易企聊产品和服务基本功能、保障实现易企聊产品或服务正常运行所需的技术要求事项。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">根据您在软件安装及使用中授予的具体权限，为了基于相关技术信息而提供亿洽产品和服务基本功能、保障实现亿洽产品或服务正常运行所需的技术要求事项。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
@@ -293,7 +293,7 @@
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
         0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">向您发送必要的产品、服务通知；并在法律法规允许的前提下，向您发送相关的产品推广、介绍或邀请您参与有关易企聊产品、服务的调查。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">向您发送必要的产品、服务通知；并在法律法规允许的前提下，向您发送相关的产品推广、介绍或邀请您参与有关亿洽产品、服务的调查。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
@@ -303,7 +303,7 @@
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
         0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">7、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">保护您、易企聊其他用户、本公司、本公司的关联公司、合作伙伴或公众的人身财产安全免遭侵害；我们可能使用您的个人信息、并整合您使用我们的服务过程中接收并记录的设备信息、日志信息等，来进行身份验证、安全事件的检测及防范、投诉处理、纠纷协调、诈骗监测、客户支持维护服务等，并依法采取必要的记录、审计、分析、处置措施，以更好地预防钓鱼网站、欺诈、网络漏洞、计算机病毒、网络攻击、网络侵入等安全风险，更准确地识别违反适用法律法规或本公司相关协议、规则的情况。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">7、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">保护您、亿洽其他用户、本公司、本公司的关联公司、合作伙伴或公众的人身财产安全免遭侵害；我们可能使用您的个人信息、并整合您使用我们的服务过程中接收并记录的设备信息、日志信息等，来进行身份验证、安全事件的检测及防范、投诉处理、纠纷协调、诈骗监测、客户支持维护服务等，并依法采取必要的记录、审计、分析、处置措施，以更好地预防钓鱼网站、欺诈、网络漏洞、计算机病毒、网络攻击、网络侵入等安全风险，更准确地识别违反适用法律法规或本公司相关协议、规则的情况。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
         auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
@@ -317,7 +317,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">如我们停止运营易企聊产品或服务，我们将及时停止继续收集您个人信息的活动，将停止运营的通知提前<span lang="EN-US">30</span>日以公告的形式通知您，并依照所适用的法律对所持有的您的个人信息进行删除或匿名化处理。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">如我们停止运营亿洽产品或服务，我们将及时停止继续收集您个人信息的活动，将停止运营的通知提前<span lang="EN-US">30</span>日以公告的形式通知您，并依照所适用的法律对所持有的您的个人信息进行删除或匿名化处理。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -332,11 +332,11 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">您使用易企聊产品或服务时，我们使用<span lang="EN-US">Cookie</span>或其他类似技术（以下简称“<span lang="EN-US">Cookie</span>”），以提升您使用易企聊产品或服务的体验。即在您使用易企聊的产品或服务时，我们可能用相关技术向您的设备发送一个或多个<span lang="EN-US">Cookie</span>或匿名标识符，以收集和存储您访问、使用易企聊产品或服务时的信息。借助于<span lang="EN-US">Cookie</span>，在您访问或再次访问易企产品或服务时<span lang="EN-US">,</span>我们能识别您的身份，并通过分析数据为您提供更好的服务。这么做是为了解您的使用习惯，帮您省去重复输入账号信息的步骤，或者帮助判断您的账号安全。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">您使用亿洽产品或服务时，我们使用<span lang="EN-US">Cookie</span>或其他类似技术（以下简称“<span lang="EN-US">Cookie</span>”），以提升您使用亿洽产品或服务的体验。即在您使用亿洽的产品或服务时，我们可能用相关技术向您的设备发送一个或多个<span lang="EN-US">Cookie</span>或匿名标识符，以收集和存储您访问、使用亿洽产品或服务时的信息。借助于<span lang="EN-US">Cookie</span>，在您访问或再次访问易企产品或服务时<span lang="EN-US">,</span>我们能识别您的身份，并通过分析数据为您提供更好的服务。这么做是为了解您的使用习惯，帮您省去重复输入账号信息的步骤，或者帮助判断您的账号安全。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们不会将<span lang="EN-US">Cookie</span>用于本隐私政策所述目的之外的其他用途；您可根据自己的偏好管理或删除<span lang="EN-US">Cookie</span>；大部分网络浏览器自动接受<span lang="EN-US">Cookie</span>，但具体是否接受由您自行决定。如需详细了解如何更改浏览器设置，请访问您使用的浏览器的相关设置页面。您知悉并同意，如果您选择禁用<span lang="EN-US">Cookie</span>，则需要在每一次使用易企聊产品或服务时更改用户设置或者可能导致某些依赖于<span lang="EN-US">Cookie</span>的服务或功能不能使用，由此导致的后果及责任由您自行承担。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">我们不会将<span lang="EN-US">Cookie</span>用于本隐私政策所述目的之外的其他用途；您可根据自己的偏好管理或删除<span lang="EN-US">Cookie</span>；大部分网络浏览器自动接受<span lang="EN-US">Cookie</span>，但具体是否接受由您自行决定。如需详细了解如何更改浏览器设置，请访问您使用的浏览器的相关设置页面。您知悉并同意，如果您选择禁用<span lang="EN-US">Cookie</span>，则需要在每一次使用亿洽产品或服务时更改用户设置或者可能导致某些依赖于<span lang="EN-US">Cookie</span>的服务或功能不能使用，由此导致的后果及责任由您自行承担。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -374,7 +374,7 @@
 
         <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l1 level1 lfo11"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">经您同意，当您使用易企聊账号登录第三方产品或服务时、或将账号与其他第三方账号绑定时，我们会将您的基础信息（姓名、头像）及其他经您授权的信息与该等第三方产品或服务共享。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">经您同意，当您使用亿洽账号登录第三方产品或服务时、或将账号与其他第三方账号绑定时，我们会将您的基础信息（姓名、头像）及其他经您授权的信息与该等第三方产品或服务共享。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -392,7 +392,7 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">与关联公司间共享：我们承诺不在任何非必要的情况下与任何关联公司共享您的个人信息，但为我们基于易企聊账号共同向您提供服务，推荐您可能感兴趣的信息，识别账号异常，保护关联公司或其他用户或公众的人身财产安全免遭侵害，您的个人信息可能会与我们的关联公司共享。我们只会共享必要的个人信息（如为便于您使用易企聊账号使用我们关联公司产品或服务，我们会向关联公司共享您必要的账号信息），如果我们共享您的个人信息涉及敏感信息（包括但不限于身份证号、个人生物识别信息、银行账号、财产信息等）或关联公司改变个人信息的使用及处理目的，将再次征求您的授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">与关联公司间共享：我们承诺不在任何非必要的情况下与任何关联公司共享您的个人信息，但为我们基于亿洽账号共同向您提供服务，推荐您可能感兴趣的信息，识别账号异常，保护关联公司或其他用户或公众的人身财产安全免遭侵害，您的个人信息可能会与我们的关联公司共享。我们只会共享必要的个人信息（如为便于您使用亿洽账号使用我们关联公司产品或服务，我们会向关联公司共享您必要的账号信息），如果我们共享您的个人信息涉及敏感信息（包括但不限于身份证号、个人生物识别信息、银行账号、财产信息等）或关联公司改变个人信息的使用及处理目的，将再次征求您的授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -436,7 +436,7 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo14"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如果我们确定您出现违反法律法规或严重违反易企聊相关协议规则的情况，或为保护本公司及其关联公司、合作伙伴、其他用户或公众的人身财产安全免遭侵害，我们可能依据法律法规或相关协议规则征得您同意的情况下披露关于您的个人信息，包括相关违规行为以及已对您采取的措施。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如果我们确定您出现违反法律法规或严重违反亿洽相关协议规则的情况，或为保护本公司及其关联公司、合作伙伴、其他用户或公众的人身财产安全免遭侵害，我们可能依据法律法规或相关协议规则征得您同意的情况下披露关于您的个人信息，包括相关违规行为以及已对您采取的措施。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -492,7 +492,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们重视您的信息安全，为保障您的信息安全，我们已采取符合业界标准、合理可行的安全防护措施保护您的信息，防止个人信息遭到未经授权访问、公开披露、使用、修改、损坏或丢失。例如，在您的易企聊客户端<span lang="EN-US">APP</span>与服务器之间交换数据时受<span lang="EN-US">SSL</span>协议加密保护；我们同时对官网网页提供<span lang="EN-US">HTTPS</span>协议安全浏览方式；我们会使用加密技术对您的个人信息进行加密保存；我们会使用受信赖的保护机制防止个人信息遭到恶意攻击；我们会部署访问控制机制，限制只有授权人员才可访问个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">我们重视您的信息安全，为保障您的信息安全，我们已采取符合业界标准、合理可行的安全防护措施保护您的信息，防止个人信息遭到未经授权访问、公开披露、使用、修改、损坏或丢失。例如，在您的亿洽客户端<span lang="EN-US">APP</span>与服务器之间交换数据时受<span lang="EN-US">SSL</span>协议加密保护；我们同时对官网网页提供<span lang="EN-US">HTTPS</span>协议安全浏览方式；我们会使用加密技术对您的个人信息进行加密保存；我们会使用受信赖的保护机制防止个人信息遭到恶意攻击；我们会部署访问控制机制，限制只有授权人员才可访问个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -525,7 +525,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">尽管采取了上述合理有效的措施，并已经遵守了相关适用法律规定的标准，但请您理解，互联网并非绝对安全的环境，即使竭尽所能加强安全措施，也不可能保证信息百分之百的安全。因此，请您知悉并理解，您接入我们的服务所用的系统和通讯网络，有可能因我们控制范围外的因素而出现问题。故我们建议您采取积极的措施保护个人信息安全，包括但不限于使用易企聊服务时使用复杂密码、定期修改密码、不将自己的账号密码等个人信息透露给其他人，以协助我们保证您的账号安全。我们将尽合理商业努力保障您发送给我们的任何信息的安全性。如果我们的物理设施或技术防护设施遭到破坏，导致您的个人信息被非授权访问、公开披露、篡改或毁坏，导致您的合法权益受损，我们将按照相关法律规定承担相应的责任。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">尽管采取了上述合理有效的措施，并已经遵守了相关适用法律规定的标准，但请您理解，互联网并非绝对安全的环境，即使竭尽所能加强安全措施，也不可能保证信息百分之百的安全。因此，请您知悉并理解，您接入我们的服务所用的系统和通讯网络，有可能因我们控制范围外的因素而出现问题。故我们建议您采取积极的措施保护个人信息安全，包括但不限于使用亿洽服务时使用复杂密码、定期修改密码、不将自己的账号密码等个人信息透露给其他人，以协助我们保证您的账号安全。我们将尽合理商业努力保障您发送给我们的任何信息的安全性。如果我们的物理设施或技术防护设施遭到破坏，导致您的个人信息被非授权访问、公开披露、篡改或毁坏，导致您的合法权益受损，我们将按照相关法律规定承担相应的责任。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -569,15 +569,15 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">登录易企聊管理后台，通过打开“组织架构<span lang="EN-US">-</span>部门管理<span lang="EN-US">”</span>，管理员用户可查询、更正或补充您的组织信息：包括组织架构，部门划分，各授权成员用户身份等信息。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">登录亿洽管理后台，通过打开“组织架构<span lang="EN-US">-</span>部门管理<span lang="EN-US">”</span>，管理员用户可查询、更正或补充您的组织信息：包括组织架构，部门划分，各授权成员用户身份等信息。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><a name="_Hlk39915012"><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">登录易企聊管理后台，通过打开“组织架构<span lang="EN-US">-</span>用户管理<span lang="EN-US">”</span>，管理员用户可查询、更正或补充授权成员用户的个人资料及相关信息，包括账号、姓名、职位、邮箱、座机、手机等信息。</span></a><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体"><o:p></o:p></span></p>
+        line-height:150%;font-family:宋体">登录亿洽管理后台，通过打开“组织架构<span lang="EN-US">-</span>用户管理<span lang="EN-US">”</span>，管理员用户可查询、更正或补充授权成员用户的个人资料及相关信息，包括账号、姓名、职位、邮箱、座机、手机等信息。</span></a><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体"><o:p></o:p></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">随易企聊管理后台版本更新，操作路径可能与上述介绍不同，请以届时管理后台页面展示为准。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">随亿洽管理后台版本更新，操作路径可能与上述介绍不同，请以届时管理后台页面展示为准。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体">2</span><span style="mso-bidi-font-size:
@@ -589,11 +589,11 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">登录易企聊客户端，点击左上角小标，并在弹出左侧插页点击个人名称，可查询个人资料及个人用户相关信息：头像、姓名、手机、座机、邮箱、部门、职位等信息。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">登录亿洽客户端，点击左上角小标，并在弹出左侧插页点击个人名称，可查询个人资料及个人用户相关信息：头像、姓名、手机、座机、邮箱、部门、职位等信息。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">随易企聊客户端版本更新，操作路径可能与上述介绍不同，请以届时客户端展示为准。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">随亿洽客户端版本更新，操作路径可能与上述介绍不同，请以届时客户端展示为准。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -655,11 +655,11 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l16 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为管理员用户，您可以通过打开管理后台<span lang="EN-US">“</span>系统设置<span lang="EN-US">-</span>企业信息<span lang="EN-US">”</span>页面选择开通或关闭易企聊基础应用、第三方应用。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为管理员用户，您可以通过打开管理后台<span lang="EN-US">“</span>系统设置<span lang="EN-US">-</span>企业信息<span lang="EN-US">”</span>页面选择开通或关闭亿洽基础应用、第三方应用。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l16 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为授权成员用户，您可以登录易企聊移动客户端，通过<span lang="EN-US">“</span>我的<span lang="EN-US">-</span>设置<span lang="EN-US">-</span>隐私<span lang="EN-US">”</span>中设置或改变您的智能移动设备的设置等方式给予或收回您的授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为授权成员用户，您可以登录亿洽移动客户端，通过<span lang="EN-US">“</span>我的<span lang="EN-US">-</span>设置<span lang="EN-US">-</span>隐私<span lang="EN-US">”</span>中设置或改变您的智能移动设备的设置等方式给予或收回您的授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -678,7 +678,7 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l24 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为管理员用户，您的组织的管理员也可以按照如下方式注销其管理员账号：登录易企聊管理后台，通过打开“组织架构<span lang="EN-US">-</span>角色管理<span lang="EN-US">”</span>设置管理员账号为无效状态；或者联系易企聊客服：<span lang="EN-US">[400-8576-886]</span>，寻求帮助，我们将协助您的组织的管理员注销您的组织的管理员账号。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为管理员用户，您的组织的管理员也可以按照如下方式注销其管理员账号：登录亿洽管理后台，通过打开“组织架构<span lang="EN-US">-</span>角色管理<span lang="EN-US">”</span>设置管理员账号为无效状态；或者联系亿洽客服：<span lang="EN-US">[400-8576-886]</span>，寻求帮助，我们将协助您的组织的管理员注销您的组织的管理员账号。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -693,7 +693,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">在某些业务功能中，我们可能仅依据信息系统、算法等在内的非人工自动决策机制做出决定。如果这些决定显著影响您的合法权益，您有权要求我们做出解释，我们也将在不侵害易企聊商业秘密或其他用户权益、社会公共利益的前提下提供申诉方法。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">在某些业务功能中，我们可能仅依据信息系统、算法等在内的非人工自动决策机制做出决定。如果这些决定显著影响您的合法权益，您有权要求我们做出解释，我们也将在不侵害亿洽商业秘密或其他用户权益、社会公共利益的前提下提供申诉方法。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -704,7 +704,7 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为保障安全，您可能需要提供书面请求，或以其他方式证明您的身份。我们可能会先要求您验证自己的身份，然后再处理您的请求。我们将在<span lang="EN-US">30</span>日内做出答复。如您不满意，还可以通过易企聊客服或本隐私政策提供的联系方式发起投诉。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为保障安全，您可能需要提供书面请求，或以其他方式证明您的身份。我们可能会先要求您验证自己的身份，然后再处理您的请求。我们将在<span lang="EN-US">30</span>日内做出答复。如您不满意，还可以通过亿洽客服或本隐私政策提供的联系方式发起投诉。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -736,7 +736,7 @@
 
         <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">6)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">涉及本公司和<span lang="EN-US">/</span>或易企聊企业<span lang="EN-US">/</span>机构用户商业秘密的。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">6)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">涉及本公司和<span lang="EN-US">/</span>或亿洽企业<span lang="EN-US">/</span>机构用户商业秘密的。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
         10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
@@ -750,7 +750,7 @@
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们将在中华人民共和国境内运营易企聊产品或服务中收集和产生的个人信息存储在中华人民共和国境内。为避免歧义，这里不包括香港特别行政区、澳门特别行政区及台湾地区。<span lang="EN-US"><o:p></o:p></span></span></p>
+        font-family:宋体">我们将在中华人民共和国境内运营亿洽产品或服务中收集和产生的个人信息存储在中华人民共和国境内。为避免歧义，这里不包括香港特别行政区、澳门特别行政区及台湾地区。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
         line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
@@ -768,7 +768,7 @@
 
         <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们的隐私政策可能会适时修订，该等修订于我们在易企聊客户端页面上发布后生效，并取代修订前的版本或构成本隐私政策的一部分。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们的隐私政策可能会适时修订，该等修订于我们在亿洽客户端页面上发布后生效，并取代修订前的版本或构成本隐私政策的一部分。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
@@ -800,7 +800,7 @@
 
         <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(三)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">修订后的隐私政策在易企聊客户端上发布后，若您继续使用我们的服务，即表示同意受修订后的隐私政策的约束。<span lang="EN-US"><o:p></o:p></span></span></p>
+        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(三)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">修订后的隐私政策在亿洽客户端上发布后，若您继续使用我们的服务，即表示同意受修订后的隐私政策的约束。<span lang="EN-US"><o:p></o:p></span></span></p>
 
         <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
         mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;

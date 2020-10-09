@@ -25,15 +25,6 @@ let mainConfig = {
       {
         test: /\.node$/,
         use: 'node-loader'
-      },
-      {
-        test: /\.wasm$/,
-        loader: "file-loader",
-        type: "javascript/auto", // https://github.com/webpack/webpack/issues/6725
-        options: {
-            name: '[name].[hash:7].[ext]',
-            outputPath: '.',
-        },
       }
     ]
   },
