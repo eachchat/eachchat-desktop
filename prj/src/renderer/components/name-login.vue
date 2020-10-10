@@ -1,5 +1,5 @@
 <template>
-    <div class="login">
+    <div class="login" data-vector-indexeddb-worker-script="../../packages/data/IndexeddbWorker.js">
         <!-- <div class="welcome-panel" v-if="isCheckToken()">
             <p class="welcome-zh-line1">您好，</p><p class="welcome-zh-line2">欢迎使用易企聊!</p>
             <p class="welcome-en">Hello, welcome to user EachChat!</p>
@@ -182,6 +182,7 @@
 <script>
 import os from 'os';
 import {ipcRenderer} from 'electron'
+import {MatrixClientPeg} from '../../packages/data/MatrixClientPeg.js'
 import {services} from '../../packages/data/index.js'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
@@ -586,6 +587,7 @@ export default {
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
+        MatrixClientPeg.CreateClient('https://matrix.each.chat');
         await services.common.init();
         setTimeout(() => {  
             this.$nextTick(async () => {

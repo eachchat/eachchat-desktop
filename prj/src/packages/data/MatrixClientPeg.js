@@ -49,6 +49,7 @@ class _MatrixClientPeg{
     CreateClient(homeserve){
         this.homeserve = homeserve;
         this.registrationClient = matrixcs.createClient(homeserve);
+        console.log(this.registrationClient)
     }
 
     createMatrixClient(opts) {
