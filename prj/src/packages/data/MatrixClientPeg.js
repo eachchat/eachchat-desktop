@@ -97,6 +97,82 @@ class _MatrixClientPeg{
             return false;
         return true;
     }
+
+    extendMatrixClient() {
+        let datathis = this;
+        let matrixClient = this.matrixClient
+      // automatic join
+        matrixClient.on('RoomMember.membership', async (event, member) => {
+          if (member.membership === 'invite' && member.userId === matrixClient.getUserId()) {
+            console.log("join room:" + member.roomId);
+            await matrixClient.joinRoom(member.roomId)
+            // setting up of room encryption seems to be triggered automatically
+            // but if we don't wait for it the first messages we send are unencrypted
+            await matrixClient.setRoomEncryption(member.roomId, { algorithm: 'm.megolm.v1.aes-sha2' })
+          }
+        })
+  
+        matrixClient.onDecryptedMessage = message => {
+          //datathis.recvEncyptoMessage += message + '\n';
+          console.log('Got encrypted message: ', message)
+        }
+  
+        matrixClient.on('Event.decrypted', (event) => {
+          if (event.getType() === 'm.room.message') {
+            matrixClient.onDecryptedMessage(event.getContent().body)
+          } else {
+            console.log('decrypted an event of type', event.getType())
+            console.log(event)
+          }
+        })
+  
+        matrixClient.createEncryptedRoom = async function (usersToInvite) {
+          const {
+            room_id: roomId
+          } = await this.createRoom({
+            visibility: 'private',
+            invite: usersToInvite
+          })
+  
+          // matrixClient.setRoomEncryption() only updates local state
+          // but does not send anything to the server
+          // (see https://github.com/matrix-org/matrix-js-sdk/issues/905)
+          // so we do it ourselves with 'sendStateEvent'
+          await this.sendStateEvent(
+            roomId, 'm.room.encryption', ROOM_CRYPTO_CONFIG
+          )
+          await this.setRoomEncryption(
+            roomId, ROOM_CRYPTO_CONFIG
+          )
+  
+          // Marking all devices as verified
+          let room = this.getRoom(roomId)
+          let members = (await room.getEncryptionTargetMembers()).map(x => x['userId'])
+          let memberkeys = await this.downloadKeys(members)
+          for (const userId in memberkeys) {
+            for (const deviceId in memberkeys[userId]) {
+              await this.setDeviceVerified(userId, deviceId)
+            }
+          }
+  
+          return roomId
+        }
+  
+        matrixClient.sendTextMessage = async function (message, roomId) {
+          return matrixClient.sendMessage(
+            roomId,
+            {
+              body: message,
+              msgtype: 'm.text'
+            }
+          )
+        }
+  
+        matrixClient.on('Room.timeline', function (event, room, toStartOfTimeline) {
+          //datathis.recvMessage += event.event.content.body + "\n"
+          console.log(event.event.content.body)
+        })
+    }
 }
 
 if (!window.mxMatrixClientPeg) {
