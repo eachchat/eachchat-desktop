@@ -107,6 +107,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     webPreferences: {
       webSecurity:false,
       nodeIntegration:true,
+      enableRemoteModule: true
     },
     frame:false,
     icon: path.join(__dirname, iconPath)
@@ -190,6 +191,7 @@ ipcMain.on("token-expired", function(event, arg) {
       webPreferences: {
         webSecurity:false,
         nodeIntegration:true,
+        enableRemoteModule: true
       }
     })
     mainWindow.hide();
@@ -219,6 +221,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     webPreferences: {
       webSecurity:false,
       nodeIntegration:true,
+      enableRemoteModule: true
     },
     icon: path.join(__dirname, iconPath)
   })
@@ -275,6 +278,7 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     webPreferences: {
       webSecurity:false,
       nodeIntegration:true,
+      enableRemoteModule: true
     },
     frame:true,
     title:title
@@ -336,6 +340,7 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
       webPreferences: {
         webSecurity:false,
         nodeIntegration:true,
+        enableRemoteModule: true
       },
       //frame:false,
       title:"收藏详情"
@@ -369,6 +374,7 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
     webPreferences: {
       webSecurity:false,
       nodeIntegration:true,
+      enableRemoteModule: true
     },
     //frame:false,
     title:"汇报关系"
@@ -987,7 +993,8 @@ function createWindow () {
      */
     webPreferences: {
       webSecurity:false,
-      nodeIntegration:true
+      nodeIntegration:true,
+      enableRemoteModule: true
     },
     icon: path.join(__dirname, iconPath)
   })
