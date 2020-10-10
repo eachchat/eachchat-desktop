@@ -60,14 +60,8 @@ if(!singleInstanceLock) {
 else {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
       try{
-        if(isLogin) {
-          mainPageWindow.show();
-          mainPageWindow.focus();
-        }
-        else {
-          mainWindow.show();
-          mainWindow.focus();
-        }
+        mainWindow.show();
+        mainWindow.focus();
         return true;
       }
       catch(error) {
@@ -98,31 +92,17 @@ const winURL = process.env.NODE_ENV === 'development'
 
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
-  mainPageWindow = new BrowserWindow({
-    minHeight:600,
-    minWidth:960,
-    height: 600,
-    useContentSize: true,
-    width:960,
-    webPreferences: {
-      webSecurity:false,
-      nodeIntegration:true,
-      enableRemoteModule: true
-    },
-    frame:false,
-    icon: path.join(__dirname, iconPath)
-  })
   isLogin = true;
   const mainPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/main`
   : `file://${__dirname}/index.html#main`
-  mainPageWindow.hide();
-  mainPageWindow.loadURL(mainPageWinURL);
-  //mainPageWindow.webContents.on('did-finish-load', function(){
-    mainWindow.close();
-    mainPageWindow.show();
-  //});
-  openDevToolsInDevelopment(mainPageWindow);
+  mainWindow.hide();
+  mainWindow.setSize(960, 600)
+  mainWindow.loadURL(mainPageWinURL);
+  mainWindow.webContents.on('did-finish-load', function(){
+    mainWindow.show();
+  });
+  openDevToolsInDevelopment(mainWindow);
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));
 
@@ -167,7 +147,7 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
       app.dock.setBadge(arg.toString());
     }
   }
-  mainPageWindow.webContents.send("setUnreadCount", arg);
+  mainWindow.webContents.send("setUnreadCount", arg);
 })
 
 ipcMain.on("token-expired", function(event, arg) {
@@ -179,23 +159,8 @@ ipcMain.on("token-expired", function(event, arg) {
     // services.common.closemqtt();
     Menu.setApplicationMenu(null)
     queue.destory();
-    mainWindow = new BrowserWindow({
-      height: 420,
-      useContentSize: true,
-      width: 360,
-      frame: false,
-      resizable: resizableValue,
-      /**
-       * Across Domains Problem
-       */
-      webPreferences: {
-        webSecurity:false,
-        nodeIntegration:true,
-        enableRemoteModule: true
-      }
-    })
     mainWindow.hide();
-    mainPageWindow.close();
+    mainWindow.setSize(360, 420)
     appIcon.destroy();
     mainWindow.loadURL(winURL);
     openDevToolsInDevelopment(mainWindow);
@@ -209,24 +174,8 @@ ipcMain.on("token-expired", function(event, arg) {
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   Menu.setApplicationMenu(null)
-  mainWindow = new BrowserWindow({
-    height: 420,
-    useContentSize: true,
-    width: 360,
-    frame: false,
-    resizable: resizableValue,
-    /**
-     * Across Domains Problem
-     */
-    webPreferences: {
-      webSecurity:false,
-      nodeIntegration:true,
-      enableRemoteModule: true
-    },
-    icon: path.join(__dirname, iconPath)
-  })
   mainWindow.hide();
-  mainPageWindow.close();
+  mainWindow.setSize(360, 420)
   appIcon.destroy();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
@@ -305,23 +254,23 @@ ipcMain.on('searchAddedSenders', function(event, selectedSenderIds) {
 })
 
 ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
-  mainPageWindow.webContents.send("SearchAddSenders", selectedSenderIds);
-  mainPageWindow.focus();
+  mainWindow.webContents.send("SearchAddSenders", selectedSenderIds);
+  mainWindow.focus();
 })
 
 ipcMain.on("SearchAddGroup", function(event, selectedGroupIds) {
-  mainPageWindow.webContents.send("SearchAddGroup", selectedGroupIds);
-  mainPageWindow.focus();
+  mainWindow.webContents.send("SearchAddGroup", selectedGroupIds);
+  mainWindow.focus();
 })
 
 ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
   console.log("=============== ", transmitInfoStr);
-  mainPageWindow.webContents.send("transmitFromSoloDlg", transmitInfoStr);
-  mainPageWindow.focus();
+  mainWindow.webContents.send("transmitFromSoloDlg", transmitInfoStr);
+  mainWindow.focus();
 })
 
 ipcMain.on("favourite-update-chatlist", function(event, newMsgInfo) {
-  mainPageWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
+  mainWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
 })
 
 ipcMain.on('AnotherClose', function(event, arg) {
@@ -395,7 +344,7 @@ ipcMain.on("showNotice", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
   if(process.platform == 'darwin'){
-    if(!mainPageWindow.isFocused()) {
+    if(!mainWindow.isFocused()) {
       if(notification != null) {
         notification.close();
       }
@@ -410,7 +359,7 @@ ipcMain.on("showNotice", (event, title, contnet) => {
         notification.close();
       }, 2000)
       notification.on("click", () => {
-        mainPageWindow.show();
+        mainWindow.show();
       })
     }
   }
@@ -426,8 +375,8 @@ ipcMain.on("stopFlash", (event) => {
 ipcMain.on("flashIcon", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
-  if(!mainPageWindow.isFocused()) {
-    mainPageWindow.flashFrame(true);
+  if(!mainWindow.isFocused()) {
+    mainWindow.flashFrame(true);
   }
   
   clearFlashIconTimer();
@@ -441,7 +390,7 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
     }
   }, 500);
   if(process.platform == 'darwin'){
-    if(!mainPageWindow.isFocused()) {
+    if(!mainWindow.isFocused()) {
       if(notification != null) {
         notification.close();
       }
@@ -456,7 +405,7 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
         notification.close();
       }, 2000)
       notification.on("click", () => {
-        mainPageWindow.show();
+        mainWindow.show();
       })
     }
   }
@@ -483,7 +432,7 @@ function downloadExist(distTemp) {
 }
 
 function showMain() {
-  mainPageWindow.show();
+  mainWindow.show();
 
   clearFlashIconTimer();
   appIcon.setImage(path.join(__dirname, iconPath));
@@ -901,14 +850,14 @@ ipcMain.on("download-mgs-oimage", function(event, arg) {
 });
 
 ipcMain.on('open-directory-dialog', function(event, arg) {
-  dialog.showOpenDialog(mainPageWindow,{
+  dialog.showOpenDialog(mainWindow,{
     properties: [arg, 'multiSelections']
   },function(files) {
     event.sender.send('selectedItem', files);
   })
 });
 ipcMain.on('open-image-dialog', function(event, arg) {
-  dialog.showOpenDialog({
+  dialog.showOpenDialog(mainWindow,{
     properties: [arg, ],
     filters: [
       { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
@@ -937,19 +886,19 @@ ipcMain.on('modifyGroupImg', function(event, arg) {
 });
 
 ipcMain.on('win-close', function(event, arg) {
-  mainPageWindow.hide();
+  mainWindow.hide();
 });
 
 ipcMain.on('win-min', function(event, arg) {
-  mainPageWindow.minimize();
+  mainWindow.minimize();
 });
 
 ipcMain.on('win-max', function(event, arg) {
-  if(mainPageWindow.isMaximized()) {
-    mainPageWindow.unmaximize();
+  if(mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
   }
   else {
-    mainPageWindow.maximize();
+    mainWindow.maximize();
   }
 });
 ipcMain.on('login-win-close', function(event, arg) {
@@ -966,7 +915,7 @@ ipcMain.on('login-win-min', function(event, arg) {
 });
 
 ipcMain.on('login-win-max', function(event, arg) {
-  if(mainPageWindow.isMaximized()) {
+  if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();
   }
   else {
@@ -1007,8 +956,8 @@ function createWindow () {
   });
   
   if(process.platform == 'darwin') {
-    if(mainPageWindow != undefined && mainPageWindow.isFocused()) {
-        let content = mainPageWindow.webContents;
+    if(mainWindow != undefined && mainWindow.isFocused()) {
+        let content = mainWindow.webContents;
         globalShortcut.register('CommandOrControl+V', () => {
           content.paste();
         })
@@ -1020,9 +969,6 @@ function createWindow () {
 ipcMain.on("openDevTools", function(event) {
   if(mainWindow != null && !mainWindow.isDestroyed()) {
     mainWindow.webContents.openDevTools();
-  }
-  if(mainPageWindow != null && !mainPageWindow.isDestroyed()) {
-    mainPageWindow.webContents.openDevTools();
   }
   if(soloPage != null && !soloPage.isDestroyed()) {
     soloPage.webContents.openDevTools();
@@ -1058,7 +1004,7 @@ app.on('window-all-closed', () => {
 
 app.on('browser-window-blur', () => {
   if(process.platform == 'darwin') {
-    if(mainPageWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
+    if(mainWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
       globalShortcut.unregister('CommandOrControl+V');
     }
   }
@@ -1066,10 +1012,10 @@ app.on('browser-window-blur', () => {
 
 app.on('browser-window-focus', () => {
   if(isLogin) {
-    mainPageWindow.webContents.send("setFocuse");
+    mainWindow.webContents.send("setFocuse");
     if(process.platform == 'darwin') {
-      if(mainPageWindow != undefined) {
-          let content = mainPageWindow.webContents;
+      if(mainWindow != undefined) {
+          let content = mainWindow.webContents;
           globalShortcut.register('CommandOrControl+V', () => {
             content.paste();
           })
@@ -1081,8 +1027,8 @@ app.on('browser-window-focus', () => {
 
 app.on('activate', () => {
   if(isLogin) {
-    mainPageWindow.show();
-    mainPageWindow.webContents.send("setFocuse");
+    mainWindow.show();
+    mainWindow.webContents.send("setFocuse");
   }
   else {
     if (mainWindow === null) {
