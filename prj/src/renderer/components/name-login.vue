@@ -576,7 +576,8 @@ export default {
             this.showLoadingView = true;
             this.tokenRefreshing = true;
             setTimeout(async () => {
-                ipcRenderer.send('showMainPageWindow', true); 
+                // ipcRenderer.send('showMainPageWindow', true); 
+                this.$router.push("/main")
             }, 1000);
         }
     },
