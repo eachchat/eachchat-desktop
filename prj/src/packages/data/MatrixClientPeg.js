@@ -52,7 +52,7 @@ class _MatrixClientPeg{
         console.log(this.registrationClient)
     }
 
-    createMatrixClient(opts) {
+    _CreateMatrixClient(opts) {
         let indexedDB = window.indexedDB;
         let localStorage = window.localStorage;
         const storeOpts = {
@@ -92,10 +92,11 @@ class _MatrixClientPeg{
                 accessToken: userLoginResult.access_token,
                 deviceId: userLoginResult.device_id,
               }
-        this.matrixClient = this.createMatrixClient(ops)
-        if(this.matrixClient == undefined)
-            return false;
-        return true;
+        this.matrixClient = this._CreateMatrixClient(ops);
+        await this.matrixClient.initCrypto();
+        await this.matrixClient.startClient();
+        await this.matrixClient.store.startup();
+        return this.matrixClient;
     }
 
     extendMatrixClient() {
