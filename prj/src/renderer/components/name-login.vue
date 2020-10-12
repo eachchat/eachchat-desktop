@@ -554,10 +554,9 @@ export default {
                     desktopType: version
                 }
             }
-            let oldLoginModel = await services.common.GetGlobalLogin();
-            let response = await services.common.login(config);
+            
+            let response = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
             console.log(response);
-            var ret_data = response;
             if(response != true){
                 var msg = ret_data["message"];
                 var code = ret_data["code"];
@@ -576,8 +575,6 @@ export default {
             this.showLoginView = false;
             this.showLoadingView = true;
             this.tokenRefreshing = true;
-            await services.common.UpdateGroups();
-            await services.common.UpdateSecretGroups();
             setTimeout(async () => {
                 ipcRenderer.send('showMainPageWindow', true); 
             }, 1000);
@@ -587,7 +584,7 @@ export default {
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
-        MatrixClientPeg.CreateClient('https://matrix.each.chat');
+        global.mxMatrixClientPeg.CreateClient('https://matrix.each.chat');
         await services.common.init();
         setTimeout(() => {  
             this.$nextTick(async () => {
