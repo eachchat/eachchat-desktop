@@ -93,9 +93,9 @@ class _MatrixClientPeg{
                 deviceId: userLoginResult.device_id,
               }
         this.matrixClient = this._CreateMatrixClient(ops);
-        this.matrixClient.initCrypto();
-        this.matrixClient.startClient();
-        this.matrixClient.store.startup();
+        await this.matrixClient.initCrypto();
+        await this.matrixClient.startClient();
+        await this.matrixClient.store.startup();
         return this.matrixClient;
     }
 
