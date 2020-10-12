@@ -384,6 +384,7 @@ export default {
     },
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
+        console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
         await this.getAppBaseData();
         this.startCheckUpgrade();
         this.startRefreshToken();
