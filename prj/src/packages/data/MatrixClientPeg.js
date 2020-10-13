@@ -94,7 +94,7 @@ class _MatrixClientPeg{
               }
         this.matrixClient = this._CreateMatrixClient(ops);
         await this.matrixClient.initCrypto();
-        await this.matrixClient.startClient();
+        //await this.matrixClient.startClient();
         await this.matrixClient.store.startup();
         return this.matrixClient;
     }

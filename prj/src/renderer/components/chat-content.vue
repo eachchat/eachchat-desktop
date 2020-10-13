@@ -332,7 +332,8 @@ export default {
       groupListElement: null,      //dom
       newMsg: {},      //转发之类的消息信息
       mqttGroupVar: [],      //一些不完整的group的临时存储
-      searchId: 0,      //复合搜索
+      searchId: 0,      //复合搜索,
+      matrixClient: undefined
     };
   },
   methods: {
@@ -1279,43 +1280,7 @@ export default {
       }
     },
     getShowGroupName(chatGroupItem) {
-
-      async function getUserNameFromDb(distUid) {
-        var nameTemp = '';
-        var userInfos = await services.common.GetDistUserinfo(distUid);
-        if(userInfos.length == 0) {
-          return nameTemp;
-        }
-        var distUserInfo = userInfos[0];
-        if(distUserInfo != undefined){
-          nameTemp = distUserInfo.user_display_name;
-        }
-        return nameTemp;
-      }
-
-      if(chatGroupItem === null){
-        return "";
-      }
-      var groupName = chatGroupItem.group_name;
-      if(groupName != undefined && groupName.length == 0) {
-        var aboutUids = chatGroupItem.contain_user_ids.split(",");
-        var groupUidNameList = [];
-        for(var i=0;i<aboutUids.length;i++) {
-          var userName = getUserNameFromDb(aboutUids[i]);
-          userName.then((ret) => {
-            if(ret.length != 0){
-              // let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
-              groupName = groupName + "," + ret;
-              // groupUidNameList.unshift(ret);
-            }
-          })
-          if(i > 3) {
-            break;
-          }
-        }
-        groupName = groupUidNameList.toString();
-      }
-      return groupName
+      return chatGroupItem.name;
     },
     getShowMsgContent(chatGroupItem) {
       // console.log("getShowMsgContent is ", chatGroupItem)
@@ -1444,8 +1409,9 @@ export default {
       this.curChat.un_read_count = 0;
     },
     getGroupList: async function(updateCurPage=false) {
-        var ret = await services.common.GetAllGroups()
-        console.log("sql getGroupList is ", ret)
+        //var ret = await services.common.GetAllGroups()
+        
+        /*
         for(let i=0;i<ret.length;i++) {
           if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
             continue;
@@ -1458,6 +1424,7 @@ export default {
             this.unreadCount = this.unreadCount + ret[i].un_read_count;
           }
         }
+        */
         // this.originalGroupList = ret;
         // console.log("length is ", ret)
         // if(updateCurPage){
@@ -1469,7 +1436,9 @@ export default {
         // }
     },
     updateGroupList: async function() {
-        var ret = await services.common.GetAllGroups()
+        let matrixClient = global.mxMatrixClientPeg;
+        console.clear();
+        var ret = matrixClient.getRooms();
         console.log("updateGroupList sql getGroupList is ", ret)
         for(let i=0;i<ret.length;i++) {
           if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
@@ -1874,32 +1843,48 @@ export default {
     }
   },
   mounted: async function() {
-    await services.common.init();
+    this.matrixClient = window.mxMatrixClientPeg.matrixClient;
+    if(!window.mxMatrixClientPeg.matrixClient)
+    {
+      await window.mxMatrixClientPeg.CreateClient('https://matrix.each.chat');
+      this.matrixClient = await window.mxMatrixClientPeg.LoginWithPassword("chengfang.ai", "cf87420323")
+    }
+    this.matrixClient.on("sync", (state, prevState, data)=>{
+          switch(state){
+            case "PREPARED":
+              console.clear();
+              this.originalGroupList = this.matrixClient.getRooms();
+              break;
+            default:
+              break;
+          }
+        });
+    this.matrixClient.startClient()
     console.log("chat content mounted");
       // When Mounting Can Not Get The Element. Here Need SetTimeout
-      await this.getGroupList(false);
-      console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
-      // for(let i=0;i<this.originalGroupList.length;i++) {
-      //   if(this.originalGroupList[i].group_name == "武汉测试") {
-      //     console.log("this.originalkjflkajlsdjfl;j  ", this.originalGroupList[i]);
-      //   }
-      //   this.unreadCount += this.originalGroupList[i].un_read_count;
-      // }
-      if(this.unreadCount < 0) {
-        this.unreadCount = 0;
-      }
-      ipcRenderer.send("updateUnreadCount", this.unreadCount);
-      setTimeout(() => {
-          this.$nextTick(() => {
-            ipcRenderer.on('updateGroupImg', this.updateGroupImg);
-            this.showGroupIcon();
-          })
-      }, 0)
-      
-      ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
-      ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
-      ipcRenderer.on('updateGroupList', this.updateGroupList)
-      ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
+    await this.getGroupList(false);
+    console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
+    // for(let i=0;i<this.originalGroupList.length;i++) {
+    //   if(this.originalGroupList[i].group_name == "武汉测试") {
+    //     console.log("this.originalkjflkajlsdjfl;j  ", this.originalGroupList[i]);
+    //   }
+    //   this.unreadCount += this.originalGroupList[i].un_read_count;
+    // }
+    if(this.unreadCount < 0) {
+      this.unreadCount = 0;
+    }
+    ipcRenderer.send("updateUnreadCount", this.unreadCount);
+    setTimeout(() => {
+        this.$nextTick(() => {
+          ipcRenderer.on('updateGroupImg', this.updateGroupImg);
+          this.showGroupIcon();
+        })
+    }, 0)
+    
+    ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
+    ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
+    ipcRenderer.on('updateGroupList', this.updateGroupList)
+    ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
     await services.common.init();
