@@ -2036,7 +2036,7 @@ export default {
             }
         },
 
-        SendTextMessage: function(curMsgItem, varcontent){
+        SendText: function(curMsgItem, varcontent){
             // Text
             // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
             curMsgItem = sliceReturnsOfString(curMsgItem);
@@ -2093,7 +2093,14 @@ export default {
                 this.$emit('updateChatList', ret);
             });
         },
-    
+
+        SendFile : function(){
+
+        },
+
+        SendImage : function () {
+            
+        },
 
         sendMsg: async function() {
             // console.log("this.chat is ", this.chat);
@@ -2540,7 +2547,7 @@ export default {
                     }
                 }
                 else{
-                    this.SendTextMessage(curMsgItem, varcontent)
+                    this.SendText(curMsgItem, varcontent)
                 }
             }
         },
