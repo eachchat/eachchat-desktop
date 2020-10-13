@@ -189,6 +189,7 @@ export default {
             // };
             // services.common.init(config);
             // Set accessToken in services
+/*
             await services.common.init();
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
@@ -198,6 +199,7 @@ export default {
             confservice.init(this.curUserInfo.id);
             this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
+*/
             this.$router.push("/main/ChatContent");
             
             this.curindex = 0;
@@ -363,9 +365,8 @@ export default {
         UpdateAlertDlg,
     },
     mounted: async function() {
-        await services.common.init();
-        this.selfUserInfo = await services.common.GetSelfUserModel();
-        //await services.common.AllUserinfo();
+        //await services.common.init();
+        //this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
             // this.showCurUserIcon();
         }) 
