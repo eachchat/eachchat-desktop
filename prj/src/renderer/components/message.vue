@@ -139,10 +139,10 @@ export default {
             this.$emit("openUserInfoTip", tipInfos);
         },
         msgNameId: function() {
-            return this.msg.message_id + "-username";
+            return this.msg.event.event_id + "-username";
         },
         getUserIconId: function() {
-            return this.msg.message_id + "-usericon"
+            return this.msg.event.event_id + "-usericon"
         },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
@@ -282,19 +282,18 @@ export default {
             this.messageContent = '';
             this.transmitMsgTitle = '';
             this.transmitMsgContent = '';
-            let chatGroupMsgType = this.msg.message_type;
-            var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
+            let event = this.msg.event;
+            let chatGroupMsgType = event.type;
+            var chatGroupMsgContent = event.content;
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
-            if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
+            if(chatGroupMsgType === "m.room.message")
             {
-                this.messageContent = sliceReturnsOfString(chatGroupMsgContent.text);
+                this.messageContent = chatGroupMsgContent.body;
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
                 }
-                // console.log("this.messageContent is ", this.messageContent)
-                // textMsgImgElement.innerHTML = this.messageContent;
             }
             else if(chatGroupMsgType === 102)
             {
@@ -376,22 +375,13 @@ export default {
                     }, 200);
                 }
             }
-            else if(chatGroupMsgType === 104)
+            else if(chatGroupMsgType === "m.room.member")
             {
-                if(chatGroupMsgContent.type === "invitation")
+                if(chatGroupMsgContent.membership === 'invite')
                 {
-                    var invitees = chatGroupMsgContent.userInfos;
-                    var inviteeNames = "";
-                    if(invitees.length == 1){
-                        inviteeNames = invitees[0].userName
-                    }
-                    else{
-                        for(var i=0;i<invitees.length;i++) {
-                            inviteeNames = inviteeNames + "," + invitees[i].userName
-                        }
-                    }
-                    var inviter = chatGroupMsgContent.userName;
-                    return inviter + " 邀请 " + inviteeNames + " 加入群聊";
+                    var invitees = chatGroupMsgContent.displayname;
+                    var inviter = event.sender;
+                    return inviter + " 邀请 " + invitees + " 加入群聊";
                 }
                 else if(chatGroupMsgContent.type === "notice")
                 {
@@ -512,7 +502,7 @@ export default {
             var userNameElement = document.getElementById(userNameElementId);
 
             var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
-            var fromUserName = fromUserInfo == undefined ? "" : fromUserInfo.user_display_name;
+            var fromUserName = this.msg.sender.name;
 
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;

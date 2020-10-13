@@ -2974,120 +2974,21 @@ export default {
             }
         },
         getHistoryMessage: function() {
-            // console.log("this chat is ", this.chat);
-            // console.log("this groupid is ", this.chat.group_id);
-            // console.log("this sequence_id is ", this.chat.sequence_id);
-            // console.log("this.router is ", this.$route.name)
-            // services.common.historyMessage(this.chat.group_id, this.chat.sequence_id, 20)
-            services.common.ListAllMessage(this.chat.group_id, this.chat.sequence_id)
-                .then(async (ret) => {
-                    console.log("oririnal ret is ", ret);
-                    var retBefore = ret.before;
-                    var retAfter = ret.after;
-                    if(retBefore == undefined || retBefore.length == 0) {
-                        this.needScrollTop = false;
-                        this.messageList = [];
-                        this.isRefreshing = false;
-                        return;
-                    }
-                    if(retBefore[0].group_id != this.chat.group_id) {
-                        this.isRefreshing = false;
-                        return;
-                    }
-                    this.needScrollTop = true;
-                    if(retBefore.length < 20) {
-                        this.needScrollTop = false;
-                    }
-                    var messageListTmp = retBefore.sort(this.compareMsg());
-                    this.messageList = [];
-                    for(var i=0;i<messageListTmp.length;i++){
-                        // console.log("this.chat.sequence_id is ", this.chat.sequence_id);
-                        // var chatGroupMsgContent = strMsgContentToJson(messageListTmp[i].message_content);
-                        // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
-                        // console.log("getHistoryMessage messageListTmp [i] is ", messageListTmp[i].sequence_id);
-                        if(this.existingMsgId.indexOf(messageListTmp.message_id) == -1) {
-                            this.messageList.unshift(messageListTmp[i]);
-                            this.existingMsgId.push(messageListTmp[i].message_id);
-                        }
-                    }
-                    if(this.chat.message_content != null){
-                        console.log("this.chat.message_content is ", this.chat.message_content)
-                        let messagesFromDB = await Message.FindMessageBySequenceID(this.chat.sequence_id);
-                        let messageFromGroup = {};
-                        messageFromGroup = messagesFromDB[0];
-                        if(messageFromGroup == undefined) {
-                            // console.log("this.chat.message_content is ", this.chat.message_content)
-                            let messageFromGroup = {};
-                            messageFromGroup.message_type = this.chat.message_content_type;
-                            messageFromGroup.message_content = this.chat.message_content;
-                            messageFromGroup.message_from_id = this.chat.message_from_id;
-                            messageFromGroup.message_timestamp = this.chat.last_message_time;
-                            messageFromGroup.sequence_id = this.chat.sequence_id;
-                            messageFromGroup.message_id = this.chat.message_id;
-                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
-                                this.messageList.unshift(messageFromGroup);
-                                this.existingMsgId.push(messageFromGroup.message_id);
-                            }
-                        }
-                        else {
-                            console.log("message from group is ", messageFromGroup)
-                            if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
-                                // console.log("========push mes ")
-                                this.messageList.push(messageFromGroup);
-                                this.existingMsgId.push(messageFromGroup.message_id);
-                            }
-                        }
-                    }
-                    this.$nextTick(() => {
-                        this.needToBottom = true;
-                        
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            div.scrollTop = div.scrollHeight - div.clientHeight;
-                            // The left msg get through scroll event
-                            div.addEventListener('scroll', this.handleScroll);
-                            // div.addEventListener('onresize', this.checkResize);
-                            this.showScrollBar();
-                        }
-                        this.isRefreshing = false;
-                        
-                    })
-                    // console.log("this.messageList is ", this.messageList);
-                    
-                    // console.log("this.messageList is ", this.messageList);
-                    // if(messageListTmp.length !=0){
-                    //     if(messageListTmp[0].sequence_id != this.chat.sequence_id){
-                    //         let messageFromGroup = {};
-                    //         messageFromGroup.message_type = this.chat.message_content_type;
-                    //         messageFromGroup.message_content = this.chat.message_content;
-                    //         messageFromGroup.message_from_id = this.chat.message_from_id;
-                    //         messageFromGroup.message_timestamp = this.chat.last_message_time;
-                    //         messageFromGroup.sequence_id = this.chat.sequence_id;
-                    //         messageFromGroup.message_id = this.chat.message_id;
-                    //         if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
-                    //             this.messageList.unshift(messageFromGroup);
-                    //             this.existingMsgId.push(messageFromGroup.message_id);
-                    //         }
-                    //     }
-                    // }
-                    // else{
-                    //     if(this.chat.message_content != null){
-                    //         // console.log("this.chat.message_content is ", this.chat.message_content)
-                    //         let messageFromGroup = {};
-                    //         messageFromGroup.message_type = this.chat.message_content_type;
-                    //         messageFromGroup.message_content = this.chat.message_content;
-                    //         messageFromGroup.message_from_id = this.chat.message_from_id;
-                    //         messageFromGroup.message_timestamp = this.chat.last_message_time;
-                    //         messageFromGroup.sequence_id = this.chat.sequence_id;
-                    //         messageFromGroup.message_id = this.chat.message_id;
-                    //         if(this.existingMsgId.indexOf(messageFromGroup.message_id) == -1) {
-                    //             this.messageList.unshift(messageFromGroup);
-                    //             this.existingMsgId.push(messageFromGroup.message_id);
-                    //         }
-                    //     }
-                    //     // console.log("this.messagelist is ", this.messageList)
-                    // }
-                })
+            this.messageList = this.chat.timeline;
+
+            this.$nextTick(() => {
+                this.needToBottom = true;
+                
+                let div = document.getElementById("message-show-list");
+                if(div) {
+                    div.scrollTop = div.scrollHeight - div.clientHeight;
+                    // The left msg get through scroll event
+                    div.addEventListener('scroll', this.handleScroll);
+                    // div.addEventListener('onresize', this.checkResize);
+                    this.showScrollBar();
+                }
+                this.isRefreshing = false;
+            })
         },
         updateChatGroupStatus(groupId, groupStatus, updateType) {
             // console.log("======== ");
@@ -3368,6 +3269,18 @@ export default {
         chat: function() {
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
+            this.isSecret = false;
+            this.curGroupId = this.chat.roomId;
+            this.needScrollTop = true;
+            this.needScrollBottom = true;
+            this.existingMsgId = [];
+            this.getHistoryMessage();
+            this.showGroupName(this.chat);
+            if(this.editor == undefined) {
+                this.editor = this.$refs.chatQuillEditor.quill;
+            }
+            this.editor.setSelection(this.editor.selection.savedRange.index);
+            /*
             if(this.chat == undefined || (this.curGroupId != undefined && this.curGroupId == this.chat.group_id)) {
                 return;
             }
@@ -3388,6 +3301,7 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
+            */
         },
         newMsg: function() {
             if(this.existingMsgId.indexOf(this.newMsg.message_id) == -1) {
