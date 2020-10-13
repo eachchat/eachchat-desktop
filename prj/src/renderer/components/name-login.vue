@@ -27,7 +27,6 @@
                         加入您的组织
                     </p>
                     <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
-                    <p class="organization-input-label">.each.chat</p>
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
@@ -250,13 +249,13 @@ export default {
     },
     methods: {
         Close: function() {
-            ipcRenderer.send("login-win-close");
+            ipcRenderer.send("win-close");
         },
         Min: function() {
-            ipcRenderer.send("login-win-min");
+            ipcRenderer.send("win-min");
         },
         Max: function() {
-            ipcRenderer.send("login-win-max");
+            ipcRenderer.send("win-max");
         },
         resetLoginStateTitle(){
             this.loginState = "";
@@ -272,21 +271,24 @@ export default {
                 this.organizationButtonDisabled = false;
                 return;
             }
-            var address = this.organizationAddress + ".each.chat";
-            var result = await services.common.gmsConfiguration(address);
-            console.log(result);
-            if(!result){
+            var address = this.organizationAddress;
+            global.mxMatrixClientPeg.checkHomeServer(address).then((flows) => {
+                for (let i = 0; i < flows.length; i++ ) {
+                    this.defaultIdentity = flows[i];
+                    this.resetLoginStateTitle();
+                    this.showLoginView = true;
+                    this.showOrganizationView = false;
+                    return;
+                }
+                
                 this.loginState = "未找到该组织";
                 this.organizationButtonDisabled = false;
                 return;
-            }
-            this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
+            },(err) => {
+                this.loginState = "未找到该组织";
+                this.organizationButtonDisabled = false;
+            })
             
-            this.organizationButtonDisabled = false;
-            this.resetLoginStateTitle();
-            await services.common.init();
-            this.showLoginView = true;
-            this.showOrganizationView = false;
         },
         organizationFinderClicked:async function(){
             this.resetLoginStateTitle();
@@ -557,17 +559,17 @@ export default {
             
             let response = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
             console.log(response);
-            if(response != true){
-                var msg = ret_data["message"];
-                var code = ret_data["code"];
-                if(code != 200)
-                    {
-                    console.log("code != 200")
+            // if(response != true){
+            //     var msg = ret_data["message"];
+            //     var code = ret_data["code"];
+            //     if(code != 200)
+            //         {
+            //         console.log("code != 200")
                     
-                    this.loginState = msg
-                    return
-                }
-            }
+            //         this.loginState = msg
+            //         return
+            //     }
+            // }
             var elementButton = document.getElementById('loginButton');
             //this.loginButtonValue = "正在加载数据";
             this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
@@ -577,6 +579,7 @@ export default {
             this.tokenRefreshing = true;
             setTimeout(async () => {
                 // ipcRenderer.send('showMainPageWindow', true); 
+                ipcRenderer.send("showMainPageWindow")
                 this.$router.push("/main")
             }, 1000);
         }
@@ -585,29 +588,19 @@ export default {
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
-        global.mxMatrixClientPeg.CreateClient('https://matrix.each.chat');
-        await services.common.init();
+
         setTimeout(() => {  
             this.$nextTick(async () => {
-                if(await services.common.GetGlobalLogin() == undefined)//判断数据库存在登陆信息，如果不存在直接返回
-                {
-                    this.tokenRefreshing = false;
-                    this.showLoadingView = false;
-                    this.showLoginView = true;
-                    return;
-                }
-                //如果存在刷新token
-                var ret = await services.common.refreshToken();
-                if(!ret.state) {
-                    if(ret.msg == "tokenExpired") {
-                        this.loginState = "认证已过期，请重新登录。"
+                global.mxMatrixClientPeg.restoreFromLocalStorage().then((ret) => {
+                    if(ret == false) {
+                        this.tokenRefreshing = false;
+                        this.showLoadingView = false;
+                        this.showLoginView = true;
+                        return;
                     }
-                    this.tokenRefreshing = false;
-                    this.showLoadingView = false;
-                    this.showLoginView = true;
-                    return;
-                }
-                ipcRenderer.send('showMainPageWindow', false);
+                    ipcRenderer.send("showMainPageWindow")
+                    this.$router.push("/main")
+                })
             })
 
         }, 1000);

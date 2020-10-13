@@ -274,8 +274,9 @@ export default {
       }
     },
     logout: function() {
-      services.common.closemqtt();
-      services.common.logout();
+      // services.common.closemqtt();
+      // services.common.logout();
+      global.mxMatrixClientPeg.logout();
       ipcRenderer.send("showLoginPageWindow");
     }
   },
