@@ -2660,7 +2660,7 @@ export default {
                 if(chatGroupMsgContent.membership === 'invite')
                 {
                     var invitees = chatGroupMsgContent.displayname;
-                    var inviter = event.sender;
+                    var inviter = curMsg.sender.name;
                     return inviter + " 邀请 " + invitees + " 加入群聊";
                 }
                 else if(chatGroupMsgContent.type === "notice")
