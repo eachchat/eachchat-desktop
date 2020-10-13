@@ -375,51 +375,6 @@ export default {
                     }, 200);
                 }
             }
-            else if(chatGroupMsgType === "m.room.member")
-            {
-                if(chatGroupMsgContent.membership === 'invite')
-                {
-                    var invitees = chatGroupMsgContent.displayname;
-                    var inviter = event.sender;
-                    return inviter + " 邀请 " + invitees + " 加入群聊";
-                }
-                else if(chatGroupMsgContent.type === "notice")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    return owner + " 发布群公告";
-                }
-                else if(chatGroupMsgContent.type === "updateGroupName")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    var distName = chatGroupMsgContent.text;
-                    return owner + " 修改群名称为 " + distName;
-                }
-                else if(chatGroupMsgContent.type === "deleteGroupUser")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    var deletedNames = "";
-                    var deletedUsers = chatGroupMsgContent.userInfos;
-                    if(deletedUsers.length == 1){
-                        deletedNames = deletedUsers[0].userName
-                    }
-                    else{
-                        for(var i=0;i<deletedUsers.length;i++) {
-                            deletedNames = deletedNames + "," + deletedUsers[i].userName
-                        }
-                    }
-                    return owner + " 将 " + deletedNames + " 移出了群聊";
-                }
-                else if(chatGroupMsgContent.type == "groupTransfer") {
-                    var originalOwner = chatGroupMsgContent.fromUserName;
-                    var newOwner = chatGroupMsgContent.toUserName;
-                    console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
-                    return originalOwner + " 将群主转让给 " + newOwner;
-                }
-                else
-                {
-                    return "您收到一条短消息";
-                }
-            }
             else if(chatGroupMsgType === 105)
             {
                 // var targetDir = confservice.getFilePath();

@@ -2617,9 +2617,10 @@ export default {
             if(curMsg === null) {
                 return false;
             }
-            let chatGroupMsgType = curMsg.message_type;
-            let chatGroupMsgContent = curMsg.message_content;
-            if(chatGroupMsgType === 104)
+            let event = curMsg.event;
+            let chatGroupMsgType = event.type;
+            var chatGroupMsgContent = event.content;
+            if(chatGroupMsgType === 'm.room.member')
             {
                 return true;
             }
@@ -2632,9 +2633,10 @@ export default {
             if(curMsg === null) {
                 return false;
             }
-            let chatGroupMsgType = curMsg.message_type;
-            let chatGroupMsgContent = curMsg.message_content;
-            if(chatGroupMsgType === 104)
+            let event = curMsg.event;
+            let chatGroupMsgType = event.type;
+            var chatGroupMsgContent = event.content;
+            if(chatGroupMsgType === 'm.room.member')
             {
                 return false;
             }
@@ -2647,28 +2649,19 @@ export default {
             if(curMsg === null) {
                 return '';
             }
-            
-            let chatGroupMsgType = curMsg.message_type;
-            let chatGroupMsgContent = strMsgContentToJson(curMsg.message_content);
-
-            if(chatGroupMsgType === 104)
+            let event = curMsg.event;
+            let chatGroupMsgType = event.type;
+            var chatGroupMsgContent = event.content;
+            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // console.log("this. msg is ", this.msg)
+            // 数据库缺省type = 0 
+            if(chatGroupMsgType === 'm.room.member')
             {
-                if(chatGroupMsgContent.type === "invitation")
+                if(chatGroupMsgContent.membership === 'invite')
                 {
-                    var invitees = chatGroupMsgContent.userInfos;
-                    var inviteeNameList = [];
-                    var inviteeNames = "";
-                    if(invitees.length == 1){
-                        inviteeNames = invitees[0].userName
-                    }
-                    else{
-                        for(var i=0;i<invitees.length;i++) {
-                            inviteeNameList.push(invitees[i].userName);
-                        }
-                        inviteeNames = inviteeNameList.join(",");
-                    }
-                    var inviter = chatGroupMsgContent.userName;
-                    return inviter + " 邀请 " + inviteeNames + " 加入群聊";
+                    var invitees = chatGroupMsgContent.displayname;
+                    var inviter = event.sender;
+                    return inviter + " 邀请 " + invitees + " 加入群聊";
                 }
                 else if(chatGroupMsgContent.type === "notice")
                 {
