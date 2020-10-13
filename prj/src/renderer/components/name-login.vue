@@ -215,7 +215,7 @@ export default {
             emialAddressButtonDisabled:false,
 
             organizationFinderEmailTime:0,
-            organizationAddress:'',
+            organizationAddress:'https://matrix.each.chat',
             emialAddress:'',
             showLoginView: false,
             showUsernameLoginView: true,
