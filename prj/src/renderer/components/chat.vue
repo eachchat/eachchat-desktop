@@ -1651,7 +1651,7 @@ export default {
         },
         sendFile: async function(filePath) {
             var roomID = this.chat.roomId;
-            var stream = fs.createReadStream(filePath);
+            var stream = fs.readFileSync(filePath);
             let filename = path.basename(filePath)
             this.matrixClient.uploadContent({
                 stream: stream,
@@ -2267,8 +2267,20 @@ export default {
                     var blod = item.getAsFile();
                     console.log("dlkj ", blod)
                     var reader = new FileReader();
-                    reader.onload = function(event) {
-                        console.log('let me see see ', event);
+                    reader.onload = (event)=> {
+                        this.matrixClient.uploadContent({
+                            stream: event.target.result,
+                            name: blod.name
+                        }).then((url)=>{
+                            var content = {
+                                msgtype: "m.file",
+                                body: blod.name,
+                                url: url
+                            };
+                            this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
+                                this.$emit('updateChatList', ret);
+                            });
+                        });
                     }
                     reader.readAsDataURL(blod);
                 }
@@ -2400,18 +2412,10 @@ export default {
         });
     },
     created: async function() {
-        global.mxMatrixClientPeg.restoreFromLocalStorage().then((ret) => {
-            if(ret == false) {
-                global.mxMatrixClientPeg.logout();
-                ipcRenderer.send("showLoginPageWindow");
-                return;
-            }
-        })
         await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
-        // this.matrixClient = window.mxMatrixClientPeg.matrixClient;
-        console.log("the matrix client is ", global.mxMatrixClientPeg)
+        this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         // console.log("===============mqttinit")
         // services.common.initmqtt();
         // services.common.handlemessage(this.callback);

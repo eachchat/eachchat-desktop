@@ -1843,13 +1843,15 @@ export default {
     }
   },
   mounted: async function() {
-    this.matrixClient = window.mxMatrixClientPeg.matrixClient;
-    if(!window.mxMatrixClientPeg.matrixClient)
-    {
-      await window.mxMatrixClientPeg.CreateClient('https://matrix.each.chat');
-      this.matrixClient = await window.mxMatrixClientPeg.LoginWithPassword("chengfang.ai", "cf87420323")
-    }
-    this.matrixClient.on("sync", (state, prevState, data)=>{
+    global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
+        if(ret == false) {
+            global.mxMatrixClientPeg.logout();
+            ipcRenderer.send("showLoginPageWindow");
+            return;
+        }
+        console.log("the matrix client is ", global.mxMatrixClientPeg)
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        this.matrixClient.on("sync", (state, prevState, data)=>{
           switch(state){
             case "PREPARED":
               console.clear();
@@ -1858,11 +1860,30 @@ export default {
             default:
               break;
           }
-        });
-    this.matrixClient.startClient()
+        })
+        this.matrixClient.startClient();
+        await this.getGroupList(false);
+    })
+    // this.matrixClient = window.mxMatrixClientPeg.matrixClient;
+    // if(!window.mxMatrixClientPeg.matrixClient)
+    // {
+    //   await window.mxMatrixClientPeg.CreateClient('https://matrix.each.chat');
+    //   this.matrixClient = await window.mxMatrixClientPeg.LoginWithPassword("chengfang.ai", "cf87420323")
+    // }
+    // this.matrixClient.on("sync", (state, prevState, data)=>{
+    //       switch(state){
+    //         case "PREPARED":
+    //           console.clear();
+    //           this.originalGroupList = this.matrixClient.getRooms();
+    //           break;
+    //         default:
+    //           break;
+    //       }
+    //     });
+    // this.matrixClient.startClient()
     console.log("chat content mounted");
       // When Mounting Can Not Get The Element. Here Need SetTimeout
-    await this.getGroupList(false);
+    // await this.getGroupList(false);
     console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
     // for(let i=0;i<this.originalGroupList.length;i++) {
     //   if(this.originalGroupList[i].group_name == "武汉测试") {
