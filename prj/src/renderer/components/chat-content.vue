@@ -174,6 +174,10 @@ export default {
     updateImg: {
       type: Boolean,
       default: false
+    },
+    matrixSync: {
+      type: Boolean,
+      default: false
     }
     //['distUserId', 'distGroupId'],
   },
@@ -242,6 +246,9 @@ export default {
           this.toBottom = false;
         })
       }
+    },
+    matrixSync: function() {
+      if (this.matrixSync) this.originalGroupList = global.mxMatrixClientPeg.matrixClient.getRooms();
     }
   },
   computed: {
@@ -1842,6 +1849,7 @@ export default {
       }, 100)
     }
   },
+
   mounted: async function() {
     global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
         if(ret == false) {
@@ -1851,17 +1859,17 @@ export default {
         }
         console.log("the matrix client is ", global.mxMatrixClientPeg)
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-        this.matrixClient.on("sync", (state, prevState, data)=>{
-          switch(state){
-            case "PREPARED":
-              console.clear();
-              this.originalGroupList = this.matrixClient.getRooms();
-              break;
-            default:
-              break;
-          }
-        })
-        this.matrixClient.startClient();
+        // this.matrixClient.on("sync", (state, prevState, data)=>{
+        //   switch(state){
+        //     case "PREPARED":
+        //       console.clear();
+        //       this.originalGroupList = this.matrixClient.getRooms();
+        //       break;
+        //     default:
+        //       break;
+        //   }
+        // })
+        // this.matrixClient.startClient();
         await this.getGroupList(false);
     })
     // this.matrixClient = window.mxMatrixClientPeg.matrixClient;
