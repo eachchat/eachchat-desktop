@@ -93,15 +93,11 @@ const winURL = process.env.NODE_ENV === 'development'
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
   isLogin = true;
-  const mainPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/main`
-  : `file://${__dirname}/index.html#main`
   mainWindow.hide();
-  mainWindow.setSize(960, 600)
-  mainWindow.loadURL(mainPageWinURL);
-  mainWindow.webContents.on('did-finish-load', function(){
+  mainWindow.setSize(960, 600);
+  // mainWindow.webContents.on('did-finish-load', function(){
     mainWindow.show();
-  });
+  // });
   openDevToolsInDevelopment(mainWindow);
   // 托盘
   appIcon = new Tray(path.join(__dirname, iconPath));

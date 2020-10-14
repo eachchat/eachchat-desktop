@@ -51,10 +51,55 @@ class _MatrixClientPeg{
         this.registrationClient = matrixcs.createClient(homeserve);
         console.log(this.registrationClient)
     }
+    
+    checkHomeServer(homeserver) {
+        const self = this
+        this.CreateClient(homeserver);
+        return this.registrationClient.loginFlows().then(function(result) {
+            self._flows = result.flows;
+            return self._flows;
+        });
+    }
+
+    logout() {
+      if(!window.localStorage) {
+        return;
+      }
+      window.localStorage.clear();
+    }
+
+    async restoreFromLocalStorage() {
+      if(!window.localStorage) {
+          return false;
+      }
+      const hsUrl = window.localStorage.getItem("mx_hs_url");
+      const accessToken = window.localStorage.getItem("mx_access_token");
+      const userId = window.localStorage.getItem("mx_user_id");
+      const deviceId = window.localStorage.getItem("mx_device_id");
+
+      if(accessToken && userId && hsUrl) {
+        let ops = {
+          baseUrl: hsUrl,
+          userId: userId,
+          accessToken: accessToken,
+          deviceId: deviceId,
+        }
+        this.matrixClient = this._CreateMatrixClient(ops);
+        await this.matrixClient.initCrypto();
+        // await this.matrixClient.startClient();
+        await this.matrixClient.store.startup();
+        return true;
+      }
+      return false;
+    }
 
     _CreateMatrixClient(opts) {
         let indexedDB = window.indexedDB;
         let localStorage = window.localStorage;
+        localStorage.setItem("mx_hs_url", opts.baseUrl);
+        localStorage.setItem("mx_user_id", opts.userId);
+        localStorage.setItem("mx_access_token", opts.accessToken);
+        localStorage.setItem("mx_device_id", opts.deviceId);
         const storeOpts = {
             useAuthorizationHeader: true,
         };

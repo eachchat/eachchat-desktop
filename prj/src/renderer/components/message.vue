@@ -139,10 +139,10 @@ export default {
             this.$emit("openUserInfoTip", tipInfos);
         },
         msgNameId: function() {
-            return this.msg.message_id + "-username";
+            return this.msg.event.event_id + "-username";
         },
         getUserIconId: function() {
-            return this.msg.message_id + "-usericon"
+            return this.msg.event.event_id + "-usericon"
         },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
@@ -282,19 +282,18 @@ export default {
             this.messageContent = '';
             this.transmitMsgTitle = '';
             this.transmitMsgContent = '';
-            let chatGroupMsgType = this.msg.message_type;
-            var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
+            let event = this.msg.event;
+            let chatGroupMsgType = event.type;
+            var chatGroupMsgContent = event.content;
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
-            if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
+            if(chatGroupMsgType === "m.room.message")
             {
-                this.messageContent = sliceReturnsOfString(chatGroupMsgContent.text);
+                this.messageContent = chatGroupMsgContent.body;
                 if(this.messageContent.length == 0) {
                     this.messageContent = "\n";
                 }
-                // console.log("this.messageContent is ", this.messageContent)
-                // textMsgImgElement.innerHTML = this.messageContent;
             }
             else if(chatGroupMsgType === 102)
             {
@@ -374,60 +373,6 @@ export default {
                         //     }
                         // }
                     }, 200);
-                }
-            }
-            else if(chatGroupMsgType === 104)
-            {
-                if(chatGroupMsgContent.type === "invitation")
-                {
-                    var invitees = chatGroupMsgContent.userInfos;
-                    var inviteeNames = "";
-                    if(invitees.length == 1){
-                        inviteeNames = invitees[0].userName
-                    }
-                    else{
-                        for(var i=0;i<invitees.length;i++) {
-                            inviteeNames = inviteeNames + "," + invitees[i].userName
-                        }
-                    }
-                    var inviter = chatGroupMsgContent.userName;
-                    return inviter + " 邀请 " + inviteeNames + " 加入群聊";
-                }
-                else if(chatGroupMsgContent.type === "notice")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    return owner + " 发布群公告";
-                }
-                else if(chatGroupMsgContent.type === "updateGroupName")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    var distName = chatGroupMsgContent.text;
-                    return owner + " 修改群名称为 " + distName;
-                }
-                else if(chatGroupMsgContent.type === "deleteGroupUser")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    var deletedNames = "";
-                    var deletedUsers = chatGroupMsgContent.userInfos;
-                    if(deletedUsers.length == 1){
-                        deletedNames = deletedUsers[0].userName
-                    }
-                    else{
-                        for(var i=0;i<deletedUsers.length;i++) {
-                            deletedNames = deletedNames + "," + deletedUsers[i].userName
-                        }
-                    }
-                    return owner + " 将 " + deletedNames + " 移出了群聊";
-                }
-                else if(chatGroupMsgContent.type == "groupTransfer") {
-                    var originalOwner = chatGroupMsgContent.fromUserName;
-                    var newOwner = chatGroupMsgContent.toUserName;
-                    console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
-                    return originalOwner + " 将群主转让给 " + newOwner;
-                }
-                else
-                {
-                    return "您收到一条短消息";
                 }
             }
             else if(chatGroupMsgType === 105)
@@ -512,7 +457,7 @@ export default {
             var userNameElement = document.getElementById(userNameElementId);
 
             var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
-            var fromUserName = fromUserInfo == undefined ? "" : fromUserInfo.user_display_name;
+            var fromUserName = this.msg.sender.name;
 
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;
