@@ -2400,10 +2400,18 @@ export default {
         });
     },
     created: async function() {
+        global.mxMatrixClientPeg.restoreFromLocalStorage().then((ret) => {
+            if(ret == false) {
+                global.mxMatrixClientPeg.logout();
+                ipcRenderer.send("showLoginPageWindow");
+                return;
+            }
+        })
         await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
-        this.matrixClient = window.mxMatrixClientPeg.matrixClient;
+        // this.matrixClient = window.mxMatrixClientPeg.matrixClient;
+        console.log("the matrix client is ", global.mxMatrixClientPeg)
         // console.log("===============mqttinit")
         // services.common.initmqtt();
         // services.common.handlemessage(this.callback);
