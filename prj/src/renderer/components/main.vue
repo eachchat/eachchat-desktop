@@ -181,6 +181,9 @@ export default {
             this.curindex = 3;
             this.$router.push("/main/setup")
         },
+        needUpdateGroupList: function(model) {
+            console.log("1111111111 ", model);
+        },
         getAppBaseData:async function() {
             // Init services
             // let config = {
@@ -192,7 +195,7 @@ export default {
             await services.common.init();
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
-            services.common.InitDbData();
+            // services.common.InitDbData(this.needUpdateGroupList);
             var ret = await services.common.GetAllGroups()
             console.log("the init user id is ,", this.curUserInfo.id)
             confservice.init(this.curUserInfo.id);

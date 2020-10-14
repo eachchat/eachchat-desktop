@@ -1906,6 +1906,7 @@ export default {
     this.curUserInfo = await services.common.GetSelfUserModel();
     await services.common.initmqtt();
     services.common.handlemessage(this.callback);
+    services.common.InitDbData(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")
