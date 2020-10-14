@@ -155,13 +155,7 @@ export default {
             }
 
             var distGroupImageElement = document.getElementById("ReceiverImageId");
-            var distId = '';
-            if(this.sendInfos.distGroupInfo.group_id != undefined && this.sendInfos.distGroupInfo.group_id.length != 0) {
-                distId = this.sendInfos.distGroupInfo.group_id;
-            }
-            else {
-                distId = this.sendInfos.distGroupInfo.user_id;
-            }
+            var distId = this.sendInfos.distGroupInfo.roomId;
             var targetPath = '';
             if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.sendInfos.distGroupInfo.group_avarar, distId))){
                 var showfu = new FileUtil(targetPath);
