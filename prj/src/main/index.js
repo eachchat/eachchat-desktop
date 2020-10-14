@@ -848,7 +848,7 @@ ipcMain.on("download-mgs-oimage", function(event, arg) {
 ipcMain.on('open-directory-dialog', function(event, arg) {
   dialog.showOpenDialog(mainWindow,{
     properties: [arg, 'multiSelections']
-  },function(files) {
+  }).then(files=>{
     event.sender.send('selectedItem', files);
   })
 });
@@ -858,7 +858,7 @@ ipcMain.on('open-image-dialog', function(event, arg) {
     filters: [
       { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
     ]
-  },function(files) {
+  }).then(files=>{
     event.sender.send('selectedImageItem', files);
   })
 });
