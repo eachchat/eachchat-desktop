@@ -1864,46 +1864,11 @@ export default {
         }
         console.log("the matrix client is ", global.mxMatrixClientPeg)
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-        // this.matrixClient.on("sync", (state, prevState, data)=>{
-        //   switch(state){
-        //     case "PREPARED":
-        //       console.clear();
-        //       this.originalGroupList = this.matrixClient.getRooms();
-        //       break;
-        //     default:
-        //       break;
-        //   }
-        // })
-        // this.matrixClient.startClient();
         await this.getGroupList(false);
     })
-    // this.matrixClient = window.mxMatrixClientPeg.matrixClient;
-    // if(!window.mxMatrixClientPeg.matrixClient)
-    // {
-    //   await window.mxMatrixClientPeg.CreateClient('https://matrix.each.chat');
-    //   this.matrixClient = await window.mxMatrixClientPeg.LoginWithPassword("chengfang.ai", "cf87420323")
-    // }
-    // this.matrixClient.on("sync", (state, prevState, data)=>{
-    //       switch(state){
-    //         case "PREPARED":
-    //           console.clear();
-    //           this.originalGroupList = this.matrixClient.getRooms();
-    //           break;
-    //         default:
-    //           break;
-    //       }
-    //     });
-    // this.matrixClient.startClient()
     console.log("chat content mounted");
-      // When Mounting Can Not Get The Element. Here Need SetTimeout
-    // await this.getGroupList(false);
     console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
-    // for(let i=0;i<this.originalGroupList.length;i++) {
-    //   if(this.originalGroupList[i].group_name == "武汉测试") {
-    //     console.log("this.originalkjflkajlsdjfl;j  ", this.originalGroupList[i]);
-    //   }
-    //   this.unreadCount += this.originalGroupList[i].un_read_count;
-    // }
+
     if(this.unreadCount < 0) {
       this.unreadCount = 0;
     }
@@ -1984,12 +1949,7 @@ export default {
     justify-content: center;
     align-items: center;  
     position: relative;
-    // -webkit-app-region: drag;
   }
-  // * {
-      
-  //     -webkit-app-region: no-drag;
-  // }
 
   .chat-empty-bg {
     width: 168px;
