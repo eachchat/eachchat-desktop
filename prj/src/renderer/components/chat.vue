@@ -2439,35 +2439,12 @@ export default {
             }
             */
         },
-        newMsg: function() {
-            if(this.existingMsgId.indexOf(this.newMsg.message_id) == -1) {
-                var newMsgContent = strMsgContentToJson(this.newMsg.message_content);
-                if(newMsgContent.type != undefined && newMsgContent.type == "updateGroupName") {
-                    this.chat.group_name = newMsgContent.text;
-                    var groupNameElement = document.getElementById("chat-group-name");
-                    groupNameElement.innerHTML = newMsgContent.text;
-                }
-                if(newMsgContent.type != undefined && newMsgContent.type == "invitation") {
-                    if(newMsgContent.userInfos != undefined) {
-                        let addUsers = newMsgContent.userInfos;
-                        for(let j=0;j<addUsers.length;j++) {
-                            let newUserId = addUsers[j].userId;
-                            if(this.chat.contain_user_ids.indexOf(newUserId) == -1) {
-                                this.chat.contain_user_ids + "," + newUserId;
-                                console.log("Add new member in ", newUserId);
-                            }
-                        }
-                    }
-                }
-                this.messageList.push(this.newMsg);
-                // this.messageList = this.messageList.sort(this.compareMsg());
-                this.existingMsgId.push(this.newMsg.message_id);
-                let div = document.getElementById("message-show-list");
-                if(div) {
-                    this.$nextTick(() => {
-                        div.scrollTop = div.scrollHeight;
-                    })
-                }
+        messageList: function() {
+            let div = document.getElementById("message-show-list");
+            if(div) {
+                this.$nextTick(() => {
+                    div.scrollTop = div.scrollHeight;
+                })
             }
         },
         toBottom: function() {
