@@ -10,11 +10,11 @@
                     <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.event.event_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
+                        <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -22,19 +22,19 @@
                     </div>
                     <div class="chat-msg-content-mine-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
-                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
                             <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-mine-transmit"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
-                        <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
+                        <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
+                        <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-mine-txt" :id="msg.message_id">{{messageContent}}</p>
+                        <p class="chat-msg-content-mine-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
                     <div class="msgStageDiv" :key="updateStatus">
                         <div class="msgState" v-if="MsgIsSending()">
@@ -57,11 +57,11 @@
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.message_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.event.event_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
+                        <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -69,19 +69,19 @@
                     </div>
                     <div class="chat-msg-content-others-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
-                        <img class="voice-image" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
                             <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-other-transmit"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
-                        <div class="transmit-title" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.message_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
+                        <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
+                        <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-others-txt" :id="msg.message_id">{{messageContent}}</p>
+                        <p class="chat-msg-content-others-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
                 </div>
                 <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
@@ -112,7 +112,7 @@ export default {
             this.$emit("sendAgain", this.msg);
         },
         getMessageTemplateId: function() {
-            return "message-template-" + this.msg.message_id;
+            return "message-template-" + this.msg.event.event_id;
         },
         showUserInfoTip: async function() {
             if(this.userIconElement == undefined) {
@@ -238,8 +238,8 @@ export default {
             return iconPath;
         },
         MsgIsImage: function() {
-            let chatGroupMsgType = this.msg.message_type;
-            if(chatGroupMsgType == 102){
+            let chatGroupMsgType = this.msg.event.content.msgtype;
+            if(chatGroupMsgType == 'm.image'){
                 return true;
             }
             else{
@@ -247,8 +247,8 @@ export default {
             }
         },
         MsgIsFile: function() {
-            let chatGroupMsgType = this.msg.message_type;
-            if(chatGroupMsgType == 103){
+            let chatGroupMsgType = this.msg.event.content.msgtype;
+            if(chatGroupMsgType == 'm.file'){
                 return true;
             }
             else{
@@ -256,7 +256,7 @@ export default {
             }
         },
         MsgIsVoice: function() {
-            let chatGroupMsgType = this.msg.message_type;
+            let chatGroupMsgType = this.msg.event.content.msgtype;
             // console.log("chatGroupMsgType is ", chatGroupMsgType)
             if(chatGroupMsgType == 105){
                 return true;
@@ -290,12 +290,63 @@ export default {
             // 数据库缺省type = 0 
             if(chatGroupMsgType === "m.room.message")
             {
-                this.messageContent = chatGroupMsgContent.body;
-                if(this.messageContent.length == 0) {
-                    this.messageContent = "\n";
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                    this.messageContent = chatGroupMsgContent.body;
+                    this.fileSize = chatGroupMsgContent.info.size;
+                    this.fileName = this.messageContent;
                 }
+                else if(chatGroupMsgContent.msgtype == 'm.text'){
+                    this.messageContent = chatGroupMsgContent.body;
+                    if(this.messageContent.length == 0) {
+                        this.messageContent = "\n";
+                    }
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    this.messageContent = chatGroupMsgContent.body;
+                    var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
+                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
+                    imgMsgImgElement.setAttribute("height", chatGroupMsgContent.info.h);
+
+                    /*
+                    var targetPath = this.msg.file_local_path;
+                    if(!targetPath) {
+                        targetPath = await services.common.GetFilePath(chatGroupMsgContent.url);
+                    }
+                    if(fs.existsSync(targetPath)) {
+                        let imageHeight = 100;
+                        if(chatGroupMsgContent.imgHeight < 100 && chatGroupMsgContent.imgHeight != 0){
+                            imageHeight = chatGroupMsgContent.imgHeight;
+                        }
+                        this.imageHeight = imageHeight;
+                        imgMsgImgElement.setAttribute("src", targetPath);
+                        imgMsgImgElement.setAttribute("height", imageHeight);
+                        imgMsgImgElement.setAttribute("style", "");
+                    }
+                    else {
+                        var targetFileName = chatGroupMsgContent.body;
+                        var theExt = path.extname(targetFileName);
+                        var needOpen = false;
+                        var secretUrl = '';
+                        if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
+                            secretUrl = chatGroupMsgContent.url;
+                        }
+                        if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false, secretUrl))) {
+                            //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
+                            let imageHeight = 100;
+                            if(chatGroupMsgContent.imgHeight < 100){
+                                imageHeight = chatGroupMsgContent.imgHeight;
+                            }
+                            this.imageHeight = imageHeight;
+                            imgMsgImgElement.setAttribute("style", "");
+                            imgMsgImgElement.setAttribute("src", targetPath);
+                            imgMsgImgElement.setAttribute("height", imageHeight);
+                        }
+                    }
+                    */
+                }
+                
             }
-            else if(chatGroupMsgType === 102)
+            else if(chatGroupMsgType === 102)//图片
             {
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
                 imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
@@ -334,7 +385,7 @@ export default {
                     }
                 }
             }
-            else if(chatGroupMsgType === 103)
+            else if(chatGroupMsgType === 103)//文件
             {
                 this.fileName = chatGroupMsgContent.fileName;
                 this.fileSizeNum = chatGroupMsgContent.fileSize;
@@ -375,7 +426,7 @@ export default {
                     }, 200);
                 }
             }
-            else if(chatGroupMsgType === 105)
+            else if(chatGroupMsgType === 105)//语音消息
             {
                 // var targetDir = confservice.getFilePath();
                 var targetFileName = chatGroupMsgContent.fileName;
@@ -400,7 +451,7 @@ export default {
                 fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
                 fileMsgImgElement.setAttribute("height", 12);
             }
-            else if(chatGroupMsgType === 106)
+            else if(chatGroupMsgType === 106)//转发
             {
                 this.transmitMsgTitle = chatGroupMsgContent.title;
                 this.transmitMsgContent = chatGroupMsgContent.text;

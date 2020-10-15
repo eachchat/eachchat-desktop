@@ -352,20 +352,7 @@ export default {
       return false;
     },
     ChatGroupId(item) {
-      if(item.group_id != undefined && item.user_id != undefined) {
-        if(item.user_id.length == 0) {
-          return "chat-v-bind-" + item.group_id;
-        }
-        else {
-          return "chat-v-bind-" + item.group_id + "-" + item.user_id;
-        }
-      }
-      else if(item.group_id == undefined) {
-        return "chat-v-bind-" + item.user_id;
-      }
-      else if(item.user_id == undefined) {
-        return "chat-v-bind-" + item.group_id;
-      }
+      return "chat-v-bind-" + item.roomId;
     },
     updateChatList(newMsg, needScroll=true) {
       // ++this.needUpdate;
