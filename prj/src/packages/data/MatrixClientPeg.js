@@ -1,12 +1,14 @@
 import olmWasmPath from "olm/olm.wasm"
 import Olm from 'olm';
 import * as matrixcs from 'matrix-js-sdk'
+import {getDefaultLanguage} from '../../config.js';
 
 class _MatrixClientPeg{
     constructor(){
         this.matrixClient = undefined;
         this.homeserve = "";
         this.registrationClient = undefined;
+        this.curLanguage = getDefaultLanguage();
     }
 
     InitOlm(){
@@ -68,6 +70,20 @@ class _MatrixClientPeg{
       window.localStorage.clear();
     }
 
+    getStorageLocale() {
+      if(!window.localStorage) {
+        return undefined;
+      }
+
+      return window.localStorage.getItem("mx_i18n_locale");
+    }
+
+    setCurLanguage(language) {
+      if(language != undefined && language.length != 0){
+        this.curLanguage = language;
+      }
+    }
+
     async restoreFromLocalStorage() {
       if(!window.localStorage) {
           return false;
@@ -76,6 +92,7 @@ class _MatrixClientPeg{
       const accessToken = window.localStorage.getItem("mx_access_token");
       const userId = window.localStorage.getItem("mx_user_id");
       const deviceId = window.localStorage.getItem("mx_device_id");
+      this.curLanguage = window.localStorage.getItem("mx_i18n_locale");
 
       if(accessToken && userId && hsUrl) {
         let ops = {
@@ -88,9 +105,10 @@ class _MatrixClientPeg{
         await this.matrixClient.initCrypto();
         // await this.matrixClient.startClient();
         await this.matrixClient.store.startup();
-        return true;
+        ops["language"] = this.curLanguage;
+        return ops;
       }
-      return false;
+      return undefined;
     }
 
     _CreateMatrixClient(opts) {
@@ -100,6 +118,7 @@ class _MatrixClientPeg{
         localStorage.setItem("mx_user_id", opts.userId);
         localStorage.setItem("mx_access_token", opts.accessToken);
         localStorage.setItem("mx_device_id", opts.deviceId);
+        localStorage.setItem("mx_i18n_locale", this.curLanguage);
         const storeOpts = {
             useAuthorizationHeader: true,
         };

@@ -19,24 +19,24 @@
                     <div class="title-ico">
                         <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
-                        亿洽
+                        {{$t("appName")}}
                     </div>
                 </div>
                 <div class="item-organization">
                     <p class="organizaiton-title">
-                        加入您的组织
+                        {{$t("joinYourOrganization")}}
                     </p>
-                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
                 </div>
                 <div class="btn-item">
-                    <Button type="success"  @click="organizationConfirmButtonClicked()">确定</Button>
+                    <Button type="success"  @click="organizationConfirmButtonClicked()">{{$t("next")}}</Button>
                 </div>
                 <div class="organization-finder-tip">
-                    <p class="forget-title">忘记了你的组织ID?</p><p
-                    class="finder-title" @click="organizationFinderClicked()">点击找回</p>
+                    <p class="forget-title">{{$t("forgetOrganization")}}</p><p
+                    class="finder-title" @click="organizationFinderClicked()">{{$t("retrieveOrganization")}}</p>
                 </div>
                 <!-- <div class="login-footer">
                     <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
@@ -45,36 +45,36 @@
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="username-content" v-show="showUsernameLoginView">
                     <div class="title">
-                            用户名登录
+                            {{$t("loginToEachChat")}}
                     </div>
                     <div class="item-account">
                         <p class="account-title">
-                            用户名
+                            {{$t("userNameCapitals")}}
                         </p>
-                        <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                        <input prefix="ios-contact-outline" v-model="username" :placeholder="$t('pwdTypeAccountInputPlaceHolder')" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
                     </div>
                     <div class="item-pwd">
                         <p class="password-title">
-                            密码
+                            {{$t("passwordCapitals")}}
                         </p>
-                        <input prefix="ios-lock-outline" type="password" v-model="password" placeholder="请输入密码" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                        <input prefix="ios-lock-outline" type="password" v-model="password" :placeholder="$t('pwdTypePwdInputPlaceHolder')" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
                     </div>
                     <div class="accountLogin-state">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
                     </div>
                     <div class="btn item">
-                        <Button type="success" id="loginButton" @click="login()">登录</Button>
+                        <Button type="success" id="loginButton" @click="login()">{{$t("login")}}</Button>
                     </div>
                     <div class="otherlogin" v-show="true">
                         <div class="userphone-login" @click="userPhoneLoginClicked()">
-                            手机验证码登录
+                            {{$t("loginThroughSMS")}}
                         </div><div class="useremail-login" @click="userEmailLoginClicked()">
-                            邮箱验证码登录
+                            {{$t("loginThroughEmail")}}
                             </div>
                     </div>
                     <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
                             <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
-                            <p class="back-title">返回</p>
+                            <p class="back-title">{{$t("goBack")}}</p>
                     </div>
                 </div>
                 <div class="userphone-content" v-show="showUserphoneLoginView">
@@ -175,17 +175,28 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
+        <el-dropdown class="language" size="small" @command="handleCommand">
+            <span class="login-setup-language-label" id="login-language-label">
+                简体中文
+            </span>
+            <i class="el-icon-caret-bottom"></i>
+            <el-dropdown-menu>
+                <el-dropdown-item command="zh">简体中文</el-dropdown-item>
+                <el-dropdown-item command="en">English</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
     </div>
 </template>
 
 <script>
 import os from 'os';
 import {ipcRenderer} from 'electron'
-import {MatrixClientPeg} from '../../packages/data/MatrixClientPeg.js'
 import {services} from '../../packages/data/index.js'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
 import winHeaderBar from './win-header.vue';
+import {getDefaultHomeServerAddr} from '../../config.js'
+import log from 'electron-log';
 export default {
     name: 'login',
     components:{
@@ -248,6 +259,23 @@ export default {
         }
     },
     methods: {
+        handleCommand(command) {
+            var languageElement = document.getElementById("login-language-label");
+            this.$i18n.locale = command;
+            global.mxMatrixClientPeg.setCurLanguage(command);
+            switch(command) {
+                case "zh":
+                    if(languageElement) {
+                        languageElement.innerHTML = "中文"
+                    }
+                    break;
+                case "en":
+                    if(languageElement) {
+                        languageElement.innerHTML = "English"
+                    }
+                    break;
+            }
+        },
         Close: function() {
             ipcRenderer.send("win-close");
         },
@@ -585,6 +613,7 @@ export default {
         }
     },
     mounted: async function() {
+        log.info("Login mounted");
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
@@ -592,11 +621,15 @@ export default {
         setTimeout(() => {  
             this.$nextTick(async () => {
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then((ret) => {
-                    if(ret == false) {
+                    if(ret == undefined) {
                         this.tokenRefreshing = false;
                         this.showLoadingView = false;
                         this.showLoginView = true;
                         return;
+                    }
+                    
+                    if(ret.language) {
+                        this.$i18n.locale = ret.language;
                     }
                     ipcRenderer.send("showMainPageWindow")
                     this.$router.push("/main")
@@ -608,6 +641,9 @@ export default {
             console.log("wo cao shou dao le ");
         });
     },
+    created: function() {
+        this.organizationAddress = getDefaultHomeServerAddr();
+    }
 }
 </script>
 
@@ -1710,4 +1746,29 @@ export default {
                 margin-top: 20px;
             }
         }
+    .language {
+        width: 100%;
+        height: 18px;
+        position: absolute;
+        bottom: 15px;
+        right: 30px;
+
+        .login-setup-language-label {
+            float: right;
+            vertical-align: top;
+            font-size: 12px;
+            font-weight:400;
+            font-family: PingFangSC-Regular;
+            color: rgba(153, 153, 153, 1);
+            line-height: 18px;
+            height: 18px;
+            letter-spacing: 1px;
+        }
+
+        .el-icon-caret-bottom {
+            float: right;
+            width: 20px;
+            height: 20px;
+        }
+    }
 </style>

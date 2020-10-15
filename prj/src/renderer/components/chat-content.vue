@@ -149,6 +149,7 @@ import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
 import {shell} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
+import log from 'electron-log';
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 
 export default {
@@ -1851,11 +1852,15 @@ export default {
   },
 
   mounted: async function() {
+    log.info("chat content mounted");
     global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
-        if(ret == false) {
+        if(ret == undefined) {
             global.mxMatrixClientPeg.logout();
             ipcRenderer.send("showLoginPageWindow");
             return;
+        }
+        if(ret.language) {
+          this.$i18n.locale = ret.language;
         }
         console.log("the matrix client is ", global.mxMatrixClientPeg)
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
