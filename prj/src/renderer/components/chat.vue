@@ -1687,43 +1687,6 @@ export default {
             if(curMsgItem.length == 0){
                 return;
             }
-            
-            var msgContent = curMsgItem;
-            var msgContentJson = {
-                "text": msgContent
-            };
-            // console.log("final cur msg item is ", msgContent.length)
-            var willSendMsgContent = {"text": msgContent};
-            // console.log("will send msg content ", willSendMsgContent)
-            // console.log("will send msg uid ", uid)
-            // next is @
-            for(let j=0;j<varcontent.ops.length;j++) {
-                // console.log("====== cur i ", i)
-                // console.log("====== varcontent j ", j)
-                var nextMsgItem = varcontent.ops[j].insert;
-                // console.log("====== nextMsgItem ", nextMsgItem)
-                if(nextMsgItem.hasOwnProperty("span")) {
-                    // console.log("====== nextMsgItem hasOwnProperty ")
-                    var nextFileSpan = nextMsgItem.span;
-                    var nextPathId = nextFileSpan.id;
-                    var nextMsgInfo = this.idToPath[nextPathId];
-                    // console.log("this.idToPath is ", this.idToPath)
-                    var nextFilePath = nextMsgInfo.path;
-                    var nextFileType = nextMsgInfo.type;
-                    if(nextFileType == "at") {
-                        let nextMentionUserId = nextMsgInfo.atUid;
-                        let nextMentionUserName = nextMsgInfo.atName;
-                        willSendMsgContent.type = "mention";
-                        willSendMsgContent.text = willSendMsgContent.text + "@" + nextMentionUserName + " ";
-                        willSendMsgContent.mentions = willSendMsgContent.mentions == undefined ? [nextMentionUserId] : willSendMsgContent.mentions.push(nextMentionUserId) ;
-                    }
-                    break;
-                }
-                else {
-                    willSendMsgContent.text = willSendMsgContent.text + " " + nextMsgItem;
-                }
-            }
-            
             var div = document.getElementById("message-show-list");
             if(div) {
                 this.$nextTick(() => {
@@ -1733,8 +1696,8 @@ export default {
             }
             
             this.cleanEditor();
-            this.matrixClient.sendTextMessage(this.chat.roomId, willSendMsgContent.text).then((eventID)=>{
-                this.$emit('updateChatList', ret);
+            this.matrixClient.sendTextMessage(this.chat.roomId, curMsgItem).then((eventID)=>{
+                //this.$emit('updateChatList', eventID);
             });
         },
         sendMsg: async function() {
