@@ -2281,7 +2281,7 @@ export default {
                                 url: url
                             };
                             this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
-                                this.$emit('updateChatList', ret);
+                                //this.$emit('updateChatList', ret);
                             });
                         });
                     }
