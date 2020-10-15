@@ -237,6 +237,18 @@ export default {
         SendFileDlg,
     },
     methods: {
+        handleCustomMatcher(node, Delta) {
+            let ops = []
+            Delta.ops.forEach(op => {
+                if (op.insert && typeof op.insert === 'string') {// 如果粘贴了图片，这里会是一个对象，所以可以这样处理
+                ops.push({
+                    insert: op.insert,
+                })
+                }
+            })
+            Delta.ops = ops
+            return Delta
+        },
         updateChatList: function(ret) {
             this.$emit("updateChatList", ret, false);
         },
@@ -1663,7 +1675,7 @@ export default {
                     url: url
                 };
                 this.matrixClient.sendMessage(roomID, content).then((ret)=>{
-                    this.$emit('updateChatList', ret);
+                    //this.$emit('updateChatList', ret);
                 });
             });
         },
@@ -1725,15 +1737,6 @@ export default {
                 this.$emit('updateChatList', ret);
             });
         },
-
-        SendFile : function(){
-
-        },
-
-        SendImage : function () {
-            
-        },
-
         sendMsg: async function() {
             // console.log("this.chat is ", this.chat);
             if(this.chat.roomId == undefined) {
@@ -2365,6 +2368,10 @@ export default {
                 theme:'bubble',
                 modules: {
                     toolbar: false,
+                     clipboard: {
+                        // 粘贴版，处理粘贴时候带图片
+                        matchers: [[Node.ELEMENT_NODE, this.handleCustomMatcher]],
+                    }
                     // imageDrop: true,
                     // resizeImage: true,
                 }
