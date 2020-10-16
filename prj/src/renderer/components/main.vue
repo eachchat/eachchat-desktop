@@ -201,6 +201,8 @@ export default {
             this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
 */
+            const userId = window.localStorage.getItem("mx_user_id");
+            this.$store.commit("setUserId", userId)
             this.$router.push("/main/ChatContent");
             
             this.curindex = 0;

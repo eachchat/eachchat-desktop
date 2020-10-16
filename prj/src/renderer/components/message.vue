@@ -473,7 +473,7 @@ export default {
             }
         },
         MsgIsMine:function() {
-            if(this.msg.message_from_id === this.$store.state.userId) {
+            if(this.msg.sender.userId === this.$store.state.userId) {
                 return true;
             }
             else {
