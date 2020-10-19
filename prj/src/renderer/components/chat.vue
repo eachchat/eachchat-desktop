@@ -1757,14 +1757,11 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            if(chatGroupMsgType === 'm.room.member')
-            {
+            let index = ['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType);
+            if(['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType) == -1)
                 return true;
-            }
-            else {
-                return false;
-            }
-        },
+            return false;
+s        },
         // Notice show difference with message.
         showMessageOrNot: function(curMsg) {
             if(curMsg === null) {
@@ -1773,13 +1770,11 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            if(chatGroupMsgType === 'm.room.member')
-            {
+            let index = ['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType);
+
+            if(['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType) == -1)
                 return false;
-            }
-            else {
-                return true;
-            }
+            return true;
         },
         // Notice content
         NoticeContent: function(curMsg) {
@@ -1800,16 +1795,20 @@ export default {
                     var inviter = curMsg.sender.name;
                     return inviter + " 邀请 " + invitees + " 加入群聊";
                 }
+                else if(chatGroupMsgContent.membership === "join")
+                {
+                    var owner = chatGroupMsgContent.displayname;
+                    return owner + " 加入房间";
+                }
+                else if(chatGroupMsgContent.membership === "leave")
+                {
+                    var owner = chatGroupMsgContent.displayname;
+                    return owner + " 离开房间";
+                }
                 else if(chatGroupMsgContent.type === "notice")
                 {
                     var owner = chatGroupMsgContent.userName;
                     return owner + " 发布群公告: " + chatGroupMsgContent.text;
-                }
-                else if(chatGroupMsgContent.type === "updateGroupName")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    var distName = chatGroupMsgContent.text;
-                    return owner + " 修改群名称为 " + distName;
                 }
                 else if(chatGroupMsgContent.type === "deleteGroupUser")
                 {
@@ -1836,6 +1835,10 @@ export default {
                 {
                     return "";
                 }
+            }
+            else if(chatGroupMsgType == 'm.room.name'){
+                var inviter = curMsg.sender.name;
+                return inviter + " 修改房间名称为：" + chatGroupMsgContent.name;
             }
             return "";
         },
