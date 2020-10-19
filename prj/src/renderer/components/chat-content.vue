@@ -151,6 +151,7 @@ import {shell} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 import log from 'electron-log';
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
+import {mapState} from 'vuex';
 
 export default {
   components: {
@@ -176,10 +177,10 @@ export default {
       type: Boolean,
       default: false
     },
-    matrixSync: {
-      type: Boolean,
-      default: false
-    }
+    // matrixSync: {
+    //   type: Boolean,
+    //   default: false
+    // }
     //['distUserId', 'distGroupId'],
   },
   watch: {
@@ -250,9 +251,12 @@ export default {
     },
     matrixSync: function() {
       if (this.matrixSync) this.originalGroupList = global.mxMatrixClientPeg.matrixClient.getRooms();
-    }
+    },
   },
   computed: {
+    ...mapState({
+      matrixSync: state => state.common.matrixSync
+    }),
     dealShowGroupList: function() {
       if(this.originalGroupList.length == 0) {
         return;
@@ -1853,7 +1857,7 @@ export default {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         await this.getGroupList(false);
     })
-    console.log("chat content mounted");
+    console.log("check $store", this.$store);
     console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
 
     if(this.unreadCount < 0) {
