@@ -2044,6 +2044,7 @@ s        },
             return ret;
         },
         handleScroll: function() {
+            return;
             let uldiv = document.getElementById("message-show-list");
             // console.log("=====scroll height is ", uldiv.scrollHeight);
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
