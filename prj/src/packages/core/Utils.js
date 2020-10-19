@@ -1151,9 +1151,39 @@ const iconMap = {
     ],
     web: ['html', 'htm'],
     word: ['doc', 'docx', 'wps', 'wpt', 'rtf', 'dot', 'dotm', 'docm', 'dotx'],
-    txt: ['txt', 'log', 'xml']
+    txt: ['txt', 'log', 'xml'],
+    image: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']
   }
   
-export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB};
+function FileToContentType(filetype){
+    if (filetype.indexOf('image/') === 0) {
+        return 'm.image';
+    } else if (filetype.indexOf('audio/') === 0) {
+        return 'm.audio';
+    } else if (filetype.indexOf('video/') === 0) {
+        return 'm.video';
+    } else {
+        return 'm.file';
+    }
+}
+
+function FilenameToContentType(filename){
+    let extName = path.extname(filename);
+    if(extName.length == 0)
+        return 'm.file';
+    extName = extName.substring(1, extName.length);
+    if(iconMap.image.indexOf(extName) != -1){
+        return 'm.image';
+    }
+    if(iconMap.music.indexOf(extName) != -1){
+        return 'm.audio';
+    }
+    if(iconMap.video.indexOf(extName) != -1){
+        return 'm.video';
+    }
+    return 'm.file'
+}
+
+export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

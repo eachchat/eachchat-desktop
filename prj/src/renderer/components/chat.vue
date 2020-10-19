@@ -134,7 +134,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
+import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -148,8 +148,8 @@ import SendFileDlg from './send-file-dlg.vue'
 import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 
-const {Menu, MenuItem, clipboard, nativeImage} = remote;
-
+const {Menu, MenuItem, nativeImage} = remote;
+const { clipboard } = require('electron')
 // Quill.register('modules/imageDrop', ImageDrop);
 // Quill.register('modules/resizeImage', resizeImage);
 
@@ -1194,12 +1194,16 @@ export default {
                 this.showSendFileDlg = true;
                 var varTmp = [];
                 for(let i=0;i<fileList.length;i++) {
+                    let fileinfo = {};
                     let fileSize = await getFileSizeNum(fileList[i]);
+                    fileinfo.path = fileList[i];
+                    fileinfo.size = fileSize;
+                    fileinfo.name = path.basename(fileList[i])
                     if(fileSize > 100 * 1024 * 1024) {
                         this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                         continue
                     }
-                    varTmp.push(fileList[i]);
+                    varTmp.push(fileinfo);
                 }
                 this.sendFileInfos.distGroupInfo = this.chat;
                 this.sendFileInfos.paths = varTmp;
@@ -1654,23 +1658,28 @@ export default {
             }
 
         },
-        SendFiles: function(filePaths) {
-            console.log("filePaths is ", filePaths);
-            for(let i=0;i<filePaths.length;i++) {
-                this.sendFile(filePaths[i]);
+        SendFiles: function(fileinfos) {
+            for(let i=0;i<fileinfos.length;i++) {
+                this.sendFile(fileinfos[i]);
             }
             this.closeSendFileDlg();
         },
-        sendFile: async function(filePath) {
+        sendFile: async function(fileinfo) {
             var roomID = this.chat.roomId;
-            var stream = fs.readFileSync(filePath);
-            let filename = path.basename(filePath)
+            var stream = fs.readFileSync(fileinfo.path);
+            let filename = fileinfo.name;
+            let type = fileinfo.type;
+            if(type)
+                type = FileToContentType(fileinfo.type);
+            else
+                type = FilenameToContentType(fileinfo.name);
+
             this.matrixClient.uploadContent({
                 stream: stream,
                 name: filename
             }).then((url)=>{
                 var content = {
-                    msgtype: "m.file",
+                    msgtype: type,
                     body: filename,
                     url: url
                 };
@@ -2198,25 +2207,22 @@ export default {
             }
 
             var files = e.dataTransfer.files;
-            var varTmp = [];
             for(let i=0;i<files.length;i++) {
-                let fileSize = await getFileSizeNum(files[i].path);
-                if(fileSize > 100 * 1024 * 1024) {
+                if(files[i].size > 100 * 1024 * 1024) {
                     this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                     continue
                 }
-                varTmp.push(files[i].path);
             }
-            if(varTmp.length == 0) {
-                return;
-            }
+ 
             this.showSendFileDlg = true;
             this.sendFileInfos = {
                 distGroupInfo: this.chat,
-                paths: varTmp
+                paths: files
             }
         },
         checkClipboard(e) {
+            //const strBuffer = clipboard.readRTF()
+            //console.log(strBuffer)
             console.log("e is ", e.clipboardData);
             if ( !(e.clipboardData && e.clipboardData.items) ) {
                 console.log("HAHHHAHHAHHA")
@@ -2224,14 +2230,11 @@ export default {
             }
             for(let i=0;i<e.clipboardData.items.length; i++) {
                 var item = e.clipboardData.items[i];
-                console.log("item is ", item);
                 if(item.kind == "string") {
                     console.log("tmd is zifuchuan ");
                 }
                 else {
-                    console.log("tmd is file");
                     var blod = item.getAsFile();
-                    console.log("dlkj ", blod)
                     var reader = new FileReader();
                     reader.onload = (event)=> {
                         this.matrixClient.uploadContent({
@@ -2239,7 +2242,7 @@ export default {
                             name: blod.name
                         }).then((url)=>{
                             var content = {
-                                msgtype: "m.file",
+                                msgtype: "m.image",
                                 body: blod.name,
                                 url: url
                             };
@@ -2251,6 +2254,7 @@ export default {
                     reader.readAsDataURL(blod);
                 }
             }
+            /*
             for(let i=0;i<e.clipboardData.files.length;i++) {
                 var item = e.clipboardData.files[i];
                 console.log("item is ", item);
@@ -2262,6 +2266,7 @@ export default {
                     var pasteFile = item.getAsFile();
                 }
             }
+            */
         }
     },
     data() {
