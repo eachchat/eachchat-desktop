@@ -1681,7 +1681,10 @@ export default {
                 var content = {
                     msgtype: type,
                     body: filename,
-                    url: url
+                    url: url,
+                    info:{
+                        size: fileinfo.size
+                    }
                 };
                 this.matrixClient.sendMessage(roomID, content).then((ret)=>{
                     //this.$emit('updateChatList', ret);
@@ -2242,9 +2245,12 @@ export default {
                             name: blod.name
                         }).then((url)=>{
                             var content = {
-                                msgtype: "m.image",
+                                msgtype: FileToContentType(blod.type),
                                 body: blod.name,
-                                url: url
+                                url: url,
+                                info:{
+                                    size: blod.size
+                                }
                             };
                             this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
                                 //this.$emit('updateChatList', ret);

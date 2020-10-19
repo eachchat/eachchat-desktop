@@ -292,7 +292,8 @@ export default {
             {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.messageContent = chatGroupMsgContent.body;
-                    this.fileSize = chatGroupMsgContent.info.size;
+                    if(chatGroupMsgContent.info)
+                        this.fileSize = chatGroupMsgContent.info.size;
                     this.fileName = this.messageContent;
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.text'){
@@ -305,7 +306,12 @@ export default {
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
                     imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
-                    imgMsgImgElement.setAttribute("height", chatGroupMsgContent.info.h);
+                    if(chatGroupMsgContent.info)
+                    {
+                        imgMsgImgElement.setAttribute("height", chatGroupMsgContent.info.h);
+                        //this.fileSize = chatGroupMsgContent.info.size;
+                    }
+
 
                     /*
                     var targetPath = this.msg.file_local_path;
