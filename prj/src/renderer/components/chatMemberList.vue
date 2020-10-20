@@ -5,7 +5,7 @@
                 <li v-for="(item, index) in memberListShow" class="memberItem" @click="atMember(item)">
                     <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" src="../../../static/Img/User/user-40px@2x.png">
-                        <label class="groupMemberInfoLabel">{{item.user_display_name}}</label>
+                        <label class="groupMemberInfoLabel">{{item.name}}</label>
                     </div>
                 </li>
             </ul>
@@ -34,8 +34,7 @@ export default {
             groupId: '',
             ownerId: '',
             atDlgElement: null,
-            searchId: 0,
-            memberIdList:[],
+            searchId: 0
         }
     },
     components: {
@@ -47,13 +46,11 @@ export default {
         atMember: function(memberInfo) {
             this.memberListShowOriginal = [];
             this.memberListShow = [];
-            this.memberIdList = [];
             this.$emit("atMember", memberInfo);
         },
         Close: function() {
             this.memberListShowOriginal = [];
             this.memberListShow = [];
-            this.memberIdList = [];
             this.$emit("closeChatMemberDlg");
         },
         getClassNameThroughMemberUid: function(memberUid) {
@@ -70,12 +67,16 @@ export default {
             return uid;
         },
         getMemberImage: async function() {
+            return;
             for(var i=0; i < this.memberListShow.length; i++) {
                 var distUserInfo = this.memberListShow[i];
+                if(!distUserInfo.user.avatarUrl)
+                    continue;
                 // console.log("distuserinfo.uid ", distUserInfo.user_id);
                 var targetPath = '';
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
-                    var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.user_id));
+                let avatarUrl = window.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distUserInfo.user.avatarUrl)
+                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(targetPath, distUserInfo.userId))){
+                    var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.userId));
                     distElement.setAttribute("src", targetPath);
                 }
             }
@@ -93,6 +94,8 @@ export default {
     },
     async created () {
         await services.common.init();
+        const userId = window.localStorage.getItem("mx_user_id");
+        //await services.common.InitConfServer("1111111")
         this.loginInfo = await services.common.GetLoginModel();
         console.log("userinfo-tip login info is ", this.loginInfo);
         this.curUserInfo = await services.common.GetSelfUserModel();
@@ -101,32 +104,15 @@ export default {
     },
     watch: {
         GroupInfo: async function() {
-            this.memberListShow = [];
-            this.memberListShowOriginal = [];
-            this.memberIdList = [];
+
+            if(!this.GroupInfo.currentState)
+                return;
+            this.memberListShow = this.GroupInfo.currentState.getMembers()
+            this.memberListShowOriginal = this.memberListShow;
 
             // console.log("GroupInfo is ", this.GroupInfo);
             if(this.atDlgElement == null) {
                 this.atDlgElement = document.getElementById("atDlgId");
-            }
-            if(this.GroupInfo.group_id == undefined) {
-                return;
-            }
-            
-            this.memberIdList = this.GroupInfo.contain_user_ids.split(",");
-            // console.log("this member list is ", this.memberIdList);
-            
-            for(var i=0;i<this.memberIdList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
-                if(memberInfoTmp.length != 0) {
-                    memberInfoTmp[0].checkState = false;
-                    this.memberListShow.push(memberInfoTmp[0]);
-                    this.memberListShowOriginal.push(memberInfoTmp[0]);
-                }
-
-                if(i == 6){
-                    break;
-                }
             }
 
             this.$nextTick(() => {
@@ -141,25 +127,9 @@ export default {
                     })
                 }, 0)
             }
-
-            for(var i=0;i<this.memberIdList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
-                console.log("memgerinfotmep is ", memberInfoTmp)
-                if(memberInfoTmp.length != 0) {
-                    if(this.memberListShow.indexOf(memberInfoTmp[0]) == -1) {
-                        memberInfoTmp[0].checkState = false;
-                        this.memberListShow.push(memberInfoTmp[0]);
-                        this.memberListShowOriginal.push(memberInfoTmp[0]);
-                    }
-                }
-            }
-
-            this.$nextTick(() => {
-                this.getMemberImage();
-            })
-
             this.ownerId = this.GroupInfo.owner;
-            this.groupId = this.GroupInfo.group_id; 
+            this.groupId = this.GroupInfo.roomId; 
+            
         },
         showPosition: function() {
             // console.log("this showposition is ", this.showPosition)

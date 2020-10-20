@@ -906,7 +906,7 @@ export default {
                 if(this.chat.group_type == 102) {
                     return;
                 }
-                this.chatMemberDlgVisible = false;
+                //this.chatMemberDlgVisible = false;
                 // this.chatMemberDlgchat = {};
                 this.chatMemberSearchKey = null;
 
@@ -949,7 +949,7 @@ export default {
             this.deleteDistContent();
             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
             complexSpan.id = generalGuid();
-            complexSpan.innerHTML = "@" + atMemberInfo.user_display_name;
+            complexSpan.innerHTML = "@" + atMemberInfo.name;
             var distStyle = this.atConstStyle
             // 'display:inline-block;outline:none;border: 0px;font-size:14px;font-family:Microsoft YaHei',
             // console.log("diststyle is ", distStyle);
@@ -959,8 +959,8 @@ export default {
                 "type": "at",
                 "height": 0,
                 "width": 0,
-                "atUid": atMemberInfo.user_id,
-                "atName": atMemberInfo.user_display_name,
+                "atUid": atMemberInfo.userId,
+                "atName": atMemberInfo.name,
             };
             this.idToPath[complexSpan.id] = msgInfo;
             console.log("admember this.curinputindex is ", this.curInputIndex);
