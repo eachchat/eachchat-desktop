@@ -121,19 +121,19 @@ export default {
             return !this.isEmpty(this.userInfo.workDescription);
         },
         showPhone: function() {
-            if (this.userInfo == undefined){
+            if (this.userInfo.phone == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.phone.mobile);
         },
         showTelephone: function (){
-            if (this.userInfo == undefined){
+            if (this.userInfo.phone == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.phone.work);
         },
         showEmail: function() {
-            if (this.userInfo == undefined){
+            if (this.userInfo.email == undefined){
                 return false;
             }
             return this.userInfo.email.length > 0;

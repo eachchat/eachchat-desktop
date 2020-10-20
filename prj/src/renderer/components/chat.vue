@@ -374,7 +374,7 @@ export default {
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
             // console.log("e.target is ", e.target.className)
-            let distElement = document.getElementById(msgItem.message_id);
+            let distElement = document.getElementById(msgItem.event.event_id);
             // console.log("distElement is ", distElement.className);
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
@@ -1910,7 +1910,7 @@ s        },
         },
         // Difference in css. Left of Right
         ChatLeftOrRightClassName: function (curMsg) {
-            if(curMsg.message_from_id === this.curUserInfo.id) {
+            if(curMsg.sender.userId === this.userID) {
                 return "message-right";
             }
             else {
@@ -1918,16 +1918,16 @@ s        },
             }
         },
         ChatMessageId: function (curMsg) {
-            return "message-" + curMsg.message_id;
+            return "message-" + curMsg.event.event_id;
         },
         msgCheckBoxId: function(curMsg) {
-            return "message-checkbox-" + curMsg.message_id;
+            return "message-checkbox-" + curMsg.event.event_id;
         },
         msgSelectOrNotClassName: function(curMsg) {
             //class="msgContent"
             var hasSelected = false;
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                if(this.selectedMsgs[i].curMsg.event.event_id == curMsg.event.event_id) {
                     this.selectedMsgs.splice(i, 1);
                     hasSelected = true;
                     break;
@@ -2400,6 +2400,7 @@ s        },
         await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
+        this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         // console.log("===============mqttinit")
         // services.common.initmqtt();
