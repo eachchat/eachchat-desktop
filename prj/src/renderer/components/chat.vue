@@ -1643,31 +1643,43 @@ export default {
             this.closeSendFileDlg();
         },
         sendFile: async function(fileinfo) {
-            var roomID = this.chat.roomId;
-            var stream = fs.readFileSync(fileinfo.path);
-            let filename = fileinfo.name;
-            let type = fileinfo.type;
-            if(type)
-                type = FileToContentType(fileinfo.type);
-            else
-                type = FilenameToContentType(fileinfo.name);
-
-            this.matrixClient.uploadContent({
-                stream: stream,
-                name: filename
-            }).then((url)=>{
-                var content = {
-                    msgtype: type,
-                    body: filename,
-                    url: url,
-                    info:{
-                        size: fileinfo.size
-                    }
-                };
-                this.matrixClient.sendMessage(roomID, content).then((ret)=>{
-                    //this.$emit('updateChatList', ret);
-                });
-            });
+            var showfu = new FileUtil(fileinfo.path);
+            let showfileObj = showfu.GetUploadfileobj();
+            var reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onload = () => {
+                var img = new Image();
+                img.src = reader.result;
+                img.onload = ()=>{
+                    var roomID = this.chat.roomId;
+                    var stream = fs.readFileSync(fileinfo.path);
+                    let filename = fileinfo.name;
+                    let type = fileinfo.type;
+                    if(type)
+                        type = FileToContentType(fileinfo.type);
+                    else
+                        type = FilenameToContentType(fileinfo.name);
+                    
+                    this.matrixClient.uploadContent({
+                        stream: stream,
+                        name: filename
+                    }).then((url)=>{
+                        var content = {
+                            msgtype: type,
+                            body: filename,
+                            url: url,
+                            info:{
+                                size: fileinfo.size,
+                                w: img.width,
+                                h: img.height
+                            }
+                        };
+                        this.matrixClient.sendMessage(roomID, content).then((ret)=>{
+                            //this.$emit('updateChatList', ret);
+                        });
+                    });
+                }
+            }
         },
 
         SendText: function(sendBody, varcontent){
