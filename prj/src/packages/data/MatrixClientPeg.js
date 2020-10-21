@@ -104,7 +104,7 @@ class _MatrixClientPeg{
           deviceId: deviceId,
           cryptoCallbacks: {}
         }
-        Object.assign(opts.cryptoCallbacks, crossSigningCallbacks);
+        Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
         await this.matrixClient.initCrypto();
         // await this.matrixClient.startClient();
