@@ -383,8 +383,9 @@ export default {
             if(msgItem.key_id != undefined && msgItem.key_id.length != 0) {
                 isSecret = true;
             }
+
             this.menu = new Menu();
-            if(msgItem.message_type == 101) {
+            if(content.msgtype == "m.text") {
                 this.menu.append(new MenuItem({
                     label: "复制",
                     click: () => {
@@ -398,12 +399,14 @@ export default {
                             this.transMit(msgItem)
                         }
                     }));
+                    /*
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
+                    */
                 }
                 this.menu.append(new MenuItem({
                     label: "删除",
@@ -420,13 +423,7 @@ export default {
                     }));
                 }
             }
-            else if(msgItem.message_type == 102) {
-                // this.menu.append(new MenuItem({
-                //     label: "复制",
-                //     click: () => {
-                //         this.menuCopy(msgItem)
-                //     }
-                // }));
+            else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
                 if(!isSecret) {
                     this.menu.append(new MenuItem({
                         label: "转发",
@@ -434,12 +431,14 @@ export default {
                             this.transMit(msgItem)
                         }
                     }));
+                    /*
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
+                    */
                 }
                 this.menu.append(new MenuItem({
                     label: "删除",
@@ -455,36 +454,12 @@ export default {
                         }
                     }));
                 }
-            }
-            else if(msgItem.message_type == 103) {
-                if(!isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                }
                 this.menu.append(new MenuItem({
-                    label: "删除",
+                    label: "下载",
                     click: () => {
-                        this.menuDelete(msgItem)
+                        this.downloadFile(msgItem);
                     }
                 }));
-                if(!isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
-                        }
-                    }));
-                }
             }
             else if(msgItem.message_type == 105) {
                 if(!isSecret) {
@@ -731,6 +706,11 @@ export default {
             }
             this.selectChanged(msg);
         },
+        downloadFile(msg){
+            this.fileLink = this.matrixClient.mxcUrlToHttp(msg.event.content.url);
+            console.log(this.fileLink)
+        },
+
         cleanSelected() {
             for(let i=0;i<this.selectedMsgs.length;i++) {
                 var elementTmp = document.getElementById(this.msgCheckBoxId(this.selectedMsgs[i]));

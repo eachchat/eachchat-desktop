@@ -57,13 +57,12 @@
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgFileIcon()" alt="图片">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
-                            <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>
@@ -232,9 +231,7 @@ export default {
             return iconPath;
         },
         getMsgFileIcon: function() {
-            var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-            var ext = chatGroupMsgContent.ext
-            var iconPath = getIconPath(ext);
+            let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
             return iconPath;
         },
         MsgIsImage: function() {
@@ -303,16 +300,32 @@ export default {
                     }
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    let info = {
+                        w: 100,
+                        h: 100
+                    };
+                    if(chatGroupMsgContent.info)
+                        info = chatGroupMsgContent.info
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
-                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
-                    if(chatGroupMsgContent.info)
-                    {
-                        imgMsgImgElement.setAttribute("height", chatGroupMsgContent.info.h);
-                        //this.fileSize = chatGroupMsgContent.info.size;
+                    let style = "padding:40px 40px 40px 40px;";
+                    let max = Math.max(info.w, info.h);
+                    let maxSize = 400;
+                    if(max > maxSize ){
+                        if(info.w > info.h){
+                            info.h = info.h/(info.w/maxSize);
+                            info.w = maxSize;
+                        }
+                        else{
+                            info.w = info.w/(info.h/maxSize)
+                            info.w = maxSize;
+                        }
+
                     }
-
-
+                    style += "width:" + info.w + "px";
+                    style += ";"
+                    style += "height:" + info.h + "px";
+                    imgMsgImgElement.setAttribute("style", style);
                     /*
                     var targetPath = this.msg.file_local_path;
                     if(!targetPath) {
@@ -624,6 +637,7 @@ export default {
             userInfo: null,
             ipcInited: false,
             amr: null,
+            matrixClient: undefined
         }
     },
     mounted: async function() {
@@ -633,6 +647,7 @@ export default {
         // if(this.userIconElement == undefined) {
         //     this.userIconElement = document.getElementById(userIconElementId);
         // }
+        this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         setTimeout(() => {
             this.$nextTick(() => {
                 this.MsgBelongUserImg();
