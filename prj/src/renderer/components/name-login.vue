@@ -13,6 +13,7 @@
                 <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
                 <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
             </div>
+        <certification v-show="showCertification"/>
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
                 <div class="title">
@@ -34,7 +35,7 @@
                 <div class="btn-item">
                     <Button type="success"  @click="organizationConfirmButtonClicked()">{{$t("next")}}</Button>
                 </div>
-                <div class="organization-finder-tip">
+                <div class="organization-finder-tip" v-show="false">
                     <p class="forget-title">{{$t("forgetOrganization")}}</p><p
                     class="finder-title" @click="organizationFinderClicked()">{{$t("retrieveOrganization")}}</p>
                 </div>
@@ -175,7 +176,7 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
-        <el-dropdown class="language" size="small" @command="handleCommand">
+        <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView">
             <span class="login-setup-language-label" id="login-language-label">
                 简体中文
             </span>
@@ -195,16 +196,19 @@ import {services} from '../../packages/data/index.js'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
 import winHeaderBar from './win-header.vue';
+import certification from './Certificate.vue';
 import {getDefaultHomeServerAddr} from '../../config.js'
 import log from 'electron-log';
 export default {
     name: 'login',
     components:{
         macWindowHeader,
-        winHeaderBar
+        winHeaderBar,
+        certification
     },
     data () {
         return {
+            showCertification: false,
             loginState: '',
             username: '',
             password: '',
@@ -231,6 +235,7 @@ export default {
             showLoginView: false,
             showUsernameLoginView: true,
             defaultIdentity: '',
+            supportedIdentity: [],
             showUserphoneLoginView: false,
             showUseremailLoginView: false,
             showUserWeiXinView: false,
@@ -301,6 +306,7 @@ export default {
             }
             var address = this.organizationAddress;
             global.mxMatrixClientPeg.checkHomeServer(address).then((flows) => {
+                this.supportedIdentity = flows;
                 for (let i = 0; i < flows.length; i++ ) {
                     this.defaultIdentity = flows[i];
                     this.resetLoginStateTitle();
@@ -379,6 +385,19 @@ export default {
                 this.userEmailSendCodeValue = "重新发送";
                 this.userEmailSendCodeTime = 0;
             }
+        },
+        certificationShow() {
+            this.resetLoginStateTitle();
+            this.showLoginView = false;
+            this.showOrganizationView = false;
+            this.showOrganizationFinderView = false;
+            this.showUserphoneLoginView = false;
+            this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
+            this.showUsernameLoginView = false;
+
+            this.showCertification = true;
         },
         userNameLoginClicked(){
             this.resetLoginStateTitle();
@@ -528,7 +547,7 @@ export default {
                     this.loginState = "请输入用户名";
                     return;
                 }else if(this.showUserLdapView){
-                    this.loginState = "请输入用户名、邮箱或手机号";
+                    this.loginState = "请输入用户名或邮箱";
                     return;
                 }else if(this.showUserphoneLoginView){
                     this.loginState = "请输入手机号";
@@ -555,18 +574,24 @@ export default {
             var hostname = environment.os.hostName;
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
-            var config = {};
+            var identifier = {};
             if(this.showUsernameLoginView){
-                config = {
-                    username: this.username,
-                    password: this.password,
-                    identityType: this.defaultIdentity.length != 0 ? this.defaultIdentity : 'password',
-                    model: hostname,
-                    deviceID: mac,
-                    desktopType: version
-            }
+                const isEmail = this.username.indexOf("@") > 0;
+                if(isEmail) {
+                    identifier = {
+                        type: 'm.id.thirdparty',
+                        medium: 'email',
+                        address: this.username,
+                    };
+                }
+                else {
+                    identifier = {
+                        type: 'm.id.user',
+                        user: this.username,
+                    };
+                }
             }else if(this.showUserphoneLoginView){
-                config = {
+                identifier = {
                     identityType: 'mobile',
                     identityValue: this.username,
                     identityCode: this.password,
@@ -575,7 +600,7 @@ export default {
                     desktopType: version
                 }
             }else if(this.showUseremailLoginView){
-                config = {
+                identifier = {
                     identityType: 'email',
                     identityValue: this.username,
                     identityCode: this.password,
@@ -584,9 +609,35 @@ export default {
                     desktopType: version
                 }
             }
+
+            const loginParams = {
+                password: this.password,
+                identifyer: identifier,
+                initial_device_display_name: version,
+            };
             
-            let response = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
-            console.log(response);
+            let client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+            console.log(client);
+            if(client.isCryptoEnabled()) {
+                this.certificationShow();
+                await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            }
+            else {
+                var elementButton = document.getElementById('loginButton');
+                //this.loginButtonValue = "正在加载数据";
+                this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
+                this.loginState = "登录成功";
+                this.showLoginView = false;
+                this.showLoadingView = true;
+                this.tokenRefreshing = true;
+                setTimeout(async () => {
+                    // ipcRenderer.send('showMainPageWindow', true); 
+                    ipcRenderer.send("showMainPageWindow")
+                    this.$router.push("/main")
+                }, 1000);
+            }
+            console.log("the isCryptoEnalbe is ", client.isCryptoEnabled())
+            console.log("the isCryptoEnalbe is ", client.getStoredCrossSigningForUser(client.getUserId()))
             // if(response != true){
             //     var msg = ret_data["message"];
             //     var code = ret_data["code"];
@@ -598,18 +649,6 @@ export default {
             //         return
             //     }
             // }
-            var elementButton = document.getElementById('loginButton');
-            //this.loginButtonValue = "正在加载数据";
-            this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
-            this.loginState = "登录成功";
-            this.showLoginView = false;
-            this.showLoadingView = true;
-            this.tokenRefreshing = true;
-            setTimeout(async () => {
-                // ipcRenderer.send('showMainPageWindow', true); 
-                ipcRenderer.send("showMainPageWindow")
-                this.$router.push("/main")
-            }, 1000);
         }
     },
     mounted: async function() {
@@ -1767,8 +1806,9 @@ export default {
 
         .el-icon-caret-bottom {
             float: right;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
         }
     }
 </style>
