@@ -949,7 +949,7 @@ export default {
             this.deleteDistContent();
             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
             complexSpan.id = generalGuid();
-            complexSpan.innerHTML = "@" + atMemberInfo.name;
+            complexSpan.innerHTML = "@" + atMemberInfo.name + ":";
             var distStyle = this.atConstStyle
             // 'display:inline-block;outline:none;border: 0px;font-size:14px;font-family:Microsoft YaHei',
             // console.log("diststyle is ", distStyle);
@@ -1225,9 +1225,7 @@ export default {
                 }
             }
         },
-        // Send msg demo
-        ssendMsg: function() {
-        },
+       
         sendAgain: async function(retryMsg) {
             // console.log("retryMsg is ", retryMsg);
         
@@ -1695,7 +1693,6 @@ export default {
         SendText: function(curMsgItem, varcontent){
             // Text
             // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
-            curMsgItem = sliceReturnsOfString(curMsgItem);
             if(curMsgItem.length == 0){
                 return;
             }
@@ -1727,6 +1724,7 @@ export default {
             // console.log("varcontent is ", varcontent);
             var uid = this.chat.user_id;
             var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
+            let sendText = '';
             for(var i=0;i<varcontent.ops.length;i++){
                 // console.log("i is ", i);
                 let curMsgItem = varcontent.ops[i].insert;
@@ -1739,15 +1737,18 @@ export default {
                     // console.log("this.idToPath is ", this.idToPath)
                     var filePath = msgInfo.path;
                     var fileType = msgInfo.type;
-                    
                     if(fileType == "at") {
-                        
+                        sendText += msgInfo.atName;
+                        sendText += ":"
                     }
                 }
                 else{
-                    this.SendText(curMsgItem, varcontent)
+                    curMsgItem = sliceReturnsOfString(curMsgItem);
+                    sendText += curMsgItem;
                 }
             }
+            if(sendText.length != 0)
+                this.SendText(sendText, varcontent);
         },
         // If message is notice set visible
         showNoticeOrNot: function(curMsg) {
