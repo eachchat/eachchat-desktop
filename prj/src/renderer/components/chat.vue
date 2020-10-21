@@ -1690,12 +1690,7 @@ export default {
             });
         },
 
-        SendText: function(curMsgItem, varcontent){
-            // Text
-            // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
-            if(curMsgItem.length == 0){
-                return;
-            }
+        SendText: function(sendBody, varcontent){
             var div = document.getElementById("message-show-list");
             if(div) {
                 this.$nextTick(() => {
@@ -1705,10 +1700,11 @@ export default {
             }
             
             this.cleanEditor();
-            this.matrixClient.sendTextMessage(this.chat.roomId, curMsgItem).then((eventID)=>{
+            this.matrixClient.sendMessage(this.chat.roomId, sendBody).then((eventID)=>{
                 //this.$emit('updateChatList', eventID);
             });
         },
+
         sendMsg: async function() {
             // console.log("this.chat is ", this.chat);
             if(this.chat.roomId == undefined) {
@@ -1725,6 +1721,11 @@ export default {
             var uid = this.chat.user_id;
             var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
             let sendText = '';
+            let exsitAt = false;
+            let sendBody = {
+                msgtype: "m.text",
+                body: sendText
+            }
             for(var i=0;i<varcontent.ops.length;i++){
                 // console.log("i is ", i);
                 let curMsgItem = varcontent.ops[i].insert;
@@ -1740,6 +1741,7 @@ export default {
                     if(fileType == "at") {
                         sendText += msgInfo.atName;
                         sendText += ":"
+                        sendBody.format = "org.matrix.custom.html";
                     }
                 }
                 else{
@@ -1747,8 +1749,12 @@ export default {
                     sendText += curMsgItem;
                 }
             }
+            
             if(sendText.length != 0)
-                this.SendText(sendText, varcontent);
+            {
+                sendBody.body = sendText;
+                this.SendText(sendBody, varcontent);
+            }
         },
         // If message is notice set visible
         showNoticeOrNot: function(curMsg) {
