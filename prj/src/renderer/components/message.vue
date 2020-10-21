@@ -10,7 +10,7 @@
                     <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" src="../../../static/Img/Chat/loading.gif" alt="图片" :height="imageHeight">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgFileIcon()" alt="图片">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -300,17 +300,22 @@ export default {
                     }
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    let maxSize = 400;
+
                     let info = {
-                        w: 100,
-                        h: 100
+                        w: maxSize,
+                        h: maxSize
                     };
                     if(chatGroupMsgContent.info)
                         info = chatGroupMsgContent.info
+                    if(!info.h)
+                        info.h = maxSize;
+                    if(!info.w)
+                        info.w = maxSize;
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
                     let style = "padding:40px 40px 40px 40px;";
                     let max = Math.max(info.w, info.h);
-                    let maxSize = 400;
                     if(max > maxSize ){
                         if(info.w > info.h){
                             info.h = info.h/(info.w/maxSize);
