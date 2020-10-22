@@ -655,7 +655,6 @@ export default {
         // if(this.userIconElement == undefined) {
         //     this.userIconElement = document.getElementById(userIconElementId);
         // }
-        this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         setTimeout(() => {
             this.$nextTick(() => {
                 this.MsgBelongUserImg();
@@ -674,6 +673,7 @@ export default {
         }, 0)
     },
     created: async function() {
+        this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
