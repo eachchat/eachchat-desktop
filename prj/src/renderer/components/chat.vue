@@ -1862,7 +1862,7 @@ s        },
             if(curMsg === null) {
                 return "";
             }
-            var secondsTime = Number(curMsg.message_timestamp);
+            var secondsTime = curMsg.event.origin_server_ts;
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
             let cutTime = curDateSecond - secondsTime;
