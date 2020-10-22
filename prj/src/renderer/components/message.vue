@@ -301,7 +301,8 @@ export default {
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     let maxSize = 400;
-
+                    if(chatGroupMsgContent.body)
+                        this.fileName = chatGroupMsgContent.body;
                     let info = {
                         w: maxSize,
                         h: maxSize
@@ -312,6 +313,8 @@ export default {
                         info.h = maxSize;
                     if(!info.w)
                         info.w = maxSize;
+                    if(info.size)
+                        this.fileSizeNum = info.size;
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
                     let style = "padding:40px 40px 40px 40px;";
