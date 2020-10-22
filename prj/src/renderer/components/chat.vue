@@ -45,8 +45,6 @@
                         <Faces v-show="showFace" id="face-box-id" @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
                         <div class="chat-input-expression" @click="showExpression()">
                         </div>
-                        <div class="chat-input-picture" @click="insertPic()">
-                        </div>
                         <div class="chat-input-file" @click="insertFiles()">
                         </div>
                         <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()">
