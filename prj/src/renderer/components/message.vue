@@ -16,7 +16,6 @@
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
-                            <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>

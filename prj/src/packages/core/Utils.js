@@ -1167,6 +1167,22 @@ function FileToContentType(filetype){
     }
 }
 
+function GetFileType(fileRes){
+    let pos0 = fileRes.indexOf("\:");  
+    let pos1 = fileRes.indexOf("\;");
+    if(pos0 + 1 > pos1)
+        return 'm.file';
+    let filetype = fileRes.substring(pos0 + 1, pos1);
+    if (filetype.indexOf('image/') === 0) {
+        return 'm.image';
+    } else if (filetype.indexOf('audio/') === 0) {
+        return 'm.audio';
+    } else if (filetype.indexOf('video/') === 0) {
+        return 'm.video';
+    }
+    return 'm.file';
+}
+
 function FilenameToContentType(filename){
     let extName = path.extname(filename);
     if(extName.length == 0)
@@ -1184,6 +1200,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType};
+export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, GetFileType};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

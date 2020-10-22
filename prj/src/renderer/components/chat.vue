@@ -132,7 +132,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType} from '../../packages/core/Utils.js'
+import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -1640,30 +1640,58 @@ export default {
             }
             this.closeSendFileDlg();
         },
+        
         sendFile: async function(fileinfo) {
             var showfu = new FileUtil(fileinfo.path);
             let showfileObj = showfu.GetUploadfileobj();
             var reader = new FileReader();
             reader.readAsDataURL(showfileObj);
+            var stream = showfu.ReadfileSync(fileinfo.path);
+
             reader.onload = () => {
-                var img = new Image();
-                img.src = reader.result;
-                img.onload = ()=>{
+                let type = GetFileType(reader.result);
+                let fileResult = reader.result;
+                if(type == 'm.image'){
+                    this.SendImage(fileinfo, fileResult, stream)
+                }
+                else{
                     var roomID = this.chat.roomId;
-                    var stream = fs.readFileSync(fileinfo.path);
                     let filename = fileinfo.name;
-                    let type = fileinfo.type;
-                    if(type)
-                        type = FileToContentType(fileinfo.type);
-                    else
-                        type = FilenameToContentType(fileinfo.name);
-                    
                     this.matrixClient.uploadContent({
                         stream: stream,
                         name: filename
                     }).then((url)=>{
                         var content = {
-                            msgtype: type,
+                            msgtype: 'm.file',
+                            body: filename,
+                            url: url,
+                            info:{
+                                size: fileinfo.size,
+                            }
+                        };
+                        this.matrixClient.sendMessage(roomID, content).then((ret)=>{
+                            //this.$emit('updateChatList', ret);
+                        });
+                    });
+                }
+                
+            }
+        },
+
+        SendImage: function(fileinfo, fileResult, stream){
+                var img = new Image();
+                img.src = fileResult;
+                //let tt1 = fileResult.substring(fileResult.indexOf("\,") + 1)
+                //let tt0 = Buffer.from(tt1, "base64");
+                img.onload = ()=>{
+                    var roomID = this.chat.roomId;
+                    let filename = fileinfo.name;
+                    this.matrixClient.uploadContent({
+                        stream: stream,
+                        name: filename
+                    }).then((url)=>{
+                        var content = {
+                            msgtype: 'm.image',
                             body: filename,
                             url: url,
                             info:{
@@ -1677,7 +1705,6 @@ export default {
                         });
                     });
                 }
-            }
         },
 
         SendText: function(sendBody, varcontent){
@@ -2224,6 +2251,7 @@ s        },
                 paths: files
             }
         },
+
         checkClipboard(e) {
             //const strBuffer = clipboard.readRTF()
             //console.log(strBuffer)
@@ -2239,24 +2267,29 @@ s        },
                 }
                 else {
                     var blod = item.getAsFile();
+                    let fileType = FileToContentType(blod.type);
                     var reader = new FileReader();
                     reader.onload = (event)=> {
-                        this.matrixClient.uploadContent({
-                            stream: event.target.result,
-                            name: blod.name
-                        }).then((url)=>{
-                            var content = {
-                                msgtype: FileToContentType(blod.type),
-                                body: blod.name,
-                                url: url,
-                                info:{
-                                    size: blod.size
-                                }
-                            };
-                            this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
-                                //this.$emit('updateChatList', ret);
+                        if(fileType == 'm.image')
+                            this.SendImage(blod, event.target.result, stream);
+                        else{
+                            this.matrixClient.uploadContent({
+                                stream: event.target.result,
+                                name: blod.name
+                            }).then((url)=>{
+                                var content = {
+                                    msgtype: fileType,
+                                    body: blod.name,
+                                    url: url,
+                                    info:{
+                                        size: blod.size
+                                    }
+                                };
+                                this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
+                                    //this.$emit('updateChatList', ret);
+                                });
                             });
-                        });
+                        }
                     }
                     reader.readAsDataURL(blod);
                 }
