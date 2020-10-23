@@ -45,8 +45,6 @@
                         <Faces v-show="showFace" id="face-box-id" @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
                         <div class="chat-input-expression" @click="showExpression()">
                         </div>
-                        <div class="chat-input-picture" @click="insertPic()">
-                        </div>
                         <div class="chat-input-file" @click="insertFiles()">
                         </div>
                         <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()">
@@ -134,7 +132,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize} from '../../packages/core/Utils.js'
+import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -148,8 +146,8 @@ import SendFileDlg from './send-file-dlg.vue'
 import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 
-const {Menu, MenuItem, clipboard, nativeImage} = remote;
-
+const {Menu, MenuItem, nativeImage} = remote;
+const { clipboard } = require('electron')
 // Quill.register('modules/imageDrop', ImageDrop);
 // Quill.register('modules/resizeImage', resizeImage);
 
@@ -374,7 +372,7 @@ export default {
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
             // console.log("e.target is ", e.target.className)
-            let distElement = document.getElementById(msgItem.message_id);
+            let distElement = document.getElementById(msgItem.event.event_id);
             // console.log("distElement is ", distElement.className);
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
@@ -383,8 +381,9 @@ export default {
             if(msgItem.key_id != undefined && msgItem.key_id.length != 0) {
                 isSecret = true;
             }
+
             this.menu = new Menu();
-            if(msgItem.message_type == 101) {
+            if(content.msgtype == "m.text") {
                 this.menu.append(new MenuItem({
                     label: "复制",
                     click: () => {
@@ -398,12 +397,14 @@ export default {
                             this.transMit(msgItem)
                         }
                     }));
+                    /*
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
+                    */
                 }
                 this.menu.append(new MenuItem({
                     label: "删除",
@@ -420,13 +421,7 @@ export default {
                     }));
                 }
             }
-            else if(msgItem.message_type == 102) {
-                // this.menu.append(new MenuItem({
-                //     label: "复制",
-                //     click: () => {
-                //         this.menuCopy(msgItem)
-                //     }
-                // }));
+            else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
                 if(!isSecret) {
                     this.menu.append(new MenuItem({
                         label: "转发",
@@ -434,12 +429,14 @@ export default {
                             this.transMit(msgItem)
                         }
                     }));
+                    /*
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
+                    */
                 }
                 this.menu.append(new MenuItem({
                     label: "删除",
@@ -455,36 +452,12 @@ export default {
                         }
                     }));
                 }
-            }
-            else if(msgItem.message_type == 103) {
-                if(!isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                }
                 this.menu.append(new MenuItem({
-                    label: "删除",
+                    label: "下载",
                     click: () => {
-                        this.menuDelete(msgItem)
+                        this.downloadFile(msgItem);
                     }
                 }));
-                if(!isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
-                        }
-                    }));
-                }
             }
             else if(msgItem.message_type == 105) {
                 if(!isSecret) {
@@ -731,6 +704,11 @@ export default {
             }
             this.selectChanged(msg);
         },
+        downloadFile(msg){
+            this.fileLink = this.matrixClient.mxcUrlToHttp(msg.event.content.url);
+            console.log(this.fileLink)
+        },
+
         cleanSelected() {
             for(let i=0;i<this.selectedMsgs.length;i++) {
                 var elementTmp = document.getElementById(this.msgCheckBoxId(this.selectedMsgs[i]));
@@ -906,7 +884,7 @@ export default {
                 if(this.chat.group_type == 102) {
                     return;
                 }
-                this.chatMemberDlgVisible = false;
+                //this.chatMemberDlgVisible = false;
                 // this.chatMemberDlgchat = {};
                 this.chatMemberSearchKey = null;
 
@@ -949,7 +927,7 @@ export default {
             this.deleteDistContent();
             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
             complexSpan.id = generalGuid();
-            complexSpan.innerHTML = "@" + atMemberInfo.user_display_name;
+            complexSpan.innerHTML = "@" + atMemberInfo.name + ":";
             var distStyle = this.atConstStyle
             // 'display:inline-block;outline:none;border: 0px;font-size:14px;font-family:Microsoft YaHei',
             // console.log("diststyle is ", distStyle);
@@ -959,8 +937,8 @@ export default {
                 "type": "at",
                 "height": 0,
                 "width": 0,
-                "atUid": atMemberInfo.user_id,
-                "atName": atMemberInfo.user_display_name,
+                "atUid": atMemberInfo.userId,
+                "atName": atMemberInfo.name,
             };
             this.idToPath[complexSpan.id] = msgInfo;
             console.log("admember this.curinputindex is ", this.curInputIndex);
@@ -1194,12 +1172,16 @@ export default {
                 this.showSendFileDlg = true;
                 var varTmp = [];
                 for(let i=0;i<fileList.length;i++) {
+                    let fileinfo = {};
                     let fileSize = await getFileSizeNum(fileList[i]);
+                    fileinfo.path = fileList[i];
+                    fileinfo.size = fileSize;
+                    fileinfo.name = path.basename(fileList[i])
                     if(fileSize > 100 * 1024 * 1024) {
                         this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                         continue
                     }
-                    varTmp.push(fileList[i]);
+                    varTmp.push(fileinfo);
                 }
                 this.sendFileInfos.distGroupInfo = this.chat;
                 this.sendFileInfos.paths = varTmp;
@@ -1221,9 +1203,7 @@ export default {
                 }
             }
         },
-        // Send msg demo
-        ssendMsg: function() {
-        },
+       
         sendAgain: async function(retryMsg) {
             // console.log("retryMsg is ", retryMsg);
         
@@ -1654,39 +1634,80 @@ export default {
             }
 
         },
-        SendFiles: function(filePaths) {
-            console.log("filePaths is ", filePaths);
-            for(let i=0;i<filePaths.length;i++) {
-                this.sendFile(filePaths[i]);
+        SendFiles: function(fileinfos) {
+            for(let i=0;i<fileinfos.length;i++) {
+                this.sendFile(fileinfos[i]);
             }
             this.closeSendFileDlg();
         },
-        sendFile: async function(filePath) {
-            var roomID = this.chat.roomId;
-            var stream = fs.readFileSync(filePath);
-            let filename = path.basename(filePath)
-            this.matrixClient.uploadContent({
-                stream: stream,
-                name: filename
-            }).then((url)=>{
-                var content = {
-                    msgtype: "m.file",
-                    body: filename,
-                    url: url
-                };
-                this.matrixClient.sendMessage(roomID, content).then((ret)=>{
-                    //this.$emit('updateChatList', ret);
-                });
-            });
+        
+        sendFile: async function(fileinfo) {
+            var showfu = new FileUtil(fileinfo.path);
+            let showfileObj = showfu.GetUploadfileobj();
+            var reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            var stream = showfu.ReadfileSync(fileinfo.path);
+
+            reader.onload = () => {
+                let type = GetFileType(reader.result);
+                let fileResult = reader.result;
+                if(type == 'm.image'){
+                    this.SendImage(fileinfo, fileResult, stream)
+                }
+                else{
+                    var roomID = this.chat.roomId;
+                    let filename = fileinfo.name;
+                    this.matrixClient.uploadContent({
+                        stream: stream,
+                        name: filename
+                    }).then((url)=>{
+                        var content = {
+                            msgtype: 'm.file',
+                            body: filename,
+                            url: url,
+                            info:{
+                                size: fileinfo.size,
+                            }
+                        };
+                        this.matrixClient.sendMessage(roomID, content).then((ret)=>{
+                            //this.$emit('updateChatList', ret);
+                        });
+                    });
+                }
+                
+            }
         },
 
-        SendText: function(curMsgItem, varcontent){
-            // Text
-            // quill中插入图片会在末尾加入一个↵，发送出去是空，这里处理掉
-            curMsgItem = sliceReturnsOfString(curMsgItem);
-            if(curMsgItem.length == 0){
-                return;
-            }
+        SendImage: function(fileinfo, fileResult, stream){
+                var img = new Image();
+                img.src = fileResult;
+                //let tt1 = fileResult.substring(fileResult.indexOf("\,") + 1)
+                //let tt0 = Buffer.from(tt1, "base64");
+                img.onload = ()=>{
+                    var roomID = this.chat.roomId;
+                    let filename = fileinfo.name;
+                    this.matrixClient.uploadContent({
+                        stream: stream,
+                        name: filename
+                    }).then((url)=>{
+                        var content = {
+                            msgtype: 'm.image',
+                            body: filename,
+                            url: url,
+                            info:{
+                                size: fileinfo.size,
+                                w: img.width,
+                                h: img.height
+                            }
+                        };
+                        this.matrixClient.sendMessage(roomID, content).then((ret)=>{
+                            //this.$emit('updateChatList', ret);
+                        });
+                    });
+                }
+        },
+
+        SendText: function(sendBody, varcontent){
             var div = document.getElementById("message-show-list");
             if(div) {
                 this.$nextTick(() => {
@@ -1696,10 +1717,11 @@ export default {
             }
             
             this.cleanEditor();
-            this.matrixClient.sendTextMessage(this.chat.roomId, curMsgItem).then((eventID)=>{
+            this.matrixClient.sendMessage(this.chat.roomId, sendBody).then((eventID)=>{
                 //this.$emit('updateChatList', eventID);
             });
         },
+
         sendMsg: async function() {
             // console.log("this.chat is ", this.chat);
             if(this.chat.roomId == undefined) {
@@ -1715,6 +1737,12 @@ export default {
             // console.log("varcontent is ", varcontent);
             var uid = this.chat.user_id;
             var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
+            let sendText = '';
+            let exsitAt = false;
+            let sendBody = {
+                msgtype: "m.text",
+                body: sendText
+            }
             for(var i=0;i<varcontent.ops.length;i++){
                 // console.log("i is ", i);
                 let curMsgItem = varcontent.ops[i].insert;
@@ -1727,14 +1755,22 @@ export default {
                     // console.log("this.idToPath is ", this.idToPath)
                     var filePath = msgInfo.path;
                     var fileType = msgInfo.type;
-                    
                     if(fileType == "at") {
-                        
+                        sendText += msgInfo.atName;
+                        sendText += ":"
+                        sendBody.format = "org.matrix.custom.html";
                     }
                 }
                 else{
-                    this.SendText(curMsgItem, varcontent)
+                    curMsgItem = sliceReturnsOfString(curMsgItem);
+                    sendText += curMsgItem;
                 }
+            }
+            
+            if(sendText.length != 0)
+            {
+                sendBody.body = sendText;
+                this.SendText(sendBody, varcontent);
             }
         },
         // If message is notice set visible
@@ -1745,14 +1781,11 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            if(chatGroupMsgType === 'm.room.member')
-            {
+            let index = ['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType);
+            if(['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType) == -1)
                 return true;
-            }
-            else {
-                return false;
-            }
-        },
+            return false;
+s        },
         // Notice show difference with message.
         showMessageOrNot: function(curMsg) {
             if(curMsg === null) {
@@ -1761,13 +1794,11 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            if(chatGroupMsgType === 'm.room.member')
-            {
+            let index = ['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType);
+
+            if(['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType) == -1)
                 return false;
-            }
-            else {
-                return true;
-            }
+            return true;
         },
         // Notice content
         NoticeContent: function(curMsg) {
@@ -1788,16 +1819,20 @@ export default {
                     var inviter = curMsg.sender.name;
                     return inviter + " 邀请 " + invitees + " 加入群聊";
                 }
+                else if(chatGroupMsgContent.membership === "join")
+                {
+                    var owner = chatGroupMsgContent.displayname;
+                    return owner + " 加入房间";
+                }
+                else if(chatGroupMsgContent.membership === "leave")
+                {
+                    var owner = chatGroupMsgContent.displayname;
+                    return owner + " 离开房间";
+                }
                 else if(chatGroupMsgContent.type === "notice")
                 {
                     var owner = chatGroupMsgContent.userName;
                     return owner + " 发布群公告: " + chatGroupMsgContent.text;
-                }
-                else if(chatGroupMsgContent.type === "updateGroupName")
-                {
-                    var owner = chatGroupMsgContent.userName;
-                    var distName = chatGroupMsgContent.text;
-                    return owner + " 修改群名称为 " + distName;
                 }
                 else if(chatGroupMsgContent.type === "deleteGroupUser")
                 {
@@ -1825,6 +1860,10 @@ export default {
                     return "";
                 }
             }
+            else if(chatGroupMsgType == 'm.room.name'){
+                var inviter = curMsg.sender.name;
+                return inviter + " 修改房间名称为：" + chatGroupMsgContent.name;
+            }
             return "";
         },
         // Show time when time between messages over 1 min
@@ -1850,7 +1889,7 @@ export default {
             if(curMsg === null) {
                 return "";
             }
-            var secondsTime = Number(curMsg.message_timestamp);
+            var secondsTime = curMsg.event.origin_server_ts;
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
             let cutTime = curDateSecond - secondsTime;
@@ -1895,7 +1934,7 @@ export default {
         },
         // Difference in css. Left of Right
         ChatLeftOrRightClassName: function (curMsg) {
-            if(curMsg.message_from_id === this.curUserInfo.id) {
+            if(curMsg.sender.userId === this.userID) {
                 return "message-right";
             }
             else {
@@ -1903,16 +1942,16 @@ export default {
             }
         },
         ChatMessageId: function (curMsg) {
-            return "message-" + curMsg.message_id;
+            return "message-" + curMsg.event.event_id;
         },
         msgCheckBoxId: function(curMsg) {
-            return "message-checkbox-" + curMsg.message_id;
+            return "message-checkbox-" + curMsg.event.event_id;
         },
         msgSelectOrNotClassName: function(curMsg) {
             //class="msgContent"
             var hasSelected = false;
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                if(this.selectedMsgs[i].curMsg.event.event_id == curMsg.event.event_id) {
                     this.selectedMsgs.splice(i, 1);
                     hasSelected = true;
                     break;
@@ -2029,6 +2068,7 @@ export default {
             return ret;
         },
         handleScroll: function() {
+            return;
             let uldiv = document.getElementById("message-show-list");
             // console.log("=====scroll height is ", uldiv.scrollHeight);
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
@@ -2198,25 +2238,23 @@ export default {
             }
 
             var files = e.dataTransfer.files;
-            var varTmp = [];
             for(let i=0;i<files.length;i++) {
-                let fileSize = await getFileSizeNum(files[i].path);
-                if(fileSize > 100 * 1024 * 1024) {
+                if(files[i].size > 100 * 1024 * 1024) {
                     this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                     continue
                 }
-                varTmp.push(files[i].path);
             }
-            if(varTmp.length == 0) {
-                return;
-            }
+ 
             this.showSendFileDlg = true;
             this.sendFileInfos = {
                 distGroupInfo: this.chat,
-                paths: varTmp
+                paths: files
             }
         },
+
         checkClipboard(e) {
+            //const strBuffer = clipboard.readRTF()
+            //console.log(strBuffer)
             console.log("e is ", e.clipboardData);
             if ( !(e.clipboardData && e.clipboardData.items) ) {
                 console.log("HAHHHAHHAHHA")
@@ -2224,33 +2262,39 @@ export default {
             }
             for(let i=0;i<e.clipboardData.items.length; i++) {
                 var item = e.clipboardData.items[i];
-                console.log("item is ", item);
                 if(item.kind == "string") {
                     console.log("tmd is zifuchuan ");
                 }
                 else {
-                    console.log("tmd is file");
                     var blod = item.getAsFile();
-                    console.log("dlkj ", blod)
+                    let fileType = FileToContentType(blod.type);
                     var reader = new FileReader();
                     reader.onload = (event)=> {
-                        this.matrixClient.uploadContent({
-                            stream: event.target.result,
-                            name: blod.name
-                        }).then((url)=>{
-                            var content = {
-                                msgtype: "m.file",
-                                body: blod.name,
-                                url: url
-                            };
-                            this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
-                                //this.$emit('updateChatList', ret);
+                        if(fileType == 'm.image')
+                            this.SendImage(blod, event.target.result, stream);
+                        else{
+                            this.matrixClient.uploadContent({
+                                stream: event.target.result,
+                                name: blod.name
+                            }).then((url)=>{
+                                var content = {
+                                    msgtype: fileType,
+                                    body: blod.name,
+                                    url: url,
+                                    info:{
+                                        size: blod.size
+                                    }
+                                };
+                                this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
+                                    //this.$emit('updateChatList', ret);
+                                });
                             });
-                        });
+                        }
                     }
                     reader.readAsDataURL(blod);
                 }
             }
+            /*
             for(let i=0;i<e.clipboardData.files.length;i++) {
                 var item = e.clipboardData.files[i];
                 console.log("item is ", item);
@@ -2262,6 +2306,7 @@ export default {
                     var pasteFile = item.getAsFile();
                 }
             }
+            */
         }
     },
     data() {
@@ -2385,6 +2430,7 @@ export default {
         await services.common.init();
         this.loginInfo = await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
+        this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         // console.log("===============mqttinit")
         // services.common.initmqtt();

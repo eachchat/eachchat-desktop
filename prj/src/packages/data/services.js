@@ -402,6 +402,10 @@ const common = {
     return true;
   },
 
+  InitConfServer(userID){
+    confservice.init(userID)
+  },
+
   async InitDbData()
   {
     Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateSecretMessage(), this.UpdateUserinfo(), this.UpdateDepartment()])

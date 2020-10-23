@@ -2,6 +2,8 @@ import olmWasmPath from "olm/olm.wasm"
 import Olm from 'olm';
 import * as matrixcs from 'matrix-js-sdk'
 import {getDefaultLanguage} from '../../config.js';
+import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
+import {crossSigningCallbacks} from './recoveryKeyCallback.js';
 
 class _MatrixClientPeg{
     constructor(){
@@ -9,6 +11,7 @@ class _MatrixClientPeg{
         this.homeserve = "";
         this.registrationClient = undefined;
         this.curLanguage = getDefaultLanguage();
+        this.recoveryKey = '';
     }
 
     InitOlm(){
@@ -93,14 +96,15 @@ class _MatrixClientPeg{
       const userId = window.localStorage.getItem("mx_user_id");
       const deviceId = window.localStorage.getItem("mx_device_id");
       this.curLanguage = window.localStorage.getItem("mx_i18n_locale");
-
       if(accessToken && userId && hsUrl) {
         let ops = {
           baseUrl: hsUrl,
           userId: userId,
           accessToken: accessToken,
           deviceId: deviceId,
+          cryptoCallbacks: {}
         }
+        Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
         await this.matrixClient.initCrypto();
         // await this.matrixClient.startClient();
@@ -155,12 +159,51 @@ class _MatrixClientPeg{
                 userId: userLoginResult.user_id,
                 accessToken: userLoginResult.access_token,
                 deviceId: userLoginResult.device_id,
+                cryptoCallbacks: {}
               }
+            Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
         await this.matrixClient.initCrypto();
         //await this.matrixClient.startClient();
         await this.matrixClient.store.startup();
         return this.matrixClient;
+    }
+
+    async checkPrivateKey(recoveryKey) {
+      this.recoveryKey = recoveryKey;
+      var decodeKey = decodeRecoveryKey(this.recoveryKey);
+      return await this.matrixClient.checkSecretStorageKey(decodeKey, this.keyInfo);
+    }
+
+    async validateRecoveryKey(recoveryKey) {
+      this.recoveryKey = recoveryKey;
+      if (recoveryKey === '') {
+          return;
+      }
+
+      await this.fetchKeyInfo();
+
+      try {
+          const decodedKey = this.matrixClient.keyBackupKeyFromRecoveryKey(recoveryKey);
+          const correct = await this.matrixClient.checkSecretStorageKey(
+              decodedKey, this.keyInfo,
+          );
+          console.log("correct is ", correct);
+          return correct;
+      } catch (e) {
+        return false;
+      }
+  }
+    async fetchKeyInfo() {
+      var keys = await this.matrixClient.isSecretStored('m.cross_signing.master', false);
+      if(keys == null || Object.keys(keys).length == 0) {
+        this.keyId = null;
+        this.keyInfo = null;
+      }
+      else {
+        this.keyId = Object.keys(keys)[0];
+        this.keyInfo = keys[this.keyId];
+      }
     }
 
     extendMatrixClient() {

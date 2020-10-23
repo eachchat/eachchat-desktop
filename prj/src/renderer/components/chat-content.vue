@@ -345,7 +345,7 @@ export default {
       newMsg: {},      //转发之类的消息信息
       mqttGroupVar: [],      //一些不完整的group的临时存储
       searchId: 0,      //复合搜索,
-      matrixClient: undefined
+      matrixClient: undefined,
     };
   },
   methods: {
@@ -1389,6 +1389,7 @@ export default {
         services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       }
       this.curChat = chatGroup;
+     
       if(this.curChat.un_read_count != undefined && this.curChat.un_read_count != 0) {
         console.log("lslsljfkjfdlakdsf;aljkdsf ")
         ipcRenderer.send("stopFlash");

@@ -89,28 +89,13 @@ export default {
             }
         },
         getFilePath(item) {
-            if(fs.existsSync(item)) {
-                var showfuTmp = new FileUtil(item);
-                var fileMime = showfuTmp.GetMimename();
-                if(fileMime != undefined && fileMime.split('/')[0] == 'image') {
-                    return item;
-                }
-                
-                var ext = path.extname(item).split('.')[1];
-                var iconPath = getIconPath(ext);
-                return iconPath
-            }
-            return '../../../static/Img/Chat/unknown@2x.png';
+            return item.path;
         },
         getSendFileName(item) {
-            console.log("item is ", item);
-            return path.basename(item);
+            return item.name;
         },
         getSendFileSize(item) {
-            if(fs.existsSync(item)) {
-                var itemState = fs.statSync(item);
-                return getFileSizeByNumber(itemState.size);
-            }
+            return item.size;
         },
         closeDialog() {
             this.$emit("closeSendFileDlg");

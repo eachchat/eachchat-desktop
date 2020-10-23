@@ -11,7 +11,7 @@ import * as fs from 'fs-extra';
  */
 
 function _loadConfigSync() {
-    var configPath = path.join(path.dirname(global.__static), "config.json");
+    var configPath = path.join(__dirname, "config.json");
     if(fs.existsSync(configPath)) {
         try{
             var conf = fs.readJsonSync(configPath);
@@ -58,6 +58,7 @@ function getDefaultHomeServerInfo() {
 
 function getDefaultLanguage() {
     var defaultLanguage = getConf("defaultLanguage");
+    console.log("------- ", defaultLanguage)
     if(defaultLanguage == undefined) {
         return "zh";
     }
