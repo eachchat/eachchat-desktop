@@ -384,6 +384,7 @@ export default {
         UpdateAlertDlg,
     },
     mounted: async function() {
+        global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
         global.mxMatrixClientPeg.matrixClient.startClient();
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
