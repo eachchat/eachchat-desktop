@@ -372,6 +372,32 @@ export default {
                 }
                 
             }
+            else if(chatGroupMsgType === "m.room.encrypted") {
+                chatGroupMsgContent = this.msg.getContent();
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                    this.messageContent = chatGroupMsgContent.body;
+                    if(chatGroupMsgContent.info)
+                        this.fileSize = chatGroupMsgContent.info.size;
+                    this.fileName = this.messageContent;
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.text'){
+                    console.log()
+                    this.messageContent = chatGroupMsgContent.body;
+                    if(this.messageContent.length == 0) {
+                        this.messageContent = "\n";
+                    }
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    this.messageContent = chatGroupMsgContent.body;
+                    var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
+                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
+                    if(chatGroupMsgContent.info)
+                    {
+                        imgMsgImgElement.setAttribute("height", chatGroupMsgContent.info.h);
+                        //this.fileSize = chatGroupMsgContent.info.size;
+                    }
+                }
+            }
             else if(chatGroupMsgType === 102)//图片
             {
                 var imgMsgImgElement = document.getElementById(this.msg.message_id);
