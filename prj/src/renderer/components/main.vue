@@ -201,22 +201,6 @@ export default {
             this.$store.commit("setUserId", this.curUserInfo.id)
             console.log("lognInfo is ", this.loginInfo);
 */
-            if(global.mxMatrixClientPeg.homeserve == '') {
-                var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
-                console.log("========= ret ", ret)
-                    if(ret == undefined) {
-                        global.mxMatrixClientPeg.logout();
-                        ipcRenderer.send("showLoginPageWindow");
-                        return;
-                    }
-                    if(ret.language) {
-                    this.$i18n.locale = ret.language;
-                    }
-                    console.log("the matrix client is ", global.mxMatrixClientPeg)
-                    this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-                    await this.getGroupList(false);
-
-            }
             const userId = window.localStorage.getItem("mx_user_id");
             this.$store.commit("setUserId", userId)
             this.$router.push("/main/ChatContent");
@@ -384,6 +368,20 @@ export default {
         UpdateAlertDlg,
     },
     mounted: async function() {
+        if(global.mxMatrixClientPeg.homeserve == '') {
+            var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
+            console.log("========= ret ", ret)
+                if(ret == undefined) {
+                    global.mxMatrixClientPeg.logout();
+                    ipcRenderer.send("showLoginPageWindow");
+                    return;
+                }
+                if(ret.language) {
+                this.$i18n.locale = ret.language;
+                }
+                console.log("the matrix client is ", global.mxMatrixClientPeg)
+                this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        }
         global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
         global.mxMatrixClientPeg.matrixClient.startClient();
         const ctx = this;
