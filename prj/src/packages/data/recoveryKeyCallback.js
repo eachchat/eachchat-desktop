@@ -21,7 +21,7 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
         //     return [name, secretStorageKeys[name]];
         // }
     
-        // const inputToKey = async ({ passphrase, recoveryKey }) => {
+        const inputToKey = async ({ passphrase, recoveryKey }) => {
             // if (passphrase) {
             //     return deriveKey(
             //         passphrase,
@@ -29,9 +29,9 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
             //         info.passphrase.iterations,
             //     );
             // } else {
-                // return decodeRecoveryKey(recoveryKey);
+                return decodeRecoveryKey(recoveryKey);
             // }
-        // };
+        };
         // const { finished } = Modal.createTrackedDialog("Access Secret Storage dialog", "",
         //     AccessSecretStorageDialog,
         //     /* props= */
@@ -54,11 +54,11 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
         //           },
         //       },
         //   );
-          const [input] = this.recoveryKey;
+          const input = {recoveryKey: global.mxMatrixClientPeg.recoveryKey};
           if (!input) {
               throw new AccessCancelledError();
           }
-          const key = await decodeRecoveryKey(input);
+          const key = await inputToKey(input);
       
           // // Save to cache to avoid future prompts in the current session
           // if (isCachingAllowed()) {

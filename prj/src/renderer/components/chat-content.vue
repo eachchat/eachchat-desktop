@@ -1841,25 +1841,13 @@ export default {
 
   mounted: async function() {
     log.info("chat content mounted");
-    global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
-        if(ret == undefined) {
-            global.mxMatrixClientPeg.logout();
-            ipcRenderer.send("showLoginPageWindow");
-            return;
-        }
-        if(ret.language) {
-          this.$i18n.locale = ret.language;
-        }
-        console.log("the matrix client is ", global.mxMatrixClientPeg)
-        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-        await this.getGroupList(false);
-    })
     console.log("chat content mounted");
     console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
 
     if(this.unreadCount < 0) {
       this.unreadCount = 0;
     }
+    await this.getGroupList(false);
     ipcRenderer.send("updateUnreadCount", this.unreadCount);
     setTimeout(() => {
         this.$nextTick(() => {
