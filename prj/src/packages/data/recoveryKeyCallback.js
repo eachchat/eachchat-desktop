@@ -1,4 +1,4 @@
-
+import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
     /**
      * Encode a typed array of uint8 as base64.
      * @param {Uint8Array} uint8Array The data to encode.
@@ -21,7 +21,7 @@
         //     return [name, secretStorageKeys[name]];
         // }
     
-        const inputToKey = async ({ passphrase, recoveryKey }) => {
+        // const inputToKey = async ({ passphrase, recoveryKey }) => {
             // if (passphrase) {
             //     return deriveKey(
             //         passphrase,
@@ -29,9 +29,9 @@
             //         info.passphrase.iterations,
             //     );
             // } else {
-                return decodeRecoveryKey(recoveryKey);
+                // return decodeRecoveryKey(recoveryKey);
             // }
-        };
+        // };
         // const { finished } = Modal.createTrackedDialog("Access Secret Storage dialog", "",
         //     AccessSecretStorageDialog,
         //     /* props= */
@@ -58,7 +58,7 @@
           if (!input) {
               throw new AccessCancelledError();
           }
-          const key = await inputToKey(input);
+          const key = await decodeRecoveryKey(input);
       
           // // Save to cache to avoid future prompts in the current session
           // if (isCachingAllowed()) {
@@ -76,7 +76,7 @@ const onSecretRequested = async function({
         device_trust: deviceTrust,
       }) {
         console.log("onSecretRequested", userId, deviceId, requestId, name, deviceTrust);
-        const client = this.matrixClient;
+        const client = global.mxMatrixClientPeg.matrixClient;
         if (userId !== client.getUserId()) {
             return;
         }

@@ -34,6 +34,12 @@ const KEY_FILE_MAX_SIZE = 128;
 
 export default {
     name: 'certification',
+    props: {
+        backupInfo: {
+            type: Object,
+            default: {},
+        }
+    },
     data() {
         return  {
             certificationState: '',
@@ -51,6 +57,7 @@ export default {
             var correct = global.mxMatrixClientPeg.checkPrivateKey(this.recoveryKey);
             if(correct) {
                 await global.mxMatrixClientPeg.matrixClient.checkOwnCrossSigningTrust();
+                await global.mxMatrixClientPeg.matrixClient.restoreKeyBackupWithSecretStorage(this.backupInfo);
                 this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
                 setTimeout(async () => {
                     // ipcRenderer.send('showMainPageWindow', true); 
@@ -92,7 +99,7 @@ export default {
 
                 }
                 else {
-                    fs.readFile(keyFile, 'utf-8', (err, data) => {
+                    fs.readFile(keyFile, 'utf-8', async (err, data) => {
                         if(err) {
 
                         }
@@ -104,21 +111,22 @@ export default {
                             }
                             
                             if (/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz\s]+$/.test(this.recoveryKey)) {
-                                if(global.mxMatrixClientPeg.validateRecoveryKey(this.recoveryKey)){
+                                var state = await global.mxMatrixClientPeg.validateRecoveryKey(this.recoveryKey);
+                                if(await state == true){
                                     var stateElement = document.getElementById("certificationStateLabel");
                                     if(stateElement != undefined) {
                                         stateElement.style.color = "rgba(36, 179, 107, 1)"
                                     }
                                     this.certificationState = this.$t('recoveryKeyLooksGood');
                                 }
-                            } 
-                            else {
-                                var stateElement = document.getElementById("certificationStateLabel");
-                                if(stateElement != undefined) {
-                                    stateElement.style.color = "rgba(228,49,43,1);"
+                                else {
+                                    var stateElement = document.getElementById("certificationStateLabel");
+                                    if(stateElement != undefined) {
+                                        stateElement.style.color = "rgba(228,49,43,1);"
+                                    }
+                                    this.certificationState = this.$t('invalidRecoveryKey');
                                 }
-                                this.certificationState = this.$t('invalidRecoveryKey');
-                            }
+                            } 
                         }
                     })
                 }

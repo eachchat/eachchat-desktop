@@ -1,8 +1,10 @@
 // Common Interface
 const axios = require('axios');
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import { environment } from "../data/environment.js"
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { environment } from "../data/environment.js";
+import url from 'url';
+import UAParser from 'ua-parser-js';
 //const mimestruct = require("./mine.js");
 
 //https://blog.csdn.net/qq_37568049/article/details/80736305
@@ -724,6 +726,32 @@ const mimestruct = {
     "zip": "application/zip",
     "json": "application/json"
 }
+
+function getMatrixDefaultDeviceDisplayName() {
+    const u = url.parse(window.location.href);
+    u.protocol = "";
+    u.search = "";
+    u.hash = "";
+    // Remove trailing slash if present
+    u.pathname = u.pathname.replace(/\/$/, "");
+
+    let appName = u.format();
+    // Remove leading slashes if present
+    appName = appName.replace(/^\/\//, "");
+    // `appName` is now in the format `develop.element.io`.
+
+    const ua = new UAParser();
+    const browserName = ua.getBrowser().name || "unknown browser";
+    let osName = ua.getOS().name || "unknown OS";
+    // Stylise the value from the parser to match Apple's current branding.
+    if (osName === "Mac OS") osName = "macOS";
+    return ('%(appName)s (%(browserName)s, %(osName)s)', {
+        appName,
+        browserName,
+        osName,
+    });
+}
+
 class FileUtil
 {
     
@@ -1200,6 +1228,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, GetFileType};
+export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
