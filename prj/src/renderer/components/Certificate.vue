@@ -52,6 +52,11 @@ export default {
         }
     },
     methods: {
+        close (){
+            ipcRenderer.send("showMainPageWindow")
+            this.$router.push("/main")
+        },
+
         async Continue() {
             if(this.recoveryKey == "") return;
             var correct = global.mxMatrixClientPeg.checkPrivateKey(this.recoveryKey);
