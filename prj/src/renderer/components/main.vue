@@ -203,7 +203,7 @@ export default {
 */
             const userId = window.localStorage.getItem("mx_user_id");
             this.$store.commit("setUserId", userId)
-            //this.$router.push("/main/ChatContent");
+            this.$router.push("/main/ChatContent");
             
             this.curindex = 0;
             this.showCurUserIcon();
