@@ -52,7 +52,7 @@ export default {
         }
     },
     methods: {
-        close (){
+        Close (){
             ipcRenderer.send("showMainPageWindow")
             this.$router.push("/main")
         },
