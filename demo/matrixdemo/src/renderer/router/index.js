@@ -8,7 +8,7 @@ export default new Router({
     {
       path: '/',
       name: 'matrix-page',
-      component: require('@/components/LandingPage').default
+      component: require('@/components/Matrix').default
     },
     {
       path: '*',
