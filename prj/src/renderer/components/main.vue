@@ -202,6 +202,7 @@ export default {
             console.log("lognInfo is ", this.loginInfo);
 */
             const userId = window.localStorage.getItem("mx_user_id");
+            confservice.init(userId);
             this.$store.commit("setUserId", userId)
             this.$router.push("/main/ChatContent");
             

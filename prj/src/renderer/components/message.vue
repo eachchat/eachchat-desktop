@@ -234,7 +234,7 @@ export default {
             return iconPath;
         },
         MsgIsImage: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype;
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.image'){
                 return true;
             }
@@ -280,7 +280,7 @@ export default {
             this.transmitMsgContent = '';
             let event = this.msg.event;
             let chatGroupMsgType = event.type;
-            var chatGroupMsgContent = event.content;
+            var chatGroupMsgContent = this.msg.getContent();
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
@@ -388,14 +388,40 @@ export default {
                     }
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    let maxSize = 400;
+                    if(chatGroupMsgContent.body)
+                        this.fileName = chatGroupMsgContent.body;
+                    let info = {
+                        w: maxSize,
+                        h: maxSize
+                    };
+                    if(chatGroupMsgContent.info)
+                        info = chatGroupMsgContent.info
+                    if(!info.h)
+                        info.h = maxSize;
+                    if(!info.w)
+                        info.w = maxSize;
+                    if(info.size)
+                        this.fileSizeNum = info.size;
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
-                    imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
-                    if(chatGroupMsgContent.info)
-                    {
-                        imgMsgImgElement.setAttribute("height", chatGroupMsgContent.info.h);
-                        //this.fileSize = chatGroupMsgContent.info.size;
+                    let style = "padding:40px 40px 40px 40px;";
+                    let max = Math.max(info.w, info.h);
+                    if(max > maxSize ){
+                        if(info.w > info.h){
+                            info.h = info.h/(info.w/maxSize);
+                            info.w = maxSize;
+                        }
+                        else{
+                            info.w = info.w/(info.h/maxSize)
+                            info.w = maxSize;
+                        }
+
                     }
+                    style += "width:" + info.w + "px";
+                    style += ";"
+                    style += "height:" + info.h + "px";
+                    imgMsgImgElement.setAttribute("style", style);
                 }
             }
             else if(chatGroupMsgType === 102)//图片
@@ -547,7 +573,7 @@ export default {
             }
         },
         MsgBelongUserImg: async function () {
-            return;
+            return '';
             // var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
             // console.log("MsgBelongUserImg this.userInfo is ", this.userInfo)
             if(this.msg == undefined) {
@@ -560,7 +586,7 @@ export default {
             var userNameElementId = this.msgNameId();
             var userNameElement = document.getElementById(userNameElementId);
 
-            var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
+            // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
             var fromUserName = this.msg.sender.name;
 
             if(userNameElement != undefined) {
@@ -621,6 +647,7 @@ export default {
             // })
         },
         msgUserInfo: async function() {
+            return '';
             // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
             // console.log("this.msg.messagecontent is ", strMsgContentToJson(this.msg.message_content));
             var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
@@ -701,8 +728,8 @@ export default {
     created: async function() {
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
-        this.curUserInfo = await services.common.GetSelfUserModel();
+        this.loginInfo = undefined;//await services.common.GetLoginModel();
+        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
     },
     watch: {
         msg: async function() {

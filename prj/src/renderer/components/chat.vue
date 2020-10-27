@@ -1013,6 +1013,7 @@ export default {
             this.showFace = !this.showFace;
         },
         showGroupName: async function(chatGroupItem) {
+            return '';
             if(chatGroupItem.group_id == undefined && chatGroupItem.user_id == undefined){
                 return "";
             }
@@ -2428,7 +2429,7 @@ s        },
     },
     created: async function() {
         await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
+        this.loginInfo = undefined;//await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
