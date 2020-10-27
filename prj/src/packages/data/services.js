@@ -873,6 +873,7 @@ const common = {
   },
 
   async GetNewVersion() {
+    return;
     let response = await this.api.getNewVersion(this.data.login.access_token);
     if (!response.ok || !response.success) {
       return false;

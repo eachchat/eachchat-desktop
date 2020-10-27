@@ -203,7 +203,7 @@ export default {
 */
             const userId = window.localStorage.getItem("mx_user_id");
             this.$store.commit("setUserId", userId)
-            this.$router.push("/main/ChatContent");
+            //this.$router.push("/main/ChatContent");
             
             this.curindex = 0;
             this.showCurUserIcon();
@@ -303,6 +303,7 @@ export default {
             }
         },
         showCurUserIcon: async function() {
+            return;
             var elementImg = document.getElementById("userHead");
             // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
 
