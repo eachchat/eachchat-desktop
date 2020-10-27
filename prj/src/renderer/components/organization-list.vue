@@ -643,16 +643,26 @@ export default {
             }
         },
         getAppBaseData:async function() {
-            if (this.parentInfo.department_id == undefined){
-                return;
-            }
-            var departmentModels = await Department.GetSubDepartment(this.parentInfo.department_id);
-            var tempDepartments = [];
-            // for(var i = 0; i < departmentModels.length; i ++){
-            //     tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-            // }
+            //this.parentInfo.display_name = "组织"
             
-            var tempUsers = await UserInfo.GetSubUserinfo(this.parentInfo.department_id);
+            //if (this.parentInfo.department_id == undefined){
+            //    return;
+            //}
+            var departmentModels = [];
+            departmentModels.push({
+               display_name : "青云" 
+            })
+            departmentModels.push({
+               display_name : "爱工作" 
+            })
+ 
+            var tempUsers = [];
+            tempUsers.push({
+                display_name: "长三"
+            })
+            tempUsers.push({
+                display_name: "李四"
+            })
 
             var organization = {};
             organization.departments = departmentModels;//tempDepartments;
@@ -690,6 +700,7 @@ export default {
     },
     created: async function() {
         await this.getAppBaseData();
+        return;
         setTimeout(() => {
         this.$nextTick(function(){
             var users = this.organizationList[0].users;

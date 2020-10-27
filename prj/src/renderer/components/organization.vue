@@ -228,17 +228,20 @@ export default {
             this.showSearchUserInfoTips = true;
         },
         getOrganizationBaseData:async function() {
-            var rootDepartment = await Department.GetRoot();
-            console.log(rootDepartment);
-            var departments = await Department.GetSubDepartment(rootDepartment.department_id);
-            console.log(departments);
-            var tempDepartments = departments;
+            
+            var departments = [];
+            departments.push({
+                display_name: "组织架构"
+            });
+            departments.push({
+                display_name: "联系人"
+            })
             // for(var i = 0; i < departments.length; i ++){
                 
             //     //tempDepartments[departments[i].show_order] = departments[i];
             // }
-            tempDepartments.sort(this.compare("show_order"));
-            this.departments = tempDepartments;
+            
+            this.departments = departments;
             this.currentDepartment = this.departments[0];
             this.organizationListTimer = new Date().getTime();
         },
