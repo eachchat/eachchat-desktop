@@ -547,6 +547,7 @@ export default {
             }
         },
         MsgBelongUserImg: async function () {
+            return;
             // var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
             // console.log("MsgBelongUserImg this.userInfo is ", this.userInfo)
             if(this.msg == undefined) {

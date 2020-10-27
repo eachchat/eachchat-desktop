@@ -1382,7 +1382,7 @@ export default {
           this.unreadCount = 0;
         }
         ipcRenderer.send("updateUnreadCount", this.unreadCount);
-        services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
+        //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       }
       this.curChat = chatGroup;
      
@@ -1401,7 +1401,7 @@ export default {
       if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
         isSecret = true;
       }
-      services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
+      //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
     getGroupList: async function(updateCurPage=false) {
