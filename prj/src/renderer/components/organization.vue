@@ -47,7 +47,7 @@
         </el-aside>
         <el-container class="right-container">
             <organizationList  v-show='bOrganizeShow' :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
-            <organizationList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
+            <contactList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></contactList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
         <div class="win-header">
@@ -63,6 +63,7 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
+import contactList from './contact-list'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header.vue';
@@ -305,6 +306,7 @@ export default {
         listHeader,
         userInfoContent,
         winHeaderBar,
+        contactList
     },
     created:async function() {
         this.organizeMenuName = this.$t("organizeMenuName"),
