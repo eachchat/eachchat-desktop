@@ -26,6 +26,8 @@ const zh = {
     cancel: "取消",
     invalidRecoveryKey: "无效的回复密钥",
     recoveryKeyLooksGood: "看起来不错",
+    organizeMenuName: "组织",
+    contactMenuName: "我的联系人"
 }
 
 export default zh;

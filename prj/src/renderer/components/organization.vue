@@ -46,9 +46,8 @@
             </div>
         </el-aside>
         <el-container class="right-container">
-            
-            <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
-
+            <organizationList  v-show='bOrganizeShow' :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
+            <organizationList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
         <div class="win-header">
@@ -68,6 +67,7 @@ import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header.vue';
 import {ipcRenderer} from 'electron'
+
 export default {
     name: 'organization',
     props: {
@@ -92,6 +92,10 @@ export default {
     },
     data() {
         return {
+            organizeMenuName : '',
+            contactMenuName: '',
+            bOrganizeShow: false,
+            bContactShow: true,
             canSearch: false,
             departments: [],
             isOwn: false,
@@ -231,10 +235,10 @@ export default {
             
             var departments = [];
             departments.push({
-                display_name: "组织架构"
+                display_name: this.$t("organizeMenuName"),
             });
             departments.push({
-                display_name: "联系人"
+                display_name: this.$t("contactMenuName")
             })
             // for(var i = 0; i < departments.length; i ++){
                 
@@ -246,6 +250,16 @@ export default {
             this.organizationListTimer = new Date().getTime();
         },
         departmentMenuItemClicked(department) {
+            if(department.display_name == this.organizeMenuName){
+                //组织架构模板
+                this.bOrganizeShow = true;
+                this.bContactShow = false;
+            }
+            else if(department.display_name == this.contactMenuName){
+                //联系人模板
+                this.bOrganizeShow = false;
+                this.bContactShow = true;
+             }
             this.currentDepartment = department;
             this.organizationListTimer = new Date().getTime();
         },
@@ -293,6 +307,8 @@ export default {
         winHeaderBar,
     },
     created:async function() {
+        this.organizeMenuName = this.$t("organizeMenuName"),
+        this.contactMenuName = this.$t("contactMenuName"),
         console.log("to get organization");
         await this.getOrganizationBaseData();
         var that = this;
