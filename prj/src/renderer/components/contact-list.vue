@@ -5,20 +5,20 @@
         </el-header>
         <el-main>
             <el-container class="bottom-container" id="contact-main-container">
-                    <div class="contact-view">
-                        <ul class="managers-list">
-                            <li class="manager"
-                                v-for="(user, index) in contactList"
-                                @click="userMenuItemClicked(user.user_id)" 
-                                :key="index">
-                                <img ondragstart="return false" class="manager-icon" src="../../../static/Img/User/user-40px@2x.png">
-                                <div class="manager-info">
-                                    <p class="manager-name">{{ user.display_name }}</p>
-                                    <p class="manager-title">{{ user.title }}</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="contact-view">
+                    <ul class="managers-list">
+                        <li class="manager"
+                            v-for="(user, index) in contactList"
+                            @click="userMenuItemClicked(user.user_id)" 
+                            :key="index">
+                            <img ondragstart="return false" class="manager-icon" :id="user.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                            <div class="manager-info">
+                                <p class="manager-name">{{ user.display_name }}</p>
+                                <p class="manager-title">{{ user.user_id }}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
                 <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"></userInfoContent>
             </el-container>
         </el-main>
@@ -180,7 +180,6 @@ export default {
 
         },
         userMenuItemClicked:async function(id) {
-            
             if (this.showUserInfoTips&&(this.userInfo.id == id)){
                 this.showUserInfoTips = false;
                 return;
@@ -191,83 +190,22 @@ export default {
             console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            var user = await UserInfo.GetUserInfo(id);
-            tempUserInfo.id = user.user_id;
-            tempUserInfo.avatarTUrl = user.avatar_t_url;
-            tempUserInfo.displayName = user.user_display_name;
-            tempUserInfo.title = user.user_title;
-            tempUserInfo.statusDescription = user.status_description;
-            tempUserInfo.workDescription = user.work_description;
-            tempUserInfo.managerId = user.manager_id;
-            tempUserInfo.departmentId = user.belong_to_department_id;
-            
-            //get department
-            var department = await Department.GetDepartmentInfoByUserID(id);
-            tempUserInfo.department = department;
-            //get email
-            var email = await UserInfo.GetUserEmailByUserID(id);
-            tempUserInfo.email = email;
-            //get phone
-            var phone = await UserInfo.GetUserPhoneByUserID(id);
-            var tempPhone = {};
-            for (var i = 0; i < phone.length; i ++){
-                var temp = phone[i];
-                if(temp.phone_type == 'mobile'){
-                    tempPhone.mobile = temp.phone_value;
-                }else{
-                    tempPhone.work = temp.phone_value;
-                }
-            }
-            tempUserInfo.phone = tempPhone;
-
-
-            var leaders = await UserInfo.GetLeaders(id);
-            tempUserInfo.leaders = leaders;
+            //var user = await UserInfo.GetUserInfo(id);
+            tempUserInfo.id = id;
+            tempUserInfo.displayName = 'user.user_display_name';
+            tempUserInfo.title = 'user.user_title';
+            tempUserInfo.statusDescription = 'user.status_description';
+            tempUserInfo.workDescription = 'user.work_description';
+            tempUserInfo.managerId = 'user.manager_id';
+            tempUserInfo.departmentId = 'user.belong_to_department_id';
+            tempUserInfo.department = 'department';
+            tempUserInfo.email = 'email';
+            tempUserInfo.phone = 'tempPhone';
+            tempUserInfo.leaders = 'leaders';
 
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
             this.showUserInfoTips = true;
-/*
-            for (var i = 0; i < this.users.length; i ++) {
-                var user = this.users[i];
-                if(user.user_id == id) {
-                    
-                    tempUserInfo.id = user.user_id;
-                    tempUserInfo.avatarTUrl = user.avatar_t_url;
-                    tempUserInfo.displayName = user.user_display_name;
-                    tempUserInfo.title = user.user_title;
-                    tempUserInfo.statusDescription = user.status_description;
-                    tempUserInfo.workDescription = user.work_description;
-                    tempUserInfo.managerId = user.manager_id;
-                    tempUserInfo.departmentId = user.belong_to_department_id;
-
-
-                    break;
-                }
-            }
-            for (var i = 0; i < this.allDepartments.length; i ++) {
-                var department = this.allDepartments[i];
-                if(department.department_id == tempUserInfo.departmentId){
-                    tempUserInfo.department = department;
-                    break;
-                }
-                
-            }
-            for (var i = 0; i < this.allEmails.length; i ++) {
-                var email = this.allEmails[i];
-                if(email.owner_user_id == id) {
-                    tempUserInfo.email = email;
-                    break;
-                }
-            }
-            for (var i = 0; i < this.allPhones.length; i ++) {
-                var phone = this.allPhones[i];
-                if(phone.owner_user_id == id) {
-                    tempUserInfo.phone = phone;
-                    break;
-                }
-            }*/
-
         },
         getUserImg: async function (userInfo){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
@@ -292,17 +230,25 @@ export default {
         },
         getAppBaseData:async function() {
             this.contactList.push({
-                display_name: "长三",
-                user_id:""
+                display_name: "张一",
+                user_id:"zhangyi.ai:matrix.each.chat"
+            })
+            this.contactList.push({
+                display_name: "李二",
+                user_id:"lier.ai:matrix.each.chat"
+            })
+            this.contactList.push({
+                display_name: "李三",
+                user_id:"lisan.ai:matrix.each.chat"
             })
             this.contactList.push({
                 display_name: "李四",
-                user_id:""
+                user_id:"lisi.ai:matrix.each.chat"
             })
-
-            this.contactList.push(contact);
-            console.log(this.contactList);
-
+            this.contactList.push({
+                display_name: "李五",
+                user_id:"liwu.ai:matrix.each.chat"
+            })
         },
         updateUserImage: function(e, args) {
             var state = args[0];
@@ -332,7 +278,7 @@ export default {
     },
     created: async function() {
         await this.getAppBaseData();
-        return;
+        /*
         setTimeout(() => {
         this.$nextTick(function(){
             var users = this.contactList[0].users;
@@ -341,13 +287,17 @@ export default {
             }
         });
         }, 0);
+        */
         var that = this;
         document.addEventListener('click',function(e){
-            if(e.target.className.indexOf('userInfo') == -1){
+            console.log("e.target.classname ", e.target.className)
+            if(['manager-name', 'manager-icon'].indexOf(e.target.className) == -1){
                 that.showUserInfoTips = false;
             }
             
         });
+        return;
+
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
@@ -500,7 +450,6 @@ display: none;
     padding: 0;
     margin: 0;
     list-style: none;
-    //border-top: 1px solid rgb(221, 221, 221);
 }
 .departments-list {
     width: 100%;
@@ -522,8 +471,7 @@ display: none;
 }
 .manager {
     height: 60px;
-    //border-bottom: 1px solid rgb(221, 221, 221);
-    
+    border-bottom: 1px solid  #987cb9;
 }
 .manager:hover {
     height: 60px;
