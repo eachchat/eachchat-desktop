@@ -104,7 +104,7 @@ import { UserInfo } from '../../packages/data/sqliteutil.js'
 export default {
     components: {
     },
-    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup'],
+    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     methods: {
         sendAgain: function() {
             this.$emit("sendAgain", this.msg);
@@ -149,6 +149,14 @@ export default {
             // var targetDir = confservice.getFilePath();
             // var targetFileName = this.msg.message_id.toString() + "." + msgContent.ext;
             // var targetPath = path.join(targetDir, targetFileName);
+            let event = this.msg.event;
+            let chatGroupMsgType = event.type;
+            var chatGroupMsgContent = this.msg.getContent();
+            if(chatGroupMsgType === "m.room.encrypted") {
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                    this.decryptAndDownloadFile();
+                }
+            }
             if(msgType === 102)
             {
                 this.$emit('showImageOfMessage', this.msg);
@@ -238,14 +246,20 @@ export default {
             if(chatGroupMsgType == 'm.image'){
                 return true;
             }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
             else{
                 return false;
             }
         },
         MsgIsFile: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype;
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.file'){
                 return true;
+            }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
             }
             else{
                 return false;
@@ -257,6 +271,9 @@ export default {
             if(chatGroupMsgType == 105){
                 return true;
             }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
             else{
                 return false;
             }
@@ -267,11 +284,33 @@ export default {
             if(chatGroupMsgType == 106){
                 return true;
             }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
             else{
                 return false;
             }
         },
-        decryptFile: async function() {
+        decryptAndDownloadFile: async function() {
+            const content = this.msg.getContent();
+            if(this.decrypting) return;
+            if(this.decryptedBlob == null) {
+                this.decrypting = true;
+                var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+                decryptFile(content.file, this.matrixClient.mxcUrlToHttp(content.file.url))
+                    .then((blob) => {
+                        let reader = new FileReader();
+                        reader.onload = function() {
+                            if(reader.readyState == 2) {
+                                var buffer = new Buffer(reader.result);
+                                ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                            }
+                        }
+                        reader.readAsArrayBuffer(blob);
+                    })
+            }
+        },
+        decryptImg: async function() {
             const content = this.msg.getContent();
             if(content.file !== undefined && this.decryptedUrl == null) {
                 let thumbnailPromise = Promise.resolve(null);
@@ -310,7 +349,7 @@ export default {
             let event = this.msg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = this.msg.getContent();
-            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === "m.room.message")
@@ -362,47 +401,10 @@ export default {
                     style += ";"
                     style += "height:" + info.h + "px";
                     imgMsgImgElement.setAttribute("style", style);
-                    /*
-                    var targetPath = this.msg.file_local_path;
-                    if(!targetPath) {
-                        targetPath = await services.common.GetFilePath(chatGroupMsgContent.url);
-                    }
-                    if(fs.existsSync(targetPath)) {
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100 && chatGroupMsgContent.imgHeight != 0){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("src", targetPath);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                        imgMsgImgElement.setAttribute("style", "");
-                    }
-                    else {
-                        var targetFileName = chatGroupMsgContent.body;
-                        var theExt = path.extname(targetFileName);
-                        var needOpen = false;
-                        var secretUrl = '';
-                        if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                            secretUrl = chatGroupMsgContent.url;
-                        }
-                        if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false, secretUrl))) {
-                            //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                            let imageHeight = 100;
-                            if(chatGroupMsgContent.imgHeight < 100){
-                                imageHeight = chatGroupMsgContent.imgHeight;
-                            }
-                            this.imageHeight = imageHeight;
-                            imgMsgImgElement.setAttribute("style", "");
-                            imgMsgImgElement.setAttribute("src", targetPath);
-                            imgMsgImgElement.setAttribute("height", imageHeight);
-                        }
-                    }
-                    */
-                }
-                
+                } 
             }
             else if(chatGroupMsgType === "m.room.encrypted") {
-                chatGroupMsgContent = this.msg.getContent();
+                // chatGroupMsgContent = this.msg.getContent();
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.messageContent = chatGroupMsgContent.body;
                     if(chatGroupMsgContent.info)
@@ -451,87 +453,10 @@ export default {
                     style += ";"
                     style += "height:" + info.h + "px";
                     imgMsgImgElement.setAttribute("style", style);
-                    this.decryptFile();
+                    this.decryptImg();
                 }
-            }
-            else if(chatGroupMsgType === 102)//图片
-            {
-                var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
-                var targetPath = this.msg.file_local_path;
-                if(!fs.existsSync(targetPath)) {
-                    targetPath = await services.common.GetFilePath(this.msg.message_id);
-                }
-                if(fs.existsSync(targetPath)) {
-                    let imageHeight = 100;
-                    if(chatGroupMsgContent.imgHeight < 100 && chatGroupMsgContent.imgHeight != 0){
-                        imageHeight = chatGroupMsgContent.imgHeight;
-                    }
-                    this.imageHeight = imageHeight;
-                    imgMsgImgElement.setAttribute("src", targetPath);
-                    imgMsgImgElement.setAttribute("height", imageHeight);
-                    imgMsgImgElement.setAttribute("style", "");
-                }
-                else {
-                    var targetFileName = chatGroupMsgContent.fileName;
-                    var theExt = path.extname(targetFileName);
-                    var needOpen = false;
-                    var secretUrl = '';
-                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                        secretUrl = chatGroupMsgContent.url;
-                    }
-                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false, secretUrl))) {
-                        //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("style", "");
-                        imgMsgImgElement.setAttribute("src", targetPath);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                    }
-                }
-            }
-            else if(chatGroupMsgType === 103)//文件
-            {
-                this.fileName = chatGroupMsgContent.fileName;
-                this.fileSizeNum = chatGroupMsgContent.fileSize;
-                this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                
-                // var targetFileName = chatGroupMsgContent.fileName;
-                // var theExt = path.extname(targetFileName);
-                var targetPath = decodeURIComponent(this.msg.file_local_path);
-                if(!fs.existsSync(targetPath)) {
-                    targetPath = await services.common.GetFilePath(this.msg.message_id);
-                }
-                
-                var needOpen = false;
-                // console.log("targetPath is ", targetPath)
-                if(!fs.existsSync(targetPath)){
-                    // console.log("this.msg.timelineid is ", this.msg.time_line_id)
-                    // console.log("targetfilename is ", targetFileName);
-                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                        this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false, chatGroupMsgContent.fileSize, chatGroupMsgContent.url); 
-                    }
-                    else {
-                        this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false, chatGroupMsgContent.fileSize);
-                    }
-                    this.checkingTmpPath = this.checkingPath + "_tmp";
-                    this.downloadingInterval = setInterval(() => {
-                        if(fs.existsSync(this.checkingTmpPath)) {
-                            this.showProgress = true;
-                            var checkingState = fs.statSync(this.checkingTmpPath);
-                            this.curPercent = parseInt(checkingState.size*100/Number(this.fileSizeNum))
-                            // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
-                        }
-                        // if(fs.existsSync(this.checkingPath)) {
-                        //     this.showProgress = false;
-                        //     if(this.downloadingInterval) {
-                        //         clearInterval(this.downloadingInterval);
-                        //     }
-                        // }
-                    }, 200);
+                else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
+                    this.messageContent = chatGroupMsgContent.body;
                 }
             }
             else if(chatGroupMsgType === 105)//语音消息
@@ -704,6 +629,7 @@ export default {
     },
     data() {
         return {
+            decrypting: false,
             decryptedUrl: null,
             decryptedThumbnailUrl: null,
             decryptedBlob: null,
@@ -893,6 +819,11 @@ export default {
             // console.log("updateMsgstatus ", this.updateMsgStatus);
             if(this.updateMsgStatus.id == this.msg.message_id) {
                 this.updateStatus = !this.updateStatus;
+            }
+        },
+        updateMsgContent: function() {
+            if(this.msg.event.event_id == this.updateMsgContent.id) {
+                this.MsgContent(true);
             }
         }
     }
