@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import axios from "axios"
-import fs from 'fs'
+import fs from 'fs-extra'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
@@ -441,6 +441,17 @@ function clearFlashIconTimer() {
 }
 
 const downloadingList = [];
+
+ipcMain.on("save_file", (event, path, buffer) => {
+  fs.outputFile(path, buffer, err => {
+    if(err) {
+      console.log("save file err ", err);
+    }
+    else {
+      console.log("save file suc");
+    }
+  })
+})
 
 function downloadFile(event, arg) {
   return function f() {
