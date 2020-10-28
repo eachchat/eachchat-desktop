@@ -80,6 +80,7 @@
     "axios": "^0.18.0",
     "benz-amr-recorder": "^1.1.2",
     "bobolink": "^3.0.0",
+    "browser-encrypt-attachment": "^0.3.0",
     "bufferutil": "^4.0.1",
     "chai": "^4.2.0",
     "electron-log": "^4.2.4",

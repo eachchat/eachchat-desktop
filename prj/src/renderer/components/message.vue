@@ -98,7 +98,7 @@ import BenzAMRRecorder from 'benz-amr-recorder'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile} from '../../packages/core/Utils.js'
 import { UserInfo } from '../../packages/data/sqliteutil.js'
 
 export default {
@@ -271,6 +271,35 @@ export default {
                 return false;
             }
         },
+        decryptFile: async function() {
+            const content = this.msg.getContent();
+            if(content.file !== undefined && this.decryptedUrl == null) {
+                let thumbnailPromise = Promise.resolve(null);
+                if(content.info && content.info.thumbnail_file) {
+                    thumbnailPromise = decryptFile(content.info.thumbnail_file, this.matrixClient.mxcUrlToHttp(content.info.thumbnail_file.url))
+                        .then((blob) => {
+                            return URL.createObjectURL(blob);
+                        })
+                }
+                let decryptedBlob;
+                thumbnailPromise.then((thumbnailUrl) => {
+                    return decryptFile(content.file, this.matrixClient.mxcUrlToHttp(content.file.url))
+                        .then((blob) => {
+                            decryptedBlob = blob;
+                            return URL.createObjectURL(blob);
+                        })
+                        .then((contentUrl) => {
+                            this.decryptedUrl = contentUrl;
+                            this.decryptedThumbnailUrl = thumbnailUrl;
+                            this.decryptedBlob = decryptedBlob;
+                            let imgElement = document.getElementById(this.msg.event.event_id);
+                            if(imgElement != undefined) {
+                                imgElement.setAttribute("src", thumbnailUrl);
+                            }
+                        })
+                })
+            }
+        },
         MsgContent: async function(is_mine=false) {
             if(this.msg === null) {
                 return '';
@@ -386,7 +415,7 @@ export default {
                     if(this.messageContent.length == 0) {
                         this.messageContent = "\n";
                     }
-                }
+                } 
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     let maxSize = 400;
                     if(chatGroupMsgContent.body)
@@ -422,6 +451,7 @@ export default {
                     style += ";"
                     style += "height:" + info.h + "px";
                     imgMsgImgElement.setAttribute("style", style);
+                    this.decryptFile();
                 }
             }
             else if(chatGroupMsgType === 102)//图片
@@ -674,6 +704,9 @@ export default {
     },
     data() {
         return {
+            decryptedUrl: null,
+            decryptedThumbnailUrl: null,
+            decryptedBlob: null,
             showProgress: false,
             curPercent: 0,
             downloadingInterval: undefined,
