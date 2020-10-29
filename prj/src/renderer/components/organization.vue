@@ -5,12 +5,14 @@
                 <div class="search">
                     <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
                 </div><div class="search-action">
+                        
                         <div class="search-delete">
                             <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
+                            
                         </div><div class="search-search">
+                    
                             <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
                         </div>
-                    </div><div class="search-search"  @click="AddContact"><img ondragstart="return false" class="icon-search" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
                     </div>
             </div>
             <div class="search-view" v-show="showSearchView">
@@ -114,10 +116,6 @@ export default {
         }
     },
     methods: {
-        AddContact: function(){
-            console.log("add contact")
-        },
-
         Close: function() {
             ipcRenderer.send("win-close");
         },
@@ -538,7 +536,7 @@ display: none;
     .search {
         margin: 12px 0px 0px 16px;
         text-align: left;
-        width: calc(100% - 126px);
+        width: calc(100% - 86px);
         height: 32px;
         border: 1px solid rgb(221, 221, 221);
         border-right: none;
@@ -596,7 +594,7 @@ display: none;
         display: inline-block;
         position: absolute;
         text-indent: 10px;
-        width: 150px;
+        width: 194px;
         padding: 0;
         margin: 0px;
         height: 32px;
