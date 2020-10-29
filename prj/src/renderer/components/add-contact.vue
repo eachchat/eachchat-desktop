@@ -17,6 +17,36 @@
                         </div>
                     </div>
                     <div class = "search-label">{{$t('contactLabel')}}</div>
+                    <div class = "search-label">
+                    <el-table
+                        :data="tableData"
+                        style="width: 100%"
+                        max-height="250">
+                        <el-table-column
+                        width="180">
+                        <img src="../../../static/Img/Chat/search-20px@2x.png" alt="">
+                        </el-table-column>
+                        <el-table-column
+                        width="180">
+                        <template slot-scope="scope">
+                            <el-popover trigger="hover" placement="top">
+                            <p>姓名: {{ scope.row.name }}</p>
+                            <p>住址: {{ scope.row.address }}</p>
+                            <div slot="reference" class="name-wrapper">
+                                <el-tag size="medium">{{ scope.row.name }}</el-tag>
+                            </div>
+                            </el-popover>
+                        </template>
+                        </el-table-column>
+                        <el-table-column>
+                        <template slot-scope="scope">
+                            <el-button
+                            size="mini"
+                            @click="handleEdit(scope.$index, scope.row)">保存</el-button>
+                        </template>
+                        </el-table-column>
+                    </el-table>
+                    </div>
                     
                 </el-main>
             </el-container>
@@ -77,6 +107,23 @@ export default {
     },
     data () {
         return {
+            tableData: [{
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-04',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1517 弄'
+        }, {
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        }, {
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1516 弄'
+        }],
             imgHeight: 468,
             imgWidth: 624,
             dlgPosition:{},
