@@ -1066,6 +1066,9 @@ function uncodeUtf16(str){
  }
 
 function getIconPath(ext) {
+    if(ext.startsWith(".")) {
+        ext = ext.substring(1, ext.length);
+    }
     var iconDirPath = './static/Img/Chat';
     var distExt = '';
     var distIconPath = '';

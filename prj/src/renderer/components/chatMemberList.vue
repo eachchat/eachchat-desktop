@@ -96,9 +96,9 @@ export default {
         await services.common.init();
         const userId = window.localStorage.getItem("mx_user_id");
         //await services.common.InitConfServer("1111111")
-        this.loginInfo = await services.common.GetLoginModel();
-        console.log("userinfo-tip login info is ", this.loginInfo);
-        this.curUserInfo = await services.common.GetSelfUserModel();
+        // this.loginInfo = await services.common.GetLoginModel();
+        // console.log("userinfo-tip login info is ", this.loginInfo);
+        // this.curUserInfo = await services.common.GetSelfUserModel();
     },
     mounted() {
     },

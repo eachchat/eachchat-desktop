@@ -96,7 +96,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.hide();
   mainWindow.setSize(960, 600);
   // mainWindow.webContents.on('did-finish-load', function(){
-    mainWindow.show();
+  mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);
   // 托盘
@@ -144,7 +144,7 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
     }
   }
   mainWindow.webContents.send("setUnreadCount", arg);
-})
+});
 
 ipcMain.on("token-expired", function(event, arg) {
   if(isLogin) {

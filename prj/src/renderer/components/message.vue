@@ -10,12 +10,13 @@
                     <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgFileIcon()" alt="图片">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
+                            <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>
@@ -56,12 +57,13 @@
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgFileIcon()" alt="图片">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
+                            <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>
@@ -98,7 +100,7 @@ import BenzAMRRecorder from 'benz-amr-recorder'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, fileTypeFromMIME} from '../../packages/core/Utils.js'
 import { UserInfo } from '../../packages/data/sqliteutil.js'
 
 export default {
@@ -238,6 +240,14 @@ export default {
             return iconPath;
         },
         getMsgFileIcon: function() {
+            var content = this.msg.getContent();
+            if(content.body != undefined) {
+                let ext = path.extname(content.body);
+                console.log("getmsgfileicon ext is ", ext);
+                return this.getFileIconThroughExt(ext);
+            }
+        },
+        getMsgImgIcon: function() {
             let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
             return iconPath;
         },
@@ -349,7 +359,7 @@ export default {
             let event = this.msg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = this.msg.getContent();
-            console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === "m.room.message")
@@ -357,7 +367,7 @@ export default {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.messageContent = chatGroupMsgContent.body;
                     if(chatGroupMsgContent.info)
-                        this.fileSize = chatGroupMsgContent.info.size;
+                        this.fileSize = getFileSizeByNumber(chatGroupMsgContent.info.size);
                     this.fileName = this.messageContent;
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.text'){
@@ -381,10 +391,10 @@ export default {
                     if(!info.w)
                         info.w = maxSize;
                     if(info.size)
-                        this.fileSizeNum = info.size;
+                        this.fileSizeNum = getFileSizeByNumber(info.size);
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
-                    let style = "padding:40px 40px 40px 40px;";
+                    let style = "";
                     let max = Math.max(info.w, info.h);
                     if(max > maxSize ){
                         if(info.w > info.h){
@@ -408,7 +418,7 @@ export default {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.messageContent = chatGroupMsgContent.body;
                     if(chatGroupMsgContent.info)
-                        this.fileSize = chatGroupMsgContent.info.size;
+                        this.fileSize = getFileSizeByNumber(chatGroupMsgContent.info.size);
                     this.fileName = this.messageContent;
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.text'){
@@ -433,10 +443,10 @@ export default {
                     if(!info.w)
                         info.w = maxSize;
                     if(info.size)
-                        this.fileSizeNum = info.size;
+                        this.fileSizeNum = getFileSizeByNumber(info.size);
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
-                    let style = "padding:40px 40px 40px 40px;";
+                    let style = "";
                     let max = Math.max(info.w, info.h);
                     if(max > maxSize ){
                         if(info.w > info.h){
@@ -528,7 +538,6 @@ export default {
             }
         },
         MsgBelongUserImg: async function () {
-            return '';
             // var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
             // console.log("MsgBelongUserImg this.userInfo is ", this.userInfo)
             if(this.msg == undefined) {
@@ -551,6 +560,7 @@ export default {
             if(this.userIconElement == undefined) {
                 return;
             }
+            /*
             // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
             var targetDir = confservice.getFilePath();
             var targetFileName = this.msg.message_from_id + ".png";
@@ -600,6 +610,7 @@ export default {
             //         URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
             //     }
             // })
+            */
         },
         msgUserInfo: async function() {
             return '';

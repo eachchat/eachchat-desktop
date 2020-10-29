@@ -95,9 +95,9 @@ export default {
     components: {
     },
     created: async function () {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
-        await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
+        // this.serverapi = new APITransaction('139.198.15.253', 8888)
+        // await services.common.init();
+        // this.loginInfo = await services.common.GetLoginModel();
     },
     mounted: function() {
         setTimeout(() => {

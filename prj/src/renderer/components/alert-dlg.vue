@@ -34,6 +34,14 @@ export default {
                 "Abstrace": ''
             }
         },
+        width: {
+            type: Number,
+            default: 440,
+        },
+        height: {
+            type: Number,
+            default: 179,
+        },
         canCancel: {
             type: Boolean,
             default: true
@@ -55,8 +63,6 @@ export default {
         return {
             Abstrace: '',
             Details: '',
-            dlgWidth: 440,
-            dlgHeight: 179,
         }
     },
     methods: {
@@ -70,6 +76,7 @@ export default {
             if(this.AlertDlgElement == null) {
                 this.AlertDlgElement = document.getElementById("AlertDlgId");
             }
+            this.AlertDlgElement.style.width = this.width.toString() + "px";
             if(this.AlertLayersElement == null) {
                 this.AlertLayersElement = document.getElementById("AlertLayersId");
             }
@@ -78,8 +85,10 @@ export default {
             var showScreenWidth = this.AlertLayersElement.offsetWidth;
             console.log("showScreenHeight ", showScreenHeight)
             console.log("showScreenWidth ", showScreenWidth)
-            var left = (showScreenWidth - this.dlgWidth) / 2;
-            var top = (showScreenHeight - this.dlgHeight) / 2;
+            console.log("this.width ", this.width)
+            console.log("this.height ", this.height)
+            var left = (showScreenWidth - this.width) / 2;
+            var top = (showScreenHeight - this.height) / 2;
 
             console.log("left ", left)
             console.log("top ", top)
@@ -118,6 +127,16 @@ export default {
             console.log("Details is ", this.Details);
             console.log("Abstrace is ", this.Abstrace);
             
+            var showPosition = this.calcImgPosition();
+            console.log("showPositon is ", showPosition)
+            this.AlertDlgElement.style.left = showPosition.left.toString() + "px";
+            this.AlertDlgElement.style.top = showPosition.top.toString() + "px";
+        },
+        width: function() {
+            console.log("width is ok ", this.width);
+            if(this.AlertDlgElement == null) {
+                this.AlertDlgElement = document.getElementById("AlertDlgId");
+            }
             var showPosition = this.calcImgPosition();
             console.log("showPositon is ", showPosition)
             this.AlertDlgElement.style.left = showPosition.left.toString() + "px";
@@ -192,11 +211,13 @@ export default {
         vertical-align: top;
     }
 
-    .AlertferFotter {
-        width: 100%;
+    .AlertFotter {
+        width: 90%;
         height: 72px;
         display: inline-block;
         text-align: center;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
     .AlertConfirmButton {
@@ -205,7 +226,7 @@ export default {
         margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-right: 110px;
+        // margin-right: 110px;
         background: rgba(36, 179, 107, 1);
         border:1px solid rgba(221,221,221,1);
         color: white;
@@ -219,7 +240,7 @@ export default {
         margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-right: 110px;
+        // margin-right: 110px;
         background: rgba(36, 179, 107, 1);
         border:1px solid rgba(221,221,221,1);
         color: white;
@@ -233,7 +254,7 @@ export default {
         margin-right: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-left: 110px;
+        // margin-left: 110px;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);

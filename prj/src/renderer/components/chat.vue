@@ -1016,8 +1016,7 @@ export default {
             this.showFace = !this.showFace;
         },
         showGroupName: async function(chatGroupItem) {
-            return '';
-            if(chatGroupItem.group_id == undefined && chatGroupItem.user_id == undefined){
+            if(chatGroupItem.roomId == undefined && chatGroupItem.myUserId == undefined){
                 return "";
             }
             var groupNameElement = document.getElementById("chat-group-name");
@@ -1025,57 +1024,41 @@ export default {
             var groupStateElement = document.getElementById("chat-group-state");
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             console.log("getShowGroupName is ", chatGroupItem)
-            var groupName = chatGroupItem.group_name;
-            var groupContentNum = "";
-            var aboutUids = chatGroupItem.contain_user_ids.split(",");
-            var groupUidNameList = [];
-            if(groupName.length == 0) {
-                for(var i=0;i<aboutUids.length;i++) {
-                    let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
-                    groupUidNameList.unshift(nameTmp);
-                    if(i > 3) {
-                            break;
-                        }
-                }
-                groupName = groupUidNameList.join(",");
-            }
-            if(this.chat.group_type == 101) {
-                groupContentNum = '(' + aboutUids.length + ')';
-            }
+            var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
-            groupContentNumElement.innerHTML = groupContentNum;
+            groupContentNumElement.innerHTML = '';
             
-            var targetPath = "";
-            var distId = "";
-            if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
-                distId = chatGroupItem.group_id;
-            }
-            else {
-                distId = chatGroupItem.user_id;
-            }
-            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, distId))){
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    groupIcoElement.setAttribute("src", reader.result);
-                }
-            }
+            // var targetPath = "";
+            // var distId = "";
+            // if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
+            //     distId = chatGroupItem.group_id;
+            // }
+            // else {
+            //     distId = chatGroupItem.user_id;
+            // }
+            // if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, distId))){
+            //     var showfu = new FileUtil(targetPath);
+            //     let showfileObj = showfu.GetUploadfileobj();
+            //     let reader = new FileReader();
+            //     reader.readAsDataURL(showfileObj);
+            //     reader.onloadend = () => {
+            //         groupIcoElement.setAttribute("src", reader.result);
+            //     }
+            // }
 
-            var groupState = "";
-            if(chatGroupItem.group_type == 102) {
-                if(chatGroupItem.owner == null || chatGroupItem.owner == undefined) {
-                    var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.user_id);
-                }
-                else {
-                    var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
-                }
-                console.log("================ ownerInfo ", ownerInfo)
-                groupState = ownerInfo[0].status_description;
-                // console.log("================ ", ownerInfo)
-            }
-            groupStateElement.innerHTML = groupState;
+            // var groupState = "";
+            // if(chatGroupItem.group_type == 102) {
+            //     if(chatGroupItem.owner == null || chatGroupItem.owner == undefined) {
+            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.user_id);
+            //     }
+            //     else {
+            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
+            //     }
+            //     console.log("================ ownerInfo ", ownerInfo)
+            //     groupState = ownerInfo[0].status_description;
+            //     // console.log("================ ", ownerInfo)
+            // }
+            // groupStateElement.innerHTML = groupState;
         },
         insertFace: function(item) {
             var range = this.editor.getSelection();
