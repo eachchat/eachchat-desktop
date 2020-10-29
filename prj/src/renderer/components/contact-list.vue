@@ -1,7 +1,11 @@
 <template>
     <el-container>
         <el-header height="56px" class="contact-header">
-            <p class="contact-header-title">联系人</p>
+            <p class="contact-header-title">{{$t('contactMenuName')}}</p>
+            <div class='chat-tool-invite-div' @click="addContact()">
+            <img style="margin-top: 18px; width:35x;height:35px" src='../../../static/Img/Chat/addMember.png'>
+            <div style="vertical-align:top; margin-top: 25px; display:inline-block">{{$t('addContact')}}</div>
+            </div>
         </el-header>
         <el-main>
             <el-container class="bottom-container" id="contact-main-container">
@@ -147,6 +151,9 @@ export default {
 
         //     this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
         // },
+        addContact: function(){
+            console.log("addContact")
+        },
         departmentMenuItemClicked:async function(department, level) {
 
 
@@ -331,6 +338,14 @@ export default {
 display: none;
 }
 
+.chat-tool-invite-div {
+    display: inline-block;
+    text-align:center;
+    vertical-align:middle;
+    float: right;
+    width: 100px;
+    height: 30px;
+}
 
 .contact-header {
     display: float;
@@ -339,14 +354,15 @@ display: none;
     background-color: rgb(255, 255, 255);
     border-bottom: 1px solid rgb(238, 238, 238);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
-    -webkit-app-region: drag;
     //-webkit-app-region: drag;
     // * {            
     //     -webkit-app-region: no-drag;
     // }
 }
 .contact-header-title{
-    width:100%;
+    display: inline-block;
+    float: left;
+    width:50%;
     height:20px;
     font-size:14px;
     font-weight:500;
