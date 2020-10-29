@@ -4,7 +4,7 @@
             <p class="contact-header-title">{{$t('contactMenuName')}}</p>
             <div class='chat-tool-invite-div' @click="addContact()">
             <img style="margin-top: 18px; width:35x;height:35px" src='../../../static/Img/Chat/addMember.png'>
-            <div style="vertical-align:top; margin-top: 25px; display:inline-block">{{$t('addContact')}}</div>
+            <div style="vertical-align:top; margin-top: 25px; display:inline-block">{{$t('addContactButton')}}</div>
             </div>
         </el-header>
         <el-main>
@@ -26,6 +26,8 @@
                 <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"></userInfoContent>
             </el-container>
         </el-main>
+        <addContact v-show="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg'>
+        </addContact>
     </el-container>
 </template>
 <script>
@@ -39,12 +41,14 @@ import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.j
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
+import addContact from './add-contact'
 export default {
     name: 'contactList',
     components: {
         yidrawer,
         userInfoContent,
         userInfoTip,
+        addContact
     },
     data () {
         return {
@@ -57,7 +61,8 @@ export default {
             userInfo: {},
             showUserInfoTips: false,
             userInfoTipKey: 1,
-            userInfoPosition: {}
+            userInfoPosition: {},
+            showChatContactDlg: false
         }
     },
     props:{
@@ -133,25 +138,12 @@ export default {
         },
     },
     methods: {
-        // departmentBreadCrumbsClicked:async function(id, name, index) {
-        //     this.showUserInfoDrawer = false;
-        //     var departmentModels = await Department.GetSubDepartment(id);
+        closeAddContactDlg: function(){
+            this.showChatContactDlg = false;
+        },
 
-        //     var tempDepartments = [];
-        //     for(var i = 0; i < departmentModels.length; i ++){
-        //         tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-        //     }
-        //     this.departments = tempDepartments;
-        //     this.users = await UserInfo.GetSubUserinfo(id);
-        //     this.$nextTick(function(){
-        //         for(var i = 0; i < this.users.length; i ++){
-        //             this.getUserImg(this.users[i]);
-        //         }
-        //     });
-
-        //     this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
-        // },
         addContact: function(){
+            this.showChatContactDlg = true;
             console.log("addContact")
         },
         departmentMenuItemClicked:async function(department, level) {
