@@ -17,37 +17,35 @@
                         </div>
                     </div>
                     <div class = "search-label">{{$t('contactLabel')}}</div>
-                    <div class = "search-label">
+                    <div v-show="!bShowSearchRes">
+                        <div style="margin-left: 20px;margin-top: 10px;" @click="AddByOtherWay()">其他方式添加</div>
+                        <div style="margin-left: 20px;margin-top: 10px;" @click="AddByMatrixID()">通过matrix ID手动添加</div>
+                    </div>
                     <el-table
-                        :data="tableData"
-                        style="width: 100%"
-                        max-height="250">
-                        <el-table-column
-                        width="180">
-                        <img src="../../../static/Img/Chat/search-20px@2x.png" alt="">
+                        v-show="bShowSearchRes"
+                        :show-header= "false"
+                        :data="searchUsers"
+                        style="margin-left: 20px; width:95%"
+                        height='300'>
+                        <el-table-column width="50">
+                            <template slot-scope="scope">
+                                <img src="../../../static/Img/Chat/search-20px@2x.png" alt="">
+                            </template>
                         </el-table-column>
-                        <el-table-column
-                        width="180">
-                        <template slot-scope="scope">
-                            <el-popover trigger="hover" placement="top">
-                            <p>姓名: {{ scope.row.name }}</p>
-                            <p>住址: {{ scope.row.address }}</p>
-                            <div slot="reference" class="name-wrapper">
-                                <el-tag size="medium">{{ scope.row.name }}</el-tag>
-                            </div>
-                            </el-popover>
-                        </template>
+                        <el-table-column width="350" float='left'>
+                            <template slot-scope="scope">
+                                <p style='font-size: 12px;'>{{ scope.row.display_name }}</p>
+                                <p style='font-size: 8px;'>{{ scope.row.user_id }}</p>
+                            </template>
                         </el-table-column>
-                        <el-table-column>
-                        <template slot-scope="scope">
-                            <el-button
-                            size="mini"
-                            @click="handleEdit(scope.$index, scope.row)">保存</el-button>
-                        </template>
+                        <el-table-column float='right'>
+                            <template slot-scope="scope">
+                                <el-button
+                                size="mini"
+                                @click="handleEdit(scope.$index, scope.row)">保存</el-button>
+                            </template>
                         </el-table-column>
                     </el-table>
-                    </div>
-                    
                 </el-main>
             </el-container>
         </div>
@@ -68,114 +66,65 @@ import { model } from '../../packages/core'
 export default {
     name: 'addContact',
     props: {
-        createNewChat:{
-            type:Boolean,
-            default:true
-        },
-        dialogTitle:{
-            type: String,
-            default: ""
-        },
-        disableUsers: {
-            type: Array,
-            default: function () {
-                return [];
-            }
-        },
-        rootDepartments: {
-            type: Array,
-            default: function () {
-                return [];
-            }
-        },
-        addMemberGroupId: {
-            type: String,
-            default: ''
-        },
-        addMemberGroupType: {
-            type: Number,
-            default: 102,
-        },
-        isSearchAdd: {
-            type:Boolean,
-            default: false
-        },
-        isSecret: {
-            type:Boolean,
-            default: false
-        }
     },
     data () {
         return {
-            tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }],
+            matrixClient: undefined,
+            bShowSearchRes: false,
+            searchKey: '',
+            searchUsers: [],
             imgHeight: 468,
             imgWidth: 624,
             dlgPosition:{},
             viewContentHeight:202,
-
-            showRootDepartmentView:true,
-            showOrganizationView:true,
-            breadCrumbs:[],
-            allDepartments:[],
-            allUsers:[],
-
-            curDepartment: {},
-            curSubDepartments: [],
-            curUsers: [],
-            curSubAllUsers: [],
-            selectedUsers: [],
-
-            showSearchView: false,
-            searchKey:'',
-            searchUser: [],
+        }
+    },
+    watch:{
+        searchKey: function(){
+            if(this.searchKey === ''){
+                this.bShowSearchRes = false;
+                this.searchUsers = [];
+            }
         }
     },
     methods: {
+        handleEdit: function(index, row){
+            console.log(index, row)
+        },
+
+        AddByOtherWay: function(){
+            console.log('AddByOtherWay')
+        },
+
+        AddByMatrixID: function(){
+            console.log('AddByMatrixID')
+        },
+
         search:async function () {
             if(this.searchKey == ''){
-                this.showSearchView = false;
-                this.showOrganizationView = true;
                 return;
             }
             this.showSearchView = true;
             this.showOrganizationView = false;
-            var result = [];
-            var tempSearchUsers = await UserInfo.SearchByNameKey(this.searchKey);
-            for(var i = 0; i < tempSearchUsers.length; i ++){
-                for(var j = 0; j < this.allUsers.length; j ++){
-                    if(tempSearchUsers[i].user_id == this.allUsers[j].user_id){
-                        result.push(this.allUsers[j]);
-                        break;
+            let ops = {};
+            ops.term = this.searchKey;
+            ops.number = 10;
+            this.matrixClient.searchUserDirectory(ops).then((res)=>{
+                this.searchUsers = res.results;
+                if(this.searchUsers.length == 0)
+                    return;
+                this.bShowSearchRes = true;
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.searchUsers.length; i ++){
+                        this.getUserImg(this.searchUsers[i], 'search');
                     }
-                }
-            }
-            this.searchUser = result;
-            this.$nextTick(function(){
-                for(var i = 0; i < this.searchUser.length; i ++){
-                    this.getUserImg(this.searchUser[i], 'search');
-                }
+                });
             });
+            
+           
         },
         searchDeleteClicked(){
             this.searchKey = '';
-            this.search();
-
         },
         closeDialog() {
             //this.display = false;
@@ -874,39 +823,12 @@ export default {
     components: {
     },
     created() {
-
-            var showPosition = this.calcImgPosition();
-            
-            this.dlgPosition.left = showPosition.left.toString() + "px";
-            this.dlgPosition.top = showPosition.top.toString() + "px";
-            
-            // this.$nextTick(function(){
-            //     for(var i = 0; i < this.recentGroups.length; i ++){
-            //         this.getGroupAvatarContent(this.recentGroups[i]);
-            //     }
-            // });
+        var showPosition = this.calcImgPosition();
+        this.dlgPosition.left = showPosition.left.toString() + "px";
+        this.dlgPosition.top = showPosition.top.toString() + "px";
     },
     mounted:async function() {
-        // breadCrumbs
-            var root = {};
-            if(this.rootDepartments[0] == undefined) {
-                return;
-            }
-            this.rootDepartments = this.getDepartmentModelFromSqlModel(this.rootDepartments);
-            root.department_id = this.rootDepartments[0].parent_id;
-            root.display_name = '组织';
-            this.breadCrumbs.push(root);
-            this.allUsers = this.getUserModelFromSqlModel(await UserInfo.GetAllUserInfo());
-            this.allDepartments = this.getDepartmentModelFromSqlModel(await Department.GetAllDepartment());
-            var tempAllDepartments = [];
-            for(var i = 0; i < this.allDepartments.length; i ++){
-                var temp = this.allDepartments[i];
-                temp.subAllUsers = this.getDepartmentSubAllUsers(temp);
-                tempAllDepartments.push(temp);
-            }
-            this.allDepartments = tempAllDepartments;
-            console.log(this.disableUsers);
-            console.log(this.rootDepartments);
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
     },
     
 }
@@ -1568,4 +1490,9 @@ display: none;
         transform:rotate(-45deg);
         outline: none;
     }
+    .el-table__body tr,
+        .el-table__body td {
+            padding: 0;
+            height: 40px;
+        }
 </style>
