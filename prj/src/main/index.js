@@ -95,6 +95,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   isLogin = true;
   mainWindow.hide();
   mainWindow.setSize(960, 600);
+  mainWindow.center();
   // mainWindow.webContents.on('did-finish-load', function(){
   mainWindow.show();
   // });
@@ -442,13 +443,30 @@ function clearFlashIconTimer() {
 
 const downloadingList = [];
 
-ipcMain.on("save_file", (event, path, buffer) => {
-  fs.outputFile(path, buffer, err => {
+ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
+  // var path = args[0];
+  // var buffer = args[1];
+  // var eventId = args[2];
+  // var needOpen = args[3];
+  var path = path;
+  var buffer = buffer;
+  var eventId = eventId;
+  var needOpen = needOpen;
+  console.log("args is ", buffer);
+  var distPath = path + '_tmp';
+  fs.outputFile(distPath, buffer, async err => {
     if(err) {
-      console.log("save file err ", err);
+      console.log("ERROR ", err.message)
+      event.sender.send("ERROR", err.message, eventId);
     }
     else {
-      console.log("save file suc");
+      var finalName = await makeFlieNameForConflict(path);
+      console.log("get final name ", finalName)
+      fs.renameSync(distPath, finalName);
+      if(needOpen) {
+        shell.openExternal(finalName);
+      }
+      event.sender.send("SAVED_FILE", finalName, eventId);
     }
   })
 })

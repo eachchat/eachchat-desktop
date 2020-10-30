@@ -810,6 +810,28 @@ function decryptFile(file, url) {
     });
 }
 
+function getFileBlob(fileInfo, url) {
+    // const url = MatrixClientPeg.get().mxcUrlToHttp(file.url);
+    // Download the encrypted file as an array buffer.
+    return Promise.resolve(fetch(url)).then(function(response) {
+        return response.arrayBuffer();
+    }).then(function(dataArray) {
+        // Turn the array into a Blob and give it the correct MIME-type.
+
+        // IMPORTANT: we must not allow scriptable mime-types into Blobs otherwise
+        // they introduce XSS attacks if the Blob URI is viewed directly in the
+        // browser (e.g. by copying the URI into a new tab or window.)
+        // See warning at top of file.
+        let mimetype = fileInfo.mimetype ? fileInfo.mimetype.split(";")[0].trim() : '';
+        if (!ALLOWED_BLOB_MIMETYPES[mimetype]) {
+            mimetype = 'application/octet-stream';
+        }
+
+        const blob = new Blob([dataArray], {type: mimetype});
+        return blob;
+    });
+}
+
 class FileUtil
 {
     
@@ -1289,6 +1311,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile};
+export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

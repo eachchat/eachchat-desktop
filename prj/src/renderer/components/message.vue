@@ -100,7 +100,7 @@ import BenzAMRRecorder from 'benz-amr-recorder'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, fileTypeFromMIME} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
 import { UserInfo } from '../../packages/data/sqliteutil.js'
 
 export default {
@@ -146,8 +146,8 @@ export default {
         },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
-            let msgType = this.msg.message_type;
-            let msgContent = strMsgContentToJson(this.msg.message_content);
+            let msgType = this.msg.msgtype;
+            // let msgContent = strMsgContentToJson(this.msg.message_content);
             // var targetDir = confservice.getFilePath();
             // var targetFileName = this.msg.message_id.toString() + "." + msgContent.ext;
             // var targetPath = path.join(targetDir, targetFileName);
@@ -157,6 +157,24 @@ export default {
             if(chatGroupMsgType === "m.room.encrypted") {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.decryptAndDownloadFile();
+                }
+            }
+            if(chatGroupMsgType === "m.room.message") {
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                    var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+                    getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                        .then((blob) => {
+                            let reader = new FileReader();
+                            reader.onload = function() {
+                                if(reader.readyState == 2) {
+                                    var buffer = new Buffer(reader.result);
+                                    var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                                    // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                    ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                                }
+                            }
+                            reader.readAsArrayBuffer(blob);
+                        })
                 }
             }
             if(msgType === 102)
@@ -312,8 +330,15 @@ export default {
                         let reader = new FileReader();
                         reader.onload = function() {
                             if(reader.readyState == 2) {
-                                var buffer = new Buffer(reader.result);
-                                ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                // var buffer = new Buffer(reader.result);
+                                // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                let a = document.createElement('a');
+                                a.href = window.URL.createObjectURL(blob);
+                                a.download = content.body;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                this.decrypting = false;
                             }
                         }
                         reader.readAsArrayBuffer(blob);
