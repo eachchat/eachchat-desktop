@@ -158,6 +158,14 @@ export default {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.decryptAndDownloadFile();
                 }
+                if(chatGroupMsgContent.msgtype == 'm.image'){
+                    console.log("1 ", this.decryptedUrl);
+                    var imageInfo = {
+                        url: this.decryptedUrl,
+                        info: chatGroupMsgContent.info
+                    }
+                    this.$emit('showImageOfMessage', imageInfo);
+                }
             }
             if(chatGroupMsgType === "m.room.message") {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -175,6 +183,14 @@ export default {
                             }
                             reader.readAsArrayBuffer(blob);
                         })
+                }
+                if(chatGroupMsgContent.msgtype == 'm.image'){
+                    var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                    var imageInfo = {
+                        url: distUrl,
+                        info: chatGroupMsgContent.info
+                    }
+                    this.$emit('showImageOfMessage', imageInfo);
                 }
             }
             if(msgType === 102)

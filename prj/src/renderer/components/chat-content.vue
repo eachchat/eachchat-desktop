@@ -18,8 +18,9 @@
                 <div :class="groupDivOrTopClassName(chatGroupItem, index)">
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
+                    <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem.un_read_count, index===curindex, chatGroupItem.status)">{{getUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
@@ -147,6 +148,7 @@ import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToSt
 import { Group, UserInfo, Department, Message } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
+// import avatarBlock from './avatar.vue';
 import {shell} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 import log from 'electron-log';
@@ -161,6 +163,7 @@ export default {
     searchChatSelecterDlg,
     searchSenderSelecterDlg,
     userInfoContent,
+    // avatarBlock,
     // listItem
   },
   props: {
@@ -250,6 +253,7 @@ export default {
     },
     matrixSync: function() {
       if (this.matrixSync) this.originalGroupList = global.mxMatrixClientPeg.matrixClient.getRooms();
+      console.log("======this.originalGroupList ", this.originalGroupList);
     }
   },
   computed: {
@@ -1166,12 +1170,12 @@ export default {
         }
       }
     },
-    getUnreadClass(unReadCount, selected, status) {
+    getUnreadClass(chatItem, selected, status) {
       var endPoint = "-unselected";
       if(selected) {
         endPoint = "-selected";
       }
-      if(unReadCount === 0) {
+      if(this.getUnReadCount(chatItem) === '') {
         return "group-readall" + endPoint;
       }
       else {
@@ -1183,9 +1187,45 @@ export default {
         }
       }
     },
-    getUnReadCount(unReadCount) {
-      if(unReadCount === 0) return "";
-      else return unReadCount > 100 ? "99+" : unReadCount;
+    getUnReadCount(chatItem) {
+      // const roomNotifState = this.getRoomNotifsState(chatItem.roomId);
+      const highlight = chatItem.getUnreadNotificationCount('highlight');// > 0;
+      const notificationCount = chatItem.getUnreadNotificationCount();
+
+      const notifBadges = notificationCount;// > 0 && shouldShowNotifBadge(roomNotifState);
+      const mentionBadges = highlight;// && shouldShowMentionBadge(roomNotifState);
+
+      chatItem.un_read_count = notifBadges == 0 ? '' : notifBadges;// || mentionBadges;
+      return chatItem.un_read_count;
+    },
+    getShowUnReadCount(unreadCount) {
+      if(unreadCount == undefined || (undefined != undefined && unreadCount == 0)) return '';
+      return unreadCount;
+    },
+    findOverrideMuteRule(roomId) {
+        if (!global.mxMatrixClientPeg.matrixClient.pushRules ||
+            !global.mxMatrixClientPeg.matrixClient.pushRules['global'] ||
+            !global.mxMatrixClientPeg.matrixClient.pushRules['global'].override) {
+            return null;
+        }
+        for (const rule of global.mxMatrixClientPeg.matrixClient.pushRules['global'].override) {
+            if (isRuleForRoom(roomId, rule)) {
+                if (isMuteRule(rule) && rule.enabled) {
+                    return rule;
+                }
+            }
+        }
+        return null;
+    },
+    isRuleForRoom(roomId, rule) {
+        if (rule.conditions.length !== 1) {
+            return false;
+        }
+        const cond = rule.conditions[0];
+        return (cond.kind === 'event_match' && cond.key === 'room_id' && cond.pattern === roomId);
+    },
+    isMuteRule(rule) {
+        return (rule.actions.length === 1 && rule.actions[0] === 'dont_notify');
     },
     formatTimeFilter(secondsTime) {
       let curDate = new Date();
@@ -1278,92 +1318,130 @@ export default {
       return chatGroupItem.name;
     },
     getShowMsgContent(chatGroupItem) {
-      // console.log("getShowMsgContent is ", chatGroupItem)
-      if(chatGroupItem === null){
-        return "";
-      }
-      var chatGroupMsgContent = strMsgContentToJson(chatGroupItem.message_content);
+      var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      
+      let event = distTimeLine.event;
+      let chatGroupMsgType = event.type;
+      var chatGroupMsgContent = distTimeLine.getContent();
 
-      var chatGroupMsgType = chatGroupItem.message_content_type != undefined ? chatGroupItem.message_content_type : chatGroupItem.message_type;
-      if(chatGroupMsgContent === null) {
-        return "";
-      }
-      if(chatGroupMsgType === 101)
+      if(chatGroupMsgType === "m.room.message")
       {
-        return chatGroupMsgContent.text;
-      }
-      else if(chatGroupMsgType === 102)
-      {
-        return "[图片]";
-      }
-      else if(chatGroupMsgType === 103)
-      {
-        return "[文件]:" + chatGroupMsgContent.fileName;
-      }
-      else if(chatGroupMsgType === 104)
-      {
-        if(chatGroupMsgContent.type === "invitation")
-        {
-          var invitees = chatGroupMsgContent.userInfos;
-          var inviteeNameList = [];
-          var inviteeNames = "";
-          if(invitees.length == 1){
-              inviteeNames = invitees[0].userName
+          if(chatGroupMsgContent.msgtype == 'm.file'){
+            return "[文件]:" + chatGroupMsgContent.body;
           }
-          else{
-              for(var i=0;i<invitees.length;i++) {
-                  inviteeNameList.push(invitees[i].userName);
-              }
-              inviteeNames = inviteeNameList.join(",");
+          else if(chatGroupMsgContent.msgtype == 'm.text'){
+            var sender = distTimeLine.sender.name;
+            var content = chatGroupMsgContent.body;
+            return sender + ":" + content;
           }
-          var inviter = chatGroupMsgContent.userName;
-          return inviter + " 邀请 " + inviteeNames + " 加入群聊";
-        }
-        else if(chatGroupMsgContent.type === "notice")
-        {
-          var owner = chatGroupMsgContent.userName;
-          return owner + " 发布群公告";
-        }
-        else if(chatGroupMsgContent.type === "updateGroupName")
-        {
-          var owner = chatGroupMsgContent.userName;
-          var distName = chatGroupMsgContent.text;
-          return owner + " 修改群名称为 " + distName;
-        }
-        else if(chatGroupMsgContent.type === "deleteGroupUser")
-        {
-            var owner = chatGroupMsgContent.userName;
-            var deletedNames = "";
-            var deletedUsers = chatGroupMsgContent.userInfos;
-            if(deletedUsers.length == 1){
-                deletedNames = deletedUsers[0].userName
-            }
-            else{
-                for(var i=0;i<deletedUsers.length;i++) {
-                    deletedNames = deletedNames + "," + deletedUsers[i].userName
-                }
-            }
-            return owner + " 将 " + deletedNames + " 移出了群聊";
-        }
-        else if(chatGroupMsgContent.type == "groupTransfer") {
-            var originalOwner = chatGroupMsgContent.fromUserName;
-            var newOwner = chatGroupMsgContent.toUserName;
-            // console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
-            return originalOwner + " 将群主转让给 " + newOwner;
-        }
-        else
-        {
-          return "您收到一条短消息";
-        }
+          else if(chatGroupMsgContent.msgtype == 'm.image'){
+            return "[图片]";
+          } 
       }
-      else if(chatGroupMsgType === 105)
-      {
-        return "[语音]";
+      else if(chatGroupMsgType === "m.room.encrypted") {
+          // chatGroupMsgContent = this.msg.getContent();
+          if(chatGroupMsgContent.msgtype == 'm.file'){
+            return "[文件]:" + chatGroupMsgContent.body;
+          }
+          else if(chatGroupMsgContent.msgtype == 'm.text'){
+            var sender = distTimeLine.sender.name;
+            var content = chatGroupMsgContent.body;
+            return sender + ":" + content;
+          } 
+          else if(chatGroupMsgContent.msgtype == 'm.image'){
+            return "[图片]";
+          }
+          else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
+              this.messageContent = chatGroupMsgContent.body;
+          }
       }
-      else if(chatGroupMsgType === 106)
-      {
-        return "[聊天记录]";
-      }
+
+      // // console.log("getShowMsgContent is ", chatGroupItem)
+      // if(chatGroupItem === null){
+      //   return "";
+      // }
+      // var chatGroupMsgContent = strMsgContentToJson(chatGroupItem.message_content);
+
+      // var chatGroupMsgType = chatGroupItem.message_content_type != undefined ? chatGroupItem.message_content_type : chatGroupItem.message_type;
+      // if(chatGroupMsgContent === null) {
+      //   return "";
+      // }
+      // if(chatGroupMsgType === 101)
+      // {
+      //   return chatGroupMsgContent.text;
+      // }
+      // else if(chatGroupMsgType === 102)
+      // {
+      //   return "[图片]";
+      // }
+      // else if(chatGroupMsgType === 103)
+      // {
+      //   return "[文件]:" + chatGroupMsgContent.fileName;
+      // }
+      // else if(chatGroupMsgType === 104)
+      // {
+      //   if(chatGroupMsgContent.type === "invitation")
+      //   {
+      //     var invitees = chatGroupMsgContent.userInfos;
+      //     var inviteeNameList = [];
+      //     var inviteeNames = "";
+      //     if(invitees.length == 1){
+      //         inviteeNames = invitees[0].userName
+      //     }
+      //     else{
+      //         for(var i=0;i<invitees.length;i++) {
+      //             inviteeNameList.push(invitees[i].userName);
+      //         }
+      //         inviteeNames = inviteeNameList.join(",");
+      //     }
+      //     var inviter = chatGroupMsgContent.userName;
+      //     return inviter + " 邀请 " + inviteeNames + " 加入群聊";
+      //   }
+      //   else if(chatGroupMsgContent.type === "notice")
+      //   {
+      //     var owner = chatGroupMsgContent.userName;
+      //     return owner + " 发布群公告";
+      //   }
+      //   else if(chatGroupMsgContent.type === "updateGroupName")
+      //   {
+      //     var owner = chatGroupMsgContent.userName;
+      //     var distName = chatGroupMsgContent.text;
+      //     return owner + " 修改群名称为 " + distName;
+      //   }
+      //   else if(chatGroupMsgContent.type === "deleteGroupUser")
+      //   {
+      //       var owner = chatGroupMsgContent.userName;
+      //       var deletedNames = "";
+      //       var deletedUsers = chatGroupMsgContent.userInfos;
+      //       if(deletedUsers.length == 1){
+      //           deletedNames = deletedUsers[0].userName
+      //       }
+      //       else{
+      //           for(var i=0;i<deletedUsers.length;i++) {
+      //               deletedNames = deletedNames + "," + deletedUsers[i].userName
+      //           }
+      //       }
+      //       return owner + " 将 " + deletedNames + " 移出了群聊";
+      //   }
+      //   else if(chatGroupMsgContent.type == "groupTransfer") {
+      //       var originalOwner = chatGroupMsgContent.fromUserName;
+      //       var newOwner = chatGroupMsgContent.toUserName;
+      //       // console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+      //       return originalOwner + " 将群主转让给 " + newOwner;
+      //   }
+      //   else
+      //   {
+      //     return "您收到一条短消息";
+      //   }
+      // }
+      // else if(chatGroupMsgType === 105)
+      // {
+      //   return "[语音]";
+      // }
+      // else if(chatGroupMsgType === 106)
+      // {
+      //   return "[聊天记录]";
+      // }
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
@@ -1375,19 +1453,20 @@ export default {
         isSecret = true;
       }
 
-      if(this.curChat.un_read_count != undefined) {
+      if(this.curChat.roomId != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
         // console.log("showchat this.unreadCount ", this.unreadCount)
         if(this.unreadCount < 0) {
           this.unreadCount = 0;
         }
         ipcRenderer.send("updateUnreadCount", this.unreadCount);
+        this.curChat.setUnreadNotificationCount("total", 0);
+        this.curChat.un_read_count = 0;
         //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       }
       this.curChat = chatGroup;
      
       if(this.curChat.un_read_count != undefined && this.curChat.un_read_count != 0) {
-        console.log("lslsljfkjfdlakdsf;aljkdsf ")
         ipcRenderer.send("stopFlash");
       }
       this.curindex = index;
@@ -1401,6 +1480,7 @@ export default {
       if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
         isSecret = true;
       }
+      this.curChat.setUnreadNotificationCount("total", 0);
       //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
