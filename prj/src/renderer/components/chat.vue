@@ -9,7 +9,7 @@
                 <p class="chat-name-state" id="chat-group-state"></p>
             </div>
             <div class="chat-tools">
-                <div class="chat-tool-more-div" @click="More()">
+                <div class="chat-tool-more-div" @click.stop="More()">
                 </div>
                 <div class="chat-tool-invite-div" @click="showAddMembersPrepare()" v-show="!isSecret">
                 </div>
@@ -96,7 +96,22 @@
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
-        <groupInfoTip v-show="showGroupInfoTips" :showGroupInfo="groupInfo" :updateUser="updateUser" :cleanCache="cleanCache" @showAddMembers="showAddMembers" @openUserInfoTip="openUserInfoTip" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @updateChatGroupNotice="updateChatGroupNotice" @showOwnerTransferDlg="showOwnerTransferDlg"></groupInfoTip>
+        <groupInfoTip 
+            v-show="showGroupInfoTips"
+            :showGroupInfoTips="showGroupInfoTips"
+            :showGroupInfo="groupInfo" 
+            :updateUser="updateUser" 
+            :cleanCache="cleanCache" 
+            @showAddMembers="showAddMembers"
+            @openUserInfoTip="openUserInfoTip" 
+            @leaveGroup="leaveGroup" 
+            @updateChatGroupStatus="updateChatGroupStatus" 
+            @updateChatGroupNotice="updateChatGroupNotice" 
+            @showOwnerTransferDlg="showOwnerTransferDlg"
+            @openSetting="mxRoomSetting"
+            @openChatInfoDlg="mxChatInfoDlgSetting"
+        >
+        </groupInfoTip> <!--todo html-->
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
@@ -114,6 +129,8 @@
                 <span class="history-file-label">文件</span>
             </div>
         </div>
+        <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="chat.roomId"></mxSettingDialog>
+        <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="chat.roomId"></mxChatInfoDlg>
     </div>
 </template>
 
@@ -145,6 +162,8 @@ import chatCreaterDlg from './chatCreaterDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
 import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
+import mxSettingDialog from './mxSettingDialog';
+import mxChatInfoDlg from './mxChatInfoDlg';
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -233,8 +252,29 @@ export default {
         chatCreaterDlg,
         userInfoContent,
         SendFileDlg,
+        mxSettingDialog,
+        mxChatInfoDlg
     },
     methods: {
+        mxChatInfoDlgSetting: function(close) {
+            if (close) {
+                return this.mxChat = false;
+                console.log('close ccccc')
+            }
+            this.closeGroupInfo();
+            this.mxChat = true;
+        },
+        mxRoomSetting: function(close) {
+            if (close) {
+                return this.mxRoomDlg = false;
+                console.log('closeeeeeeee')
+            }
+            this.closeGroupInfo();
+            this.mxRoomDlg = true;
+        },
+        closeGroupInfo() {
+            this.showGroupInfoTips = false;
+        },
         handleCustomMatcher(node, Delta) {
             let ops = []
             Delta.ops.forEach(op => {
@@ -968,6 +1008,7 @@ export default {
         //     this.showUserInfoTips = true;
         // },
         closeInfoTip(e){
+            console.log('ccccccccccc')
             var userInfoTipElement = document.getElementById("userInfoTipId");
             if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img" && e.target.className != "groupMemberInfoImage" && e.target.className != "groupMemberInfoLabel"){
                 this.showUserInfoTips = false;
@@ -2004,41 +2045,51 @@ s        },
             }
         },
         More: async function() {
+            console.log('check chat', this.chat);
             this.groupInfo = {};
             var isGroup = this.chat.group_type == 101 ? true : false;
             var idsList = []
-            try{
-                idsList = this.chat.contain_user_ids.split(",");
+            // try{
+            //     idsList = this.chat.contain_user_ids.split(",");
+            // }
+            // catch(error) {
+            //     idsList = this.chat.contain_user_ids;
+            // }
+            const myUserId = this.chat.myUserId;
+            const members = this.chat.currentState.members;
+            // var isOwner = (this.chat.owner == this.curUserInfo.id);
+            const isOwner = members[myUserId].powerLevel === 100; //owner`s powerLevel is 100?
+            let ownerId;
+            for(let key in members) {
+                if (members[key].powerLevel === 100) ownerId = key;
             }
-            catch(error) {
-                idsList = this.chat.contain_user_ids;
-            }
-            var isOwner = (this.chat.owner == this.curUserInfo.id);
             console.log("this.chat ", this.chat);
             // console.log("this.isTop ", this.groupIsTop(this.chat))
             // console.log("this.isSlience ", this.groupIsSlience(this.chat))
             // console.log("this.isFav ", this.groupIsInFavourite(this.chat))
+            idsList = Object.keys(this.chat.currentState.members);
+            console.log('isOwner!!!!!!', isOwner)
             var groupInfoObj = {
                 "memberList": idsList,
-                "groupName": this.chat.group_name,
-                "groupAvarar": this.chat.group_avarar,
+                "groupName": this.chat.name, //this.chat.group_name,
+                "groupAvarar": '', //this.chat.group_avarar,
                 "groupNotice": this.chat.group_notice != undefined ? this.chat.group_notice : '',
-                "groupId": this.chat.group_id,
-                "isGroup": isGroup,
+                "groupId": this.chat.roomId, //this.chat.group_id,
+                "isGroup": true, //isGroup,
                 "isOwner": isOwner,
-                "isTop": this.groupIsTop(this.chat),
-                "isSlience": this.groupIsSlience(this.chat),
-                "isFav": this.groupIsInFavourite(this.chat),
-                "ownerId": this.chat.owner,
-                "groupType": this.chat.group_type,
-                "isSecret": (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
+                "isTop": false, //this.groupIsTop(this.chat),
+                "isSlience": false, //this.groupIsSlience(this.chat),
+                "isFav": false, //this.groupIsInFavourite(this.chat),
+                "ownerId": ownerId, //this.chat.owner,
+                "groupType": 100, //this.chat.group_type,
+                "isSecret": false // (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
             }
             this.groupInfo = groupInfoObj;
             // console.log("more more more ", this.chat.contain_user_ids.split(","))
             // var idsList = this.chat.contain_user_ids.split(",");
             // this.groupContainUserIds = idsList;
             // console.log("this.chat.group_name is ", this.chat.group_name);
-            this.showGroupInfoTips = true;
+            this.showGroupInfoTips = true; //todo tips
             this.cleanCache = false;
             console.log("more more more ", this.groupInfoObj)
         },
@@ -2395,7 +2446,10 @@ s        },
             constStyle: 'display:inline-block;outline:none;border-radius: 2px;border: 1px solid rgb(218,218,221);height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;',
             imgConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;height: 46px;background-repeat: no-repeat;background-position:center left;background-image: url();background-size: auto 90%;line-height: 46px;text-indent:50px;',
             atConstStyle: 'display:inline-block;outline:none;border: 0px;width: ;font-size:14px;font-family:PingFangSC-Regular',
-            matrixClient: undefined
+            //matrix data
+            matrixClient: undefined,
+            mxRoomDlg: false,
+            mxChat: false,
         }
     },
     mounted: function() {
