@@ -1979,16 +1979,20 @@ const common = {
     return result.data.results;
   },
 
-  async gmsConfiguration(domainBase64){
+  async gmsConfiguration(domainBase64, host='', port=443){
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
-      response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + ":" + port + "/api/sys/gms/v1/configuration/" + value);
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
-      response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + ":" + port + "/api/sys/gms/v1/configuration/" + value);
     else//正式环境
-      response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
+      console.log("the url is ", host + ":" + port + "/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + ":" + port + "/api/sys/gms/v1/configuration/" + value);
     
     if (response.status != 200 
       || response.data == undefined

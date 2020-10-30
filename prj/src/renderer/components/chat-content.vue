@@ -286,6 +286,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      timmer: undefined,
       toBottom: false,
       showSearchAllChat: false,
       showSearchAllMember: false,
@@ -1868,9 +1869,20 @@ export default {
       }
     },
     delayCallback: function(msg) {
-      setTimeout(() => {
+      if(this.timmer != undefined) {
+        clearTimeout(this.timmer);
+        this.timmer = setTimeout(() => {
+          this.showGroupIcon()
+        }, 2000)
+      }
+      else{
+        this.timmer = setTimeout(() => {
+          this.showGroupIcon()
+        }, 2000)
+      }
+      // setTimeout(() => {
         this.callback(msg);
-      }, 100)
+      // }, 100)
     }
   },
   mounted: async function() {
@@ -1895,7 +1907,7 @@ export default {
             this.showGroupIcon();
           })
       }, 0)
-      
+    
       ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
       ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
       ipcRenderer.on('updateGroupList', this.updateGroupList)
@@ -1906,7 +1918,7 @@ export default {
     this.curUserInfo = await services.common.GetSelfUserModel();
     await services.common.initmqtt();
     services.common.handlemessage(this.callback);
-    services.common.InitDbData(this.callback);
+    services.common.InitDbData(this.delayCallback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")

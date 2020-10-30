@@ -22,26 +22,29 @@
                         易企聊
                     </div>
                 </div>
-                <div class="item-organization">
+                <div class="item-organization" id="item-organization-id">
                     <p class="organizaiton-title">
-                        加入您的组织
+                        {{organizationOrHost}}
                     </p>
                     <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
-                    <p class="organization-input-label">.each.chat</p>
+                    <p class="organization-input-label">{{eachChatEndPoint}}</p>
+                    <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="showOrganizationViewHost"/>
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
                 </div>
                 <div class="btn-item">
-                    <Button type="success"  @click="organizationConfirmButtonClicked()">确定</Button>
+                    <Button type="success" v-show="showOrganizationViewHost" @click="hostConfirmButtonClicked()">确定</Button>
+                    <Button type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
+                    <Button type="success" v-show="showOrganizationViewOrganization" @click="organizationConfirmButtonClicked()">确定</Button>
                 </div>
-                <div class="organization-finder-tip">
+                <div class="organization-finder-tip" v-show="showOrganizationViewOrganization">
                     <p class="forget-title">忘记了你的组织ID?</p><p
                     class="finder-title" @click="organizationFinderClicked()">点击找回</p>
                 </div>
-                <!-- <div class="login-footer">
+                <div class="login-footer">
                     <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
-                </div> -->
+                </div>
             </div>
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="username-content" v-show="showUsernameLoginView">
@@ -203,6 +206,10 @@ export default {
             tokenExpired: false,
             tokenRefreshing: true,
             loadingProcess: '正在验证登录信息',
+            organizationOrHost: '加入您的组织',
+            eachChatEndPoint: '',
+            showOrganizationViewHost: false,
+            showOrganizationViewOrganization: true,
 
             emailSendButtonValue:'发送',
             userEmailSendCodeValue:'发送验证码',
@@ -216,6 +223,7 @@ export default {
 
             organizationFinderEmailTime:0,
             organizationAddress:'',
+            addressPort: 443,
             emialAddress:'',
             showLoginView: false,
             showUsernameLoginView: true,
@@ -248,6 +256,51 @@ export default {
         }
     },
     methods: {
+        serverSettingClicked: function() {
+            var distElement = document.getElementById("item-organization-id");
+            if(distElement != undefined) {
+                distElement.style.height = "98px";
+            }
+            this.organizationAddress = this.$store.getters.getHost();
+            this.addressPort = this.$store.getters.getPort();
+            this.showOrganizationViewHost = true;
+            this.showOrganizationViewOrganization = false;
+            this.eachChatEndPoint = '';
+            this.organizationOrHost = '服务器设置';
+        },
+        hostConfirmButtonClicked: async function() {
+            var distElement = document.getElementById("item-organization-id");
+            if(distElement != undefined) {
+                distElement.style.height = "58px";
+            }
+
+            var host = this.organizationAddress;
+            if(host.endsWith("/")) {
+                host = host.subString(0, host.length - 1);
+            }
+            if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                host = "https://" + host;
+            }
+            this.$store.commit("setHost", host);
+            this.$store.commit("setPort", this.addressPort);
+
+            this.showOrganizationViewHost = false;
+            this.showOrganizationViewOrganization = true;
+            this.eachChatEndPoint = '';
+            this.organizationOrHost = '加入您的组织';
+            this.organizationAddress = '';
+        },
+        hostCancelButtonClicked: function() {
+            var distElement = document.getElementById("item-organization-id");
+            if(distElement != undefined) {
+                distElement.style.height = "58px";
+            }
+            this.showOrganizationViewHost = false;
+            this.showOrganizationViewOrganization = true;
+            this.eachChatEndPoint = '';
+            this.organizationOrHost = '加入您的组织';
+            this.organizationAddress = '';
+        },
         Close: function() {
             ipcRenderer.send("login-win-close");
         },
@@ -271,14 +324,17 @@ export default {
                 this.organizationButtonDisabled = false;
                 return;
             }
-            var address = this.organizationAddress + ".each.chat";
-            var result = await services.common.gmsConfiguration(address);
+            var address = this.organizationAddress;// + ".each.chat";
+            var host = this.$store.getters.getHost();
+            var port = this.$store.getters.getPort();
+            var result = await services.common.gmsConfiguration(address, host, port);
             console.log(result);
             if(!result){
                 this.loginState = "未找到该组织";
                 this.organizationButtonDisabled = false;
                 return;
             }
+            this.$store.commit("setDomain", this.organizationAddress);
             this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
             
             this.organizationButtonDisabled = false;
@@ -586,6 +642,8 @@ export default {
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
+        
+        this.organizationAddress = this.$store.getters.getDomain();
         await services.common.init();
         setTimeout(() => {  
             this.$nextTick(async () => {
@@ -594,6 +652,11 @@ export default {
                     this.tokenRefreshing = false;
                     this.showLoadingView = false;
                     this.showLoginView = true;
+                    var host = this.$store.getters.getHost();
+                    console.log(";;;;;;; ", host);
+                    if(host == "") {
+                        this.serverSettingClicked();
+                    }
                     return;
                 }
                 //如果存在刷新token
@@ -1400,13 +1463,13 @@ export default {
             }
             .item-input {
                 margin-top: 4px;
+                margin-bottom: 4px;
                 width:260px;
                 height:36px;
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
                 letter-spacing:1px;
-                margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
                 border-radius:4px;
@@ -1418,7 +1481,7 @@ export default {
             .organization-input-label{
                 position: absolute;
                 left: 216px;
-                top: 174px;
+                top: 178px;
                 margin: 0px;
                 width:77px;
                 height:20px;
@@ -1448,6 +1511,8 @@ export default {
                 line-height:20px;
                 letter-spacing:1px;
                 outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
             }
             
             button:hover {
@@ -1464,6 +1529,8 @@ export default {
                 letter-spacing:1px;
                 opacity: 0.8;
                 outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
             }
 
         }
