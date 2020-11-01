@@ -277,7 +277,7 @@ export default {
             var content = this.msg.getContent();
             if(content.body != undefined) {
                 let ext = path.extname(content.body);
-                console.log("getmsgfileicon ext is ", ext);
+                // console.log("getmsgfileicon ext is ", ext);
                 return this.getFileIconThroughExt(ext);
             }
         },
@@ -384,6 +384,40 @@ export default {
                             this.decryptedBlob = decryptedBlob;
                             let imgElement = document.getElementById(this.msg.event.event_id);
                             if(imgElement != undefined) {
+                                let maxSize = 400;
+                                if(content.body)
+                                    this.fileName = content.body;
+                                let info = {
+                                    w: maxSize,
+                                    h: maxSize
+                                };
+                                if(content.info)
+                                    info = content.info
+                                if(!info.h)
+                                    info.h = maxSize;
+                                if(!info.w)
+                                    info.w = maxSize;
+                                if(info.size)
+                                    this.fileSizeNum = getFileSizeByNumber(info.size);
+                                this.messageContent = content.body;
+                                var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                let style = "";
+                                let max = Math.max(info.w, info.h);
+                                if(max > maxSize ){
+                                    if(info.w > info.h){
+                                        info.h = info.h/(info.w/maxSize);
+                                        info.w = maxSize;
+                                    }
+                                    else{
+                                        info.w = info.w/(info.h/maxSize)
+                                        info.h = maxSize;
+                                    }
+
+                                }
+                                style += "width:" + info.w + "px";
+                                style += ";"
+                                style += "height:" + info.h + "px";
+                                imgMsgImgElement.setAttribute("style", style);
                                 imgElement.setAttribute("src", thumbnailUrl);
                             }
                         })
@@ -470,39 +504,11 @@ export default {
                     }
                 } 
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
-                    let maxSize = 400;
-                    if(chatGroupMsgContent.body)
-                        this.fileName = chatGroupMsgContent.body;
-                    let info = {
-                        w: maxSize,
-                        h: maxSize
-                    };
-                    if(chatGroupMsgContent.info)
-                        info = chatGroupMsgContent.info
-                    if(!info.h)
-                        info.h = maxSize;
-                    if(!info.w)
-                        info.w = maxSize;
-                    if(info.size)
-                        this.fileSizeNum = getFileSizeByNumber(info.size);
-                    this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
                     let style = "";
-                    let max = Math.max(info.w, info.h);
-                    if(max > maxSize ){
-                        if(info.w > info.h){
-                            info.h = info.h/(info.w/maxSize);
-                            info.w = maxSize;
-                        }
-                        else{
-                            info.w = info.w/(info.h/maxSize)
-                            info.w = maxSize;
-                        }
-
-                    }
-                    style += "width:" + info.w + "px";
+                    style += "width:400px";
                     style += ";"
-                    style += "height:" + info.h + "px";
+                    style += "height:400px";
                     imgMsgImgElement.setAttribute("style", style);
                     this.decryptImg();
                 }

@@ -262,33 +262,14 @@ export default {
         return;
       }
       this.showGroupList = [];
-      this.topGroupVar = [];
       // console.log("this.originalGroupList is ", this.originalGroupList)
       for(let i=0;i<this.originalGroupList.length;i++) {
-        if(this.groupIsTop(this.originalGroupList[i])) {
-          this.topGroupVar.push(this.originalGroupList[i]);
-        }
-        else {
-          this.showGroupList.push(this.originalGroupList[i]);
-        }
+        this.showGroupList.push(this.originalGroupList[i]);
       }
-      this.topGroupVar = this.topGroupVar.sort(this.compare());
-      // console.log("topgroupvar is ", topGroupVar)
       this.showGroupList = this.showGroupList.sort(this.compare());
       // console.log("chatGroupVar is ", this.showGroupList)
-      this.showGroupList = this.topGroupVar.concat(this.showGroupList);
-      for(let i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_type == this.curChat.group_type && this.showGroupList[i].group_id == this.curChat.group_id && this.showGroupList[i].group_name == this.curChat.group_name) {
-          // this.scrollToDistPosition(i)
-          this.curindex = i;
-          // if(this.needScroll) {
-          //   this.scrollToDistPosition(this.curindex)
-          // }
-          break;
-        }
-      }
       if(this.needScroll) {
-        this.scrollToDistPosition(this.topGroupVar.length > 3 ? this.topGroupVar.length - 3 : 0);
+        this.scrollToDistPosition(0);
       }
       
       // this.$store.commit("setShowGroupList", this.showGroupList);
@@ -535,6 +516,8 @@ export default {
       this.groupListElement.style.overflowY = "hidden"
     },
     groupOrTopClassName(item, index) {
+      // console.log("this.curindex is ", this.curindex);
+      // console.log("cur index is ", index);
       if(index == this.curindex) {
         return "group active";
       }
@@ -1271,8 +1254,12 @@ export default {
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
+      var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      
+      let event = distTimeLine.event;
+
       var formatTime = ""
-      var timesecond = Number(chatGroupItem.last_message_time) == 0 ? Number(chatGroupItem.updatetime) : Number(chatGroupItem.last_message_time);
+      var timesecond = Number(event.origin_server_ts);
 
       if(timesecond.length == 0) {
         return formatTime;
