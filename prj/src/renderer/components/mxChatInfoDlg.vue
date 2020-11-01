@@ -2,7 +2,27 @@
     <div class="mx-setting-dialog">
         <div class="inner-wrap">
             <div class="title">编辑群信息</div>
-        </div>   
+            <div class="close" @click.stop="close">x</div>
+            <div class="setting-field">
+                <div class="filed-title">群名称</div>
+                <input 
+                    type="text" 
+                    placeholder="请输入群名称" 
+                    class="title-input"
+                    maxlength="4"
+                />
+                <div class="input-tip">*限制24个字符</div>
+            </div>
+            <div class="setting-field">
+                <div class="filed-title">群名称</div>
+                <textarea 
+                    placeholder="请输入群描述" 
+                    class="desc-text"
+                    maxlength="4"
+                ></textarea>
+                <div class="input-tip">*限制100个字符</div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -72,6 +92,21 @@ export default {
                 .filed-title {
                     font-size: 16px;
                     margin-bottom: 12px;
+                }
+                .title-input {
+                    height: 40px;
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+                .desc-text {
+                    height: 120px;
+                    width: 100%;
+                    box-sizing: border-box;
+                    resize: none;
+                }
+                .input-tip {
+                    color:rgb(118, 118, 118);
+                    font-size: 14px;
                 }
             }
         }
