@@ -25,7 +25,7 @@
                 <div class="input-tip">*限制100个字符</div>
             </div>
             <div class="submit-field">
-                <div class="button">确定</div>
+                <div class="button" @click.stop="updateInfo">确定</div>
                 <div class="button" @click.stop="close">取消</div>
             </div>
         </div>
@@ -52,6 +52,20 @@ export default {
         close: function() {
             this.$emit('close', 'close')
         },
+        updateInfo() {
+            const vtx = this;
+            const roomId = this.roomId;
+            const name = this.roomName;
+            const topic = this.roomTopic;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            let promises = [];
+            let namePromise = client.setRoomName(this.roomId, name).catch((e)=>{console.error('群名称设置失败',e)});
+            let topicPromise = client.setRoomTopic(this.roomId, topic).catch((e)=>{console.error('群描述设置失败',e)});
+            Promise.all(promises).then(()=>{
+                vtx.$emit('close', 'close')
+            })
+
+        }
     },
     components: {
     },

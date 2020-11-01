@@ -2068,10 +2068,16 @@ s        },
             // console.log("this.isSlience ", this.groupIsSlience(this.chat))
             // console.log("this.isFav ", this.groupIsInFavourite(this.chat))
             idsList = Object.keys(this.chat.currentState.members);
-            console.log('isOwner!!!!!!', isOwner)
+            console.log('isOwner!!!!!!', isOwner);
+            const topicEvent = this.chat.currentState.getStateEvents("m.room.topic", "");
+            const topic = topicEvent && topicEvent.getContent() ? topicEvent.getContent()['topic'] : '';
+
+            const nameEvent = this.chat.currentState.getStateEvents('m.room.name', '');
+            const name = nameEvent && nameEvent.getContent() ? nameEvent.getContent()['name'] : '';
             var groupInfoObj = {
                 "memberList": idsList,
-                "groupName": this.chat.name, //this.chat.group_name,
+                "groupName": name, //this.chat.group_name,
+                "groupTopic": topic,
                 "groupAvarar": '', //this.chat.group_avarar,
                 "groupNotice": this.chat.group_notice != undefined ? this.chat.group_notice : '',
                 "groupId": this.chat.roomId, //this.chat.group_id,

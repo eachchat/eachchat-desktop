@@ -14,7 +14,7 @@
                     <div class="chat-name">{{groupName}}</div>
                     <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner" @click.stop="changeChateInfo()"></p>
                 </div>
-                <div class="chat-desc">暂无群描述</div>
+                <div class="chat-desc">{{showGroupInfo.groupTopic}}</div>
                 <!-- <div class="peopleInfo" v-if="!isGroup">
                     <input class="peopleInfoInput" id="peopleInfoInputId" type="text" :disabled="!isOwner" v-model="peopleState" name="peopleInfo" placeholder="未设置"/>
                 </div>
@@ -1059,6 +1059,9 @@ export default {
 
 .chat-desc {
     font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .groupInfoNameEdit {
