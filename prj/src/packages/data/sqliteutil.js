@@ -775,6 +775,12 @@ const Secret = {
 
 }
 
+const Contact = {
+    async GetAllContact(){
+        return await (await models.Contact).find()
+    }
+}
+
 export{
     sqliteutil,
     Department,
@@ -783,5 +789,6 @@ export{
     Group,
     Collection,
     Config,
-    Secret
+    Secret,
+    Contact
 }

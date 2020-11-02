@@ -42,6 +42,7 @@
                             <template slot-scope="scope">
                                 <el-button
                                 size="mini"
+                                :disabled='DisableSave(scope.row)'
                                 @click="handleEdit(scope.$index, scope.row)">保存</el-button>
                             </template>
                         </el-table-column>
@@ -55,7 +56,7 @@
 
 <script>
 import {services, environment} from '../../packages/data/index.js'
-import {Department, Group, UserInfo} from '../../packages/data/sqliteutil.js'
+import {Contact} from '../../packages/data/sqliteutil.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer} from 'electron'
 import { object } from '../../packages/core/types'
@@ -63,6 +64,9 @@ import confservice from '../../packages/data/conf_service';
 import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
 import * as path from 'path'
 import { model } from '../../packages/core'
+import { models } from '../../packages/data/models.js';
+
+
 export default {
     name: 'addContact',
     props: {
@@ -77,19 +81,38 @@ export default {
             imgWidth: 624,
             dlgPosition:{},
             viewContentHeight:202,
+            contacts: [],
+            disable: false
         }
     },
     watch:{
-        searchKey: function(){
+        searchKey: async function(){
             if(this.searchKey === ''){
                 this.bShowSearchRes = false;
                 this.searchUsers = [];
             }
+            this.contacts = await Contact.GetAllContact();
         }
     },
     methods: {
-        handleEdit: function(index, row){
-            console.log(index, row)
+        DisableSave(row){
+            for(let item of this.contacts){
+                if(row.user_id == item.user_id)
+                    return true;
+            }
+            return false;
+        },
+
+        handleEdit: async function(index, row){
+            let info = {
+                user_id : row.user_id,
+                display_name: row.display_name,
+                avatar_url: row.avatar_url
+            }
+            const contactModel = await models.Contact;
+            let contactModelValue = await new contactModel(info);
+            await contactModelValue.save();
+            this.contacts = await Contact.GetAllContact();
         },
 
         AddByMatrixID: function(){

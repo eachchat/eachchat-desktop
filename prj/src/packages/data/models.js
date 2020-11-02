@@ -67,6 +67,19 @@ var models = {
       return;
     await this.storage.sqlite.connect(); 
 
+    this.contact = await (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: 'contact',
+        fields: {
+          user_id: types.string,
+          display_name: types.string,
+          avatar_url: types.string
+        },
+        primaryKey: 'user_id'
+      });
+    })();
+
     this.user = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
@@ -370,6 +383,10 @@ var models = {
     }
 
     return sqlite;
+  },
+
+  get Contact() {
+    return this.contact;
   },
 
   get User() {
