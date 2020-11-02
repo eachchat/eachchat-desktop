@@ -2230,7 +2230,6 @@ s        },
             this.updateMsgContent = {
                 "id" : e.event.event_id
             };
-            console.log("onEventDecrypted ", e);
         },
         checkClipboard(e) {
             //const strBuffer = clipboard.readRTF()
