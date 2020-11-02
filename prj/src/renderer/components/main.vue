@@ -201,6 +201,7 @@ export default {
             console.log("lognInfo is ", this.loginInfo);
 */
             const userId = window.localStorage.getItem("mx_user_id");
+            confservice.init(userId);
             this.$store.commit("setUserId", userId)
             this.$router.push("/main/ChatContent");
             
@@ -302,6 +303,7 @@ export default {
             }
         },
         showCurUserIcon: async function() {
+            return;
             var elementImg = document.getElementById("userHead");
             // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
 
@@ -367,6 +369,21 @@ export default {
         UpdateAlertDlg,
     },
     mounted: async function() {
+        if(global.mxMatrixClientPeg.homeserve == '') {
+            var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
+            console.log("========= ret ", ret)
+                if(ret == undefined) {
+                    global.mxMatrixClientPeg.logout();
+                    ipcRenderer.send("showLoginPageWindow");
+                    return;
+                }
+                if(ret.language) {
+                this.$i18n.locale = ret.language;
+                }
+                console.log("the matrix client is ", global.mxMatrixClientPeg)
+                this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        }
+        global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
         global.mxMatrixClientPeg.matrixClient.startClient();
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{

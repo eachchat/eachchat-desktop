@@ -1,4 +1,4 @@
-
+import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
     /**
      * Encode a typed array of uint8 as base64.
      * @param {Uint8Array} uint8Array The data to encode.
@@ -54,7 +54,7 @@
         //           },
         //       },
         //   );
-          const [input] = this.recoveryKey;
+          const input = {recoveryKey: global.mxMatrixClientPeg.recoveryKey};
           if (!input) {
               throw new AccessCancelledError();
           }
@@ -76,7 +76,7 @@ const onSecretRequested = async function({
         device_trust: deviceTrust,
       }) {
         console.log("onSecretRequested", userId, deviceId, requestId, name, deviceTrust);
-        const client = this.matrixClient;
+        const client = global.mxMatrixClientPeg.matrixClient;
         if (userId !== client.getUserId()) {
             return;
         }

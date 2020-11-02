@@ -95,9 +95,9 @@ export default {
     components: {
     },
     created: async function () {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
-        await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
+        // this.serverapi = new APITransaction('139.198.15.253', 8888)
+        // await services.common.init();
+        // this.loginInfo = await services.common.GetLoginModel();
     },
     mounted: function() {
         setTimeout(() => {
@@ -120,110 +120,25 @@ export default {
                 return;
             }
 
-            var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
-            var targetFileName = msgContent.fileName;
-            var ext = path.extname(targetFileName);
-            var localPath = "";
-            
-            // var targetPath = await services.common.GetFilePath(this.imgSrcInfo.message_id);
-            // // console.log("target 1 = ", targetPath);
-            // if(targetPath.length != 0) {
-            //     targetPath = this.imgSrcInfo.file_local_path;
-            // }
-            // console.log("target 2 = ", targetPath);
-            // if(targetPath.length == 0) {
-            var targetPath = this.imgSrcInfo.file_local_path;
-            if(!fs.existsSync(targetPath)) {
-                var targetDir = confservice.getThumbImagePath(this.imgSrcInfo.message_timestamp);
-                targetPath = path.join(targetDir, this.imgSrcInfo.message_id + ext);
+            var msgContent = this.imgSrcInfo.info;
+            var url = this.imgSrcInfo.url;
+            // console.log("target exist = ", targetPath);
+            // var showfu = new FileUtil(targetPath);
+            // let showfileObj = showfu.GetUploadfileobj();
+            this.imgHeight = msgContent.h;
+            this.imgWidth = msgContent.w;
+            if(this.imgHeight > 400) {
+                this.imgHeight = 400;
             }
-            // }
-            console.log("target 3 = ", targetPath);
-            if(fs.existsSync(targetPath)) {
-                // console.log("target exist = ", targetPath);
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                this.imgHeight = msgContent.imgHeight;
-                this.imgWidth = msgContent.imgWidth;
-                if(this.imgHeight > 400) {
-                    this.imgHeight = 400;
-                }
-                var showPosition = this.calcImgPosition();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    this.isLoading = false;
-                    this.ImgElement.setAttribute("src", reader.result);
-                    this.ImgElement.setAttribute("height", this.imgHeight);
-                    // this.ImgElement.style.left = showPosition.left.toString() + "px";
-                    // this.ImgElement.style.top = showPosition.top.toString() + "px";
-                }
-            }
-            if(fs.existsSync(localPath = await services.common.downloadMsgOTumbnail(this.imgSrcInfo.time_line_id, this.imgSrcInfo.message_timestamp, this.imgSrcInfo.message_id + ext, false))) {
-                // console.log("localPath is ", localPath);
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                this.imgHeight = msgContent.imgHeight;
-                this.imgWidth = msgContent.imgWidth;
-                if(this.imgHeight > 400) {
-                    this.imgHeight = 400;
-                }
-                var showPosition = this.calcImgPosition();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    this.isLoading = false;
-                    this.ImgElement.setAttribute("src", reader.result);
-                    this.ImgElement.setAttribute("height", this.imgHeight);
-                    // this.ImgElement.style.left = showPosition.left.toString() + "px";
-                    // this.ImgElement.style.top = showPosition.top.toString() + "px";
-                }
-            }
-            else {
-                if(!this.ipcInited) {
-                    ipcRenderer.on('updateShowImage', this.updateShowImage);
-                    this.ipcInited = true;
-                }
-            }
-            // if(fs.existsSync(this.imgSrcInfo.targetPath)){
-            //     var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
-            //     var showfu = new FileUtil(this.imgSrcInfo.targetPath);
-            //     let showfileObj = showfu.GetUploadfileobj();
-            //     this.imgHeight = msgContent.imgHeight;
-            //     this.imgWidth = msgContent.imgWidth;
-            //     if(this.imgHeight > 400) {
-            //         this.imgHeight = 400;
-            //     }
-            //     var showPosition = this.calcImgPosition();
-            //     let reader = new FileReader();
-            //     reader.readAsDataURL(showfileObj);
-            //     reader.onloadend = () => {
-            //         this.ImgElement.setAttribute("src", reader.result);
-            //         this.ImgElement.setAttribute("height", this.imgHeight);
-            //         this.ImgElement.style.left = showPosition.left.toString() + "px";
-            //         this.ImgElement.style.top = showPosition.top.toString() + "px";
-            //     }
-            // }
-            // else{
-            //     var msgContent = strMsgContentToJson(this.imgSrcInfo.message_content);
-            //     this.imgHeight = msgContent.imgHeight;
-            //     this.imgWidth = msgContent.imgWidth;
-            //     if(this.imgHeight > 400) {
-            //         this.imgHeight = 400;
-            //     }
-            //     var showPosition = this.calcImgPosition();
-            //     this.serverapi.downloadTumbnail(this.loginInfo.access_token, "T", this.imgSrcInfo.time_line_id)
-            //         .then((ret) => {
-            //             let reader = new FileReader();
-            //             reader.readAsDataURL(ret.data);
-            //             reader.onloadend = () => {
-            //                 this.ImgElement.setAttribute("src", reader.result);
-            //                 this.ImgElement.setAttribute("height", this.imgHeight);
-            //                 this.ImgElement.style.left = showPosition.left.toString() + "px";
-            //                 this.ImgElement.style.top = showPosition.top.toString() + "px";
-            //             }
-            //         })
-            // }
+            var showPosition = this.calcImgPosition();
+            // let reader = new FileReader();
+            // reader.readAsDataURL(showfileObj);
+            // reader.onloadend = () => {
+                this.isLoading = false;
+                this.ImgElement.setAttribute("src", url);
+                this.ImgElement.setAttribute("height", this.imgHeight);
+                // this.ImgElement.style.left = showPosition.left.toString() + "px";
+                // this.ImgElement.style.top = showPosition.top.toString() + "px";
         }
     }
 }

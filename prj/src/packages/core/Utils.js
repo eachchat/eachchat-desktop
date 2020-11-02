@@ -1,8 +1,11 @@
 // Common Interface
 const axios = require('axios');
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import { environment } from "../data/environment.js"
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { environment } from "../data/environment.js";
+import url from 'url';
+import UAParser from 'ua-parser-js';
+import encrypt from 'browser-encrypt-attachment';
 //const mimestruct = require("./mine.js");
 
 //https://blog.csdn.net/qq_37568049/article/details/80736305
@@ -724,6 +727,111 @@ const mimestruct = {
     "zip": "application/zip",
     "json": "application/json"
 }
+
+function getMatrixDefaultDeviceDisplayName() {
+    const u = url.parse(window.location.href);
+    u.protocol = "";
+    u.search = "";
+    u.hash = "";
+    // Remove trailing slash if present
+    u.pathname = u.pathname.replace(/\/$/, "");
+
+    let appName = u.format();
+    // Remove leading slashes if present
+    appName = appName.replace(/^\/\//, "");
+    // `appName` is now in the format `develop.element.io`.
+
+    const ua = new UAParser();
+    const browserName = ua.getBrowser().name || "unknown browser";
+    let osName = ua.getOS().name || "unknown OS";
+    // Stylise the value from the parser to match Apple's current branding.
+    if (osName === "Mac OS") osName = "macOS";
+    return ('%(appName)s (%(browserName)s, %(osName)s)', {
+        appName,
+        browserName,
+        osName,
+    });
+}
+
+/**
+ * Decrypt a file attached to a matrix event.
+ * @param file {Object} The json taken from the matrix event.
+ *   This passed to [link]{@link https://github.com/matrix-org/browser-encrypt-attachments}
+ *   as the encryption info object, so will also have the those keys in addition to
+ *   the keys below.
+ * @param file.url {string} An mxc:// URL for the encrypted file.
+ * @param file.mimetype {string} The MIME-type of the plaintext file.
+ */
+const ALLOWED_BLOB_MIMETYPES = {
+    'image/jpeg': true,
+    'image/gif': true,
+    'image/png': true,
+
+    'video/mp4': true,
+    'video/webm': true,
+    'video/ogg': true,
+
+    'audio/mp4': true,
+    'audio/webm': true,
+    'audio/aac': true,
+    'audio/mpeg': true,
+    'audio/ogg': true,
+    'audio/wave': true,
+    'audio/wav': true,
+    'audio/x-wav': true,
+    'audio/x-pn-wav': true,
+    'audio/flac': true,
+    'audio/x-flac': true,
+};
+
+function decryptFile(file, url) {
+    // const url = MatrixClientPeg.get().mxcUrlToHttp(file.url);
+    // Download the encrypted file as an array buffer.
+    return Promise.resolve(fetch(url)).then(function(response) {
+        return response.arrayBuffer();
+    }).then(function(responseData) {
+        // Decrypt the array buffer using the information taken from
+        // the event content.
+        return encrypt.decryptAttachment(responseData, file);
+    }).then(function(dataArray) {
+        // Turn the array into a Blob and give it the correct MIME-type.
+
+        // IMPORTANT: we must not allow scriptable mime-types into Blobs otherwise
+        // they introduce XSS attacks if the Blob URI is viewed directly in the
+        // browser (e.g. by copying the URI into a new tab or window.)
+        // See warning at top of file.
+        let mimetype = file.mimetype ? file.mimetype.split(";")[0].trim() : '';
+        if (!ALLOWED_BLOB_MIMETYPES[mimetype]) {
+            mimetype = 'application/octet-stream';
+        }
+
+        const blob = new Blob([dataArray], {type: mimetype});
+        return blob;
+    });
+}
+
+function getFileBlob(fileInfo, url) {
+    // const url = MatrixClientPeg.get().mxcUrlToHttp(file.url);
+    // Download the encrypted file as an array buffer.
+    return Promise.resolve(fetch(url)).then(function(response) {
+        return response.arrayBuffer();
+    }).then(function(dataArray) {
+        // Turn the array into a Blob and give it the correct MIME-type.
+
+        // IMPORTANT: we must not allow scriptable mime-types into Blobs otherwise
+        // they introduce XSS attacks if the Blob URI is viewed directly in the
+        // browser (e.g. by copying the URI into a new tab or window.)
+        // See warning at top of file.
+        let mimetype = fileInfo.mimetype ? fileInfo.mimetype.split(";")[0].trim() : '';
+        if (!ALLOWED_BLOB_MIMETYPES[mimetype]) {
+            mimetype = 'application/octet-stream';
+        }
+
+        const blob = new Blob([dataArray], {type: mimetype});
+        return blob;
+    });
+}
+
 class FileUtil
 {
     
@@ -980,6 +1088,9 @@ function uncodeUtf16(str){
  }
 
 function getIconPath(ext) {
+    if(ext.startsWith(".")) {
+        ext = ext.substring(1, ext.length);
+    }
     var iconDirPath = './static/Img/Chat';
     var distExt = '';
     var distIconPath = '';
@@ -1200,6 +1311,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, GetFileType};
+export {getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

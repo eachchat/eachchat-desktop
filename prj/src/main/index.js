@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import axios from "axios"
-import fs from 'fs'
+import fs from 'fs-extra'
 import * as path from 'path'
 import {services } from '../packages/data/index.js';
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
@@ -95,8 +95,9 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   isLogin = true;
   mainWindow.hide();
   mainWindow.setSize(960, 600);
+  mainWindow.center();
   // mainWindow.webContents.on('did-finish-load', function(){
-    mainWindow.show();
+  mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);
   // 托盘
@@ -144,7 +145,7 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
     }
   }
   mainWindow.webContents.send("setUnreadCount", arg);
-})
+});
 
 ipcMain.on("token-expired", function(event, arg) {
   if(isLogin) {
@@ -441,6 +442,34 @@ function clearFlashIconTimer() {
 }
 
 const downloadingList = [];
+
+ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
+  // var path = args[0];
+  // var buffer = args[1];
+  // var eventId = args[2];
+  // var needOpen = args[3];
+  var path = path;
+  var buffer = buffer;
+  var eventId = eventId;
+  var needOpen = needOpen;
+  console.log("args is ", buffer);
+  var distPath = path + '_tmp';
+  fs.outputFile(distPath, buffer, async err => {
+    if(err) {
+      console.log("ERROR ", err.message)
+      event.sender.send("ERROR", err.message, eventId);
+    }
+    else {
+      var finalName = await makeFlieNameForConflict(path);
+      console.log("get final name ", finalName)
+      fs.renameSync(distPath, finalName);
+      if(needOpen) {
+        shell.openExternal(finalName);
+      }
+      event.sender.send("SAVED_FILE", finalName, eventId);
+    }
+  })
+})
 
 function downloadFile(event, arg) {
   return function f() {

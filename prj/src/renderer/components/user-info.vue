@@ -274,7 +274,7 @@ export default {
                     userIconElement.setAttribute("src", reader.result);
                 }
             }else{
-                services.common.downloadUserTAvatar(userInfo.avatarTUrl, userInfo.id);
+                //services.common.downloadUserTAvatar(userInfo.avatarTUrl, userInfo.id);
             }
         },
         getUserInfoIconID(id){

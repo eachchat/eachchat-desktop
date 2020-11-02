@@ -13,7 +13,7 @@
                 <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
                 <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
             </div>
-        <certification v-show="showCertification"/>
+        <certification v-show="showCertification" :backupInfo=backupInfo></certification>
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
                 <div class="title">
@@ -208,10 +208,11 @@ export default {
     },
     data () {
         return {
+            backupInfo: {},
             showCertification: false,
             loginState: '',
-            username: '',
-            password: '',
+            username: 'wangxin2',
+            password: 'Wx@6156911128',
             host: '',
             port: '',
             services: null,
@@ -619,8 +620,9 @@ export default {
             let client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
             console.log(client);
             if(client.isCryptoEnabled()) {
-                this.certificationShow();
+                this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
                 await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                this.certificationShow();
             }
             else {
                 var elementButton = document.getElementById('loginButton');

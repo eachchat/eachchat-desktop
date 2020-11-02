@@ -53,7 +53,7 @@ class ConfService {
         if(!fs.existsSync(this.filesPath)){
             fs.ensureDirSync(this.filesPath);
         }
-        this.uid = uid;
+        this.uid = uid.replace(":", "-");
     }
     getCurFilesDir() {
         var userFilesPath = path.join(this.filesPath, this.uid);

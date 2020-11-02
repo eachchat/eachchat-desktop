@@ -33,7 +33,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
                         </div>
                     </li>
                 <!-- </ul> -->
@@ -164,6 +164,9 @@ import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
+import {EventTimeline} from "matrix-js-sdk";
+import * as Matrix from 'matrix-js-sdk';
+import { timelineEnd } from 'console';
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -1054,7 +1057,7 @@ export default {
             this.showFace = !this.showFace;
         },
         showGroupName: async function(chatGroupItem) {
-            if(chatGroupItem.group_id == undefined && chatGroupItem.user_id == undefined){
+            if(chatGroupItem.roomId == undefined && chatGroupItem.myUserId == undefined){
                 return "";
             }
             var groupNameElement = document.getElementById("chat-group-name");
@@ -1062,57 +1065,41 @@ export default {
             var groupStateElement = document.getElementById("chat-group-state");
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             console.log("getShowGroupName is ", chatGroupItem)
-            var groupName = chatGroupItem.group_name;
-            var groupContentNum = "";
-            var aboutUids = chatGroupItem.contain_user_ids.split(",");
-            var groupUidNameList = [];
-            if(groupName.length == 0) {
-                for(var i=0;i<aboutUids.length;i++) {
-                    let nameTmp = this.$store.getters.getChatUserName(aboutUids[i]);
-                    groupUidNameList.unshift(nameTmp);
-                    if(i > 3) {
-                            break;
-                        }
-                }
-                groupName = groupUidNameList.join(",");
-            }
-            if(this.chat.group_type == 101) {
-                groupContentNum = '(' + aboutUids.length + ')';
-            }
+            var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
-            groupContentNumElement.innerHTML = groupContentNum;
+            groupContentNumElement.innerHTML = '';
             
-            var targetPath = "";
-            var distId = "";
-            if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
-                distId = chatGroupItem.group_id;
-            }
-            else {
-                distId = chatGroupItem.user_id;
-            }
-            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, distId))){
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    groupIcoElement.setAttribute("src", reader.result);
-                }
-            }
+            // var targetPath = "";
+            // var distId = "";
+            // if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
+            //     distId = chatGroupItem.group_id;
+            // }
+            // else {
+            //     distId = chatGroupItem.user_id;
+            // }
+            // if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, distId))){
+            //     var showfu = new FileUtil(targetPath);
+            //     let showfileObj = showfu.GetUploadfileobj();
+            //     let reader = new FileReader();
+            //     reader.readAsDataURL(showfileObj);
+            //     reader.onloadend = () => {
+            //         groupIcoElement.setAttribute("src", reader.result);
+            //     }
+            // }
 
-            var groupState = "";
-            if(chatGroupItem.group_type == 102) {
-                if(chatGroupItem.owner == null || chatGroupItem.owner == undefined) {
-                    var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.user_id);
-                }
-                else {
-                    var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
-                }
-                console.log("================ ownerInfo ", ownerInfo)
-                groupState = ownerInfo[0].status_description;
-                // console.log("================ ", ownerInfo)
-            }
-            groupStateElement.innerHTML = groupState;
+            // var groupState = "";
+            // if(chatGroupItem.group_type == 102) {
+            //     if(chatGroupItem.owner == null || chatGroupItem.owner == undefined) {
+            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.user_id);
+            //     }
+            //     else {
+            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
+            //     }
+            //     console.log("================ ownerInfo ", ownerInfo)
+            //     groupState = ownerInfo[0].status_description;
+            //     // console.log("================ ", ownerInfo)
+            // }
+            // groupStateElement.innerHTML = groupState;
         },
         insertFace: function(item) {
             var range = this.editor.getSelection();
@@ -2125,7 +2112,6 @@ s        },
             return ret;
         },
         handleScroll: function() {
-            return;
             let uldiv = document.getElementById("message-show-list");
             // console.log("=====scroll height is ", uldiv.scrollHeight);
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
@@ -2139,34 +2125,20 @@ s        },
                         this.lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
-                        let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                        // services.common.historyMessage(this.chat.group_id, latestSequenceIdAndCount.latestSequenceId, latestSequenceIdAndCount.count)
-                        services.common.ListAllMessage(this.chat.group_id, latestSequenceIdAndCount.latestSequenceId)
+                        // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+                        this._timelineWindow.paginate("b", 20)
                             .then((ret) => {
-                                console.log("=========ret is ", ret);
-                                ret = ret.before;
-                                if(ret[0].group_id != this.chat.group_id) {
-                                    this.isRefreshing = false;
-                                    return;
-                                }
+                                console.log("scroll ret is ", ret);
+                                this.isRefreshing = false;
                                 this.needScroll = true;
                                 if(ret.length < 20) {
                                     this.needScroll = false;
                                 }
                                 this.needToBottom = false;
-                                var messageListTmp = ret.sort(this.compareMsg());
-                                for(var i=0;i<messageListTmp.length;i++){
-                                    console.log("to get history ", this.existingMsgId.indexOf(messageListTmp[i].message_id))
-                                    if(this.existingMsgId.indexOf(messageListTmp[i].message_id) == -1) {
-                                        this.messageList.unshift(messageListTmp[i]);
-                                        this.existingMsgId.push(messageListTmp[i].message_id);
-                                    }
-                                    this.$nextTick(() => {
-                                        console.log("---------update croll top is ", uldiv.scrollHeight);
-                                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
-                                    })
-                                }
-                                this.isRefreshing = false;
+                                this.$nextTick(() => {
+                                    console.log("---------update croll top is ", uldiv.scrollHeight);
+                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                                })
                             })
                     }
                 }
@@ -2308,7 +2280,15 @@ s        },
                 paths: files
             }
         },
-
+        onRoomTimeline(e) {
+            // console.log("onRoomTimeline ", e);
+        },
+        onEventDecrypted(e) {
+            this.updateMsgContent = {
+                "id" : e.event.event_id
+            };
+            console.log("onEventDecrypted ", e);
+        },
         checkClipboard(e) {
             //const strBuffer = clipboard.readRTF()
             //console.log(strBuffer)
@@ -2374,6 +2354,9 @@ s        },
             isGroup: true,
             updatemsgStatus: {
                 "id": ""
+            },
+            updateMsgContent: {
+                "id": "",
             },
             needToBottom: false,
             needScrollTop: true,
@@ -2488,7 +2471,7 @@ s        },
     },
     created: async function() {
         await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
+        this.loginInfo = undefined;//await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
@@ -2512,6 +2495,16 @@ s        },
             this.curGroupId = this.chat.roomId;
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
+            var timeLineSet = this.chat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            this._timelineWindow.load(undefined, 20);
+            global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
+            global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
+            console.log("this._timelinewindow is ", this._timelineWindow)
             this.isSecret = false;
             this.needScrollTop = true;
             this.needScrollBottom = true;
@@ -2522,28 +2515,6 @@ s        },
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
             this.editor.setSelection(this.editor.selection.savedRange.index);
-            /*
-            if(this.chat == undefined || (this.curGroupId != undefined && this.curGroupId == this.chat.group_id)) {
-                return;
-            }
-            if((this.chat.group_id != undefined && this.curGroupId != this.chat.group_id) || (this.chat.group_id == undefined && this.chat.user_id != undefined)) {
-                this.isSecret = (this.chat.key_id != undefined && this.chat.key_id.length != 0 && this.chat.group_type == 102);
-                this.hideScrollBar();
-                this.curGroupId = this.chat.group_id;
-                var curSequenceId = this.chat.sequence_id;
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-
-                this.existingMsgId = [];
-                
-                this.getHistoryMessage();
-                this.showGroupName(this.chat);
-                if(this.editor == undefined) {
-                    this.editor = this.$refs.chatQuillEditor.quill;
-                }
-                this.editor.setSelection(this.editor.selection.savedRange.index);
-            }
-            */
         },
         messageList: function() {
             let div = document.getElementById("message-show-list");

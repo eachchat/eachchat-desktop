@@ -46,9 +46,8 @@
             </div>
         </el-aside>
         <el-container class="right-container">
-            
-            <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
-
+            <organizationList  v-show='bOrganizeShow' :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
+            <contactList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></contactList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
         <div class="win-header">
@@ -64,10 +63,12 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
+import contactList from './contact-list'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header.vue';
 import {ipcRenderer} from 'electron'
+
 export default {
     name: 'organization',
     props: {
@@ -92,6 +93,10 @@ export default {
     },
     data() {
         return {
+            organizeMenuName : '',
+            contactMenuName: '',
+            bOrganizeShow: false,
+            bContactShow: true,
             canSearch: false,
             departments: [],
             isOwn: false,
@@ -228,21 +233,34 @@ export default {
             this.showSearchUserInfoTips = true;
         },
         getOrganizationBaseData:async function() {
-            var rootDepartment = await Department.GetRoot();
-            console.log(rootDepartment);
-            var departments = await Department.GetSubDepartment(rootDepartment.department_id);
-            console.log(departments);
-            var tempDepartments = departments;
+            
+            var departments = [];
+            departments.push({
+                display_name: this.$t("organizeMenuName"),
+            });
+            departments.push({
+                display_name: this.$t("contactMenuName")
+            })
             // for(var i = 0; i < departments.length; i ++){
                 
             //     //tempDepartments[departments[i].show_order] = departments[i];
             // }
-            tempDepartments.sort(this.compare("show_order"));
-            this.departments = tempDepartments;
+            
+            this.departments = departments;
             this.currentDepartment = this.departments[0];
             this.organizationListTimer = new Date().getTime();
         },
         departmentMenuItemClicked(department) {
+            if(department.display_name == this.organizeMenuName){
+                //组织架构模板
+                this.bOrganizeShow = true;
+                this.bContactShow = false;
+            }
+            else if(department.display_name == this.contactMenuName){
+                //联系人模板
+                this.bOrganizeShow = false;
+                this.bContactShow = true;
+             }
             this.currentDepartment = department;
             this.organizationListTimer = new Date().getTime();
         },
@@ -288,8 +306,11 @@ export default {
         listHeader,
         userInfoContent,
         winHeaderBar,
+        contactList
     },
     created:async function() {
+        this.organizeMenuName = this.$t("organizeMenuName"),
+        this.contactMenuName = this.$t("contactMenuName"),
         console.log("to get organization");
         await this.getOrganizationBaseData();
         var that = this;

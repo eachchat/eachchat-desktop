@@ -21,6 +21,7 @@
             <button class="CertificationCancleButton" @click="Close()" v-show="canCancel">{{$t("cancel")}}</button>
             <button class="CertificationConfirmButton" @click="Continue()">{{$t("next")}}</button>
         </div>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache" :width="alertWidth"/>
     </div>
 </template>
 
@@ -29,28 +30,63 @@ import {ipcRenderer} from 'electron'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import { getFileSizeNum } from '../../packages/core/Utils.js'
+import AlertDlg from './alert-dlg.vue'
 
 const KEY_FILE_MAX_SIZE = 128;
 
 export default {
     name: 'certification',
+    props: {
+        backupInfo: {
+            type: Object,
+            default: {},
+        }
+    },
+    components: {
+        AlertDlg,
+        // listItem
+    },
     data() {
         return  {
+            alertContnets: {},
             certificationState: '',
             crocessSignCertification: false,
             secretKeyCertification: true,
             canCancel: true,
             canSelecteFile: true,
             ipcInited: false,
+            showAlertDlg: false,
             recoveryKey: '',
+            alertWidth: 0,
         }
     },
     methods: {
+        showAlert: function() {
+            this.alertContnets = {
+                "Details": "跳过认证将无法解析历史加密消息",
+                "Abstrace": "确定跳过认证？"
+            };
+            this.alertWidth = 300;
+            this.showAlertDlg = true;
+        },
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+        },
+        clearCache: function() {
+            ipcRenderer.send("showMainPageWindow")
+            this.$router.push("/main")
+            this.showAlertDlg = false;
+        },
+        Close (){
+            this.showAlert();
+        },
+
         async Continue() {
             if(this.recoveryKey == "") return;
             var correct = global.mxMatrixClientPeg.checkPrivateKey(this.recoveryKey);
             if(correct) {
                 await global.mxMatrixClientPeg.matrixClient.checkOwnCrossSigningTrust();
+                await global.mxMatrixClientPeg.matrixClient.restoreKeyBackupWithSecretStorage(this.backupInfo);
                 this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
                 setTimeout(async () => {
                     // ipcRenderer.send('showMainPageWindow', true); 
@@ -92,7 +128,7 @@ export default {
 
                 }
                 else {
-                    fs.readFile(keyFile, 'utf-8', (err, data) => {
+                    fs.readFile(keyFile, 'utf-8', async (err, data) => {
                         if(err) {
 
                         }
@@ -104,21 +140,22 @@ export default {
                             }
                             
                             if (/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz\s]+$/.test(this.recoveryKey)) {
-                                if(global.mxMatrixClientPeg.validateRecoveryKey(this.recoveryKey)){
+                                var state = await global.mxMatrixClientPeg.validateRecoveryKey(this.recoveryKey);
+                                if(await state == true){
                                     var stateElement = document.getElementById("certificationStateLabel");
                                     if(stateElement != undefined) {
                                         stateElement.style.color = "rgba(36, 179, 107, 1)"
                                     }
                                     this.certificationState = this.$t('recoveryKeyLooksGood');
                                 }
-                            } 
-                            else {
-                                var stateElement = document.getElementById("certificationStateLabel");
-                                if(stateElement != undefined) {
-                                    stateElement.style.color = "rgba(228,49,43,1);"
+                                else {
+                                    var stateElement = document.getElementById("certificationStateLabel");
+                                    if(stateElement != undefined) {
+                                        stateElement.style.color = "rgba(228,49,43,1);"
+                                    }
+                                    this.certificationState = this.$t('invalidRecoveryKey');
                                 }
-                                this.certificationState = this.$t('invalidRecoveryKey');
-                            }
+                            } 
                         }
                     })
                 }
@@ -130,10 +167,10 @@ export default {
 
 <style lang="scss" scoped>
     .CertificationPage {
-        width: 360px;
-        height: 420px;
+        width: 100%;
+        margin: 0px;
+        height: calc(100% - 36px);
         background:rgba(255,255,255,1);
-        border-radius:4px;
         cursor: default;  
         -webkit-user-select:none;
     }
@@ -168,7 +205,7 @@ export default {
         .secretKeyTipLabel{
             margin-top: 28px;
             margin-left: 20px;
-            width: 100%;
+            width: calc(100% - 30px);
             height: 18px;
             line-height: 23px;
             font-size:12px;

@@ -10,12 +10,13 @@
                     <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgFileIcon()" alt="图片">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
+                            <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>
@@ -56,12 +57,13 @@
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgFileIcon()" alt="图片">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
                         <div class="file-info">
+                            <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
                         </div>
                     </div>
@@ -98,13 +100,13 @@ import BenzAMRRecorder from 'benz-amr-recorder'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
 import { UserInfo } from '../../packages/data/sqliteutil.js'
 
 export default {
     components: {
     },
-    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup'],
+    props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     methods: {
         sendAgain: function() {
             this.$emit("sendAgain", this.msg);
@@ -144,11 +146,53 @@ export default {
         },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
-            let msgType = this.msg.message_type;
-            let msgContent = strMsgContentToJson(this.msg.message_content);
+            let msgType = this.msg.msgtype;
+            // let msgContent = strMsgContentToJson(this.msg.message_content);
             // var targetDir = confservice.getFilePath();
             // var targetFileName = this.msg.message_id.toString() + "." + msgContent.ext;
             // var targetPath = path.join(targetDir, targetFileName);
+            let event = this.msg.event;
+            let chatGroupMsgType = event.type;
+            var chatGroupMsgContent = this.msg.getContent();
+            if(chatGroupMsgType === "m.room.encrypted") {
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                    this.decryptAndDownloadFile();
+                }
+                if(chatGroupMsgContent.msgtype == 'm.image'){
+                    console.log("1 ", this.decryptedUrl);
+                    var imageInfo = {
+                        url: this.decryptedUrl,
+                        info: chatGroupMsgContent.info
+                    }
+                    this.$emit('showImageOfMessage', imageInfo);
+                }
+            }
+            if(chatGroupMsgType === "m.room.message") {
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                    var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+                    getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                        .then((blob) => {
+                            let reader = new FileReader();
+                            reader.onload = function() {
+                                if(reader.readyState == 2) {
+                                    var buffer = new Buffer(reader.result);
+                                    var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                                    // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                    ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                                }
+                            }
+                            reader.readAsArrayBuffer(blob);
+                        })
+                }
+                if(chatGroupMsgContent.msgtype == 'm.image'){
+                    var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                    var imageInfo = {
+                        url: distUrl,
+                        info: chatGroupMsgContent.info
+                    }
+                    this.$emit('showImageOfMessage', imageInfo);
+                }
+            }
             if(msgType === 102)
             {
                 this.$emit('showImageOfMessage', this.msg);
@@ -230,22 +274,36 @@ export default {
             return iconPath;
         },
         getMsgFileIcon: function() {
+            var content = this.msg.getContent();
+            if(content.body != undefined) {
+                let ext = path.extname(content.body);
+                // console.log("getmsgfileicon ext is ", ext);
+                return this.getFileIconThroughExt(ext);
+            }
+        },
+        getMsgImgIcon: function() {
             let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
             return iconPath;
         },
         MsgIsImage: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype;
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.image'){
                 return true;
+            }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
             }
             else{
                 return false;
             }
         },
         MsgIsFile: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype;
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.file'){
                 return true;
+            }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
             }
             else{
                 return false;
@@ -257,6 +315,9 @@ export default {
             if(chatGroupMsgType == 105){
                 return true;
             }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
             else{
                 return false;
             }
@@ -267,8 +328,100 @@ export default {
             if(chatGroupMsgType == 106){
                 return true;
             }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
             else{
                 return false;
+            }
+        },
+        decryptAndDownloadFile: async function() {
+            const content = this.msg.getContent();
+            if(this.decrypting) return;
+            if(this.decryptedBlob == null) {
+                this.decrypting = true;
+                var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+                decryptFile(content.file, this.matrixClient.mxcUrlToHttp(content.file.url))
+                    .then((blob) => {
+                        let reader = new FileReader();
+                        reader.onload = function() {
+                            if(reader.readyState == 2) {
+                                // var buffer = new Buffer(reader.result);
+                                // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                let a = document.createElement('a');
+                                a.href = window.URL.createObjectURL(blob);
+                                a.download = content.body;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                this.decrypting = false;
+                            }
+                        }
+                        reader.readAsArrayBuffer(blob);
+                    })
+            }
+        },
+        decryptImg: async function() {
+            const content = this.msg.getContent();
+            if(content.file !== undefined && this.decryptedUrl == null) {
+                let thumbnailPromise = Promise.resolve(null);
+                if(content.info && content.info.thumbnail_file) {
+                    thumbnailPromise = decryptFile(content.info.thumbnail_file, this.matrixClient.mxcUrlToHttp(content.info.thumbnail_file.url))
+                        .then((blob) => {
+                            return URL.createObjectURL(blob);
+                        })
+                }
+                let decryptedBlob;
+                thumbnailPromise.then((thumbnailUrl) => {
+                    return decryptFile(content.file, this.matrixClient.mxcUrlToHttp(content.file.url))
+                        .then((blob) => {
+                            decryptedBlob = blob;
+                            return URL.createObjectURL(blob);
+                        })
+                        .then((contentUrl) => {
+                            this.decryptedUrl = contentUrl;
+                            this.decryptedThumbnailUrl = thumbnailUrl;
+                            this.decryptedBlob = decryptedBlob;
+                            let imgElement = document.getElementById(this.msg.event.event_id);
+                            if(imgElement != undefined) {
+                                let maxSize = 400;
+                                if(content.body)
+                                    this.fileName = content.body;
+                                let info = {
+                                    w: maxSize,
+                                    h: maxSize
+                                };
+                                if(content.info)
+                                    info = content.info
+                                if(!info.h)
+                                    info.h = maxSize;
+                                if(!info.w)
+                                    info.w = maxSize;
+                                if(info.size)
+                                    this.fileSizeNum = getFileSizeByNumber(info.size);
+                                this.messageContent = content.body;
+                                var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                let style = "";
+                                let max = Math.max(info.w, info.h);
+                                if(max > maxSize ){
+                                    if(info.w > info.h){
+                                        info.h = info.h/(info.w/maxSize);
+                                        info.w = maxSize;
+                                    }
+                                    else{
+                                        info.w = info.w/(info.h/maxSize)
+                                        info.h = maxSize;
+                                    }
+
+                                }
+                                style += "width:" + info.w + "px";
+                                style += ";"
+                                style += "height:" + info.h + "px";
+                                imgMsgImgElement.setAttribute("style", style);
+                                imgElement.setAttribute("src", thumbnailUrl);
+                            }
+                        })
+                })
             }
         },
         MsgContent: async function(is_mine=false) {
@@ -280,7 +433,7 @@ export default {
             this.transmitMsgContent = '';
             let event = this.msg.event;
             let chatGroupMsgType = event.type;
-            var chatGroupMsgContent = event.content;
+            var chatGroupMsgContent = this.msg.getContent();
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
@@ -289,7 +442,7 @@ export default {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.messageContent = chatGroupMsgContent.body;
                     if(chatGroupMsgContent.info)
-                        this.fileSize = chatGroupMsgContent.info.size;
+                        this.fileSize = getFileSizeByNumber(chatGroupMsgContent.info.size);
                     this.fileName = this.messageContent;
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.text'){
@@ -313,10 +466,10 @@ export default {
                     if(!info.w)
                         info.w = maxSize;
                     if(info.size)
-                        this.fileSizeNum = info.size;
+                        this.fileSizeNum = getFileSizeByNumber(info.size);
                     this.messageContent = chatGroupMsgContent.body;
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
-                    let style = "padding:40px 40px 40px 40px;";
+                    let style = "";
                     let max = Math.max(info.w, info.h);
                     if(max > maxSize ){
                         if(info.w > info.h){
@@ -333,123 +486,34 @@ export default {
                     style += ";"
                     style += "height:" + info.h + "px";
                     imgMsgImgElement.setAttribute("style", style);
-                    /*
-                    var targetPath = this.msg.file_local_path;
-                    if(!targetPath) {
-                        targetPath = await services.common.GetFilePath(chatGroupMsgContent.url);
-                    }
-                    if(fs.existsSync(targetPath)) {
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100 && chatGroupMsgContent.imgHeight != 0){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("src", targetPath);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                        imgMsgImgElement.setAttribute("style", "");
-                    }
-                    else {
-                        var targetFileName = chatGroupMsgContent.body;
-                        var theExt = path.extname(targetFileName);
-                        var needOpen = false;
-                        var secretUrl = '';
-                        if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                            secretUrl = chatGroupMsgContent.url;
-                        }
-                        if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false, secretUrl))) {
-                            //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                            let imageHeight = 100;
-                            if(chatGroupMsgContent.imgHeight < 100){
-                                imageHeight = chatGroupMsgContent.imgHeight;
-                            }
-                            this.imageHeight = imageHeight;
-                            imgMsgImgElement.setAttribute("style", "");
-                            imgMsgImgElement.setAttribute("src", targetPath);
-                            imgMsgImgElement.setAttribute("height", imageHeight);
-                        }
-                    }
-                    */
-                }
-                
+                } 
             }
-            else if(chatGroupMsgType === 102)//图片
-            {
-                var imgMsgImgElement = document.getElementById(this.msg.message_id);
-                imgMsgImgElement.setAttribute("style", "padding:40px 40px 40px 40px;width:15px;height:15px;");
-                var targetPath = this.msg.file_local_path;
-                if(!fs.existsSync(targetPath)) {
-                    targetPath = await services.common.GetFilePath(this.msg.message_id);
+            else if(chatGroupMsgType === "m.room.encrypted") {
+                // chatGroupMsgContent = this.msg.getContent();
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                    this.messageContent = chatGroupMsgContent.body;
+                    if(chatGroupMsgContent.info)
+                        this.fileSize = getFileSizeByNumber(chatGroupMsgContent.info.size);
+                    this.fileName = this.messageContent;
                 }
-                if(fs.existsSync(targetPath)) {
-                    let imageHeight = 100;
-                    if(chatGroupMsgContent.imgHeight < 100 && chatGroupMsgContent.imgHeight != 0){
-                        imageHeight = chatGroupMsgContent.imgHeight;
+                else if(chatGroupMsgContent.msgtype == 'm.text'){
+                    console.log()
+                    this.messageContent = chatGroupMsgContent.body;
+                    if(this.messageContent.length == 0) {
+                        this.messageContent = "\n";
                     }
-                    this.imageHeight = imageHeight;
-                    imgMsgImgElement.setAttribute("src", targetPath);
-                    imgMsgImgElement.setAttribute("height", imageHeight);
-                    imgMsgImgElement.setAttribute("style", "");
+                } 
+                else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
+                    let style = "";
+                    style += "width:400px";
+                    style += ";"
+                    style += "height:400px";
+                    imgMsgImgElement.setAttribute("style", style);
+                    this.decryptImg();
                 }
-                else {
-                    var targetFileName = chatGroupMsgContent.fileName;
-                    var theExt = path.extname(targetFileName);
-                    var needOpen = false;
-                    var secretUrl = '';
-                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                        secretUrl = chatGroupMsgContent.url;
-                    }
-                    if(fs.existsSync(targetPath = await services.common.downloadMsgTTumbnail(this.msg.time_line_id, this.msg.message_timestamp, this.msg.message_id + theExt, false, secretUrl))) {
-                        //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("style", "");
-                        imgMsgImgElement.setAttribute("src", targetPath);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                    }
-                }
-            }
-            else if(chatGroupMsgType === 103)//文件
-            {
-                this.fileName = chatGroupMsgContent.fileName;
-                this.fileSizeNum = chatGroupMsgContent.fileSize;
-                this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                
-                // var targetFileName = chatGroupMsgContent.fileName;
-                // var theExt = path.extname(targetFileName);
-                var targetPath = decodeURIComponent(this.msg.file_local_path);
-                if(!fs.existsSync(targetPath)) {
-                    targetPath = await services.common.GetFilePath(this.msg.message_id);
-                }
-                
-                var needOpen = false;
-                // console.log("targetPath is ", targetPath)
-                if(!fs.existsSync(targetPath)){
-                    // console.log("this.msg.timelineid is ", this.msg.time_line_id)
-                    // console.log("targetfilename is ", targetFileName);
-                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                        this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false, chatGroupMsgContent.fileSize, chatGroupMsgContent.url); 
-                    }
-                    else {
-                        this.checkingPath = await services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, this.fileName, false, chatGroupMsgContent.fileSize);
-                    }
-                    this.checkingTmpPath = this.checkingPath + "_tmp";
-                    this.downloadingInterval = setInterval(() => {
-                        if(fs.existsSync(this.checkingTmpPath)) {
-                            this.showProgress = true;
-                            var checkingState = fs.statSync(this.checkingTmpPath);
-                            this.curPercent = parseInt(checkingState.size*100/Number(this.fileSizeNum))
-                            // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
-                        }
-                        // if(fs.existsSync(this.checkingPath)) {
-                        //     this.showProgress = false;
-                        //     if(this.downloadingInterval) {
-                        //         clearInterval(this.downloadingInterval);
-                        //     }
-                        // }
-                    }, 200);
+                else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
+                    this.messageContent = chatGroupMsgContent.body;
                 }
             }
             else if(chatGroupMsgType === 105)//语音消息
@@ -533,7 +597,7 @@ export default {
             var userNameElementId = this.msgNameId();
             var userNameElement = document.getElementById(userNameElementId);
 
-            var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
+            // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
             var fromUserName = this.msg.sender.name;
 
             if(userNameElement != undefined) {
@@ -543,6 +607,7 @@ export default {
             if(this.userIconElement == undefined) {
                 return;
             }
+            /*
             // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
             var targetDir = confservice.getFilePath();
             var targetFileName = this.msg.message_from_id + ".png";
@@ -592,8 +657,10 @@ export default {
             //         URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
             //     }
             // })
+            */
         },
         msgUserInfo: async function() {
+            return '';
             // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
             // console.log("this.msg.messagecontent is ", strMsgContentToJson(this.msg.message_content));
             var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
@@ -620,6 +687,10 @@ export default {
     },
     data() {
         return {
+            decrypting: false,
+            decryptedUrl: null,
+            decryptedThumbnailUrl: null,
+            decryptedBlob: null,
             showProgress: false,
             curPercent: 0,
             downloadingInterval: undefined,
@@ -674,8 +745,8 @@ export default {
     created: async function() {
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
-        this.curUserInfo = await services.common.GetSelfUserModel();
+        this.loginInfo = undefined;//await services.common.GetLoginModel();
+        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
     },
     watch: {
         msg: async function() {
@@ -806,6 +877,11 @@ export default {
             // console.log("updateMsgstatus ", this.updateMsgStatus);
             if(this.updateMsgStatus.id == this.msg.message_id) {
                 this.updateStatus = !this.updateStatus;
+            }
+        },
+        updateMsgContent: function() {
+            if(this.msg.event.event_id == this.updateMsgContent.id) {
+                this.MsgContent(true);
             }
         }
     }

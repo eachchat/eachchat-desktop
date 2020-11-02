@@ -26,6 +26,11 @@ const en = {
     cancel: "取消",
     invalidRecoveryKey: "无效的回复密钥",
     recoveryKeyLooksGood: "看起来不错",
+    organizeMenuName: "组织",
+    contactMenuName: "我的联系人",
+    addContactButton: "添加",
+    addContactDlgName: '添加联系人',
+    contactLabel:"使用昵称、用户名或Matrix ID搜索联系人"
 }
 
 export default en;

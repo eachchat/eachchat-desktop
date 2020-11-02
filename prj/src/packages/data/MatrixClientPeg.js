@@ -4,6 +4,7 @@ import * as matrixcs from 'matrix-js-sdk'
 import {getDefaultLanguage} from '../../config.js';
 import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
 import {crossSigningCallbacks} from './recoveryKeyCallback.js';
+import {getMatrixDefaultDeviceDisplayName} from '../core/Utils.js';
 
 class _MatrixClientPeg{
     constructor(){
@@ -12,6 +13,8 @@ class _MatrixClientPeg{
         this.registrationClient = undefined;
         this.curLanguage = getDefaultLanguage();
         this.recoveryKey = '';
+        this.defaultDisplayName = getMatrixDefaultDeviceDisplayName();
+        console.log("default display name is ", this.defaultDisplayName);
     }
 
     InitOlm(){
@@ -71,6 +74,8 @@ class _MatrixClientPeg{
         return;
       }
       window.localStorage.clear();
+      window.sessionStorage.clear();
+      this.matrixClient.clearStores();
     }
 
     getStorageLocale() {
@@ -163,9 +168,9 @@ class _MatrixClientPeg{
               }
             Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
-        await this.matrixClient.initCrypto();
         //await this.matrixClient.startClient();
         await this.matrixClient.store.startup();
+        await this.matrixClient.initCrypto();
         return this.matrixClient;
     }
 

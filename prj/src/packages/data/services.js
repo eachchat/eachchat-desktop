@@ -17,7 +17,7 @@ import {globalConfig} from "../core/config.js"
 import {SqliteEncrypt, AESEncrypt} from "../core/encrypt.js"
 
 
-//const mqtt = require('mqtt')
+const mqtt = require('mqtt')
 
 const commonConfig = {
   hostname:       undefined,
@@ -457,10 +457,10 @@ const common = {
   },
 
   async initmqtt(){
-    /*
     if(this.mqttclient != undefined && this.mqttclient.connected) {
       return;
     }
+    return;
     let bClose = false;
     let httpValue;
     if(this.config.mqttTls)
@@ -468,7 +468,13 @@ const common = {
     else
       httpValue = "http";
     let hostname = environment.os.hostName;
-
+    
+    this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttHost + ':' + this.config.mqttPort,
+                                      {username: 'client', 
+                                      password: 'yiqiliao',
+                                      clientId: this.data.selfuser.id + '|' + hostname,
+                                      keepalive: 10,
+                                      reconnectPeriod: 0});
 
     let userid = this.data.selfuser.id;
     let servers = this;
@@ -526,15 +532,13 @@ const common = {
     this.mqttclient.on("error", function(error){
       console.log("mqtt error----------------- ", error)
     })
-    */
   },
 
   closemqtt(){
-    //this.mqttclient.end()
+    this.mqttclient.end()
   },
 
   async handlemessage(callback){
-    /*
     this.callback = callback;
     let userid = this.data.selfuser.id;
     let services = this;
@@ -547,7 +551,6 @@ const common = {
       }
       await mqttrouter(JSON.parse(message.toString()), callback, services);
     })
-    */
   },
   async logout() {
     if (typeof this.data.login == "undefined") {
@@ -873,6 +876,7 @@ const common = {
   },
 
   async GetNewVersion() {
+    return;
     let response = await this.api.getNewVersion(this.data.login.access_token);
     if (!response.ok || !response.success) {
       return false;
