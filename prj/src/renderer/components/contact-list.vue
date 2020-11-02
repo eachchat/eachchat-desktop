@@ -138,9 +138,10 @@ export default {
         },
     },
     methods: {
-        closeAddContactDlg: function(){
+        closeAddContactDlg: async function(){
             this.showChatContactDlg = false;
-        },
+            this.contactList = await Contact.GetAllContact();
+        }, 
 
         addContact: function(){
             this.showChatContactDlg = true;
