@@ -37,7 +37,7 @@ import * as fs from 'fs-extra'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
-import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.js'; 
+import {UserInfo, Contact} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
@@ -228,27 +228,8 @@ export default {
             }
         },
         getAppBaseData:async function() {
-            this.contactList.push({
-                display_name: "张一",
-                user_id:"zhangyi.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李二",
-                user_id:"lier.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李三",
-                user_id:"lisan.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李四",
-                user_id:"lisi.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李五",
-                user_id:"liwu.ai:matrix.each.chat"
-            })
-        },
+            this.contactList = await Contact.GetAllContact();
+       },
         updateUserImage: function(e, args) {
             var state = args[0];
             var stateInfo = args[1];
