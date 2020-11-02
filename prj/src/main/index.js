@@ -2,7 +2,6 @@ import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, No
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
-import {services } from '../packages/data/index.js';
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');

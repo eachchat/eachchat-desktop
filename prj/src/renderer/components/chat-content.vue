@@ -1945,8 +1945,6 @@ export default {
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
-    await services.common.init();
-    this.curUserInfo = await services.common.GetSelfUserModel();
     await services.common.initmqtt();
     services.common.handlemessage(this.callback);
     if(this.amr == null){

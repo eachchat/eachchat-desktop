@@ -190,7 +190,6 @@ export default {
             // services.common.init(config);
             // Set accessToken in services
 /*
-            await services.common.init();
             this.loginInfo = await services.common.GetLoginModel();
             this.curUserInfo = await services.common.GetSelfUserModel();
             services.common.InitDbData();
@@ -385,6 +384,8 @@ export default {
         }
         global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
         global.mxMatrixClientPeg.matrixClient.startClient();
+        global.services.common.gmsConfiguration();
+        await global.services.common.login()
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
           switch(state){
@@ -398,7 +399,6 @@ export default {
               break;
           }
         })
-        //await services.common.init();
         //this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
             // this.showCurUserIcon();

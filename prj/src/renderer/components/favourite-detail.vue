@@ -54,7 +54,6 @@ export default {
         },
         getImageCollectionContent:async function(image){
             //Init services
-            await services.common.init();
             confservice.init(this.collectionInfo.curUserInfo._attr.id);
             this.loginInfo = await services.common.GetLoginModel();
             var targetDir = confservice.getThumbImagePath(image.timestamp);

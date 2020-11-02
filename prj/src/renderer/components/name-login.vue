@@ -196,7 +196,6 @@
 <script>
 import os from 'os';
 import {ipcRenderer} from 'electron'
-import {services} from '../../packages/data/index.js'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
 import winHeaderBar from './win-header.vue';

@@ -18,7 +18,7 @@
                     </div>
                     <div class = "search-label">{{$t('contactLabel')}}</div>
                     <div v-show="!bShowSearchRes">
-                        <div style="margin-left: 20px;margin-top: 10px;" @click="AddByOtherWay()">其他方式添加</div>
+                        <div style="margin-left: 20px;margin-top: 10px;">其他方式添加</div>
                         <div style="margin-left: 20px;margin-top: 10px;" @click="AddByMatrixID()">通过matrix ID手动添加</div>
                     </div>
                     <el-table
@@ -90,10 +90,6 @@ export default {
     methods: {
         handleEdit: function(index, row){
             console.log(index, row)
-        },
-
-        AddByOtherWay: function(){
-            console.log('AddByOtherWay')
         },
 
         AddByMatrixID: function(){

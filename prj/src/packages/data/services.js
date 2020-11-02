@@ -271,6 +271,10 @@ const common = {
     return groups;
   },
 
+  async ConfigTableInit(){
+    globalModels.init();
+  },
+
   async init() {
     let ret = await models.init();
     if(ret != true)
@@ -317,21 +321,23 @@ const common = {
     this.api.EmailCodeVerify(emailCode);
   },
 
-  async login(config) {
-    if (typeof config != "object") {
-      return;
-    }
-  
+  async login() {
     this.api = null;
     this.initServiceApi();
-    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.identityCode, config.model, config.deviceID, config.desktopType);
-
+    let access_token = localStorage.getItem("mx_access_token");
+    let result = await this.api.GetCurrtentInfo(access_token)
+    console.log(result)
     if (!result.ok || !result.success) {
       return result.data;
     }
-    let userid = result.data.obj.id;
-    await Config.SetLoginInfo(userid, this.data.orgValue);
+    let userID = localStorage.getItem("mx_user_id");
+    let base64UserID = Base64.encode(userID, true);
+    await Config.SetLoginInfo(base64UserID, this.data.orgValue);
     await models.init();
+    return;
+
+
+    let userid = result.data.obj.id;
 
     
     var retmodels = await servicemodels.LoginModel(result)
@@ -1984,6 +1990,16 @@ const common = {
   },
 
   async gmsConfiguration(domainBase64){
+    let value = Base64.encode("139.198.15.253", true);
+    this.data.orgValue = value;
+    this.config.hostname = "139.198.15.253";
+    this.config.apiPort = 8888;
+    this.config.hostTls = 0;
+    this.config.mqttHost = "139.198.15.253";
+    this.config.mqttPort = 8888;
+    this.config.mqttTls = 1;
+    return true;
+    /*
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
@@ -2019,6 +2035,7 @@ const common = {
     this.config.mqttPort = mqtt.port;
     this.config.mqttTls = mqtt.tls;
     return response.data.obj;
+    */
   },
 
   async gmsGetUser(key){

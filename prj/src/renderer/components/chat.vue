@@ -2469,7 +2469,6 @@ s        },
         });
     },
     created: async function() {
-        await services.common.init();
         this.loginInfo = undefined;//await services.common.GetLoginModel();
         this.curUserInfo = await services.common.GetSelfUserModel();
         this.userID = window.localStorage.getItem("mx_user_id");

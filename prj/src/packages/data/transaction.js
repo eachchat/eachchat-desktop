@@ -229,6 +229,15 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async GetCurrtentInfo(accessToken){
+    var response = await this.commonApi.get(
+      "/api/apps/org/v1/user/profile",
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
   async updateUserWorkDescription(accessToken, workDescription) {
     console.debug("UpdateUser");
     var response = await this.commonApi.patch(

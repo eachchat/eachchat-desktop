@@ -330,7 +330,6 @@ var models = {
     if (typeof environment.path.sqlite == "undefined") {
       return undefined;
     }
-    await globalModels.init();
     let userInfo = await Config.GetCurrentUserID();
     console.log(userInfo)
     if(userInfo == undefined)
