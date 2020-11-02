@@ -10,16 +10,18 @@
             </div>
             <div class="groupInfoNoticeAndName">
                 <div class="groupInfoName">
-                    <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/>
-                    <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner"></p>
+                    <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
+                    <div class="chat-name">{{groupName}}</div>
+                    <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner" @click.stop="changeChateInfo()"></p>
                 </div>
-                <div class="peopleInfo" v-if="!isGroup">
+                <div class="chat-desc">{{showGroupInfo.groupTopic}}</div>
+                <!-- <div class="peopleInfo" v-if="!isGroup">
                     <input class="peopleInfoInput" id="peopleInfoInputId" type="text" :disabled="!isOwner" v-model="peopleState" name="peopleInfo" placeholder="未设置"/>
                 </div>
                 <div class="groupInfoNotice" @click="updateGroupNotice" v-else>
                     <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" :disabled="!isOwner" v-model="groupNotice" name="groupInfoNotice" placeholder="未设置" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
                     <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
-                </div>
+                </div> -->
             </div>
         </div>
         <div class="secretGroupDiv" v-show="!isGroup && isSecret" @click="showSecretType()">
@@ -32,9 +34,12 @@
                 <span class="secretTypeAutoLabel">自动</span>
             </div>
         </div>
+        <div class="groupSettingSilenceDiv" @click.stop="openSetting()">
+            <label class="groupSettingSlienceLabel">群聊设置</label>
+        </div>
         <div class="groupSettingSilenceDiv" v-show="isGroup">
             <label class="groupSettingSlienceLabel">消息免打扰</label>
-            <el-switch class="groupSettingSlienceSwitch" v-model="slienceState" @change="slienceStateChange(slienceState)">
+            <el-switch class="groupSettingSlienceSwitch" v-model="mxMute" @change="mxMuteChange(mxMute)">
             </el-switch>
         </div>
         <div class="groupSettingTopDiv" v-show="!isSecret">
@@ -64,10 +69,10 @@
         </div>
         <div :class="groupListViewClassName()" v-show="isGroup">
             <ul class="groupMember-list">
-                <li v-for="(item, index) in memberListShow" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
+                <li v-for="(item, index) in mxMembers" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
                     <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)">
-                        <label :id="getLabelIdThroughMemberUid(item.user_id)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.user_display_name}}</label>
+                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)">
+                        <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
                     </div>
                     <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)">
                 </li>
@@ -141,13 +146,20 @@ export default {
             ownerId: '',
             cursorX: 0,
             cursorY: 0,
+            //matrix data
+            mxMute: 0,
+            mxMembers: [],
         }
     },
     components: {
         imageCropper,
-        AlertDlg
+        AlertDlg,
     },
     props: {
+        "showGroupInfoTips": {
+            type: Boolean,
+            default: false
+        },
         "showGroupInfo": { 
             type:Object,
             default:{}
@@ -168,6 +180,134 @@ export default {
     computed: {
     },
     methods: {
+        changeChateInfo: function() {
+            this.$emit('openChatInfoDlg')
+        },
+        openSetting: function() {
+            this.$emit('openSetting')
+        },
+        mxGetMembers: function() {
+            const roomId = this.showGroupInfo.groupId;
+            const cli = window.mxMatrixClientPeg.matrixClient;
+            console.log('mxGetMembers roomId', roomId);
+            const xie1 = cli.getRoom(roomId);
+            const xie2 = cli.getRoomPushRule("global", roomId);
+            console.log('----xie1----', xie1);
+            console.log('----xie2----', xie2);
+            const mxMembers = [];
+            for(let key in xie1.currentState.members) {
+                mxMembers.push(xie1.currentState.members[key]);
+            }
+            console.log('mxMembers', mxMembers);
+            this.mxMembers = [...this.mxMembers, ...mxMembers];
+        },
+        mxMuteChange: function(mxMute) {
+            console.log('---mxMuteChange---', this.mxMute);
+            if (mxMute) { // set mute
+                const cli = window.mxMatrixClientPeg.matrixClient;
+                const promises = [];
+                const roomId = this.showGroupInfo.groupId;
+                const roomRule = cli.getRoomPushRule('global', roomId);
+                if (roomRule) {
+                    promises.push(cli.deletePushRule('global', 'room', roomRule.rule_id));
+                }
+
+                // add/replace an override rule to squelch everything in this room
+                // NB. We use the room ID as the name of this rule too, although this
+                // is an override rule, not a room rule: it still pertains to this room
+                // though, so using the room ID as the rule ID is logical and prevents
+                // duplicate copies of the rule.
+                promises.push(cli.addPushRule('global', 'override', roomId, {
+                    conditions: [
+                        {
+                            kind: 'event_match',
+                            key: 'room_id',
+                            pattern: roomId,
+                        },
+                    ],
+                    actions: [
+                        'dont_notify',
+                    ],
+                }));
+                console.log('--set mute!!--')
+                return Promise.all(promises);
+            } else { //set unmute
+
+            }
+        },
+        getRoomNotifsState: function(roomId) { //message setting relevant
+            if (window.mxMatrixClientPeg.matrixClient.isGuest()) {
+                console.log('---isGuest MUTE---');              
+                this.mxMute = 1; 
+                return 'ALL_MESSAGES';
+            }
+            // look through the override rules for a rule affecting this room:
+            // if one exists, it will take precedence.
+            const muteRule = this.findOverrideMuteRule(roomId);
+            if (muteRule) {
+                console.log('---MUTE---');              
+                this.mxMute = 0;
+                return 'MUTE';
+            }
+            // for everything else, look at the room rule.
+            let roomRule = null;
+            try {
+                roomRule = window.mxMatrixClientPeg.matrixClient.getRoomPushRule('global', roomId);
+                console.log('?????>>?>?>>?>?', roomRule);
+            } catch (err) {
+                // Possible that the client doesn't have pushRules yet. If so, it
+                // hasn't started eiher, so indicate that this room is not notifying.
+                console.log('----err return----', err);
+                return null;
+            }
+            console.log('----roomRule----', roomRule);
+            // XXX: We have to assume the default is to notify for all messages
+            // (in particular this will be 'wrong' for one to one rooms because
+            // they will notify loudly for all messages)
+            if (!roomRule || !roomRule.enabled) {
+                console.log('---ALL_MESSAGES---');
+                this.mxMute = 1;
+                return 'ALL_MESSAGES';
+            }
+            // a mute at the room level will still allow mentions
+            // to notify
+            if (this.isMuteRule(roomRule)) {
+                console.log('---MENTIONS_ONLY---');
+                this.mxMute = 1; 
+                return 'MENTIONS_ONLY'; 
+            }
+
+            console.log('---just return---')
+            // const actionsObject = PushProcessor.actionListToActionsObject(roomRule.actions);
+            // if (actionsObject.tweaks.sound) return ALL_MESSAGES_LOUD;
+
+            return null;
+        },
+        findOverrideMuteRule: function(roomId) { //message setting relevant
+            if (!window.mxMatrixClientPeg.matrixClient.pushRules ||
+                !window.mxMatrixClientPeg.matrixClient.pushRules['global'] ||
+                !window.mxMatrixClientPeg.matrixClient.pushRules['global'].override) {
+                return null;
+            }
+            for (const rule of window.mxMatrixClientPeg.matrixClient.pushRules['global'].override) {
+                if (this.isRuleForRoom(roomId, rule)) {
+                    if (this.isMuteRule(rule) && rule.enabled) {
+                        return rule;
+                    }
+                }
+            }
+            return null;
+        },
+        isRuleForRoom: function(roomId, rule) { //message setting relevant	
+            if (rule.conditions.length !== 1) {
+                return false;
+            }
+            const cond = rule.conditions[0];
+            return (cond.kind === 'event_match' && cond.key === 'room_id' && cond.pattern === roomId); 
+        },
+        isMuteRule: function(rule) { //message setting relevant
+            return (rule.actions.length === 1 && rule.actions[0] === 'dont_notify');
+        },
         showSecretType: function() {
             this.showSecretOption = true;
             var secretTypeBtnElement = document.getElementById("secretTypeId");
@@ -553,6 +693,13 @@ export default {
         document.addEventListener('click', this.updateCursorPosition);
     },
     watch: {
+        showGroupInfoTips: function() {
+            if (this.showGroupInfoTips) {
+                this.getRoomNotifsState();
+                this.mxGetMembers();
+                console.log('----watch showGroupInfoTips----');
+            }
+        },
         showGroupInfo: async function() {
             if(this.wholeTipElement == null) {
                 this.wholeTipElement = document.getElementById("groupInfoTipId");
@@ -565,6 +712,7 @@ export default {
             }
             this.memberList = this.showGroupInfo.memberList;
             this.groupName = this.showGroupInfo.groupName;
+            console.log('xxxxxx', this.showGroupInfo.groupName)
             this.groupAvarar = this.showGroupInfo.groupAvarar;
             this.groupNotice = this.showGroupInfo.groupNotice;
             this.groupId = this.showGroupInfo.groupId;
@@ -572,7 +720,7 @@ export default {
             this.slienceState = this.showGroupInfo.isSlience;
             this.groupTopState = this.showGroupInfo.isTop;
             this.groupFavouriteState = this.showGroupInfo.isFav;
-            this.isOwner = this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
+            this.isOwner = this.showGroupInfo.isOwner //this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
             this.ownerId = this.showGroupInfo.ownerId;
             if(this.showGroupInfo.groupType == 102) {
                 var ownerUserInfo = await UserInfo.GetUserInfo(this.ownerId);
@@ -900,24 +1048,50 @@ export default {
     letter-spacing: 1px;
 }
 
-.groupInfoNameEdit {
-    width: 21px;
-    height: 21px;
-    float: right;
-    margin: 0px;
-    padding: 0px;
+.chat-name {
+    display: inline-block;
+    width: 100px;
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-.groupInfoNameEdit:hover {
-    width: 21px;
-    height: 21px;
-    float: right;
+.chat-desc {
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.groupInfoNameEdit {
+    // width: 21px;
+    // height: 21px;
+    // float: right;
+    // margin: 0px;
+    // padding: 0px;
+    margin-left: 8px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+//     float: right;
     margin: 0px;
     padding: 0px;
     background-size: auto 100%;
     background-image: url("../../../static/Img/Chat/edit-20px@2x.png");
     background-repeat: no-repeat;
 }
+
+// .groupInfoNameEdit:hover {
+//     width: 21px;
+//     height: 21px;
+//     float: right;
+//     margin: 0px;
+//     padding: 0px;
+//     background-size: auto 100%;
+//     background-image: url("../../../static/Img/Chat/edit-20px@2x.png");
+//     background-repeat: no-repeat;
+// }
 
 .peopleInfo{
     width: 100%;

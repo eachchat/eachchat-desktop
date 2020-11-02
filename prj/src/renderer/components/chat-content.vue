@@ -153,6 +153,7 @@ import {shell} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 import log from 'electron-log';
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
+import {mapState} from 'vuex';
 
 export default {
   components: {
@@ -179,10 +180,10 @@ export default {
       type: Boolean,
       default: false
     },
-    matrixSync: {
-      type: Boolean,
-      default: false
-    }
+    // matrixSync: {
+    //   type: Boolean,
+    //   default: false
+    // }
     //['distUserId', 'distGroupId'],
   },
   watch: {
@@ -253,10 +254,12 @@ export default {
     },
     matrixSync: function() {
       if (this.matrixSync) this.originalGroupList = global.mxMatrixClientPeg.matrixClient.getRooms();
-      console.log("======this.originalGroupList ", this.originalGroupList);
     }
   },
   computed: {
+    ...mapState({
+      matrixSync: state => state.common.matrixSync
+    }),
     dealShowGroupList: function() {
       if(this.originalGroupList.length == 0) {
         return;
@@ -1908,7 +1911,20 @@ export default {
 
   mounted: async function() {
     log.info("chat content mounted");
-    console.log("chat content mounted");
+    global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
+        if(ret == undefined) {
+            global.mxMatrixClientPeg.logout();
+            ipcRenderer.send("showLoginPageWindow");
+            return;
+        }
+        if(ret.language) {
+          this.$i18n.locale = ret.language;
+        }
+        console.log("the matrix client is ", global.mxMatrixClientPeg)
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        await this.getGroupList(false);
+    })
+    console.log("check $store", this.$store);
     console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
 
     if(this.unreadCount < 0) {

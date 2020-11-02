@@ -26,7 +26,7 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :matrixSync="matrixSync"/>
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg"/>
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
@@ -124,8 +124,7 @@ export default {
             
             selfUserInfo:{},
             showPersonalCenter:false,
-            personalCenterKey: 0,
-            matrixSync: false
+            personalCenterKey: 0
         }
     },
     methods: {
@@ -390,8 +389,9 @@ export default {
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
           switch(state){
             case "PREPARED":
-              console.clear();
-              ctx.matrixSync = true;
+            //   console.clear();
+            //   ctx.matrixSync = true;
+              this.$store.dispatch('syncPrepare');
               console.log('matrix sync prepared.');
               break;
             default:
