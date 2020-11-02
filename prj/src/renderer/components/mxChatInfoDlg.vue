@@ -94,7 +94,7 @@ export default {
         top: 20px;
         margin-left: -200px;
         background-color: #f2f2f2;
-        padding: 26px;
+        padding: 24px;
         border-radius: 16px;
         width: 400px;
         height: 400px;
@@ -109,8 +109,8 @@ export default {
             }
             .close {
                 position: absolute;
-                top: 26px;
-                right: 26px;
+                top: 24px;
+                right: 24px;
             }
             .setting-field {
                 margin-bottom: 20px;

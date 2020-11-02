@@ -79,12 +79,12 @@
             </ul>
         </div>
         <div class="footer">
-            <div class="groupLeave-view" v-show="isGroup">
-                <p class="groupLeaveDiv" @click="leave()">
+            <div class="groupLeave-view"> <!--v-show="isGroup"-->
+                <p class="groupLeaveDiv" @click.stop="mxLeaveRoom()"> <!--@click="leave()"-->
                     退出群聊
                 </p>
             </div>
-            <div class="groupDismiss-view" v-show="isGroup && isOwner">
+            <!-- <div class="groupDismiss-view" v-show="isGroup && isOwner">
                 <p class="groupDismissDiv" @click="dismiss()">
                     解散群聊
                 </p>
@@ -93,7 +93,7 @@
                 <p class="groupDeleteDiv" @click="dismiss()">
                     删除聊天
                 </p>
-            </div>
+            </div> -->
         </div>
         <image-cropper v-if="showImageCropper" :groupId="groupId" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
         <AlertDlg :AlertContnts="alertContnets" :alertType="alertType" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
@@ -180,6 +180,48 @@ export default {
     computed: {
     },
     methods: {
+        mxLeaveRoom: function() {
+            console.log('----mxLeaveRoom----')
+            if (!window.alertIsShow) {
+                // 弹框模板有个 delete window.alertIsShow 是为了弹框关闭之后能再次显示
+                console.log('----$warningDlg----')
+                this.$emit("closeGroupInfo");
+                const roomId = this.groupId;
+                const client = window.mxMatrixClientPeg.matrixClient;
+                const room = client.getRoom(roomId);
+                const joinRules = room.currentState.getStateEvents('m.room.join_rules', '');
+                const vtx = this;
+                let warning = `确定要退出${room.name}吗？`
+                if (joinRules) {
+                    const rule = joinRules.getContent().join_rule;
+                    if (rule !== "public") {
+                        // warnings.push((
+                        //     <span className="warning" key="non_public_warning">
+                        //         {' '/* Whitespace, otherwise the sentences get smashed together */ }
+                        //         { _t("This room is not public. You will not be able to rejoin without an invite.") }
+                        //     </span>
+                        // ));
+                        warning += '  这个群组不是公开的，退出后无法直接加入';
+                    }
+                }
+                vtx.$warningDlg({
+                    title: `退出${room.name}`,
+                    content: warning,
+                    cancelBtn: true,
+                    close () {
+                        // 这里执行点击右上角需要做的事，默认执行关闭弹框
+                    },
+                    confirm () {
+                        // 这里执行点击确定按钮需要做的事，默认执行关闭弹框
+                        client.leave(roomId);
+                    },
+                    cancel () {
+                        // 这里执行点击取消按钮需要做的事，默认执行关闭弹框
+                    }
+                })
+                window.alertIsShow = true;
+            }
+        },
         changeChateInfo: function() {
             this.$emit('openChatInfoDlg')
         },
@@ -358,7 +400,7 @@ export default {
                     }
                 }
             }
-            this.$emit("closeGroupInfo");
+            // this.$emit("closeGroupInfo");
         },
         ownerTransfer: function() {
             this.$emit("showOwnerTransferDlg");

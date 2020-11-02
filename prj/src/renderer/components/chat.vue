@@ -110,6 +110,7 @@
             @showOwnerTransferDlg="showOwnerTransferDlg"
             @openSetting="mxRoomSetting"
             @openChatInfoDlg="mxChatInfoDlgSetting"
+            @closeGroupInfo="closeGroupInfo"
         >
         </groupInfoTip> <!--todo html-->
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
