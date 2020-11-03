@@ -43,7 +43,7 @@
                                 <el-button
                                 size="mini"
                                 :disabled='DisableSave(scope.row)'
-                                @click="handleEdit(scope.$index, scope.row)">保存</el-button>
+                                @click="HandleSave(scope.$index, scope.row)">保存</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -82,7 +82,8 @@ export default {
             dlgPosition:{},
             viewContentHeight:202,
             contacts: [],
-            disable: false
+            disable: false,
+            services: null
         }
     },
     watch:{
@@ -103,15 +104,13 @@ export default {
             return false;
         },
 
-        handleEdit: async function(index, row){
+        HandleSave: async function(index, row){
             let info = {
                 user_id : row.user_id,
                 display_name: row.display_name,
-                avatar_url: row.avatar_url
+                avatar_url: row.avatar_url,
             }
-            const contactModel = await models.Contact;
-            let contactModelValue = await new contactModel(info);
-            await contactModelValue.save();
+            await this.services.AddContact(info);
             this.contacts = await Contact.GetAllContact();
         },
 
@@ -848,6 +847,7 @@ export default {
     },
     mounted:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        this.services = global.services.common;
     },
     
 }

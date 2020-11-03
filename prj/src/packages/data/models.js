@@ -72,10 +72,15 @@ var models = {
         storage: this.storage.sqlite,
         index: 'contact',
         fields: {
-          user_id: types.string,
+          user_id:      types.string,
           display_name: types.string,
-          avatar_url: types.string
-        },
+          avatar_url:   types.string,
+          email:        types.string,
+          mobile:       types.string,
+          telephone:    types.string,
+          company:      types.string,
+          title:        types.string
+          },
         primaryKey: 'user_id'
       });
     })();

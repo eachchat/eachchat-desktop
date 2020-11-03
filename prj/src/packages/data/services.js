@@ -324,12 +324,6 @@ const common = {
   async login() {
     this.api = null;
     this.initServiceApi();
-    let access_token = localStorage.getItem("mx_access_token");
-    let result = await this.api.GetCurrtentInfo(access_token)
-    console.log(result)
-    if (!result.ok || !result.success) {
-      return result.data;
-    }
     let userID = localStorage.getItem("mx_user_id");
     let base64UserID = Base64.encode(userID, true);
     await Config.SetLoginInfo(base64UserID, this.data.orgValue);
@@ -2170,7 +2164,27 @@ const common = {
     {
       this.data.maxSecretGroupUpdateTime = groupModel.updatetime;
     }
+  },
+
+  async AddContact(contactInfo){
+    let access_token = localStorage.getItem("mx_access_token");
+    let result = await this.api.AddContact(access_token, 
+                                          contactInfo.user_id,
+                                          true,
+                                          contactInfo.display_name,
+                                          '',
+                                          '',
+                                          '',
+                                          '',
+                                          '');
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    const contactModel = await models.Contact;
+    let contactModelValue = await new contactModel(contactInfo);
+    await contactModelValue.save();
   }
+
 };
 
 const cache = {

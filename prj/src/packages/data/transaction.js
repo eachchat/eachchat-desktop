@@ -991,6 +991,33 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async AddContact(accessToken, 
+                    matrixID,
+                    appendFlag,
+                    remarkName,
+                    email,
+                    mobile,
+                    telephone,
+                    company,
+                    title){
+    let response = await this.commonApi.post(
+      "/api/apps/contacts/v1/contact",
+      {
+        matrixId:     matrixID,
+        appendFlag:   appendFlag,
+        remarkName:   remarkName,
+        email:        email,
+        mobile:       mobile,
+        telephone:    telephone,
+        company:      company,
+        title:        title
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}
