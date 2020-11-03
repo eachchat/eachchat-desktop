@@ -115,7 +115,7 @@ export default {
         },
 
         AddByMatrixID: function(){
-            console.log('AddByMatrixID')
+            this.$emit("showInputContact", "");
         },
 
         search:async function () {

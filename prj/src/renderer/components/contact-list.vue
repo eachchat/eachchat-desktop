@@ -26,8 +26,10 @@
                 <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"></userInfoContent>
             </el-container>
         </el-main>
-        <addContact v-show="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg'>
+        <addContact v-show="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact">
         </addContact>
+        <InputContactInfo v-show='showInputContactDlg' @closeInputContact="CloseInputContactDlg">
+        </InputContactInfo>
     </el-container>
 </template>
 <script>
@@ -41,14 +43,17 @@ import {UserInfo, Contact} from '../../packages/data/sqliteutil.js';
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
-import addContact from './add-contact'
+import addContact from './add-contact';
+import InputContactInfo from './input-contact-info';
+
 export default {
     name: 'contactList',
     components: {
         yidrawer,
         userInfoContent,
         userInfoTip,
-        addContact
+        addContact,
+        InputContactInfo
     },
     data () {
         return {
@@ -62,7 +67,8 @@ export default {
             showUserInfoTips: false,
             userInfoTipKey: 1,
             userInfoPosition: {},
-            showChatContactDlg: false
+            showChatContactDlg: false,
+            showInputContactDlg: true
         }
     },
     props:{
@@ -138,10 +144,19 @@ export default {
         },
     },
     methods: {
+        HandleInputContact: function(){
+            this.showInputContactDlg = true;
+            this.showChatContactDlg = false;
+        },
+
         closeAddContactDlg: async function(){
             this.showChatContactDlg = false;
             this.contactList = await Contact.GetAllContact();
         }, 
+
+        CloseInputContactDlg: async function(){
+            this.showInputContactDlg = false;
+        },
 
         addContact: function(){
             this.showChatContactDlg = true;
