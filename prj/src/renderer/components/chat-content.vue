@@ -1257,6 +1257,7 @@ export default {
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
+      if(chatGroupItem.timeline.length == 0) return;
       var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
       
       let event = distTimeLine.event;
@@ -1308,6 +1309,7 @@ export default {
       return chatGroupItem.name;
     },
     getShowMsgContent(chatGroupItem) {
+      if(chatGroupItem.timeline.length == 0) return;
       var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
       
       let event = distTimeLine.event;
