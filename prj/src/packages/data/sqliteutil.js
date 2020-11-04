@@ -792,6 +792,16 @@ const Contact = {
         if(contacts.length != 0)
             return contacts[0].updatetime;
         return 0;
+    },
+
+    async GetContactInfo(id){
+        let contacts = await (await models.Contact).find(
+            {
+                user_id: id
+            });
+        if(contacts.length != 0)
+            return contacts[0];
+        return null;
     }
 }
 

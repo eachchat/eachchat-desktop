@@ -2172,11 +2172,11 @@ const common = {
                                           contactInfo.user_id,
                                           true,
                                           contactInfo.display_name,
-                                          '',
-                                          '',
-                                          '',
-                                          '',
-                                          '');
+                                          contactInfo.email,
+                                          contactInfo.mobile,
+                                          contactInfo.telephone,
+                                          contactInfo.company,
+                                          contactInfo.title);
     if (!result.ok || !result.success) {
       return result;
     }

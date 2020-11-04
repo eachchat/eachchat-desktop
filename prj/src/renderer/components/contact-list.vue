@@ -207,18 +207,20 @@ export default {
             console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            //var user = await UserInfo.GetUserInfo(id);
+            var user = await Contact.GetContactInfo(id);
             tempUserInfo.id = id;
-            tempUserInfo.displayName = 'user.user_display_name';
-            tempUserInfo.title = 'user.user_title';
-            tempUserInfo.statusDescription = 'user.status_description';
-            tempUserInfo.workDescription = 'user.work_description';
-            tempUserInfo.managerId = 'user.manager_id';
-            tempUserInfo.departmentId = 'user.belong_to_department_id';
-            tempUserInfo.department = 'department';
-            tempUserInfo.email = 'email';
-            tempUserInfo.phone = 'tempPhone';
-            tempUserInfo.leaders = 'leaders';
+            tempUserInfo.displayName = user.display_name;
+            tempUserInfo.title = user.title;
+            tempUserInfo.statusDescription = user.status_description;
+            tempUserInfo.workDescription = user.work_description;
+            tempUserInfo.email = [];
+            tempUserInfo.email.push({
+                email_value: user.email
+            })
+            tempUserInfo.phone = {
+                mobile: user.telephone,
+                work: user.mobile
+            };
 
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
