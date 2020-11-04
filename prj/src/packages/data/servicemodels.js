@@ -631,15 +631,15 @@ const servicemodels = {
         "userId": "eachchat_user_id",
         "contactRemarkName": "display_name",
         "avatarUrl": "avatar_url",
-        "contactMobile": "email",
-        "contactTelephone": "mobile",
+        "contactEmail": "email",
+        "contactMobile": "mobile",
         "contactTelephone": "telephone",
         "contactCompany": "company",
         "contactTitle": "title",
         "updateTimestamp":"updatetime"
       };
 
-      for(let key in contactInfo)
+      for(let key in contactMap)
       {  
         contactValue[contactMap[key]] = contactInfo[key];
       }
