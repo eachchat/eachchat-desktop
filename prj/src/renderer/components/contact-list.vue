@@ -156,6 +156,7 @@ export default {
 
         CloseInputContactDlg: async function(){
             this.showInputContactDlg = false;
+            this.contactList = await Contact.GetAllContact();
         },
 
         addContact: function(){

@@ -15,10 +15,10 @@
                         <el-input v-model="contactInfo.display_name"  size='mini' width="100px"></el-input>
                     </el-form-item>
                     <el-form-item label="手机">
-                        <el-input v-model="contactInfo.telephone" size='mini'></el-input>
+                        <el-input v-model="contactInfo.mobile" size='mini'></el-input>
                     </el-form-item>
                     <el-form-item label="座机">
-                        <el-input v-model="contactInfo.phone" size='mini'></el-input>
+                        <el-input v-model="contactInfo.telephone" size='mini'></el-input>
                     </el-form-item>
                     <el-form-item label="邮箱">
                         <el-input v-model="contactInfo.email" size='mini'></el-input>
@@ -61,11 +61,11 @@ export default {
             contactInfo: {
                 user_id: '',
                 display_name: '',
+                mobile:'',
                 telephone:'',
-                phone:'',
                 email:'',
                 company_name:'',
-                titile:''
+                title:''
             },
             rules:{
                 user_id:[
@@ -85,7 +85,7 @@ export default {
     },
     methods: {
         SaveContact(){
-            console.log(this.contactInfo)
+            this.services.AddContact(this.contactInfo);
         },
 
         closeDialog() {
