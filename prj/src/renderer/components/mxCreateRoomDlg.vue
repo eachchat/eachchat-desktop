@@ -27,12 +27,12 @@
                 <div class="setting-field">
                     <div class="field-left">
                         <div class="setting-title">群聊目录</div>
-                        <div class="setting-tip">将群发不到群聊目录</div>
+                        <div class="setting-tip">将群发布到群聊目录</div>
                     </div>
                     <el-switch class="groupSettingSlienceSwitch" v-model="commu" >
                     </el-switch>
                 </div>
-                <div class="setting-field">
+                <div class="setting-field" v-if="!isPublic">
                     <div class="field-left">
                         <div class="setting-title">端到端加密</div>
                         <div class="setting-tip">一旦开启端到端加密，将无法撤销</div>
@@ -52,6 +52,7 @@
 <script>
 const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
+import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
 export default {
     name: 'mxCreateRoomDlg',
@@ -63,7 +64,8 @@ export default {
             name:'',
             isPublic:false,
             commu: false,
-            isEncrypted: false
+            isEncrypted: false,
+            alias: ''
         }
     },
     methods: {
@@ -71,7 +73,7 @@ export default {
             this.$emit('close', 'close');
         },
         confirm: function() {
-
+            this.createRoom();
         },
         privateShouldBeEncrypted: function() {
             const e2eeWellKnown = this.getE2EEWellKnown();
@@ -127,131 +129,136 @@ export default {
 
             return opts;
         },
-        // createRoom: function() {
-        //     let opt = this._roomCreateOptions();
-        //     if (opts.spinner === undefined) opts.spinner = true;
-        //     if (opts.guestAccess === undefined) opts.guestAccess = true;
-        //     if (opts.encryption === undefined) opts.encryption = false;
+        createRoom: function() {
+            let opts = this._roomCreateOptions();
+            if (opts.spinner === undefined) opts.spinner = true;
+            if (opts.guestAccess === undefined) opts.guestAccess = true;
+            if (opts.encryption === undefined) opts.encryption = false;
 
-        //     // const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
-        //     // const Loader = sdk.getComponent("elements.Spinner");
+            // const ErrorDialog = sdk.getComponent("dialogs.ErrorDialog");
+            // const Loader = sdk.getComponent("elements.Spinner");
 
-        //     const client = MatrixClientPeg.get();
-        //     if (client.isGuest()) {
-        //         dis.dispatch({action: 'require_registration'});
-        //         return Promise.resolve(null);
-        //     }
+            const client = window.mxMatrixClientPeg.matrixClient;
+            // if (client.isGuest()) {
+            //     // dis.dispatch({action: 'require_registration'});
+            //     return Promise.resolve(null);
+            // }
 
-        //     const defaultPreset = opts.dmUserId ? Preset.TrustedPrivateChat : Preset.PrivateChat;
+            const defaultPreset = opts.dmUserId ? "trusted_private_chat" : "private_chat";
 
-        //     // set some defaults for the creation
-        //     const createOpts = opts.createOpts || {};
-        //     createOpts.preset = createOpts.preset || defaultPreset;
-        //     createOpts.visibility = createOpts.visibility || Visibility.Private;
-        //     if (opts.dmUserId && createOpts.invite === undefined) {
-        //         switch (getAddressType(opts.dmUserId)) {
-        //             case 'mx-user-id':
-        //                 createOpts.invite = [opts.dmUserId];
-        //                 break;
-        //             case 'email':
-        //                 createOpts.invite_3pid = [{
-        //                     id_server: MatrixClientPeg.get().getIdentityServerUrl(true),
-        //                     medium: 'email',
-        //                     address: opts.dmUserId,
-        //                 }];
-        //         }
-        //     }
-        //     if (opts.dmUserId && createOpts.is_direct === undefined) {
-        //         createOpts.is_direct = true;
-        //     }
+            // set some defaults for the creation
+            const createOpts = opts.createOpts || {};
+            createOpts.preset = createOpts.preset || defaultPreset;
+            createOpts.visibility = createOpts.visibility || Visibility.Private;
+            if (opts.dmUserId && createOpts.invite === undefined) {
+                switch (getAddressType(opts.dmUserId)) {
+                    case 'mx-user-id':
+                        createOpts.invite = [opts.dmUserId];
+                        break;
+                    case 'email':
+                        createOpts.invite_3pid = [{
+                            id_server: client.getIdentityServerUrl(true),
+                            medium: 'email',
+                            address: opts.dmUserId,
+                        }];
+                }
+            }
+            if (opts.dmUserId && createOpts.is_direct === undefined) {
+                createOpts.is_direct = true;
+            }
 
-        //     // By default, view the room after creating it
-        //     if (opts.andView === undefined) {
-        //         opts.andView = true;
-        //     }
+            // By default, view the room after creating it
+            if (opts.andView === undefined) {
+                opts.andView = true;
+            }
 
-        //     createOpts.initial_state = createOpts.initial_state || [];
+            createOpts.initial_state = createOpts.initial_state || [];
 
-        //     // Allow guests by default since the room is private and they'd
-        //     // need an invite. This means clicking on a 3pid invite email can
-        //     // actually drop you right in to a chat.
-        //     if (opts.guestAccess) {
-        //         createOpts.initial_state.push({
-        //             type: 'm.room.guest_access',
-        //             state_key: '',
-        //             content: {
-        //                 guest_access: 'can_join',
-        //             },
-        //         });
-        //     }
+            // Allow guests by default since the room is private and they'd
+            // need an invite. This means clicking on a 3pid invite email can
+            // actually drop you right in to a chat.
+            if (opts.guestAccess) {
+                createOpts.initial_state.push({
+                    type: 'm.room.guest_access',
+                    state_key: '',
+                    content: {
+                        guest_access: 'can_join',
+                    },
+                });
+            }
 
-        //     if (opts.encryption) {
-        //         createOpts.initial_state.push({
-        //             type: 'm.room.encryption',
-        //             state_key: '',
-        //             content: {
-        //                 algorithm: 'm.megolm.v1.aes-sha2',
-        //             },
-        //         });
-        //     }
+            if (opts.encryption) {
+                createOpts.initial_state.push({
+                    type: 'm.room.encryption',
+                    state_key: '',
+                    content: {
+                        algorithm: 'm.megolm.v1.aes-sha2',
+                    },
+                });
+            }
 
-        //     let modal;
-        //     if (opts.spinner) modal = Modal.createDialog(Loader, null, 'mx_Dialog_spinner');
+            console.log('---createOpts---', createOpts);
+            return client.createRoom(createOpts).then(function(res) {
+                console.log('create success!!', res);
+            })
 
-        //     let roomId;
-        //     return client.createRoom(createOpts).finally(function() {
-        //         if (modal) modal.close();
-        //     }).then(function(res) {
-        //         roomId = res.room_id;
-        //         if (opts.dmUserId) {
-        //             return Rooms.setDMRoom(roomId, opts.dmUserId);
-        //         } else {
-        //             return Promise.resolve();
-        //         }
-        //     }).then(() => {
-        //         if (opts.associatedWithCommunity) {
-        //             return GroupStore.addRoomToGroup(opts.associatedWithCommunity, roomId, false);
-        //         }
-        //     }).then(function() {
-        //         // NB createRoom doesn't block on the client seeing the echo that the
-        //         // room has been created, so we race here with the client knowing that
-        //         // the room exists, causing things like
-        //         // https://github.com/vector-im/vector-web/issues/1813
-        //         if (opts.andView) {
-        //             dis.dispatch({
-        //                 action: 'view_room',
-        //                 room_id: roomId,
-        //                 should_peek: false,
-        //                 // Creating a room will have joined us to the room,
-        //                 // so we are expecting the room to come down the sync
-        //                 // stream, if it hasn't already.
-        //                 joining: true,
-        //             });
-        //         }
-        //         return roomId;
-        //     }, function(err) {
-        //         // Raise the error if the caller requested that we do so.
-        //         if (opts.inlineErrors) throw err;
+            // let modal;
+            // if (opts.spinner) modal = Modal.createDialog(Loader, null, 'mx_Dialog_spinner');
 
-        //         // We also failed to join the room (this sets joining to false in RoomViewStore)
-        //         dis.dispatch({
-        //             action: 'join_room_error',
-        //         });
-        //         console.error("Failed to create room " + roomId + " " + err);
-        //         let description = _t("Server may be unavailable, overloaded, or you hit a bug.");
-        //         if (err.errcode === "M_UNSUPPORTED_ROOM_VERSION") {
-        //             // Technically not possible with the UI as of April 2019 because there's no
-        //             // options for the user to change this. However, it's not a bad thing to report
-        //             // the error to the user for if/when the UI is available.
-        //             description = _t("The server does not support the room version specified.");
-        //         }
-        //         Modal.createTrackedDialog('Failure to create room', '', ErrorDialog, {
-        //             title: _t("Failure to create room"),
-        //             description,
-        //         });
-        //         return null;
-        //     });
-        // }
+            // let roomId;
+            // return client.createRoom(createOpts).finally(function() {
+            //     if (modal) modal.close();
+            // }).then(function(res) {
+            //     roomId = res.room_id;
+            //     if (opts.dmUserId) {
+            //         return Rooms.setDMRoom(roomId, opts.dmUserId);
+            //     } else {
+            //         return Promise.resolve();
+            //     }
+            // }).then(() => {
+            //     if (opts.associatedWithCommunity) {
+            //         return GroupStore.addRoomToGroup(opts.associatedWithCommunity, roomId, false);
+            //     }
+            // }).then(function() {
+            //     // NB createRoom doesn't block on the client seeing the echo that the
+            //     // room has been created, so we race here with the client knowing that
+            //     // the room exists, causing things like
+            //     // https://github.com/vector-im/vector-web/issues/1813
+            //     if (opts.andView) {
+            //         dis.dispatch({
+            //             action: 'view_room',
+            //             room_id: roomId,
+            //             should_peek: false,
+            //             // Creating a room will have joined us to the room,
+            //             // so we are expecting the room to come down the sync
+            //             // stream, if it hasn't already.
+            //             joining: true,
+            //         });
+            //     }
+            //     return roomId;
+            // }, function(err) {
+            //     // Raise the error if the caller requested that we do so.
+            //     if (opts.inlineErrors) throw err;
+
+            //     // We also failed to join the room (this sets joining to false in RoomViewStore)
+            //     dis.dispatch({
+            //         action: 'join_room_error',
+            //     });
+            //     console.error("Failed to create room " + roomId + " " + err);
+            //     let description = _t("Server may be unavailable, overloaded, or you hit a bug.");
+            //     if (err.errcode === "M_UNSUPPORTED_ROOM_VERSION") {
+            //         // Technically not possible with the UI as of April 2019 because there's no
+            //         // options for the user to change this. However, it's not a bad thing to report
+            //         // the error to the user for if/when the UI is available.
+            //         description = _t("The server does not support the room version specified.");
+            //     }
+            //     Modal.createTrackedDialog('Failure to create room', '', ErrorDialog, {
+            //         title: _t("Failure to create room"),
+            //         description,
+            //     });
+            //     return null;
+            // });
+        }
     },
     components: {
     },
