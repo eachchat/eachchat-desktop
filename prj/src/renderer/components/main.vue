@@ -386,6 +386,8 @@ export default {
         global.mxMatrixClientPeg.matrixClient.startClient();
         global.services.common.gmsConfiguration();
         await global.services.common.login()
+        await global.services.common.GetAllContact();
+
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
           switch(state){

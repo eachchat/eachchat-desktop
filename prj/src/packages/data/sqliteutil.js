@@ -778,6 +778,20 @@ const Secret = {
 const Contact = {
     async GetAllContact(){
         return await (await models.Contact).find()
+    },
+
+    async GetMaxUpdateTime(){
+        let contacts = await (await models.Contact).find(
+            {
+                $order: {
+                    by: 'updatetime',
+                    reverse: true
+                    },
+                $size: 1
+            });
+        if(contacts.length != 0)
+            return contacts[0].updatetime;
+        return 0;
     }
 }
 

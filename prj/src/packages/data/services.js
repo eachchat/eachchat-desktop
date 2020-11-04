@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret, Contact} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -2183,6 +2183,29 @@ const common = {
     const contactModel = await models.Contact;
     let contactModelValue = await new contactModel(contactInfo);
     await contactModelValue.save();
+  },
+
+  async GetAllContact(){
+    let access_token = localStorage.getItem("mx_access_token");
+    let result;
+    let updateTime = await Contact.GetMaxUpdateTime();
+    let sequenceID = 0;
+    let contactModel;
+    while(1){
+      result = await this.api.IncrementContact(access_token, updateTime, sequenceID);
+      if (!result.ok || !result.success) {
+        return result;
+      }
+      for(let item of result.data.results){
+        sequenceID++;
+        contactModel = await servicemodels.ContactModel(item);
+        await contactModel.save();
+      }
+      if(!result.data.hasNext)
+        return;
+      updateTime = result.data.obj;
+    }
+    
   }
 
 };

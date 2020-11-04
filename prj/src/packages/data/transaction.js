@@ -1018,6 +1018,20 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async IncrementContact(accessToken, updateTime, sequenceID){
+    let response = await this.commonApi.post(
+      "/api/apps/contacts/v1/increment",
+      {
+        name: "updateContactExtra",
+        updateTime: updateTime,
+        sequenceID: sequenceID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

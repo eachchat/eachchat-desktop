@@ -84,8 +84,12 @@ export default {
 
     },
     methods: {
-        SaveContact(){
-            this.services.AddContact(this.contactInfo);
+        async SaveContact(){
+            if(this.contactInfo.user_id.length == 0)
+                return;
+            await this.services.AddContact(this.contactInfo);
+            await this.services.GetAllContact();
+            this.closeDialog();
         },
 
         closeDialog() {
@@ -103,6 +107,13 @@ export default {
     mounted:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         this.services = global.services.common;
+        this.contactInfo.user_id = '';
+        this.contactInfo.display_name = '';
+        this.contactInfo.mobile = '';
+        this.contactInfo.telephone = '';
+        this.contactInfo.email = '';
+        this.contactInfo.company_name = '';
+        this.contactInfo.title = '';
     },
     
 }

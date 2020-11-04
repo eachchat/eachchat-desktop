@@ -68,7 +68,7 @@ export default {
             userInfoTipKey: 1,
             userInfoPosition: {},
             showChatContactDlg: false,
-            showInputContactDlg: true
+            showInputContactDlg: false
         }
     },
     props:{
@@ -157,6 +157,7 @@ export default {
         CloseInputContactDlg: async function(){
             this.showInputContactDlg = false;
             this.contactList = await Contact.GetAllContact();
+            console.log(this.contactList)
         },
 
         addContact: function(){
@@ -244,6 +245,7 @@ export default {
                 services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
+        
         getAppBaseData:async function() {
             this.contactList = await Contact.GetAllContact();
        },
