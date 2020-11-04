@@ -7,7 +7,7 @@
             <img class="new-chat-content-div-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
-            <div class="normal-chat" @click="showCreateGroup()">
+            <div class="normal-chat" @click.stop="mxCreateRoom()"> <!--showCreateGroup-->
                 <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
@@ -27,6 +27,8 @@
         </el-dialog> -->
         <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
+        <mxCreateRoomDlg v-show="mxCreateRoomOpen" @close="mxCreateRoom">
+        </mxCreateRoomDlg>
         <encryptChatCreater v-show="showencryptChatCreaterDlg" @getCreateGroupInfo="getEncryptCreateGroupInfo" @closeChatCreaterDlg="closeEncryptChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatEncryptCreaterKey">
         </encryptChatCreater>
     </div>
@@ -42,6 +44,7 @@ import {strMsgContentToJson} from '../../packages/core/Utils.js'
 import chatCreaterDlg from './chatCreaterDlg.vue'
 import encryptChatCreater from './encryptChatCreater.vue'
 import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
+import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
 export default {
     name: 'listHeadbar',
     props: {
@@ -64,9 +67,17 @@ export default {
             disabledusers: [],
             showCreateNewChat: false,
             isSecret: false,
+            mxCreateRoomOpen: false
         }
     },
     methods: {
+        mxCreateRoom: function(close) {
+            console.log('???', close)
+            if (close) {
+                return this.mxCreateRoomOpen = false;
+            }
+            this.mxCreateRoomOpen = true;
+        },
         showCreateNewChatDropDown: function() {
             this.showCreateNewChat = true;
             var createNewChatBtnElement = document.getElementById("new-chat-button-id");
@@ -274,7 +285,8 @@ export default {
     components: {
         chatCreaterDlg,
         eSearch,
-        encryptChatCreater
+        encryptChatCreater,
+        mxCreateRoomDlg
     },
     created: async function () {
         await services.common.init();
