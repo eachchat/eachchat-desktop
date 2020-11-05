@@ -33,6 +33,7 @@
         </addContact>
         <InputContactInfo v-show='showInputContactDlg' @closeInputContact="CloseInputContactDlg">
         </InputContactInfo>
+        <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="ClearCache"/>
     </el-container>
 </template>
 <script>
@@ -48,6 +49,8 @@ import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
 import addContact from './add-contact';
 import InputContactInfo from './input-contact-info';
+import AlertDlg from './alert-dlg.vue'
+
 
 export default {
     name: 'contactList',
@@ -56,7 +59,8 @@ export default {
         userInfoContent,
         userInfoTip,
         addContact,
-        InputContactInfo
+        InputContactInfo,
+        AlertDlg
     },
     data () {
         return {
@@ -72,7 +76,10 @@ export default {
             userInfoPosition: {},
             showChatContactDlg: false,
             showInputContactDlg: false,
-            nMouseIndex: -1
+            nMouseIndex: -1,
+            showAlertDlg: false,
+            alertContents : null,
+            deleteContact: null
         }
     },
     props:{
@@ -98,6 +105,7 @@ export default {
                 return false;
             }
         },
+
         showcontactLevelFour: function(){
             if (this.contactList.length >= 4) {
                 return true;
@@ -106,7 +114,8 @@ export default {
                 return false;
             }
         },
-                showcontactLevelFive: function(){
+
+        showcontactLevelFive: function(){
             if (this.contactList.length >= 5) {
                 return true;
             }
@@ -114,7 +123,8 @@ export default {
                 return false;
             }
         },
-                showcontactLevelSix: function(){
+        
+        showcontactLevelSix: function(){
             if (this.contactList.length >= 6) {
                 return true;
             }
@@ -122,7 +132,8 @@ export default {
                 return false;
             }
         },
-                showcontactLevelSeven: function(){
+        
+        showcontactLevelSeven: function(){
             if (this.contactList.length >= 7) {
                 return true;
             }
@@ -130,7 +141,8 @@ export default {
                 return false;
             }
         },
-                showcontactLevelEight: function(){
+        
+        showcontactLevelEight: function(){
             if (this.contactList.length >= 8) {
                 return true;
             }
@@ -138,7 +150,8 @@ export default {
                 return false;
             }
         },
-                showcontactLevelNine: function(){
+        
+        showcontactLevelNine: function(){
             if (this.contactList.length >= 9) {
                 return true;
             }
@@ -148,6 +161,17 @@ export default {
         },
     },
     methods: {
+        CloseAlertDlg: function(){
+            this.showAlertDlg = false;
+        },
+
+        ClearCache: async function(){
+            this.showAlertDlg = false;
+            let ret = await this.services.DeleteContact(this.deleteContact.user_id)
+            if(ret)
+                this.contactList = await Contact.GetAllContact();
+        },
+
         OnMouseLeave: function(){
             this.nMouseIndex = -1;
         },
@@ -157,11 +181,12 @@ export default {
         },
 
         DeleteContact: async function(contact){
-            let ret = await this.services.DeleteContact(contact.user_id)
-            console.log(ret)
-            if(ret)
-                this.contactList = await Contact.GetAllContact();
-            console.log(this.contactList)
+            this.deleteContact = contact;
+            this.showAlertDlg = true;
+            this. alertContents = {
+                "Details": this.$t("DeleteContactAlertTitle") + ' ' + contact.display_name + ' ?',
+                "Abstrace": this.$t("DeleteContactAlertDetail")
+            }
         },
 
         HandleInputContact: function(){
