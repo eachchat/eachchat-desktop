@@ -242,6 +242,30 @@ export default {
             
 
         },
+
+        ShowInfoContent(content){
+            if(content == '' || content == undefined)
+                return '-';
+            return content
+        },
+
+        GetDisplayName: function(displayName, userid){
+            if(displayName == '')
+            {
+                let beginPos = userid.indexOf("@");
+                if(beginPos == -1)
+                    beginPos = 0;
+                else
+                    beginPos++;
+                let endPos = userid.indexOf(":")
+                if(endPos == -1)
+                    endPos = userid.length;
+      
+                return userid.slice(beginPos, endPos)
+            }
+            return displayName
+        },
+
         userMenuItemClicked:async function(id) {
             if (this.showUserInfoTips&&(this.userInfo.id == id) || this.showAlertDlg){
                 this.showUserInfoTips = false;
@@ -255,17 +279,17 @@ export default {
             //get userinfo
             var user = await Contact.GetContactInfo(id);
             tempUserInfo.id = id;
-            tempUserInfo.displayName = user.display_name;
-            tempUserInfo.title = user.title;
-            tempUserInfo.statusDescription = user.status_description;
-            tempUserInfo.workDescription = user.work_description;
+            tempUserInfo.displayName = this.GetDisplayName(user.display_name, id);
+            tempUserInfo.title = this.ShowInfoContent(user.title);
+            tempUserInfo.statusDescription = this.ShowInfoContent(user.status_description);
+            tempUserInfo.workDescription = this.ShowInfoContent(user.work_description);
             tempUserInfo.email = [];
             tempUserInfo.email.push({
-                email_value: user.email
+                email_value: this.ShowInfoContent(user.email)
             })
             tempUserInfo.phone = {
-                mobile: user.telephone,
-                work: user.mobile
+                mobile: this.ShowInfoContent(user.telephone),
+                work: this.ShowInfoContent(user.mobile)
             };
 
             this.userInfo = tempUserInfo;
@@ -339,7 +363,7 @@ export default {
         var that = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname ", e.target.className)
-            if(['manager-name', 'manager-icon'].indexOf(e.target.className) == -1){
+            if(['manager-name', 'manager-icon', 'userInfo-value'].indexOf(e.target.className) == -1){
                 that.showUserInfoTips = false;
             }
             

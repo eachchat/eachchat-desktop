@@ -4,7 +4,7 @@
         <div class="userInfoBaseInfo-view">
             <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.id)">
             <div class="userInfo-baseInfo">
-                <p class="userInfo-name">{{GetDisplayName()}}</p>
+                <p class="userInfo-name">{{ userInfo.displayName }}</p>
                 <p class="userInfo-title">{{ userInfo.title }}</p>
             </div>
         </div>
@@ -17,11 +17,11 @@
             <ul class="userInfoState-list">
                 <li v-if="showStatusDescription" class="userInfo-li">
                     <p class="userInfo-key">个人状态</p>
-                    <p class="userInfo-value">{{ userInfo.statusDescription }}</p>
+                    <input disabled = 'inputEdit' style="border:0" class="userInfo-value" v-model="userInfo.statusDescription">
                 </li>
                 <li v-if="showWorkDescription">
                     <p class="userInfo-key">工作描述</p>
-                    <p class="userInfo-value">{{ userInfo.workDescription }}</p>
+                    <input readonly = 'inputEdit' style="border:0" class="userInfo-value" v-model="userInfo.workDescription">
                 </li>
                 <li v-if="showRelation">
                     <p class="userInfo-key">汇报关系</p>
@@ -30,19 +30,19 @@
                 </li>
                 <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
-                    <p class="userInfo-value">{{ userInfo.department != undefined ? userInfo.department.display_name : '' }}</p>
+                    <input readonly = 'inputEdit' style="border:0" class="userInfo-value" v-model="userInfo.department">
                 </li>
                 <li v-if="showPhone">
                     <p class="userInfo-key">手机</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.mobile }}</p>
+                    <input readonly = 'inputEdit' style="border:0" class="userInfo-phone-value" v-model="userInfo.phone.mobile">
                 </li>
                 <li v-if="showTelephone">
                     <p class="userInfo-key">座机</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.work }}</p>
+                    <input readonly = 'inputEdit' style="border:0" class="userInfo-phone-value" v-model="userInfo.phone.work">
                 </li>
                 <li v-if="showEmail">
                     <p class="userInfo-key">邮箱</p>
-                    <p class="userInfo-email-value">{{ userInfo.email[0].email_value }}</p>
+                    <input readonly = 'inputEdit' style="border:0" class="userInfo-email-value" v-model="userInfo.email[0].email_value">
                 </li>
             </ul>
         </div>
@@ -87,6 +87,7 @@ export default {
     data() {
         return {
             pagePosition: {},
+            inputEdit: false
         }
     },
     props: {
@@ -174,24 +175,6 @@ export default {
         }
     },
     methods: {
-        GetDisplayName: function(){
-            if(this.userInfo.displayName == '')
-            {
-                let userid = this.userInfo.id;
-                let beginPos = userid.indexOf("@");
-                if(beginPos == -1)
-                    beginPos = 0;
-                else
-                    beginPos++;
-                let endPos = userid.indexOf(":")
-                if(endPos == -1)
-                    endPos = userid.length;
-      
-                this.userInfo.displayName = userid.slice(beginPos, endPos)
-            }
-            return this.userInfo.displayName
-        },
-
         jumpToChat: async function() {
             if(this.$route.name == "organization" || this.$route.name == "favourite") {
                 this.$router.push(
@@ -319,7 +302,8 @@ export default {
         }
     },
     created () {
-        console.log(this.userInfo);
+        if(this.userType == 'contact' )
+            this.inputEdit = true;
         var pageWidth = 280;
         var pageHeight = this.getPageHeight();
         var showScreenHeight = document.documentElement.clientHeight;
