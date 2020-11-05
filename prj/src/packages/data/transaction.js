@@ -1034,7 +1034,7 @@ class APITransaction {
     let response = await this.commonApi.post(
       "/api/apps/contacts/v1/increment",
       {
-        name: "updateContactExtra",
+        name: "updateContact",
         updateTime: updateTime,
         sequenceID: sequenceID
       },

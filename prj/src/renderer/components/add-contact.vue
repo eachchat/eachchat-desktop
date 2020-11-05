@@ -111,6 +111,7 @@ export default {
                 avatar_url: row.avatar_url,
             }
             await this.services.AddContact(info);
+            await this.services.GetAllContact();
             this.contacts = await Contact.GetAllContact();
         },
 

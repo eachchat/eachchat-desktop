@@ -2198,6 +2198,8 @@ const common = {
       }
       for(let item of result.data.results){
         sequenceID++;
+        if(item.del == 1)
+          continue;
         contactModel = await servicemodels.ContactModel(item);
         await contactModel.save();
       }
