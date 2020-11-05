@@ -26,7 +26,7 @@
                         </li>
                     </ul>
                 </div>
-                <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"></userInfoContent>
+                <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"  :userType="contactType"></userInfoContent>
             </el-container>
         </el-main>
         <addContact v-show="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact">
@@ -79,7 +79,8 @@ export default {
             nMouseIndex: -1,
             showAlertDlg: false,
             alertContents : null,
-            deleteContact: null
+            deleteContact: null,
+            contactType: 'contact'
         }
     },
     props:{
@@ -242,7 +243,7 @@ export default {
 
         },
         userMenuItemClicked:async function(id) {
-            if (this.showUserInfoTips&&(this.userInfo.id == id) || this.nMouseIndex != -1){
+            if (this.showUserInfoTips&&(this.userInfo.id == id) || this.showAlertDlg){
                 this.showUserInfoTips = false;
                 return;
             }

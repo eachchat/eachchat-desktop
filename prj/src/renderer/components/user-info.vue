@@ -4,7 +4,7 @@
         <div class="userInfoBaseInfo-view">
             <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.id)">
             <div class="userInfo-baseInfo">
-                <p class="userInfo-name">{{ userInfo.displayName }}</p>
+                <p class="userInfo-name">{{GetDisplayName()}}</p>
                 <p class="userInfo-title">{{ userInfo.title }}</p>
             </div>
         </div>
@@ -105,40 +105,57 @@ export default {
         isOwn: {
             type: Boolean,
             default: false
+        },
+
+        userType:{
+            type: String,
+            default: "origanise"
         }
     },
     computed: {
         showStatusDescription: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.statusDescription);
         },
         showWorkDescription: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.workDescription);
         },
         showPhone: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo.phone == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.phone.mobile);
         },
         showTelephone: function (){
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo.phone == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.phone.work);
         },
         showEmail: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo.email == undefined){
                 return false;
             }
             return this.userInfo.email.length > 0;
         },
         showDepartment: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -148,6 +165,8 @@ export default {
             return false;
         },
         showRelation: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -155,6 +174,24 @@ export default {
         }
     },
     methods: {
+        GetDisplayName: function(){
+            if(this.userInfo.displayName == '')
+            {
+                let userid = this.userInfo.id;
+                let beginPos = userid.indexOf("@");
+                if(beginPos == -1)
+                    beginPos = 0;
+                else
+                    beginPos++;
+                let endPos = userid.indexOf(":")
+                if(endPos == -1)
+                    endPos = userid.length;
+      
+                this.userInfo.displayName = userid.slice(beginPos, endPos)
+            }
+            return this.userInfo.displayName
+        },
+
         jumpToChat: async function() {
             if(this.$route.name == "organization" || this.$route.name == "favourite") {
                 this.$router.push(
