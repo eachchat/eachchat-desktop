@@ -50,7 +50,8 @@ const commonData = {
   maxSecretGroupUpdateTime: 0,
   maxSecretMsgSequenceID: 0,
   aseEncryption:  new AESEncrypt(),
-  orgValue: ""
+  orgValue: "",
+  accessToken: ''
 
 }; // model in here
 
@@ -328,6 +329,7 @@ const common = {
     let base64UserID = Base64.encode(userID, true);
     await Config.SetLoginInfo(base64UserID, this.data.orgValue);
     await models.init();
+    this.accessToken = localStorage.getItem("mx_access_token");
     return;
 
 
@@ -2167,8 +2169,7 @@ const common = {
   },
 
   async AddContact(contactInfo){
-    let access_token = localStorage.getItem("mx_access_token");
-    let result = await this.api.AddContact(access_token, 
+    let result = await this.api.AddContact(this.accessToken, 
                                           contactInfo.user_id,
                                           true,
                                           contactInfo.display_name,
@@ -2186,13 +2187,12 @@ const common = {
   },
 
   async GetAllContact(){
-    let access_token = localStorage.getItem("mx_access_token");
     let result;
     let updateTime = await Contact.GetMaxUpdateTime();
     let sequenceID = 0;
     let contactModel;
     while(1){
-      result = await this.api.IncrementContact(access_token, updateTime, sequenceID);
+      result = await this.api.IncrementContact(this.accessToken, updateTime, sequenceID);
       if (!result.ok || !result.success) {
         return result;
       }
@@ -2205,7 +2205,16 @@ const common = {
         return;
       updateTime = result.data.obj;
     }
-    
+  },
+
+  async DeleteContact(matrixID){
+    let result = await this.api.DeleteContact(this.accessToken, matrixID);
+    console.log(result)
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await Contact.DeleteContact(matrixID);
+    return true;
   }
 
 };

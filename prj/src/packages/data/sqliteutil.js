@@ -802,6 +802,15 @@ const Contact = {
         if(contacts.length != 0)
             return contacts[0];
         return null;
+    },
+
+    async DeleteContact(id){
+        let contacts = await (await models.Contact).find(
+            {
+                user_id: id
+            });
+        if(contacts.length != 0)
+            await contacts[0].destroy();
     }
 }
 

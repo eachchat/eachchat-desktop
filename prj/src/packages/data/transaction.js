@@ -1019,6 +1019,17 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async DeleteContact(accessToken, matrixID){
+    var response = await this.commonApi.delete(
+      "/api/apps/contacts/v1/contact",
+      {
+        Authorization: "Bearer " + accessToken
+      },{
+        data:{matrixId: matrixID}
+      });
+    return this.parseStatus(response);
+  }
+
   async IncrementContact(accessToken, updateTime, sequenceID){
     let response = await this.commonApi.post(
       "/api/apps/contacts/v1/increment",

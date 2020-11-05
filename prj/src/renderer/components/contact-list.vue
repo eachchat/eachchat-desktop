@@ -13,13 +13,16 @@
                     <ul class="managers-list">
                         <li class="manager"
                             v-for="(user, index) in contactList"
-                            @click="userMenuItemClicked(user.user_id)" 
+                            @click="userMenuItemClicked(user.user_id)"
+                            @mouseover="OnMouseOver(index)"
+                            @mouseleave="OnMouseLeave(index)"
                             :key="index">
                             <img ondragstart="return false" class="manager-icon" :id="user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="manager-info">
                                 <p class="manager-name">{{ user.display_name }}</p>
                                 <p class="manager-title">{{ user.user_id }}</p>
                             </div>
+                            <button class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)">删除</button>
                         </li>
                     </ul>
                 </div>
@@ -68,7 +71,8 @@ export default {
             userInfoTipKey: 1,
             userInfoPosition: {},
             showChatContactDlg: false,
-            showInputContactDlg: false
+            showInputContactDlg: false,
+            nMouseIndex: -1
         }
     },
     props:{
@@ -144,6 +148,22 @@ export default {
         },
     },
     methods: {
+        OnMouseLeave: function(){
+            this.nMouseIndex = -1;
+        },
+
+        OnMouseOver: function(obj){
+            this.nMouseIndex = obj;
+        },
+
+        DeleteContact: async function(contact){
+            let ret = await this.services.DeleteContact(contact.user_id)
+            console.log(ret)
+            if(ret)
+                this.contactList = await Contact.GetAllContact();
+            console.log(this.contactList)
+        },
+
         HandleInputContact: function(){
             this.showInputContactDlg = true;
             this.showChatContactDlg = false;
@@ -197,7 +217,7 @@ export default {
 
         },
         userMenuItemClicked:async function(id) {
-            if (this.showUserInfoTips&&(this.userInfo.id == id)){
+            if (this.showUserInfoTips&&(this.userInfo.id == id) || this.nMouseIndex != -1){
                 this.showUserInfoTips = false;
                 return;
             }
@@ -278,6 +298,7 @@ export default {
         }
     },
     created: async function() {
+        this.services = global.services.common;
         await this.getAppBaseData();
         /*
         setTimeout(() => {
@@ -399,7 +420,7 @@ display: none;
     cursor: pointer;
 }
 .contact-view {
-    width: 280px;
+    width: 90%;
     height: 100%;
     //display: flex;
     flex-direction: column;
@@ -507,12 +528,25 @@ display: none;
     margin-bottom: 10px;
     border-radius: 4px;
 }
+
 .manager-info {
     display: inline-block;
     vertical-align: top;
     height: 100%;
     width: calc(100% - 120px);
 }
+
+.delete-button{
+    display: inline-block;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    vertical-align: top;
+    background: white;
+    border-radius:4px;
+    border:1px solid rgba(221,221,221,1);
+    font-family: PingFangSC-Regular;
+}
+
 .manager-name {
     height: 20px;
     width: 100%;
