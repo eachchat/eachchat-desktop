@@ -203,7 +203,7 @@ export default {
                     userIconElement.setAttribute("src", reader.result);
                 }
             }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+                this.services.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
         

@@ -182,23 +182,6 @@ export default {
             this.$router.push("/main/setup")
         },
         getAppBaseData:async function() {
-            // Init services
-            // let config = {
-            //     hostname: "139.198.15.253",
-            //     apiPort: 8888,
-            // };
-            // services.common.init(config);
-            // Set accessToken in services
-/*
-            this.loginInfo = await services.common.GetLoginModel();
-            this.curUserInfo = await services.common.GetSelfUserModel();
-            services.common.InitDbData();
-            var ret = await services.common.GetAllGroups()
-            console.log("the init user id is ,", this.curUserInfo.id)
-            confservice.init(this.curUserInfo.id);
-            this.$store.commit("setUserId", this.curUserInfo.id)
-            console.log("lognInfo is ", this.loginInfo);
-*/
             const userId = window.localStorage.getItem("mx_user_id");
             confservice.init(userId);
             this.$store.commit("setUserId", userId)
@@ -206,20 +189,6 @@ export default {
             
             this.curindex = 0;
             this.showCurUserIcon();
-            // Get data from server and set in database
-            // UserInfo
-            // await services.common.AllUserinfo();
-            // var userInfos = await services.common.GetAllUserinfo();
-            // for (var i = 0; i < userInfos.length; i++) {
-            //     console.log(userInfos[i].user_name);
-            // }
-            
-            // DepartmentInfo
-            // await services.common.AllDepartmentInfo();
-            // var departmentInfos = await services.common.GetAllDepartmentsModel();
-            // for (var i = 0; i < departmentInfos.length; i++) {
-            //     console.log(departmentInfos[i].displayName);
-            // }
         },
         async menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;
@@ -324,7 +293,7 @@ export default {
         },
         startCheckUpgrade: function() {
             async function checkUpgrade(self) {
-                var newVersion = await services.common.GetNewVersion();
+                var newVersion = await this.services.GetNewVersion();
                 console.log("newversion is ", newVersion);
                 if(newVersion == undefined)
                 {
@@ -352,7 +321,7 @@ export default {
         },
         startRefreshToken: function() {
             async function refreshToken(self) {
-                services.common.refreshToken();
+               
             }
             setTimeout(() => {
                 refreshToken(this);
