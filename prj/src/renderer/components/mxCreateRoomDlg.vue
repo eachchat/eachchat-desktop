@@ -150,7 +150,7 @@ export default {
             // set some defaults for the creation
             const createOpts = opts.createOpts || {};
             createOpts.preset = createOpts.preset || defaultPreset;
-            createOpts.visibility = createOpts.visibility || Visibility.Private;
+            createOpts.visibility = createOpts.visibility || "private";
             if (opts.dmUserId && createOpts.invite === undefined) {
                 switch (getAddressType(opts.dmUserId)) {
                     case 'mx-user-id':
@@ -199,7 +199,7 @@ export default {
             }
 
             console.log('---createOpts---', createOpts);
-            return client.createRoom(createOpts).then(function(res) {
+            return client.createRoom(createOpts).then((res) => {
                 console.log('create success!!', res);
                 this.$emit('nextStep', res);
             })

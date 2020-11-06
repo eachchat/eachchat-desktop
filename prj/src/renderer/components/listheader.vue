@@ -27,11 +27,19 @@
         </el-dialog> -->
         <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
-        <mxCreateRoomDlg v-if="mxCreateRoomOpen" @close="mxCreateRoom" @nextStep="mxCreateRoomNextStep"> 
-        </mxCreateRoomDlg>
         <encryptChatCreater v-show="showencryptChatCreaterDlg" @getCreateGroupInfo="getEncryptCreateGroupInfo" @closeChatCreaterDlg="closeEncryptChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatEncryptCreaterKey">
         </encryptChatCreater>
-        <mxMemberSelectDlg></mxMemberSelectDlg>
+        <mxMemberSelectDlg 
+            v-if="mxSelectMemberOpen" 
+            @close="mxSelectMember"
+            :roomId="newRoomId"
+        >
+        </mxMemberSelectDlg>
+        <mxCreateRoomDlg 
+            v-if="mxCreateRoomOpen" 
+            @close="mxCreateRoom" 
+            @nextStep="mxCreateRoomNextStep">
+        </mxCreateRoomDlg>
     </div>
 </template>
 
@@ -71,10 +79,16 @@ export default {
             isSecret: false,
             mxCreateRoomOpen: false,
             mxSelectMemberOpen: false,
+            newRoomId: ''
         }
     },
     methods: {
+        mxSelectMember: function() {
+            this.mxSelectMemberOpen = false;
+        },
         mxCreateRoomNextStep: function(res) {
+            console.log('--mxCreateRoomNextStep--', res);
+            this.newRoomId = res.room_id;
             this.mxCreateRoomOpen = false;
             this.mxSelectMemberOpen = true;
         },

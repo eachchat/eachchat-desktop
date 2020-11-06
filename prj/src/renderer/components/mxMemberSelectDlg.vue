@@ -108,9 +108,9 @@ export default {
         },
         invite: function() {
             if (this.busy) return;
-            this.busy = ture;
+            this.busy = true;
             const vtx = this;
-            const targetIds = choosenMember.map(t => t.user_id);
+            const targetIds = this.choosenMember.map(t => t.user_id);
             const client = window.mxMatrixClientPeg.matrixClient;
             const roomId = this.roomId;
             const room = client.getRoom(this.roomId);
@@ -122,7 +122,10 @@ export default {
             targetIds.forEach(id => {
                 promises.push(vtx.inviteConduct(roomId, id));
             })
-            Promise.all(promises);
+            Promise.all(promises).then(() => {
+                vtx.busy = false;
+                vtx.close();
+            });
         },
         removeMember: function(item) {
             let id = item.user_id;
