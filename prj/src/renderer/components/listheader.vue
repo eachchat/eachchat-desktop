@@ -27,10 +27,11 @@
         </el-dialog> -->
         <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
-        <mxCreateRoomDlg v-show="mxCreateRoomOpen" @close="mxCreateRoom">
+        <mxCreateRoomDlg v-if="mxCreateRoomOpen" @close="mxCreateRoom" @nextStep="mxCreateRoomNextStep"> 
         </mxCreateRoomDlg>
         <encryptChatCreater v-show="showencryptChatCreaterDlg" @getCreateGroupInfo="getEncryptCreateGroupInfo" @closeChatCreaterDlg="closeEncryptChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatEncryptCreaterKey">
         </encryptChatCreater>
+        <mxMemberSelectDlg></mxMemberSelectDlg>
     </div>
 </template>
 
@@ -45,6 +46,7 @@ import chatCreaterDlg from './chatCreaterDlg.vue'
 import encryptChatCreater from './encryptChatCreater.vue'
 import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
 import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
+import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 export default {
     name: 'listHeadbar',
     props: {
@@ -67,10 +69,15 @@ export default {
             disabledusers: [],
             showCreateNewChat: false,
             isSecret: false,
-            mxCreateRoomOpen: false
+            mxCreateRoomOpen: false,
+            mxSelectMemberOpen: false,
         }
     },
     methods: {
+        mxCreateRoomNextStep: function(res) {
+            this.mxCreateRoomOpen = false;
+            this.mxSelectMemberOpen = true;
+        },
         mxCreateRoom: function(close) {
             console.log('???', close)
             if (close) {
@@ -286,7 +293,8 @@ export default {
         chatCreaterDlg,
         eSearch,
         encryptChatCreater,
-        mxCreateRoomDlg
+        mxCreateRoomDlg,
+        mxMemberSelectDlg
     },
     created: async function () {
         await services.common.init();

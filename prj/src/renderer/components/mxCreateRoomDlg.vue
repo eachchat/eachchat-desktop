@@ -1,6 +1,6 @@
 <template>
     <div class="wrap-layer" >
-        <div class="mx-create-room-dialog" v-show="matrixSync">
+        <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">发起群聊</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close">
@@ -131,6 +131,7 @@ export default {
         },
         createRoom: function() {
             let opts = this._roomCreateOptions();
+            const vtx = this;
             if (opts.spinner === undefined) opts.spinner = true;
             if (opts.guestAccess === undefined) opts.guestAccess = true;
             if (opts.encryption === undefined) opts.encryption = false;
@@ -200,6 +201,7 @@ export default {
             console.log('---createOpts---', createOpts);
             return client.createRoom(createOpts).then(function(res) {
                 console.log('create success!!', res);
+                this.$emit('nextStep', res);
             })
 
             // let modal;
@@ -295,6 +297,9 @@ export default {
     ::-webkit-scrollbar {
         /*隐藏滚轮*/
         display: none;
+    }
+    input:focus{
+        outline:none;
     }
     .wrap-layer {
         height: 100%;
