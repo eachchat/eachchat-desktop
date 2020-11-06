@@ -19,7 +19,7 @@
                             :key="index">
                             <img ondragstart="return false" class="manager-icon" :id="user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="manager-info">
-                                <p class="manager-name">{{ user.display_name }}</p>
+                                <p class="manager-name">{{ GetDisplayName(user.display_name, user.user_id) }}</p>
                                 <p class="manager-title">{{ user.user_id }}</p>
                             </div>
                             <button class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)">删除</button>
