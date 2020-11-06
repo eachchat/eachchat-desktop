@@ -88,78 +88,8 @@ export default {
             type:Object
         }
     },
-    computed: {
-        showcontactLevelTwo: function(){
-            if (this.contactList.length >= 2) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        
-        showcontactLevelThree: function(){
-            if (this.contactList.length >= 3) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
+    computed: {                      
 
-        showcontactLevelFour: function(){
-            if (this.contactList.length >= 4) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-
-        showcontactLevelFive: function(){
-            if (this.contactList.length >= 5) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        
-        showcontactLevelSix: function(){
-            if (this.contactList.length >= 6) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        
-        showcontactLevelSeven: function(){
-            if (this.contactList.length >= 7) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        
-        showcontactLevelEight: function(){
-            if (this.contactList.length >= 8) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        
-        showcontactLevelNine: function(){
-            if (this.contactList.length >= 9) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
     },
     methods: {
         CloseAlertDlg: function(){
@@ -210,39 +140,7 @@ export default {
             this.showChatContactDlg = true;
             console.log("addContact")
         },
-        departmentMenuItemClicked:async function(department, level) {
-
-
-
-            var id = department.department_id;
-            var name = department.display_name;
-
-            var departmentModels = await Department.GetSubDepartment(id);
-            var tempDepartments = [];
-            // for(var i = 0; i < departmentModels.length; i ++){
-            //     tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-            // }
-            var contact = {};
-            contact.departments = departmentModels.sort(this.compare("show_order")); //tempDepartments;
-            contact.users = await UserInfo.GetSubUserinfo(id);
-            if (level == this.contactList.length - 1) {
-                this.contactList.push(contact);
-            }else {
-                this.contactList.splice(level + 1, this.contactList.length - level - 1);
-                this.contactList.push(contact);
-            }
-            
-            this.$nextTick(function(){
-                var element = document.getElementById("contact-main-container");
-                element.scroll(element.offsetWidth,0);
-                for(var i = 0; i < contact.users.length; i ++){
-                    this.getUserImg(contact.users[i]);
-                }
-            });
-            
-
-        },
-
+        
         ShowInfoContent(content){
             if(content == '' || content == undefined)
                 return '-';
@@ -350,16 +248,7 @@ export default {
     created: async function() {
         this.services = global.services.common;
         await this.getAppBaseData();
-        /*
-        setTimeout(() => {
-        this.$nextTick(function(){
-            var users = this.contactList[0].users;
-            for(var i = 0; i < users.length; i ++){
-                this.getUserImg(users[i]);
-            }
-        });
-        }, 0);
-        */
+
         var that = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname ", e.target.className)
@@ -372,35 +261,10 @@ export default {
             }            
         });
         return;
-
-        const ipcRenderer = require('electron').ipcRenderer;
-        ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
 }
 </script>
 <style lang="scss" scoped>
-// ::-webkit-scrollbar-track-piece {
-//     background-color: #F1F1F1;
-//     border-radius: 10px;
-// }
-
-// ::-webkit-scrollbar {
-//     width: 8px;
-//     height: 12px;
-// }
-
-// ::-webkit-scrollbar-thumb {
-//     height: 50px;
-//     background-color: #C1C1C1;
-//     border-radius: 10px;
-//     outline: none;
-// }
-
-// ::-webkit-scrollbar-thumb:hover {
-//     height: 50px;
-//     background-color: #A8A8A8;
-//     border-radius: 10px;
-// }
 ::-webkit-scrollbar {
 /*隐藏滚轮*/
 display: none;
@@ -457,21 +321,7 @@ display: none;
         padding: 0px;
     }
 }
-.contact-view-one {
-    width: 100%;
-    height: 100%;
-    min-width: 280px;
-    //display: flex;
-    flex-direction: column;
-    //border-right: 0.5px solid rgb(221, 221, 221);
-    overflow-y: scroll;
-    overflow-x: hidden;
-    // ::-webkit-scrollbar-track {ß
-    //     border-radius: 10px;
-    // }
-    margin: 0px;
-    cursor: pointer;
-}
+
 .contact-view {
     width: 90%;
     height: 100%;
@@ -487,47 +337,8 @@ display: none;
     margin: 0px;
     cursor: pointer;
 }
-.departments-view {
-    width: 100%;
-    
-    margin: 0px;
-    //background-color: orange;
-}
-.managers-view {
-    width: 100%;
-    
-    margin: 0px;
-    //background-color: red;
-}
-.users-view {
-    width: 100%;
-    
-    margin: 0px;
-    //background-color: blue;
-}
-.managers-header {
-    width: 100%;
-    height: 32px;
-    padding-top: 10px;
-    padding-left: 16px;
-    background:rgba(247,248,250,1);
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: 1px;
-}
-.users-header {
-    width: 100%;
-    height: 28px;
-    padding-top: 10px;
-    padding-left: 16px;
-    background:rgba(247,248,250,1);
-    color:rgba(102,102,102,1);
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: 1px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-}
+
+
 .managers-list {
     width: 100%;
     height: 100%;
@@ -562,15 +373,7 @@ display: none;
     background:rgba(243,244,247,1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
 }
-.department-icon {
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    margin-left: 16px;
-    margin-top: 10px;
-    margin-right: 0px;
-    margin-bottom: 10px;
-}
+
 .manager-icon {
     width: 40px;
     height: 40px;
