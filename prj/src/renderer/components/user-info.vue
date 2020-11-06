@@ -17,11 +17,11 @@
             <ul class="userInfoState-list">
                 <li v-if="showStatusDescription" class="userInfo-li">
                     <p class="userInfo-key">个人状态</p>
-                    <input disabled = 'inputEdit' style="border:0" class="userInfo-value" v-model="userInfo.statusDescription">
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.statusDescription">
                 </li>
                 <li v-if="showWorkDescription">
                     <p class="userInfo-key">工作描述</p>
-                    <input readonly = 'inputEdit' style="border:0" class="userInfo-value" v-model="userInfo.workDescription">
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.workDescription">
                 </li>
                 <li v-if="showRelation">
                     <p class="userInfo-key">汇报关系</p>
@@ -30,19 +30,19 @@
                 </li>
                 <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
-                    <input readonly = 'inputEdit' style="border:0" class="userInfo-value" v-model="userInfo.department">
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department">
                 </li>
                 <li v-if="showPhone">
                     <p class="userInfo-key">手机</p>
-                    <input readonly = 'inputEdit' style="border:0" class="userInfo-phone-value" v-model="userInfo.phone.mobile">
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.mobile">
                 </li>
                 <li v-if="showTelephone">
                     <p class="userInfo-key">座机</p>
-                    <input readonly = 'inputEdit' style="border:0" class="userInfo-phone-value" v-model="userInfo.phone.work">
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.work">
                 </li>
                 <li v-if="showEmail">
                     <p class="userInfo-key">邮箱</p>
-                    <input readonly = 'inputEdit' style="border:0" class="userInfo-email-value" v-model="userInfo.email[0].email_value">
+                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.email[0].email_value">
                 </li>
             </ul>
         </div>
@@ -82,12 +82,14 @@ import * as fs from 'fs-extra'
 import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
+import { functions } from 'electron-log'
 export default {
     name: 'user-info',
     data() {
         return {
             pagePosition: {},
-            inputEdit: false
+            inputEdit: true,
+            services: null
         }
     },
     props: {
@@ -113,10 +115,16 @@ export default {
             default: "origanise"
         }
     },
+    watch:{
+        userInfo: function(){
+            console.log(this.userInfo)
+        }
+    },
+
     computed: {
         showStatusDescription: function() {
             if(this.userType == 'contact')
-                return true;
+                return false;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -124,7 +132,7 @@ export default {
         },
         showWorkDescription: function() {
             if(this.userType == 'contact')
-                return true;
+                return false;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -302,8 +310,9 @@ export default {
         }
     },
     created () {
+        this.services = global.services.common;
         if(this.userType == 'contact' )
-            this.inputEdit = true;
+            this.inputEdit = false;
         var pageWidth = 280;
         var pageHeight = this.getPageHeight();
         var showScreenHeight = document.documentElement.clientHeight;
@@ -327,6 +336,16 @@ export default {
         this.$nextTick(function(){
             this.getUserImg(this.userInfo);
         });
+    },
+
+    destroyed(){
+        this.services.UpdateContact(this.userInfo.id,
+                                    this.userInfo.displayName,
+                                    this.userInfo.email[0].email_value,
+                                    this.userInfo.phone.mobile,
+                                    this.userInfo.phone.work,
+                                    this.userInfo.department,
+                                    this.userInfo.title);
     }
 }
 </script>

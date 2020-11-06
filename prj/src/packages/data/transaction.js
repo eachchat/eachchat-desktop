@@ -1043,6 +1043,31 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async UpdateContact(accessToken,
+                      matrixID,
+                      remarkName,
+                      email,
+                      mobile,
+                      telephone,
+                      company,
+                      title){
+    var response = await this.commonApi.patch(
+      "/api/apps/contacts/v1/contact/extra",
+      {
+        matrixId: matrixID,
+        remarkName: remarkName,
+        email: email,
+        mobile: mobile,
+        telephone: telephone,
+        company: company,
+        title: title
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 class MQTTTransaction {}

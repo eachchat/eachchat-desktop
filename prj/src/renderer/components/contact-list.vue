@@ -363,10 +363,13 @@ export default {
         var that = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname ", e.target.className)
-            if(['manager-name', 'manager-icon', 'userInfo-value'].indexOf(e.target.className) == -1){
+            if(['manager-name', 'manager-icon'].indexOf(e.target.className) == -1){
                 that.showUserInfoTips = false;
             }
-            
+            if(e.target.className.indexOf('userInfo') != -1)
+            {
+                that.showUserInfoTips = true;
+            }            
         });
         return;
 

@@ -2217,6 +2217,34 @@ const common = {
     }
     await Contact.DeleteContact(matrixID);
     return true;
+  },
+
+  async UpdateContact(matrixID,
+                      remarkName,
+                      email,
+                      mobile,
+                      telephone,
+                      company,
+                      title){
+    let result = await this.api.UpdateContact(this.accessToken,
+                                              matrixID,
+                                              remarkName,
+                                              email,
+                                              mobile,
+                                              telephone,
+                                              company,
+                                              title);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await Contact.UpdateContact(matrixID,
+                                remarkName,
+                                email,
+                                mobile,
+                                telephone,
+                                company,
+                                title);
+    return true;
   }
 
 };

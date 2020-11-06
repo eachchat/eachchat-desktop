@@ -811,6 +811,29 @@ const Contact = {
             });
         if(contacts.length != 0)
             await contacts[0].destroy();
+    },
+
+    async UpdateContact(matrixID,
+                        remarkName,
+                        email,
+                        mobile,
+                        telephone,
+                        company,
+                        title){
+        let contacts = await (await models.Contact).find(
+            {
+                user_id: matrixID
+            });
+        if(contacts.length != 0)
+        {
+            contacts[0].display_name = remarkName;
+            contacts[0].email = email;
+            contacts[0].mobile = mobile;
+            contacts[0].telephone = telephone;
+            contacts[0].company = company;
+            contacts[0].title = title;
+            contacts[0].save();
+        }
     }
 }
 
