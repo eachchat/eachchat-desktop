@@ -142,8 +142,8 @@ export default {
         },
         
         ShowInfoContent(content){
-            if(content == '' || content == undefined)
-                return '-';
+            if(content == undefined)
+                return '';
             return content
         },
 

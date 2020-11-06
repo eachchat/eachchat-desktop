@@ -152,7 +152,6 @@ ipcMain.on("token-expired", function(event, arg) {
     if(process.platform == 'darwin'){
       app.dock.setBadge("");
     }
-    // services.common.closemqtt();
     Menu.setApplicationMenu(null)
     queue.destory();
     mainWindow.hide();
