@@ -51,7 +51,6 @@ const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
-import {getAddressType} from "../../utils/UserAddress";
 export default {
     name: 'mxMemberSelectDlg',
     props: ['roomId'],
