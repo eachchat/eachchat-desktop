@@ -2194,6 +2194,7 @@ const common = {
     while(1){
       result = await this.api.IncrementContact(this.accessToken, updateTime, sequenceID);
       if (!result.ok || !result.success) {
+        await Contact.DeleteAllContact();
         return result;
       }
       for(let item of result.data.results){

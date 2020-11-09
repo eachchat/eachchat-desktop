@@ -780,6 +780,10 @@ const Contact = {
         return await (await models.Contact).find()
     },
 
+    async DeleteAllContact(){
+        await(await models.Contact).truncate();
+    },
+
     async GetMaxUpdateTime(){
         let contacts = await (await models.Contact).find(
             {
