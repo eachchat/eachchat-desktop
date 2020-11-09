@@ -292,6 +292,7 @@ export default {
             this.personalCenterKey ++;
         },
         startCheckUpgrade: function() {
+            return;
             async function checkUpgrade(self) {
                 var newVersion = await global.services.common.GetNewVersion();
                 console.log("newversion is ", newVersion);
@@ -351,10 +352,10 @@ export default {
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
-        global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
-        global.mxMatrixClientPeg.matrixClient.startClient();
+        await global.mxMatrixClientPeg.matrixClient.startClient();
         global.services.common.gmsConfiguration();
         await global.services.common.login()
+        await global.services.common.AllUserinfo();
         await global.services.common.GetAllContact();
 
         const ctx = this;
@@ -363,6 +364,7 @@ export default {
             case "PREPARED":
             //   console.clear();
             //   ctx.matrixSync = true;
+                global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
               this.$store.dispatch('syncPrepare');
               console.log('matrix sync prepared.');
               break;

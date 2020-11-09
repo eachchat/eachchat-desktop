@@ -1947,6 +1947,7 @@ export default {
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
+    return;
     await services.common.initmqtt();
     services.common.handlemessage(this.callback);
     if(this.amr == null){

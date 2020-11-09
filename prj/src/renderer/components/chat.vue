@@ -2470,7 +2470,7 @@ s        },
     },
     created: async function() {
         this.loginInfo = undefined;//await services.common.GetLoginModel();
-        this.curUserInfo = await services.common.GetSelfUserModel();
+        //this.curUserInfo = await services.common.GetSelfUserModel();
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         // console.log("===============mqttinit")

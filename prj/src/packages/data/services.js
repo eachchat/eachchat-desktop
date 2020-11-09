@@ -632,7 +632,7 @@ const common = {
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
     
-    return await this.api.getUserinfo(this.data.login.access_token, filters, perPage, sortOrder, sequenceId);
+    return await this.api.getUserinfo(this.accessToken, filters, perPage, sortOrder, sequenceId);
   },
 
   async refreshToken() {
