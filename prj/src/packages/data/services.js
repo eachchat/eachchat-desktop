@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret, Contact} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret, Contact, Department} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -419,7 +419,8 @@ const common = {
   },
 
   async UpdateDepartment(){
-    let updateTime = await sqliteutil.GetMaxDepartmentUpdatetime(this.data.selfuser.id);
+    let updateTime = await Department.GetMaxDeparmentUpdateTime();
+    console.log("max Department updatetime is "+ updateTime)
     if(updateTime == 0)
       await this.AllDepartmentInfo();
     else

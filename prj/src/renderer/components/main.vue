@@ -357,6 +357,7 @@ export default {
         await global.services.common.login()
         await global.services.common.UpdateUserinfo();
         await global.services.common.GetAllContact();
+        await global.services.common.UpdateDepartment();
 
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
