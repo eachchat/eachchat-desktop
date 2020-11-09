@@ -355,7 +355,7 @@ export default {
         await global.mxMatrixClientPeg.matrixClient.startClient();
         global.services.common.gmsConfiguration();
         await global.services.common.login()
-        await global.services.common.AllUserinfo();
+        await global.services.common.UpdateUserinfo();
         await global.services.common.GetAllContact();
 
         const ctx = this;

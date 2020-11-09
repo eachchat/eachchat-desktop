@@ -163,6 +163,7 @@ var models = {
         index: 'userinfo',
         fields: {
           user_id:                  types.string,
+          matrix_id:                types.string,
           belong_to_department_id:  types.string,
           user_name:                types.string,
           user_display_name:        types.string,

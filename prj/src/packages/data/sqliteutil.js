@@ -276,6 +276,19 @@ const Department = {
 };
 
 const UserInfo = {
+    async GetMaxUpdateTime(){
+        let userinfos = await(await models.UserInfo).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(userinfos.length == 0)
+            return 0;
+        return userinfos[0].updatetime;
+    },
+        
     async GetAllUserInfo(){
         let userinfos = await(await models.UserInfo).find({
 

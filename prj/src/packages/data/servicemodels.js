@@ -120,6 +120,7 @@ const servicemodels = {
     async UsersModel(useritem){
       var userinfovalue={
         user_id:                  undefined,
+        matrix_id:                undefined,
         belong_to_department_id:  undefined,
         user_name:                undefined,
         user_display_name:        undefined,
@@ -145,7 +146,8 @@ const servicemodels = {
   
       var userinfomap = 
       {
-        "id":                 "user_id",                
+        "id":                 "user_id",     
+        "matrixId":           "matrix_id",           
         "departmentId":       "belong_to_department_id", 
         "userName":           "user_name",               
         "displayName":        "user_display_name",       

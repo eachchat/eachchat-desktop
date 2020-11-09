@@ -330,6 +330,9 @@ const common = {
     await Config.SetLoginInfo(base64UserID, this.data.orgValue);
     await models.init();
     this.accessToken = localStorage.getItem("mx_access_token");
+    this.data.login = {
+      access_token: this.accessToken
+    }
     return;
 
 
@@ -424,7 +427,8 @@ const common = {
   },
 
   async UpdateUserinfo(){
-    let updateTime = await sqliteutil.GetMaxUserUpdatetime(this.data.selfuser.id);
+    let updateTime = await UserInfo.GetMaxUpdateTime();
+    console.log("max updatetime in userinfo is "+ updateTime)
     if(updateTime == 0)
       await this.AllUserinfo();
     else
@@ -619,20 +623,12 @@ const common = {
         await userImModel.save();
       }
     }while(result.data.total > index);
-    var foundUsers = await(await models.User).find({
-      id: this.data.login.user_id
-    });
-    if(foundUsers.length == 0){
-      return true;
-    }
-    foundUsers[0].user_max_updatetime = updateTime;
-    foundUsers[0].save();
     return true;
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
     
-    return await this.api.getUserinfo(this.accessToken, filters, perPage, sortOrder, sequenceId);
+    return await this.api.getUserinfo(this.data.login.access_token, filters, perPage, sortOrder, sequenceId);
   },
 
   async refreshToken() {
@@ -2169,7 +2165,7 @@ const common = {
   },
 
   async AddContact(contactInfo){
-    let result = await this.api.AddContact(this.accessToken, 
+    let result = await this.api.AddContact(this.data.login.access_token, 
                                           contactInfo.user_id,
                                           true,
                                           contactInfo.display_name,
@@ -2192,7 +2188,7 @@ const common = {
     let sequenceID = 0;
     let contactModel;
     while(1){
-      result = await this.api.IncrementContact(this.accessToken, updateTime, sequenceID);
+      result = await this.api.IncrementContact(this.data.login.access_token, updateTime, sequenceID);
       if (!result.ok || !result.success) {
         await Contact.DeleteAllContact();
         return result;
@@ -2211,7 +2207,7 @@ const common = {
   },
 
   async DeleteContact(matrixID){
-    let result = await this.api.DeleteContact(this.accessToken, matrixID);
+    let result = await this.api.DeleteContact(this.data.login.access_token, matrixID);
     console.log(result)
     if (!result.ok || !result.success) {
       return false;
@@ -2227,7 +2223,7 @@ const common = {
                       telephone,
                       company,
                       title){
-    let result = await this.api.UpdateContact(this.accessToken,
+    let result = await this.api.UpdateContact(this.data.login.access_token,
                                               matrixID,
                                               remarkName,
                                               email,
