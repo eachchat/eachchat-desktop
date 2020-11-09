@@ -11,9 +11,9 @@
                 <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
-            <div class="secret-chat" @click="showCreateEncryptGroup(true)">
-                <img class="secret-chat-img" src="../../../static/Img/Main/create-secret-chatnor-20px@2x.png">
-                <span class="secret-chat-label">发起密聊</span>
+            <div class="secret-chat" @click.stop="mxSquare()"> <!--@click="showCreateEncryptGroup(true)"-->
+                <img class="secret-chat-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
+                <span class="secret-chat-label">加入群聊</span> <!--发起密聊-->
             </div>
         </div>
         <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
@@ -40,6 +40,11 @@
             @close="mxCreateRoom" 
             @nextStep="mxCreateRoomNextStep">
         </mxCreateRoomDlg>
+        <mxSquareDlg 
+            v-if="mxSquareOpen"
+            @close="mxSquare" 
+        >
+        </mxSquareDlg>
     </div>
 </template>
 
@@ -55,6 +60,9 @@ import encryptChatCreater from './encryptChatCreater.vue'
 import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
 import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
+import mxSquareDlg from './mxSquareDlg.vue'
+
+
 export default {
     name: 'listHeadbar',
     props: {
@@ -79,10 +87,18 @@ export default {
             isSecret: false,
             mxCreateRoomOpen: false,
             mxSelectMemberOpen: false,
-            newRoomId: ''
+            newRoomId: '',
+            mxSquareOpen: false
         }
     },
     methods: {
+        mxSquare: function(close) {
+            console.log('???', close)
+            if (close) {
+                return this.mxSquareOpen = false;
+            }
+            this.mxSquareOpen = true;
+        },
         mxSelectMember: function() {
             this.mxSelectMemberOpen = false;
         },
@@ -308,7 +324,8 @@ export default {
         eSearch,
         encryptChatCreater,
         mxCreateRoomDlg,
-        mxMemberSelectDlg
+        mxMemberSelectDlg,
+        mxSquareDlg
     },
     created: async function () {
         await services.common.init();
