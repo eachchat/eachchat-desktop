@@ -293,7 +293,7 @@ export default {
         },
         startCheckUpgrade: function() {
             async function checkUpgrade(self) {
-                var newVersion = await this.services.GetNewVersion();
+                var newVersion = await global.services.common.GetNewVersion();
                 console.log("newversion is ", newVersion);
                 if(newVersion == undefined)
                 {
