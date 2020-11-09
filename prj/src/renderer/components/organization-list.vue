@@ -2,17 +2,9 @@
     <el-container>
         <el-header height="56px" class="organization-header">
             <p class="organization-header-title">{{ headerTitle }}</p>
-            <!-- <el-breadcrumb separator="/">
-                <el-breadcrumb-item v-for="(item, index) in breadCrumbs" :key="index">
-                    <a href="javascript:void(0)" 
-                    @click="departmentBreadCrumbsClicked(item.id, item.name, index)">
-                    {{ item.name }}</a>
-                </el-breadcrumb-item>
-            </el-breadcrumb> -->
         </el-header>
         <el-main>
             <el-container class="bottom-container" id="organization-main-container">
-                
                     <div class="organization-view-one">
                         <div class="departments-view" v-show="organizationList[0].departments.length">
                             <ul class="departments-list">
@@ -43,19 +35,6 @@
                                     </div>
                                 </div>
                             </RecycleScroller>
-                            <!-- <ul class="managers-list">
-                                <li class="manager"
-                                    v-for="(manager, index) in organizationList[0].users"
-                                    @click="userMenuItemClicked(manager.user_id)" 
-                                    
-                                    :key="index">
-                                    <img ondragstart="return false" class="manager-icon" :id="manager.user_id" src="../../../static/Img/User/user-40px@2x.png">
-                                    <div class="manager-info">
-                                        <p class="manager-name">{{ manager.user_display_name }}</p>
-                                        <p class="manager-title">{{ manager.user_title }}</p>
-                                    </div>
-                                </li>
-                            </ul> -->
                         </div>
                     </div>
                 
@@ -364,14 +343,6 @@
                     </div>
                 </div>
                 <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"></userInfoContent> 
-                <!-- <userInfoTip v-show="showUserInfoTips" :tipInfos="userInfo" :key="userInfoTipKey"></userInfoTip> -->
-            <!-- <div class="userInfo-view" v-if="showUserInfoDrawer">
-                
-                
-                <yidrawer :showTitle = "false" :display.sync="showUserInfoDrawer" :inner="true" width="336px" :closable="true">
-                    
-                </yidrawer>
-            </div> -->
             </el-container>
         </el-main>
     </el-container>
@@ -379,7 +350,6 @@
 <script>
 import * as path from 'path'
 import * as fs from 'fs-extra'
-//import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
@@ -573,50 +543,8 @@ export default {
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
             this.showUserInfoTips = true;
-/*
-            for (var i = 0; i < this.users.length; i ++) {
-                var user = this.users[i];
-                if(user.user_id == id) {
-                    
-                    tempUserInfo.id = user.user_id;
-                    tempUserInfo.avatarTUrl = user.avatar_t_url;
-                    tempUserInfo.displayName = user.user_display_name;
-                    tempUserInfo.title = user.user_title;
-                    tempUserInfo.statusDescription = user.status_description;
-                    tempUserInfo.workDescription = user.work_description;
-                    tempUserInfo.managerId = user.manager_id;
-                    tempUserInfo.departmentId = user.belong_to_department_id;
-
-
-                    break;
-                }
-            }
-            for (var i = 0; i < this.allDepartments.length; i ++) {
-                var department = this.allDepartments[i];
-                if(department.department_id == tempUserInfo.departmentId){
-                    tempUserInfo.department = department;
-                    break;
-                }
-                
-            }
-            for (var i = 0; i < this.allEmails.length; i ++) {
-                var email = this.allEmails[i];
-                if(email.owner_user_id == id) {
-                    tempUserInfo.email = email;
-                    break;
-                }
-            }
-            for (var i = 0; i < this.allPhones.length; i ++) {
-                var phone = this.allPhones[i];
-                if(phone.owner_user_id == id) {
-                    tempUserInfo.phone = phone;
-                    break;
-                }
-            }*/
-
         },
         getUserImg: async function (userInfo){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(userInfo.user_id == undefined || userInfo == null) {
                 return "";
             }
@@ -706,28 +634,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-// ::-webkit-scrollbar-track-piece {
-//     background-color: #F1F1F1;
-//     border-radius: 10px;
-// }
 
-// ::-webkit-scrollbar {
-//     width: 8px;
-//     height: 12px;
-// }
-
-// ::-webkit-scrollbar-thumb {
-//     height: 50px;
-//     background-color: #C1C1C1;
-//     border-radius: 10px;
-//     outline: none;
-// }
-
-// ::-webkit-scrollbar-thumb:hover {
-//     height: 50px;
-//     background-color: #A8A8A8;
-//     border-radius: 10px;
-// }
 ::-webkit-scrollbar {
 /*隐藏滚轮*/
 display: none;
