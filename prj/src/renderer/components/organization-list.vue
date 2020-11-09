@@ -500,17 +500,11 @@ export default {
         //     this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
         // },
         departmentMenuItemClicked:async function(department, level) {
-
-
-
             var id = department.department_id;
             var name = department.display_name;
 
             var departmentModels = await Department.GetSubDepartment(id);
             var tempDepartments = [];
-            // for(var i = 0; i < departmentModels.length; i ++){
-            //     tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-            // }
             var organization = {};
             organization.departments = departmentModels.sort(this.compare("show_order")); //tempDepartments;
             organization.users = await UserInfo.GetSubUserinfo(id);
@@ -643,26 +637,16 @@ export default {
             }
         },
         getAppBaseData:async function() {
-            //this.parentInfo.display_name = "组织"
-            
-            //if (this.parentInfo.department_id == undefined){
-            //    return;
-            //}
-            var departmentModels = [];
-            departmentModels.push({
-               display_name : "青云" 
-            })
-            departmentModels.push({
-               display_name : "爱工作" 
-            })
- 
-            var tempUsers = [];
-            tempUsers.push({
-                display_name: "长三"
-            })
-            tempUsers.push({
-                display_name: "李四"
-            })
+            var rootDepartment = await Department.GetRoot();
+            console.log(rootDepartment);
+            var departments = await Department.GetSubDepartment(rootDepartment.department_id);
+            console.log(departments);
+            var tempDepartments = departments;
+            tempDepartments.sort(this.compare("show_order"));
+            this.departments = tempDepartments;
+            var departmentModels = await Department.GetSubDepartment(rootDepartment.department_id);
+            var tempDepartments = [];           
+            var tempUsers = await UserInfo.GetSubUserinfo(rootDepartment.department_id);
 
             var organization = {};
             organization.departments = departmentModels;//tempDepartments;

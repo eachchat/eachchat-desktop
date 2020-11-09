@@ -233,7 +233,6 @@ export default {
             this.showSearchUserInfoTips = true;
         },
         getOrganizationBaseData:async function() {
-            
             var departments = [];
             departments.push({
                 display_name: this.$t("organizeMenuName"),
@@ -241,11 +240,6 @@ export default {
             departments.push({
                 display_name: this.$t("contactMenuName")
             })
-            // for(var i = 0; i < departments.length; i ++){
-                
-            //     //tempDepartments[departments[i].show_order] = departments[i];
-            // }
-            
             this.departments = departments;
             this.currentDepartment = this.departments[0];
             this.organizationListTimer = new Date().getTime();
