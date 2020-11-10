@@ -271,16 +271,11 @@ export default {
             }
         },
         showCurUserIcon: async function() {
-            return;
             var elementImg = document.getElementById("userHead");
-            // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
-
-            var targetPath = "";
-            // console.log("===========this.curUserInfo.avatar_minimal ", this.curUserInfo.avatar_minimal)
-            // targetPath = path.join(confservice.getEachChatFilesDir(), this.curUserInfo.id);
-            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.curUserInfo.id, targetPath))) {
-                elementImg.setAttribute("src", targetPath);
-            }
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
+            // console.log("==========showcurusericon ", avaterUrl);
+            elementImg.setAttribute("src", avaterUrl);
         },
         personalCenterClicked:async function(){
             if(this.showPersonalCenter){
@@ -375,7 +370,7 @@ export default {
         })
         //this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
-            // this.showCurUserIcon();
+            this.showCurUserIcon();
         }) 
         var _this = this;
         document.addEventListener('click',function(e){
