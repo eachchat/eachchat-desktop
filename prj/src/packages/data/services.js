@@ -449,7 +449,6 @@ const common = {
     if(this.mqttclient != undefined && this.mqttclient.connected) {
       return;
     }
-    return;
     let bClose = false;
     let httpValue;
     if(this.config.mqttTls)
@@ -461,11 +460,11 @@ const common = {
     this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttHost + ':' + this.config.mqttPort,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.id + '|' + hostname,
+                                      clientId: this.data.login.matrix_id + '|' + hostname,
                                       keepalive: 10,
                                       reconnectPeriod: 0});
 
-    let userid = this.data.selfuser.id;
+    let userid = this.data.login.matrix_id;
     let servers = this;
     let mqttclient = this.mqttclient;    
     let api = this.api;
@@ -1971,7 +1970,7 @@ const common = {
     this.config.apiPort = 8888;
     this.config.hostTls = 0;
     this.config.mqttHost = "139.198.15.253";
-    this.config.mqttPort = 8888;
+    this.config.mqttPort = 1883;
     this.config.mqttTls = 1;
     return true;
     /*

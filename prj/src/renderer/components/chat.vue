@@ -2438,6 +2438,7 @@ s        },
             matrixClient: undefined,
             mxRoomDlg: false,
             mxChat: false,
+            services: null
         }
     },
     mounted: function() {
@@ -2473,10 +2474,7 @@ s        },
         //this.curUserInfo = await services.common.GetSelfUserModel();
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
-        // console.log("===============mqttinit")
-        // services.common.initmqtt();
-        // services.common.handlemessage(this.callback);
-
+        this.services = global.services.common;
     },
     computed: {
         messageListShow: {
