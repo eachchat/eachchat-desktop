@@ -192,8 +192,7 @@ export default {
             
 
         },
-        userMenuItemClicked:async function(id) {
-            
+        userMenuItemClicked:async function(id) {  
             if (this.showUserInfoTips&&(this.userInfo.id == id)){
                 this.showUserInfoTips = false;
                 return;

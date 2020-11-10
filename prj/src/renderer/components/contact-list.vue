@@ -43,7 +43,7 @@ import * as fs from 'fs-extra'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
-import {UserInfo, Contact} from '../../packages/data/sqliteutil.js'; 
+import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
@@ -176,6 +176,11 @@ export default {
             var tempUserInfo = {};
             //get userinfo
             var user = await Contact.GetContactInfo(id);
+            let userInfo = await UserInfo.GetUserInfoByMatrixID(user.user_id)
+            let department = {display_name:""};
+            if(userInfo)
+                department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
+            tempUserInfo.department = department;
             tempUserInfo.id = id;
             tempUserInfo.displayName = this.GetDisplayName(user.display_name, id);
             tempUserInfo.title = this.ShowInfoContent(user.title);
