@@ -96,9 +96,22 @@ export default {
             //this.display = false;
             this.$emit("closeInputContact", "");
         },
+
+        calcImgPosition() {
+            var showScreenHeight = document.documentElement.clientHeight;
+            var showScreenWidth = document.documentElement.clientWidth;
+            var left = (showScreenWidth - this.imgWidth) / 2;
+            var top = (showScreenHeight - this.imgHeight) / 2;
+            var ret = {
+                "left": left,
+                "top": top
+            }
+            return ret;
+        }
     },
     components: {
     },
+
     created() {
         var showPosition = this.calcImgPosition();
         this.dlgPosition.left = showPosition.left.toString() + "px";
