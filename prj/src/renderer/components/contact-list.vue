@@ -22,7 +22,7 @@
                                 <p class="manager-name">{{ GetDisplayName(user.display_name, user.user_id) }}</p>
                                 <p class="manager-title">{{ user.user_id }}</p>
                             </div>
-                            <button class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)">删除</button>
+                            <el-button icon="el-icon-delete" circle class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)"></el-button>
                         </li>
                     </ul>
                 </div>
@@ -371,7 +371,6 @@ display: none;
 }
 .manager {
     height: 60px;
-    border-bottom: 1px solid  #987cb9;
 }
 .manager:hover {
     height: 60px;
@@ -399,7 +398,7 @@ display: none;
 
 .delete-button{
     display: inline-block;
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 10px;
     vertical-align: top;
     background: white;
