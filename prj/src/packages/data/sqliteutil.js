@@ -290,6 +290,15 @@ const UserInfo = {
         return userinfos;
     },
 
+    async GetUserInfoByMatrixID(matrixID){
+        let userinfos = await(await models.UserInfo).find({
+            matrix_id: matrixID
+        })
+        if(userinfos.length != 0)
+            return userinfos[0];
+        return undefined;
+    },
+
     async GetUserInfo(userID){
         let userinfos = await(await models.UserInfo).find({
             user_id: userID

@@ -25,12 +25,11 @@
                 </li>
                 <li v-if="showRelation">
                     <p class="userInfo-key">汇报关系</p>
-                    <!-- <p class="userInfo-value">查看</p> -->
                     <p class="userInfo-report-value" @click="reportRelationClicked()">查看</p>
                 </li>
                 <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
-                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department">
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name">
                 </li>
                 <li v-if="showPhone">
                     <p class="userInfo-key">手机</p>
@@ -46,34 +45,6 @@
                 </li>
             </ul>
         </div>
-        <!-- <div class="userOrganizationInfo-view" v-show="showOrganizationView">
-            <ul class="userOrganization-list">
-                <li v-show="showRelation">
-                    <p class="userInfo-key">汇报关系</p>
-                    <p class="userInfo-value">查看</p>
-                </li>
-                <li v-show="showDepartment">
-                    <p class="userInfo-key">所属部门</p>
-                    <p class="userInfo-value">{{ userInfo.department.display_name }}</p>
-                </li>
-            </ul>
-        </div> -->
-        <!-- <div class="userContact-view" v-show="showContractView">
-            <ul class="userContact-list">
-                <li v-show="showPhone">
-                    <p class="userInfo-key">手机号</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.phone_value }}</p>
-                </li>
-                <li v-show="showPhone">
-                    <p class="userInfo-key">固话</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.phone_value }}</p>
-                </li>
-                <li v-show="showEmail">
-                    <p class="userInfo-key">电子邮箱</p>
-                    <p class="userInfo-value">{{ userInfo.email.email_value }}</p>
-                </li>
-            </ul>
-        </div> -->
     </div>
 </template>
 <script>
@@ -194,7 +165,7 @@ export default {
                     })
             }
             else {
-                this.curUserInfo = await services.common.GetSelfUserModel();
+                this.curUserInfo = await this.services.GetSelfUserModel();
                 console.log("JumpToChat")
                 var groupItem = {};
                 console.log("userInfos is ", this.userInfo);
@@ -251,7 +222,7 @@ export default {
 
         },
         reportRelationClicked:async function() {
-            this.curUserInfo = await services.common.GetSelfUserModel();
+            this.curUserInfo = await this.services.GetSelfUserModel();
             var tempUserinfo = this.userInfo;
             tempUserinfo.curUserInfo = this.curUserInfo;
             const ipcRender = require('electron').ipcRenderer;

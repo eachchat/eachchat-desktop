@@ -258,7 +258,7 @@ export default {
                     userIconElement.setAttribute("src", reader.result);
                 }
             }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+                global.services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
         getAppBaseData:async function() {

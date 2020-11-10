@@ -88,24 +88,7 @@ const common = {
   },
 
   async GetSelfUserModel(){
-    if(this.data.login == undefined)
-      return;
-    var foundUsers = await(await models.User).find({
-      id: this.data.login.user_id
-    });
-    if(foundUsers.length == 0){
-      return;
-    }
-    this.data.selfuser = foundUsers[0];
-    if(this.config.hostname == undefined){
-      this.config.hostname = foundUsers[0].entry_host;
-      this.config.apiPort = foundUsers[0].entry_port;
-      this.config.hostTls = foundUsers[0].entry_tls;
-      this.config.mqttHost = foundUsers[0].mqtt_host;
-      this.config.mqttPort = foundUsers[0].mqtt_port;
-      this.config.mqttTls = foundUsers[0].mqtt_tls;
-    }
-    return this.data.selfuser;
+    return await UserInfo.GetUserInfoByMatrixID(this.data.login.matrix_id);
   },
 
   async GetDistUserinfo(uid){
@@ -331,6 +314,7 @@ const common = {
     await models.init();
     this.accessToken = localStorage.getItem("mx_access_token");
     this.data.login = {
+      matrix_id: userID,
       access_token: this.accessToken
     }
     return;
