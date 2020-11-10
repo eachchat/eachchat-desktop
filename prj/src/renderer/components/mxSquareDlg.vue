@@ -48,7 +48,18 @@ export default {
     },
     methods: {
         joinRoom: function(room) {
-            console.log('---joinRoom---', room)
+            const client = window.mxMatrixClientPeg.matrixClient;
+            let publicRooms = this.publicRooms;
+            client.joinRoom(room.room_id).then(obj => {
+                console.log('--加入成功--', obj) //obj.roomId
+                publicRooms = publicRooms.map(p => {
+                    if (p.room_id == obj.roomId) {
+                        p.joined = true;
+                    }
+                    return p;
+                })
+                this.publicRooms = [...publicRooms];
+            })
         },
         getMoreRooms: function() {
             const client = window.mxMatrixClientPeg.matrixClient;
@@ -91,11 +102,7 @@ export default {
                 console.log('---rooms----', rooms)
                 chunk = chunk.map(c => {
                     let r = client.getRoom(c.room_id)
-                    if (r) {
-                        c.joined = true;
-                        return c;
-                    }
-                    c.joined = false;
+                    if (r) c.joined = true;
                     return c;
                 })
 
