@@ -167,7 +167,7 @@ export default {
                     userIconElement.setAttribute("src", reader.result);
                 }
             }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+                global.services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
         searchUserMenuItemClicked:async function(id) {
@@ -182,7 +182,7 @@ export default {
             console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            var selfUser = await services.common.GetSelfUserModel();
+            var selfUser = await global.services.common.GetSelfUserModel();
             console.log("is owner is ", this.isOwn);
             if(id == selfUser.id) {
                 this.isOwn = true;
@@ -253,15 +253,6 @@ export default {
 
         recentUsersMenuItemClicked:async function() {
             this.dialogVisible = true;
-            /*
-            if (this.showRecentUsersMenuItem) {
-                this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
-            }else {
-                this.recentUsers = await services.common.GetRecentUsers();
-                this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
-            }
-            this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
-            */
         },
         msgContentHightLight: function(curMsg) {
             var showContent = curMsg;

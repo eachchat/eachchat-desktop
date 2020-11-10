@@ -118,9 +118,6 @@ class DepartmentIncrement extends BaseIncrement{
                 findDepartment.values = departmentModel.values;
                 findDepartment.save();
             }
-            sqliteutil.UpdateMaxDepartmentUpdatetime(this.service.data.selfuser.id, departmentModel.updatetime);
-            this.service.data.login.department_max_updatetime = departmentModel.updatetime;
-
         }
         else{
             console.log("unknow clientIncrement:" + this.type);

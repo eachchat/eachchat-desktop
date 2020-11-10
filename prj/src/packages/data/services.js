@@ -397,9 +397,7 @@ const common = {
 
   async InitDbData()
   {
-    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateSecretMessage(), this.UpdateUserinfo(), this.UpdateDepartment()])
-    //await this.UpdateMessages();
-    //await this.ListAllCollections();
+    Promise.all([this.GetAllContact(), this.UpdateUserinfo(), this.UpdateDepartment()])
   },
 
   async UpdateDepartment(){

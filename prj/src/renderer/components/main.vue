@@ -256,6 +256,7 @@ export default {
             var id = args[2];
             var localPath = args[3];
             var elementImg = document.getElementById("userHead");
+            return;
             if(id != this.curUserInfo.id) {
                 return;
             }
@@ -350,9 +351,7 @@ export default {
         await global.mxMatrixClientPeg.matrixClient.startClient();
         global.services.common.gmsConfiguration();
         await global.services.common.login()
-        await global.services.common.UpdateUserinfo();
-        await global.services.common.GetAllContact();
-        await global.services.common.UpdateDepartment();
+        global.services.common.InitDbData();
 
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
