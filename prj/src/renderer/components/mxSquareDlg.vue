@@ -5,7 +5,21 @@
                 <div class="mxCreaterHeaderTitle">查看公共群聊</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close">
             </div>
-            
+            <div class="search-field">
+                <div class="search-logo">
+                    <i class="el-icon-search"></i>
+                </div>
+                <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="请输入群组名或群组ID">
+            </div>
+            <div class="room-list">
+                <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
+                    <img class="room-img"/>
+                    <div class="room-info">{{item.name}}</div>
+                    <div class="room-info">人数：{{item.num_joined_members}}</div>
+                    <div class="room-join" @click.stop="joinRoom(item)" v-if="!item.joined">加入</div>
+                    <div class="room-join" v-else style="background-color:grey">已加入</div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -26,10 +40,102 @@ export default {
             isPublic:false,
             commu: false,
             isEncrypted: false,
-            alias: ''
+            alias: '',
+            roomText: '',
+            publicRooms: [],
+            loading: false
         }
     },
     methods: {
+        joinRoom: function(room) {
+            console.log('---joinRoom---', room)
+        },
+        getMoreRooms: function() {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const my_filter_string = this.filterString//this.state.filterString;
+            const my_server = window.mxMatrixClientPeg.getHomeserverName(); //this.state.roomServer;
+            //remember the next batch token when we sent the request
+            //too. If it's changed, appending to the list will corrupt it.
+            const my_next_batch = this.nextBatch;
+            const opts = {limit: 20};
+            // if (my_server != window.mxMatrixClientPeg.getHomeserverName()) {
+            //     console.log('服务器不匹配？？')
+            //     opts.server = my_server;
+            // }
+            if (this.instanceId === "ALL_ROOMS") {
+                opts.include_all_networks = true;
+            } else if (this.instanceId) {
+                opts.third_party_instance_id = this.instanceId;
+            }
+            if (this.nextBatch) opts.since = this.nextBatch;
+            if (my_filter_string) opts.filter = { generic_search_term: my_filter_string };
+            return client.publicRooms().then((data) => {
+                // if (
+                //     my_filter_string != this.state.filterString ||
+                //     my_server != this.state.roomServer ||
+                //     my_next_batch != this.nextBatch) {
+                //     // if the filter or server has changed since this request was sent,
+                //     // throw away the result (don't even clear the busy flag
+                //     // since we must still have a request in flight)
+                //     return;
+                // }
+
+                // if (this._unmounted) {
+                //     // if we've been unmounted, we don't care either.
+                //     return;
+                // }
+                console.log('>>>>>check data>>>>>>', data);
+                this.nextBatch = data.next_batch;
+                let chunk = data.chunk;
+                let rooms = client.getRooms();
+                console.log('---rooms----', rooms)
+                chunk = chunk.map(c => {
+                    let r = client.getRoom(c.room_id)
+                    if (r) {
+                        c.joined = true;
+                        return c;
+                    }
+                    c.joined = false;
+                    return c;
+                })
+
+                this.publicRooms.push(...chunk);
+                // this.setState((s) => {
+                //     s.publicRooms.push(...(data.chunk || []));
+                //     s.loading = false;
+                //     return s;
+                // });
+                // return Boolean(data.next_batch);
+            }, (err) => {
+                // if (
+                //     my_filter_string != this.state.filterString ||
+                //     my_server != this.state.roomServer ||
+                //     my_next_batch != this.nextBatch) {
+                //     // as above: we don't care about errors for old
+                //     // requests either
+                //     return;
+                // }
+
+                // if (this._unmounted) {
+                //     // if we've been unmounted, we don't care either.
+                //     return;
+                // }
+
+                console.error("Failed to get publicRooms: %s", JSON.stringify(err));
+                // track('Failed to get public room list');
+                // const brand = SdkConfig.get().brand;
+                // this.setState({
+                //     loading: false,
+                //     error: (
+                //         _t('%(brand)s failed to get the public room list.', { brand }) +
+                //         (err && err.message) ? err.message : _t('The homeserver may be unavailable or overloaded.')
+                //     ),
+                // });
+            });
+        },
+        searchRoom: function() {
+
+        },
         close: function() {
             this.$emit('close', 'close');
         },
@@ -240,7 +346,8 @@ export default {
                     vtx.isEncrypted = vtx.privateShouldBeEncrypted()
                     client.doesServerForceEncryptionForPreset("private")
                         .then(isForced => vtx.canChangeEncryption = !isForced);
-                    console.log(333)
+                    console.log(333, window.mxMatrixClientPeg.getHomeserverName())
+                    vtx.getMoreRooms();
                 }
             },
             immediate: true
@@ -261,6 +368,34 @@ export default {
     }
     input:focus{
         outline:none;
+    }
+    .room-list {
+        flex: 1;
+        margin: 28px;
+        box-sizing: border-box;
+        overflow-y: scroll;
+    }
+    .search-logo {
+        height: 32px;
+        width: 32px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #fff;
+    }
+    .search-input {
+        flex: 1;
+        height: 32px;
+        box-sizing: border-box;
+        border: none;
+    }
+    .search-field {
+        display: flex;
+        height: 32px;
+        padding: 4px 8px;
+        background-color: #fff;
+        margin-left: 28px;
+        margin-right: 28px;
     }
     .wrap-layer {
         height: 100%;
@@ -283,11 +418,12 @@ export default {
         margin-top: -312px;
         margin-left: -234px;
         border-radius: 8px;
+        display: flex;
+        flex-direction: column;
     }
 
     .mxCreaterHeader {
         height: 56px;
-        background: rgba(255, 255, 255, 1);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -387,5 +523,38 @@ export default {
         height: 80%;
         border: none;
         width: 40%;
+    }
+    .room-item {
+        height: 72px;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        box-sizing: border-box;
+        background-color: #fff;
+        width: 100%;
+    }
+    .room-img {
+        height: 40px;
+        width: 40px;
+        margin-right: 12px;
+    }
+    .room-info {
+        margin-right: 24px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 80px;
+    }
+    .room-join {
+        height: 24px;
+        width: 60px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        background-color: #459ad0;   
+        margin-left: 160px;
+        font-size: 12px;
     }
 </style>

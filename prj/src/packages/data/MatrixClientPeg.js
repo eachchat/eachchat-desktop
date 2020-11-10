@@ -286,6 +286,15 @@ class _MatrixClientPeg{
           console.log(event.event.content.body)
         })
     }
+
+    getHomeserverName() {
+      const matches = /^@.+:(.+)$/.exec(this.matrixClient.credentials.userId);
+        if (matches === null || matches.length < 1) {
+            throw new Error("Failed to derive homeserver name from user ID!");
+        }
+        return matches[1];
+    }
+
 }
 
 if (!window.mxMatrixClientPeg) {
