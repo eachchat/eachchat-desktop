@@ -552,36 +552,12 @@ export default {
                 return this.messageContent = "不支持的消息类型，请升级客户端。"
             }
         },
-        MsgBelongUserName: function() {
-            var UserName = '';
-            if(this.msg === null) {
-                return '';
-            }
-            else {
-                var res = this.$store.getters.getChatUserName(this.msg.message_from_id);
-                return res;
-            }
-        },
         MsgIsMine:function() {
             if(this.msg.sender.userId === this.$store.state.userId) {
                 return true;
             }
             else {
                 return false;
-            }
-        },
-        getMsgBelongUserImg: function() {
-            if(this.msg != undefined) {
-                var targetPath = confservice.getUserThumbHeadLocalPath(this.msg.message_from_id);
-                if(fs.existsSync(targetPath)) {
-                    return targetPath;
-                }
-                else {
-                    return "../../../static/Img/User/user-40px@2x.png";
-                }
-            }
-            else {
-                return "../../../static/Img/User/user-40px@2x.png";
             }
         },
         MsgBelongUserImg: async function () {
@@ -604,8 +580,13 @@ export default {
                 userNameElement.innerHTML = fromUserName;
             }
                 
+            var userUrl = await this.msg.sender.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), 40, 40, undefined, false, false);
+            
             if(this.userIconElement == undefined) {
                 return;
+            }
+            if(userUrl != undefined) {
+                this.userIconElement.setAttribute("src", userUrl);
             }
             /*
             // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
