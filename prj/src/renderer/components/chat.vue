@@ -2512,6 +2512,8 @@ s        },
     props: ['chat', 'newMsg', 'toBottom'],
     watch: {
         chat: function() {
+            this.inviterInfo = undefined;
+            this.isInvite = false;
             this.curGroupId = this.chat.roomId;
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);

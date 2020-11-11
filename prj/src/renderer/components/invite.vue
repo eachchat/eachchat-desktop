@@ -23,6 +23,7 @@ export default {
     },
     watch: {
         inviter: async function() {
+            if(this.inviter == undefined) return;
             console.log("=============this inviter is ",this.inviter);
             if(this.imgElement == undefined) {
                 this.imgElement = document.getElementById("InviterImageId");

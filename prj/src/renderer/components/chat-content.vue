@@ -264,6 +264,22 @@ export default {
         this.$nextTick(() => {
           this.showGroupIcon();
         })
+        global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', async (event, member) => {
+            console.log("join room:" + member.roomId);
+            console.log("event is ", event);
+            console.log("member is ", member);
+            setTimeout(() => {
+              this.showGroupList = [];
+              global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+                if(r.getMyMembership() != "LEAVE") {
+                  this.showGroupList.push(r);
+                }
+              })
+              this.$nextTick(() => {
+                this.showGroupIcon();
+              })
+            }, 1000)
+        })
       }
     }
   },
