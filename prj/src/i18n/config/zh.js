@@ -24,6 +24,7 @@ const zh = {
     upload: "上传",
     or: "或者",
     cancel: "取消",
+    confirm: "确定",
     invalidRecoveryKey: "无效的回复密钥",
     recoveryKeyLooksGood: "看起来不错",
     organizeMenuName: "组织",
@@ -33,7 +34,10 @@ const zh = {
     contactLabel:"使用昵称、用户名或Matrix ID搜索联系人",
     inputContactDlgName: '添加Matrix ID',
     DeleteContactAlertTitle: "确认删除联系人",
-    DeleteContactAlertDetail: "删除联系人"
+    DeleteContactAlertDetail: "删除联系人",
+    inviteTitle: "是否接受邀请",
+    inviteContent: "邀请你接受聊天",
+
 }
 
 export default zh;

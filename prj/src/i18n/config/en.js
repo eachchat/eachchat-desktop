@@ -23,7 +23,8 @@ const en = {
     continue: "继续",
     upload: "上传",
     or: "或者",
-    cancel: "取消",
+    cancel: "Cancel",
+    confirm: "Confirm",
     invalidRecoveryKey: "无效的回复密钥",
     recoveryKeyLooksGood: "看起来不错",
     organizeMenuName: "组织",
@@ -33,8 +34,9 @@ const en = {
     contactLabel:"使用昵称、用户名或Matrix ID搜索联系人",
     inputContactDlgName: '添加Matrix ID',
     DeleteContactAlertTitle: "确认删除联系人",
-    DeleteContactAlertDetail: "删除联系人"
-
+    DeleteContactAlertDetail: "删除联系人",
+    inviteTitle: "Do you want to chat with: ",
+    inviteContent: "wants to chat",
 }
 
 export default en;

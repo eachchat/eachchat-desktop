@@ -119,7 +119,7 @@
           <div class="win-header">
             <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
           </div>
-          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip"></ChatPage>
+          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @forceUpdateGroupList="forceUpdateGroupList"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -253,10 +253,18 @@ export default {
       }
     },
     matrixSync: function() {
-      if (this.matrixSync) this.showGroupList = global.mxMatrixClientPeg.matrixClient.getRooms();
-      this.$nextTick(() => {
-        this.showGroupIcon();
-      })
+      if (this.matrixSync) {
+        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+          console.log("this is ", r);
+          console.log("r.getMyMembership() ", r.getMyMembership());
+          if(r.getMyMembership() != "LEAVE") {
+            this.showGroupList.push(r);
+          }
+        })
+        this.$nextTick(() => {
+          this.showGroupIcon();
+        })
+      }
     }
   },
   computed: {
@@ -1066,7 +1074,7 @@ export default {
       const notifBadges = notificationCount;// > 0 && shouldShowNotifBadge(roomNotifState);
       const mentionBadges = highlight;// && shouldShowMentionBadge(roomNotifState);
       if(notifBadges == undefined){
-        if(this._isDMInvite(chatItem)) {
+        if(chatItem.getMyMembership() == "invite") {
           chatItem.un_read_count = 1;
         }
       }
@@ -1223,11 +1231,12 @@ export default {
     },
     getShowMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline.length == 0){
-        if(this._isDMInvite(chatGroupItem)) {
+        if(chatGroupItem.getMyMembership() == "invite") {
           var inviteMemer = this._getInviteMember(chatGroupItem);
           return "[邀请]：" + inviteMemer.rawDisplayName;
         }
       };
+      console.log("cur chat group is ", chatGroupItem);
       var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
       
       let event = distTimeLine.event;
@@ -1308,27 +1317,31 @@ export default {
       //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
-    updateGroupList: async function() {
-        let matrixClient = global.mxMatrixClientPeg;
-        console.clear();
-        var ret = matrixClient.getRooms();
-        for(let i=0;i<ret.length;i++) {
-          if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
-            continue;
-          }
-          for(let j=0;j<this.showGroupList.length;j++) {
-            if((this.showGroupList[j].group_id != undefined && this.showGroupList[j].group_id.length != 0 && this.showGroupList[j].group_id == ret[i].group_id) 
-            || (this.showGroupList[j].user_id != undefined && this.showGroupList[j].user_id.length != 0 && this.showGroupList[j].user_id == ret[i].user_id)){
-              this.showGroupList[j] = ret[i];
-              if(this.showGroupList[j].un_read_count != ret[i].un_read_count) {
-                var tmp = ret[i].un_read_count - this.showGroupList[j].un_read_count;
-                this.unreadCount = this.unreadCount + tmp;
-              }
-            }
-          }
+    forceUpdateGroupList: function(distGroupId) {
+      console.log("dist id ", distGroupId);
+      for(var i=0;i<this.showGroupList.length;i++) {
+        console.log("this.showid ", this.showGroupList[i].roomId);
+        if(this.showGroupList[i].roomId == distGroupId) {
+          console.log("delete some one");
+          this.showGroupList.splice(i, 1);
+          this.isEmpty = true;
         }
-        // this.showGroupList = ret;
-        // console.log("length is ", ret)
+      }
+      this.$nextTick(() => {
+        this.showGroupIcon();
+      })
+    },
+    updateGroupList: async function() {
+      for(var i=0;i<this.showGroupList.length;i++) {
+        console.log("this is ", this.showGroupList[i]);
+        console.log("this.showGroupList[i].getMyMembership() ", this.showGroupList[i].getMyMembership());
+        if(this.showGroupList[i].getMyMembership() == "LEAVE") {
+          this.showGroupList.splice(i, 1);
+        }
+      }
+      this.$nextTick(() => {
+        this.showGroupIcon();
+      })
     },
     compare: function() {
       return function(a, b)
@@ -1729,8 +1742,6 @@ export default {
         console.log("the matrix client is ", global.mxMatrixClientPeg)
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
     })
-    console.log("check $store", this.$store);
-    console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
 
     if(this.unreadCount < 0) {
       this.unreadCount = 0;

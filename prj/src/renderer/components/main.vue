@@ -188,7 +188,7 @@ export default {
             this.$router.push("/main/ChatContent");
             
             this.curindex = 0;
-            this.showCurUserIcon();
+            // this.showCurUserIcon();
         },
         async menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;

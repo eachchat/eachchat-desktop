@@ -19,7 +19,8 @@
             </div>
         </div>
         <div class="chat-main" id="chat-main">
-            <div class="chat-main-message" id="message-show">
+            <Invite class="chat-invite" :inviter="inviterInfo" @joinRoom="joinRoom" @rejectRoom="rejectRoom" v-show="isInvite"></Invite>
+            <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
                     <li class="msg-loading" v-show="isRefreshing" v-bind:key="123">
@@ -39,7 +40,7 @@
                 <!-- </ul> -->
                 </transition-group>
             </div>
-            <div class="chat-input" id="chat-input-id" v-show="!multiSelect">
+            <div class="chat-input" id="chat-input-id" v-show="!multiSelect && !isInvite">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
                         <Faces v-show="showFace" id="face-box-id" @click="showFace = true" class="faces-box" @insertFace="insertFace"></Faces>
@@ -63,7 +64,8 @@
                         ref="chatQuillEditor"
                         v-model="content"
                         :options="editorOption"
-                        @change="inputChanged">
+                        @change="inputChanged"
+                        v-show="!isInvite">
                     </quillEditor>
                 </div>
             </div>
@@ -168,6 +170,7 @@ import mxChatInfoDlg from './mxChatInfoDlg';
 import {EventTimeline} from "matrix-js-sdk";
 import * as Matrix from 'matrix-js-sdk';
 import { timelineEnd } from 'console';
+import Invite from './invite.vue';
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -257,9 +260,23 @@ export default {
         userInfoContent,
         SendFileDlg,
         mxSettingDialog,
-        mxChatInfoDlg
+        mxChatInfoDlg,
+        Invite
     },
     methods: {
+        joinRoom: function() {
+            global.mxMatrixClientPeg.matrixClient.joinRoom(this.chat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
+                .then(() => {
+                    this.isInvite = false;
+                    this.isRefreshing = true;
+                })
+        },
+        rejectRoom: function() {
+            global.mxMatrixClientPeg.matrixClient.leave(this.chat.roomId);
+            setTimeout(() => {
+                this.$emit('forceUpdateGroupList', this.chat.roomId);
+            }, 1000)
+        },
         mxChatInfoDlgSetting: function(close) {
             if (close) {
                 return this.mxChat = false;
@@ -2286,7 +2303,7 @@ s        },
             }
         },
         onRoomTimeline(e) {
-            // console.log("onRoomTimeline ", e);
+            this.getHistoryMessage();
         },
         onEventDecrypted(e) {
             this.updateMsgContent = {
@@ -2352,6 +2369,8 @@ s        },
     },
     data() {
         return {
+            isInvite: false,
+            inviterInfo: undefined,
             content: '',
             isSecret: false,
             canSelecteFile: true,
@@ -2502,7 +2521,15 @@ s        },
                 timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
-            this._timelineWindow.load(undefined, 20);
+            if(this.chat.getMyMembership() == "invite") {
+                this.isRefreshing = false;
+                this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
+                this.isInvite = true;
+            }
+            else {
+                this._timelineWindow.load(undefined, 20);
+                this.getHistoryMessage();
+            }
             global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
             global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
             console.log("this._timelinewindow is ", this._timelineWindow)
@@ -2510,7 +2537,6 @@ s        },
             this.needScrollTop = true;
             this.needScrollBottom = true;
             this.existingMsgId = [];
-            this.getHistoryMessage();
             this.showGroupName(this.chat);
             if(this.editor == undefined) {
                 this.editor = this.$refs.chatQuillEditor.quill;

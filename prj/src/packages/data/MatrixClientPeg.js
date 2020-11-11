@@ -73,6 +73,31 @@ class _MatrixClientPeg{
       return undefined;
     }
 
+    getInviteMember(chatGroupItem) {
+      if (!chatGroupItem) {
+          return;
+      }
+      var myUserId = this.matrixClient.getUserId();
+      var inviteEvent = chatGroupItem.currentState.getMember(myUserId);
+      if (!inviteEvent) {
+          return;
+      }
+      var inviterUserId = inviteEvent.events.member.getSender();
+      return chatGroupItem.currentState.getMember(inviterUserId);
+    }
+
+    getMyMember(chatItem) {
+        return chatItem.getMember(this.matrixClient.getUserId());
+    }
+
+    isDMInvite(chatItem) {
+        var myMember = this.getMyMember(chatItem);
+        if(!myMember) return false;
+        var memberEvent = myMember.events.member;
+        var memberContent = memberEvent.getContent();
+        return memberContent.membership == "invite" && memberContent.is_direct;
+    }
+
     InitOlm(){
         /* Load Olm. We try the WebAssembly version first, and then the legacy,
             * asm.js version if that fails. For this reason we need to wait for this
