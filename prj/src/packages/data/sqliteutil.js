@@ -357,7 +357,8 @@ const UserInfo = {
             user_display_name:  "%"+key,
             _user_name:          "%"+key,
             _user_title:         "%"+key,
-            _display_name_py:    "%"+key
+            _display_name_py:    "%"+key,
+            $size: 20
         })
         return infos;
     },
