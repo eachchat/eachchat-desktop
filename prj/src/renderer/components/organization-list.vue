@@ -308,7 +308,6 @@ export default {
     },
     created: async function() {
         await this.getAppBaseData();
-        return;
         setTimeout(() => {
         this.$nextTick(function(){
             var users = this.organizationList[0].users;
@@ -319,6 +318,7 @@ export default {
         }, 0);
         var that = this;
         document.addEventListener('click',function(e){
+            console.log(e.target.className)
             if(e.target.className.indexOf('userInfo') == -1){
                 that.showUserInfoTips = false;
             }
