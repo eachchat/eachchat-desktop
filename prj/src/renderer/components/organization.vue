@@ -13,7 +13,7 @@
                         v-for="(department, index) in searchDeparements"
                         @click="searchUserMenuItemClicked(department.department_id)" 
                         :key="index">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Common/department_list@2x.png">
                         <div class="manager-info">
                         <p v-html="msgContentHightLight(department.display_name)" class="manager-name">{{ department.display_name }}</p>
                         <p v-html="msgContentHightLight(department.description)" class="manager-title">{{ department.description }}</p>
