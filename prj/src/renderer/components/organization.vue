@@ -8,6 +8,18 @@
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
+                    <div>组织</div>
+                    <li class="manager"
+                        v-for="(department, index) in searchDeparements"
+                        @click="searchUserMenuItemClicked(department.department_id)" 
+                        :key="index">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <div class="manager-info">
+                        <p v-html="msgContentHightLight(department.display_name)" class="manager-name">{{ department.display_name }}</p>
+                        <p v-html="msgContentHightLight(department.description)" class="manager-title">{{ department.description }}</p>
+                        </div>
+                    </li>
+                    <div>成员</div>
                     <li class="manager"
                         v-for="(manager, index) in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
@@ -16,6 +28,17 @@
                         <div class="manager-info">
                         <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
                         <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
+                        </div>
+                    </li>
+                    <div>联系人</div>
+                    <li class="manager"
+                        v-for="(contact, index) in searchContacts"
+                        @click="searchUserMenuItemClicked(contact.user_id)" 
+                        :key="index">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.user_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <div class="manager-info">
+                        <p v-html="msgContentHightLight(contact.display_name)" class="manager-name">{{ contact.display_name }}</p>
+                        <p v-html="msgContentHightLight(contact.title)" class="manager-title">{{ contact.title }}</p>
                         </div>
                     </li>
                 </ul>
@@ -52,7 +75,7 @@ import * as fs from 'fs-extra'
 import {services, environment} from '../../packages/data/index.js';
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
-import {Department, UserInfo} from '../../packages/data/sqliteutil.js';
+import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
 import contactList from './contact-list'
 import listHeader from './listheader';
@@ -102,6 +125,8 @@ export default {
 
             searchKey:'',
             searchUsers: [],
+            searchContacts:[],
+            searchDeparements: [],
             showSearchView: false,
             showSearchUserInfoTips: false,
             searchUserInfo:{},
@@ -130,14 +155,11 @@ export default {
                 this.showSearchView = false;
                 return;
             }
-            var departmentResults = await Department.SearchByNameKey(this.searchKey);
-            console.log(departmentResults);
-            var userResults = await UserInfo.SearchByNameKey(this.searchKey);
-            console.log("yonghujieguo");
-            console.log(this.searchKey);
-            console.log(userResults);
-            this.searchUsers = userResults;
-            this.showSearchView = true;
+            this.searchDeparements = await Department.SearchByNameKey(this.searchKey);
+            this.searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
+            this.searchContacts = await Contact.SearchByNameKey(this.searchKey);
+            if(this.searchDeparements.length!=0 || this.searchUsers.length != 0 || this.searchContacts.length != 0)
+                this.showSearchView = true;
             this.$nextTick(function(){
                 var users = this.searchUsers;
                 for(var i = 0; i < this.searchUsers.length; i ++){

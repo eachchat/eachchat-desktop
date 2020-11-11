@@ -840,7 +840,17 @@ const Contact = {
             contacts[0].title = title;
             contacts[0].save();
         }
-    }
+    },
+
+    async SearchByNameKey(key){
+        let contacts = await(await models.Contact).find({
+            display_name:  "%"+key,
+            _user_id:          "%"+key,
+            _title:         "%"+key,
+            $size: 20
+        })
+        return contacts;
+    },
 }
 
 export{
