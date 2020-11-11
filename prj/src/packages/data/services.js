@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret, Contact, Department} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -50,7 +50,8 @@ const commonData = {
   maxSecretGroupUpdateTime: 0,
   maxSecretMsgSequenceID: 0,
   aseEncryption:  new AESEncrypt(),
-  orgValue: ""
+  orgValue: "",
+  accessToken: ''
 
 }; // model in here
 
@@ -87,24 +88,7 @@ const common = {
   },
 
   async GetSelfUserModel(){
-    if(this.data.login == undefined)
-      return;
-    var foundUsers = await(await models.User).find({
-      id: this.data.login.user_id
-    });
-    if(foundUsers.length == 0){
-      return;
-    }
-    this.data.selfuser = foundUsers[0];
-    if(this.config.hostname == undefined){
-      this.config.hostname = foundUsers[0].entry_host;
-      this.config.apiPort = foundUsers[0].entry_port;
-      this.config.hostTls = foundUsers[0].entry_tls;
-      this.config.mqttHost = foundUsers[0].mqtt_host;
-      this.config.mqttPort = foundUsers[0].mqtt_port;
-      this.config.mqttTls = foundUsers[0].mqtt_tls;
-    }
-    return this.data.selfuser;
+    return await UserInfo.GetUserInfoByMatrixID(this.data.login.matrix_id);
   },
 
   async GetDistUserinfo(uid){
@@ -271,6 +255,10 @@ const common = {
     return groups;
   },
 
+  async ConfigTableInit(){
+    globalModels.init();
+  },
+
   async init() {
     let ret = await models.init();
     if(ret != true)
@@ -317,21 +305,22 @@ const common = {
     this.api.EmailCodeVerify(emailCode);
   },
 
-  async login(config) {
-    if (typeof config != "object") {
-      return;
-    }
-  
+  async login() {
     this.api = null;
     this.initServiceApi();
-    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.identityCode, config.model, config.deviceID, config.desktopType);
-
-    if (!result.ok || !result.success) {
-      return result.data;
-    }
-    let userid = result.data.obj.id;
-    await Config.SetLoginInfo(userid, this.data.orgValue);
+    let userID = localStorage.getItem("mx_user_id");
+    let base64UserID = Base64.encode(userID, true);
+    await Config.SetLoginInfo(base64UserID, this.data.orgValue);
     await models.init();
+    this.accessToken = localStorage.getItem("mx_access_token");
+    this.data.login = {
+      matrix_id: userID,
+      access_token: this.accessToken
+    }
+    return;
+
+
+    let userid = result.data.obj.id;
 
     
     var retmodels = await servicemodels.LoginModel(result)
@@ -408,13 +397,12 @@ const common = {
 
   async InitDbData()
   {
-    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateSecretMessage(), this.UpdateUserinfo(), this.UpdateDepartment()])
-    //await this.UpdateMessages();
-    //await this.ListAllCollections();
+    Promise.all([this.GetAllContact(), this.UpdateUserinfo(), this.UpdateDepartment()])
   },
 
   async UpdateDepartment(){
-    let updateTime = await sqliteutil.GetMaxDepartmentUpdatetime(this.data.selfuser.id);
+    let updateTime = await Department.GetMaxDeparmentUpdateTime();
+    console.log("max Department updatetime is "+ updateTime)
     if(updateTime == 0)
       await this.AllDepartmentInfo();
     else
@@ -422,7 +410,8 @@ const common = {
   },
 
   async UpdateUserinfo(){
-    let updateTime = await sqliteutil.GetMaxUserUpdatetime(this.data.selfuser.id);
+    let updateTime = await UserInfo.GetMaxUpdateTime();
+    console.log("max updatetime in userinfo is "+ updateTime)
     if(updateTime == 0)
       await this.AllUserinfo();
     else
@@ -460,7 +449,6 @@ const common = {
     if(this.mqttclient != undefined && this.mqttclient.connected) {
       return;
     }
-    return;
     let bClose = false;
     let httpValue;
     if(this.config.mqttTls)
@@ -472,11 +460,11 @@ const common = {
     this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttHost + ':' + this.config.mqttPort,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.id + '|' + hostname,
+                                      clientId: this.data.login.matrix_id + '|' + hostname,
                                       keepalive: 10,
                                       reconnectPeriod: 0});
 
-    let userid = this.data.selfuser.id;
+    let userid = this.data.login.matrix_id;
     let servers = this;
     let mqttclient = this.mqttclient;    
     let api = this.api;
@@ -617,14 +605,6 @@ const common = {
         await userImModel.save();
       }
     }while(result.data.total > index);
-    var foundUsers = await(await models.User).find({
-      id: this.data.login.user_id
-    });
-    if(foundUsers.length == 0){
-      return true;
-    }
-    foundUsers[0].user_max_updatetime = updateTime;
-    foundUsers[0].save();
     return true;
   },
 
@@ -1984,6 +1964,16 @@ const common = {
   },
 
   async gmsConfiguration(domainBase64){
+    let value = Base64.encode("139.198.15.253", true);
+    this.data.orgValue = value;
+    this.config.hostname = "139.198.15.253";
+    this.config.apiPort = 8888;
+    this.config.hostTls = 0;
+    this.config.mqttHost = "139.198.15.253";
+    this.config.mqttPort = 1883;
+    this.config.mqttTls = 1;
+    return true;
+    /*
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
@@ -2019,6 +2009,7 @@ const common = {
     this.config.mqttPort = mqtt.port;
     this.config.mqttTls = mqtt.tls;
     return response.data.obj;
+    */
   },
 
   async gmsGetUser(key){
@@ -2153,7 +2144,88 @@ const common = {
     {
       this.data.maxSecretGroupUpdateTime = groupModel.updatetime;
     }
+  },
+
+  async AddContact(contactInfo){
+    let result = await this.api.AddContact(this.data.login.access_token, 
+                                          contactInfo.user_id,
+                                          true,
+                                          contactInfo.display_name,
+                                          contactInfo.email,
+                                          contactInfo.mobile,
+                                          contactInfo.telephone,
+                                          contactInfo.company,
+                                          contactInfo.title);
+    if (!result.ok || !result.success) {
+      return result;
+    }
+    const contactModel = await models.Contact;
+    let contactModelValue = await new contactModel(contactInfo);
+    await contactModelValue.save();
+  },
+
+  async GetAllContact(){
+    let result;
+    let updateTime = await Contact.GetMaxUpdateTime();
+    let sequenceID = 0;
+    let contactModel;
+    while(1){
+      result = await this.api.IncrementContact(this.data.login.access_token, updateTime, sequenceID);
+      if (!result.ok || !result.success) {
+        await Contact.DeleteAllContact();
+        return result;
+      }
+      for(let item of result.data.results){
+        sequenceID++;
+        if(item.del == 1)
+          continue;
+        contactModel = await servicemodels.ContactModel(item);
+        await contactModel.save();
+      }
+      if(!result.data.hasNext)
+        return;
+      updateTime = result.data.obj;
+    }
+  },
+
+  async DeleteContact(matrixID){
+    let result = await this.api.DeleteContact(this.data.login.access_token, matrixID);
+    console.log(result)
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await Contact.DeleteContact(matrixID);
+    return true;
+  },
+
+  async UpdateContact(matrixID,
+                      remarkName,
+                      email,
+                      mobile,
+                      telephone,
+                      company,
+                      title){
+    let result = await this.api.UpdateContact(this.data.login.access_token,
+                                              matrixID,
+                                              remarkName,
+                                              email,
+                                              mobile,
+                                              telephone,
+                                              company,
+                                              title);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await Contact.UpdateContact(matrixID,
+                                remarkName,
+                                email,
+                                mobile,
+                                telephone,
+                                company,
+                                title);
+    return true;
   }
+
 };
 
 const cache = {

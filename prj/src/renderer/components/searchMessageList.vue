@@ -244,7 +244,6 @@ export default {
         },
         getAppBaseData:async function() {
             // Init services
-            await services.common.init();
             this.selfUserInfo = await services.common.GetSelfUserModel();
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();

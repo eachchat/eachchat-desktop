@@ -20,10 +20,7 @@
 
 <script>
 import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
-import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
-import {ipcRenderer, remote} from 'electron'
 export default {
     name: 'AlertDlg',
     props: {
@@ -80,7 +77,6 @@ export default {
             if(this.AlertLayersElement == null) {
                 this.AlertLayersElement = document.getElementById("AlertLayersId");
             }
-            // console.log("remote.b")
             var showScreenHeight = this.AlertLayersElement.offsetHeight;
             var showScreenWidth = this.AlertLayersElement.offsetWidth;
             console.log("showScreenHeight ", showScreenHeight)
@@ -103,12 +99,14 @@ export default {
     components: {
     },
     created: async function () {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
+        console.log(this.AlertContnts)
     },
     mounted: function() {
+        console.log(this.AlertContnts)
     },
     watch: {
         AlertContnts: async function() {
+            console.log("AlertContent")
             if(this.AlertContnts.Details == undefined || (this.AlertContnts.Details != undefined && this.AlertContnts.Details.length == 0)) {
                 return;
             }

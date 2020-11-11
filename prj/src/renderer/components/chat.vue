@@ -1069,7 +1069,11 @@ export default {
             var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
             groupContentNumElement.innerHTML = '';
-            
+
+            var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
+            if(groupIcoElement != undefined && distUrl) {
+              groupIcoElement.setAttribute("src", distUrl);
+            }
             // var targetPath = "";
             // var distId = "";
             // if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
@@ -1746,7 +1750,7 @@ export default {
             }
             
             this.cleanEditor();
-            this.matrixClient.sendMessage(this.chat.roomId, sendBody).then((eventID)=>{
+            global.mxMatrixClientPeg.matrixClient.sendMessage(this.chat.roomId, sendBody).then((eventID)=>{
                 //this.$emit('updateChatList', eventID);
             });
         },
@@ -2131,10 +2135,10 @@ s        },
                             .then((ret) => {
                                 console.log("scroll ret is ", ret);
                                 this.isRefreshing = false;
-                                this.needScroll = true;
-                                if(ret.length < 20) {
-                                    this.needScroll = false;
-                                }
+                                // this.needScroll = true;
+                                // if(ret.length < 20) {
+                                //     this.needScroll = false;
+                                // }
                                 this.needToBottom = false;
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
@@ -2288,7 +2292,6 @@ s        },
             this.updateMsgContent = {
                 "id" : e.event.event_id
             };
-            console.log("onEventDecrypted ", e);
         },
         checkClipboard(e) {
             //const strBuffer = clipboard.readRTF()
@@ -2440,6 +2443,7 @@ s        },
             matrixClient: undefined,
             mxRoomDlg: false,
             mxChat: false,
+            services: null
         }
     },
     mounted: function() {
@@ -2471,15 +2475,11 @@ s        },
         });
     },
     created: async function() {
-        await services.common.init();
         this.loginInfo = undefined;//await services.common.GetLoginModel();
-        this.curUserInfo = await services.common.GetSelfUserModel();
+        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
-        // console.log("===============mqttinit")
-        // services.common.initmqtt();
-        // services.common.handlemessage(this.callback);
-
+        this.services = global.services.common;
     },
     computed: {
         messageListShow: {

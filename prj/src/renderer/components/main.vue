@@ -182,24 +182,6 @@ export default {
             this.$router.push("/main/setup")
         },
         getAppBaseData:async function() {
-            // Init services
-            // let config = {
-            //     hostname: "139.198.15.253",
-            //     apiPort: 8888,
-            // };
-            // services.common.init(config);
-            // Set accessToken in services
-/*
-            await services.common.init();
-            this.loginInfo = await services.common.GetLoginModel();
-            this.curUserInfo = await services.common.GetSelfUserModel();
-            services.common.InitDbData();
-            var ret = await services.common.GetAllGroups()
-            console.log("the init user id is ,", this.curUserInfo.id)
-            confservice.init(this.curUserInfo.id);
-            this.$store.commit("setUserId", this.curUserInfo.id)
-            console.log("lognInfo is ", this.loginInfo);
-*/
             const userId = window.localStorage.getItem("mx_user_id");
             confservice.init(userId);
             this.$store.commit("setUserId", userId)
@@ -207,20 +189,6 @@ export default {
             
             this.curindex = 0;
             this.showCurUserIcon();
-            // Get data from server and set in database
-            // UserInfo
-            // await services.common.AllUserinfo();
-            // var userInfos = await services.common.GetAllUserinfo();
-            // for (var i = 0; i < userInfos.length; i++) {
-            //     console.log(userInfos[i].user_name);
-            // }
-            
-            // DepartmentInfo
-            // await services.common.AllDepartmentInfo();
-            // var departmentInfos = await services.common.GetAllDepartmentsModel();
-            // for (var i = 0; i < departmentInfos.length; i++) {
-            //     console.log(departmentInfos[i].displayName);
-            // }
         },
         async menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;
@@ -288,6 +256,7 @@ export default {
             var id = args[2];
             var localPath = args[3];
             var elementImg = document.getElementById("userHead");
+            return;
             if(id != this.curUserInfo.id) {
                 return;
             }
@@ -303,16 +272,11 @@ export default {
             }
         },
         showCurUserIcon: async function() {
-            return;
             var elementImg = document.getElementById("userHead");
-            // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
-
-            var targetPath = "";
-            // console.log("===========this.curUserInfo.avatar_minimal ", this.curUserInfo.avatar_minimal)
-            // targetPath = path.join(confservice.getEachChatFilesDir(), this.curUserInfo.id);
-            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.curUserInfo.id, targetPath))) {
-                elementImg.setAttribute("src", targetPath);
-            }
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
+            // console.log("==========showcurusericon ", avaterUrl);
+            elementImg.setAttribute("src", avaterUrl);
         },
         personalCenterClicked:async function(){
             if(this.showPersonalCenter){
@@ -324,8 +288,9 @@ export default {
             this.personalCenterKey ++;
         },
         startCheckUpgrade: function() {
+            return;
             async function checkUpgrade(self) {
-                var newVersion = await services.common.GetNewVersion();
+                var newVersion = await global.services.common.GetNewVersion();
                 console.log("newversion is ", newVersion);
                 if(newVersion == undefined)
                 {
@@ -353,7 +318,7 @@ export default {
         },
         startRefreshToken: function() {
             async function refreshToken(self) {
-                services.common.refreshToken();
+               
             }
             setTimeout(() => {
                 refreshToken(this);
@@ -383,14 +348,19 @@ export default {
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
-        global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
-        global.mxMatrixClientPeg.matrixClient.startClient();
+        await global.mxMatrixClientPeg.matrixClient.startClient();
+        global.services.common.gmsConfiguration();
+        await global.services.common.login()
+        global.services.common.InitDbData();
+        global.services.common.initmqtt();
+
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
           switch(state){
             case "PREPARED":
             //   console.clear();
             //   ctx.matrixSync = true;
+                global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
               this.$store.dispatch('syncPrepare');
               console.log('matrix sync prepared.');
               break;
@@ -398,10 +368,9 @@ export default {
               break;
           }
         })
-        //await services.common.init();
         //this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
-            // this.showCurUserIcon();
+            this.showCurUserIcon();
         }) 
         var _this = this;
         document.addEventListener('click',function(e){

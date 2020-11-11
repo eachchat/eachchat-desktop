@@ -13,6 +13,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    host: '',
+    port: 443,
+    domain: '',
     chatGroup: [],
     refreshtoken: "",
     accesstoken: "",
@@ -33,6 +36,15 @@ export default new Vuex.Store({
     flashNotice: true,
   },
   mutations: {
+    setHost(state, host){
+      state.host = host;
+    },
+    setPort(state, port) {
+      state.port = port;
+    },
+    setDomain(state, domain) {
+      state.domain = domain;
+    },
     setSoundNotice(state, soundNotice) {
       state.soundNotice = soundNotice;
     },
@@ -204,6 +216,15 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getHost: state => () => {
+      return state.host;
+    },
+    getPort: state => () => {
+      return state.port;
+    },
+    getDomain: state => () => {
+      return state.domain;
+    },
     soundNotice: state=> () => {
       return state.soundNotice;
     },

@@ -229,6 +229,15 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async GetCurrtentInfo(accessToken){
+    var response = await this.commonApi.get(
+      "/api/apps/org/v1/user/profile",
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
   async updateUserWorkDescription(accessToken, workDescription) {
     console.debug("UpdateUser");
     var response = await this.commonApi.patch(
@@ -976,6 +985,83 @@ class APITransaction {
       {
         sequenceId: sequenceID,
         perPage: perPage
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async AddContact(accessToken, 
+                    matrixID,
+                    appendFlag,
+                    remarkName,
+                    email,
+                    mobile,
+                    telephone,
+                    company,
+                    title){
+    let response = await this.commonApi.post(
+      "/api/apps/contacts/v1/contact",
+      {
+        matrixId:     matrixID,
+        appendFlag:   appendFlag,
+        remarkName:   remarkName,
+        email:        email,
+        mobile:       mobile,
+        telephone:    telephone,
+        company:      company,
+        title:        title
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteContact(accessToken, matrixID){
+    var response = await this.commonApi.delete(
+      "/api/apps/contacts/v1/contact",
+      {
+        Authorization: "Bearer " + accessToken
+      },{
+        data:{matrixId: matrixID}
+      });
+    return this.parseStatus(response);
+  }
+
+  async IncrementContact(accessToken, updateTime, sequenceID){
+    let response = await this.commonApi.post(
+      "/api/apps/contacts/v1/increment",
+      {
+        name: "updateContact",
+        updateTime: updateTime,
+        sequenceID: sequenceID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async UpdateContact(accessToken,
+                      matrixID,
+                      remarkName,
+                      email,
+                      mobile,
+                      telephone,
+                      company,
+                      title){
+    var response = await this.commonApi.patch(
+      "/api/apps/contacts/v1/contact/extra",
+      {
+        matrixId: matrixID,
+        remarkName: remarkName,
+        email: email,
+        mobile: mobile,
+        telephone: telephone,
+        company: company,
+        title: title
       },
       {
         Authorization: "Bearer " + accessToken

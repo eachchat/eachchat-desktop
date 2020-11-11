@@ -1,852 +1,1046 @@
 <template>
     <div class="privacy">
         <div class="WordSection1" style="layout-grid:15.6pt">
-
-        <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><span style="font-size:16.0pt;line-height:150%;font-family:宋体">亿洽沟通与协作平台隐私政策<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">发布时间：<span lang="EN-US">2020</span>年<span lang="EN-US">7</span>月<span lang="EN-US">1</span>日<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">亿洽沟通与协作平台隐私政策（以下简称“本隐私政策”）适用于通过北京爱工作科技有限公司（以下简称“本公司”或“爱工作”）运营的<span lang="EN-US">workly.ai</span>数字化办公平台（网站<a name="_Hlk43726265">为<span lang="EN-US">https://workly.ai/</span></a>）<a name="_Hlk43726289">中的亿洽沟通与协作平台管理后台</a>、亿洽桌面<span lang="EN-US">/</span>移动<span lang="EN-US">/WEB</span>客户端等方式（以下简称“亿洽平台”）使用亿洽产品及服务的用户。若本公司之关联公司或其他第三方的产品或服务中使用了本公司提供的亿洽产品或服务但未设独立的隐私政策的，则本政策同样适用于该部分产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">本公司深知个人信息对您的重要性，并将按照适用法律法规之要求保护您的个人信息安全可靠，在收集、使用您的用户信息时恪守合法、正当、必要的原则。同时，本公司承诺，我们将按业界成熟的安全标准，采取相应的安全保护措施来保护您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">本隐私政策旨在向您介绍及说明，在您使用亿洽产品或服务过程中，本公司对可能收集、使用的您的个人信息的具体处理方式，因此，在使用亿洽产品或服务前，请您务必仔细阅读并透彻理解本隐私政策的全部内容，在确认充分理解并同意后使用相关产品或服务。一旦您开始使用亿洽产品或服务，即表示您已充分理解并同意本隐私政策。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">本隐私政策将帮助您了解以下内容：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">一、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">定义及适用范围<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">二、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何收集和使用您的个人信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">三、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何使用<span lang="EN-US">Cookie</span>和同类技术<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">四、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何共享、转让、公开披露您的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">五、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何保护您的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">六、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何访问、修改及删除您的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">七、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您的个人信息如何保存<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">八、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">本隐私政策如何更新<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo1"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">九、</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何联系我们<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">一、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">定义及适用范围<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">个人信息：是指以电子或者其他方式记录的能够单独或者与其他信息结合识别特定自然人的各种信息，包括自然人的姓名、出生日期、身份证件号码、生物识别信息、住址、电话号码、电子邮箱、健康信息、行踪信息等。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><a name="_Hlk39846091"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">亿洽</span></a><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">企业<span lang="EN-US">/</span>机构用户（“您的组织”）：指通过开户、认证、经由其管理员用户的亿洽帐号上传企业<span lang="EN-US">/</span>机构成员通讯录搭建企业<span lang="EN-US">/</span>机构组织<span lang="EN-US">/</span>管理架构，开通、管理和使用亿洽产品或服务的企业<span lang="EN-US">/</span>机构。亿洽企业<span lang="EN-US">/</span>机构用户包括但不限于法人、政府机构、其他组织、合伙或个体工商户等。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="margin-left:21.0pt;mso-para-margin-left:2.0gd;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">亿洽企业<span lang="EN-US">/</span>机构管理员用户（“管理员用户”）：指经您的组织合法授权或指定而开通管理员账号的个人用户，该管理员账号拥有您的组织的亿洽平台中管理操作权限，代表您的组织上传您的组织的成员通讯录等数据，并开通、管理和使用亿洽产品或服务；管理员用户可根据您的组织的实际需要设立多层级管理员用户，在其享有的权限之下搭建多层级管理员架构并逐级设置相应的管理权限。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="margin-left:21.0pt;mso-para-margin-left:2.0gd;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">亿洽企业<span lang="EN-US">/</span>机构授权成员用户（“授权成员用户”）：是指您的组织为使上传之成员通讯录（包括成员账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等）中的成员使用亿洽产品或服务，而由管理员用户直接为该等成员开设并分发给该等成员相应的亿洽个人账号，因该等开设、分发而持有并使用此类亿洽账号的个人用户。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">上述管理员用户及授权成员用户，以下合称为<span lang="EN-US">“</span>您<span lang="EN-US">”</span>。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您已知悉，您的组织为您使用亿洽产品或服务而开设、分发给您相应的亿洽账号，开通亿洽产品或服务的相关功能，为您提供或控制您使用该等产品或服务的权限，并对您使用亿洽产品或服务的行为进行管理；在上述过程中，您的组织将代表您、或您将按照您的组织的要求向本公司提供或可能提供与您相关的若干个人信息，包括账号名、工作或组织事务电邮、姓名、电话、所属部门及职位等。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
-        0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">您的组织已经或在此陈述和保证，其为上述信息的控制方，其通过管理员账号向本公司提供您的任何个人信息或者要求您提供任何个人信息之前，已经事先获得您的明确授权，并已经充分告知您收集您的个人信息的目的、范围、使用方式，其收集您个人信息的范围仅限于实现本协议目的必要范围。如您并不知悉并同意本款内容，请立即停止使用亿洽产品或服务，并与您的组织就前述事项进行确认。对于上述信息，本公司仅作为数据处理者根据您的组织的要求处理您的个人信息，我们对您的组织收集和使用您个人信息的行为不承担任何法律责任；请及时与您的组织沟通以详细了解对您的个人信息的控制、保护等相关政策或规定。</span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">未成年人保护<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.1<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">亿洽产品或服务针对企业<span lang="EN-US">/</span>机构的需求而设立，除特殊行业机构（比如教育机构）外，原则上未满<span lang="EN-US">18</span>周岁的未成年人不应成为亿洽产品及服务的个人用户。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.2<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">若您是未满<span lang="EN-US">18</span>周岁的未成年人，在符合适用法律的前提下成为亿洽产品及服务的用户时，您的组织应在提供成员通讯录时明示，且您在使用亿洽产品及服务前，应在您的父母或其他监护人监护、指导下共同阅读并同意本隐私政策。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.3<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">本公司根据适用法律法规的规定保护未成年人的个人信息，只会在法律法规允许、父母或其他监护人明确同意或保护未成年人所必要的情况下收集、使用、储存、共享、转让或披露未成年人的个人信息；如果本公司发现在未事先获得可证实的父母同意的情况下收集了未成年人的个人信息，则会设法尽快删除相关信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.4<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">若您是未成年人的监护人，当您对您所监护的未成年人的个人信息的收集、使用等有相关疑问时，请立即通过本隐私政策公示的联系方式与本公司联系。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l8 level1 lfo26"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4.5<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">若涉及儿童（即不满十四周岁的未成年人）使用亿洽产品或服务的，您的组织应在提供成员通讯录之前或之时、或者您的组织开户前向本公司明示，本公司将依据儿童个人信息保护的相关法律法规之规定，设立并执行特殊的保护规定、政策及保护机制。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo3"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">本隐私政策不适用于其他第三方通过亿洽客户端直接向您提供的产品或服务（统称“第三方服务”）。如管理员用户通过亿洽平台开通并由您确认使用任何第三方应用服务，您的组织代表您或您向该第三方服务提供者提供的信息不适用于本隐私政策，而适用于您与该等第三方服务提供者之间的相关政策或规定。您在选择使用该等第三方服务前，请充分了解第三方服务的产品功能及隐私保护政策，再选择是否开通功能。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">二、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何收集和使用您的个人信息<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l15 level1 lfo4"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">收集用户信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为了向您及您的组织提供亿洽产品或服务，维护亿洽产品或服务的正常运行，改进及优化相应的用户体验并保障您的账号安全，本公司会出于本隐私政策下述目的及方式收集您在注册、使用亿洽产品或服务时主动提供、授权提供或基于您的组织要求提供的信息，以及基于您使用亿洽产品或服务时产生的信息：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l12 level1 lfo5"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">开户及注册个人账号过程中收集信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l0 level1 lfo6"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">注册授权成员用户<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为注册成为亿洽授权成员用户，您的组织将通过本隐私政策第一条<span lang="EN-US">2</span>、<span lang="EN-US">3</span>款中的方式向本公司提供您的若干个人信息，包括账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等，用以注册并创建您的亿洽个人账号，否则您将不能使用亿洽产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l0 level1 lfo6"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">开户及注册管理员用户<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为使用亿洽的产品或服务，您的组织在向本公司申请开户时将向本公司提供企业<span lang="EN-US">/</span>机构名称、统一社会信用代码以及联系人信息等。开户并经分配产生管理员账号后，在您使用亿洽相关产品或服务前，您的组织应完成相应的实名认证。进行实名认证时，您作为您的组织的管理员，需代表您的组织根据页面指示继续提供特定信息和资料，包括但不限于您的组织的营业执照（或起到同等功能的资质证照）复印件、统一社会信用代码、企业组织名称、地址、法人代表（或负责人）姓名、法人代表（负责人）身份证号、指定管理员的合规授权委托、指定管理员的身份证号等基本信息。您理解并同意，您在向本公司提供上述相关指定管理员、法定代表人（负责人）等人员的该等个人信息之前，您需确保您已经取得其授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l0 level1 lfo6"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">开通亿洽产品或服务功能<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">基于您的组织在劳动、事务管理、办公应用等方面需要，管理员用户选择开通亿洽提供的产品或服务时，根据使用该等产品或服务的必须而涉及需要由您的组织代表您或您按照您的组织的要求提供其他相应的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l12 level1 lfo5"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">使用亿洽产品或服务过程中收集信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">当您在使用亿洽产品或服务、您在使用我们服务过程中为获得技术支持、协助、改进及优化亿洽产品或服务的用户体验、以及保障账号安全等，而向本公司提供或本公司收集的用户个人信息，包括当不限于：
-        <span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">使用信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们会收集您使用亿洽产品或服务时提交或产生的信息。如您使用亿洽进行即时通讯（<span lang="EN-US">IM</span>）聊天，我们需要记录您的聊天信息及语音通话状态信息（非通话内容）以便实现信息的传输与交互。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">设备、日志信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">您在使用亿洽产品或服务过程中，我们会根据您在软件安装及使用中授予的具体权限，接收并记录您所使用的设备相关信息（例如设备型号、操作系统版本、设备设置、唯一设备标识符等软硬件特征信息）、设备所在位置相关信息（例如<span lang="EN-US">IP</span>地址以及移动装置地址设定的地点信息、以及<span lang="EN-US">GPS</span>所得地点信息（如果您的移动装置启动该功能）等，且只在您需要使用时）。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">当您使用亿洽产品或服务时，我们会自动收集您对我们服务的详细使用情况，作为有关网络日志保存。例如您的搜索查询内容、<span lang="EN-US">IP</span>地址、浏览器的类型、电信运营商、使用的语言、访问日期和时间、您访问的网页记录、通话状态信息、交易日志信息等操作日志信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为明确起见，本公司在供服务的过程中可能收集或使用的非识别性信息（该等非识别性信息，无法单独用于确定特定自然人身份），比如单独的设备信息、日志信息等，或者本公司收集汇总的统计数据等，是无法识别特定自然人身份的信息；该等非识别性信息不属于个人信息。但是，如果我们将这类非个人信息与其他信息结合用于识别特定自然人身份，或者将其与个人信息结合使用，则在结合使用期间，这类非个人信息将有可能被视为个人信息，除取得您的授权或相关法律法规另有规定外，我们会将该类个人信息做匿名化、去标识化处理。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为实现您的组织的管理功能在使用亿洽相关功能<span lang="EN-US">/</span>应用过程中提交或产生的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">管理员用户选择开通、管理亿洽相关产品或服务的，我们会根据管理员用户的指令记录您使用亿洽相关功能<span lang="EN-US">/</span>应用过程中提交或产生的信息和数据：该等信息和数据中涉及的个人信息，您知悉并同意，您的组织作为上述信息和数据的控制者，我们仅根据管理员用户的指令管理和使用上述数据和信息，其中涉及您的个人信息的，则仍是受限于本协议第一条第<span lang="EN-US">3</span>款的约定。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">体验反馈、客服及争议处理中您向我们提供的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">在亿洽产品或服务使用过程中，您可以对亿洽的产品、功能、应用及服务的体验反馈问题，帮助我们更好地了解您使用我们产品或服务的体验和需求，改善我们的产品或服务<span lang="EN-US">,</span>为此我们会记录您的联系信息、反馈的问题或建议，以便我们进一步联系您反馈我们的处理意见。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">当您与我们联系或提出售中售后、争议纠纷处理申请时，为了保障您的账号及系统安全，我们需要您提供必要的个人信息以核验您的用户身份。为便于与您联系、尽快帮助您解决问题或记录相关问题的处理方案及结果，我们可能会保存您与我们的通信<span lang="EN-US">/</span>通话记录及相关内容（包括账号信息、工单信息、您为了证明相关事实提供的其他信息，或您留下的联系方式信息）。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">第三方向我们提供的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们将对其他用户进行与您相关的操作时收集关于您的信息，亦可能从本公司的关联公司、合作第三方或通过其他合法途径获取的您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l10 level1 lfo7"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">6)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">其他<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">为向您提供更便捷、更优质、个性化的产品及<span lang="EN-US">/</span>或服务，努力提升您的用户体验，我们在向您提供的以下服务中可能会收集和使用您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">比如，基于麦克风的语音技术相关服务：您可在开启麦克风权限后使用麦克风实现在亿洽内的单聊<span lang="EN-US">/</span>群聊中语音输入功能，或与客服联系或与客服机器人实现语音交互。请您知晓，即使您已同意开启麦克风权限，我们也仅会在您主动点击客户端内麦克风图标或录制视频时通过麦克风获取语音信息。您理解并同意，该等服务可能需要您在您的设备中开启麦克风（语音）的访问权限，以实现这些权限所涉及信息的收集和使用。您可在您的客户端<span lang="EN-US">“</span>我的<span lang="EN-US">-</span>设置<span lang="EN-US">-</span>通用或隐私<span lang="EN-US">”</span>中查看上述权限的状态，并可自行决定这些权限随时的开启或关闭。请您注意，您开启任一权限即代表您授权我们可以收集和使用相关个人信息来为您提供对应服务，您一旦关闭任一权限即代表您取消了授权，我们将不再基于对应权限继续收集和使用相关个人信息，也无法为您提供该权限所对应的服务。但是，您关闭权限的决定不会影响此前基于您的授权所进行的信息收集及使用。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">您理解并同意，我们向您提供的功能和服务场景是不断迭代升级的，如我们未在上述场景中明示您需要收集的个人信息，我们将会通过页面公告等方式另行向您明示该等场景下信息收集的内容、范围和目的并征得您同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l15 level1 lfo4"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(二)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">使用用户信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;text-align:left;text-indent:21.0pt;mso-char-indent-count:2.0;line-height:
-        150%;mso-pagination:widow-orphan"><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">我们可能基于以下目的使用您的用户信息：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">完成您的组织内的管理员用户、授权成员用户的账号创建、该等个人用户的账号激活，以及应您的组织或您的要求进行的相应变更等。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您使用我们提供的包括单人、多人参与、发送语音短信、文字和图片等即时通讯服务、或为实现您的组织的管理要求而使用亿洽相关组织内部展示、组织内部沟通等企业功能服务的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">根据您在软件安装及使用中授予的具体权限，为了基于相关技术信息而提供亿洽产品和服务基本功能、保障实现亿洽产品或服务正常运行所需的技术要求事项。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为您提供更好、更个性化的服务的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">向您发送必要的产品、服务通知；并在法律法规允许的前提下，向您发送相关的产品推广、介绍或邀请您参与有关亿洽产品、服务的调查。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">开展内部审计、数据分析与研究，以改进及优化我们的服务质量，比如基于改进服务质量的合理需要，我们可能使用您与客服联系时您提供的相关信息，您参与问卷调查时向我们发送的问卷答复信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">7、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">保护您、亿洽其他用户、本公司、本公司的关联公司、合作伙伴或公众的人身财产安全免遭侵害；我们可能使用您的个人信息、并整合您使用我们的服务过程中接收并记录的设备信息、日志信息等，来进行身份验证、安全事件的检测及防范、投诉处理、纠纷协调、诈骗监测、客户支持维护服务等，并依法采取必要的记录、审计、分析、处置措施，以更好地预防钓鱼网站、欺诈、网络漏洞、计算机病毒、网络攻击、网络侵入等安全风险，更准确地识别违反适用法律法规或本公司相关协议、规则的情况。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">8、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为遵守和执行适用法律法规等规定的义务、相关监管机关或有权机关的强制性要求、行业标准要求以及本公司相关政策、规则的需要。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
-        0;line-height:150%;mso-pagination:widow-orphan;mso-list:l22 level1 lfo9"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">9、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">经您许可的其他用途。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">如我们停止运营亿洽产品或服务，我们将及时停止继续收集您个人信息的活动，将停止运营的通知提前<span lang="EN-US">30</span>日以公告的形式通知您，并依照所适用的法律对所持有的您的个人信息进行删除或匿名化处理。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">三、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何使用<span lang="EN-US"> Cookie </span>和同类技术<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:
-        150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">您使用亿洽产品或服务时，我们使用<span lang="EN-US">Cookie</span>或其他类似技术（以下简称“<span lang="EN-US">Cookie</span>”），以提升您使用亿洽产品或服务的体验。即在您使用亿洽的产品或服务时，我们可能用相关技术向您的设备发送一个或多个<span lang="EN-US">Cookie</span>或匿名标识符，以收集和存储您访问、使用亿洽产品或服务时的信息。借助于<span lang="EN-US">Cookie</span>，在您访问或再次访问易企产品或服务时<span lang="EN-US">,</span>我们能识别您的身份，并通过分析数据为您提供更好的服务。这么做是为了解您的使用习惯，帮您省去重复输入账号信息的步骤，或者帮助判断您的账号安全。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们不会将<span lang="EN-US">Cookie</span>用于本隐私政策所述目的之外的其他用途；您可根据自己的偏好管理或删除<span lang="EN-US">Cookie</span>；大部分网络浏览器自动接受<span lang="EN-US">Cookie</span>，但具体是否接受由您自行决定。如需详细了解如何更改浏览器设置，请访问您使用的浏览器的相关设置页面。您知悉并同意，如果您选择禁用<span lang="EN-US">Cookie</span>，则需要在每一次使用亿洽产品或服务时更改用户设置或者可能导致某些依赖于<span lang="EN-US">Cookie</span>的服务或功能不能使用，由此导致的后果及责任由您自行承担。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">四、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何共享、转让、公开披露您的信息<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l25 level1 lfo12"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">共享<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们不会与任何公司、组织和个人共享您的个人信息，但以下情况除外：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">在获得您的明确同意后，我们会与其他方共享您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们可能会根据适用法律法规规定，诉讼、仲裁等争议解决程序需要，或按相关行政、司法机关或其他监管机构依法提出的要求，对外共享您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">基于您的主动选择，实现功能或服务的共享：只有共享您的个人信息、才能提供您所要求的第三方产品和服务，如：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l1 level1 lfo11"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您的组织的管理员用户选择开通、管理并使用第三方应用服务，将代表您同意我们向该第三方应用服务提供商提供您的组织基于雇佣和<span lang="EN-US">/</span>或管理行为控制的您个人基础信息（账号名、姓名、头像、电话、工作或组织事务用电邮、所属部门及职位等信息）及基础权限；管理员用户开通使用第三方应用服务时，需阅读并充分了解并遵守第三方应用服务的产品功能、声明及相应隐私保护政策。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l1 level1 lfo11"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">经您同意，当您使用亿洽账号登录第三方产品或服务时、或将账号与其他第三方账号绑定时，我们会将您的基础信息（姓名、头像）及其他经您授权的信息与该等第三方产品或服务共享。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">与供应商、服务商等授权合作伙伴共享：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;text-align:left;line-height:150%;mso-pagination:widow-orphan"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体"><span style="mso-spacerun:yes">&nbsp;</span><span style="mso-spacerun:yes">&nbsp;</span><span style="mso-spacerun:yes">&nbsp;
-        </span></span><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们可能委托受信赖的合作伙伴来提供服务或支持，因此，我们可能会与该等授权合作伙伴共享您的某些个人信息，以提供更好的客户服务和优化用户体验；这些服务或支持包括提供基础技术服务、提供咨询、分析等专业服务；该等合作伙伴无权将共享的用户信息用于任何其他用途，除非另行获得您的同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
-        auto;text-align:left;text-indent:21.0pt;mso-char-indent-count:2.0;line-height:
-        150%;mso-pagination:widow-orphan"><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">我们仅会基于合法、正当、必要的原则向该等合作伙伴共享您的用户信息，并仅限于其提供相关服务所必须的信息。进行该等共享时，我们会与该等授权合作伙伴签署严格的保密协议或信息保护约定，要求他们按照我们的委托目的、本隐私政策以及其他任何相关的保密和安全措施来处理个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">与关联公司间共享：我们承诺不在任何非必要的情况下与任何关联公司共享您的个人信息，但为我们基于亿洽账号共同向您提供服务，推荐您可能感兴趣的信息，识别账号异常，保护关联公司或其他用户或公众的人身财产安全免遭侵害，您的个人信息可能会与我们的关联公司共享。我们只会共享必要的个人信息（如为便于您使用亿洽账号使用我们关联公司产品或服务，我们会向关联公司共享您必要的账号信息），如果我们共享您的个人信息涉及敏感信息（包括但不限于身份证号、个人生物识别信息、银行账号、财产信息等）或关联公司改变个人信息的使用及处理目的，将再次征求您的授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo10"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">侵权投诉或协助争议解决：在您被他人投诉侵犯第三方知识产权或其他合法权利时，需要向投诉人披露您的必要资料，以便进行投诉处理或争议解决的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l25 level1 lfo12"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(二)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">转让<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">我们不会将您的个人信息转让给任何公司、组织和个人，但以下情况除外：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l6 level1 lfo13"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">获得您的明确同意后，我们会向其他方转让您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l6 level1 lfo13"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">在本公司发生合并、收购或破产清算情形，或其他涉及合并、收购或破产清算情形时，如涉及到个人信息转让，我们会要求新的持有您个人信息的公司、组织继续受本隐私政策的约束，否则我们将要求该等公司、组织和个人重新向您征求授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l25 level1 lfo12"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(三)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">公开披露<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">我们仅会在以下情况下，公开披露您的个人信息：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo14"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">获得您明确同意或基于您的主动选择，我们可能会公开披露您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo14"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">根据适用法律法规规定，诉讼、仲裁等争议解决程序需要，或按相关行政、司法机关或其他监管机构依法提出的要求的情况下，我们可能会公开披露您的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo14"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如果我们确定您出现违反法律法规或严重违反亿洽相关协议规则的情况，或为保护本公司及其关联公司、合作伙伴、其他用户或公众的人身财产安全免遭侵害，我们可能依据法律法规或相关协议规则征得您同意的情况下披露关于您的个人信息，包括相关违规行为以及已对您采取的措施。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">(</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">四<span lang="EN-US">)</span>共享、转让、公开披露个人信息时事先征得授权同意的例外<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">请您理解，在以下情形中，我们共享、转让、公开披露您的个人信息无需事先征得您的授权同意：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">1</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、与国家安全、国防安全直接相关的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">2</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、与公共安全、公共卫生、重大公共利益直接相关的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">3</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、与犯罪侦查、起诉、审判和判决执行等直接相关的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">4</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、出于维护您或其他个人的生命、财产等重大合法权益但又很难得到本人同意的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">5</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、您自行向社会公众公开的个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">6</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、从合法公开披露的信息中收集个人信息的，如合法的新闻报道、政府信息公开等渠道。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">请您注意，根据法律规定，共享、转让经去标识化处理的个人信息，且确保数据接收方无法复原并重新识别个人信息主体的，不属于个人信息的对外共享、转让及公开披露行为，对此类数据的保存及处理将无需另行向您通知并征得您的同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">五、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何保护您的信息<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l3 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">技术安全防护<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们重视您的信息安全，为保障您的信息安全，我们已采取符合业界标准、合理可行的安全防护措施保护您的信息，防止个人信息遭到未经授权访问、公开披露、使用、修改、损坏或丢失。例如，在您的亿洽客户端<span lang="EN-US">APP</span>与服务器之间交换数据时受<span lang="EN-US">SSL</span>协议加密保护；我们同时对官网网页提供<span lang="EN-US">HTTPS</span>协议安全浏览方式；我们会使用加密技术对您的个人信息进行加密保存；我们会使用受信赖的保护机制防止个人信息遭到恶意攻击；我们会部署访问控制机制，限制只有授权人员才可访问个人信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l3 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(二)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">人员安全管理<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们对可能接触到您的个人信息的员工或外包人员（若有）也采取了严格管理，包括但不限于根据岗位的不同采取不同的权限控制，与他们签署保密协议，监控他们的操作情况等措施。以及我们会举办安全和隐私保护培训课程，加强员工对于保护个人信息重要性的认识。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l3 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(三)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">存储安全<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们会采取合理可行的措施存储您的个人信息，尽力避免收集无关的个人信息。我们只会在限于达成本政策所述目的所需的期限以及所适用法律法规所要求的期限内保留您的个人信息，除非必须延长保留期或受到法律的允许。在您的个人信息超出保留期间后，我们会根据适用法律的要求删除您的个人信息，或使其匿名化处理。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l3 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(四)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">密码保护提示<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">尽管采取了上述合理有效的措施，并已经遵守了相关适用法律规定的标准，但请您理解，互联网并非绝对安全的环境，即使竭尽所能加强安全措施，也不可能保证信息百分之百的安全。因此，请您知悉并理解，您接入我们的服务所用的系统和通讯网络，有可能因我们控制范围外的因素而出现问题。故我们建议您采取积极的措施保护个人信息安全，包括但不限于使用亿洽服务时使用复杂密码、定期修改密码、不将自己的账号密码等个人信息透露给其他人，以协助我们保证您的账号安全。我们将尽合理商业努力保障您发送给我们的任何信息的安全性。如果我们的物理设施或技术防护设施遭到破坏，导致您的个人信息被非授权访问、公开披露、篡改或毁坏，导致您的合法权益受损，我们将按照相关法律规定承担相应的责任。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l3 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(五)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">信息安全事件处理<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:10.5pt;mso-char-indent-count:1.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">在我们获悉发生个人信息安全事件后，我们将按照适用法律法规的要求（最迟不迟于<span lang="EN-US">30 </span>日内）向您告知：安全事件的基本情况和可能的影响、我们已采取或将要采取的处置措施、您可自主防范和降低风险的建议、对您的补救措施等。事件相关情况我们将邮件、信函、电话、推送通知等方式告知您，难以逐一告知个人信息主体时，我们会采取合理、有效的方式发布公告。同时，我们还将按照监管部门要求，上报个人信息安全事件的处置情况。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">六、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何访问、修改及删除您的信息<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">按照适用法律法规的规定及要求，我们保障您对我们持有的您的个人信息行使访问、更正、补充以及删除的权利。您可以通过以下具体方式访问及管理您的个人信息：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo16"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">查询、更正和补充您的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">1</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、管理员用户<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">作为您的组织的管理员用户，您有权查询、更正或补充您的组织的信息及您的组织基于雇佣和<span lang="EN-US">/</span>或管理行为控制的个人用户信息。您可以通过以下方式自行进行：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">登录亿洽管理后台，通过打开“组织架构<span lang="EN-US">-</span>部门管理<span lang="EN-US">”</span>，管理员用户可查询、更正或补充您的组织信息：包括组织架构，部门划分，各授权成员用户身份等信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><a name="_Hlk39915012"><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">登录亿洽管理后台，通过打开“组织架构<span lang="EN-US">-</span>用户管理<span lang="EN-US">”</span>，管理员用户可查询、更正或补充授权成员用户的个人资料及相关信息，包括账号、姓名、职位、邮箱、座机、手机等信息。</span></a><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体"><o:p></o:p></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">随亿洽管理后台版本更新，操作路径可能与上述介绍不同，请以届时管理后台页面展示为准。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">2</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、授权成员用户<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">作为您的组织的授权成员用户，您有权按照如下途径查询您的信息： <span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">登录亿洽客户端，点击左上角小标，并在弹出左侧插页点击个人名称，可查询个人资料及个人用户相关信息：头像、姓名、手机、座机、邮箱、部门、职位等信息。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">随亿洽客户端版本更新，操作路径可能与上述介绍不同，请以届时客户端展示为准。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">若需要作出信息更正或补充的，您应及时通知您的组织的管理员或者您可以向您的组织的管理员提交更正信息申请（取决于您的组织的相关管理规定），由您的组织的管理员在其账号中进行更正处理。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo16"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(二)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">删除您的信息<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">在以下情形中，管理员用户可自行或可以向我们提出删除个人信息的请求：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">1</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、如果我们处理个人信息的行为违反法律法规。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">2</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、如果我们收集、使用您的个人信息，却未征得您的明确同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">3</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、如果我们处理个人信息的行为严重违反了与您的约定。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">4</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、如果您不再使用我们的产品或服务，或您主动注销了账号。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">5</span><span style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体">、如果我们永久不再为您提供产品或服务。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">若您作为授权成员用户，您应向您的组织的管理员提交删除申请（具体形式取决于您的组织的相关管理规定），由您的组织的管理员自行进行删除操作；爱工作无权限进行该等删除操作，但适用法律另有规定的除外。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">若我们决定响应上述删除请求，我们还将同时尽可能通知从我们处获得您的个人信息的主体，并要求其及时删除（除非法律法规另有规定，或这些主体已独立获得您的授权）。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">当您的组织的管理员或我们协助其删除相关信息后，因为适用的法律和安全技术，我们可能无法立即从备份系统中删除相应的信息，我们将安全地存储您的个人信息并将其与任何进一步处理隔离，直到备份可以清除或实现匿名。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo16"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(三)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">改变您授权同意的范围<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">每个业务功能需要一些基本的个人信息才能得以完成，除此之外，您可以操作改变您的授权同意范围：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l16 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为管理员用户，您可以通过打开管理后台<span lang="EN-US">“</span>系统设置<span lang="EN-US">-</span>企业信息<span lang="EN-US">”</span>页面选择开通或关闭亿洽基础应用、第三方应用。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l16 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为授权成员用户，您可以登录亿洽移动客户端，通过<span lang="EN-US">“</span>我的<span lang="EN-US">-</span>设置<span lang="EN-US">-</span>隐私<span lang="EN-US">”</span>中设置或改变您的智能移动设备的设置等方式给予或收回您的授权同意。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">当您收回同意后，我们将不再处理相应的个人信息。但您收回同意的决定，不会影响此前基于您的授权而开展的个人信息处理。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo16"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(四)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">注销您的账号<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l24 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为授权成员用户，你可以向您的组织的管理员申请注销您的个人账号（取决于您的组织的相关管理规定），由您的组织的管理员进行注销处理。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l24 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">作为管理员用户，您的组织的管理员也可以按照如下方式注销其管理员账号：登录亿洽管理后台，通过打开“组织架构<span lang="EN-US">-</span>角色管理<span lang="EN-US">”</span>设置管理员账号为无效状态；或者联系亿洽客服：<span lang="EN-US">[400-8576-886]</span>，寻求帮助，我们将协助您的组织的管理员注销您的组织的管理员账号。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">在您主动注销账号之后，我们将停止为您提供产品或服务，根据适用法律的要求删除您的个人信息，或使其匿名化处理。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo16"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(五)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">约束信息系统自动决策<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">在某些业务功能中，我们可能仅依据信息系统、算法等在内的非人工自动决策机制做出决定。如果这些决定显著影响您的合法权益，您有权要求我们做出解释，我们也将在不侵害亿洽商业秘密或其他用户权益、社会公共利益的前提下提供申诉方法。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo16"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(六)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">响应您的上述请求<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为保障安全，您可能需要提供书面请求，或以其他方式证明您的身份。我们可能会先要求您验证自己的身份，然后再处理您的请求。我们将在<span lang="EN-US">30</span>日内做出答复。如您不满意，还可以通过亿洽客服或本隐私政策提供的联系方式发起投诉。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">对于您合理的请求，我们原则上不收取费用，但对多次重复、超出合理限度的请求，我们将酌情收取一定费用。对于与您的身份不直接关联的信息、无端重复信息，或者需要过多技术手段（例如，需要开发新系统或从根本上改变现行惯例）、给他人合法权益带来风险或者不切实际的请求，我们可能会予以拒绝。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">在以下情形中，按照适用法律法规要求，我们将无法响应您的请求：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">与国家安全、国防安全直接相关的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">与公共安全、公共卫生、重大公共利益直接相关的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">与犯罪侦查、起诉、审判和执行判决等直接相关的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">有充分证据表明您存在主观恶意或滥用权利的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">响应您的请求将导致您或其他个人、组织的合法权益受到严重损害的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">6)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">涉及本公司和<span lang="EN-US">/</span>或亿洽企业<span lang="EN-US">/</span>机构用户商业秘密的。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">七、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您的个人信息如何保存<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">我们将在中华人民共和国境内运营亿洽产品或服务中收集和产生的个人信息存储在中华人民共和国境内。为避免歧义，这里不包括香港特别行政区、澳门特别行政区及台湾地区。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
-        line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
-        font-family:宋体">基于您的组织的自主选择，该等信息可能会存储在您的组织自行控制下的服务器中，在该等情况下，同样受限于本隐私政策第一条第<span lang="EN-US">3</span>款的约定。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">八、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">本隐私政策如何更新<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们的隐私政策可能会适时修订，该等修订于我们在亿洽客户端页面上发布后生效，并取代修订前的版本或构成本隐私政策的一部分。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(二)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">未经您明确同意我们不会限制您按照本隐私政策所应享有的权利。对于重大变更，我们还会提供更为显著的通知（包括我们会通过电子邮件发送通知、公告通知甚至向您提供弹窗提示）。本隐私政策所指的重大变更包括但不限于：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们的服务模式发生重大变化。如处理个人信息的目的、处理个人信息的类型以及个人信息的使用方式等。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们在所有权、组织架构等方面发生重大变化，如并购重组等引起的所有者变更等。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">个人信息共享、转让或公开披露的主要对象发生变化。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">您参与个人信息处理方面的权利及其行使方式发生重大变化。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们负责处理用户信息安全的责任部门、联络方式及投诉渠道发生变化时。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">用户信息安全影响评估报告表明存在高风险时。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(三)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">修订后的隐私政策在亿洽客户端上发布后，若您继续使用我们的服务，即表示同意受修订后的隐私政策的约束。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:-21.3pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(四)</span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">我们还会将本隐私政策的旧版本存档，供您查阅。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.3pt;text-indent:0cm;mso-char-indent-count:
-        0;line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l4 level1 lfo2"><!--[if !supportLists]--><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">九、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span></b><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如何联系我们<span lang="EN-US"><o:p></o:p></span></span></b></p>
-
-        <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
-        10.5pt;line-height:150%;font-family:宋体"><o:p>&nbsp;</o:p></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l14 level1 lfo23"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(一)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">如果您对本隐私保护政策或数据处理有任何疑问、意见或建议，可以通过如下方式与我们联系：<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="margin-left:39.0pt;text-align:left;
-        text-indent:-18.0pt;mso-char-indent-count:0;line-height:150%;mso-pagination:
-        widow-orphan;mso-list:l21 level1 lfo25"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
-        宋体"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">
-        </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">工单联系方式：<span lang="EN-US">[</span></span><span lang="EN-US"><a href="https://customer.quanxiangyun.com/worklyai"><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
-        &quot;Times New Roman&quot;;mso-font-kerning:0pt">https://customer.quanxiangyun.com/worklyai</span></a></span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">]</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">或通过客服电话<span lang="EN-US">[400-8576-886 ]</span>联系我们。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="margin-left:39.0pt;text-align:left;
-        text-indent:-18.0pt;mso-char-indent-count:0;line-height:150%;mso-pagination:
-        widow-orphan;mso-list:l21 level1 lfo25"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
-        宋体"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">
-        </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">我们邮寄联系方式如下：<span lang="EN-US">[</span>朝阳区朝来科技产业园<span lang="EN-US">16</span>号楼<span lang="EN-US">7</span>层<span lang="EN-US">]</span>。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" align="left" style="margin-left:39.0pt;text-align:left;
-        text-indent:-18.0pt;mso-char-indent-count:0;line-height:150%;mso-pagination:
-        widow-orphan;mso-list:l21 level1 lfo25"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
-        宋体"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">
-        </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;
-        line-height:150%;font-family:宋体">我们将尽快审核您提交的疑问、意见或建议，并在验证您的用户身份后的<span lang="EN-US">30</span>日内予以回复。<span lang="EN-US"><o:p></o:p></span></span></p>
-
-        <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
-        mso-char-indent-count:0;line-height:150%;mso-list:l14 level1 lfo23"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
-        mso-bidi-font-family:宋体"><span style="mso-list:Ignore">(二)<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">基于本隐私政策产生或与之相关的争议，双方首先应协商解决，协商不成的，任何一方均有权将争议向北京市朝阳区人民法院起诉。<span lang="EN-US"><o:p></o:p></span></span></p>
-
+            <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><b><span style="font-size:16.0pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">易企聊团队沟通与协作平台</span></b><b><span lang="EN-US" style="font-size:
+            16.0pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></b></p>
+
+            <p class="MsoNormal" align="center" style="text-align:center;line-height:150%"><b><span style="font-size:16.0pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">用户协议</span></b><b><span lang="EN-US" style="font-size:16.0pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></b></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">生效时间：</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">2020</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">年</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">7</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">月</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">1</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">日</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
+            line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">尊敬的用户，感谢您使用由北京爱工作科技有限公司（以下简称“<b>爱工作</b>”或“<b>我们</b>”）提供的易企聊团队沟通与协作平台（以下简称“<b>本平台</b>”或“易企聊平台”）的产品及服务。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">在使用本平台的产品及服务之前，请您仔细阅读《易企聊团队沟通与协作平台用户协议》（以下简称“本协议”）及《隐私政策》条款，特别是其中涉及免除或者限制我们责任的条款、对您权利限制的条款、争议解决和法律适用条款。免除或限制我们责任、对您权利限制的条款可能将以加粗字体或加下划线的方式显示，提示您重点阅读。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">当您充分阅读并同意本协议内容，应依本协议约定方式签署本协议。在您未签署本协议前，我们无法向您提供实质的易企聊产品及服务。</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoNormal" style="text-indent:21.1pt;mso-char-indent-count:2.0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">当您按照易企聊相关注册页面提示填写信息、阅读并同意本协议且完成全部注册程序后，或您按照易企聊相关激活页面提示填写信息、阅读并同意本协议且完成全部激活程序后，或您以其他方式使用易企聊平台的产品及服务时，即代表您已经充分理解并同意全部协议内容，承诺遵守本协议约定，本协议内容对您产生约束力。</span></b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
+            line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:
+            150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l0 level1 lfo16"><!--[if !supportLists]--><span lang="EN-US" style="font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-bidi-font-family:
+            等线;mso-bidi-theme-font:minor-fareast"><span style="mso-list:Ignore">一、</span></span><!--[endif]--><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">缔约主体</span></b><span lang="EN-US" style="font-family:&quot;Times New Roman&quot;,&quot;serif&quot;"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l31 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">本协议由通过爱工作运营的</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体">workly.ai</span><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体">数字化办公平台（</span><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">网站</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">为</span><span lang="EN-US"><a href="https://workly.ai/"><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体">https://workly.ai/</span></a></span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">）中的易企聊团队沟通与协作平台管理后台</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">、易企聊移动客户端、</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">PC</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">端应用软件以及其他方式使用本平台产品及服务的用户和爱工作共同缔结的协议，本协议载列了用户访问和使用本平台的相关网站、服务、应用程序、产品及内容须遵守的条款及条件。若您在使用爱工作的关联方或其他第三方产品或服务中使用了本平台产品及服务的，该等使用行为同样适用于本协议的约定。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">若您在使用本平台产品及服务时涉及使用来自第三方（包括但不限于爱工作的关联方、供应商）的产品或服务的，适用本协议第七条的约定。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l31 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">用户访问或使用本平台产品及服务，即表示您确认：您具有与我们达成具有约束力合同所需的民事权利和民事行为能力（或您符合本协议第八条“未成年人用户”中的约定）。如果您代表任何企业或其他实体机构访问或使用本服务，您承诺您已获得了该企业或其他实体机构允许您代表其接受、履行本协议所需的完整授权；在此情况下，该企业或其他实体机构在法律和财务方面对以下各项行为承担责任：您对本服务的访问和使用，以及与该实体关联之其他人士（包括任何员工）对您账号的使用。如您不具备该等主体资格，请勿使用本平台产品及服务，否则您或您的监护人应承担由此而导致的一切后果。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l31 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体">易企聊企业<span lang="EN-US">/</span>机构用户（“您的组织”）：指通过开户、认证、经由其管理员用户的易企聊</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">帐号上传企业</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">机构成员通讯录搭建企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构组织</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">管理架构，开通、管理和使用易企聊产品及服务的企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构。易企聊企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构用户包括但不限于法人、政府机构、其他组织、合伙或个体工商户等。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">易企聊企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构管理员用户（“管理员用户”）：指经您的组织合法授权或指定而开通管理员账号的个人用户，该管理员账号拥有您的组织的易企聊平台中管理操作权限，代表您的组织上传您的组织的成员通讯录等数据，并开通、管理和使用易企聊产品及服务；管理员用户可根据您的组织的实际需要设立多层级管理员用户，在其享有的权限之下搭建多层级管理员架构并逐级设置相应的管理权限。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">易企聊企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构授权成员用户（“授权成员用户”）：是指您的组织为使上传之成员通讯录（包括成员账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等）中的成员使用易企聊产品及服务，而由管理员用户直接为该等成员开设并分发给该等成员相应的易企聊个人账号，因该等开设、分发而持有并使用此类易企聊账号的个人用户。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:18.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l31 level1 lfo15"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您以授权成员用户的身份使用本平台产品及服务时，您知悉并确认本服务是供企业和</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">或其他机构的工作或其他活动之目的而使用的工具，并非用于您个人作为消费者的用途。且您的组织将基于工作和</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">或其他活动的管理需求，对您的授权成员身份及基于该身份的相关权益进行管理，包括但不限于加入、删除以及调整权限和限制服务内容等；您保证在使用本平台产品及服务的过程中同样遵守和受限于您的组织发布的适用本服务的该等规范。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph"><span lang="EN-US" style="font-family:&quot;Times New Roman&quot;,&quot;serif&quot;">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">二、协议内容和效力</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l6 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">本协议内容包括本协议正文及我们未来可能发布的与易企聊产品及服务有关的各项规则、政策、声明、通知、提示等（以下简称“<b>规则</b>”）。前述规则为本协议的一部分，具有与正文同等法律效力。如各项规则内容产生不一致，以生效时间在后的规则为准。</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">若该等规则与本协议存在歧义或冲突的，则以本协议约定为准，除非我们在该等规则中明确约定若发生冲突时以该等规则的约定为准。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l6 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">我们有权根据应用需要，不时订制、修改本协议及相关规则，变更后的协议和规则将通过本平台官方网站提前</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">7</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">日通过公告的形式通知您，并按通知所载时间生效。如您不同意相关变更，应立即停止使用本平台的产品及服务；如您继续使用本平台的产品及服务，代表您已接受变更后的协议和规则。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l6 level1 lfo17"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">若您的组织与我们就使用本平台产品及服务签订有任何单独的产品</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">服务订购协议，该等订购协议的约定同样适用于规范您使用本平台产品及服务的行为；若该等订购协议与本协议之间存在任何歧义或冲突的，以该等订购协议的约定为准。关于获知该等订购协议内容的方式取决于您与您的组织之间的管理规范规定，我们不负有告知您订购协议内容的义务。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal"><span lang="EN-US" style="font-family:&quot;Times New Roman&quot;,&quot;serif&quot;">&nbsp;</span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><b><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">三、服务内容</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">本平台向用户提供包括支持单人、多人参与，发送语音短信、图片和文字等即时通讯服务，为用户提供组织成员管理、企业通讯录、文档存储、团队等功能以及与其他软件互通的服务；随着本平台产品及服务的不断更新、升级，具体包含的产品及服务以本平台相关网站、客户端最新呈现的内容为准。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">我们有权自行决定不时对本平台、服务或者服务任何部分及相关功能、应用软件进行变更、升级、修改、删除或转移，并在本平台官网上公示通知。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您理解并同意，您作为您的组织的授权成员用户使用本平台产品及服务的，以您的组织通过其管理员用户选择和授权使用的产品及服务的范围为限；本条款中所描述的服务、功能可能只对部分用户提供或以特定方式提供；因此，您在访问和使用本平台的产品及服务时能够实际享受的服务以您的账户内实际呈现的为准。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织在使用本平台产品及服务时，可能获准向本服务或通过本服务上传、发布、提交或发送讯息或其他内容（以下简称“您的用户内容”）。出于实现本服务某些功能、改善本服务，以及基于您的同意并符合适用法律、本协议及《隐私政策》所述的其他目的之必要，我们（包括我们的关联方、供应商）可能会使用、复制、下载或展示您的用户内容，但该等使用行为仅限于上述范围及目的之内；同时，您基于您的组织管理之目的或您的组织发布的适用本服务的相关管理规范、规则，向其他授权成员用户分享您的用户内容，即表示您同意向这些用户授予不受限制且免费享有您的用户内容的权利。即使您的用户内容已自本服务中删除，已获分享的用户仍能够继续使用及允许他人使用该等您的用户内容，例如，该用户已将您分享的用户内容的副本下载或存放在自己的账号中。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l5 level1 lfo18"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您应当自我们的网站或我们已经授权的第三方下载本平台以获取易企聊平台产品及服务；否则，我们无法保证您自其它途径获得的该版本的服务能够正常使用，您应自行对该种获取方式和使用行为负责；若因此导致我们受损，您应赔偿爱工作因此遭受的损失。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">四、账号注册及使用规范</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">开户及注册管理员用户</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">为使用本平台的产品及服务，在向我们申请开户时，您的组织将向我们提供企业</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">机构名称、统一社会信用代码以及联系人信息等。开户并经分配产生管理员账号后，在使用本平台产品及服务前，您的组织应通过管理员账号完成相应的实名认证。进行实名认证时，管理员用户将代表您的组织根据相关页面指示继续提供特定信息和资料，包括但不限于组织的营业执照复印件、统一社会信用代码、企业组织名称、地址、法定代表人（或负责人）身份证号、指定管理员的合规授权委托、指定管理员的身份证号等基本信息。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">注册授权成员用户</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">当管理员用户在上述管理员账号中上传您的组织的成员通讯录，包括成员账号名、工作或组织事务用电邮、姓名、电话、所属部门及职位等，并将该等账号分发给您的情况下，您可以作为授权用户使用已获得的账号进行激活，激活该账号后您将归属于您的组织，并作为您的组织的授权成员用户开始使用本平台的产品及服务。您知悉并承诺，您的组织和您在上述过程以及使用本平台服务时提交的个人身份信息及相关其他信息均真实、准确、完整且反映提交当时的情况。如您的个人信息需要更新，需要与您的组织的管理员用户联系，进行修改。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您的组织、管理员用户及授权成员用户均受本协议约束。如本协议第一条第</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">2</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">款之约定，管理员用户的一切行为均应已获得您的组织的合法授权，其代表您的组织访问和使用本服务，即视为您的组织的行为。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您的账户被激活后，您也可以使用您的第三方账号登录并使用本平台产品及服务，您将授权我们获取您在第三方平台注册的公开信息（姓名、头像以及您授权的其他信息），用于账号绑定，使您可以直接登录并使用本平台产品及服务。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您了解并同意，您的易企聊账号所有权归属于爱工作，您仅享有本协议约定范围内的使用权。同时，您的账号应限于您使用，不得以任何方式转让或许可他人使用，如有违反，爱工作有权在未经通知的情况下视情况选择中止或终止向该账号提供服务，或直接注销该账号，由此带来的因您使用本服务产生的损失，您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织应自行承担。若涉及管理员账号，我们有权视情况中止、终止该管理员账号及其所有通讯录成员账号的服务，或直接注销该管理员账号以及其通讯录成员账号。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您应当设置保密级较高的密码，并妥善保管自身账号和密码信息，对利用该账号、密码</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">必要的身份信息所进行一切活动承担责任。如您发现该账号或密码存在未获授权的使用、任何其他安全问题等异常情况的，应立即联系您的组织管理员用户进行处理；管理员用户无法处理或您即是管理员用户的，您可联系我们进行处理。除非适用法律有明确规定，我们不对上述情形产生的直接或间接损失、损害承担责任。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l13 level1 lfo20"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">7、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">当您的组织停止使用本平台的产品及服务时，则该组织的管理员用户有义务及时删去存在本平台的所有企业信息并注销您的组织注册或分发的所有账号。如未及时删除或注销，则爱工作有权自行对账号相关内容及信息以包括但不限于删除的方式进行处理，且无需承担任何责任。如您为授权成员用户，在您停止使用本平台的产品或服务时，须由您的组织的管理员用户通过管理员账号对您的账号进行删除或注销；爱工作无权限进行该等删除操作，但适用法律另有规定的除外。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:.15pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">五、服务使用规范</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您同意并承诺，严格遵守本协议约定使用本平台的产品及服务；如您的组织发布有关本平台产品及服务的使用规则，您应一并遵守。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您充分了解并同意，您必须为自己的账号所发生的行为负责，包括所发表的任何内容以及由此产生的任何后果；应对使用本平台产品和服务时接触的内容自行加以判断，并承担因使用内容而引起的所有风险，包括因对内容的正确性、完整性或实用性的依赖而产生的风险。我们无法对您或您的组织因前述风险而导致的任何损失或损害承担责任。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您不得利用本平台产品及服务从事违反法律法规活动，不得利用本平台产品及服务进行存储、上传、发布、传播如下信息和内容：</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">违反国家法律法规政策的任何内容（信息）；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">违反国家规定的政治宣传和</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">或新闻信息；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">涉及国家秘密和</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">或安全的信息；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">封建迷信和</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">或淫秽、色情、下流的信息或教唆犯罪的信息；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">博彩有奖、赌博游戏等非法活动；</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">6）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">违反国家民族和宗教政策的信息；</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">7）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">妨碍互联网运行安全的信息；</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l17 level1 lfo29"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">8）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">侵害他人合法权益的信息或其他有损于社会秩序、社会治安、公共道德的信息或内容或指向这些内容、信息的链接；发布、传送、传播不受欢迎的或者未经请求的电子邮件、电子广告或包含淫秽、色情等有害信息的电子邮件。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您承诺不对本平台产品及服务从事以下行为：</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l30 level1 lfo30"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">将有关干扰、破坏或限制任何计算机软件、硬件或通讯设备功能的软件病毒或其他计算机代码、档案和程序之资料，加以上载、张贴、发送电子邮件或以其他方式传送；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l30 level1 lfo30"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">干扰或破坏本服务或与本服务相连线之服务器和网络，或违反任何关于本服务连线网络之规定、程序、政策或规范；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l30 level1 lfo30"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">通过修改或伪造软件运行中的指令、数据，增加、删减、变动软件的功能或运行效果，或者将用于上述用途的软件、方法进行运营或向公众传播，无论这些行为是否为商业目的；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l30 level1 lfo30"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">通过非爱工作开发、授权的第三方软件、插件、外挂、系统，登录或使用软件及服务，或制作、发布、传播上述工具；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l30 level1 lfo30"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">自行、授权他人或利用第三方软件对本软件及其组件、模块、数据等进行干扰。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">本服务并非因某些特定目的而设计，您</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织不能将本服务用于包括但不限于核设施、军事用途、医疗设施、交通通讯或其他限制、敏感行业或领域。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织使用本平台产品及服务的行为仅限于非商业用途，如有商用需求，应联系爱工作，由您的组织与爱工作另行协商。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">7、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织尊重爱工作及其他第三方的知识产权及其他合法权利。您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织不得以任何形式侵犯爱工作或其他第三方的名誉或利益。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">8、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织同意并接受爱工作关于使用本平台产品及服务情况的审查、监督并采取相应行动，包括但不限于删除信息、中止或终止服务及向有关监管机关报告。<span class="MsoCommentReference">例</span>如爱工作发现或收到举报您或您的组织有违反本协议的行为，则我们有权依据相关法律法规和本协议约定进行核查、转通知，并采取必要的限制措施（包括但不限于删除、屏蔽或断开链接等），如因此造成了损失将由您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织自行承担。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l2 level1 lfo19"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">9、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">爱工作保留在您</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织违反本条约定时中止、终止向您或您的组织提供全部或部分服务并不退还任何款项的权利。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><b><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">六、服务费用</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l27 level1 lfo27"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您的组织根据我们的收费政策购买本平台产品及服务，所有费用需要事先支付；授权成员用户将根据您的组织购买的产品及服务进行使用。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l27 level1 lfo27"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您及您的组织确认且同意，爱工作有权随时将本平台产品及服务中的免费功能调整为收费功能，调整前，爱工作将提前</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">7</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">日通过公告形式向您及您的组织发送通知，如无法接受该等调整，您应立即停止使用该功能。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l27 level1 lfo27"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您及您的组织确认且同意，爱工作有权随时调整本平台部分或全部产品及服务的价格，调整前，爱工作将提前</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">7</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">日通过公告形式向您及您的组织发送通知；对于价格调整生效前您的组织已购买的产品及服务将不受影响，可继续按照原价格使用。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l27 level1 lfo27"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您及您的组织应当自行支付使用本平台产品及服务而产生的其他费用，包括但不限于上网流量费、通信设备费用及通讯服务费等。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l27 level1 lfo27"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您理解并知悉，您在发起单人或多人基于互联网的通话时，需消耗您相应的流量，当接通电话后将不再消耗您任何流量。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l27 level1 lfo27"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">本条所列之通知到达管理员账号即视为您的组织接收到该等通知。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">七、第三方供应商产品及服务</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">如您的组织已经选择开通本平台展示的由第三方供应商提供的产品及服务，您使用该第三方产品及服务应在第三方供应商提供的页面进行第三方账号注册、登录、激活等操作（具体以第三方该等页面显示为准）。我们作为本平台的提供方，仅为您便利操作提供该功能模块或服务的订购</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">使用入口，该等服务由第三方提供并承担责任。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">为保证您能够正常使用第三方服务，您确认且同意爱工作有权调用第三方系统或者通过第三方供应商支持您的使用或访问。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您使用第三方供应商产品及服务的行为，受您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织与第三方供应商另行缔结的协议约束；第三方供应商产品及服务内容、价格政策、售后维护等，受您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织与第三方服务提供商另行约定的协议、规则约束；爱工作关于易企聊产品及服务的承诺不适用任何第三方供应商产品及服务；但本协议中涉及使用第三方产品及服务的约定您仍需遵守。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您在使用第三方供应商产品及服务过程中发生纠纷，应由您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织联系第三方供应商予以解决。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您理解并同意，是否选择第三方供应商产品及服务取决于您的组织的决定，且在开通该等功能或服务时，您的组织的管理员用户已向该第三方提供了含有授权成员用户个人信息的数据（如您的组织的成员通讯录全部或部分信息），或已授权爱工作向该等第三方共享了上述信息；若您作为您的组织的管理员用户，您在开通第三方服务并向该等服务的供应商提供上述信息或授权爱工作向其共享上述信息前，应向所涉及的授权成员用户充分说明情况并取得授权成员用户的明确同意。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l20 level1 lfo21"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您及您企业理解并同意，除非法律另有明确规定外，如我们对第三方产品和服务作出调整、中止或终止而对第三方应用服务产生影响的，爱工作不承担相应责任。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:
+            150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:宋体">&nbsp;</span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><b><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">八、未成年人用户</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l16 level1 lfo25"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">易企聊产品及服务针对企业</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">机构的需求而设立，除特殊行业机构（比如教育机构）外，原则上未满</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">18</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">周岁的未成年人不应成为易企聊产品及服务的授权成员用户。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l16 level1 lfo25"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">若您是未满</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">18</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">周岁的未成年人，在符合适用法律的前提下成为易企聊产品及服务的授权成员用户时，您的组织应在提供成员通讯录时明示；且您在使用易企聊产品及服务前，应在您的父母或其他监护人监护、指导下共同阅读并同意本协议。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:
+            150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">九、隐私政策</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">爱工作充分尊重对您个人信息的保护，并按照相关适用法律法规的规定收集、使用及保护您的个人信息。对于您的个人信息保护的约定，具体详见《隐私政策》；您确认并同意，一旦您同意本协议、《隐私政策》或使用易企聊产品及服务，您即同意爱工作按照本协议及《隐私政策》的约定来收集、使用和披露您的个人信息。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:
+            150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">十、知识产权</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo23"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您使用易企聊产品及服务及使用易企聊产品及服务期间，爱工作提供给您的易企聊产品及服务涉及的产品、技术、软件、程序、数据及其他相关资料（包括但不限于文字、图像、照片、音频、版面设计等）的知识产权归爱工作所有（第三方服务涉及的软件、技术资料除外），您仅在合法合规为本协议之目的使用本服务时享有非独占、非排他、无再许可、分许可的一般使用权，该等一般使用许可自无论因任何原因终止本服务时均自动终止。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">未经爱工作书面授权，对于前述权利您不得出租、出售、散布、复制、修改、转载、汇编、发表、出版、进行还原工程、反向汇编、反向编译，或作出以其他方式发现源代码等的行为，不得掩藏任何爱工作所提供的相关软件中包含的任何版权、商标或其他专有权声明。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo23"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">任何一方的商号、商标、品牌及其他标识均为该方的专有财产，本协议中任何规定均不构成一方向另一方授予上述商号、商标、品牌及其他标识的普遍使用许可。除本款第</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">2</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">项之约定外，若非经所有方书面同意，任何一方均不得显示、使用或允许任何第三方显示、使用另一方的任何商号、商标、品牌及其他标识。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织同意并授权爱工作使用您的组织的名称、商标及其他标识（如涉及），仅用于宣传您的组织为我们的客户或合作伙伴。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo23"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织在使用本服务时、特别是在向本服务或通过本服务上传、发布、提交或发送讯息或其他内容（即您的用户内容）时，保证您的用户内容归您所有或已获授权、该等您的用户内容不侵犯任何权利人享有的知识产权。若有违反，则我们有权按照本协议第五条的约定执行。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l7 level1 lfo23"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">除上述第</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">2</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">款第</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">2</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">项的约定外，第十条其他内容在本协议效力终止后，对本协议各方仍继续有效。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><b><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">十一、服务中断或故障</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您了解并同意，爱工作可能因以下原因导致无法正常运行，如您因此无法使用本服务，爱工作对由此给您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织造成的损失不承担赔偿责任：</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo36"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">本公司定期或不定期的对提供网络服务的平台设备、软件、硬件进行维护或检修；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo36"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">因不可抗力因素，包括但不限于台风、地震、海啸、洪水等自然灾害、停电、罢工、动乱、战争、恐怖袭击、政府行为、相关法律法规及政策的颁布调整等，造成本平台不能正常运营的；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo36"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">由于网络安全事故，如黑客攻击、计算机病毒或其他恶意程序等，造成本公司系统障碍不能正常运行的；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l11 level1 lfo36"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">其他非因本公司过错、本公司无法控制或合理预见的情形。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="margin-left:-.1pt;mso-para-margin-left:-.01gd;
+            text-indent:0cm;mso-char-indent-count:0;line-height:150%;mso-prop-change:王鑫 20200926T1425"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">十二、违约责任</span></b><b><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo24"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您了解并同意，出现以下情况，爱工作有权不经事先通知即中止或终止向您提供本协议项下服务，您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织须自行承担由此导致的后果和损失；如给爱工作造成损失的，则爱工作有权要求您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织赔偿：</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo35"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您的组织未及时支付费用或续费；</span><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo35"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织违反了本协议约定，产生了安全风险或对爱工作、其关联方或本平台的其他客户</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">/</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">用户造成其他不利影响；</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:-18.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l18 level1 lfo35"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3）<span style="font:7.0pt &quot;Times New Roman&quot;"> </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织违反了法律法规的相关规定。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo24"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">如因您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织违反法律法规的相关规定，为配合相关部门调查，爱工作有权不经您或您的组织的同意，将您使用易企聊产品及服务产生的全部信息、数据交予相关部门，该行为不应视为爱工作违反本协议约定。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l19 level1 lfo24"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">如因您</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">/</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:
+            宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;
+            mso-bidi-font-family:&quot;Times New Roman&quot;">您的组织违反法律法规或本协议约定，导致爱工作被任何第三方或有关部门提出任何索赔或追究责任，您及您的组织应赔偿爱工作因此遭受的全部损失。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">十三、责任限制</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">爱工作仅在本协议中列明的责任承担范围内承担相应责任。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">对本协议第十一条所列事件而导致的服务中断或故障而致服务无法使用，不构成爱工工违约，爱工作应及时自行或与其他涉及机构配合进行修复，且因此导致的损失爱工作不予赔偿。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">3、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">爱工作仅就易企聊平台服务本身提供运营维护，您<span lang="EN-US">/</span>您的组织应当保证自身设备、网络等安全、稳定、具备适于开通易企聊服务的必要条件，若因您<span lang="EN-US">/</span>您的组织不能提供上述必要条件而导致您的组织所购买的本服务不能提供、迟延提供或造成本服务缺陷的，爱工作不承担因此导致的责任或损失。此种情况下，爱工作提供服务责任相应延迟，在合理期限内您<span lang="EN-US">/</span>您的组织不能消除自身所造成的障碍的，则爱工作有权终止本协议，因此造成爱工作损失的，您<span lang="EN-US">/</span>您的组织应予以赔偿。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">4、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">您<span lang="EN-US">/</span>您的组织同意，在本公司无重大过失或过错的情况下，无需对您使用本服务时数据传输的延迟、错误或疏漏、数据未被存储、丢失或损毁以及因此导致的损失承担责任。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">5、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">对于您<span lang="EN-US">/</span>您的组织选择使用第三方服务而导致的责任、风险，由您自行承担。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">6、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">爱工作不对非本公司软件提供任何知识产权保证和质量保证，对任何因该等软件原因直接或间接造成您损失的，爱工作不承担赔偿责任。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">7、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">在法律允许的情况下，爱工作对于与本协议有关或由本协议引起的任何间接的、惩罚性的、特殊的、派生的损失（包括业务损失、收益损失、利润损失、商誉损失或其他经济利益的损失等），不论是如何产生的，也不论是由对本协议的违约（包括违反保证）还是由侵权造成的，均不负有任何责任。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">8、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">在任何情况下，爱工作对本协议所承担的违约赔偿责任总额不超过当年度已向您的组织收取的服务费用总额。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoListParagraph" align="left" style="mso-margin-top-alt:auto;mso-margin-bottom-alt:
+            auto;margin-left:21.0pt;text-align:left;text-indent:-21.0pt;mso-char-indent-count:
+            0;line-height:150%;mso-pagination:widow-orphan;mso-list:l29 level1 lfo34"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;
+            mso-bidi-font-family:宋体;mso-font-kerning:0pt"><span style="mso-list:Ignore">9、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-bidi-font-family:
+            宋体;mso-font-kerning:0pt">您理解并同意，易企聊服务是按照现有技术和条件所能达到的现状提供。爱工作并不能保证所提供服务毫无瑕疵；所以，即使爱工作提供的该等服务存在瑕疵，但若上述瑕疵是其时行业技术水平所无法避免的，其将不视为爱工作违约，您<span lang="EN-US">/</span>您的组织同意与爱工作一同就上述问题共同协商寻求解决方式。<span lang="EN-US"></span></span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
+
+            <p class="MsoListParagraph" style="text-indent:0cm;mso-char-indent-count:0;
+            line-height:150%"><b><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">十四、法律适用与管辖</span></b><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></b></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l14 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">1、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">除非本协议另有约定或您的组织与爱工作另行达成书面协议的，本协议在您使用本服务期间均持续有效。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:21.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l14 level1 lfo22"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:&quot;Times New Roman&quot;"><span style="mso-list:Ignore">2、<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">本协议之效力、解释、变更、执行与争议解决均适用中华人民共和国法律（为明确起见，不包含香港特别行政区、澳门特别行政区及台湾地区）。因本协议产生之争议，涉及各方首先应协商解决，协商不成的，任何一方均有权将争议向北京市朝阳区人民法院起诉。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:39.0pt;text-indent:0cm;mso-char-indent-count:
+            0;line-height:150%"><b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></b></p>
+
+            <p class="MsoNormal" style="line-height:150%"><b><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">十五、联系方式</span></b><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="line-height:150%"><span style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">如果您对本协议或使用易企聊产品及服务有任何疑问、意见或建议，可通过以下方式与爱工作联系。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l36 level1 lfo32"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:Wingdings;
+            mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings"><span style="mso-list:Ignore">Ø<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">工单方式：</span><span lang="EN-US"><a href="https://customer.quanxiangyun.com/worklyai】"><span style="font-family:
+            &quot;Times New Roman&quot;,&quot;serif&quot;">https://customer.quanxiangyun.com/worklyai</span></a></span><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l33 level1 lfo33"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:Wingdings;
+            mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings"><span style="mso-list:Ignore">Ø<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">邮寄方式：收件地址及收件人：北京市朝阳区朝来科技产业园</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">16</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">号楼</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体">7</span><span style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;
+            mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">层，爱工作。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoListParagraph" style="margin-left:42.0pt;text-indent:-21.0pt;
+            mso-char-indent-count:0;line-height:150%;mso-list:l33 level1 lfo33"><!--[if !supportLists]--><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:Wingdings;
+            mso-fareast-font-family:Wingdings;mso-bidi-font-family:Wingdings"><span style="mso-list:Ignore">Ø<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp; </span></span></span><!--[endif]--><span style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:宋体;mso-ascii-font-family:
+            &quot;Times New Roman&quot;;mso-hansi-font-family:&quot;Times New Roman&quot;;mso-bidi-font-family:
+            &quot;Times New Roman&quot;">客服方式：</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;
+            line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">400-8576-886</span><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">。</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
+            line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:
+            150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:宋体">&nbsp;</span></p>
+
+            <p class="MsoNormal" style="text-indent:21.0pt;mso-char-indent-count:2.0;
+            line-height:150%"><span style="mso-bidi-font-size:10.5pt;line-height:150%;
+            font-family:宋体;mso-ascii-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:
+            &quot;Times New Roman&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">我们将尽快审核您提交的疑问、意见或建议，并尽快予以回复！</span><span lang="EN-US" style="mso-bidi-font-size:10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;
+            mso-fareast-font-family:宋体"></span></p>
+
+            <p class="MsoNormal" style="line-height:150%"><span lang="EN-US" style="mso-bidi-font-size:
+            10.5pt;line-height:150%;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;;mso-fareast-font-family:
+            宋体">&nbsp;</span></p>
         </div>
     </div>
 </template>

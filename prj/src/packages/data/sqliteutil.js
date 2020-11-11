@@ -49,41 +49,6 @@ const sqliteutil = {
         foundUsers[0].save();
     },
 
-    async GetMaxUserUpdatetime(userid){
-        let groups = await(await models.User).find({
-            id: userid
-        });
-        if(groups.length == 0)
-        {
-            return 0;
-        }
-        let item = groups[0];
-        return item.user_max_updatetime;
-    },
-
-    async UpdateMaxUserUpdatetime(userid, updatetime){
-        var foundUsers = await(await models.User).find({
-            id: userid
-          });
-        if(foundUsers.length == 0){
-            return;
-        }
-        foundUsers[0].user_max_updatetime = updatetime;
-        foundUsers[0].save();
-    },
-
-    async GetMaxDepartmentUpdatetime(userid){
-        let groups = await(await models.User).find({
-            id: userid
-        });
-        if(groups.length == 0)
-        {
-            return 0;
-        }
-        let item = groups[0];
-        return item.department_max_updatetime;
-    },
-
     async UpdateMaxDepartmentUpdatetime(userid, updatetime){
         let foundUsers = await(await models.User).find({
             id: userid
@@ -229,12 +194,26 @@ const Department = {
                 return departments[index];
         }        
     },
+    async GetMaxDeparmentUpdateTime(){
+        let departments = await (await models.Department).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(departments.length == 0)
+            return 0;
+        return departments[0].updatetime;
+    },
+
     async GetAllDepartment(){
         let departments = await (await models.Department).find({
 
         });
         return departments;
     },
+
     async GetSubDepartment(departmentID){
         let departments = await (await models.Department).find({
             parent_id: departmentID
@@ -276,6 +255,19 @@ const Department = {
 };
 
 const UserInfo = {
+    async GetMaxUpdateTime(){
+        let userinfos = await(await models.UserInfo).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(userinfos.length == 0)
+            return 0;
+        return userinfos[0].updatetime;
+    },
+        
     async GetAllUserInfo(){
         let userinfos = await(await models.UserInfo).find({
 
@@ -296,6 +288,15 @@ const UserInfo = {
             $size: perPage,
         })
         return userinfos;
+    },
+
+    async GetUserInfoByMatrixID(matrixID){
+        let userinfos = await(await models.UserInfo).find({
+            matrix_id: matrixID
+        })
+        if(userinfos.length != 0)
+            return userinfos[0];
+        return undefined;
     },
 
     async GetUserInfo(userID){
@@ -775,6 +776,72 @@ const Secret = {
 
 }
 
+const Contact = {
+    async GetAllContact(){
+        return await (await models.Contact).find()
+    },
+
+    async DeleteAllContact(){
+        await(await models.Contact).truncate();
+    },
+
+    async GetMaxUpdateTime(){
+        let contacts = await (await models.Contact).find(
+            {
+                $order: {
+                    by: 'updatetime',
+                    reverse: true
+                    },
+                $size: 1
+            });
+        if(contacts.length != 0)
+            return contacts[0].updatetime;
+        return 0;
+    },
+
+    async GetContactInfo(id){
+        let contacts = await (await models.Contact).find(
+            {
+                user_id: id
+            });
+        if(contacts.length != 0)
+            return contacts[0];
+        return null;
+    },
+
+    async DeleteContact(id){
+        let contacts = await (await models.Contact).find(
+            {
+                user_id: id
+            });
+        if(contacts.length != 0)
+            await contacts[0].destroy();
+    },
+
+    async UpdateContact(matrixID,
+                        remarkName,
+                        email,
+                        mobile,
+                        telephone,
+                        company,
+                        title){
+        let contacts = await (await models.Contact).find(
+            {
+                user_id: matrixID
+            });
+        if(contacts.length != 0)
+        {
+            contacts[0].display_name = remarkName;
+            contacts[0].email = email;
+            contacts[0].mobile = mobile;
+            contacts[0].telephone = telephone;
+            contacts[0].company = company;
+            contacts[0].title = title;
+            contacts[0].save();
+        }
+    }
+}
+
 export{
     sqliteutil,
     Department,
@@ -783,5 +850,6 @@ export{
     Group,
     Collection,
     Config,
-    Secret
+    Secret,
+    Contact
 }

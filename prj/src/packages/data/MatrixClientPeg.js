@@ -14,7 +14,63 @@ class _MatrixClientPeg{
         this.curLanguage = getDefaultLanguage();
         this.recoveryKey = '';
         this.defaultDisplayName = getMatrixDefaultDeviceDisplayName();
+        this.roomToUser = null;
         console.log("default display name is ", this.defaultDisplayName);
+    }
+
+    _getUserToRooms() {
+      if(!this.userToRooms) {
+        var mDirectEvent = this.matrixClient.getAccountData('m.direct');
+        this.mDirectEvent = this.mDirectEvent ? mDirectEvent.getContent() : {};
+        var userToRooms = this.mDirectEvent;
+        // var myUserId = this.matrixClient.getUserId();
+        // var selfDMs = userToRooms[myUserId];
+        this.userToRooms = userToRooms;
+      }
+      return this.userToRooms;
+    }
+
+    _populateRoomToUser() {
+      this.roomToUser = {};
+      for(var user of Object.keys(this._getUserToRooms())) {
+        for(var roomId of this.userToRooms[user]) {
+          this.roomToUser[roomId] = user;
+        }
+      }
+    }
+
+    getUserIdFroRoomId(roomId) {
+      if(this.roomToUser == null) {
+        this._populateRoomToUser();
+      }
+      if(this.roomToUser[roomId] == undefined) {
+        var room = this.matrixClient.getRoom(roomId);
+        if(room) {
+          return room.getDMInviter();
+        }
+      }
+      return this.roomToUser[roomId];
+    }
+
+    getRoomAvatar(theRoom) {
+      var explicitRoomAvatar = theRoom.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
+      if(explicitRoomAvatar) {
+        return explicitRoomAvatar;
+      }
+      var targetPath = "";
+      var otherMember = null;
+      var otherUserId = this.getUserIdFroRoomId(theRoom.roomId);
+      if(otherUserId) {
+        otherMember = theRoom.getMember(otherUserId);
+      }
+      else {
+        otherMember = theRoom.getAvatarFallbackMember();
+      }
+      if(otherMember) {
+        targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
+        return targetPath;
+      }
+      return undefined;
     }
 
     InitOlm(){

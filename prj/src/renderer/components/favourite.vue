@@ -3,17 +3,8 @@
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        
-                        <div class="search-delete">
-                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
-                            
-                        </div><div class="search-search">
-                    
-                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                        </div>
-                        </div>
+                    <el-input size='mini' class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." clearable></el-input>
+                </div>
             </div>
             <div class="list-content">
                 <div class="organization-view">
@@ -90,6 +81,14 @@ export default {
         }
     },
 
+    watch:{
+        searchKey: function(){
+            if(this.searchKey.length == 0){
+                this.showSearchView = false;
+            }
+        }
+    },
+
     methods: {
         Close: function() {
             ipcRenderer.send("win-close");
@@ -102,10 +101,7 @@ export default {
         },
 
         searchDeleteClicked(){
-            this.searchKey = '';
-            this.showSearchView = false;
-            this.favouriteType = 'message';
-            this.listKey ++;
+            
         },
         search:async function () {
             
@@ -118,10 +114,7 @@ export default {
             this.showSearchView = true;
             this.listKey ++;
         },
-        searchDeleteClicked(){
-            this.searchKey = '';
-            this.showSearchView = false;
-        },
+
         messageMenuItemClicked() {
             this.showSearchView = false;
             this.favouriteType = 'message';
@@ -277,7 +270,6 @@ display: none;
         text-align: left;
         width: calc(100% - 86px);
         height: 32px;
-        border: 1px solid rgb(221, 221, 221);
         border-right: none;
         border-top-left-radius: 2px;
         border-bottom-left-radius: 2px;

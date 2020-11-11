@@ -93,7 +93,6 @@ export default {
         },
     },
     async created () {
-        await services.common.init();
         const userId = window.localStorage.getItem("mx_user_id");
         //await services.common.InitConfServer("1111111")
         // this.loginInfo = await services.common.GetLoginModel();

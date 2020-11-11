@@ -13,21 +13,27 @@
                     <ul class="managers-list">
                         <li class="manager"
                             v-for="(user, index) in contactList"
-                            @click="userMenuItemClicked(user.user_id)" 
+                            @click="userMenuItemClicked(user.user_id)"
+                            @mouseover="OnMouseOver(index)"
+                            @mouseleave="OnMouseLeave(index)"
                             :key="index">
                             <img ondragstart="return false" class="manager-icon" :id="user.user_id" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="manager-info">
-                                <p class="manager-name">{{ user.display_name }}</p>
+                                <p class="manager-name">{{ GetDisplayName(user.display_name, user.user_id) }}</p>
                                 <p class="manager-title">{{ user.user_id }}</p>
                             </div>
+                            <el-button icon="el-icon-delete" circle class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)"></el-button>
                         </li>
                     </ul>
                 </div>
-                <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"></userInfoContent>
+                <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"  :userType="contactType"></userInfoContent>
             </el-container>
         </el-main>
-        <addContact v-show="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg'>
+        <addContact v-show="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact">
         </addContact>
+        <InputContactInfo v-show='showInputContactDlg' @closeInputContact="CloseInputContactDlg">
+        </InputContactInfo>
+        <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="ClearCache"/>
     </el-container>
 </template>
 <script>
@@ -37,18 +43,24 @@ import * as fs from 'fs-extra'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
-import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.js'; 
+import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
-import addContact from './add-contact'
+import addContact from './add-contact';
+import InputContactInfo from './input-contact-info';
+import AlertDlg from './alert-dlg.vue'
+
+
 export default {
     name: 'contactList',
     components: {
         yidrawer,
         userInfoContent,
         userInfoTip,
-        addContact
+        addContact,
+        InputContactInfo,
+        AlertDlg
     },
     data () {
         return {
@@ -62,7 +74,13 @@ export default {
             showUserInfoTips: false,
             userInfoTipKey: 1,
             userInfoPosition: {},
-            showChatContactDlg: false
+            showChatContactDlg: false,
+            showInputContactDlg: false,
+            nMouseIndex: -1,
+            showAlertDlg: false,
+            alertContents : null,
+            deleteContact: null,
+            contactType: 'contact'
         }
     },
     props:{
@@ -70,116 +88,84 @@ export default {
             type:Object
         }
     },
-    computed: {
-        showcontactLevelTwo: function(){
-            if (this.contactList.length >= 2) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        
-        showcontactLevelThree: function(){
-            if (this.contactList.length >= 3) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        showcontactLevelFour: function(){
-            if (this.contactList.length >= 4) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showcontactLevelFive: function(){
-            if (this.contactList.length >= 5) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showcontactLevelSix: function(){
-            if (this.contactList.length >= 6) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showcontactLevelSeven: function(){
-            if (this.contactList.length >= 7) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showcontactLevelEight: function(){
-            if (this.contactList.length >= 8) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showcontactLevelNine: function(){
-            if (this.contactList.length >= 9) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
+    computed: {                      
+
     },
     methods: {
-        closeAddContactDlg: function(){
+        CloseAlertDlg: function(){
+            this.showAlertDlg = false;
+        },
+
+        ClearCache: async function(){
+            this.showAlertDlg = false;
+            let ret = await this.services.DeleteContact(this.deleteContact.user_id)
+            if(ret)
+                this.contactList = await Contact.GetAllContact();
+        },
+
+        OnMouseLeave: function(){
+            this.nMouseIndex = -1;
+        },
+
+        OnMouseOver: function(obj){
+            this.nMouseIndex = obj;
+        },
+
+        DeleteContact: async function(contact){
+            this.deleteContact = contact;
+            this.showAlertDlg = true;
+            this. alertContents = {
+                "Details": this.$t("DeleteContactAlertTitle") + ' ' + contact.display_name + ' ?',
+                "Abstrace": this.$t("DeleteContactAlertDetail")
+            }
+        },
+
+        HandleInputContact: function(){
+            this.showInputContactDlg = true;
             this.showChatContactDlg = false;
+        },
+
+        closeAddContactDlg: async function(){
+            this.showChatContactDlg = false;
+            this.contactList = await Contact.GetAllContact();
+        }, 
+
+        CloseInputContactDlg: async function(){
+            this.showInputContactDlg = false;
+            this.contactList = await Contact.GetAllContact();
+            console.log(this.contactList)
         },
 
         addContact: function(){
             this.showChatContactDlg = true;
             console.log("addContact")
         },
-        departmentMenuItemClicked:async function(department, level) {
-
-
-
-            var id = department.department_id;
-            var name = department.display_name;
-
-            var departmentModels = await Department.GetSubDepartment(id);
-            var tempDepartments = [];
-            // for(var i = 0; i < departmentModels.length; i ++){
-            //     tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-            // }
-            var contact = {};
-            contact.departments = departmentModels.sort(this.compare("show_order")); //tempDepartments;
-            contact.users = await UserInfo.GetSubUserinfo(id);
-            if (level == this.contactList.length - 1) {
-                this.contactList.push(contact);
-            }else {
-                this.contactList.splice(level + 1, this.contactList.length - level - 1);
-                this.contactList.push(contact);
-            }
-            
-            this.$nextTick(function(){
-                var element = document.getElementById("contact-main-container");
-                element.scroll(element.offsetWidth,0);
-                for(var i = 0; i < contact.users.length; i ++){
-                    this.getUserImg(contact.users[i]);
-                }
-            });
-            
-
+        
+        ShowInfoContent(content){
+            if(content == undefined)
+                return '';
+            return content
         },
+
+        GetDisplayName: function(displayName, userid){
+            if(displayName == '')
+            {
+                let beginPos = userid.indexOf("@");
+                if(beginPos == -1)
+                    beginPos = 0;
+                else
+                    beginPos++;
+                let endPos = userid.indexOf(":")
+                if(endPos == -1)
+                    endPos = userid.length;
+      
+                return userid.slice(beginPos, endPos)
+            }
+            return displayName
+        },
+
         userMenuItemClicked:async function(id) {
-            if (this.showUserInfoTips&&(this.userInfo.id == id)){
+            if (this.showUserInfoTips&&(this.userInfo.id == id) || this.showAlertDlg){
                 this.showUserInfoTips = false;
                 return;
             }
@@ -189,18 +175,25 @@ export default {
             console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            //var user = await UserInfo.GetUserInfo(id);
+            var user = await Contact.GetContactInfo(id);
+            let userInfo = await UserInfo.GetUserInfoByMatrixID(user.user_id)
+            let department = {display_name:""};
+            if(userInfo)
+                department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
+            tempUserInfo.department = department;
             tempUserInfo.id = id;
-            tempUserInfo.displayName = 'user.user_display_name';
-            tempUserInfo.title = 'user.user_title';
-            tempUserInfo.statusDescription = 'user.status_description';
-            tempUserInfo.workDescription = 'user.work_description';
-            tempUserInfo.managerId = 'user.manager_id';
-            tempUserInfo.departmentId = 'user.belong_to_department_id';
-            tempUserInfo.department = 'department';
-            tempUserInfo.email = 'email';
-            tempUserInfo.phone = 'tempPhone';
-            tempUserInfo.leaders = 'leaders';
+            tempUserInfo.displayName = this.GetDisplayName(user.display_name, id);
+            tempUserInfo.title = this.ShowInfoContent(user.title);
+            tempUserInfo.statusDescription = this.ShowInfoContent(user.status_description);
+            tempUserInfo.workDescription = this.ShowInfoContent(user.work_description);
+            tempUserInfo.email = [];
+            tempUserInfo.email.push({
+                email_value: this.ShowInfoContent(user.email)
+            })
+            tempUserInfo.phone = {
+                mobile: this.ShowInfoContent(user.telephone),
+                work: this.ShowInfoContent(user.mobile)
+            };
 
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
@@ -227,28 +220,10 @@ export default {
                 services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
+        
         getAppBaseData:async function() {
-            this.contactList.push({
-                display_name: "张一",
-                user_id:"zhangyi.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李二",
-                user_id:"lier.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李三",
-                user_id:"lisan.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李四",
-                user_id:"lisi.ai:matrix.each.chat"
-            })
-            this.contactList.push({
-                display_name: "李五",
-                user_id:"liwu.ai:matrix.each.chat"
-            })
-        },
+            this.contactList = await Contact.GetAllContact();
+       },
         updateUserImage: function(e, args) {
             var state = args[0];
             var stateInfo = args[1];
@@ -276,55 +251,25 @@ export default {
         }
     },
     created: async function() {
+        this.services = global.services.common;
         await this.getAppBaseData();
-        /*
-        setTimeout(() => {
-        this.$nextTick(function(){
-            var users = this.contactList[0].users;
-            for(var i = 0; i < users.length; i ++){
-                this.getUserImg(users[i]);
-            }
-        });
-        }, 0);
-        */
+
         var that = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname ", e.target.className)
             if(['manager-name', 'manager-icon'].indexOf(e.target.className) == -1){
                 that.showUserInfoTips = false;
             }
-            
+            if(e.target.className.indexOf('userInfo') != -1)
+            {
+                that.showUserInfoTips = true;
+            }            
         });
         return;
-
-        const ipcRenderer = require('electron').ipcRenderer;
-        ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
 }
 </script>
 <style lang="scss" scoped>
-// ::-webkit-scrollbar-track-piece {
-//     background-color: #F1F1F1;
-//     border-radius: 10px;
-// }
-
-// ::-webkit-scrollbar {
-//     width: 8px;
-//     height: 12px;
-// }
-
-// ::-webkit-scrollbar-thumb {
-//     height: 50px;
-//     background-color: #C1C1C1;
-//     border-radius: 10px;
-//     outline: none;
-// }
-
-// ::-webkit-scrollbar-thumb:hover {
-//     height: 50px;
-//     background-color: #A8A8A8;
-//     border-radius: 10px;
-// }
 ::-webkit-scrollbar {
 /*隐藏滚轮*/
 display: none;
@@ -381,23 +326,9 @@ display: none;
         padding: 0px;
     }
 }
-.contact-view-one {
-    width: 100%;
-    height: 100%;
-    min-width: 280px;
-    //display: flex;
-    flex-direction: column;
-    //border-right: 0.5px solid rgb(221, 221, 221);
-    overflow-y: scroll;
-    overflow-x: hidden;
-    // ::-webkit-scrollbar-track {ß
-    //     border-radius: 10px;
-    // }
-    margin: 0px;
-    cursor: pointer;
-}
+
 .contact-view {
-    width: 280px;
+    width: 90%;
     height: 100%;
     //display: flex;
     flex-direction: column;
@@ -411,47 +342,8 @@ display: none;
     margin: 0px;
     cursor: pointer;
 }
-.departments-view {
-    width: 100%;
-    
-    margin: 0px;
-    //background-color: orange;
-}
-.managers-view {
-    width: 100%;
-    
-    margin: 0px;
-    //background-color: red;
-}
-.users-view {
-    width: 100%;
-    
-    margin: 0px;
-    //background-color: blue;
-}
-.managers-header {
-    width: 100%;
-    height: 32px;
-    padding-top: 10px;
-    padding-left: 16px;
-    background:rgba(247,248,250,1);
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: 1px;
-}
-.users-header {
-    width: 100%;
-    height: 28px;
-    padding-top: 10px;
-    padding-left: 16px;
-    background:rgba(247,248,250,1);
-    color:rgba(102,102,102,1);
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: 1px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-}
+
+
 .managers-list {
     width: 100%;
     height: 100%;
@@ -479,22 +371,13 @@ display: none;
 }
 .manager {
     height: 60px;
-    border-bottom: 1px solid  #987cb9;
 }
 .manager:hover {
     height: 60px;
     background:rgba(243,244,247,1);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
 }
-.department-icon {
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    margin-left: 16px;
-    margin-top: 10px;
-    margin-right: 0px;
-    margin-bottom: 10px;
-}
+
 .manager-icon {
     width: 40px;
     height: 40px;
@@ -505,12 +388,25 @@ display: none;
     margin-bottom: 10px;
     border-radius: 4px;
 }
+
 .manager-info {
     display: inline-block;
     vertical-align: top;
     height: 100%;
     width: calc(100% - 120px);
 }
+
+.delete-button{
+    display: inline-block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    vertical-align: top;
+    background: white;
+    border-radius:4px;
+    border:1px solid rgba(221,221,221,1);
+    font-family: PingFangSC-Regular;
+}
+
 .manager-name {
     height: 20px;
     width: 100%;

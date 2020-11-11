@@ -47,7 +47,7 @@ class UserIncrement extends BaseIncrement{
                 let findUserInfo = userinfos[0];
                 findUserInfo.values = userInfoModel.values;
                 findUserInfo.save();
-                if(findUserInfo.avatar_t_url != userInfoModel.avatar_t_url || findUserInfo.avatar_o_url){
+                if(findUserInfo.avatar_t_url != userInfoModel.avatar_t_url){
                     
                     var userId = findUserInfo.user_id;
                     confservice.init(foundUsers[0].user_id);
@@ -84,17 +84,6 @@ class UserIncrement extends BaseIncrement{
                     await services.common.downloadUserTAvatar(findUserInfo.avatar_t_url, findUserInfo.user_id);
                 }
             }
-            updatetime = userInfoModel.updatetime;
-            sqliteutil.UpdateMaxUserUpdatetime(this.service.data.selfuser.id, updatetime);
-            this.service.data.login.user_max_updatetime = updatetime;
-            /*
-            let userEmailModel = itemModel[1];
-            let userAddressModel = itemModel[2];
-            
-            let userPhoneModel = itemModel[3];
-    
-            let userImModel = itemModel[4];
-            */
         }
         else{
             let increment = new DepartmentIncrement(this.type, this.item, this.service);
@@ -129,9 +118,6 @@ class DepartmentIncrement extends BaseIncrement{
                 findDepartment.values = departmentModel.values;
                 findDepartment.save();
             }
-            sqliteutil.UpdateMaxDepartmentUpdatetime(this.service.data.selfuser.id, departmentModel.updatetime);
-            this.service.data.login.department_max_updatetime = departmentModel.updatetime;
-
         }
         else{
             console.log("unknow clientIncrement:" + this.type);

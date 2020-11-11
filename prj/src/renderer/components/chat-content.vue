@@ -19,7 +19,7 @@
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
-                    <img class="group-ico" :id="getChatElementId(chatGroupItem.group_id, chatGroupItem.user_id)" src="../../../static/Img/User/user-40px@2x.png"/>
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/user-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
@@ -253,7 +253,10 @@ export default {
       }
     },
     matrixSync: function() {
-      if (this.matrixSync) this.originalGroupList = global.mxMatrixClientPeg.matrixClient.getRooms();
+      if (this.matrixSync) this.showGroupList = global.mxMatrixClientPeg.matrixClient.getRooms();
+      this.$nextTick(() => {
+        this.showGroupIcon();
+      })
     }
   },
   computed: {
@@ -261,21 +264,6 @@ export default {
       matrixSync: state => state.common.matrixSync
     }),
     dealShowGroupList: function() {
-      if(this.originalGroupList.length == 0) {
-        return;
-      }
-      this.showGroupList = [];
-      // console.log("this.originalGroupList is ", this.originalGroupList)
-      for(let i=0;i<this.originalGroupList.length;i++) {
-        this.showGroupList.push(this.originalGroupList[i]);
-      }
-      this.showGroupList = this.showGroupList.sort(this.compare());
-      // console.log("chatGroupVar is ", this.showGroupList)
-      if(this.needScroll) {
-        this.scrollToDistPosition(0);
-      }
-      
-      // this.$store.commit("setShowGroupList", this.showGroupList);
       return this.showGroupList
     }
   },
@@ -318,7 +306,6 @@ export default {
       searchKey: '',      //复合搜索关键字
       normalGroupList: [],      //没用到
       encryptGroupList: [],      //没用到
-      originalGroupList: [],      //存储最终展示的grouplist信息
       showGroupList: [],      //存储获取到的grouplist信息  *重要 群组列总数据
       topGroupVar: [],      //指定的group信息
       showImageLayers: false,      //打开图片
@@ -724,116 +711,14 @@ export default {
       // setTimeout(async () => {
         if(distGroup == undefined) {
           for(var i=0;i<this.showGroupList.length;i++) {
-            var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
-            let elementImg = document.getElementById(distId);
-            // console.log("elementImg src is ", elementImg.src)
-            var targetPath = "";
-            if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
-              if(this.showGroupList[i].user_id != undefined && this.showGroupList[i].user_id.length == 0) {
-                this.showGroupList[i].user_id = this.getUidFromUids(this.showGroupList[i]);
-              }
-              var distUserInfo = await UserInfo.GetUserInfo(this.showGroupList[i].user_id);
-              // console.log("distUserInfo is ", distUserInfo);
-              if(distUserInfo != undefined) {
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, this.showGroupList[i].user_id))){
-                    elementImg.setAttribute("src", targetPath);
-                    if(this.showGroupList[i].group_name == "微信") {
-                      console.log("showGroupIcon targetPath is ", targetPath);
-                    }
-                }
-              }
-              else {
-                if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-                    var showfu = new FileUtil(targetPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        elementImg.setAttribute("src", reader.result);
-                    }
-                }
-              }
-            }
-            else {
-              if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-                  var showfu = new FileUtil(targetPath);
-                  let showfileObj = showfu.GetUploadfileobj();
-                  let reader = new FileReader();
-                  reader.readAsDataURL(showfileObj);
-                  reader.onloadend = () => {
-                      elementImg.setAttribute("src", reader.result);
-                  }
-              }
-              // else {
-              //   var showfu = new FileUtil("../../../static/Img/User/user-40px@2x.png");
-              //   let showfileObj = showfu.GetUploadfileobj();
-              //   let reader = new FileReader();
-              //   reader.readAsDataURL(showfileObj);
-              //   reader.onloadend = () => {
-              //       elementImg.setAttribute("src", reader.result);
-              //   }
-              // }
+            var distId = this.showGroupList[i].roomId;
+            var elementImg = document.getElementById(distId);
+            var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.showGroupList[i]);
+            if(elementImg != undefined && distUrl) {
+              elementImg.setAttribute("src", distUrl);
             }
           }
         }
-        else {
-          for(var i=0;i<this.showGroupList.length;i++) {
-            if(this.showGroupList[i].groupId == distGroup.group_id) {
-              var distId = this.getChatElementId(this.showGroupList[i].group_id, this.showGroupList[i].user_id);
-              let elementImg = document.getElementById(distId);
-              // console.log("elementImg src is ", elementImg.src)
-              var targetPath = "";
-              if(this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) {
-                if(this.showGroupList[i].user_id != undefined && this.showGroupList[i].user_id.length == 0) {
-                  this.showGroupList[i].user_id = this.getUidFromUids(this.showGroupList[i]);
-                }
-                var distUserInfo = await UserInfo.GetUserInfo(this.showGroupList[i].user_id);
-                // console.log("distUserInfo is ", distUserInfo);
-                if(distUserInfo != undefined) {
-                  if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, this.showGroupList[i].user_id))){
-                      elementImg.setAttribute("src", targetPath);
-                      if(this.showGroupList[i].group_name == "微信") {
-                        console.log("showGroupIcon targetPath is ", targetPath);
-                      }
-                  }
-                }
-                else {
-                  if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-                      var showfu = new FileUtil(targetPath);
-                      let showfileObj = showfu.GetUploadfileobj();
-                      let reader = new FileReader();
-                      reader.readAsDataURL(showfileObj);
-                      reader.onloadend = () => {
-                          elementImg.setAttribute("src", reader.result);
-                      }
-                  }
-                }
-              }
-              else {
-                if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.showGroupList[i].group_avarar, this.showGroupList[i].group_id))){
-                    var showfu = new FileUtil(targetPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        elementImg.setAttribute("src", reader.result);
-                    }
-                }
-                // else {
-                //   var showfu = new FileUtil("../../../static/Img/User/user-40px@2x.png");
-                //   let showfileObj = showfu.GetUploadfileobj();
-                //   let reader = new FileReader();
-                //   reader.readAsDataURL(showfileObj);
-                //   reader.onloadend = () => {
-                //       elementImg.setAttribute("src", reader.result);
-                //   }
-                // }
-              }
-            
-            }
-            }
-        }
-      // }, 0)
     },
     groupIsInFavourite(groupInfo) {
       if(groupInfo.status == undefined) {
@@ -1062,19 +947,19 @@ export default {
         }
         if(groupIndex == -1) {
           if(groupInfo.group_type != 102) {
-            this.originalGroupList.unshift(groupInfo);
+            this.showGroupList.unshift(groupInfo);
             this.$nextTick(() => {
               this.scrollToDistPosition(this.topGroupVar.length);
               this.curindex = this.topGroupVar.length + 1;
-              this.curChat = this.originalGroupList[0];
+              this.curChat = this.showGroupList[0];
             })
             this.mqttGroupVar.push(groupInfo)
             return;
           }
           // else {
-          this.originalGroupList.unshift(groupInfo);
+          this.showGroupList.unshift(groupInfo);
           // console.log("this.curchat is ", groupInfo);
-          this.curChat = this.originalGroupList[0];
+          this.curChat = this.showGroupList[0];
           this.curindex = 0;
           this.isEmpty = false;
           setTimeout(() => {
@@ -1105,9 +990,9 @@ export default {
     },
     leaveGroup(groupId) {
       console.log("leage group groupid is ", groupId);
-      for(let i=0;i<this.originalGroupList.length;i++) {
-        if(this.originalGroupList[i].group_id == groupId) {
-            var dist = this.originalGroupList.splice(i, 1);
+      for(let i=0;i<this.showGroupList.length;i++) {
+        if(this.showGroupList[i].group_id == groupId) {
+            var dist = this.showGroupList.splice(i, 1);
             console.log("slice this ", dist);
             break;
           }
@@ -1180,8 +1065,14 @@ export default {
 
       const notifBadges = notificationCount;// > 0 && shouldShowNotifBadge(roomNotifState);
       const mentionBadges = highlight;// && shouldShowMentionBadge(roomNotifState);
-
-      chatItem.un_read_count = notifBadges == 0 ? '' : notifBadges;// || mentionBadges;
+      if(notifBadges == undefined){
+        if(this._isDMInvite(chatItem)) {
+          chatItem.un_read_count = 1;
+        }
+      }
+      else {
+        chatItem.un_read_count = notifBadges == 0 ? '' : notifBadges;// || mentionBadges;
+      }
       return chatItem.un_read_count;
     },
     getShowUnReadCount(unreadCount) {
@@ -1257,6 +1148,7 @@ export default {
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
+      if(chatGroupItem.timeline.length == 0) return;
       var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
       
       let event = distTimeLine.event;
@@ -1307,7 +1199,35 @@ export default {
     getShowGroupName(chatGroupItem) {
       return chatGroupItem.name;
     },
+    _getInviteMember: function(chatGroupItem) {
+        if (!chatGroupItem) {
+            return;
+        }
+        const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        const inviteEvent = chatGroupItem.currentState.getMember(myUserId);
+        if (!inviteEvent) {
+            return;
+        }
+        const inviterUserId = inviteEvent.events.member.getSender();
+        return chatGroupItem.currentState.getMember(inviterUserId);
+    },
+    _getMyMember(chatItem) {
+      return chatItem.getMember(global.mxMatrixClientPeg.matrixClient.getUserId());
+    },
+    _isDMInvite(chatItem) {
+      var myMember = this._getMyMember(chatItem);
+      if(!myMember) return false;
+      var memberEvent = myMember.events.member;
+      var memberContent = memberEvent.getContent();
+      return memberContent.membership == "invite" && memberContent.is_direct;
+    },
     getShowMsgContent(chatGroupItem) {
+      if(chatGroupItem.timeline.length == 0){
+        if(this._isDMInvite(chatGroupItem)) {
+          var inviteMemer = this._getInviteMember(chatGroupItem);
+          return "[邀请]：" + inviteMemer.rawDisplayName;
+        }
+      };
       var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
       
       let event = distTimeLine.event;
@@ -1346,92 +1266,6 @@ export default {
           }
       }
 
-      // // console.log("getShowMsgContent is ", chatGroupItem)
-      // if(chatGroupItem === null){
-      //   return "";
-      // }
-      // var chatGroupMsgContent = strMsgContentToJson(chatGroupItem.message_content);
-
-      // var chatGroupMsgType = chatGroupItem.message_content_type != undefined ? chatGroupItem.message_content_type : chatGroupItem.message_type;
-      // if(chatGroupMsgContent === null) {
-      //   return "";
-      // }
-      // if(chatGroupMsgType === 101)
-      // {
-      //   return chatGroupMsgContent.text;
-      // }
-      // else if(chatGroupMsgType === 102)
-      // {
-      //   return "[图片]";
-      // }
-      // else if(chatGroupMsgType === 103)
-      // {
-      //   return "[文件]:" + chatGroupMsgContent.fileName;
-      // }
-      // else if(chatGroupMsgType === 104)
-      // {
-      //   if(chatGroupMsgContent.type === "invitation")
-      //   {
-      //     var invitees = chatGroupMsgContent.userInfos;
-      //     var inviteeNameList = [];
-      //     var inviteeNames = "";
-      //     if(invitees.length == 1){
-      //         inviteeNames = invitees[0].userName
-      //     }
-      //     else{
-      //         for(var i=0;i<invitees.length;i++) {
-      //             inviteeNameList.push(invitees[i].userName);
-      //         }
-      //         inviteeNames = inviteeNameList.join(",");
-      //     }
-      //     var inviter = chatGroupMsgContent.userName;
-      //     return inviter + " 邀请 " + inviteeNames + " 加入群聊";
-      //   }
-      //   else if(chatGroupMsgContent.type === "notice")
-      //   {
-      //     var owner = chatGroupMsgContent.userName;
-      //     return owner + " 发布群公告";
-      //   }
-      //   else if(chatGroupMsgContent.type === "updateGroupName")
-      //   {
-      //     var owner = chatGroupMsgContent.userName;
-      //     var distName = chatGroupMsgContent.text;
-      //     return owner + " 修改群名称为 " + distName;
-      //   }
-      //   else if(chatGroupMsgContent.type === "deleteGroupUser")
-      //   {
-      //       var owner = chatGroupMsgContent.userName;
-      //       var deletedNames = "";
-      //       var deletedUsers = chatGroupMsgContent.userInfos;
-      //       if(deletedUsers.length == 1){
-      //           deletedNames = deletedUsers[0].userName
-      //       }
-      //       else{
-      //           for(var i=0;i<deletedUsers.length;i++) {
-      //               deletedNames = deletedNames + "," + deletedUsers[i].userName
-      //           }
-      //       }
-      //       return owner + " 将 " + deletedNames + " 移出了群聊";
-      //   }
-      //   else if(chatGroupMsgContent.type == "groupTransfer") {
-      //       var originalOwner = chatGroupMsgContent.fromUserName;
-      //       var newOwner = chatGroupMsgContent.toUserName;
-      //       // console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
-      //       return originalOwner + " 将群主转让给 " + newOwner;
-      //   }
-      //   else
-      //   {
-      //     return "您收到一条短消息";
-      //   }
-      // }
-      // else if(chatGroupMsgType === 105)
-      // {
-      //   return "[语音]";
-      // }
-      // else if(chatGroupMsgType === 106)
-      // {
-      //   return "[聊天记录]";
-      // }
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
@@ -1474,54 +1308,26 @@ export default {
       //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
-    getGroupList: async function(updateCurPage=false) {
-        //var ret = await services.common.GetAllGroups()
-        
-        /*
-        for(let i=0;i<ret.length;i++) {
-          if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
-            continue;
-          }
-          if(ret[i].status.substr(5, 1) == "1") {
-            continue;
-          }
-          this.originalGroupList.push(ret[i]);
-          if(!this.groupIsSlience(ret[i])) {
-            this.unreadCount = this.unreadCount + ret[i].un_read_count;
-          }
-        }
-        */
-        // this.originalGroupList = ret;
-        // console.log("length is ", ret)
-        // if(updateCurPage){
-        //   let chatGroupVar = [];
-        //   chatGroupVar = this.showGroupList.sort(this.compare());
-        //   let curGroup = chatGroupVar[0];
-        //   console.log("getgrouplist the cur group is ", curGroup)
-        //   // this.showChat(curGroup, 0);
-        // }
-    },
     updateGroupList: async function() {
         let matrixClient = global.mxMatrixClientPeg;
         console.clear();
         var ret = matrixClient.getRooms();
-        console.log("updateGroupList sql getGroupList is ", ret)
         for(let i=0;i<ret.length;i++) {
           if((ret[i].contain_user_ids.length == 0 && ret[i].group_name.length ==0 && ret[i].owner.length == 0) || (ret[i].sequence_id == undefined && ret[i].message_id == undefined)){
             continue;
           }
-          for(let j=0;j<this.originalGroupList.length;j++) {
-            if((this.originalGroupList[j].group_id != undefined && this.originalGroupList[j].group_id.length != 0 && this.originalGroupList[j].group_id == ret[i].group_id) 
-            || (this.originalGroupList[j].user_id != undefined && this.originalGroupList[j].user_id.length != 0 && this.originalGroupList[j].user_id == ret[i].user_id)){
-              this.originalGroupList[j] = ret[i];
-              if(this.originalGroupList[j].un_read_count != ret[i].un_read_count) {
-                var tmp = ret[i].un_read_count - this.originalGroupList[j].un_read_count;
+          for(let j=0;j<this.showGroupList.length;j++) {
+            if((this.showGroupList[j].group_id != undefined && this.showGroupList[j].group_id.length != 0 && this.showGroupList[j].group_id == ret[i].group_id) 
+            || (this.showGroupList[j].user_id != undefined && this.showGroupList[j].user_id.length != 0 && this.showGroupList[j].user_id == ret[i].user_id)){
+              this.showGroupList[j] = ret[i];
+              if(this.showGroupList[j].un_read_count != ret[i].un_read_count) {
+                var tmp = ret[i].un_read_count - this.showGroupList[j].un_read_count;
                 this.unreadCount = this.unreadCount + tmp;
               }
             }
           }
         }
-        // this.originalGroupList = ret;
+        // this.showGroupList = ret;
         // console.log("length is ", ret)
     },
     compare: function() {
@@ -1873,21 +1679,21 @@ export default {
               "key_id": msg.key_id == undefined ? "" : msg.key_id
             }
             // console.log("groupTmp is ", groupTmp);
-            for(let i=0;i<this.originalGroupList.length;i++) {
-              if(this.originalGroupList[i].group_id == groupInfo.group_id) {
+            for(let i=0;i<this.showGroupList.length;i++) {
+              if(this.showGroupList[i].group_id == groupInfo.group_id) {
                 groupTmpExist = true;
-                this.originalGroupList[i].message_content = msg.message_content;
-                this.originalGroupList[i].message_content_type = msg.message_type;
-                this.originalGroupList[i].message_from_id = msg.message_from_id;
-                this.originalGroupList[i].message_id = msg.message_id;
-                this.originalGroupList[i].last_message_time = msg.message_timestamp;
-                this.originalGroupList[i].sequence_id = msg.sequence_id;
-                this.originalGroupList[i].time_line_id = msg.time_line_id;
-                this.originalGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
+                this.showGroupList[i].message_content = msg.message_content;
+                this.showGroupList[i].message_content_type = msg.message_type;
+                this.showGroupList[i].message_from_id = msg.message_from_id;
+                this.showGroupList[i].message_id = msg.message_id;
+                this.showGroupList[i].last_message_time = msg.message_timestamp;
+                this.showGroupList[i].sequence_id = msg.sequence_id;
+                this.showGroupList[i].time_line_id = msg.time_line_id;
+                this.showGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
               }
             }
             if(!groupTmpExist) {
-              this.originalGroupList.unshift(groupTmp);
+              this.showGroupList.unshift(groupTmp);
             }
             this.unreadCount += groupInfo.un_read_count;
             if(this.unreadCount < 0) {
@@ -1922,7 +1728,6 @@ export default {
         }
         console.log("the matrix client is ", global.mxMatrixClientPeg)
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-        await this.getGroupList(false);
     })
     console.log("check $store", this.$store);
     console.log("this.originalgrouplsit count is ", this.originalGroupList.length)
@@ -1930,12 +1735,11 @@ export default {
     if(this.unreadCount < 0) {
       this.unreadCount = 0;
     }
-    await this.getGroupList(false);
     ipcRenderer.send("updateUnreadCount", this.unreadCount);
     setTimeout(() => {
         this.$nextTick(() => {
           ipcRenderer.on('updateGroupImg', this.updateGroupImg);
-          this.showGroupIcon();
+          // this.showGroupIcon();
         })
     }, 0)
     
@@ -1945,10 +1749,8 @@ export default {
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
-    await services.common.init();
-    this.curUserInfo = await services.common.GetSelfUserModel();
-    await services.common.initmqtt();
-    services.common.handlemessage(this.callback);
+    // await services.common.initmqtt();
+    // services.common.handlemessage(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")

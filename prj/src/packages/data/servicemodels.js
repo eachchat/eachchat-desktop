@@ -120,6 +120,7 @@ const servicemodels = {
     async UsersModel(useritem){
       var userinfovalue={
         user_id:                  undefined,
+        matrix_id:                undefined,
         belong_to_department_id:  undefined,
         user_name:                undefined,
         user_display_name:        undefined,
@@ -145,7 +146,8 @@ const servicemodels = {
   
       var userinfomap = 
       {
-        "id":                 "user_id",                
+        "id":                 "user_id",     
+        "matrixId":           "matrix_id",           
         "departmentId":       "belong_to_department_id", 
         "userName":           "user_name",               
         "displayName":        "user_display_name",       
@@ -610,6 +612,41 @@ const servicemodels = {
       }
       let secretModel = await new(await models.Secret)(secretValue);
       return secretModel; 
+    },
+
+    async ContactModel(contactInfo){
+      let contactValue = {
+        user_id:          null,
+        eachchat_user_id: null,
+        display_name:     null,
+        avatar_url:       null,
+        email:            null,
+        mobile:           null,
+        telephone:        null,
+        company:          null,
+        title:            null,
+        updatetime:       null,
+      };
+
+      var contactMap = {
+        "contactMatrixId": "user_id",
+        "userId": "eachchat_user_id",
+        "contactRemarkName": "display_name",
+        "avatarUrl": "avatar_url",
+        "contactEmail": "email",
+        "contactMobile": "mobile",
+        "contactTelephone": "telephone",
+        "contactCompany": "company",
+        "contactTitle": "title",
+        "updateTimestamp":"updatetime"
+      };
+
+      for(let key in contactMap)
+      {  
+        contactValue[contactMap[key]] = contactInfo[key];
+      }
+      let contactModel = await new(await models.Contact)(contactValue);
+      return contactModel;
     }
 }
 

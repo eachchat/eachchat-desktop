@@ -975,9 +975,6 @@ export default {
             this.allDepartments = tempAllDepartments;
             console.log(this.disableUsers);
             console.log(this.rootDepartments);
-            global.mxMatrixClientPeg.matrixClient.searchUserDirectory({term:'cheng'}).then(result=>{
-                console.log('查看searchUserDirectory结果', result);
-            })
     },
     
 }

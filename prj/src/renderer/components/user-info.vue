@@ -17,63 +17,34 @@
             <ul class="userInfoState-list">
                 <li v-if="showStatusDescription" class="userInfo-li">
                     <p class="userInfo-key">个人状态</p>
-                    <p class="userInfo-value">{{ userInfo.statusDescription }}</p>
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.statusDescription">
                 </li>
                 <li v-if="showWorkDescription">
                     <p class="userInfo-key">工作描述</p>
-                    <p class="userInfo-value">{{ userInfo.workDescription }}</p>
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.workDescription">
                 </li>
                 <li v-if="showRelation">
                     <p class="userInfo-key">汇报关系</p>
-                    <!-- <p class="userInfo-value">查看</p> -->
                     <p class="userInfo-report-value" @click="reportRelationClicked()">查看</p>
                 </li>
                 <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
-                    <p class="userInfo-value">{{ userInfo.department != undefined ? userInfo.department.display_name : '' }}</p>
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name">
                 </li>
                 <li v-if="showPhone">
                     <p class="userInfo-key">手机</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.mobile }}</p>
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.mobile">
                 </li>
                 <li v-if="showTelephone">
                     <p class="userInfo-key">座机</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.work }}</p>
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.work">
                 </li>
                 <li v-if="showEmail">
                     <p class="userInfo-key">邮箱</p>
-                    <p class="userInfo-email-value">{{ userInfo.email[0].email_value }}</p>
+                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.email[0].email_value">
                 </li>
             </ul>
         </div>
-        <!-- <div class="userOrganizationInfo-view" v-show="showOrganizationView">
-            <ul class="userOrganization-list">
-                <li v-show="showRelation">
-                    <p class="userInfo-key">汇报关系</p>
-                    <p class="userInfo-value">查看</p>
-                </li>
-                <li v-show="showDepartment">
-                    <p class="userInfo-key">所属部门</p>
-                    <p class="userInfo-value">{{ userInfo.department.display_name }}</p>
-                </li>
-            </ul>
-        </div> -->
-        <!-- <div class="userContact-view" v-show="showContractView">
-            <ul class="userContact-list">
-                <li v-show="showPhone">
-                    <p class="userInfo-key">手机号</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.phone_value }}</p>
-                </li>
-                <li v-show="showPhone">
-                    <p class="userInfo-key">固话</p>
-                    <p class="userInfo-phone-value">{{ userInfo.phone.phone_value }}</p>
-                </li>
-                <li v-show="showEmail">
-                    <p class="userInfo-key">电子邮箱</p>
-                    <p class="userInfo-value">{{ userInfo.email.email_value }}</p>
-                </li>
-            </ul>
-        </div> -->
     </div>
 </template>
 <script>
@@ -82,11 +53,14 @@ import * as fs from 'fs-extra'
 import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
+import { functions } from 'electron-log'
 export default {
     name: 'user-info',
     data() {
         return {
             pagePosition: {},
+            inputEdit: true,
+            services: null
         }
     },
     props: {
@@ -105,40 +79,63 @@ export default {
         isOwn: {
             type: Boolean,
             default: false
+        },
+
+        userType:{
+            type: String,
+            default: "origanise"
         }
     },
+    watch:{
+        userInfo: function(){
+            console.log(this.userInfo)
+        }
+    },
+
     computed: {
         showStatusDescription: function() {
+            if(this.userType == 'contact')
+                return false;
             if (this.userInfo == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.statusDescription);
         },
         showWorkDescription: function() {
+            if(this.userType == 'contact')
+                return false;
             if (this.userInfo == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.workDescription);
         },
         showPhone: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo.phone == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.phone.mobile);
         },
         showTelephone: function (){
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo.phone == undefined){
                 return false;
             }
             return !this.isEmpty(this.userInfo.phone.work);
         },
         showEmail: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo.email == undefined){
                 return false;
             }
             return this.userInfo.email.length > 0;
         },
         showDepartment: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -148,6 +145,8 @@ export default {
             return false;
         },
         showRelation: function() {
+            if(this.userType == 'contact')
+                return true;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -166,7 +165,7 @@ export default {
                     })
             }
             else {
-                this.curUserInfo = await services.common.GetSelfUserModel();
+                this.curUserInfo = await this.services.GetSelfUserModel();
                 console.log("JumpToChat")
                 var groupItem = {};
                 console.log("userInfos is ", this.userInfo);
@@ -223,7 +222,7 @@ export default {
 
         },
         reportRelationClicked:async function() {
-            this.curUserInfo = await services.common.GetSelfUserModel();
+            this.curUserInfo = await this.services.GetSelfUserModel();
             var tempUserinfo = this.userInfo;
             tempUserinfo.curUserInfo = this.curUserInfo;
             const ipcRender = require('electron').ipcRenderer;
@@ -282,7 +281,9 @@ export default {
         }
     },
     created () {
-        console.log(this.userInfo);
+        this.services = global.services.common;
+        if(this.userType == 'contact' )
+            this.inputEdit = false;
         var pageWidth = 280;
         var pageHeight = this.getPageHeight();
         var showScreenHeight = document.documentElement.clientHeight;
@@ -306,6 +307,16 @@ export default {
         this.$nextTick(function(){
             this.getUserImg(this.userInfo);
         });
+    },
+
+    destroyed(){
+        this.services.UpdateContact(this.userInfo.id,
+                                    this.userInfo.displayName,
+                                    this.userInfo.email[0].email_value,
+                                    this.userInfo.phone.mobile,
+                                    this.userInfo.phone.work,
+                                    this.userInfo.department,
+                                    this.userInfo.title);
     }
 }
 </script>

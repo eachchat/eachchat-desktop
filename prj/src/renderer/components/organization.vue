@@ -3,17 +3,8 @@
         <el-aside width="292px">
             <div class="list-header">
                 <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        
-                        <div class="search-delete">
-                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
-                            
-                        </div><div class="search-search">
-                    
-                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                        </div>
-                    </div>
+                    <el-input size='mini' clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." ></el-input>
+                </div>
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
@@ -89,6 +80,10 @@ export default {
                     }, 1000)
                 })
             }
+        },
+        searchKey: function(){
+            if(this.searchKey.length == 0);
+                this.showSearchView = false;
         }
     },
     data() {
@@ -128,10 +123,7 @@ export default {
         isWindows() {
             return environment.os.isWindows;
         },
-        searchDeleteClicked(){
-            this.searchKey = '';
-            this.showSearchView = false;
-        },
+
         search:async function () {
             console.log("this.searchKey ", this.searchKey)
             if (this.searchKey == ''){
@@ -175,7 +167,7 @@ export default {
                     userIconElement.setAttribute("src", reader.result);
                 }
             }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+                global.services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
         searchUserMenuItemClicked:async function(id) {
@@ -190,7 +182,7 @@ export default {
             console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            var selfUser = await services.common.GetSelfUserModel();
+            var selfUser = await global.services.common.GetSelfUserModel();
             console.log("is owner is ", this.isOwn);
             if(id == selfUser.id) {
                 this.isOwn = true;
@@ -233,7 +225,6 @@ export default {
             this.showSearchUserInfoTips = true;
         },
         getOrganizationBaseData:async function() {
-            
             var departments = [];
             departments.push({
                 display_name: this.$t("organizeMenuName"),
@@ -241,11 +232,6 @@ export default {
             departments.push({
                 display_name: this.$t("contactMenuName")
             })
-            // for(var i = 0; i < departments.length; i ++){
-                
-            //     //tempDepartments[departments[i].show_order] = departments[i];
-            // }
-            
             this.departments = departments;
             this.currentDepartment = this.departments[0];
             this.organizationListTimer = new Date().getTime();
@@ -267,15 +253,6 @@ export default {
 
         recentUsersMenuItemClicked:async function() {
             this.dialogVisible = true;
-            /*
-            if (this.showRecentUsersMenuItem) {
-                this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
-            }else {
-                this.recentUsers = await services.common.GetRecentUsers();
-                this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
-            }
-            this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
-            */
         },
         msgContentHightLight: function(curMsg) {
             var showContent = curMsg;
@@ -538,7 +515,6 @@ display: none;
         text-align: left;
         width: calc(100% - 86px);
         height: 32px;
-        border: 1px solid rgb(221, 221, 221);
         border-right: none;
         border-top-left-radius: 2px;
         border-bottom-left-radius: 2px;

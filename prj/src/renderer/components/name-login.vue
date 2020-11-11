@@ -23,25 +23,29 @@
                         {{$t("appName")}}
                     </div>
                 </div>
-                <div class="item-organization">
+                <div class="item-organization" id="item-organization-id">
                     <p class="organizaiton-title">
                         {{$t("joinYourOrganization")}}
                     </p>
                     <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <p class="organization-input-label">{{eachChatEndPoint}}</p>
+                    <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="showOrganizationViewHost"/>
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
                 </div>
                 <div class="btn-item">
-                    <Button type="success"  @click="organizationConfirmButtonClicked()">{{$t("next")}}</Button>
+                    <Button type="success" v-show="showOrganizationViewHost" @click="hostConfirmButtonClicked()">确定</Button>
+                    <Button type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
+                    <Button type="success" v-show="showOrganizationViewOrganization" @click="organizationConfirmButtonClicked()">确定</Button>
                 </div>
                 <div class="organization-finder-tip" v-show="false">
                     <p class="forget-title">{{$t("forgetOrganization")}}</p><p
                     class="finder-title" @click="organizationFinderClicked()">{{$t("retrieveOrganization")}}</p>
                 </div>
-                <!-- <div class="login-footer">
+                <div class="login-footer" v-show="false">
                     <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
-                </div> -->
+                </div>
             </div>
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="username-content" v-show="showUsernameLoginView">
@@ -192,7 +196,6 @@
 <script>
 import os from 'os';
 import {ipcRenderer} from 'electron'
-import {services} from '../../packages/data/index.js'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
 import winHeaderBar from './win-header.vue';
@@ -211,14 +214,18 @@ export default {
             backupInfo: {},
             showCertification: false,
             loginState: '',
-            username: 'wangxin2',
-            password: 'Wx@6156911128',
+            username: '',
+            password: '',
             host: '',
             port: '',
             services: null,
             tokenExpired: false,
             tokenRefreshing: true,
             loadingProcess: '正在验证登录信息',
+            organizationOrHost: '加入您的组织',
+            eachChatEndPoint: '',
+            showOrganizationViewHost: false,
+            showOrganizationViewOrganization: true,
 
             emailSendButtonValue:'发送',
             userEmailSendCodeValue:'发送验证码',
@@ -232,6 +239,7 @@ export default {
 
             organizationFinderEmailTime:0,
             organizationAddress:'https://matrix.each.chat',
+            addressPort: 443,
             emialAddress:'',
             showLoginView: false,
             showUsernameLoginView: true,
@@ -265,6 +273,51 @@ export default {
         }
     },
     methods: {
+        serverSettingClicked: function() {
+            var distElement = document.getElementById("item-organization-id");
+            if(distElement != undefined) {
+                distElement.style.height = "98px";
+            }
+            this.organizationAddress = this.$store.getters.getHost();
+            this.addressPort = this.$store.getters.getPort();
+            this.showOrganizationViewHost = true;
+            this.showOrganizationViewOrganization = false;
+            this.eachChatEndPoint = '';
+            this.organizationOrHost = '服务器设置';
+        },
+        hostConfirmButtonClicked: async function() {
+            var distElement = document.getElementById("item-organization-id");
+            if(distElement != undefined) {
+                distElement.style.height = "58px";
+            }
+
+            var host = this.organizationAddress;
+            if(host.endsWith("/")) {
+                host = host.subString(0, host.length - 1);
+            }
+            if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                host = "https://" + host;
+            }
+            this.$store.commit("setHost", host);
+            this.$store.commit("setPort", this.addressPort);
+
+            this.showOrganizationViewHost = false;
+            this.showOrganizationViewOrganization = true;
+            this.eachChatEndPoint = '';
+            this.organizationOrHost = '加入您的组织';
+            this.organizationAddress = '';
+        },
+        hostCancelButtonClicked: function() {
+            var distElement = document.getElementById("item-organization-id");
+            if(distElement != undefined) {
+                distElement.style.height = "58px";
+            }
+            this.showOrganizationViewHost = false;
+            this.showOrganizationViewOrganization = true;
+            this.eachChatEndPoint = '';
+            this.organizationOrHost = '加入您的组织';
+            this.organizationAddress = '';
+        },
         handleCommand(command) {
             var languageElement = document.getElementById("login-language-label");
             this.$i18n.locale = command;
@@ -323,6 +376,7 @@ export default {
                 this.loginState = "未找到该组织";
                 this.organizationButtonDisabled = false;
             })
+            this.$store.commit("setDomain", this.organizationAddress);
             
         },
         organizationFinderClicked:async function(){
@@ -532,7 +586,7 @@ export default {
         login:async function() {
             if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
                 if(this.showUsernameLoginView){
-                    this.loginState = "请输入用户名和密码";
+                    this.loginState = "请输入账号和密码";
                     return;
                 }else if(this.showUserphoneLoginView){
                     this.loginState = "请输入手机号和验证码";
@@ -658,7 +712,8 @@ export default {
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
-
+        
+        this.organizationAddress = this.$store.getters.getDomain();
         setTimeout(() => {  
             this.$nextTick(async () => {
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then((ret) => {
@@ -1470,13 +1525,13 @@ export default {
             }
             .item-input {
                 margin-top: 4px;
+                margin-bottom: 4px;
                 width:260px;
                 height:36px;
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
                 letter-spacing:1px;
-                margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
                 border-radius:4px;
@@ -1488,7 +1543,7 @@ export default {
             .organization-input-label{
                 position: absolute;
                 left: 216px;
-                top: 174px;
+                top: 178px;
                 margin: 0px;
                 width:77px;
                 height:20px;
@@ -1518,6 +1573,8 @@ export default {
                 line-height:20px;
                 letter-spacing:1px;
                 outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
             }
             
             button:hover {
@@ -1534,6 +1591,8 @@ export default {
                 letter-spacing:1px;
                 opacity: 0.8;
                 outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
             }
 
         }

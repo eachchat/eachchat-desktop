@@ -67,6 +67,26 @@ var models = {
       return;
     await this.storage.sqlite.connect(); 
 
+    this.contact = await (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: 'contact',
+        fields: {
+          user_id:      types.string,
+          eachchat_user_id: types.string,
+          display_name: types.string,
+          avatar_url:   types.string,
+          email:        types.string,
+          mobile:       types.string,
+          telephone:    types.string,
+          company:      types.string,
+          title:        types.string,
+          updatetime:   types.string
+          },
+        primaryKey: 'user_id'
+      });
+    })();
+
     this.user = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
@@ -143,6 +163,7 @@ var models = {
         index: 'userinfo',
         fields: {
           user_id:                  types.string,
+          matrix_id:                types.string,
           belong_to_department_id:  types.string,
           user_name:                types.string,
           user_display_name:        types.string,
@@ -330,7 +351,6 @@ var models = {
     if (typeof environment.path.sqlite == "undefined") {
       return undefined;
     }
-    await globalModels.init();
     let userInfo = await Config.GetCurrentUserID();
     console.log(userInfo)
     if(userInfo == undefined)
@@ -371,6 +391,10 @@ var models = {
     }
 
     return sqlite;
+  },
+
+  get Contact() {
+    return this.contact;
   },
 
   get User() {
