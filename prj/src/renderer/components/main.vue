@@ -352,7 +352,7 @@ export default {
         global.services.common.gmsConfiguration();
         await global.services.common.login()
         global.services.common.InitDbData();
-        global.services.common.initmqtt();
+        //global.services.common.initmqtt();
 
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
