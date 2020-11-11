@@ -154,7 +154,9 @@ class _MatrixClientPeg{
       if(!window.localStorage) {
         return;
       }
+      var organizationAddress = window.localStorage.getItem("mx_hs_url");
       window.localStorage.clear();
+      window.localStorage.setItem("mx_hs_url", organizationAddress);
       window.sessionStorage.clear();
       this.matrixClient.clearStores();
     }

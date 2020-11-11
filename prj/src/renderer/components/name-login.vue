@@ -238,7 +238,7 @@ export default {
             emialAddressButtonDisabled:false,
 
             organizationFinderEmailTime:0,
-            organizationAddress:'https://matrix.each.chat',
+            organizationAddress:'http://139.198.15.26:8888',
             addressPort: 443,
             emialAddress:'',
             showLoginView: false,
@@ -278,7 +278,7 @@ export default {
             if(distElement != undefined) {
                 distElement.style.height = "98px";
             }
-            this.organizationAddress = this.$store.getters.getHost();
+            // this.organizationAddress = this.$store.getters.getHost();
             this.addressPort = this.$store.getters.getPort();
             this.showOrganizationViewHost = true;
             this.showOrganizationViewOrganization = false;
@@ -376,7 +376,6 @@ export default {
                 this.loginState = "未找到该组织";
                 this.organizationButtonDisabled = false;
             })
-            this.$store.commit("setDomain", this.organizationAddress);
             
         },
         organizationFinderClicked:async function(){
@@ -713,7 +712,9 @@ export default {
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
         
-        this.organizationAddress = this.$store.getters.getDomain();
+        if(window.localStorage) {
+            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "http://139.198.15.26:8888" : window.localStorage.getItem("mx_hs_url");
+        }
         setTimeout(() => {  
             this.$nextTick(async () => {
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then((ret) => {
@@ -738,7 +739,9 @@ export default {
         });
     },
     created: function() {
-        this.organizationAddress = getDefaultHomeServerAddr();
+        if(window.localStorage) {
+            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "http://139.198.15.26:8888" : window.localStorage.getItem("mx_hs_url");
+        }
     }
 }
 </script>
