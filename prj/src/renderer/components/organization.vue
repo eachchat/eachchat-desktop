@@ -8,7 +8,7 @@
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
-                    <div>组织</div>
+                    <div class='grid-content'>组织</div>
                     <li class="manager"
                         v-for="(department, index) in searchDeparements"
                         @click="searchUserMenuItemClicked(department.department_id)" 
@@ -19,7 +19,7 @@
                         <p v-html="msgContentHightLight(department.description)" class="manager-title">{{ department.description }}</p>
                         </div>
                     </li>
-                    <div>成员</div>
+                    <div class='grid-content'>成员</div>
                     <li class="manager"
                         v-for="(manager, index) in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
@@ -30,7 +30,7 @@
                         <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
                         </div>
                     </li>
-                    <div>联系人</div>
+                    <div class='grid-content'>联系人</div>
                     <li class="manager"
                         v-for="(contact, index) in searchContacts"
                         @click="searchUserMenuItemClicked(contact.user_id)" 
@@ -82,6 +82,7 @@ import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header.vue';
 import {ipcRenderer} from 'electron'
+import '../style/organise.css'
 
 export default {
     name: 'organization',
