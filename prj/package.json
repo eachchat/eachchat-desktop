@@ -1,8 +1,8 @@
 {
   "name": "EachChat",
-  "version": "1.0.0",
-  "author": "wangxin.ai <wangxin.ai@yunify.com>",
-  "description": "Worklyai YiQiLiao",
+  "version": "2.0.0",
+  "author": "北京爱工作科技有限公司",
+  "description": "尊敬的用户，感谢您使用由北京爱工作科技有限公司（以下简称“爱工作”或“我们”）提供的易企聊团队沟通与协作平台（以下简称“本平台”或“易企聊平台”）的产品及服务。",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
