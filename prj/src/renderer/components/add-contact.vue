@@ -8,19 +8,8 @@
             <el-container class="ChatCreaterContent">
                 <el-main class="selectedView">
                     <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        <div class="search-delete">
-                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
-                        </div><div class="search-search">
-                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                        </div>
-                    </div>
-                    <div class = "search-label">{{$t('contactLabel')}}</div>
-                    <div v-show="!bShowSearchRes">
-                        <div style="margin-left: 20px;margin-top: 10px;">其他方式添加</div>
-                        <div style="margin-left: 20px;margin-top: 10px;" @click="AddByMatrixID()">通过matrix ID手动添加</div>
-                    </div>
+                    <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." size='mini' clearable></el-input>
+                </div>
                     <el-table
                         v-show="bShowSearchRes"
                         :show-header= "false"
@@ -389,7 +378,6 @@ display: none;
         text-align: left;
         width: 80%;
         height: 32px;
-        border: 1px solid rgb(221, 221, 221);
         border-right: none;
         border-top-left-radius: 2px;
         border-bottom-left-radius: 2px;
