@@ -11,7 +11,7 @@
                     <div class='grid-content'>组织</div>
                     <li class="manager"
                         v-for="(department, index) in searchDeparements"
-                        @click="searchUserMenuItemClicked(department.department_id)" 
+                        @click="searchDeparmentItemClicked(department.department_id)" 
                         :key="index">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Common/department_list@2x.png">
                         <div class="manager-info">
@@ -60,7 +60,7 @@
             </div>
         </el-aside>
         <el-container class="right-container">
-            <organizationList  v-show='bOrganizeShow' :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
+            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" :key="organizationListTimer"></organizationList>
             <contactList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></contactList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
@@ -121,6 +121,7 @@ export default {
             isOwn: false,
             dialogVisible: false,
             usersSelected: [],
+            rootDepartment:{},
             currentDepartment: {},
             organizationListTimer: '',
 
@@ -169,7 +170,6 @@ export default {
             });
         },
         getSearchUserIconId(id){
-            
             return 'search' + id;
         },
         getUserImg: async function (userInfo){
@@ -193,8 +193,20 @@ export default {
                 global.services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
             }
         },
+
+        searchDeparmentItemClicked: async function(id){
+            let department = await Department.GetDepartmentInfoByDepartmentID(id);
+            if(!department)
+                return;
+            this.showSearchView = false;
+            this.showSearchUserInfoTips = false;
+            this.bOrganizeShow = true;
+            this.bContactShow = false;
+            this.rootDepartment = this.departments[0];
+            this.currentDepartment = department;
+        },
+
         searchUserMenuItemClicked:async function(id) {
-            
             if (this.showSearchUserInfoTips&&(this.searchUserInfo.id == id)){
                 this.showSearchUserInfoTips = false;
                 return;

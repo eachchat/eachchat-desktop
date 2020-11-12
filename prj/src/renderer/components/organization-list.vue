@@ -78,6 +78,14 @@ export default {
     props:{
         parentInfo: {
             type:Object
+        },
+        currentDepartment:{
+            default: null
+        }
+    },
+    watch:{
+        currentDepartment: function(){
+            this.showCurrentDepartment();
         }
     },
     computed: {
@@ -166,6 +174,25 @@ export default {
 
         //     this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
         // },
+        showCurrentDepartment: async function(){
+            if(!this.currentDepartment || !this.currentDepartment.department_id)
+                return;
+            this.organizationList = [];
+            let departmentModels;
+            let currentDepartment;
+            let id = this.currentDepartment.department_id;
+            while(departmentModels = await Department.GetSubDepartment(id)){
+                var organization = {};
+                organization.departments = departmentModels.sort(this.compare("show_order")); //
+                organization.users = await UserInfo.GetSubUserinfo(id);
+                this.organizationList.unshift(organization); 
+                currentDepartment = await Department.GetDepartmentInfoByDepartmentID(id);
+                if(currentDepartment.parent_id == '')
+                    break;
+                id = currentDepartment.parent_id;
+            }
+        },
+
         departmentMenuItemClicked:async function(department, level) {
             var id = department.department_id;
             var name = department.display_name;
@@ -189,8 +216,6 @@ export default {
                     this.getUserImg(organization.users[i]);
                 }
             });
-            
-
         },
         userMenuItemClicked:async function(id) {  
             if (this.showUserInfoTips&&(this.userInfo.id == id)){
@@ -322,7 +347,6 @@ export default {
             if(e.target.className.indexOf('userInfo') == -1){
                 that.showUserInfoTips = false;
             }
-            
         });
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on('updateUserImage', this.updateUserImage);
