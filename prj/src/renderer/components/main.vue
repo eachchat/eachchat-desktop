@@ -349,9 +349,6 @@ export default {
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
         await global.mxMatrixClientPeg.matrixClient.startClient();
-        global.services.common.gmsConfiguration();
-        await global.services.common.login()
-        global.services.common.InitDbData();
         //global.services.common.initmqtt();
 
         const ctx = this;
@@ -368,6 +365,9 @@ export default {
               break;
           }
         })
+        global.services.common.gmsConfiguration();
+        await global.services.common.login()
+        global.services.common.InitDbData();
         //this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
             this.showCurUserIcon();
