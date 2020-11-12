@@ -310,6 +310,7 @@ const common = {
     this.initServiceApi();
     let userID = localStorage.getItem("mx_user_id");
     let base64UserID = Base64.encode(userID, true);
+    await globalModels.init();
     await Config.SetLoginInfo(base64UserID, this.data.orgValue);
     await models.init();
     this.accessToken = localStorage.getItem("mx_access_token");
