@@ -33,7 +33,7 @@
                     <div class='grid-content'>联系人</div>
                     <li class="manager"
                         v-for="(contact, index) in searchContacts"
-                        @click="searchUserMenuItemClicked(contact.user_id)" 
+                        @click="SearchContactItemClicked(contact.user_id)" 
                         :key="index">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.user_id)" src="../../../static/Img/User/user-40px@2x.png">
                         <div class="manager-info">
@@ -63,7 +63,7 @@
             <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" :key="organizationListTimer"></organizationList>
             <contactList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></contactList>
         </el-container>
-        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
+        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
             <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
@@ -82,6 +82,7 @@ import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header.vue';
 import {ipcRenderer} from 'electron'
+import {ComponentUtil} from '../script/component-util.js'
 import '../style/organise.css'
 
 export default {
@@ -134,6 +135,7 @@ export default {
             searchUserInfo:{},
             searchUserInfoKey: 0,
             searchUserInfoPosition:{},
+            contactType:"origanise"
             //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
@@ -206,11 +208,12 @@ export default {
             this.currentDepartment = department;
         },
 
-        searchUserMenuItemClicked:async function(id) {
+        GetUserinfo: async function(id, userType){
             if (this.showSearchUserInfoTips&&(this.searchUserInfo.id == id)){
-                this.showSearchUserInfoTips = false;
-                return;
+                    this.showSearchUserInfoTips = false;
+                    return;
             }
+            this.contactType = userType;
             var iconElement = document.getElementById(this.getSearchUserIconId(id));
             this.searchUserInfoPosition.left = iconElement.getBoundingClientRect().left;
             this.searchUserInfoPosition.top = iconElement.getBoundingClientRect().top;
@@ -222,42 +225,74 @@ export default {
             if(id == selfUser.id) {
                 this.isOwn = true;
             }
-            var user = await UserInfo.GetUserInfo(id);
-            tempUserInfo.id = user.user_id;
-            tempUserInfo.avatarTUrl = user.avatar_t_url;
-            tempUserInfo.displayName = user.user_display_name;
-            tempUserInfo.title = user.user_title;
-            tempUserInfo.statusDescription = user.status_description;
-            tempUserInfo.workDescription = user.work_description;
-            tempUserInfo.managerId = user.manager_id;
-            tempUserInfo.departmentId = user.belong_to_department_id;
-            
-            //get department
-            var department = await Department.GetDepartmentInfoByUserID(id);
-            tempUserInfo.department = department;
-            //get email
-            var email = await UserInfo.GetUserEmailByUserID(id);
-            tempUserInfo.email = email;
-            //get phone
-            var phone = await UserInfo.GetUserPhoneByUserID(id);
-            var tempPhone = {};
-            for (var i = 0; i < phone.length; i ++){
-                var temp = phone[i];
-                if(temp.phone_type == 'mobile'){
-                    tempPhone.mobile = temp.phone_value;
-                }else{
-                    tempPhone.work = temp.phone_value;
-                }
+            var user;
+            if(userType == 'contact')
+            {
+                user = await Contact.GetContactInfo(id);
+                let userInfo = await UserInfo.GetUserInfoByMatrixID(id)
+                let department = {display_name:""};
+                if(userInfo)
+                    department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
+                tempUserInfo.department = department;
+                tempUserInfo.id = id;
+                tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, id);
+                tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
+                tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);
+                tempUserInfo.workDescription = ComponentUtil.ShowInfoContent(user.work_description);
+                tempUserInfo.email = [];
+                tempUserInfo.email.push({
+                    email_value: ComponentUtil.ShowInfoContent(user.email)
+                })
+                tempUserInfo.phone = {
+                    mobile: ComponentUtil.ShowInfoContent(user.telephone),
+                    work: ComponentUtil.ShowInfoContent(user.mobile)
+                };
             }
-            tempUserInfo.phone = tempPhone;
+            else
+            {
+                user = await UserInfo.GetUserInfo(id);
+                tempUserInfo.id = user.user_id;
+                tempUserInfo.avatarTUrl = user.avatar_t_url;
+                tempUserInfo.displayName = user.user_display_name;
+                tempUserInfo.title = user.user_title;
+                tempUserInfo.statusDescription = user.status_description;
+                tempUserInfo.workDescription = user.work_description;
+                tempUserInfo.managerId = user.manager_id;
+                tempUserInfo.departmentId = user.belong_to_department_id;
+                
+                //get department
+                var department = await Department.GetDepartmentInfoByUserID(id);
+                tempUserInfo.department = department;
+                //get email
+                var email = await UserInfo.GetUserEmailByUserID(id);
+                tempUserInfo.email = email;
+                //get phone
+                var phone = await UserInfo.GetUserPhoneByUserID(id);
+                var tempPhone = {};
+                for (var i = 0; i < phone.length; i ++){
+                    var temp = phone[i];
+                    if(temp.phone_type == 'mobile'){
+                        tempPhone.mobile = temp.phone_value;
+                    }else{
+                        tempPhone.work = temp.phone_value;
+                    }
+                }
+                tempUserInfo.phone = tempPhone;
 
-
-            var leaders = await UserInfo.GetLeaders(id);
-            tempUserInfo.leaders = leaders;
-
+                var leaders = await UserInfo.GetLeaders(id);
+                tempUserInfo.leaders = leaders;
+            }
             this.searchUserInfo = tempUserInfo;
             this.searchUserInfoKey ++;
             this.showSearchUserInfoTips = true;
+        },
+
+        SearchContactItemClicked: async function(id){
+            this.GetUserinfo(id, 'contact')
+        },
+
+        searchUserMenuItemClicked:async function(id) {
+            this.GetUserinfo(id, 'organise');
         },
         getOrganizationBaseData:async function() {
             var departments = [];
