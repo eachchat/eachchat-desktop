@@ -1,5 +1,5 @@
 <template>
-    <div class="wrap-layer" >
+    <div class="wrap-layer" @click.stop="close">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">邀请联系人</div>

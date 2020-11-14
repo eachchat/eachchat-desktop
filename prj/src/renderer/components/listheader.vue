@@ -95,6 +95,8 @@ export default {
         mxSquare: function(close) {
             console.log('???', close)
             if (close) {
+                if (close.data) this.$emit(close.handler, close.data);
+                this.showCreateNewChat = false;
                 return this.mxSquareOpen = false;
             }
             this.mxSquareOpen = true;
@@ -111,6 +113,7 @@ export default {
         mxCreateRoom: function(close) {
             console.log('???', close)
             if (close) {
+                this.showCreateNewChat = false;
                 return this.mxCreateRoomOpen = false;
             }
             this.mxCreateRoomOpen = true;

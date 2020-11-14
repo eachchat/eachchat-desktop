@@ -3,7 +3,12 @@
       <div class="chat-panel" id="chat-panel-id">
         <div class="chat-list">
           <div class="list-header">
-            <listHeader :cleanSearchKey="cleanSearchKey" @getCreateGroupInfo="getCreateGroupInfo" @toSearch="toSearch"/>
+            <listHeader 
+              :cleanSearchKey="cleanSearchKey" 
+              @getCreateGroupInfo="getCreateGroupInfo" 
+              @toSearch="toSearch"
+              @viewRoom="viewRoom"
+            />
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
@@ -270,6 +275,7 @@ export default {
             console.log("member is ", member);
             setTimeout(() => {
               this.showGroupList = [];
+              console.log('rooms again', global.mxMatrixClientPeg.matrixClient.getRooms());
               global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
                 if(r.getMyMembership() != "LEAVE") {
                   this.showGroupList.push(r);
@@ -278,7 +284,7 @@ export default {
               this.$nextTick(() => {
                 this.showGroupIcon();
               })
-            }, 1000)
+            }, 1600)
         })
       }
     }
@@ -344,6 +350,19 @@ export default {
     };
   },
   methods: {
+    viewRoom(room) {
+      console.log('---new rooms---',  newRooms);
+      const newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
+      for(let i=0; i<newRooms.length; i++) {
+        console.log('xie1--', newRooms[i].roomId);
+        console.log('xie2--', room.room_id);
+        if (newRooms[i].roomId === room.room_id) {
+          console.log('---to show---');
+          return this.showChat(newRooms[i], i);
+        }
+      }
+      setTimeout(()=>{this.viewRoom(room)}, 160);
+    },
     isSecret(item) {
       if(item.group_type == 102 && item.key_id != undefined && item.key_id.length != 0) {
         return true;

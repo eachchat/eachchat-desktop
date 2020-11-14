@@ -1,9 +1,9 @@
 <template>
-    <div class="wrap-layer" >
+    <div class="wrap-layer" @click.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">查看公共群聊</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close">
+                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close('close')">
             </div>
             <div class="search-field">
                 <div class="search-logo">
@@ -58,6 +58,7 @@ export default {
                     }
                     return p;
                 })
+                this.close(room);
                 this.publicRooms = [...publicRooms];
             })
         },
@@ -143,8 +144,10 @@ export default {
         searchRoom: function() {
 
         },
-        close: function() {
-            this.$emit('close', 'close');
+        close: function(room) {
+            let obj = 'close';
+            if (room && room != close) obj = {data: room, handler: 'viewRoom'};
+            this.$emit('close', obj);
         },
         confirm: function() {
             this.createRoom();
