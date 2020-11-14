@@ -72,6 +72,7 @@ var models = {
         storage: this.storage.sqlite,
         index: 'contact',
         fields: {
+          matrix_id:    types.string,
           user_id:      types.string,
           eachchat_user_id: types.string,
           display_name: types.string,
@@ -83,7 +84,7 @@ var models = {
           title:        types.string,
           updatetime:   types.string
           },
-        primaryKey: 'user_id'
+        primaryKey: 'matrix_id'
       });
     })();
 

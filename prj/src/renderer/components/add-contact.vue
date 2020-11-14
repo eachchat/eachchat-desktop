@@ -17,7 +17,7 @@
                             <img ondragstart="return false" class="contact-list-icon" :id="contact.user_id" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="contact-list-info">
                                 <p class="contact-list-name">{{ contact.display_name }}</p>
-                                <p class="contact-list-titile">{{ contact.user_id }}</p>
+                                <p class="contact-list-titile">{{ contact.matrix_id }}</p>
                             </div>
                             <button class="contact-list-button" @click="HandleSave(index, contact)" :disabled='DisableSave(contact)'>保存</button>
                         </li>
@@ -73,7 +73,7 @@ export default {
     methods: {
         DisableSave(row){
             for(let item of this.contacts){
-                if(row.user_id == item.user_id)
+                if(row.user_id == item.matrix_id)
                     return true;
             }
             return false;
@@ -81,7 +81,7 @@ export default {
 
         HandleSave: async function(index, row){
             let info = {
-                user_id : row.user_id,
+                matrix_id : row.user_id,
                 display_name: row.display_name,
                 avatar_url: row.avatar_url,
             }
@@ -148,8 +148,8 @@ export default {
         indexOfUserInSelected(user){
             var index = -1;
             for(var i = 0; i < this.selectedUsers.length; i ++){
-                var id = user.user_id;
-                if(id == this.selectedUsers[i].user_id){
+                var id = user.matrix_id;
+                if(id == this.selectedUsers[i].matrix_id){
                     index = i;
                     break;
                 }
@@ -159,13 +159,13 @@ export default {
         
         getUserImg: async function (userInfo, key=''){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.user_id == undefined || userInfo == null) {
+            if(userInfo == null || userInfo.matrix_id == undefined ) {
                 return "";
             }
-            var userId = userInfo.user_id;
+            var userId = userInfo.matrix_id;
             var userAvatarUrl = userInfo.avatar_t_url;
             var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(key + userInfo.user_id);
+            let userIconElement = document.getElementById(key + userInfo.matrix_id);
             if(!userIconElement){
                 return;
             }

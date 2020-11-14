@@ -26,14 +26,14 @@
                     <ul class="managers-list">
                         <li class="manager"
                             v-for="(user, index) in contactList"
-                            @click="userMenuItemClicked(user.user_id)"
+                            @click="userMenuItemClicked(user.matrix_id)"
                             @mouseover="OnMouseOver(index)"
                             @mouseleave="OnMouseLeave(index)"
                             :key="index">
-                            <img ondragstart="return false" class="manager-icon" :id="user.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                            <img ondragstart="return false" class="manager-icon" :id="user.matrix_id" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="manager-info">
-                                <p class="manager-name">{{ GetDisplayName(user.display_name, user.user_id) }}</p>
-                                <p class="manager-title">{{ user.user_id }}</p>
+                                <p class="manager-name">{{ GetDisplayName(user.display_name, user.matrix_id) }}</p>
+                                <p class="manager-title">{{ user.matrix_id }}</p>
                             </div>
                             <el-button icon="el-icon-delete" circle class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)"></el-button>
                         </li>
@@ -122,7 +122,7 @@ export default {
 
         ClearCache: async function(){
             this.showAlertDlg = false;
-            let ret = await this.services.DeleteContact(this.deleteContact.user_id)
+            let ret = await this.services.DeleteContact(this.deleteContact.matrix_id)
             if(ret)
                 this.contactList = await Contact.GetAllContact();
         },
@@ -181,7 +181,7 @@ export default {
             var tempUserInfo = {};
             //get userinfo
             var user = await Contact.GetContactInfo(id);
-            let userInfo = await UserInfo.GetUserInfoByMatrixID(user.user_id)
+            let userInfo = await UserInfo.GetUserInfoByMatrixID(user.matrix_id)
             let department = {display_name:""};
             if(userInfo)
                 department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
@@ -203,27 +203,6 @@ export default {
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
             this.showUserInfoTips = true;
-        },
-        getUserImg: async function (userInfo){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.user_id == undefined || userInfo == null) {
-                return "";
-            }
-            var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.avatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(userInfo.user_id);
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
-            }
         },
         
         getAppBaseData:async function() {
