@@ -1964,11 +1964,11 @@ const common = {
   },
 
   async gmsConfiguration(domainBase64){
-    let value = Base64.encode("139.198.15.253", true);
+    let value = Base64.encode("139.198.18.180", true);
     this.data.orgValue = value;
-    this.config.hostname = "139.198.15.253";
+    this.config.hostname = "139.198.18.180";
     this.config.apiPort = 8888;
-    this.config.hostTls = 0;
+    this.config.hostTls = 1;
     this.config.mqttHost = "139.198.15.253";
     this.config.mqttPort = 1883;
     this.config.mqttTls = 1;
