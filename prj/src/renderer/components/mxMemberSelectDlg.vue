@@ -1,9 +1,9 @@
 <template>
-    <div class="wrap-layer" @click.stop="close">
+    <div class="wrap-layer" @click.self.stop="close">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">邀请联系人</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close">
+                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close">
             </div>
             <div class="member-field">
                 <div class="member-field-left"> <!--left-->
@@ -36,10 +36,10 @@
                                 <div>{{item.display_name}}</div>
                                 <div>{{item.user_id}}</div>
                             </div>
-                            <div class="rm-choosen" @click.stop="removeMember(item)">X</div>
+                            <div class="rm-choosen" @click.self.stop="removeMember(item)">X</div>
                         </div>
                     </div> <!--member list-->
-                    <div class="confirm-button" @click.stop="invite">确认</div>
+                    <div class="confirm-button" @click.self.stop="invite">确认</div>
                 </div>
             </div>
         </div>
@@ -113,18 +113,21 @@ export default {
             const targetIds = this.choosenMember.map(t => t.user_id);
             const client = window.mxMatrixClientPeg.matrixClient;
             const roomId = this.roomId;
-            const room = client.getRoom(this.roomId);
-            if (!room) {
-                console.error('no room')
-                return alert('无此房间');
-            }
+            // const room = client.getRoom(this.roomId);
+            // if (!room) {
+            //     console.error('no room')
+            //     return alert('无此房间');
+            // }
             let promises = [];
             targetIds.forEach(id => {
                 promises.push(vtx.inviteConduct(roomId, id));
             })
             Promise.all(promises).then(() => {
                 vtx.busy = false;
-                vtx.close();
+                const obj = {};
+                obj.data = {room_id: roomId};
+                obj.handler = 'viewRoom';
+                vtx.close(obj);
             });
         },
         removeMember: function(item) {
@@ -139,7 +142,10 @@ export default {
             this.choosenMember = [...choosenMember];
         },
         close: function() {
-            this.$emit('close', 'close');
+            const obj = {};
+            obj.data = {room_id: this.roomId};
+            obj.handler = 'viewRoom';
+            this.$emit('close', obj);
         },
         confirm: function() {
         },

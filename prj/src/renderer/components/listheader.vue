@@ -101,7 +101,9 @@ export default {
             }
             this.mxSquareOpen = true;
         },
-        mxSelectMember: function() {
+        mxSelectMember: function(close) {
+            if (close.data) this.$emit(close.handler, close.data);
+            this.showCreateNewChat = false;
             this.mxSelectMemberOpen = false;
         },
         mxCreateRoomNextStep: function(res) {
