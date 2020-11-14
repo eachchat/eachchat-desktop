@@ -1,9 +1,9 @@
 <template>
-    <div class="wrap-layer" @click.stop="close('close')">
+    <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">查看公共群聊</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close('close')">
+                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close('close')">
             </div>
             <div class="search-field">
                 <div class="search-logo">
@@ -16,7 +16,7 @@
                     <img class="room-img"/>
                     <div class="room-info">{{item.name}}</div>
                     <div class="room-info">人数：{{item.num_joined_members}}</div>
-                    <div class="room-join" @click.stop="joinRoom(item)" v-if="!item.joined">加入</div>
+                    <div class="room-join" @click.self.stop="joinRoom(item)" v-if="!item.joined">加入</div>
                     <div class="room-join" v-else style="background-color:grey">已加入</div>
                 </div>
             </div>
@@ -146,7 +146,7 @@ export default {
         },
         close: function(room) {
             let obj = 'close';
-            if (room && room != close) obj = {data: room, handler: 'viewRoom'};
+            if (room && room != 'close') obj = {data: room, handler: 'viewRoom'};
             this.$emit('close', obj);
         },
         confirm: function() {
