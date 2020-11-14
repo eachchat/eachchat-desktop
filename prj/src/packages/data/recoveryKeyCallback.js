@@ -54,6 +54,9 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
         //           },
         //       },
         //   );
+        if(global.mxMatrixClientPeg.recoveryKey.length == 0) {
+            return;
+        }
           const input = {recoveryKey: global.mxMatrixClientPeg.recoveryKey};
           if (!input) {
               throw new AccessCancelledError();
