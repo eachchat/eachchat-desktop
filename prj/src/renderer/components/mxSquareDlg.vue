@@ -29,6 +29,9 @@ const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
+const OPTS = {
+    limit: 200,
+};
 export default {
     name: 'mxCreateRoomDlg',
     props: {
@@ -46,6 +49,7 @@ export default {
             loading: false
         }
     },
+    timer: null,
     methods: {
         joinRoom: function(room) {
             const client = window.mxMatrixClientPeg.matrixClient;
@@ -62,7 +66,10 @@ export default {
                 this.publicRooms = [...publicRooms];
             })
         },
-        getMoreRooms: function() {
+        getMoreRooms: function(obj, cover) {
+            console.log('--obj--', obj);
+            console.log('cover', cover);
+            const xie = obj || {limit: 200};
             const client = window.mxMatrixClientPeg.matrixClient;
             const my_filter_string = this.filterString//this.state.filterString;
             const my_server = window.mxMatrixClientPeg.getHomeserverName(); //this.state.roomServer;
@@ -81,7 +88,8 @@ export default {
             }
             if (this.nextBatch) opts.since = this.nextBatch;
             if (my_filter_string) opts.filter = { generic_search_term: my_filter_string };
-            return client.publicRooms().then((data) => {
+            console.log('xie', xie)
+            return client.publicRooms(xie).then((data) => {
                 // if (
                 //     my_filter_string != this.state.filterString ||
                 //     my_server != this.state.roomServer ||
@@ -106,7 +114,7 @@ export default {
                     if (r) c.joined = true;
                     return c;
                 })
-
+                if (cover) return this.publicRooms = [...chunk];
                 this.publicRooms.push(...chunk);
                 // this.setState((s) => {
                 //     s.publicRooms.push(...(data.chunk || []));
@@ -142,7 +150,14 @@ export default {
             });
         },
         searchRoom: function() {
-
+            const roomText = this.roomText;
+            if (this.timer) clearTimeout(this.timer);
+            this.timer = setTimeout(()=>{
+                console.log('---opts---', OPTS)
+                if (OPTS.filter) delete OPTS.filter;
+                if (roomText) OPTS.filter = {generic_search_term: roomText};
+                this.getMoreRooms(OPTS, true)
+            },320)
         },
         close: function(room) {
             let obj = 'close';
