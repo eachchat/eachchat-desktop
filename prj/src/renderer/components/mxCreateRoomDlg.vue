@@ -1,9 +1,9 @@
 <template>
-    <div class="wrap-layer" >
+    <div class="wrap-layer" @click.self.stop="close">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">发起群聊</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close">
+                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close">
             </div>
             <div class="mxChatCreaterContent">
                 <div class="setting-field">
@@ -42,8 +42,8 @@
                 </div>
             </div>
             <div class="mxTransmitFotter">
-                <button class="mxTransmitConfirmButton" @click.stop="confirm">下一步</button>
-                <button class="mxTransmitCancleButton" @click.stop="close">取消</button>
+                <button class="mxTransmitConfirmButton" @click.self.stop="confirm">下一步</button>
+                <button class="mxTransmitCancleButton" @click.self.stop="close">取消</button>
             </div>
         </div>
     </div>
