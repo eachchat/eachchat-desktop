@@ -803,7 +803,7 @@ const Contact = {
     async GetContactInfo(id){
         let contacts = await (await models.Contact).find(
             {
-                user_id: id
+                matrix_id: id
             });
         if(contacts.length != 0)
             return contacts[0];
@@ -813,7 +813,7 @@ const Contact = {
     async DeleteContact(id){
         let contacts = await (await models.Contact).find(
             {
-                user_id: id
+                matrix_id: id
             });
         if(contacts.length != 0)
             await contacts[0].destroy();
@@ -828,7 +828,7 @@ const Contact = {
                         title){
         let contacts = await (await models.Contact).find(
             {
-                user_id: matrixID
+                matrix_id: matrixID
             });
         if(contacts.length != 0)
         {
@@ -845,7 +845,7 @@ const Contact = {
     async SearchByNameKey(key){
         let contacts = await(await models.Contact).find({
             display_name:  "%"+key,
-            _user_id:          "%"+key,
+            _matrix_id:          "%"+key,
             _title:         "%"+key,
             $size: 20
         })

@@ -15,7 +15,7 @@
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
-                <li v-if="showStatusDescription" class="userInfo-li">
+                <li v-if="showStatusDescription">
                     <p class="userInfo-key">个人状态</p>
                     <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.statusDescription">
                 </li>
