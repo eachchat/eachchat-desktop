@@ -29,19 +29,19 @@
                 </li>
                 <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
-                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name">
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name"  placeholder="输入部门名称...">
                 </li>
                 <li v-if="showPhone">
                     <p class="userInfo-key">手机</p>
-                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.mobile">
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.mobile" placeholder="输入手机号...">
                 </li>
                 <li v-if="showTelephone">
                     <p class="userInfo-key">座机</p>
-                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.work">
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.work" placeholder="输入座机号...">
                 </li>
                 <li v-if="showEmail">
                     <p class="userInfo-key">邮箱</p>
-                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.email[0].email_value">
+                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.email[0].email_value" placeholder="输入邮箱...">
                 </li>
             </ul>
         </div>
@@ -145,8 +145,6 @@ export default {
             return false;
         },
         showRelation: function() {
-            if(this.userType == 'contact')
-                return true;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -420,12 +418,20 @@ export default {
     vertical-align: top;
     width: 100%;
 }
+
+input::-webkit-input-placeholder {
+    /* placeholder颜色 */
+    color: rgb(153, 153, 153);
+    /* placeholder字体大小 */
+    font-size: 12px;
+}
+
 .userInfo-key {
     display:inline-block;
     line-height: 18px;
     width: 52px;
     margin-top: 9px;
-    margin-bottom: 9px;
+    margin-bottom: 5px;
     font-size: 12px;
     color: rgb(153, 153, 153);
     font-family: PingFangSC-Regular;
@@ -434,63 +440,63 @@ export default {
 .userInfo-value {
     display:inline-block;
     line-height: 18px;
-    width: 158px;
+    width: 100px;
     font-size: 12px;
-    padding-left: 26px;
+    border: 0;
+    padding-left: 16px;
     margin-top: 9px;
-    margin-bottom: 9px;
+    margin-bottom: 5px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: bottom;
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    color: rgba(51, 51, 51, 1);
 }
 .userInfo-report-value {
     display:inline-block;
     cursor: pointer;
     line-height: 18px;
-    width: 158px;
+    width: 100px;
     font-size: 12px;
-    padding-left: 26px;
+    border: 0;
+    padding-left: 16px;
     margin-top: 9px;
-    margin-bottom: 9px;
+    margin-bottom: 5px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: bottom;
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    color: rgba(51, 51, 51, 1);
 }
 .userInfo-email-value {
     -webkit-user-select: text;
     display:inline-block;
     line-height: 18px;
-    width: 158px;
+    width: 150px;
     font-size: 12px;
-    padding-left: 26px;
+    border: 0;
+    padding-left: 16px;
     margin-top: 9px;
-    margin-bottom: 9px;
+    margin-bottom: 5px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: bottom;
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    color: rgba(51, 51, 51, 1);
 }
 .userInfo-phone-value{
     -webkit-user-select: text;
     display:inline-block;
     line-height: 18px;
-    width: 158px;
+    width: 150px;
     font-size: 12px;
-    padding-left: 26px;
+    border: 0;
+    padding-left: 16px;
     margin-top: 9px;
-    margin-bottom: 9px;
-    color: rgb(62, 180, 240);
+    margin-bottom: 5px;
     font-family: PingFangSC-Regular;
     font-weight: 400;
     

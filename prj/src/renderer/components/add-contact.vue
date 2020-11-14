@@ -8,45 +8,20 @@
             <el-container class="ChatCreaterContent">
                 <el-main class="selectedView">
                     <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        <div class="search-delete">
-                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
-                        </div><div class="search-search">
-                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                        </div>
+                        <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." size='mini' clearable></el-input>
                     </div>
-                    <div class = "search-label">{{$t('contactLabel')}}</div>
-                    <div v-show="!bShowSearchRes">
-                        <div style="margin-left: 20px;margin-top: 10px;">其他方式添加</div>
-                        <div style="margin-left: 20px;margin-top: 10px;" @click="AddByMatrixID()">通过matrix ID手动添加</div>
-                    </div>
-                    <el-table
-                        v-show="bShowSearchRes"
-                        :show-header= "false"
-                        :data="searchUsers"
-                        style="margin-left: 20px; width:95%"
-                        height='300'>
-                        <el-table-column width="50">
-                            <template slot-scope="scope">
-                                <img src="../../../static/Img/Chat/search-20px@2x.png" alt="">
-                            </template>
-                        </el-table-column>
-                        <el-table-column width="350" float='left'>
-                            <template slot-scope="scope">
-                                <p style='font-size: 12px;'>{{ scope.row.display_name }}</p>
-                                <p style='font-size: 8px;'>{{ scope.row.user_id }}</p>
-                            </template>
-                        </el-table-column>
-                        <el-table-column float='right'>
-                            <template slot-scope="scope">
-                                <el-button
-                                size="mini"
-                                :disabled='DisableSave(scope.row)'
-                                @click="HandleSave(scope.$index, scope.row)">保存</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+                    <ul class = 'contact-list'>
+                        <li class="contact-list-item"
+                            v-for="(contact, index) in searchUsers"
+                            :key="index">
+                            <img ondragstart="return false" class="contact-list-icon" :id="contact.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                            <div class="contact-list-info">
+                                <p class="contact-list-name">{{ contact.display_name }}</p>
+                                <p class="contact-list-titile">{{ contact.user_id }}</p>
+                            </div>
+                            <button class="contact-list-button" @click="HandleSave(index, contact)" :disabled='DisableSave(contact)'>保存</button>
+                        </li>
+                    </ul>
                 </el-main>
             </el-container>
         </div>
@@ -308,7 +283,6 @@ display: none;
         border-radius: 4px;
         border: 1px solid rgba(221,221,221,1);
         background:rgba(255,255,255,1);
-
         }
 
 
@@ -389,7 +363,6 @@ display: none;
         text-align: left;
         width: 80%;
         height: 32px;
-        border: 1px solid rgb(221, 221, 221);
         border-right: none;
         border-top-left-radius: 2px;
         border-bottom-left-radius: 2px;

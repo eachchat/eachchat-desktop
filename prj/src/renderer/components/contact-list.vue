@@ -2,9 +2,22 @@
     <el-container>
         <el-header height="56px" class="contact-header">
             <p class="contact-header-title">{{$t('contactMenuName')}}</p>
-            <div class='chat-tool-invite-div' @click="addContact()">
-            <img style="margin-top: 18px; width:35x;height:35px" src='../../../static/Img/Chat/addMember.png'>
-            <div style="vertical-align:top; margin-top: 25px; display:inline-block">{{$t('addContactButton')}}</div>
+            <div class='chat-tool-invite-div'>
+            <el-popover
+             placement="bottom"
+            width="100px"
+            trigger="click">
+            <el-dropdown-item class="dropdown-item" @click.native="AddContact()"> 
+                <img class="dropdown-item-img" src="../../../static/Img/Chat/search-20px@2x.png">
+                <span class="dropdown-item-label">添加联系人</span>
+            </el-dropdown-item>
+            <el-dropdown-item class="dropdown-item" @click.native="InputContact()"> 
+                <img class="dropdown-item-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
+                <span class="dropdown-item-label">创建联系人</span> <!--发起密聊-->
+            </el-dropdown-item>
+            <el-button slot="reference" icon="el-icon-plus" size="mini" circle></el-button>
+            </el-popover>
+            
             </div>
         </el-header>
         <el-main>
@@ -50,6 +63,9 @@ import userInfoTip from './userinfo-tip';
 import addContact from './add-contact';
 import InputContactInfo from './input-contact-info';
 import AlertDlg from './alert-dlg.vue'
+import "../style/contact-list.css"
+import {ComponentUtil} from '../script/component-util.js'
+
 
 
 export default {
@@ -92,6 +108,14 @@ export default {
 
     },
     methods: {
+        AddContact: function(){
+            this.showChatContactDlg = true;
+        },
+
+        InputContact: function(){
+            this.showInputContactDlg = true;
+        },
+
         CloseAlertDlg: function(){
             this.showAlertDlg = false;
         },
@@ -140,28 +164,9 @@ export default {
             this.showChatContactDlg = true;
             console.log("addContact")
         },
-        
-        ShowInfoContent(content){
-            if(content == undefined)
-                return '';
-            return content
-        },
 
         GetDisplayName: function(displayName, userid){
-            if(displayName == '')
-            {
-                let beginPos = userid.indexOf("@");
-                if(beginPos == -1)
-                    beginPos = 0;
-                else
-                    beginPos++;
-                let endPos = userid.indexOf(":")
-                if(endPos == -1)
-                    endPos = userid.length;
-      
-                return userid.slice(beginPos, endPos)
-            }
-            return displayName
+            return ComponentUtil.GetDisplayName(displayName, userid);
         },
 
         userMenuItemClicked:async function(id) {
@@ -182,17 +187,17 @@ export default {
                 department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
             tempUserInfo.department = department;
             tempUserInfo.id = id;
-            tempUserInfo.displayName = this.GetDisplayName(user.display_name, id);
-            tempUserInfo.title = this.ShowInfoContent(user.title);
-            tempUserInfo.statusDescription = this.ShowInfoContent(user.status_description);
-            tempUserInfo.workDescription = this.ShowInfoContent(user.work_description);
+            tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, id);
+            tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
+            tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);
+            tempUserInfo.workDescription = ComponentUtil.ShowInfoContent(user.work_description);
             tempUserInfo.email = [];
             tempUserInfo.email.push({
-                email_value: this.ShowInfoContent(user.email)
+                email_value: ComponentUtil.ShowInfoContent(user.email)
             })
             tempUserInfo.phone = {
-                mobile: this.ShowInfoContent(user.telephone),
-                work: this.ShowInfoContent(user.mobile)
+                mobile: ComponentUtil.ShowInfoContent(user.telephone),
+                work: ComponentUtil.ShowInfoContent(user.mobile)
             };
 
             this.userInfo = tempUserInfo;
@@ -279,6 +284,7 @@ display: none;
     display: inline-block;
     text-align:center;
     vertical-align:middle;
+    margin-top: 25px;
     float: right;
     width: 100px;
     height: 30px;
