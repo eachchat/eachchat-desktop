@@ -155,8 +155,10 @@ class _MatrixClientPeg{
         return;
       }
       var organizationAddress = window.localStorage.getItem("mx_hs_url");
+      var domain = window.localStorage.getItem("Domain");
       window.localStorage.clear();
       window.localStorage.setItem("mx_hs_url", organizationAddress);
+      window.localStorage.setItem("Domain", domain);
       window.sessionStorage.clear();
       this.matrixClient.clearStores();
     }

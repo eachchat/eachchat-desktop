@@ -5,6 +5,7 @@ const en = {
         "en": "English",
     },
     joinYourOrganization: "Join your organization",
+    homeServerAddress: "Home Server Setting",
     next: "Next",
     forgetOrganization: "Forget your organization ID?",
     retrieveOrganization: "Click to retrieve",

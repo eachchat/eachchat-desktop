@@ -1964,26 +1964,30 @@ const common = {
     return result.data.results;
   },
 
-  async gmsConfiguration(domainBase64){
-    let value = Base64.encode("139.198.18.180", true);
-    this.data.orgValue = value;
-    this.config.hostname = "139.198.18.180";
-    this.config.apiPort = 8888;
-    this.config.hostTls = 1;
-    this.config.mqttHost = "139.198.15.253";
-    this.config.mqttPort = 1883;
-    this.config.mqttTls = 1;
-    return true;
-    /*
+  async gmsConfiguration(domainBase64, host=''){
+    // let value = Base64.encode("139.198.15.253", true);
+    // this.data.orgValue = value;
+    // this.config.hostname = "139.198.18.180";
+    // this.config.apiPort = 8888;
+    // this.config.hostTls = 0;
+    // this.config.mqttHost = "139.198.18.180";
+    // this.config.mqttPort = 1883;
+    // this.config.mqttTls = 1;
+    // return true;
+    
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
-      response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
-      response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
     else//正式环境
-      response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
+      console.log("the url is ", host + "/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
     
     if (response.status != 200 
       || response.data == undefined
@@ -2010,7 +2014,6 @@ const common = {
     this.config.mqttPort = mqtt.port;
     this.config.mqttTls = mqtt.tls;
     return response.data.obj;
-    */
   },
 
   async gmsGetUser(key){

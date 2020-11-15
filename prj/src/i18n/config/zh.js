@@ -5,6 +5,7 @@ const zh = {
         "en": "英文",
     },
     joinYourOrganization: "加入您的组织",
+    homeServerAddress: "服务器设置",
     next: "下一步",
     forgetOrganization: "忘记了你的组织ID？",
     retrieveOrganization: "点击找回",
