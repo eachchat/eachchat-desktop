@@ -10,6 +10,10 @@
             <img class="setupNoticeImage" src="../../../static/Img/Setup/notice-20px@2x.png">
             <label class="setupNoticeLabel">通知设置</label>
           </div>
+          <div class="setup-list-item" @click="jumpToSecurity" v-show="false">
+            <img class="setupSecurityImage" src="../../../static/Img/Setup/security-nor-20px@2x.png">
+            <label class="setupSecurityLabel" >安全隐私</label>
+          </div>
           <div class="setup-list-item" @click="jumpToUpdateSetup" v-show="false">
             <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px@2x.png">
             <label class="setupUpdateLabel" >软件升级</label>
@@ -32,8 +36,8 @@
                 <el-switch class="setup-general-autorun-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)">
                 </el-switch>
             </div>
-            <label class="setup-general-device-manager-label">设备管理</label>
-            <ul class="setup-general-device-list">
+            <label class="setup-general-device-manager-label" v-show="false">设备管理</label>
+            <ul class="setup-general-device-list" v-show="false">
                 <li class="device-info" v-for="(deviceItem, index) in recentDevice">
                     <label class="device-one-name">{{deviceItem.model}}</label>
                     <label class="device-one-os">系统：{{deviceItem.desktopType}}</label>
@@ -64,6 +68,15 @@
                 <label class="setup-notice-desktop-notice-label">消息桌面通知</label>
                 <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)">
                 </el-switch>
+            </div>
+            <div class="setup-security-title">安全隐私</div>
+            <div class="setup-security-export-keys">
+                <label class="setup-security-export-keys-label">导出密钥到本地文件</label>
+                <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
+            </div>
+            <div class="setup-security-import-keys">
+                <label class="setup-security-import-keys-label">导入密钥</label>
+                <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
             <div class="setup-update-title" v-show="false">软件升级</div>
             <div class="setup-update-cur-version" v-show="false">
@@ -97,6 +110,7 @@
       <div class="win-header">
         <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
       </div>
+      <certification v-show="showCertification" :backupInfo=backupInfo></certification>
     </div>
 </template>
 
@@ -109,17 +123,19 @@ import winHeaderBar from './win-header.vue'
 import {ipcRenderer, remote} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 // import listItem from './list-item.vue'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, getdirsize, deleteall, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import {formatCryptoKey, downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, getdirsize, deleteall, getFileSizeByNumber} from '../../packages/core/Utils.js'
 import {shell} from 'electron'
 import AlertDlg from './alert-dlg.vue'
 import AnnouncementDlg from './announcement.vue'
 import { Config } from '../../packages/data/sqliteutil.js'
+import certification from './Certificate.vue';
 
 export default {
   components: {
     winHeaderBar,
     AlertDlg,
     AnnouncementDlg,
+    certification,
     // listItem
   },
   props: [],
@@ -129,6 +145,8 @@ export default {
   },
   data() {
     return {
+      backupInfo: {},
+      showCertification: false,
       soundNotice: true,
       flashNotice: true,
       autoRun: true,
@@ -145,6 +163,17 @@ export default {
     };
   },
   methods: {
+    importSecurityKey: async function() {
+      this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+      await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+      this.showCertification = true;
+    },
+    exportSecurityKey: async function() {
+      var identityKey = await global.mxMatrixClientPeg.matrixClient.getDeviceEd25519Key();
+      identityKey = formatCryptoKey(identityKey);
+      console.log("========== ", identityKey)
+      ipcRenderer.send("export_key", identityKey);
+    },
     autoSoundNoticeStateChange: async function(state) {
       if(state == true) {
         Config.SetMessageSound(1);
@@ -251,6 +280,13 @@ export default {
         this.ulDiv.scrollTop = this.ulDiv.scrollHeight;
     },
     jumpToUpdateSetup: function() {
+        if(this.ulDiv == undefined) {
+          this.ulDiv = document.getElementById("setup-details-id");
+        }
+        
+        this.ulDiv.scrollTop = this.ulDiv.scrollHeight;
+    },
+    jumpToSecurity: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
@@ -437,6 +473,27 @@ export default {
       letter-spacing: 1px;
       vertical-align: top;
   }
+
+  .setupSecurityImage {
+    width: 20px;
+    height: 20px;
+    margin-left: 16px;
+    margin-top: 12px;
+    margin-right: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .setupSecurityLabel {
+      width: calc(100% - 50px);
+      height: 44px;
+      line-height: 44px;
+      font-size: 14px;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      letter-spacing: 1px;
+      vertical-align: top;
+  }
+
 
   .setupUpdateImage {
     width: 20px;
@@ -867,7 +924,7 @@ export default {
     display: inline-block;
   }
 
-  .setup-update-title {
+  .setup-security-title {
     width: 100%;
     height: 48px;
     line-height: 48px;
@@ -876,6 +933,80 @@ export default {
     font-weight: 500;
     letter-spacing: 2px;
     font-size: 16px;
+  }
+
+  .setup-security-export-keys {
+    width:100%;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-export-keys-label {
+    width:calc(100% - 40px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-export-keys-ico {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-top: 14px;
+    margin-right: 0px;
+    margin-bottom: 14px;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .setup-security-import-keys {
+    width:100%;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-import-keys-label {
+    width:calc(100% - 40px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-import-keys-ico {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-top: 14px;
+    margin-right: 0px;
+    margin-bottom: 14px;
+    display: inline-block;
+    cursor: pointer;
   }
 
   .setup-update-cur-version {

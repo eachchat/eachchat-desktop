@@ -441,6 +441,26 @@ function clearFlashIconTimer() {
 
 const downloadingList = [];
 
+ipcMain.on("export_key", function(event, theKey) {
+  console.log("========================= ", theKey);
+  var path = 'C:/Users/wangx/Downloads/recovery-key.txt';
+  var buffer = theKey;
+  console.log("args is ", buffer);
+  var distPath = path + '_tmp';
+  fs.outputFile(distPath, buffer, async err => {
+    if(err) {
+      console.log("ERROR ", err.message)
+      event.sender.send("ERROR", err.message);
+    }
+    else {
+      var finalName = await makeFlieNameForConflict(path);
+      console.log("get final name ", finalName)
+      fs.renameSync(distPath, finalName);
+      event.sender.send("SAVED_FILE", finalName, eventId);
+    }
+  })
+})
+
 ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
   // var path = args[0];
   // var buffer = args[1];

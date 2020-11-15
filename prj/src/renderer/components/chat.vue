@@ -1982,7 +1982,7 @@ s        },
                     newRoomName: ev.getContent().name,
                 });
             }
-            return _t('changeRoomNameTo', {
+            return this.$t('changeRoomNameTo', {
                 senderDisplayName,
                 roomName: ev.getContent().name,
             });

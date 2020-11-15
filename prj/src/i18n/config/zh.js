@@ -39,7 +39,7 @@ const zh = {
     inviteTitle: "是否接受邀请",
     inviteContent: "邀请你接受聊天",
     madeRoomInviteOnly: '{senderDisplayName}s 将此聊天室改为仅限邀请。',
-    madeRoomPublic: '{senderDisplayName}s 讓此聊天室對知道連結的人公開。',
+    madeRoomPublic: '{senderDisplayName}s 让此聊天室对知道链接的人公开。',
     changeRoomRules: '{senderDisplayName}s 将加入规则改为 {rule}s',
     acceptOthersInvite: '{targetName}s 接受了 {displayName}s 的邀请。',
     hasAcceptOthersInvite: '{targetName}s 已接受邀请。',

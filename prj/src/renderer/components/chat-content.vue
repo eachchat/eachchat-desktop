@@ -364,10 +364,7 @@ export default {
       setTimeout(()=>{this.viewRoom(room)}, 160);
     },
     isSecret(item) {
-      if(item.group_type == 102 && item.key_id != undefined && item.key_id.length != 0) {
-        return true;
-      }
-      return false;
+      return global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(item.roomId);
     },
     ChatGroupId(item) {
       return "chat-v-bind-" + item.roomId;

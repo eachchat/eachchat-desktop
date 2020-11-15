@@ -375,14 +375,14 @@ export default {
         }) 
         var _this = this;
         document.addEventListener('click',function(e){
-            // console.log("e.target.classname is ", e.target.className)
-            // if(e.target.className.indexOf('personalCenter') == -1){
-            //     if(e.target.className.indexOf('cropper') == -1){
-            //         console.log("============")
-            //         _this.showPersonalCenter = false;
-            //     }
+            console.log("e.target.classname is ", e.target.className)
+            if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1){
+                if(e.target.className.indexOf('cropper') == -1){
+                    console.log("============")
+                    _this.showPersonalCenter = false;
+                }
 
-            // }
+            }
         });
         ipcRenderer.on('setUnreadCount', (e, count) => {
             this.unReadCount = count;
