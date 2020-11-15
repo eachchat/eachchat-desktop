@@ -29,7 +29,7 @@
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg"/>
             </keep-alive>
         </el-main>
-        <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
+        <personalCenter v-show="showPersonalCenter" :key="personalCenterKey"></personalCenter>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo" :canCancel="upgradeCanCancel"/>
     </el-container>
 </template>
@@ -122,7 +122,6 @@ export default {
             elementImg: null,
             ipcInited: false,
             
-            selfUserInfo:{},
             showPersonalCenter:false,
             personalCenterKey: 0
         }
@@ -285,8 +284,7 @@ export default {
             if(this.showPersonalCenter){
                 this.showPersonalCenter = false;
             }
-            var self = await services.common.GetSelfUserModel();
-            this.selfUserInfo = await UserInfo.GetUserInfo(self.id);
+            console.log("this.showpersonalcenter is ", this.showPersonalCenter);
             this.showPersonalCenter = true;
             this.personalCenterKey ++;
         },
@@ -372,18 +370,19 @@ export default {
         global.services.common.gmsConfiguration();
         await global.services.common.login()
         global.services.common.InitDbData();
-        //this.selfUserInfo = await services.common.GetSelfUserModel();
         this.$nextTick(() => {
             this.showCurUserIcon();
         }) 
         var _this = this;
         document.addEventListener('click',function(e){
-            if(e.target.className.indexOf('personalCenter') == -1){
-                if(e.target.className.indexOf('cropper') == -1){
-                    _this.showPersonalCenter = false;
-                }
+            // console.log("e.target.classname is ", e.target.className)
+            // if(e.target.className.indexOf('personalCenter') == -1){
+            //     if(e.target.className.indexOf('cropper') == -1){
+            //         console.log("============")
+            //         _this.showPersonalCenter = false;
+            //     }
 
-            }
+            // }
         });
         ipcRenderer.on('setUnreadCount', (e, count) => {
             this.unReadCount = count;

@@ -8,25 +8,27 @@
                 </div>
             </div>
             <div class="personalCenter-baseInfo">
-                
-                <p class="personalCenter-name">{{ userInfo.user_display_name }}</p>
-                <div class="personalCenter-state">
-                    <input class="personalCenter-stateInput" v-model="stateInput" @keyup.enter="stateChangeConfirm()" @input="checkStateInputLength()">
-                    <img ondragstart="return false" class="personalCenter-stateSelectArrow"  @click="stateListArrowClicked()" src="../../../static/Img/personalCenter/statusArrow-20px@2x.png">
-                </div>
+                <p class="personalCenter-name" id="personalCenter-namd-id"></p>
+                <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
+        </div>
+        <div class="personalCenter-state">
+            <img ondragstart="return false" class="personalCenter-stateImg" id="personalCenter-stateImg-id" src="../../../static/Img/personalCenter/online-20px@2x.png"> 
+            <input class="personalCenter-stateInput" v-model="stateInput" @keyup.enter="stateChangeConfirm()" @input="checkStateInputLength()">
+            <img ondragstart="return false" class="personalCenter-stateSelectArrow"  @click="stateListArrowClicked()" src="../../../static/Img/personalCenter/statusArrow-20px@2x.png">
         </div>
         <div class="personalCenter-stateSelectListView" v-show="showStateList">
             <ul class="personalCenter-stateSelectList">
                 <li class="personalCenter-stateSelect" v-for="(state, index) in stateList" @click="stateItemClicked(state, index)" :key="index">
+                    <img ondragstart="return false" class="personalCenter-stateImg" :src="statueImg(state)"> 
                     <p class="personalCenter-stateSelectTitle">{{ state.state }}</p>
-                        <img ondragstart="return false" class="personalCenter-stateSelectCheck" v-show="state.check" src="../../../static/Img/personalCenter/selected-20px@2x.png">
-                        </li>
-                    </ul>
-                </div>
+                    <img ondragstart="return false" class="personalCenter-stateSelectCheck" v-show="state.check" src="../../../static/Img/personalCenter/selected-20px@2x.png">
+                </li>
+            </ul>
+        </div>
         <div class="personalCenter-workDescription">
             <img ondragstart="return false" class="personalCenter-descriptionIcon" src="../../../static/Img/personalCenter/workDescription-20px@2x.png">
-            <input class="personalCenter-descriptionInput" placeholder="请添加工作描述" v-model="workDescriptionInput" @input="checkDescriptionInputLength()" @keyup.enter="workDescriptionChangeConfirm()">
+            <input class="personalCenter-descriptionInput" placeholder="设置工作状态" v-model="workDescriptionInput" @input="checkDescriptionInputLength()" @keyup.enter="workDescriptionChangeConfirm()">
         </div>
         <image-cropper v-if="showImageCropper" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
     </div>
@@ -50,16 +52,8 @@ export default {
             showStateList: false,
             showImageCropper:false,
             selectImageSource: '',
+            curStateImgElement: undefined,
         }
-    },
-    props: {
-        userInfo: {
-            type:Object,
-            default:function () {
-                return {};
-            }
-        },
-
     },
     components:{
         imageCropper,
@@ -68,6 +62,17 @@ export default {
 
     },
     methods: {
+        statueImg(statue) {
+            if(statue.state == "online") {
+                return "../../../static/Img/personalCenter/online-20px@2x.png"
+            }
+            else if(statue.state == "offline") {
+                return "../../../static/Img/personalCenter/offline-20px@2x.png"
+            }
+            else if(statue.state == "unavailable") {
+                return "../../../static/Img/personalCenter/unavailable-20px@2x.png"
+            }
+        },
         closeCropperDlg(){
             this.showImageCropper = false;
         },
@@ -111,6 +116,22 @@ export default {
             this.stateInput = state.state;
             this.stateList = temp;
             this.showStateList = false;
+            if(this.curStateImgElement == undefined) {
+                this.curStateImgElement = document.getElementById("personalCenter-stateImg-id");
+            }
+            var curStateImg = "../../../static/Img/personalCenter/unavailable-20px@2x.png";
+            if(this.stateInput == 'online') {
+                curStateImg = "../../../static/Img/personalCenter/online-20px@2x.png";
+            }
+            else if(this.stateInput == 'offline') {
+                curStateImg = "../../../static/Img/personalCenter/offline-20px@2x.png";
+            }
+            else if(this.stateInput == 'unavailable') {
+                curStateImg = "../../../static/Img/personalCenter/unavailable-20px@2x.png";
+            }
+            if(this.curStateImgElement != undefined) {
+                this.curStateImgElement.setAttribute('src', curStateImg);
+            }
             await this.stateChangeConfirm();
         },
         checkStateInputLength: function(){
@@ -126,23 +147,35 @@ export default {
             }
         },
         stateChangeConfirm:async function(){
-            var response = await services.common.updateUserStatusDescription(this.stateInput);
+            console.log("the stateinput is ", this.stateInput);
+            var response = await global.mxMatrixClientPeg.matrixClient.setPresence(this.stateInput)
+                .then((ret) => {
+                    console.log("ret is ", ret);
+                })
+            var curUser = global.mxMatrixClientPeg.matrixClient.getUser(this.userId);
+            curUser
+            // var response = await services.common.updateUserStatusDescription(this.stateInput);
+            console.log("=========response is ", response)
             if(response){
                 this.$toastMessage({message:'状态修改成功', time:1500, type:'success'});
             }else{
                 this.$toastMessage({message:'状态修改失败', time:1500, type:'error'});
             }
+            console.log("stateChangeConfirm============== ", global.mxMatrixClientPeg.matrixClient.getUser(this.userId));
         },
         workDescriptionChangeConfirm:async function(){
             if(this.workDescriptionInput == this.userInfo.work_description){
                 return;
             }
-            var response = await services.common.updateUserWorkDescription(this.workDescriptionInput);
-                        if(response){
+            console.log("the workdescreition is ", this.workDescriptionInput);
+            var response = await global.mxMatrixClientPeg.matrixClient._unstable_setStatusMessage(this.workDescriptionInput);
+            // var response = await services.common.updateUserWorkDescription(this.workDescriptionInput);
+            if(response){
                 this.$toastMessage({message:'描述修改成功', time:1500, type:'success'});
             }else{
                 this.$toastMessage({message:'描述修改失败', time:1500, type:'error'});
             }
+            console.log("workDescriptionChangeConfirm============== ", global.mxMatrixClientPeg.matrixClient.getUser(this.userId));
         },
         isEmpty(obj){
             if(typeof obj == "undefined" || obj == null || obj == ""){
@@ -151,25 +184,29 @@ export default {
                 return false;
             }
         },
-        getUserImg: async function (userInfo){
+        getUserInfo: async function (uId){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.user_id == undefined || userInfo == null) {
+            if(uId == '') {
                 return "";
             }
-            var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.avatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(uId);
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
+            var displayName = profileInfo.displayname;
+            // console.log("==========showcurusericon ", avaterUrl == "");
+            if(avaterUrl == "") {
+                avaterUrl = "../../../static/Img/User/user-40px@2x.png"
+            }
             let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+            userIconElement.setAttribute("src", avaterUrl);
+
+            var userNameElement = document.getElementById("personalCenter-namd-id");
+            if(userNameElement != undefined) {
+                userNameElement.innerHTML = displayName;
+            }
+
+            var userIdElement = document.getElementById("personalCenter-userId-id");
+            if(userIdElement != undefined) {
+                userIdElement.innerHTML = uId;
             }
         },
         updateSelfImage: function(e, args) {
@@ -194,16 +231,17 @@ export default {
         },
     },
     created () {
-        console.log(this.userInfo);
-
         var leftPosition = 64;
         var topPosition = 32;
         
+        this.userId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        this.userInfo = global.mxMatrixClientPeg.matrixClient.getUser(this.userId);
+        console.log("this.userinfo is ", this.userInfo);
         this.pagePosition.left = leftPosition.toString() + "px";
         this.pagePosition.top = topPosition.toString() + "px";
-        this.stateInput = this.userInfo.status_description;
-        this.workDescriptionInput = this.userInfo.work_description;
-        var stateArray = ['空闲', '出差中', '会议中', '外出中', '生病中', '休假中'];
+        this.stateInput = this.userInfo.presence;        
+        this.workDescriptionInput = this.userInfo._unstable_statusMessage;
+        var stateArray = ['online', 'offline', 'unavailable'];
         var temp = [];
         for(var i = 0; i < stateArray.length; i ++){
             var state = {};
@@ -222,7 +260,7 @@ export default {
             }
         });
         this.$nextTick(function(){
-            this.getUserImg(this.userInfo);
+            this.getUserInfo(this.userId);
         });
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
@@ -232,7 +270,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .personalCenter-view {
-    height: 124px;
+    height: 134px;
     width: 260px;
     padding: 0px;
     //border: 1px solid rgb(242, 242, 246);
@@ -296,53 +334,22 @@ export default {
     vertical-align: top;
     margin-left: 12px;
 
-    .personalCenter-state{
-        margin-top: 1px;
-        height: 22px;
-        width: 64px;
-        border: none;
-        background:rgba(255,255,255,1);
-        .personalCenter-stateInput{
-            display: inline-block;
-            position: absolute;
-            //text-indent: 4px;
-            width: 42px;
-            padding: 0;
-            margin: 0px;
-            height: 18px;
-            outline:none;
-            border: 0px;
-            font-family: PingFangSC-Regular;
-            font-size: 12px;
-            margin-top: 2px;
-            background-color: rgba(1, 1, 1, 0);
+    .personalCenter-userId {
+        height: 18px;
+        margin: 0px;
 
-            font-weight:400;
-            color: rgb(153, 153, 153);
-            line-height:18px;
-            letter-spacing:1px;
-        }
-        .personalCenter-stateSelectArrow{
-            width: 20px;
-            height: 20px;
-            display: none;
-            padding: 0px;
-            margin-left: 42px;
-        }
+        width: 140%;
+        text-align: left;
+        font-size: 12px;
+        font-weight:400;
+        color:#999999;
+        line-height:18px;
+        margin-top: 2px;
+        font-family: PingFangSC-Regular;
+        text-overflow:ellipsis;
+        white-space: nowrap;
     }
-    .personalCenter-state:hover{
-        border: 1px solid rgba(221,221,221,1);
-        border-radius:2px;
-        background:rgba(255,255,255,1);
-        .personalCenter-stateSelectArrow{
-            display: inline-block;
-        }
-        .personalCenter-stateInput{
-            text-indent: 4px;
-            color: black;
-            font-family: PingFangSC-Regular;
-        }
-    }
+    
 }
 .personalCenter-name {
     height: 22px;
@@ -358,12 +365,55 @@ export default {
     margin-top: 2px;
     font-family: PingFangSC-Medium;
 }
+
+.personalCenter-state{
+    margin-top: 8px;
+    margin-left: 20px;
+    height: 22px;
+    width: calc(100% - 40px);
+    border: 0px;
+    background:rgba(255,255,255,1);
+
+    .personalCenter-stateInput{
+        display: inline-block;
+        position: absolute;
+        //text-indent: 4px;
+        width: 42px;
+        padding: 0;
+        margin: 0px;
+        height: 18px;
+        outline:none;
+        border: 0px;
+        font-family: PingFangSC-Regular;
+        font-size: 12px;
+        margin-top: 2px;
+        background-color: rgba(1, 1, 1, 0);
+
+        font-weight:400;
+        color: rgb(153, 153, 153);
+        line-height:18px;
+        letter-spacing:1px;
+    }
+    .personalCenter-stateSelectArrow{
+        width: 20px;
+        height: 20px;
+        padding: 0px;
+        margin-left: 42px;
+    }
+    .personalCenter-stateImg {
+        width: 20px;
+        height: 20px;
+        padding: 0px;
+        margin: 0px;
+    }
+}
+
 .personalCenter-stateSelectListView{
     position: absolute;
-    left: 73px;
-    top: 71px;
-    width:80px;
-    height:192px;
+    left: 23px;
+    top: 101px;
+    width:130px;
+    height:100px;
     background:rgba(255,255,255,1);
     box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);
     border-radius:4px;
@@ -371,7 +421,7 @@ export default {
     padding: 0px;
     z-index: 3;
     .personalCenter-stateSelectList{
-        width: 80px;
+        width: 100%;
         height: 100%;
         padding: 0px;
         margin: 0px;
@@ -382,7 +432,7 @@ export default {
         }   
 
         .personalCenter-stateSelect{
-            width: 80px;
+            width: 100%;
             height: 32px;
             vertical-align: top;
             .personalCenter-stateSelectTitle{
@@ -398,6 +448,7 @@ export default {
                 letter-spacing:1px;
                 display: inline-block;
                 font-family: PingFangSC-Regular;
+                vertical-align: top;
             }
             .personalCenter-stateSelectCheck{
                 width: 20px;
@@ -407,6 +458,12 @@ export default {
                 vertical-align: top;
                 display: inline-block;
             }
+            .personalCenter-stateImg {
+                width: 20px;
+                height: 20px;
+                padding: 0px;
+                margin: 6px 6px 6px 6px;
+            }
         }
     }
 }
@@ -415,7 +472,7 @@ export default {
     height: 20px;
     margin-left: 20px;
     border: none;
-    margin-top: 16px;
+    margin-top: 8px;
     .personalCenter-descriptionIcon{
         width: 20px;
         height: 20px;

@@ -287,7 +287,7 @@ class _MatrixClientPeg{
       } catch (e) {
         return false;
       }
-  }
+    }
     async fetchKeyInfo() {
       var keys = await this.matrixClient.isSecretStored('m.cross_signing.master', false);
       if(keys == null || Object.keys(keys).length == 0) {
