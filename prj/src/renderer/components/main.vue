@@ -275,7 +275,10 @@ export default {
             var elementImg = document.getElementById("userHead");
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
-            // console.log("==========showcurusericon ", avaterUrl);
+            // console.log("==========showcurusericon ", avaterUrl == "");
+            if(avaterUrl == "") {
+                avaterUrl = "../../../static/Img/User/user-40px@2x.png"
+            }
             elementImg.setAttribute("src", avaterUrl);
         },
         personalCenterClicked:async function(){
@@ -343,7 +346,8 @@ export default {
                     return;
                 }
                 if(ret.language) {
-                this.$i18n.locale = ret.language;
+                    this.$i18n.locale = ret.language;
+                    console.log("=======language is ", ret.language)
                 }
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;

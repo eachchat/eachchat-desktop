@@ -185,7 +185,11 @@ class _MatrixClientPeg{
       const accessToken = window.localStorage.getItem("mx_access_token");
       const userId = window.localStorage.getItem("mx_user_id");
       const deviceId = window.localStorage.getItem("mx_device_id");
-      this.curLanguage = window.localStorage.getItem("mx_i18n_locale");
+      const curlanguage = window.localStorage.getItem("mx_i18n_locale");
+      if(curlanguage == null) {
+        localStorage.setItem("mx_i18n_locale", this.curLanguage);
+        console.log("============this.curlanguage is ", this.curLanguage);
+      }
       if(accessToken && userId && hsUrl) {
         let ops = {
           baseUrl: hsUrl,
