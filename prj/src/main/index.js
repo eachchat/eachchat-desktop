@@ -441,25 +441,39 @@ function clearFlashIconTimer() {
 
 const downloadingList = [];
 
-ipcMain.on("export_key", function(event, theKey) {
-  console.log("========================= ", theKey);
-  var path = 'C:/Users/wangx/Downloads/recovery-key.txt';
+ipcMain.on("export_key", function(event, args) {
+  console.log("========================= ", args);
+  var theKey = args[0];
+  var distpath = path.join(args[1], 'recovery_key.txt');
+  // const blob = new Blob([theKey], {
+  //     type: 'text/plain;charset=us-ascii',
+  // });
   var buffer = theKey;
   console.log("args is ", buffer);
-  var distPath = path + '_tmp';
-  fs.outputFile(distPath, buffer, async err => {
+  var distPathTmp = distpath + '_tmp';
+  fs.writeFile(distPathTmp, buffer, async err => {
     if(err) {
       console.log("ERROR ", err.message)
       event.sender.send("ERROR", err.message);
     }
     else {
-      var finalName = await makeFlieNameForConflict(path);
+      var finalName = await makeFlieNameForConflict(distpath);
       console.log("get final name ", finalName)
-      fs.renameSync(distPath, finalName);
-      event.sender.send("SAVED_FILE", finalName, eventId);
+      fs.renameSync(distPathTmp, finalName);
+      event.sender.send("exportSuc");
     }
   })
 })
+
+ipcMain.on('open-export-dialog', function(event) {
+  dialog.showOpenDialog(mainPageWindow,{
+    title: "导出到",
+    properties: ["openDirectory"]
+  }).then(files => {
+    console.log("======files is ", files)
+    event.sender.send('exportPath', files);
+  })
+});
 
 ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
   // var path = args[0];

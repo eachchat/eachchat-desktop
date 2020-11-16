@@ -110,7 +110,9 @@
       <div class="win-header">
         <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
       </div>
-      <certification v-show="showCertification" :backupInfo=backupInfo></certification>
+      <div class="certficationBorder" v-show="showCertification">
+        <certification :backupInfo="backupInfo" :isLogin="false" id="setupCertificationId" @cancelRecovery="cancelRecovery"></certification>
+      </div>
     </div>
 </template>
 
@@ -129,6 +131,7 @@ import AlertDlg from './alert-dlg.vue'
 import AnnouncementDlg from './announcement.vue'
 import { Config } from '../../packages/data/sqliteutil.js'
 import certification from './Certificate.vue';
+import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 
 export default {
   components: {
@@ -159,20 +162,76 @@ export default {
       cacheStoreSize: '0M',
       alertContnets: {},
       showAlertDlg: false,
-      contentType: ''
+      contentType: '',
+      ipcPicInited: false,
+      canSelecteFile: true,
     };
   },
   methods: {
+    cancelRecovery: function() {
+      this.showCertification = false;
+    },
     importSecurityKey: async function() {
-      this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
-      await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+      // this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+      // await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+      var setupCertificationElement = document.getElementById("setupCertificationId");
+      if(setupCertificationElement != undefined) {
+        setupCertificationElement.style.position = 'absolute';
+        setupCertificationElement.style.height = '350px';
+        setupCertificationElement.style.width = '400px';
+        setupCertificationElement.style.margin = "auto";
+        setupCertificationElement.style.left = '0px';
+        setupCertificationElement.style.right = '0px';
+        setupCertificationElement.style.top = '0px';
+        setupCertificationElement.style.bottom = '0px';
+      }
       this.showCertification = true;
     },
     exportSecurityKey: async function() {
-      var identityKey = await global.mxMatrixClientPeg.matrixClient.getDeviceEd25519Key();
-      identityKey = formatCryptoKey(identityKey);
-      console.log("========== ", identityKey)
-      ipcRenderer.send("export_key", identityKey);
+      if(this.canSelecteFile) {
+          this.canSelecteFile = false;
+          ipcRenderer.send('open-export-dialog');
+      }
+      if(!this.ipcPicInited){
+          this.ipcPicInited = true;
+          console.log("=========init ")
+          ipcRenderer.on('exportPath', this.toExport);
+      }
+    },
+    toExport: async function(e, paths) {
+      console.log("========= toexport ", paths.filePaths);
+      this.canSelecteFile = true;
+      if(paths.filePaths.length == 0) return;
+      var distPath = paths.filePaths[0];
+      Promise.resolve().then(() => {
+        return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
+        }).then((k) => {
+            return MegolmExportEncryption.encryptMegolmKeyFile(
+                JSON.stringify(k), "Wx@6156911128",
+            );
+        }).then((f) => {
+            const blob = new Blob([f], {
+                type: 'text/plain;charset=us-ascii',
+            });
+            let reader = new FileReader();
+            reader.onload = function() {
+              var buffer = new Buffer(reader.result);
+              ipcRenderer.send("export_key", [buffer, distPath]);
+            }
+            reader.readAsArrayBuffer(blob);
+            // FileSaver.saveAs(blob, 'element-keys.txt');
+            // console.log("========== ", f)
+            // ipcRenderer.send("export_key", [blob, distPath]);
+        }).catch((e) => {
+            console.error("Error exporting e2e keys:", e);
+            const msg = e.friendlyText;
+        })
+      // var identityKey = await global.mxMatrixClientPeg.matrixClient.createRecoveryKeyFromPassphrase();
+      // const blob = new Blob([identityKey.encodedPrivateKey], {
+      //     type: 'text/plain;charset=us-ascii',
+      // });
+      // console.log("========== ", identityKey)
+      // ipcRenderer.send("export_key", [identityKey.encodedPrivateKey, distPath]);
     },
     autoSoundNoticeStateChange: async function(state) {
       if(state == true) {
@@ -1222,6 +1281,16 @@ export default {
     text-align:center;
     margin: 10px auto;
     color: rgba(255,255,255,1);
+  }
+
+  .certficationBorder {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index:3;
   }
 
 </style>

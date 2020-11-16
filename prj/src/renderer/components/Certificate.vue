@@ -31,6 +31,8 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import { getFileSizeNum } from '../../packages/core/Utils.js'
 import AlertDlg from './alert-dlg.vue'
+import {FileUtil} from '../../packages/core/Utils.js'
+import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 
 const KEY_FILE_MAX_SIZE = 128;
 
@@ -40,6 +42,10 @@ export default {
         backupInfo: {
             type: Object,
             default: {},
+        },
+        isLogin: {
+            type: Boolean,
+            default: true
         }
     },
     components: {
@@ -58,6 +64,7 @@ export default {
             showAlertDlg: false,
             recoveryKey: '',
             alertWidth: 0,
+            elementRecoveryPath: '',
         }
     },
     methods: {
@@ -78,21 +85,60 @@ export default {
             this.showAlertDlg = false;
         },
         Close (){
-            this.showAlert();
+            if(this.isLogin) {
+                this.showAlert();
+            }
+            else {
+                this.$emit("cancelRecovery")
+            }
+        },
+        readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    resolve(e.target.result);
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
         },
 
         async Continue() {
-            if(this.recoveryKey == "") return;
-            var correct = global.mxMatrixClientPeg.checkPrivateKey(this.recoveryKey);
-            if(correct) {
-                await global.mxMatrixClientPeg.matrixClient.checkOwnCrossSigningTrust();
-                await global.mxMatrixClientPeg.matrixClient.restoreKeyBackupWithSecretStorage(this.backupInfo);
-                this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
-                setTimeout(async () => {
-                    // ipcRenderer.send('showMainPageWindow', true); 
-                    ipcRenderer.send("showMainPageWindow")
-                    this.$router.push("/main")
-                }, 1000);
+            if(this.isLogin) {
+                if(this.recoveryKey == "") return;
+                var correct = global.mxMatrixClientPeg.checkPrivateKey(this.recoveryKey);
+                if(correct) {
+                    await global.mxMatrixClientPeg.matrixClient.checkOwnCrossSigningTrust();
+                    await global.mxMatrixClientPeg.matrixClient.restoreKeyBackupWithSecretStorage(this.backupInfo);
+                    if(this.isLogin) {
+                        this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
+                        setTimeout(async () => {
+                            // ipcRenderer.send('showMainPageWindow', true); 
+                            ipcRenderer.send("showMainPageWindow")
+                            this.$router.push("/main")
+                        }, 1000);
+                    }
+                    else {
+                        this.$toastMessage({message:"导入成功", time: 3000, type:'success'});
+                    }
+                }
+            }
+            else {
+                var showfu = new FileUtil(this.elementRecoveryPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                this.readFileAsArrayBuffer(showfileObj).then((arrayBuffer) => {
+                    return MegolmExportEncryption.decryptMegolmKeyFile(
+                        arrayBuffer, 'Wx@6156911128',
+                    );
+                }).then((keys) => {
+                    return global.mxMatrixClientPeg.matrixClient.importRoomKeys(JSON.parse(keys));
+                }).then(() => {
+                    // TODO: it would probably be nice to give some feedback about what we've imported here.
+                    // this.props.onFinished(true);
+                }).catch((e) => {
+                    console.error("Error importing e2e keys:", e);
+                    const msg = e.friendlyText;
+                });
             }
         },
         SelectLocal() {
@@ -109,56 +155,68 @@ export default {
             }
         },
         async handleCertificationKey(e, paths) {
-            console.log("e is ", e);
-            this.canSelecteFile = true;
-            var fileList = paths.filePaths;
+            if(this.isLogin) {
+                console.log("e is ", e);
+                this.canSelecteFile = true;
+                var fileList = paths.filePaths;
 
-            if(fileList === null || fileList.length === 0) {
-                // this.$toastMessage({message:'请选择最少一个文件', time: 2000, type:'success'});
-                return;
-            }
-            else {
-                var keyFile = fileList[0];
-                if(!fs.existsSync(keyFile)) {
+                if(fileList === null || fileList.length === 0) {
+                    // this.$toastMessage({message:'请选择最少一个文件', time: 2000, type:'success'});
                     return;
                 }
-                let fileSize = await getFileSizeNum(keyFile);
-                console.log("fileSize is ", fileSize);
-                if(fileSize > KEY_FILE_MAX_SIZE) {
-
-                }
                 else {
-                    fs.readFile(keyFile, 'utf-8', async (err, data) => {
-                        if(err) {
+                    var keyFile = fileList[0];
+                    if(!fs.existsSync(keyFile)) {
+                        return;
+                    }
+                    let fileSize = await getFileSizeNum(keyFile);
+                    console.log("fileSize is ", fileSize);
+                    if(fileSize > KEY_FILE_MAX_SIZE) {
 
-                        }
-                        else {
-                            this.recoveryKey = data;
-                            console.log("data is ", this.recoveryKey);
-                            if(this.recoveryKey.length == 0) {
-                                return;
+                    }
+                    else {
+                        fs.readFile(keyFile, 'utf-8', async (err, data) => {
+                            if(err) {
+
                             }
-                            
-                            if (/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz\s]+$/.test(this.recoveryKey)) {
-                                var state = await global.mxMatrixClientPeg.validateRecoveryKey(this.recoveryKey);
-                                if(await state == true){
-                                    var stateElement = document.getElementById("certificationStateLabel");
-                                    if(stateElement != undefined) {
-                                        stateElement.style.color = "rgba(36, 179, 107, 1)"
-                                    }
-                                    this.certificationState = this.$t('recoveryKeyLooksGood');
+                            else {
+                                this.recoveryKey = data;
+                                console.log("data is ", this.recoveryKey);
+                                if(this.recoveryKey.length == 0) {
+                                    return;
                                 }
-                                else {
-                                    var stateElement = document.getElementById("certificationStateLabel");
-                                    if(stateElement != undefined) {
-                                        stateElement.style.color = "rgba(228,49,43,1);"
+                                
+                                if (/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz\s]+$/.test(this.recoveryKey)) {
+                                    var state = await global.mxMatrixClientPeg.validateRecoveryKey(this.recoveryKey);
+                                    if(await state == true){
+                                        var stateElement = document.getElementById("certificationStateLabel");
+                                        if(stateElement != undefined) {
+                                            stateElement.style.color = "rgba(36, 179, 107, 1)"
+                                        }
+                                        this.certificationState = this.$t('recoveryKeyLooksGood');
                                     }
-                                    this.certificationState = this.$t('invalidRecoveryKey');
-                                }
-                            } 
-                        }
-                    })
+                                    else {
+                                        var stateElement = document.getElementById("certificationStateLabel");
+                                        if(stateElement != undefined) {
+                                            stateElement.style.color = "rgba(228,49,43,1);"
+                                        }
+                                        this.certificationState = this.$t('invalidRecoveryKey');
+                                    }
+                                } 
+                            }
+                        })
+                    }
                 }
+            }
+            else {
+                this.canSelecteFile = true;
+                var fileList = paths.filePaths;
+
+                if(fileList === null || fileList.length === 0) {
+                    // this.$toastMessage({message:'请选择最少一个文件', time: 2000, type:'success'});
+                    return;
+                }
+                this.elementRecoveryPath = fileList[0];
             }
         },
     }
