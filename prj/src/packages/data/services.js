@@ -664,7 +664,6 @@ const common = {
           maxUpdatetime = tmpUpdatetime;
       }
     }while(result.data.total > index);  
-    sqliteutil.UpdateMaxDepartmentUpdatetime(this.data.selfuser.id, maxUpdatetime);
     return true;
   },
 
@@ -2215,8 +2214,12 @@ const common = {
                       telephone,
                       company,
                       title){
+    let contactInfo = await Contact.GetContactInfo(matrixID);
+    if(!contactInfo)
+        return;
     let result = await this.api.UpdateContact(this.data.login.access_token,
                                               matrixID,
+                                              contactInfo.contact_id,
                                               remarkName,
                                               email,
                                               mobile,
