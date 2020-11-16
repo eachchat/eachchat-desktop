@@ -367,7 +367,7 @@ export default {
               break;
           }
         })
-        global.services.common.gmsConfiguration();
+        // global.services.common.gmsConfiguration();
         await global.services.common.login()
         global.services.common.InitDbData();
         this.$nextTick(() => {
