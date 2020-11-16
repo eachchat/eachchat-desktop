@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-header height="56px" class="organization-header">
-            <p class="organization-header-title">{{ headerTitle }}</p>
+            <p class="organization-header-title">{{ $t("organizeMenuName") }}</p>
         </el-header>
         <el-main>
             <el-container class="bottom-container" id="organization-main-container">
