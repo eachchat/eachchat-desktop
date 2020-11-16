@@ -171,6 +171,7 @@ import {EventTimeline} from "matrix-js-sdk";
 import * as Matrix from 'matrix-js-sdk';
 import { timelineEnd } from 'console';
 import Invite from './invite.vue';
+import encrypt from 'browser-encrypt-attachment';
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -1706,7 +1707,7 @@ export default {
                 let type = GetFileType(reader.result);
                 let fileResult = reader.result;
                 if(type == 'm.image'){
-                    this.SendImage(fileinfo, fileResult, stream)
+                    this.SendImage(showfileObj, fileResult, stream)
                 }
                 else{
                     var roomID = this.chat.roomId;
@@ -1731,33 +1732,78 @@ export default {
                 
             }
         },
-
+        readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    resolve(e.target.result);
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        },
         SendImage: function(fileinfo, fileResult, stream){
                 var img = new Image();
                 img.src = fileResult;
+                var encryptInfo;
+                var uploadPromise;
                 //let tt1 = fileResult.substring(fileResult.indexOf("\,") + 1)
                 //let tt0 = Buffer.from(tt1, "base64");
                 img.onload = ()=>{
                     var roomID = this.chat.roomId;
                     let filename = fileinfo.name;
-                    global.mxMatrixClientPeg.matrixClient.uploadContent({
-                        stream: stream,
-                        name: filename
-                    }).then((url)=>{
-                        var content = {
-                            msgtype: 'm.image',
-                            body: filename,
-                            url: url,
-                            info:{
-                                size: fileinfo.size,
-                                w: img.width,
-                                h: img.height
-                            }
-                        };
-                        global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content).then((ret)=>{
-                            //this.$emit('updateChatList', ret);
+                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId)) {
+                        var prom = this.readFileAsArrayBuffer(fileinfo).then((data) => {
+                            return encrypt.encryptAttachment(data);
+                        }).then((encryptResult) => {
+                            encryptInfo = encryptResult.info;
+                            var blob = new Blob([encryptResult.data]);
+                            global.mxMatrixClientPeg.matrixClient.uploadContent(
+                                    blob,
+                                    {includeFilename: false}
+                                ).then((url)=>{
+                                    encryptInfo.url = url;
+                                    encryptInfo.mimetype = fileinfo.type;
+                                    var content = {
+                                        msgtype: 'm.image',
+                                        body: filename,
+                                        file: encryptInfo,
+                                        url: url,
+                                        info:{
+                                            size: fileinfo.size,
+                                            w: img.width,
+                                            h: img.height,
+                                            thumbnail_url: encryptInfo.url,
+                                            thumbnail_file: encryptInfo,
+                                        }
+                                    };
+                                    uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content).then((ret)=>{
+                                        //this.$emit('updateChatList', ret);
+                                    });
+                                    return uploadPromise;
+                                });
+                        })
+                    }
+                    else {
+                        global.mxMatrixClientPeg.matrixClient.uploadContent({
+                            stream: stream,
+                            name: filename
+                        }).then((url)=>{
+                            var content = {
+                                msgtype: 'm.image',
+                                body: filename,
+                                url: url,
+                                info:{
+                                    size: fileinfo.size,
+                                    w: img.width,
+                                    h: img.height
+                                }
+                            };
+                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content).then((ret)=>{
+                                //this.$emit('updateChatList', ret);
+                            });
                         });
-                    });
+                    }
                 }
         },
 
