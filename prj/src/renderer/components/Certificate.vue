@@ -133,6 +133,7 @@ export default {
                 }).then((keys) => {
                     return global.mxMatrixClientPeg.matrixClient.importRoomKeys(JSON.parse(keys));
                 }).then(() => {
+                    this.Close();
                     // TODO: it would probably be nice to give some feedback about what we've imported here.
                     // this.props.onFinished(true);
                 }).catch((e) => {

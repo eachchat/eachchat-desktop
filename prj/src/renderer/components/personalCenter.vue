@@ -149,11 +149,10 @@ export default {
         stateChangeConfirm:async function(){
             console.log("the stateinput is ", this.stateInput);
             var response = await global.mxMatrixClientPeg.matrixClient.setPresence(this.stateInput)
-                .then((ret) => {
-                    console.log("ret is ", ret);
-                })
-            var curUser = global.mxMatrixClientPeg.matrixClient.getUser(this.userId);
-            curUser
+                // .then((ret) => {
+                //     console.log("ret is ", ret);
+                // })
+            // var response = await global.mxMatrixClientPeg.matrixClient.getUser(this.userId);
             // var response = await services.common.updateUserStatusDescription(this.stateInput);
             console.log("=========response is ", response)
             if(response){

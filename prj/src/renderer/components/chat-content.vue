@@ -803,9 +803,51 @@ export default {
         return false;
       }
     },
+    showOriginal() {
+      this.showGroupList = [];
+        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+          // console.log("this is ", r);
+          // console.log("r.getMyMembership() ", r.getMyMembership());
+          if(r.getMyMembership() != "LEAVE") {
+            this.showGroupList.push(r);
+          }
+        })
+        this.$nextTick(() => {
+          this.showGroupIcon();
+          for(var i=0;i<this.showGroupList.length;i++) {
+            if(this.showGroupList[i].roomId == this.curChat.roomId) {
+              // this.showChat(this.showGroupList[i], i);
+              this.curindex = i;
+            }
+          }
+        })
+        setTimeout(() => {
+          console.log("this.curChat room id ", this.curChat.roomId);
+          for(var i=0;i<this.showGroupList.length;i++) {
+            console.log("============= ", this.showGroupList[i].roomId == this.curChat.roomId)
+            if(this.showGroupList[i].roomId == this.curChat.roomId) {
+              // this.showChat(this.showGroupList[i], i);
+              console.log("===========set index to ", i);
+              this.curindex = i;
+            }
+          }
+        }, 500)
+    },
+    searchRoom(searchKey) {
+      var searchResult = [];
+      // console.log("search key is ", searchKey);
+      for(var i=0;i<this.showGroupList.length;i++) {
+        // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
+        if(this.showGroupList[i].name.indexOf(searchKey) >= 0) {
+          // console.log("inininin put ");
+          searchResult.push(this.showGroupList[i]);
+        }
+      }
+      return searchResult;
+    },
     async toSearch(searchKey) {
-      console.log("searchkey is ", searchKey);
-      console.log("searchkey is ", searchKey.trim());
+      // console.log("searchkey is ", searchKey);
+      // console.log("searchkey is ", searchKey.trim());
       this.searchKey = searchKey.trim();
       if(this.searchKey.length != 0) {
         var curSearchId = new Date().getTime();
@@ -814,75 +856,24 @@ export default {
             "searchList": []
         };
         this.searchId = curSearchId;
-        var searcheRet = await services.common.SearchAll(searchKey);
+        var searcheRet = this.searchRoom(searchKey);
         console.log("searhret ", searcheRet);
         // console.log("searchResult.id is ", searchResult.id);
         // console.log("this.searchId is ", this.searchId);
         if(searchResult.id == this.searchId) {
-          for(let i=0;i<searcheRet.length;i++) {
-            if(searcheRet[i].groups != undefined) {
-              this.searchMessageItems = searcheRet[i].groups.slice(0, 3);
-              if(this.searchMessageItems.length == 0) {
-                this.showSearchMessage = false;
-              }
-              else {
-                this.showSearchMessage = true;
-              }
-              if(searcheRet[i].groups.length > 3) {
-                this.showSearchAllChat = true;
-              }
-              else {
-                this.showSearchAllChat = false;
-              }
-            }
-            if(searcheRet[i].files != undefined) {
-              this.searchFileItems = searcheRet[i].files.slice(0, 3);
-              if(this.searchFileItems.length == 0) {
-                this.showSearchFile = false;
-              }
-              else {
-                this.showSearchFile = true;
-              }
-              if(searcheRet[i].files.length > 3) {
-                this.showsearchAllFile = true;
-              }
-              else {
-                this.showsearchAllFile = false;
-              }
-            }
-            if(searcheRet[i].persons != undefined) {
-              this.searchPeopleItems = searcheRet[i].persons.slice(0, 3);
-              if(this.searchPeopleItems.length == 0) {
-                this.showSearchPeople = false;
-              }
-              else {
-                this.showSearchPeople = true;
-              }
-              if(searcheRet[i].persons.length > 3) {
-                this.showSearchAllMember = true;
-              }
-              else {
-                this.showSearchAllMember = false;
-              }
-            }
-          }
+          this.showGroupList = searcheRet;
         }
-        this.$nextTick(() => {
-          setTimeout(() => {
-            this.showSearchResultIcon();
-          })
-        })
         if(this.searchKey.length == 0) {
-          this.isSearch = false;
+          this.showOriginal();
           console.log("this.issearch = ", this.isSearch)
         }
         else {
-          this.isSearch = true;
+          // this.isSearch = true;
           console.log("this.issearch = ", this.isSearch)
         }
       }
       else{
-        this.isSearch = false;
+        this.showOriginal();
       }
     },
     showSearchResultIcon: async function() {
@@ -1609,6 +1600,7 @@ export default {
       return "收到一条短消息";
     },
     showChat: function(chatGroup, index) {
+      // this.cleanSearchKey = !this.cleanSearchKey;
       this.isEmpty = false;
       // console.log("this.unreadcount is ", this.unreadCount);
       // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);

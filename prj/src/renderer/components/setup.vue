@@ -403,9 +403,9 @@ export default {
     }
   },
   activated: async function() {
-    this.recentDevice = await services.common.GetRecentDevice();
+    // this.recentDevice = await services.common.GetRecentDevice();
     this.localStorePath = await confservice.getCurFilesDir();
-    console.log("this.recentdeivce ", this.recentDevice);
+    console.log("this.recentdeivce ", this.localStorePath);
     // console.log("this.localStorePath ", this.localStorePath);
     getdirsize(this.localStorePath, this.updateCacheSize);
   }
