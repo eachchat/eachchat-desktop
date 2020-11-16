@@ -72,6 +72,7 @@ var models = {
         storage: this.storage.sqlite,
         index: 'contact',
         fields: {
+          contact_id:    types.string,
           matrix_id:    types.string,
           user_id:      types.string,
           eachchat_user_id: types.string,

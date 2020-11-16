@@ -616,6 +616,7 @@ const servicemodels = {
 
     async ContactModel(contactInfo){
       let contactValue = {
+        contact_id:       null,
         matrix_id:        null,
         user_id:          null,
         eachchat_user_id: null,
@@ -630,6 +631,7 @@ const servicemodels = {
       };
 
       var contactMap = {
+        "contactId":      "contact_id",
         "contactMatrixId": "matrix_id",
         "userId": "eachchat_user_id",
         "contactRemarkName": "display_name",
