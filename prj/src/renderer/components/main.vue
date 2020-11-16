@@ -350,8 +350,9 @@ export default {
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
+        await global.services.common.login()
         await global.mxMatrixClientPeg.matrixClient.startClient();
-        //global.services.common.initmqtt();
+        
 
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
@@ -367,9 +368,10 @@ export default {
               break;
           }
         })
-        // global.services.common.gmsConfiguration();
+
         await global.services.common.login()
         global.services.common.InitDbData();
+        //global.services.common.initmqtt();
         this.$nextTick(() => {
             this.showCurUserIcon();
         }) 

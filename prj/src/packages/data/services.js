@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret, Contact, Department} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Secret, Contact, Department} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -259,18 +259,6 @@ const common = {
     globalModels.init();
   },
 
-  async init() {
-    let ret = await models.init();
-    if(ret != true)
-      return false;
-    if(await this.GetLoginModel() != undefined && await this.GetSelfUserModel() != undefined)
-    {
-      this.initServiceApi();
-      return true;
-    }
-    return false;
-  },
-
   async initServiceApi(){
     if(this.api != undefined)
       return;
@@ -307,11 +295,16 @@ const common = {
 
   async login() {
     this.api = null;
+    this.config.hostname = localStorage.getItem("hostname");
+    this.config.apiPort = localStorage.getItem("apiPort");
+    this.config.hostTls = localStorage.getItem("hostTls");
+    this.config.mqttHost = localStorage.getItem("mqttHost");
+    this.config.mqttPort = localStorage.getItem("mqttPort");
+    this.config.mqttTls =localStorage.getItem("mqttTls");
+
+
     this.initServiceApi();
     let userID = localStorage.getItem("mx_user_id");
-    let base64UserID = Base64.encode(userID, true);
-    await globalModels.init();
-    await Config.SetLoginInfo(base64UserID, this.data.orgValue);
     await models.init();
     this.accessToken = localStorage.getItem("mx_access_token");
     this.data.login = {
@@ -2008,11 +2001,23 @@ const common = {
       mqtt.tls = 0;
 
     this.config.hostname = entry.host;
+    localStorage.setItem("hostname", this.config.hostname);
+
     this.config.apiPort = entry.port;
+    localStorage.setItem("apiPort", this.config.apiPort);
+
     this.config.hostTls = entry.tls;
+    localStorage.setItem("hostTls", this.config.hostTls);
+
     this.config.mqttHost = mqtt.host;
+    localStorage.setItem("mqttHost", this.config.mqttHost);
+
     this.config.mqttPort = mqtt.port;
+    localStorage.setItem("mqttPort", this.config.mqttPort);
+
     this.config.mqttTls = mqtt.tls;
+    localStorage.setItem("mqttTls", this.config.mqttTls);
+
     return response.data.obj;
   },
 

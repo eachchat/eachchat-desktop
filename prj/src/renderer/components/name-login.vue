@@ -411,7 +411,6 @@ export default {
             
             this.organizationButtonDisabled = false;
             this.resetLoginStateTitle();
-            await services.common.init();
             this.showLoginView = true;
             this.showOrganizationView = false;
             
