@@ -7,6 +7,10 @@
             <img class="new-chat-content-div-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
+            <div class="normal-chat" @click.stop="mxDmDlg()"> <!--showCreateGroup-->
+                <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
+                <span class="normal-chat-label">发起聊天</span>
+            </div>
             <div class="normal-chat" @click.stop="mxCreateRoom()"> <!--showCreateGroup-->
                 <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
                 <span class="normal-chat-label">发起群聊</span>
@@ -45,6 +49,11 @@
             @close="mxSquare" 
         >
         </mxSquareDlg>
+        <mxDmDlg
+            v-if="mxDmDlgOpen"
+            @close="mxDmDlg" 
+        >
+        </mxDmDlg>
     </div>
 </template>
 
@@ -61,6 +70,7 @@ import { Group, Message, Department, UserInfo } from '../../packages/data/sqlite
 import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxSquareDlg from './mxSquareDlg.vue'
+import mxDmDlg from './mxDmDlg.vue'
 
 
 export default {
@@ -88,10 +98,20 @@ export default {
             mxCreateRoomOpen: false,
             mxSelectMemberOpen: false,
             newRoomId: '',
-            mxSquareOpen: false
+            mxSquareOpen: false,
+            mxDmDlgOpen: false
         }
     },
     methods: {
+        mxDmDlg: function(close) {
+            console.log('???', close)
+            if (close) {
+                if (close.data) this.$emit(close.handler, close.data);
+                this.showCreateNewChat = false;
+                return this.mxDmDlgOpen = false;
+            }
+            this.mxDmDlgOpen = true;
+        },
         mxSquare: function(close) {
             console.log('???', close)
             if (close) {
@@ -330,7 +350,8 @@ export default {
         encryptChatCreater,
         mxCreateRoomDlg,
         mxMemberSelectDlg,
-        mxSquareDlg
+        mxSquareDlg,
+        mxDmDlg
     },
     created: async function () {
         // this.loginInfo = await services.common.GetLoginModel();
@@ -375,7 +396,7 @@ export default {
         position: absolute;
         background-color: rgba(255, 255, 255, 1);
         width: 128px;
-        height: 80px;
+        height: 120px;
         border-radius: 4px;
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
