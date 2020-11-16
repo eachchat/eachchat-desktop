@@ -15,8 +15,8 @@
                         :key="index">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Common/department_list@2x.png">
                         <div class="manager-info">
-                        <p v-html="msgContentHightLight(department.display_name)" class="manager-name">{{ department.display_name }}</p>
-                        <p v-html="msgContentHightLight(department.description)" class="manager-title">{{ department.description }}</p>
+                        <p v-html="msgContentHightLight(department.display_name)" class="contact-list-name">{{ department.display_name }}</p>
+                        <p v-html="msgContentHightLight(department.description)" class="contact-list-titile">{{ department.description }}</p>
                         </div>
                     </li>
                     <div class='grid-content'>成员</div>
@@ -25,9 +25,9 @@
                         @click="searchUserMenuItemClicked(manager.user_id)" 
                         :key="index">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
-                        <div class="manager-info">
-                        <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
-                        <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
+                        <div class="contact-list-info">
+                        <p v-html="msgContentHightLight(manager.user_display_name)" class="contact-list-name">{{ manager.user_display_name }}</p>
+                        <p v-html="msgContentHightLight(manager.user_title)" class="contact-list-titile">{{ manager.user_title }}</p>
                         </div>
                     </li>
                     <div class='grid-content'>联系人</div>
@@ -36,9 +36,9 @@
                         @click="SearchContactItemClicked(contact.user_id)" 
                         :key="index">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.user_id)" src="../../../static/Img/User/user-40px@2x.png">
-                        <div class="manager-info">
-                        <p v-html="msgContentHightLight(contact.display_name)" class="manager-name">{{ contact.display_name }}</p>
-                        <p v-html="msgContentHightLight(contact.title)" class="manager-title">{{ contact.title }}</p>
+                        <div class="contact-list-info">
+                        <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
+                        <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ contact.title }}</p>
                         </div>
                     </li>
                 </ul>
@@ -500,60 +500,31 @@ display: none;
     list-style: none;
     //border-top: 1px solid rgb(221, 221, 221);
     .manager {
-    height: 60px;
-    //border-bottom: 1px solid rgb(221, 221, 221);
-    .manager-icon {
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    margin-left: 16px;
-    margin-top: 10px;
-    margin-right: 0px;
-    margin-bottom: 10px;
-    border-radius: 4px;
+        height: 60px;
+        //border-bottom: 1px solid rgb(221, 221, 221);
+            .manager-icon {
+                width: 40px;
+                height: 40px;
+                display: inline-block;
+                margin-left: 16px;
+                margin-top: 10px;
+                margin-right: 0px;
+                margin-bottom: 10px;
+                border-radius: 4px;
+            }
+        }
+        .manager:hover {
+            height: 60px;
+            background:rgba(243,244,247,1);
+            box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+        }
+    }
 }
 .manager-info {
     display: inline-block;
     vertical-align: top;
     height: 100%;
     width: calc(100% - 84px);
-}
-.manager-name {
-    height: 20px;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 2px;;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-    font-weight:400;
-    letter-spacing:1px;
-    color:rgba(0,0,0,1);
-    font-family: PingFangSC-Regular;
-}
-.manager-title {
-    height: 18px;
-    width: 100%;
-    margin-top: 0px;
-    margin-bottom: 10px;
-    margin-left: 12px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight:400;
-    color:rgba(153,153,153,1);
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-}
-}
-.manager:hover {
-    height: 60px;
-    background:rgba(243,244,247,1);
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
-}
-}
 }
 
 .el-header {
