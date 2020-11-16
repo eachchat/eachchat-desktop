@@ -436,7 +436,7 @@ export default {
             height: 32px;
             vertical-align: top;
             .personalCenter-stateSelectTitle{
-                margin-left: 12px;
+                margin-left: 0px;
                 width: 40px;
                 padding: 0px;
                 margin-top: 7px;

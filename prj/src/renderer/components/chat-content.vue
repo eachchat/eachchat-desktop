@@ -1261,6 +1261,291 @@ export default {
       var memberContent = memberEvent.getContent();
       return memberContent.membership == "invite" && memberContent.is_direct;
     },
+    textForJoinRulesEvent(ev) {
+        const senderDisplayName = ev.sender && ev.sender.name ? ev.sender.name : ev.getSender();
+        switch (ev.getContent().join_rule) {
+            case "public":
+                return this.$t('madeRoomPublic', {senderDisplayName});
+            case "invite":
+                return this.$t('madeRoomInviteOnly', {senderDisplayName});
+            default:
+                // The spec supports "knock" and "private", however nothing implements these.
+                return this.$t('changeRoomRules', {
+                    senderDisplayName,
+                    rule: ev.getContent().join_rule,
+                });
+        }
+    },
+    textForMemberEvent(ev) {
+        // XXX: SYJS-16 "sender is sometimes null for join messages"
+        const senderName = ev.sender ? ev.sender.name : ev.getSender();
+        const targetName = ev.target ? ev.target.name : ev.getStateKey();
+        const prevContent = ev.getPrevContent();
+        const content = ev.getContent();
+
+        const ConferenceHandler = null;//CallHandler.getConferenceHandler();
+        const reason = content.reason ? (this.$t('reason') + ': ' + content.reason) : '';
+        switch (content.membership) {
+            case 'invite': {
+                const threePidContent = content.third_party_invite;
+                if (threePidContent) {
+                    if (threePidContent.display_name) {
+                        return this.$t('acceptOthersInvite', {
+                            targetName,
+                            displayName: threePidContent.display_name,
+                        });
+                    } else {
+                        return this.$t('hasAcceptOthersInvite', {targetName});
+                    }
+                } else {
+                    if (ConferenceHandler && ConferenceHandler.isConferenceUser(ev.getStateKey())) {
+                        return this.$t('requestVoIpConference', {senderName});
+                    } else {
+                        return this.$t('someoneinviteSomeone', {senderName, targetName});
+                    }
+                }
+            }
+            case 'ban':
+                return this.$t('someoneBannedSomeone', {senderName, targetName}) + ' ' + reason;
+            case 'join':
+                if (prevContent && prevContent.membership === 'join') {
+                    if (prevContent.displayname && content.displayname && prevContent.displayname !== content.displayname) {
+                        return this.$t('changeTheirDisplayNameTo', {
+                            oldDisplayName: prevContent.displayname,
+                            displayName: content.displayname,
+                        });
+                    } else if (!prevContent.displayname && content.displayname) {
+                        return this.$t('someoneChangeDisplayNameTo', {
+                            senderName: ev.getSender(),
+                            displayName: content.displayname,
+                        });
+                    } else if (prevContent.displayname && !content.displayname) {
+                        return this.$t('removeTheirDisplayName', {
+                            senderName,
+                            oldDisplayName: prevContent.displayname,
+                        });
+                    } else if (prevContent.avatar_url && !content.avatar_url) {
+                        return this.$t('removeProfilePic', {senderName});
+                    } else if (prevContent.avatar_url && content.avatar_url &&
+                        prevContent.avatar_url !== content.avatar_url) {
+                        return this.$t('changeProfilePic', {senderName});
+                    } else if (!prevContent.avatar_url && content.avatar_url) {
+                        return this.$t('setProfilePic', {senderName});
+                    } else if (SettingsStore.getValue("showHiddenEventsInTimeline")) {
+                        // This is a null rejoin, it will only be visible if the Labs option is enabled
+                        return this.$t('noChange', {senderName});
+                    } else {
+                        return "";
+                    }
+                } else {
+                    if (!ev.target) console.warn("Join message has no target! -- " + ev.getContent().state_key);
+                    if (ConferenceHandler && ConferenceHandler.isConferenceUser(ev.getStateKey())) {
+                        return this.$t('startVoIp');
+                    } else {
+                        return this.$t('hasJoinedRoom', {targetName});
+                    }
+                }
+            case 'leave':
+                if (ev.getSender() === ev.getStateKey()) {
+                    if (ConferenceHandler && ConferenceHandler.isConferenceUser(ev.getStateKey())) {
+                        return this.$t('finishedVoIP');
+                    } else if (prevContent.membership === "invite") {
+                        return this.$t('rejectInvite', {targetName});
+                    } else {
+                        return this.$t('leftRoom', {targetName});
+                    }
+                } else if (prevContent.membership === "ban") {
+                    return this.$t('unbannedSomeone', {senderName, targetName});
+                } else if (prevContent.membership === "invite") {
+                    return this.$t('withdrewInvitation', {
+                        senderName,
+                        targetName,
+                    }) + ' ' + reason;
+                } else {
+                    // sender is not target and made the target leave, if not from invite/ban then this is a kick
+                    return this.$t('kickedSomeone', {senderName, targetName}) + ' ' + reason;
+                }
+        }
+    },
+    textForTopicEvent(ev) {
+        const senderDisplayName = ev.sender && ev.sender.name ? ev.sender.name : ev.getSender();
+        return this.$t('changeTopicTo', {
+            senderDisplayName,
+            topic: ev.getContent().topic,
+        });
+    },
+    textForRoomNameEvent(ev) {
+        const senderDisplayName = ev.sender && ev.sender.name ? ev.sender.name : ev.getSender();
+
+        if (!ev.getContent().name || ev.getContent().name.trim().length === 0) {
+            return this.$t('removeRoomName', {senderDisplayName});
+        }
+        if (ev.getPrevContent().name) {
+            return this.$t('changeRoomNameFromTo', {
+                senderDisplayName,
+                oldRoomName: ev.getPrevContent().name,
+                newRoomName: ev.getContent().name,
+            });
+        }
+        return this.$t('changeRoomNameTo', {
+            senderDisplayName,
+            roomName: ev.getContent().name,
+        });
+    },
+    textForGuestAccessEvent(ev) {
+        const senderDisplayName = ev.sender && ev.sender.name ? ev.sender.name : ev.getSender();
+        switch (ev.getContent().guest_access) {
+            case "can_join":
+                return this.$t('allowGuests', {senderDisplayName});
+            case "forbidden":
+                return this.$t('preventGuest', {senderDisplayName});
+            default:
+                // There's no other options we can expect, however just for safety's sake we'll do this.
+                return this.$t('changeGuestRule', {
+                    senderDisplayName,
+                    rule: ev.getContent().guest_access,
+                });
+        }
+    },
+    textForHistoryVisibilityEvent(event) {
+        const senderName = event.sender ? event.sender.name : event.getSender();
+        switch (event.getContent().history_visibility) {
+            case 'invited':
+                return this.$t('historyVisibleToAllFromInvited', {senderName});
+            case 'joined':
+                return this.$t('historyVisibleToAllFromJoined', {senderName});
+            case 'shared':
+                return this.$t('historyVisibleToAll', {senderName});
+            case 'world_readable':
+                return this.$t('setHistoryVisibleToAnyone', {senderName});
+            default:
+                return this.$t('setHistoryVisibleToUnknow', {
+                    senderName,
+                    visibility: event.getContent().history_visibility,
+                });
+        }
+    },
+    // Notice content
+    NoticeContent: function(curMsg) {
+        if(curMsg === null) {
+            return '';
+        }
+        let event = curMsg.event;
+        let chatGroupMsgType = event.type;
+        var chatGroupMsgContent = event.content;
+        // 数据库缺省type = 0 
+        /*
+            // src/TextForEvent.js
+            'm.room.canonical_alias': textForCanonicalAliasEvent,
+            'm.room.name': textForRoomNameEvent,
+            'm.room.topic': textForTopicEvent,
+            'm.room.member': textForMemberEvent,
+            'm.room.third_party_invite': textForThreePidInviteEvent,
+            'm.room.history_visibility': textForHistoryVisibilityEvent,
+            'm.room.power_levels': textForPowerEvent,
+            'm.room.pinned_events': textForPinnedEvent,
+            'm.room.server_acl': textForServerACLEvent,
+            'm.room.tombstone': textForTombstoneEvent,
+            'm.room.join_rules': textForJoinRulesEvent,
+            'm.room.guest_access': textForGuestAccessEvent,
+            'm.room.related_groups': textForRelatedGroupsEvent,
+
+            // TODO: Enable support for m.widget event type (https://github.com/vector-im/element-web/issues/13111)
+            'im.vector.modular.widgets': textForWidgetEvent,
+        */
+        if(curMsg.isState()) {
+            switch (curMsg.getType()) {
+                case "m.room.canonical_alias":
+                    console.log("canonical_alias")
+                    break;
+                case "m.room.name":
+                    return this.textForRoomNameEvent(curMsg);
+                case "m.room.topic":
+                    return this.textForTopicEvent(curMsg);
+                case "m.room.member":
+                    return this.textForMemberEvent(curMsg);
+                case "m.room.third_party_invite":
+                    console.log("third_party_invite")
+                    break;
+                case "m.room.history_visibility":
+                    return this.textForHistoryVisibilityEvent(curMsg);
+                case "m.room.power_levels":
+                    return '';
+                case "m.room.pinned_events":
+                    console.log("pinned_events")
+                    break;
+                case "m.room.server_acl":
+                    console.log("server_acl")
+                    break;
+                case "m.room.tombstone":
+                    console.log("tombstone")
+                    break;
+                case "m.room.join_rules":
+                    return this.textForJoinRulesEvent(curMsg);
+                case "m.room.guest_access":
+                    return this.textForGuestAccessEvent(curMsg);
+                case "m.room.related_groups":
+                    console.log("related_groups")
+                    break;
+                case "im.vector.modular.widgets":
+                    break;
+            }
+        }
+        if(chatGroupMsgType === 'm.room.member')
+        {
+            if(chatGroupMsgContent.membership === 'invite')
+            {
+                var invitees = chatGroupMsgContent.displayname;
+                var inviter = curMsg.sender.name;
+                return inviter + " 邀请 " + invitees + " 加入群聊";
+            }
+            else if(chatGroupMsgContent.membership === "join")
+            {
+                var owner = chatGroupMsgContent.displayname;
+                return owner + " 加入房间";
+            }
+            else if(chatGroupMsgContent.membership === "leave")
+            {
+                var owner = chatGroupMsgContent.displayname;
+                return owner + " 离开房间";
+            }
+            else if(chatGroupMsgContent.type === "notice")
+            {
+                var owner = chatGroupMsgContent.userName;
+                return owner + " 发布群公告: " + chatGroupMsgContent.text;
+            }
+            else if(chatGroupMsgContent.type === "deleteGroupUser")
+            {
+                var owner = chatGroupMsgContent.userName;
+                var deletedNames = "";
+                var deletedUsers = chatGroupMsgContent.userInfos;
+                if(deletedUsers.length == 1){
+                    deletedNames = deletedUsers[0].userName
+                }
+                else{
+                    for(var i=0;i<deletedUsers.length;i++) {
+                        deletedNames = deletedNames + "," + deletedUsers[i].userName
+                    }
+                }
+                return owner + " 将 " + deletedNames + " 移出了群聊";
+            }
+            else if(chatGroupMsgContent.type == "groupTransfer") {
+                var originalOwner = chatGroupMsgContent.fromUserName;
+                var newOwner = chatGroupMsgContent.toUserName;
+                // console.log("get return is ", originalOwner + " 将群主转让给 " + newOwner)
+                return originalOwner + " 将群主转让给 " + newOwner;
+            }
+            else
+            {
+                return "";
+            }
+        }
+        else if(chatGroupMsgType == 'm.room.name'){
+            var inviter = curMsg.sender.name;
+            return inviter + " 修改房间名称为：" + chatGroupMsgContent.name;
+        }
+        return "";
+    },
     getShowMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
@@ -1269,8 +1554,22 @@ export default {
         }
       };
       console.log("cur chat group is ", chatGroupItem);
-      var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
-      
+      var distTimeLine = undefined;
+      for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
+        var timeLineTmp = chatGroupItem.timeline[i];
+        if(['m.room.name', 'm.room.topic', 'm.room.member', 'm.room.history_visibility', 'm.room.join_rules', 'm.room.guest_access', 'm.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) > 0) {
+          distTimeLine = timeLineTmp;
+          break;
+        }
+      }
+      if(distTimeLine == undefined) {
+        return "收到一条短消息";
+      }
+      var ret = this.NoticeContent(distTimeLine);
+      console.log("ret is ===== ", ret == '');
+      if(ret != '') {
+        return ret;
+      }
       let event = distTimeLine.event;
       let chatGroupMsgType = event.type;
       var chatGroupMsgContent = distTimeLine.getContent();
