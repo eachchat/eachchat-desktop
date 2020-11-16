@@ -127,15 +127,15 @@ export default {
             }else {
                 this.organizationList.splice(level + 1, this.organizationList.length - level - 1);
                 this.organizationList.push(organization);
-            }
-            
+            }  
+            setTimeout(()=>{
             this.$nextTick(function(){
-                var element = document.getElementById("organization-main-container");
-                element.scroll(element.offsetWidth,0);
                 for(var i = 0; i < organization.users.length; i ++){
                     this.getUserImg(organization.users[i]);
                 }
-            });
+                });
+            }, 0)          
+            
         },
         userMenuItemClicked:async function(id) {  
             if (this.showUserInfoTips&&(this.userInfo.id == id)){
@@ -251,16 +251,9 @@ export default {
             }
         }
     },
+
     created: async function() {
         await this.getAppBaseData();
-        setTimeout(() => {
-        this.$nextTick(function(){
-            var users = this.organizationList[0].users;
-            for(var i = 0; i < users.length; i ++){
-                this.getUserImg(users[i]);
-            }
-        });
-        }, 0);
         var that = this;
         document.addEventListener('click',function(e){
             console.log(e.target.className)
