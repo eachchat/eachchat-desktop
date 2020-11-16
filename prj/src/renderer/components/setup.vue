@@ -131,7 +131,7 @@ import AlertDlg from './alert-dlg.vue'
 import AnnouncementDlg from './announcement.vue'
 import { Config } from '../../packages/data/sqliteutil.js'
 import certification from './Certificate.vue';
-import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
+// import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 
 export default {
   components: {
@@ -203,29 +203,29 @@ export default {
       this.canSelecteFile = true;
       if(paths.filePaths.length == 0) return;
       var distPath = paths.filePaths[0];
-      Promise.resolve().then(() => {
-        return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
-        }).then((k) => {
-            return MegolmExportEncryption.encryptMegolmKeyFile(
-                JSON.stringify(k), "Wx@6156911128",
-            );
-        }).then((f) => {
-            const blob = new Blob([f], {
-                type: 'text/plain;charset=us-ascii',
-            });
-            let reader = new FileReader();
-            reader.onload = function() {
-              var buffer = new Buffer(reader.result);
-              ipcRenderer.send("export_key", [buffer, distPath]);
-            }
-            reader.readAsArrayBuffer(blob);
-            // FileSaver.saveAs(blob, 'element-keys.txt');
-            // console.log("========== ", f)
-            // ipcRenderer.send("export_key", [blob, distPath]);
-        }).catch((e) => {
-            console.error("Error exporting e2e keys:", e);
-            const msg = e.friendlyText;
-        })
+      // Promise.resolve().then(() => {
+      //   return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
+      //   }).then((k) => {
+      //       return MegolmExportEncryption.encryptMegolmKeyFile(
+      //           JSON.stringify(k), "Wx@6156911128",
+      //       );
+      //   }).then((f) => {
+      //       const blob = new Blob([f], {
+      //           type: 'text/plain;charset=us-ascii',
+      //       });
+      //       let reader = new FileReader();
+      //       reader.onload = function() {
+      //         var buffer = new Buffer(reader.result);
+      //         ipcRenderer.send("export_key", [buffer, distPath]);
+      //       }
+      //       reader.readAsArrayBuffer(blob);
+      //       // FileSaver.saveAs(blob, 'element-keys.txt');
+      //       // console.log("========== ", f)
+      //       // ipcRenderer.send("export_key", [blob, distPath]);
+      //   }).catch((e) => {
+      //       console.error("Error exporting e2e keys:", e);
+      //       const msg = e.friendlyText;
+      //   })
       // var identityKey = await global.mxMatrixClientPeg.matrixClient.createRecoveryKeyFromPassphrase();
       // const blob = new Blob([identityKey.encodedPrivateKey], {
       //     type: 'text/plain;charset=us-ascii',
