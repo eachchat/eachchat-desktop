@@ -2157,7 +2157,7 @@ const common = {
 
   async AddContact(contactInfo){
     let result = await this.api.AddContact(this.data.login.access_token, 
-                                          contactInfo.user_id,
+                                          contactInfo.matrix_id,
                                           true,
                                           contactInfo.display_name,
                                           contactInfo.email,
@@ -2189,6 +2189,7 @@ const common = {
         if(item.del == 1)
           continue;
         contactModel = await servicemodels.ContactModel(item);
+        console.log(contactModel)
         await contactModel.save();
       }
       if(!result.data.hasNext)

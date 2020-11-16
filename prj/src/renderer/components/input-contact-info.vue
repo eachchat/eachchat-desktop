@@ -8,8 +8,8 @@
             
             <el-container class="ChatCreaterContent">
                 <el-form :rules="rules" ref="contactInfo" :model="contactInfo" label-width="100px" width='600px'>
-                    <el-form-item label="Matrix ID" prop="user_id">
-                        <el-input v-model="contactInfo.user_id" size='mini' width="200px"></el-input>
+                    <el-form-item label="Matrix ID">
+                        <el-input v-model="contactInfo.matrix_id" size='mini' width="200px"></el-input>
                     </el-form-item>
                     <el-form-item label="备注名">
                         <el-input v-model="contactInfo.display_name"  size='mini' width="100px"></el-input>
@@ -59,7 +59,7 @@ export default {
     data () {
         return {
             contactInfo: {
-                user_id: '',
+                matrix_id: '',
                 display_name: '',
                 mobile:'',
                 telephone:'',
@@ -68,7 +68,7 @@ export default {
                 title:''
             },
             rules:{
-                user_id:[
+                matrix_id:[
                     {required: true, message:'请输入用户ID', trigger: 'blur'}
                 ]
             },
@@ -85,7 +85,7 @@ export default {
     },
     methods: {
         async SaveContact(){
-            if(this.contactInfo.user_id.length == 0)
+            if(this.contactInfo.matrix_id.length == 0)
                 return;
             await this.services.AddContact(this.contactInfo);
             await this.services.GetAllContact();
@@ -120,7 +120,7 @@ export default {
     mounted:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         this.services = global.services.common;
-        this.contactInfo.user_id = '';
+        this.contactInfo.matrix_id = '';
         this.contactInfo.display_name = '';
         this.contactInfo.mobile = '';
         this.contactInfo.telephone = '';
