@@ -2,8 +2,8 @@
     <div class="chat-page">
         <div class="chat-title">
             <div class="chatInfo">
-                <img class="chat-img" id="chat-group-img">
-                <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret">
+                <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png"/>
+                <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
                 <p class="chat-name" id="chat-group-name"></p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <p class="chat-name-state" id="chat-group-state"></p>
@@ -1089,8 +1089,9 @@ export default {
             groupContentNumElement.innerHTML = '';
 
             var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
-            if(distUrl == null) {
-                distUrl = "../../../static/Img/User/group-40px@2x.png"
+            if(distUrl == null || distUrl == '') {
+                // distUrl = "../../../static/Img/User/group-40px@2x.png"
+                return;
             }
             if(groupIcoElement != undefined && distUrl) {
               groupIcoElement.setAttribute("src", distUrl);
@@ -1237,8 +1238,10 @@ export default {
                     }
                     varTmp.push(fileinfo);
                 }
-                this.sendFileInfos.distGroupInfo = this.chat;
-                this.sendFileInfos.paths = varTmp;
+                this.sendFileInfos = {
+                    paths: varTmp,
+                    distGroupInfo: this.chat
+                }
             }
         },
         getDistUidThroughUids: function(uids) {

@@ -20,7 +20,7 @@
         <div class="personalCenter-stateSelectListView" v-show="showStateList">
             <ul class="personalCenter-stateSelectList">
                 <li class="personalCenter-stateSelect" v-for="(state, index) in stateList" @click="stateItemClicked(state, index)" :key="index">
-                    <img ondragstart="return false" class="personalCenter-stateImg" :src="statueImg(state)"> 
+                    <img ondragstart="return false" class="personalCenter-stateImg" :id="state.state"> 
                     <p class="personalCenter-stateSelectTitle">{{ state.state }}</p>
                     <img ondragstart="return false" class="personalCenter-stateSelectCheck" v-show="state.check" src="../../../static/Img/personalCenter/selected-20px@2x.png">
                 </li>
@@ -64,13 +64,13 @@ export default {
     methods: {
         statueImg(statue) {
             if(statue.state == "online") {
-                return "../../../static/Img/personalCenter/online-20px@2x.png"
+                return "/static/Img/personalCenter/online-20px@2x.png"
             }
             else if(statue.state == "offline") {
-                return "../../../static/Img/personalCenter/offline-20px@2x.png"
+                return "/static/Img/personalCenter/offline-20px@2x.png"
             }
             else if(statue.state == "unavailable") {
-                return "../../../static/Img/personalCenter/unavailable-20px@2x.png"
+                return "/static/Img/personalCenter/unavailable-20px@2x.png"
             }
         },
         closeCropperDlg(){
@@ -100,6 +100,16 @@ export default {
             }
             else{
                 this.showStateList = true;
+            
+                var onlineElement = document.getElementById('online');
+                if(onlineElement != undefined) {
+                    onlineElement.setAttribute("src", '../../../static/Img/personalCenter/online-20px@2x.png')
+                }
+
+                var offlineElement = document.getElementById('offline');
+                if(offlineElement != undefined) {
+                    offlineElement.setAttribute("src", '../../../static/Img/personalCenter/offline-20px@2x.png')
+                }
             }
         },
         stateItemClicked:async function(state, index){
@@ -192,11 +202,13 @@ export default {
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
             var displayName = profileInfo.displayname;
             // console.log("==========showcurusericon ", avaterUrl == "");
-            if(avaterUrl == "") {
-                avaterUrl = "../../../static/Img/User/user-40px@2x.png"
-            }
+            // if(avaterUrl == "") {
+            //     avaterUrl = "../../../static/Img/User/user-40px@2x.png"
+            // }
             let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
-            userIconElement.setAttribute("src", avaterUrl);
+            if(avaterUrl != '') {
+                userIconElement.setAttribute("src", avaterUrl);
+            }
 
             var userNameElement = document.getElementById("personalCenter-namd-id");
             if(userNameElement != undefined) {
@@ -207,6 +219,7 @@ export default {
             if(userIdElement != undefined) {
                 userIdElement.innerHTML = uId;
             }
+
         },
         updateSelfImage: function(e, args) {
             var state = args[0];
@@ -240,7 +253,7 @@ export default {
         this.pagePosition.top = topPosition.toString() + "px";
         this.stateInput = this.userInfo.presence;        
         this.workDescriptionInput = this.userInfo._unstable_statusMessage;
-        var stateArray = ['online', 'offline', 'unavailable'];
+        var stateArray = ['online', 'offline'];
         var temp = [];
         for(var i = 0; i < stateArray.length; i ++){
             var state = {};
@@ -412,7 +425,7 @@ export default {
     left: 23px;
     top: 101px;
     width:130px;
-    height:100px;
+    height:66px;
     background:rgba(255,255,255,1);
     box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);
     border-radius:4px;

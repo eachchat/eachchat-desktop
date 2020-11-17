@@ -155,9 +155,9 @@ ipcMain.on("token-expired", function(event, arg) {
     Menu.setApplicationMenu(null)
     queue.destory();
     mainWindow.hide();
-    mainWindow.setSize(360, 420)
     appIcon.destroy();
     mainWindow.loadURL(winURL);
+    mainWindow.setSize(360, 420)
     openDevToolsInDevelopment(mainWindow);
     
     mainWindow.webContents.on('dom-ready', function(){
@@ -170,14 +170,16 @@ ipcMain.on("token-expired", function(event, arg) {
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   Menu.setApplicationMenu(null)
   mainWindow.hide();
+  mainWindow.resizable = true;
   mainWindow.setSize(360, 420)
-  appIcon.destroy();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
   isLogin = false;
   queue.destory();
+  appIcon.destroy();
   mainWindow.webContents.on('dom-ready', function(){
-    mainWindow.show();            
+    mainWindow.center();
+    mainWindow.show();
   });
   if(process.platform == 'darwin'){
     app.dock.setBadge("");
@@ -496,7 +498,7 @@ ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
       console.log("get final name ", finalName)
       fs.renameSync(distPath, finalName);
       if(needOpen) {
-        shell.openExternal(finalName);
+          shell.openExternal(finalName);
       }
       event.sender.send("SAVED_FILE", finalName, eventId);
     }

@@ -368,18 +368,18 @@ export default {
         cacheStoreElement.innerHTML = strSize;
       }
     },
-    logout: function() {
+    logout: async function() {
       // services.common.closemqtt();
       // services.common.logout();
-      global.mxMatrixClientPeg.logout();
+      await global.mxMatrixClientPeg.logout();
       ipcRenderer.send("showLoginPageWindow");
     }
   },
   mounted: async function() {
   },
   created: async function() {
-    this.loginInfo = await services.common.GetLoginModel();
-    this.curUserInfo = await services.common.GetSelfUserModel();
+    // this.loginInfo = await services.common.GetLoginModel();
+    // this.curUserInfo = await services.common.GetSelfUserModel();
     var config = await Config.GetValue();
     var autoStart = await Config.GetAutoStart();
     console.log("=====get config is ", config)

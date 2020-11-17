@@ -3,7 +3,7 @@
         <el-aside class="navigate-panel" width="64px">
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()"></mac-window-header>
             <div class="User">
-                <img class="login-logo" id="userHead" @click="personalCenterClicked()">
+                <img class="login-logo" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()"/>
             </div>
             <el-menu
                 class="nav-menu">
@@ -128,6 +128,7 @@ export default {
     },
     methods: {
         getUnReadCount(unReadCount) {
+            return '';
             if(unReadCount === 0) return "";
             else return unReadCount > 99 ? "···" : unReadCount;
         },
@@ -276,7 +277,8 @@ export default {
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
             // console.log("==========showcurusericon ", avaterUrl == "");
             if(avaterUrl == "") {
-                avaterUrl = "../../../static/Img/User/user-40px@2x.png"
+                // avaterUrl = "../../../static/Img/User/user-40px@2x.png"
+                return;
             }
             elementImg.setAttribute("src", avaterUrl);
         },

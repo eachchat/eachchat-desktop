@@ -35,7 +35,9 @@ export default {
             
             var userUrl = await this.inviter.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), 40, 40, undefined, false, false);
             console.log("=========this.inviter url is ", userUrl);
-            this.imgElement.setAttribute("src", userUrl);
+            if(userUrl != '' && userUrl != null && userUrl != undefined) {
+                this.imgElement.setAttribute("src", userUrl);
+            }
         }
     },
     date() {
@@ -100,7 +102,7 @@ export default {
         font-size: 13px;
         color: #999999;
         margin-top: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 40px;
     }
 
     .InviteConfirmButton {
@@ -129,8 +131,8 @@ export default {
     }
 
     .InviteCancleButton {
+        display: inline-block;
         width: 100px;
-        display: block;
         height: 32px;
         top: 20px;
         margin: auto;
