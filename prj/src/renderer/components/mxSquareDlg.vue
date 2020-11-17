@@ -13,7 +13,7 @@
             </div>
             <div class="room-list">
                 <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
-                    <img class="room-img"/>
+                    <img class="room-img" :src="item.distUrl"/>
                     <div class="room-info">{{item.name}}</div>
                     <div class="room-info">人数：{{item.num_joined_members}}</div>
                     <div class="room-join" @click.self.stop="joinRoom(item)" v-if="!item.joined">加入</div>
@@ -112,6 +112,8 @@ export default {
                 chunk = chunk.map(c => {
                     let r = client.getRoom(c.room_id)
                     if (r) c.joined = true;
+                    c.roomId = c.room_id;
+                    c.distUrl = '../../../static/Img/User/group-40px@2x.png';
                     return c;
                 })
                 if (cover) return this.publicRooms = [...chunk];

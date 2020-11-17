@@ -16,7 +16,7 @@
                     <div class="member-list">
                         <div v-for="item in searchResult" :key="item.user_id" class="member-item">
                             <input type="checkbox" v-model="item.checked" @change="chooseMember(item)">
-                            <img src="item.avatar_url" >
+                            <img :src="item.avatar_url" >
                             <div class="member-info">
                                 <div>{{item.display_name}}</div>
                                 <div>{{item.user_id}}</div>
@@ -31,7 +31,7 @@
                     </div>
                     <div class="member-list2">
                         <div v-for="item in choosenMember" :key="item.user_id" class="member-item">
-                            <img src="item.avatar_url" >
+                            <img :src="item.avatar_url" >
                             <div class="member-info" style="width: 152px;">
                                 <div>{{item.display_name}}</div>
                                 <div>{{item.user_id}}</div>
@@ -162,6 +162,7 @@ export default {
                     if (res.results && res.results.length) {
                         members = res.results.map(r => {
                             r.checked = false;
+                            r.avatar_url = client.mxcUrlToHttp(r.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
                             return r;
                         })
                     }

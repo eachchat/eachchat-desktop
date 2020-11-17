@@ -2,7 +2,7 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">查看公共群聊</div>
+                <div class="mxCreaterHeaderTitle">发起聊天</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close('close')">
             </div>
             <div class="kuangti">
@@ -297,7 +297,11 @@ export default {
                 client.searchUserDirectory({term}).then(r => {
                     console.log('searchUserDirectory', r)
                     if (r.results) {
-                        const results = r.results.map(res => {res.choosen = false; return res})
+                        const results = r.results.map(res => {
+                            res.choosen = false; 
+                            res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                            return res
+                        })
                         this.searchedMembers = [...results];
                     }
                 }).catch(e => {
