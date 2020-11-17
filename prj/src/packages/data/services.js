@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret, Contact, Department} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Secret, Contact, Department} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -259,18 +259,6 @@ const common = {
     globalModels.init();
   },
 
-  async init() {
-    let ret = await models.init();
-    if(ret != true)
-      return false;
-    if(await this.GetLoginModel() != undefined && await this.GetSelfUserModel() != undefined)
-    {
-      this.initServiceApi();
-      return true;
-    }
-    return false;
-  },
-
   async initServiceApi(){
     if(this.api != undefined)
       return;
@@ -307,11 +295,16 @@ const common = {
 
   async login() {
     this.api = null;
+    this.config.hostname = localStorage.getItem("hostname");
+    this.config.apiPort = localStorage.getItem("apiPort");
+    this.config.hostTls = localStorage.getItem("hostTls");
+    this.config.mqttHost = localStorage.getItem("mqttHost");
+    this.config.mqttPort = localStorage.getItem("mqttPort");
+    this.config.mqttTls =localStorage.getItem("mqttTls");
+
+
     this.initServiceApi();
     let userID = localStorage.getItem("mx_user_id");
-    let base64UserID = Base64.encode(userID, true);
-    await globalModels.init();
-    await Config.SetLoginInfo(base64UserID, this.data.orgValue);
     await models.init();
     this.accessToken = localStorage.getItem("mx_access_token");
     this.data.login = {
@@ -671,7 +664,6 @@ const common = {
           maxUpdatetime = tmpUpdatetime;
       }
     }while(result.data.total > index);  
-    sqliteutil.UpdateMaxDepartmentUpdatetime(this.data.selfuser.id, maxUpdatetime);
     return true;
   },
 
@@ -1964,26 +1956,30 @@ const common = {
     return result.data.results;
   },
 
-  async gmsConfiguration(domainBase64){
-    let value = Base64.encode("139.198.18.180", true);
-    this.data.orgValue = value;
-    this.config.hostname = "139.198.18.180";
-    this.config.apiPort = 8888;
-    this.config.hostTls = 1;
-    this.config.mqttHost = "139.198.15.253";
-    this.config.mqttPort = 1883;
-    this.config.mqttTls = 1;
-    return true;
-    /*
+  async gmsConfiguration(domainBase64, host=''){
+    // let value = Base64.encode("139.198.15.253", true);
+    // this.data.orgValue = value;
+    // this.config.hostname = "139.198.18.180";
+    // this.config.apiPort = 8888;
+    // this.config.hostTls = 0;
+    // this.config.mqttHost = "139.198.18.180";
+    // this.config.mqttPort = 1883;
+    // this.config.mqttTls = 1;
+    // return true;
+    
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
-      response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
-      response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
     else//正式环境
-      response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
+      // response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
+      console.log("the url is ", host + "/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
     
     if (response.status != 200 
       || response.data == undefined
@@ -2004,13 +2000,24 @@ const common = {
       mqtt.tls = 0;
 
     this.config.hostname = entry.host;
+    localStorage.setItem("hostname", this.config.hostname);
+
     this.config.apiPort = entry.port;
+    localStorage.setItem("apiPort", this.config.apiPort);
+
     this.config.hostTls = entry.tls;
+    localStorage.setItem("hostTls", this.config.hostTls);
+
     this.config.mqttHost = mqtt.host;
+    localStorage.setItem("mqttHost", this.config.mqttHost);
+
     this.config.mqttPort = mqtt.port;
+    localStorage.setItem("mqttPort", this.config.mqttPort);
+
     this.config.mqttTls = mqtt.tls;
+    localStorage.setItem("mqttTls", this.config.mqttTls);
+
     return response.data.obj;
-    */
   },
 
   async gmsGetUser(key){
@@ -2149,7 +2156,7 @@ const common = {
 
   async AddContact(contactInfo){
     let result = await this.api.AddContact(this.data.login.access_token, 
-                                          contactInfo.user_id,
+                                          contactInfo.matrix_id,
                                           true,
                                           contactInfo.display_name,
                                           contactInfo.email,
@@ -2181,6 +2188,7 @@ const common = {
         if(item.del == 1)
           continue;
         contactModel = await servicemodels.ContactModel(item);
+        console.log(contactModel)
         await contactModel.save();
       }
       if(!result.data.hasNext)
@@ -2206,8 +2214,12 @@ const common = {
                       telephone,
                       company,
                       title){
+    let contactInfo = await Contact.GetContactInfo(matrixID);
+    if(!contactInfo)
+        return;
     let result = await this.api.UpdateContact(this.data.login.access_token,
                                               matrixID,
+                                              contactInfo.contact_id,
                                               remarkName,
                                               email,
                                               mobile,

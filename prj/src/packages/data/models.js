@@ -72,6 +72,7 @@ var models = {
         storage: this.storage.sqlite,
         index: 'contact',
         fields: {
+          contact_id:    types.string,
           matrix_id:    types.string,
           user_id:      types.string,
           eachchat_user_id: types.string,
@@ -352,31 +353,31 @@ var models = {
     if (typeof environment.path.sqlite == "undefined") {
       return undefined;
     }
-    let userInfo = await Config.GetCurrentUserID();
-    console.log(userInfo)
-    if(userInfo == undefined)
-      return;
-    let userID = userInfo.user_id;
-    let orgID =  userInfo.org_id;
+
+    let userID = localStorage.getItem("mx_user_id");
+    let base64UserID = Base64.encode(userID, true);
+    let orgID =  localStorage.getItem("Domain");
+    let base64orgID = Base64.encode(orgID, true);
+
     let dbPath;
     let dbFolder;
     if(environment.os.isWindows){
-      dbFolder = environment.path.base + "\\" + orgID; 
+      dbFolder = environment.path.base + "\\" + base64orgID; 
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
-      dbFolder = dbFolder + "\\" + userID;
+      dbFolder = dbFolder + "\\" + base64UserID;
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
       dbPath = dbFolder + "\\eachchat.db";
     }
     else{
-      dbFolder = environment.path.base + "/" + orgID;
+      dbFolder = environment.path.base + "/" + base64orgID;
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
-      dbFolder = dbFolder + "/" +userID;
+      dbFolder = dbFolder + "/" +base64UserID;
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }

@@ -1046,6 +1046,7 @@ class APITransaction {
 
   async UpdateContact(accessToken,
                       matrixID,
+                      contactID,
                       remarkName,
                       email,
                       mobile,
@@ -1053,9 +1054,10 @@ class APITransaction {
                       company,
                       title){
     var response = await this.commonApi.patch(
-      "/api/apps/contacts/v1/contact/extra",
+      "/api/apps/contacts/v1/contact",
       {
         matrixId: matrixID,
+        contactId: contactID,
         remarkName: remarkName,
         email: email,
         mobile: mobile,

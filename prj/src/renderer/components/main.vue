@@ -3,7 +3,7 @@
         <el-aside class="navigate-panel" width="64px">
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()"></mac-window-header>
             <div class="User">
-                <img class="login-logo" id="userHead" @click="personalCenterClicked()">
+                <img class="login-logo" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()"/>
             </div>
             <el-menu
                 class="nav-menu">
@@ -29,7 +29,7 @@
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg"/>
             </keep-alive>
         </el-main>
-        <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
+        <personalCenter v-show="showPersonalCenter" :key="personalCenterKey"></personalCenter>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo" :canCancel="upgradeCanCancel"/>
     </el-container>
 </template>
@@ -122,13 +122,13 @@ export default {
             elementImg: null,
             ipcInited: false,
             
-            selfUserInfo:{},
             showPersonalCenter:false,
             personalCenterKey: 0
         }
     },
     methods: {
         getUnReadCount(unReadCount) {
+            return '';
             if(unReadCount === 0) return "";
             else return unReadCount > 99 ? "···" : unReadCount;
         },
@@ -275,15 +275,18 @@ export default {
             var elementImg = document.getElementById("userHead");
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
-            // console.log("==========showcurusericon ", avaterUrl);
+            // console.log("==========showcurusericon ", avaterUrl == "");
+            if(avaterUrl == "") {
+                // avaterUrl = "../../../static/Img/User/user-40px@2x.png"
+                return;
+            }
             elementImg.setAttribute("src", avaterUrl);
         },
         personalCenterClicked:async function(){
             if(this.showPersonalCenter){
                 this.showPersonalCenter = false;
             }
-            var self = await services.common.GetSelfUserModel();
-            this.selfUserInfo = await UserInfo.GetUserInfo(self.id);
+            console.log("this.showpersonalcenter is ", this.showPersonalCenter);
             this.showPersonalCenter = true;
             this.personalCenterKey ++;
         },
@@ -343,13 +346,15 @@ export default {
                     return;
                 }
                 if(ret.language) {
-                this.$i18n.locale = ret.language;
+                    this.$i18n.locale = ret.language;
+                    console.log("=======language is ", ret.language)
                 }
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
+        await global.services.common.login()
         await global.mxMatrixClientPeg.matrixClient.startClient();
-        //global.services.common.initmqtt();
+        
 
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
@@ -365,17 +370,19 @@ export default {
               break;
           }
         })
-        global.services.common.gmsConfiguration();
+
         await global.services.common.login()
         global.services.common.InitDbData();
-        //this.selfUserInfo = await services.common.GetSelfUserModel();
+        //global.services.common.initmqtt();
         this.$nextTick(() => {
             this.showCurUserIcon();
         }) 
         var _this = this;
         document.addEventListener('click',function(e){
-            if(e.target.className.indexOf('personalCenter') == -1){
+            console.log("e.target.classname is ", e.target.className)
+            if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
+                    console.log("============")
                     _this.showPersonalCenter = false;
                 }
 

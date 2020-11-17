@@ -308,13 +308,17 @@ export default {
     },
 
     destroyed(){
-        this.services.UpdateContact(this.userInfo.id,
-                                    this.userInfo.displayName,
-                                    this.userInfo.email[0].email_value,
-                                    this.userInfo.phone.mobile,
-                                    this.userInfo.phone.work,
-                                    this.userInfo.department,
-                                    this.userInfo.title);
+        if(this.userType == 'contact')
+        {
+            this.services.UpdateContact(this.userInfo.id,
+                                        this.userInfo.displayName,
+                                        this.userInfo.email[0].email_value,
+                                        this.userInfo.phone.mobile,
+                                        this.userInfo.phone.work,
+                                        this.userInfo.department.display_name,
+                                        this.userInfo.title);
+        }
+        
     }
 }
 </script>

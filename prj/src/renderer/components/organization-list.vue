@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-header height="56px" class="organization-header">
-            <p class="organization-header-title">{{ headerTitle }}</p>
+            <p class="organization-header-title">{{ $t("organizeMenuName") }}</p>
         </el-header>
         <el-main>
             <el-container class="bottom-container" id="organization-main-container">
@@ -31,8 +31,8 @@
                                 <div class="manager" @click="userMenuItemClicked(item.user_id)">
                                     <img ondragstart="return false" class="manager-icon" :id="item.user_id" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="manager-info">
-                                        <p class="manager-name">{{ item.user_display_name }}</p>
-                                        <p class="manager-title">{{ item.user_title }}</p>
+                                        <p class="contact-list-name">{{ item.user_display_name }}</p>
+                                        <p class="contact-list-titile">{{ item.user_title }}</p>
                                     </div>
                                 </div>
                             </RecycleScroller>
@@ -54,6 +54,8 @@ import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.j
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
+import '../style/contact-list'
+
 export default {
     name: 'organizationList',
     components: {
@@ -89,91 +91,9 @@ export default {
         }
     },
     computed: {
-        showOrganizationLevelTwo: function(){
-            if (this.organizationList.length >= 2) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        
-        showOrganizationLevelThree: function(){
-            if (this.organizationList.length >= 3) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-        showOrganizationLevelFour: function(){
-            if (this.organizationList.length >= 4) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showOrganizationLevelFive: function(){
-            if (this.organizationList.length >= 5) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showOrganizationLevelSix: function(){
-            if (this.organizationList.length >= 6) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showOrganizationLevelSeven: function(){
-            if (this.organizationList.length >= 7) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showOrganizationLevelEight: function(){
-            if (this.organizationList.length >= 8) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
-                showOrganizationLevelNine: function(){
-            if (this.organizationList.length >= 9) {
-                return true;
-            }
-            else{
-                return false;
-            }
-        },
+
     },
     methods: {
-        // departmentBreadCrumbsClicked:async function(id, name, index) {
-        //     this.showUserInfoDrawer = false;
-        //     var departmentModels = await Department.GetSubDepartment(id);
-
-        //     var tempDepartments = [];
-        //     for(var i = 0; i < departmentModels.length; i ++){
-        //         tempDepartments[departmentModels[i].show_order] = departmentModels[i];
-        //     }
-        //     this.departments = tempDepartments;
-        //     this.users = await UserInfo.GetSubUserinfo(id);
-        //     this.$nextTick(function(){
-        //         for(var i = 0; i < this.users.length; i ++){
-        //             this.getUserImg(this.users[i]);
-        //         }
-        //     });
-
-        //     this.breadCrumbs.splice(index + 1, this.breadCrumbs.length - index + 1);
-        // },
         showCurrentDepartment: async function(){
             if(!this.currentDepartment || !this.currentDepartment.department_id)
                 return;
@@ -207,15 +127,15 @@ export default {
             }else {
                 this.organizationList.splice(level + 1, this.organizationList.length - level - 1);
                 this.organizationList.push(organization);
-            }
-            
+            }  
+            setTimeout(()=>{
             this.$nextTick(function(){
-                var element = document.getElementById("organization-main-container");
-                element.scroll(element.offsetWidth,0);
                 for(var i = 0; i < organization.users.length; i ++){
                     this.getUserImg(organization.users[i]);
                 }
-            });
+                });
+            }, 0)          
+            
         },
         userMenuItemClicked:async function(id) {  
             if (this.showUserInfoTips&&(this.userInfo.id == id)){
@@ -331,16 +251,9 @@ export default {
             }
         }
     },
+
     created: async function() {
         await this.getAppBaseData();
-        setTimeout(() => {
-        this.$nextTick(function(){
-            var users = this.organizationList[0].users;
-            for(var i = 0; i < users.length; i ++){
-                this.getUserImg(users[i]);
-            }
-        });
-        }, 0);
         var that = this;
         document.addEventListener('click',function(e){
             console.log(e.target.className)
@@ -533,35 +446,6 @@ display: none;
     vertical-align: top;
     height: 100%;
     width: calc(100% - 120px);
-}
-.manager-name {
-    height: 20px;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 2px;;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-    font-weight:400;
-    letter-spacing:1px;
-    color:rgba(0,0,0,1);
-    font-family: PingFangSC-Regular;
-}
-.manager-title {
-    height: 18px;
-    width: 100%;
-    margin-top: 0px;
-    margin-bottom: 10px;
-    margin-left: 12px;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight:400;
-    color:rgba(153,153,153,1);
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-    overflow: hidden;
-    text-overflow:ellipsis;
-    white-space: nowrap;
 }
 .department-info {
     display: inline-block;

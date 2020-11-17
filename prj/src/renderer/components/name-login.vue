@@ -9,10 +9,10 @@
             <p class="copy-right">版权所有 2019-2020 workly.ai 保留所有权利</p>
         </div> -->
         <!-- <div class="login-panel" v-else style="-webkit-app-region: no-drag"> -->
-            <div class="windowHeader">
-                <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
-                <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
-            </div>
+        <div class="windowHeader">
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
+            <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
+        </div>
         <certification v-show="showCertification" :backupInfo=backupInfo></certification>
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
@@ -25,11 +25,11 @@
                 </div>
                 <div class="item-organization" id="item-organization-id">
                     <p class="organizaiton-title">
-                        {{$t("joinYourOrganization")}}
+                        {{organizationOrHost}}
                     </p>
                     <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label">{{eachChatEndPoint}}</p>
-                    <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="showOrganizationViewHost"/>
+                    <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
@@ -180,6 +180,10 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
+        <div class="server-setting-div">
+            <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView">{{$t("homeServerAddress")}}</div>
+            <i class="el-icon-caret-bottom" v-show="showOrganizationView"></i>
+        </div>
         <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView">
             <span class="login-setup-language-label" id="login-language-label">
                 简体中文
@@ -202,6 +206,7 @@ import winHeaderBar from './win-header.vue';
 import certification from './Certificate.vue';
 import {getDefaultHomeServerAddr} from '../../config.js'
 import log from 'electron-log';
+import { windowsStore } from 'process';
 export default {
     name: 'login',
     components:{
@@ -238,7 +243,7 @@ export default {
             emialAddressButtonDisabled:false,
 
             organizationFinderEmailTime:0,
-            organizationAddress:'http://139.198.15.26:8888',
+            organizationAddress:'',
             addressPort: 443,
             emialAddress:'',
             showLoginView: false,
@@ -276,21 +281,15 @@ export default {
         serverSettingClicked: function() {
             var distElement = document.getElementById("item-organization-id");
             if(distElement != undefined) {
-                distElement.style.height = "98px";
+                distElement.style.height = "78px";
             }
-            // this.organizationAddress = this.$store.getters.getHost();
-            this.addressPort = this.$store.getters.getPort();
+            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             this.showOrganizationViewHost = true;
             this.showOrganizationViewOrganization = false;
             this.eachChatEndPoint = '';
-            this.organizationOrHost = '服务器设置';
+            this.organizationOrHost = this.$t("homeServerAddress");
         },
         hostConfirmButtonClicked: async function() {
-            var distElement = document.getElementById("item-organization-id");
-            if(distElement != undefined) {
-                distElement.style.height = "58px";
-            }
-
             var host = this.organizationAddress;
             if(host.endsWith("/")) {
                 host = host.subString(0, host.length - 1);
@@ -298,14 +297,51 @@ export default {
             if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
                 host = "https://" + host;
             }
-            this.$store.commit("setHost", host);
-            this.$store.commit("setPort", this.addressPort);
+            global.mxMatrixClientPeg.checkHomeServer(host).then((flows) => {
+                this.supportedIdentity = flows;
+                for (let i = 0; i < flows.length; i++ ) {
+                    this.defaultIdentity = flows[i];
+                    this.resetLoginStateTitle();
+                    
+                    var distElement = document.getElementById("item-organization-id");
+                    if(distElement != undefined) {
+                        distElement.style.height = "58px";
+                    }
 
-            this.showOrganizationViewHost = false;
-            this.showOrganizationViewOrganization = true;
-            this.eachChatEndPoint = '';
-            this.organizationOrHost = '加入您的组织';
-            this.organizationAddress = '';
+                    window.localStorage.setItem("mx_hs_url", host);
+
+                    this.showOrganizationViewHost = false;
+                    this.eachChatEndPoint = '';
+                    this.organizationOrHost = this.$t("joinYourOrganization");
+                    this.organizationAddress = window.localStorage.getItem("Domain");
+                    this.showOrganizationViewOrganization = true;
+                    
+                    return;
+                }
+                
+                this.loginState = "服务器连接失败，请检查地址";
+                this.organizationButtonDisabled = false;
+                return;
+            },(err) => {
+                this.loginState = "服务器连接失败，请检查地址";
+                this.organizationButtonDisabled = false;
+            })
+        },
+        checkHomeServer: function (){
+            var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            global.mxMatrixClientPeg.checkHomeServer(host).then((flows) => {
+                this.supportedIdentity = flows;
+                for (let i = 0; i < flows.length; i++ ) {
+                    this.resetLoginStateTitle();
+                    return;
+                }
+                
+                this.loginState = "未找到该组织";
+                this.organizationButtonDisabled = false;
+            },(err) => {
+                this.loginState = "未找到该组织";
+                this.organizationButtonDisabled = false;
+            })
         },
         hostCancelButtonClicked: function() {
             var distElement = document.getElementById("item-organization-id");
@@ -315,8 +351,8 @@ export default {
             this.showOrganizationViewHost = false;
             this.showOrganizationViewOrganization = true;
             this.eachChatEndPoint = '';
-            this.organizationOrHost = '加入您的组织';
-            this.organizationAddress = '';
+            this.organizationOrHost = this.$t("joinYourOrganization");
+            this.organizationAddress = window.localStorage.getItem("Domain");
         },
         handleCommand(command) {
             var languageElement = document.getElementById("login-language-label");
@@ -358,24 +394,25 @@ export default {
                 this.organizationButtonDisabled = false;
                 return;
             }
-            var address = this.organizationAddress;
-            global.mxMatrixClientPeg.checkHomeServer(address).then((flows) => {
-                this.supportedIdentity = flows;
-                for (let i = 0; i < flows.length; i++ ) {
-                    this.defaultIdentity = flows[i];
-                    this.resetLoginStateTitle();
-                    this.showLoginView = true;
-                    this.showOrganizationView = false;
-                    return;
-                }
-                
+            
+            var address = this.organizationAddress;// + ".each.chat";
+
+            var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+
+            var result = await services.common.gmsConfiguration(address, host);
+            console.log(result);
+            if(!result){
                 this.loginState = "未找到该组织";
                 this.organizationButtonDisabled = false;
                 return;
-            },(err) => {
-                this.loginState = "未找到该组织";
-                this.organizationButtonDisabled = false;
-            })
+            }
+            window.localStorage.setItem("Domain", this.organizationAddress);
+            this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
+            
+            this.organizationButtonDisabled = false;
+            this.resetLoginStateTitle();
+            this.showLoginView = true;
+            this.showOrganizationView = false;
             
         },
         organizationFinderClicked:async function(){
@@ -670,7 +707,14 @@ export default {
                 initial_device_display_name: version,
             };
             
-            let client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+            var client = undefined;
+            try {
+                client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+                console.log("===== ", client)
+            }
+            catch(e) {
+                console.log(e)
+            }
             console.log(client);
             if(client.isCryptoEnabled()) {
                 this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
@@ -706,6 +750,9 @@ export default {
             // }
         }
     },
+    activated: async function() {
+        this.checkHomeServer();
+    },
     mounted: async function() {
         log.info("Login mounted");
         this.tokenRefreshing = true;
@@ -713,15 +760,25 @@ export default {
         var hostname = environment.os.hostName;
         
         if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "http://139.198.15.26:8888" : window.localStorage.getItem("mx_hs_url");
+            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
         }
         setTimeout(() => {  
             this.$nextTick(async () => {
-                global.mxMatrixClientPeg.restoreFromLocalStorage().then((ret) => {
+                global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
                     if(ret == undefined) {
                         this.tokenRefreshing = false;
                         this.showLoadingView = false;
                         this.showLoginView = true;
+                        this.checkHomeServer();
+                        return;
+                    }
+                    
+                    var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
+                    var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+                    var result = await services.common.gmsConfiguration(address, host);
+                    if(!result){
+                        this.loginState = "未找到该组织";
+                        this.organizationButtonDisabled = false;
                         return;
                     }
                     
@@ -740,7 +797,7 @@ export default {
     },
     created: function() {
         if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "http://139.198.15.26:8888" : window.localStorage.getItem("mx_hs_url");
+            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
         }
     }
 }
@@ -1849,8 +1906,36 @@ export default {
                 margin-top: 20px;
             }
         }
+
+    .server-setting-div {
+        width: 40%;
+        height: 18px;
+        position: absolute;
+        bottom: 15px;
+        left: 30px;
+        
+        .server-setting {
+            float: left;
+            vertical-align: top;
+            font-size: 12px;
+            font-weight:400;
+            font-family: PingFangSC-Regular;
+            color: rgba(153, 153, 153, 1);
+            line-height: 18px;
+            height: 18px;
+            letter-spacing: 1px;
+        }
+
+        .el-icon-caret-bottom {
+            float: left;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+        }
+    }
+
     .language {
-        width: 100%;
+        width: 40%;
         height: 18px;
         position: absolute;
         bottom: 15px;

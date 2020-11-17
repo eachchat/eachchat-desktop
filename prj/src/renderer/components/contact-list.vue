@@ -31,9 +31,9 @@
                             @mouseleave="OnMouseLeave(index)"
                             :key="index">
                             <img ondragstart="return false" class="manager-icon" :id="user.matrix_id" src="../../../static/Img/User/user-40px@2x.png">
-                            <div class="manager-info">
-                                <p class="manager-name">{{ GetDisplayName(user.display_name, user.matrix_id) }}</p>
-                                <p class="manager-title">{{ user.matrix_id }}</p>
+                            <div class="contact-list-info">
+                                <p class="contact-list-name">{{ GetDisplayName(user.display_name, user.matrix_id) }}</p>
+                                <p class="contact-list-titile">{{ user.matrix_id }}</p>
                             </div>
                             <el-button icon="el-icon-delete" circle class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)"></el-button>
                         </li>
@@ -196,8 +196,8 @@ export default {
                 email_value: ComponentUtil.ShowInfoContent(user.email)
             })
             tempUserInfo.phone = {
-                mobile: ComponentUtil.ShowInfoContent(user.telephone),
-                work: ComponentUtil.ShowInfoContent(user.mobile)
+                mobile: ComponentUtil.ShowInfoContent(user.mobile),
+                work: ComponentUtil.ShowInfoContent(user.telephone)
             };
 
             this.userInfo = tempUserInfo;
@@ -241,7 +241,7 @@ export default {
         var that = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname ", e.target.className)
-            if(['manager-name', 'manager-icon'].indexOf(e.target.className) == -1){
+            if(['contact-list-name', 'manager-icon'].indexOf(e.target.className) == -1){
                 that.showUserInfoTips = false;
             }
             if(e.target.className.indexOf('userInfo') != -1)
@@ -374,13 +374,6 @@ display: none;
     border-radius: 4px;
 }
 
-.manager-info {
-    display: inline-block;
-    vertical-align: top;
-    height: 100%;
-    width: calc(100% - 120px);
-}
-
 .delete-button{
     display: inline-block;
     margin-top: 10px;
@@ -392,35 +385,6 @@ display: none;
     font-family: PingFangSC-Regular;
 }
 
-.manager-name {
-    height: 20px;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 2px;;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-    font-weight:400;
-    letter-spacing:1px;
-    color:rgba(0,0,0,1);
-    font-family: PingFangSC-Regular;
-}
-.manager-title {
-    height: 18px;
-    width: 100%;
-    margin-top: 0px;
-    margin-bottom: 10px;
-    margin-left: 12px;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight:400;
-    color:rgba(153,153,153,1);
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-    overflow: hidden;
-    text-overflow:ellipsis;
-    white-space: nowrap;
-}
 .department-info {
     display: inline-block;
     vertical-align: top;

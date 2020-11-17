@@ -710,30 +710,6 @@ const Config = {
             return;
         }
         return foundUsers[0];
-    },
-
-    async GetCurrentUserID(){
-        let login = await (await globalModels.Login).find();
-        if(login.length != 0)
-            return login[0];
-    },
-
-    async SetLoginInfo(userID, orgID){
-        let login = await (await globalModels.Login).find();
-        if(login.length == 0){
-            const LoginModel = await globalModels.Login;
-            let loginvalue = {
-                user_id: userID,
-                org_id:  orgID
-            }
-            let loginmodel = new LoginModel(loginvalue);
-            loginmodel.save();
-        }
-        else{
-            login[0].user_id = userID;
-            login[0].org_id = orgID;
-            login[0].save();
-        }
     }
 }
 

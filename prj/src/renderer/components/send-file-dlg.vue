@@ -82,7 +82,7 @@ export default {
     methods: {
         getDistName() {
             if(this.sendInfos.distGroupInfo != undefined && this.sendInfos.distGroupInfo.group_name != undefined){
-                return this.sendInfos.distGroupInfo.group_name.substring(0, 20);
+                return this.sendInfos.distGroupInfo.name.substring(0, 20);
             }
             else {
                 return "";
@@ -95,7 +95,7 @@ export default {
             return item.name;
         },
         getSendFileSize(item) {
-            return item.size;
+            return getFileSizeByNumber(item.size);
         },
         closeDialog() {
             this.$emit("closeSendFileDlg");
@@ -133,8 +133,9 @@ export default {
          * }
          */
         sendInfos: async function() {
-            console.log("this.sendInfos is ", this.sendInfos.distGroupInfo)
-            if(this.sendInfos.distGroupInfo == undefined) {
+            console.log("this.sendInfos is ", this.sendInfos)
+            console.log("this.sendInfos distGroupInfo is ", this.sendInfos['distGroupInfo'])
+            if(this.sendInfos['distGroupInfo'] == undefined) {
                 console.log("aaa return ")
                 return;
             }
@@ -142,16 +143,16 @@ export default {
             var distGroupImageElement = document.getElementById("ReceiverImageId");
             var distId = this.sendInfos.distGroupInfo.roomId;
             var targetPath = '';
-            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.sendInfos.distGroupInfo.group_avarar, distId))){
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    if(distGroupImageElement != undefined ) {
-                        distGroupImageElement.setAttribute("src", reader.result);
-                    }
-                }
+
+            var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.sendInfos.distGroupInfo);
+            if(distGroupImageElement != undefined && distUrl) {
+              distGroupImageElement.setAttribute("src", distUrl);
+            }
+
+            var distGroupNameElement = document.getElementById("ReceiverNameId");
+            var distName = this.sendInfos.distGroupInfo.name;
+            if(distGroupNameElement != undefined) {
+                distGroupNameElement.innerHTML = distName;
             }
 
             this.$nextTick(() => {
