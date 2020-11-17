@@ -271,7 +271,7 @@ export default {
         },
         getUserImg: async function (userInfo){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.matrix_id == undefined || userInfo == null) {
+            if(userInfo.id == undefined || userInfo.matrix_id == undefined || userInfo == null) {
                 return "";
             }
 

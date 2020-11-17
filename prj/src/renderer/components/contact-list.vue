@@ -184,7 +184,10 @@ export default {
             let userInfo = await UserInfo.GetUserInfoByMatrixID(user.matrix_id)
             let department = {display_name:""};
             if(userInfo)
+            {
                 department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
+                tempUserInfo.id = userInfo.user_id
+            }
             else
                 department.display_name = user.company
             tempUserInfo.department = department;
