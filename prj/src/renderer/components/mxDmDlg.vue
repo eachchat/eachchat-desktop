@@ -30,7 +30,7 @@
             </div>
             <div class="submit-field">
                 <div class="cancel-button">取消</div>
-                <div class="submit-button" :style="{'background': loading ? '#A7E0C4' : '#24B36B'}">创建</div>
+                <div class="submit-button" :style="{'background': loading ? '#A7E0C4' : '#24B36B'}" @click.stop="createDm">创建</div>
             </div>
         </div>
     </div>
@@ -67,6 +67,122 @@ export default {
     },
     timer: null,
     methods: {
+        _onAccountData(ev) {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            if (ev.getType() == 'm.direct') {
+                this.mDirectEvent = client.getAccountData('m.direct').getContent() || {};
+                this.userToRooms = null;
+                this.roomToUser = null;
+            }
+        },
+        getDMRoomForIdentifiers(ids) {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            // TODO: [Canonical DMs] Handle lookups for email addresses.
+            // For now we'll pretend we only get user IDs and end up returning nothing for email addresses
+            let commonRooms = this.getDMRoomsForUserId(ids[0]);
+            console.log('---commonRooms ids---', ids);
+            console.log('---commonRooms---', commonRooms);
+            for (let i = 1; i < ids.length; i++) {
+                const userRooms = this.getDMRoomsForUserId(ids[i]);
+                commonRooms = commonRooms.filter(r => userRooms.includes(r));
+            }
+            console.log('---commonRooms 222222222', commonRooms);
+            commonRooms.forEach(c => {
+                console.log('ccccc', c);
+                const room = client.getRoom(c);
+                console.log('叉叉叉', room);
+
+            })
+            const joinedRooms = commonRooms.map(r => client.getRoom(r))
+                .filter(r => r && r.getMyMembership() === 'join');
+            console.log('---joinedRooms---', joinedRooms);   
+            return joinedRooms[0];
+        },
+        getDMRoomsForUserId(userId) {
+            // Here, we return the empty list if there are no rooms,
+            // since the number of conversations you have with this user is zero.
+            console.log('---check getDMRoomsForUserId---', this._getUserToRooms());
+            console.log('---check getDMRoomsForUserId222---', userId);
+
+            return this._getUserToRooms()[userId] || [];
+        },
+         _getUserToRooms() {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            if (!this.userToRooms) {
+                console.log('======++++++++', client.getAccountData)
+                const userToRooms = client.getAccountData('m.direct') ? client.getAccountData('m.direct').getContent() : {};
+                const myUserId = client.getUserId();
+                const selfDMs = userToRooms[myUserId];
+                if (selfDMs && selfDMs.length) {
+                    const neededPatching = this._patchUpSelfDMs(userToRooms);
+                    // to avoid multiple devices fighting to correct
+                    // the account data, only try to send the corrected
+                    // version once.
+                    console.warn(`Invalid m.direct account data detected ` +
+                        `(self-chats that shouldn't be), patching it up.`);
+                    if (neededPatching && !this._hasSentOutPatchDirectAccountDataPatch) {
+                        this._hasSentOutPatchDirectAccountDataPatch = true;
+                        this.matrixClient.setAccountData('m.direct', userToRooms);
+                    }
+                }
+                this.userToRooms = userToRooms;
+            }
+            return this.userToRooms;
+        },
+        createDm: function() {
+            if (this.loading) return;
+            if (!this.choosenMembers || !this.choosenMembers) return;
+            this.loading = true;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            
+            const targetIds = this.choosenMembers.map(t => t.user_id);
+            const existingRoom = this.getDMRoomForIdentifiers(targetIds);
+            if (existingRoom) {
+                existingRoom.room_id = existingRoom.roomId
+                const obj = {data: existingRoom, handler: 'viewRoom'};
+                this.$emit('close', obj);
+            }
+
+            const createRoomOptions = {inlineErrors: true};
+            //TODO 加密处理
+
+            let createRoomPromise = Promise.resolve();
+            const isSelf = targetIds.length === 1 && targetIds[0] === client.getUserId();
+            if (targetIds.length === 1 && !isSelf) {
+                createRoomOptions.dmUserId = targetIds[0];
+                createRoomPromise = this.createRoom(createRoomOptions);
+            } else if (isSelf) {
+                createRoomPromise = this.createRoom(createRoomOptions);
+            } else {
+                console.log('后续增加更多人选');
+                //TODO
+                // // Create a boring room and try to invite the targets manually.
+                // createRoomPromise = createRoom(createRoomOptions).then(roomId => {
+                //     return inviteMultipleToRoom(roomId, targetIds);
+                // }).then(result => {
+                //     if (this._shouldAbortAfterInviteError(result)) {
+                //         return true; // abort
+                //     }
+                // });
+            }
+
+
+        },
+        _shouldAbortAfterInviteError(result) {
+            const failedUsers = Object.keys(result.states).filter(a => result.states[a] === 'error');
+            if (failedUsers.length > 0) {
+                // console.log("Failed to invite users: ", result);
+                // this.setState({
+                //     busy: false,
+                //     errorText: _t("Failed to invite the following users to chat: %(csvUsers)s", {
+                //         csvUsers: failedUsers.join(", "),
+                //     }),
+                // });
+                alert("Failed to invite users: ", result);
+                return true; // abort
+            }
+            return false;
+        },
         choose: function(member, idx) {
             console.log('idxxxxx', idx)
             const searchedMembers = this.searchedMembers;
@@ -252,8 +368,9 @@ export default {
 
             return opts;
         },
-        createRoom: function() {
-            let opts = this._roomCreateOptions();
+        createRoom: function(opts) {
+            // let opts = this._roomCreateOptions();
+            console.log('----createRoom----')
             const vtx = this;
             if (opts.spinner === undefined) opts.spinner = true;
             if (opts.guestAccess === undefined) opts.guestAccess = true;
@@ -323,8 +440,9 @@ export default {
 
             console.log('---createOpts---', createOpts);
             return client.createRoom(createOpts).then((res) => {
-                console.log('create success!!', res);
-                this.$emit('nextStep', res);
+                console.log('--create success!!--', res);
+                const obj = {data: res, handler: 'viewRoom'};
+                this.$emit('close', obj);
             })
 
             // let modal;
@@ -433,6 +551,7 @@ export default {
         background-color: #fff;
         flex: 1;
         margin-bottom: 0;
+        overflow-y: scroll;
     }
     .room-list {
         flex: 1;
