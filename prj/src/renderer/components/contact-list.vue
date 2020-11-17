@@ -196,8 +196,8 @@ export default {
                 email_value: ComponentUtil.ShowInfoContent(user.email)
             })
             tempUserInfo.phone = {
-                mobile: ComponentUtil.ShowInfoContent(user.telephone),
-                work: ComponentUtil.ShowInfoContent(user.mobile)
+                mobile: ComponentUtil.ShowInfoContent(user.mobile),
+                work: ComponentUtil.ShowInfoContent(user.telephone)
             };
 
             this.userInfo = tempUserInfo;
