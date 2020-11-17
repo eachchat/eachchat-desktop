@@ -814,7 +814,7 @@ const Contact = {
             contacts[0].telephone = telephone;
             contacts[0].company = company;
             contacts[0].title = title;
-            contacts[0].save();
+            await contacts[0].save();
         }
     },
 

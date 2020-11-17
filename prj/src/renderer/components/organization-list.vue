@@ -150,6 +150,7 @@ export default {
             //get userinfo
             var user = await UserInfo.GetUserInfo(id);
             tempUserInfo.id = user.user_id;
+            tempUserInfo.matrix_id = user.matrix_id;
             tempUserInfo.avatarTUrl = user.avatar_t_url;
             tempUserInfo.displayName = user.user_display_name;
             tempUserInfo.title = user.user_title;

@@ -17,7 +17,7 @@
                             <img ondragstart="return false" class="contact-list-icon" :id="contact.user_id" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="contact-list-info">
                                 <p class="contact-list-name">{{ contact.display_name }}</p>
-                                <p class="contact-list-titile">{{ contact.matrix_id }}</p>
+                                <p class="contact-list-titile">{{ contact.user_id }}</p>
                             </div>
                             <button class="contact-list-button" @click="HandleSave(index, contact)" :disabled='DisableSave(contact)'>保存</button>
                         </li>

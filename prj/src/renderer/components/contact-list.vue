@@ -185,8 +185,10 @@ export default {
             let department = {display_name:""};
             if(userInfo)
                 department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
+            else
+                department.display_name = user.company
             tempUserInfo.department = department;
-            tempUserInfo.id = id;
+            tempUserInfo.matrix_id = id;
             tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, id);
             tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
             tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);

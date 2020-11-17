@@ -2,10 +2,10 @@
 <template>
     <div class="userInfo-view" :style="pagePosition">
         <div class="userInfoBaseInfo-view">
-            <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.id)">
+            <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)">
             <div class="userInfo-baseInfo">
-                <p class="userInfo-name">{{ userInfo.displayName }}</p>
-                <p class="userInfo-title">{{ userInfo.title }}</p>
+                <p class="userInfo-name">{{ GetDisplayName(userInfo.displayName, userInfo.matrix_id) }}</p>
+                <p class="userInfo-title">{{ userInfo.matrix_id }}</p>
             </div>
         </div>
         <div class="userInfoAction-view" v-show="!isOwn">
@@ -15,6 +15,10 @@
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
+                <li v-if="userType == 'contact'">
+                    <p class="userInfo-key">备注</p>
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入备注名...">
+                </li>
                 <li v-if="showStatusDescription">
                     <p class="userInfo-key">个人状态</p>
                     <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.statusDescription">
@@ -27,10 +31,7 @@
                     <p class="userInfo-key">汇报关系</p>
                     <p class="userInfo-report-value" @click="reportRelationClicked()">查看</p>
                 </li>
-                <li v-if="showDepartment">
-                    <p class="userInfo-key">部门</p>
-                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name"  placeholder="输入部门名称...">
-                </li>
+ 
                 <li v-if="showPhone">
                     <p class="userInfo-key">手机</p>
                     <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.mobile" placeholder="输入手机号...">
@@ -43,6 +44,14 @@
                     <p class="userInfo-key">邮箱</p>
                     <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.email[0].email_value" placeholder="输入邮箱...">
                 </li>
+               <li v-if="showDepartment">
+                    <p class="userInfo-key">部门</p>
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name"  placeholder="输入部门名称...">
+                </li>
+                <li>
+                    <p class="userInfo-key">职位</p>
+                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.title" placeholder="输入职位名称...">
+                </li>
             </ul>
         </div>
     </div>
@@ -54,6 +63,9 @@ import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import { functions } from 'electron-log'
+import {ComponentUtil} from '../script/component-util.js'
+
+
 export default {
     name: 'user-info',
     data() {
@@ -152,13 +164,17 @@ export default {
         }
     },
     methods: {
+        GetDisplayName: function(displayName, userid){
+            return ComponentUtil.GetDisplayName(displayName, userid);
+        },
+
         jumpToChat: async function() {
             if(this.$route.name == "organization" || this.$route.name == "favourite") {
                 this.$router.push(
                     {
                         name: 'ChatContent', 
                         params: {
-                            user_id: this.userInfo.id
+                            user_id: this.userInfo.matrix_id
                         }
                     })
             }
@@ -177,7 +193,7 @@ export default {
                 catch(error) {
                     console.log("get grou name exception and err is ", error);
                 }
-                var contain_user_ids = [this.curUserInfo.id, this.userInfo.id].join(",");
+                var contain_user_ids = [this.curUserInfo.matrix_id, this.userInfo.matrix_id].join(",");
                 console.log("groupCheck is ", groupCheck)
                 if(groupCheck.length == 0) {
                     groupItem["contain_user_ids"] = contain_user_ids;
@@ -187,14 +203,14 @@ export default {
                     groupItem["last_message_time"] = 0;
                     groupItem["message_content"] = null;
                     groupItem["message_content_type"] = 101;
-                    groupItem["message_from_id"] = this.curUserInfo.id;
+                    groupItem["message_from_id"] = this.curUserInfo.matrix_id;
                     groupItem["message_id"] = '';
                     groupItem["owner"] = null;
                     groupItem["sequence_id"] = 0;
                     groupItem["status"] = "00000000";
                     groupItem["un_read_count"] = 0;
                     groupItem["updatetime"] = new Date().getTime();
-                    groupItem["user_id"] = this.userInfo.id;
+                    groupItem["user_id"] = this.userInfo.matrix_id;
                 }
                 else {
                     groupItem = groupCheck[0];
@@ -255,13 +271,12 @@ export default {
         },
         getUserImg: async function (userInfo){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.id == undefined || userInfo == null) {
+            if(userInfo.matrix_id == undefined || userInfo == null) {
                 return "";
             }
-            var userId = userInfo.id;
-            
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(this.getUserInfoIconID(userId));
+
+            var localPath = confservice.getUserThumbHeadLocalPath(userInfo.id);
+            let userIconElement = document.getElementById(this.getUserInfoIconID(userInfo.matrix_id));
             if(fs.existsSync(localPath)){
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();
@@ -271,7 +286,7 @@ export default {
                     userIconElement.setAttribute("src", reader.result);
                 }
             }else{
-                //services.common.downloadUserTAvatar(userInfo.avatarTUrl, userInfo.id);
+                global.services.common.downloadUserTAvatar(userInfo.avatarTUrl, userInfo.id);
             }
         },
         getUserInfoIconID(id){
@@ -310,7 +325,7 @@ export default {
     destroyed(){
         if(this.userType == 'contact')
         {
-            this.services.UpdateContact(this.userInfo.id,
+            this.services.UpdateContact(this.userInfo.matrix_id,
                                         this.userInfo.displayName,
                                         this.userInfo.email[0].email_value,
                                         this.userInfo.phone.mobile,
