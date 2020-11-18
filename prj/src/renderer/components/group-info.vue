@@ -775,7 +775,7 @@ export default {
             // console.log("this.slienceState ", this.slienceState)
             var adddedMemberId = [];
             for(var i=0;i<this.memberList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
+                let memberInfoTmp = await global.services.common.GetDistUserinfo(this.memberList[i]);
                 if(memberInfoTmp.length != 0) {
                     this.memberListShow.push(memberInfoTmp[0]);
                     this.memberListShowOriginal.push(memberInfoTmp[0]);
@@ -792,7 +792,7 @@ export default {
             let elementImg = document.getElementById("groupInfoImageId");
             console.log("elementImg is ", elementImg);
             var targetPath = "";
-            if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.groupAvarar, this.groupId))){
+            if(fs.existsSync(targetPath = await global.services.common.downloadGroupAvatar(this.groupAvarar, this.groupId))){
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();
@@ -820,7 +820,7 @@ export default {
             }, 0)
 
             for(var i=0;i<this.memberList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberList[i]);
+                let memberInfoTmp = await global.services.common.GetDistUserinfo(this.memberList[i]);
                 if(memberInfoTmp.length != 0) {
                     if(adddedMemberId.indexOf(this.memberList[i]) == -1) {
                         this.memberListShow.push(memberInfoTmp[0]);

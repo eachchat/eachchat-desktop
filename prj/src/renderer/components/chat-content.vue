@@ -195,41 +195,10 @@ export default {
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
-        var groupUserIds = [];
-        groupUserIds.push(this.distUserId);
-        groupUserIds.push(this.curUserInfo.id);
-        var contain_user_ids = groupUserIds.join(",");
-        var groupItem = {};
-        var userInfos = await services.common.GetDistUserinfo(this.distUserId);
-        // console.log("userInfos is ", userInfos);
-        var chatUserInfo = userInfos[0];
-        var chatAvater = chatUserInfo.avatar_t_url;
-        var chatName = chatUserInfo.user_display_name;
-        var groupCheck = await await Group.SearchChatByNameKey(chatName);
-        // console.log("groupCheck is ", groupCheck)
-
-        if(groupCheck.length == 0) {
-            groupItem["contain_user_ids"] = contain_user_ids;
-            groupItem["group_avarar"] = chatAvater;
-            groupItem["group_name"] = chatName;
-            groupItem["group_type"] = 102;
-            groupItem["last_message_time"] = 0;
-            groupItem["message_content"] = null;
-            groupItem["message_content_type"] = 101;
-            groupItem["message_from_id"] = this.curUserInfo.id;
-            groupItem["message_id"] = '';
-            groupItem["owner"] = null;
-            groupItem["sequence_id"] = 0;
-            groupItem["status"] = "00000000";
-            groupItem["un_read_count"] = 0;
-            groupItem["updatetime"] = new Date().getTime();
-            groupItem["user_id"] = this.distUserId;
+        const existingRoom = this.getDMRoomForIdentifiers([this.distUserId]);
+        if(existingRoom){
+          this.getCreateGroupInfo(existingRoom)
         }
-        else {
-            groupItem = groupCheck[0];
-        }
-
-        this.getCreateGroupInfo(groupItem)
       }
     },
     distGroupId: async function() {
@@ -347,9 +316,33 @@ export default {
       mqttGroupVar: [],      //一些不完整的group的临时存储
       searchId: 0,      //复合搜索,
       matrixClient: undefined,
+      roomToUser: null,
     };
   },
   methods: {
+    getDMRoomForIdentifiers(ids) {
+        const client = window.mxMatrixClientPeg.matrixClient;
+        // TODO: [Canonical DMs] Handle lookups for email addresses.
+        // For now we'll pretend we only get user IDs and end up returning nothing for email addresses
+        let commonRooms = global.mxMatrixClientPeg.getDMRoomsForUserId(ids[0]);
+        console.log('---commonRooms ids---', ids);
+        console.log('---commonRooms---', commonRooms);
+        for (let i = 1; i < ids.length; i++) {
+            const userRooms = global.mxMatrixClientPeg.getDMRoomsForUserId(ids[i]);
+            commonRooms = commonRooms.filter(r => userRooms.includes(r));
+        }
+        console.log('---commonRooms 222222222', commonRooms);
+        commonRooms.forEach(c => {
+            console.log('ccccc', c);
+            const room = global.mxMatrixClientPeg.matrixClient.getRoom(c);
+            console.log('叉叉叉', room);
+
+        })
+        const joinedRooms = commonRooms.map(r => global.mxMatrixClientPeg.matrixClient.getRoom(r))
+            .filter(r => r && r.getMyMembership() === 'join');
+        console.log('---joinedRooms---', joinedRooms);   
+        return joinedRooms[0];
+    },
     viewRoom(room) {
       console.log('---new rooms---',  newRooms);
       const newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
@@ -957,56 +950,19 @@ export default {
       this.$nextTick(() => {
         var groupIndex = -1;
         for(var i=0;i<this.showGroupList.length;i++) {
-          if(this.showGroupList[i].group_id != undefined && this.showGroupList[i].group_id === groupInfo.group_id) {
+          if(this.showGroupList[i].roomId == groupInfo.roomId) {
             // console.log("this.originalgorulliset is ", this.showGroupList[i]);
             groupIndex = i;
             this.scrollToDistPosition(groupIndex);
             break;
           }
-          if(this.showGroupList[i].group_name == groupInfo.group_name && this.showGroupList[i].group_type == 102) {
-            if((groupInfo.key_id != undefined && groupInfo.key_id.length != 0) && (this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length != 0)) {
-              groupIndex = i;
-              this.scrollToDistPosition(groupIndex);
-              break;
-            }
-            if((groupInfo.key_id == undefined || (groupInfo.key_id != undefined && groupInfo.key_id.length == 0)) && (this.showGroupList[i].key_id == undefined || (this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length == 0))) {
-              groupIndex = i;
-              this.scrollToDistPosition(groupIndex);
-              break;
-            }
-          }
         }
-        if(groupIndex == -1) {
-          if(groupInfo.group_type != 102) {
-            this.showGroupList.unshift(groupInfo);
-            this.$nextTick(() => {
-              this.scrollToDistPosition(this.topGroupVar.length);
-              this.curindex = this.topGroupVar.length + 1;
-              this.curChat = this.showGroupList[0];
-            })
-            this.mqttGroupVar.push(groupInfo)
-            return;
-          }
-          // else {
-          this.showGroupList.unshift(groupInfo);
-          // console.log("this.curchat is ", groupInfo);
-          this.curChat = this.showGroupList[0];
-          this.curindex = 0;
-          this.isEmpty = false;
-          setTimeout(() => {
-            this.$nextTick(() => {
-              this.showGroupIcon();
-            })
-          }, 0)
-          // }
-        }
-        else {
-          setTimeout(() => {
-            this.$nextTick(() => {
-              this.showChat(this.showGroupList[groupIndex], groupIndex);
-            })
-          }, 500)
-        }
+        
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.showChat(this.showGroupList[groupIndex], groupIndex);
+          })
+        }, 500)
       })
       // ++this.needUpdate;
     },

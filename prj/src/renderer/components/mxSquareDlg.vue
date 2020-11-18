@@ -113,7 +113,7 @@ export default {
                     let r = client.getRoom(c.room_id)
                     if (r) c.joined = true;
                     c.roomId = c.room_id;
-                    c.distUrl = '../../../static/Img/User/group-40px@2x.png';
+                    c.distUrl = './static/Img/User/group-40px@2x.png';
                     return c;
                 })
                 if (cover) return this.publicRooms = [...chunk];

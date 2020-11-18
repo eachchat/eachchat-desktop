@@ -15,7 +15,11 @@ class _MatrixClientPeg{
         this.recoveryKey = '';
         this.defaultDisplayName = getMatrixDefaultDeviceDisplayName();
         this.roomToUser = null;
+        this.userToRooms = null;
         console.log("default display name is ", this.defaultDisplayName);
+        this._hasSentOutPatchDirectAccountDataPatch = false;
+        this.mDirectEvent = null;
+        this._onAccountData = this._onAccountData.bind(this);
     }
 
     _getUserToRooms() {
@@ -200,6 +204,12 @@ class _MatrixClientPeg{
         }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
+        var mDirectEvent = this.matrixClient.getAccountData('m.direct');
+        this.mDirectEvent = mDirectEvent ? mDirectEvent.getContent() : {};
+
+        this._populateRoomToUser();
+        this.matrixClient.on('accountData', this._onAccountData);
+  
         await this.matrixClient.initCrypto();
         // await this.matrixClient.startClient();
         await this.matrixClient.store.startup();
@@ -239,9 +249,108 @@ class _MatrixClientPeg{
                 indexedDB, "matrix-js-sdk:crypto",
             );
         }
-  
+
         opts = Object.assign(storeOpts, opts);
         return matrixcs.createClient(opts);
+    }
+
+    /**
+     * Gets the DM room which the given IDs share, if any.
+     * @param {string[]} ids The identifiers (user IDs and email addresses) to look for.
+     * @returns {Room} The DM room which all IDs given share, or falsey if no common room.
+     */
+    getDMRoomForIdentifiers(ids) {
+      // TODO: [Canonical DMs] Handle lookups for email addresses.
+      // For now we'll pretend we only get user IDs and end up returning nothing for email addresses
+
+      let commonRooms = this.getDMRoomsForUserId(ids[0]);
+      for (let i = 1; i < ids.length; i++) {
+          const userRooms = this.getDMRoomsForUserId(ids[i]);
+          commonRooms = commonRooms.filter(r => userRooms.includes(r));
+      }
+
+      const joinedRooms = commonRooms.map(r => MatrixClientPeg.get().getRoom(r))
+          .filter(r => r && r.getMyMembership() === 'join');
+
+      return joinedRooms[0];
+    }
+
+    getDMRoomsForUserId(userId) {
+      // Here, we return the empty list if there are no rooms,
+      // since the number of conversations you have with this user is zero.
+      return this._getUserToRooms()[userId] || [];
+    }
+
+    /**
+     * some client bug somewhere is causing some DMs to be marked
+     * with ourself, not the other user. Fix it by guessing the other user and
+     * modifying userToRooms
+     */
+    _patchUpSelfDMs(userToRooms) {
+      const myUserId = this.matrixClient.getUserId();
+      const selfRoomIds = userToRooms[myUserId];
+      if (selfRoomIds) {
+          // any self-chats that should not be self-chats?
+          const guessedUserIdsThatChanged = selfRoomIds.map((roomId) => {
+              const room = this.matrixClient.getRoom(roomId);
+              if (room) {
+                  const userId = room.guessDMUserId();
+                  if (userId && userId !== myUserId) {
+                      return {userId, roomId};
+                  }
+              }
+          }).filter((ids) => !!ids); //filter out
+          // these are actually all legit self-chats
+          // bail out
+          if (!guessedUserIdsThatChanged.length) {
+              return false;
+          }
+          userToRooms[myUserId] = selfRoomIds.filter((roomId) => {
+              return !guessedUserIdsThatChanged
+                  .some((ids) => ids.roomId === roomId);
+          });
+          guessedUserIdsThatChanged.forEach(({userId, roomId}) => {
+              const roomIds = userToRooms[userId];
+              if (!roomIds) {
+                  userToRooms[userId] = [roomId];
+              } else {
+                  roomIds.push(roomId);
+                  userToRooms[userId] = _uniq(roomIds);
+              }
+          });
+          return true;
+      }
+    }
+
+    _getUserToRooms() {
+      if (!this.userToRooms) {
+          const userToRooms = this.mDirectEvent;
+          const myUserId = this.matrixClient.getUserId();
+          const selfDMs = userToRooms[myUserId];
+          if (selfDMs && selfDMs.length) {
+              const neededPatching = this._patchUpSelfDMs(userToRooms);
+              // to avoid multiple devices fighting to correct
+              // the account data, only try to send the corrected
+              // version once.
+              console.warn(`Invalid m.direct account data detected ` +
+                  `(self-chats that shouldn't be), patching it up.`);
+              if (neededPatching && !this._hasSentOutPatchDirectAccountDataPatch) {
+                  this._hasSentOutPatchDirectAccountDataPatch = true;
+                  this.matrixClient.setAccountData('m.direct', userToRooms);
+              }
+          }
+          this.userToRooms = userToRooms;
+      }
+      return this.userToRooms;
+    }
+
+    _onAccountData(ev) {
+      console.log("=======in peg on account data", ev.getType());
+        if (ev.getType() == 'm.direct') {
+            this.mDirectEvent = this.matrixClient.getAccountData('m.direct').getContent() || {};
+            this.userToRooms = null;
+            this.roomToUser = null;
+        }
     }
 
     async LoginWithPassword(account, password){
@@ -258,6 +367,12 @@ class _MatrixClientPeg{
             Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
         //await this.matrixClient.startClient();
+        var mDirectEvent = this.matrixClient.getAccountData('m.direct');
+        this.mDirectEvent = mDirectEvent ? mDirectEvent.getContent() : {};
+
+        this._populateRoomToUser();
+        this.matrixClient.on('accountData', this._onAccountData);
+  
         await this.matrixClient.store.startup();
         await this.matrixClient.initCrypto();
         return this.matrixClient;

@@ -100,16 +100,18 @@ export default {
             }
             else{
                 this.showStateList = true;
-            
                 var onlineElement = document.getElementById('online');
                 if(onlineElement != undefined) {
-                    onlineElement.setAttribute("src", '../../../static/Img/personalCenter/online-20px@2x.png')
+                    var onlineImg = "./static/Img/personalCenter/online-20px@2x.png";
+                    onlineElement.setAttribute("src", onlineImg)
                 }
 
                 var offlineElement = document.getElementById('offline');
                 if(offlineElement != undefined) {
-                    offlineElement.setAttribute("src", '../../../static/Img/personalCenter/offline-20px@2x.png')
+                    var offlineImg = "./static/Img/personalCenter/offline-20px@2x.png";
+                    offlineElement.setAttribute("src", offlineImg)
                 }
+
             }
         },
         stateItemClicked:async function(state, index){
@@ -219,7 +221,7 @@ export default {
             if(userIdElement != undefined) {
                 userIdElement.innerHTML = uId;
             }
-
+            
         },
         updateSelfImage: function(e, args) {
             var state = args[0];

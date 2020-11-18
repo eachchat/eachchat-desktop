@@ -36,7 +36,7 @@ import {services, environment} from '../../packages/data/index.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
 import confservice from '../../packages/data/conf_service';
-import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict, getIconPath, getFileSizeByNumber } from '../../packages/core/Utils.js'
+import { FilenameToContentType, strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict, getIconPath, getFileSizeByNumber } from '../../packages/core/Utils.js'
 import * as path from 'path'
 import {UserInfo, Group} from '../../packages/data/sqliteutil.js';
 export default {
@@ -89,7 +89,16 @@ export default {
             }
         },
         getFilePath(item) {
-            return item.path;
+            var imgPath = './static/Img/Chat/unknown@2x.png';
+            var theType = FilenameToContentType(path.basename(item.path));
+
+            if(theType == 'm.image') {
+                imgPath = item.path;
+            }
+            else {
+                imgPath = getIconPath(path.extname(item.path));
+            }
+            return imgPath;
         },
         getSendFileName(item) {
             return item.name;
