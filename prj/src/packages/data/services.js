@@ -2177,6 +2177,7 @@ const common = {
     let updateTime = await Contact.GetMaxUpdateTime();
     let sequenceID = 0;
     let contactModel;
+    let existModel = null;
     while(1){
       result = await this.api.IncrementContact(this.data.login.access_token, updateTime, sequenceID);
       if (!result.ok || !result.success) {
@@ -2188,7 +2189,10 @@ const common = {
         if(item.del == 1)
           continue;
         contactModel = await servicemodels.ContactModel(item);
-        console.log(contactModel)
+        existModel = await Contact.GetContactInfo(contactModel.matrix_id);
+        if(existModel && existModel.avatar_url){
+          contactModel.avatar_url = existModel.avatar_url;
+        }
         await contactModel.save();
       }
       if(!result.data.hasNext)

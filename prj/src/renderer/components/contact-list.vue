@@ -30,7 +30,7 @@
                             @mouseover="OnMouseOver(index)"
                             @mouseleave="OnMouseLeave(index)"
                             :key="index">
-                            <img ondragstart="return false" class="manager-icon" :id="user.matrix_id" src="../../../static/Img/User/user-40px@2x.png">
+                            <img ondragstart="return false" class="manager-icon" :id="SetUserImgID(user.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="contact-list-info">
                                 <p class="contact-list-name">{{ GetDisplayName(user.display_name, user.matrix_id) }}</p>
                                 <p class="contact-list-titile">{{ user.matrix_id }}</p>
@@ -107,6 +107,17 @@ export default {
     computed: {                      
 
     },
+
+    watch:{
+        contactList: function(){
+            this.$nextTick(function(){
+                    this.contactList.forEach((index)=>{
+                        this.getUserImg(index)
+                    })
+                });
+        }
+    },
+
     methods: {
         AddContact: function(){
             this.showChatContactDlg = true;
@@ -212,24 +223,22 @@ export default {
         
         getAppBaseData:async function() {
             this.contactList = await Contact.GetAllContact();
-       },
-        updateUserImage: function(e, args) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            var elementImg = document.getElementById(id);
-            if(elementImg != null){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
-                
-            }
-            
+        },
+
+        SetUserImgID(userID){
+            return userID + 'contactList';
+        },
+
+        getUserImg: function(userinfo) {
+            var elementImg = document.getElementById(userinfo.matrix_id + 'contactList');
+            if(!elementImg)
+                return;
+            let userAvatarUrl = userinfo.avatar_url;
+            if(!userAvatarUrl)
+                return;
+            let validUrl = this.matrixClient.mxcUrlToHttp(userAvatarUrl); 
+            if(validUrl)
+                elementImg.setAttribute("src", validUrl);          
         },
         compare(property){
             return function(a,b){
@@ -242,6 +251,7 @@ export default {
     created: async function() {
         this.services = global.services.common;
         await this.getAppBaseData();
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
 
         var that = this;
         document.addEventListener('click',function(e){

@@ -14,7 +14,7 @@
                         <li class="contact-list-item"
                             v-for="(contact, index) in searchUsers"
                             :key="index">
-                            <img ondragstart="return false" class="contact-list-icon" :id="contact.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                            <img ondragstart="return false" class="contact-list-icon" :id="SetUserImgID(contact.user_id)" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="contact-list-info">
                                 <p class="contact-list-name">{{ contact.display_name }}</p>
                                 <p class="contact-list-titile">{{ contact.user_id }}</p>
@@ -110,7 +110,7 @@ export default {
                 this.bShowSearchRes = true;
                 this.$nextTick(function(){
                     for(var i = 0; i < this.searchUsers.length; i ++){
-                        this.getUserImg(this.searchUsers[i], 'search');
+                        this.getUserImg(this.searchUsers[i], 'addContact');
                     }
                 });
             });
@@ -156,29 +156,25 @@ export default {
             }
             return index;
         },
-        
-        getUserImg: async function (userInfo, key=''){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo == null || userInfo.matrix_id == undefined ) {
-                return "";
-            }
-            var userId = userInfo.matrix_id;
-            var userAvatarUrl = userInfo.avatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(key + userInfo.matrix_id);
+
+        SetUserImgID(userID, type){
+            return userID + 'addContact';
+        },
+
+        getUserImg: async function (userInfo, key='type'){
+            if(!userInfo || !userInfo.user_id)
+                return;
+            
+            var userId = userInfo.user_id;
+            var userAvatarUrl = userInfo.avatar_url;
+            let userIconElement = document.getElementById(userInfo.user_id + 'addContact');
             if(!userIconElement){
                 return;
             }
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }else{
-                this.services.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
+            if(userAvatarUrl)
+            {
+                let validUrl = this.matrixClient.mxcUrlToHttp(userAvatarUrl);
+                userIconElement.setAttribute("src", validUrl);
             }
         },
         
