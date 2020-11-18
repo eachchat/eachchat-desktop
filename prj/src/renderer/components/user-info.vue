@@ -270,13 +270,18 @@ export default {
             return total - count * 36;
         },
         getUserImg: async function (userInfo){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.id == undefined || userInfo.matrix_id == undefined || userInfo == null) {
-                return "";
-            }
-
-            var localPath = confservice.getUserThumbHeadLocalPath(userInfo.id);
             let userIconElement = document.getElementById(this.getUserInfoIconID(userInfo.matrix_id));
+            if(!userIconElement)
+                return;
+            if(this.userType == 'contact'){
+                if(!userInfo.avatar_url)
+                    return;
+                let validUrl = this.matrixClient.mxcUrlToHttp(userInfo.avatar_url);
+                userIconElement.setAttribute("src", validUrl);
+                return;
+            }
+            
+            var localPath = confservice.getUserThumbHeadLocalPath(userInfo.id);
             if(fs.existsSync(localPath)){
                 var showfu = new FileUtil(localPath);
                 let showfileObj = showfu.GetUploadfileobj();
@@ -295,6 +300,8 @@ export default {
     },
     created () {
         this.services = global.services.common;
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+
         if(this.userType == 'contact' )
             this.inputEdit = false;
         var pageWidth = 280;

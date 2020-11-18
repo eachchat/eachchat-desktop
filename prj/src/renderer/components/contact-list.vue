@@ -185,7 +185,7 @@ export default {
                 this.showUserInfoTips = false;
                 return;
             }
-            var iconElement = document.getElementById(id);
+            var iconElement = document.getElementById(id + 'contactList');
             this.userInfoPosition.left = iconElement.getBoundingClientRect().left;
             this.userInfoPosition.top = iconElement.getBoundingClientRect().top;
             console.log(iconElement.getBoundingClientRect());
@@ -201,6 +201,7 @@ export default {
             }
             else
                 department.display_name = user.company
+            tempUserInfo.avatar_url = user.avatar_url;
             tempUserInfo.department = department;
             tempUserInfo.matrix_id = id;
             tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, id);
