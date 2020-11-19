@@ -86,6 +86,7 @@
     "electron-log": "^4.2.4",
     "element-ui": "^2.4.9",
     "karma": "^5.0.9",
+    "lodash": "^4.17.20",
     "matrix-js-sdk": "^8.4.1",
     "mocha": "^8.0.1",
     "mqtt": "^3.0.0",

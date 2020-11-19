@@ -40,6 +40,7 @@
 const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
+import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import { mapState, mapActions } from 'vuex';
 const OPTS = {
     limit: 200,
@@ -67,68 +68,6 @@ export default {
     },
     timer: null,
     methods: {
-        _onAccountData(ev) {
-            const client = window.mxMatrixClientPeg.matrixClient;
-            if (ev.getType() == 'm.direct') {
-                this.mDirectEvent = client.getAccountData('m.direct').getContent() || {};
-                this.userToRooms = null;
-                this.roomToUser = null;
-            }
-        },
-        getDMRoomForIdentifiers(ids) {
-            const client = window.mxMatrixClientPeg.matrixClient;
-            // TODO: [Canonical DMs] Handle lookups for email addresses.
-            // For now we'll pretend we only get user IDs and end up returning nothing for email addresses
-            let commonRooms = this.getDMRoomsForUserId(ids[0]);
-            console.log('---commonRooms ids---', ids);
-            console.log('---commonRooms---', commonRooms);
-            for (let i = 1; i < ids.length; i++) {
-                const userRooms = this.getDMRoomsForUserId(ids[i]);
-                commonRooms = commonRooms.filter(r => userRooms.includes(r));
-            }
-            console.log('---commonRooms 222222222', commonRooms);
-            commonRooms.forEach(c => {
-                console.log('ccccc', c);
-                const room = client.getRoom(c);
-                console.log('叉叉叉', room);
-
-            })
-            const joinedRooms = commonRooms.map(r => client.getRoom(r))
-                .filter(r => r && r.getMyMembership() === 'join');
-            console.log('---joinedRooms---', joinedRooms);   
-            return joinedRooms[0];
-        },
-        getDMRoomsForUserId(userId) {
-            // Here, we return the empty list if there are no rooms,
-            // since the number of conversations you have with this user is zero.
-            console.log('---check getDMRoomsForUserId---', this._getUserToRooms());
-            console.log('---check getDMRoomsForUserId222---', userId);
-
-            return this._getUserToRooms()[userId] || [];
-        },
-         _getUserToRooms() {
-            const client = window.mxMatrixClientPeg.matrixClient;
-            if (!this.userToRooms) {
-                console.log('======++++++++', client.getAccountData)
-                const userToRooms = client.getAccountData('m.direct') ? client.getAccountData('m.direct').getContent() : {};
-                const myUserId = client.getUserId();
-                const selfDMs = userToRooms[myUserId];
-                if (selfDMs && selfDMs.length) {
-                    const neededPatching = this._patchUpSelfDMs(userToRooms);
-                    // to avoid multiple devices fighting to correct
-                    // the account data, only try to send the corrected
-                    // version once.
-                    console.warn(`Invalid m.direct account data detected ` +
-                        `(self-chats that shouldn't be), patching it up.`);
-                    if (neededPatching && !this._hasSentOutPatchDirectAccountDataPatch) {
-                        this._hasSentOutPatchDirectAccountDataPatch = true;
-                        this.matrixClient.setAccountData('m.direct', userToRooms);
-                    }
-                }
-                this.userToRooms = userToRooms;
-            }
-            return this.userToRooms;
-        },
         createDm: function() {
             if (this.loading) return;
             if (!this.choosenMembers || !this.choosenMembers) return;
@@ -136,7 +75,7 @@ export default {
             const client = window.mxMatrixClientPeg.matrixClient;
             
             const targetIds = this.choosenMembers.map(t => t.user_id);
-            const existingRoom = this.getDMRoomForIdentifiers(targetIds);
+            const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
             if (existingRoom) {
                 existingRoom.room_id = existingRoom.roomId
                 const obj = {data: existingRoom, handler: 'viewRoom'};

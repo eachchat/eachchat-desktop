@@ -156,6 +156,7 @@ import userInfoContent from './user-info';
 // import avatarBlock from './avatar.vue';
 import {shell} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
+import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import log from 'electron-log';
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 import {mapState} from 'vuex';
@@ -195,7 +196,7 @@ export default {
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
-        const existingRoom = this.getDMRoomForIdentifiers([this.distUserId]);
+        const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers([this.distUserId]);
         if(existingRoom){
           this.getCreateGroupInfo(existingRoom)
         }
@@ -320,29 +321,6 @@ export default {
     };
   },
   methods: {
-    getDMRoomForIdentifiers(ids) {
-        const client = window.mxMatrixClientPeg.matrixClient;
-        // TODO: [Canonical DMs] Handle lookups for email addresses.
-        // For now we'll pretend we only get user IDs and end up returning nothing for email addresses
-        let commonRooms = global.mxMatrixClientPeg.getDMRoomsForUserId(ids[0]);
-        console.log('---commonRooms ids---', ids);
-        console.log('---commonRooms---', commonRooms);
-        for (let i = 1; i < ids.length; i++) {
-            const userRooms = global.mxMatrixClientPeg.getDMRoomsForUserId(ids[i]);
-            commonRooms = commonRooms.filter(r => userRooms.includes(r));
-        }
-        console.log('---commonRooms 222222222', commonRooms);
-        commonRooms.forEach(c => {
-            console.log('ccccc', c);
-            const room = global.mxMatrixClientPeg.matrixClient.getRoom(c);
-            console.log('叉叉叉', room);
-
-        })
-        const joinedRooms = commonRooms.map(r => global.mxMatrixClientPeg.matrixClient.getRoom(r))
-            .filter(r => r && r.getMyMembership() === 'join');
-        console.log('---joinedRooms---', joinedRooms);   
-        return joinedRooms[0];
-    },
     viewRoom(room) {
       console.log('---new rooms---',  newRooms);
       const newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();

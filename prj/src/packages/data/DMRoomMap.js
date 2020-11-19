@@ -15,9 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {MatrixClientPeg} from '../MatrixClientPeg';
 import _uniq from 'lodash/uniq';
-import {Room} from "matrix-js-sdk/src/matrix";
 
 /**
  * Class that takes a Matrix Client and flips the m.direct map
@@ -48,7 +46,7 @@ export default class DMRoomMap {
      * with shared(). This returned instance is not automatically started.
      */
     static makeShared() {
-        DMRoomMap._sharedInstance = new DMRoomMap(MatrixClientPeg.get());
+        DMRoomMap._sharedInstance = new DMRoomMap(global.mxMatrixClientPeg.matrixClient);
         return DMRoomMap._sharedInstance;
     }
 
@@ -139,7 +137,7 @@ export default class DMRoomMap {
             commonRooms = commonRooms.filter(r => userRooms.includes(r));
         }
 
-        const joinedRooms = commonRooms.map(r => MatrixClientPeg.get().getRoom(r))
+        const joinedRooms = commonRooms.map(r => global.mxMatrixClientPeg.matrixClient.get().getRoom(r))
             .filter(r => r && r.getMyMembership() === 'join');
 
         return joinedRooms[0];
@@ -166,7 +164,7 @@ export default class DMRoomMap {
         }
         return this.roomToUser[roomId];
     }
-
+/*
     getUniqueRoomsWithIndividuals(): {[userId: string]: Room} {
         if (!this.roomToUser) return {}; // No rooms means no map.
         return Object.keys(this.roomToUser)
@@ -174,7 +172,7 @@ export default class DMRoomMap {
             .filter(r => r.userId && r.room && r.room.getInvitedAndJoinedMemberCount() === 2)
             .reduce((obj, r) => (obj[r.userId] = r.room) && obj, {});
     }
-
+*/
     _getUserToRooms() {
         if (!this.userToRooms) {
             const userToRooms = this.mDirectEvent;
