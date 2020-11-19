@@ -71,9 +71,9 @@
                         <Button type="success" id="loginButton" @click="login()">{{$t("login")}}</Button>
                     </div>
                     <div class="otherlogin" v-show="true">
-                        <div class="userphone-login" @click="userPhoneLoginClicked()">
+                        <div class="userphone-login" @click="userPhoneLoginClicked()" v-show="supportUserPhoneLogin">
                             {{$t("loginThroughSMS")}}
-                        </div><div class="useremail-login" @click="userEmailLoginClicked()">
+                        </div><div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin">
                             {{$t("loginThroughEmail")}}
                             </div>
                     </div>
@@ -261,6 +261,22 @@ export default {
         }
     },
     computed:{
+        supportUserPhoneLogin: function() {
+            let supportedType = this.supportedIdentity.map(x => x['type']);
+            console.log("===========supportedtype ", supportedType)
+            if(supportedType.indexOf("m.login.verCode.msisdn") > 0) {
+                return true;
+            }
+            return false;
+        },
+        supportEmailLogin: function() {
+            let supportedType = this.supportedIdentity.map(x => x['type']);
+            console.log("===========supportedtype ", supportedType)
+            if(supportedType.indexOf("m.login.verCode.email") > 0) {
+                return true;
+            }
+            return false;
+        },
         userPhoneSendColor:function(){
             if(this.userPhoneSendCodeTime > 0){
                 return 'rgba(153, 153, 153, 1)';
@@ -330,6 +346,7 @@ export default {
         checkHomeServer: function (){
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             global.mxMatrixClientPeg.checkHomeServer(host).then((flows) => {
+                console.log("matrix get flows is ", flows)
                 this.supportedIdentity = flows;
                 for (let i = 0; i < flows.length; i++ ) {
                     this.resetLoginStateTitle();
@@ -407,7 +424,7 @@ export default {
                 return;
             }
             window.localStorage.setItem("Domain", this.organizationAddress);
-            this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
+            // this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
             
             this.organizationButtonDisabled = false;
             this.resetLoginStateTitle();
@@ -526,7 +543,7 @@ export default {
                 this.loginState = '手机号格式不正确';
                 return;
             }
-            var result = await services.common.MobileCodeLogin(this.username);
+            var result = await global.mxMatrixClientPeg.GetVerCode("msisdn", this.username);
             if(result == true){
                 this.userPhoneSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
@@ -666,54 +683,34 @@ export default {
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
             var identifier = {};
-            if(this.showUsernameLoginView){
-                const isEmail = this.username.indexOf("@") > 0;
-                if(isEmail) {
-                    identifier = {
-                        type: 'm.id.thirdparty',
-                        medium: 'email',
-                        address: this.username,
-                    };
-                }
-                else {
-                    identifier = {
-                        type: 'm.id.user',
-                        user: this.username,
-                    };
-                }
-            }else if(this.showUserphoneLoginView){
-                identifier = {
-                    identityType: 'mobile',
-                    identityValue: this.username,
-                    identityCode: this.password,
-                    model: hostname,
-                    deviceID: mac,
-                    desktopType: version
-                }
-            }else if(this.showUseremailLoginView){
-                identifier = {
-                    identityType: 'email',
-                    identityValue: this.username,
-                    identityCode: this.password,
-                    model: hostname,
-                    deviceID: mac,
-                    desktopType: version
-                }
-            }
-
-            const loginParams = {
-                password: this.password,
-                identifyer: identifier,
-                initial_device_display_name: version,
-            };
             
             var client = undefined;
-            try {
-                client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
-                console.log("===== ", client)
+            if(this.showUserphoneLoginView) {
+                try {
+                    client = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.msisdn", this.username, this.password);
+                    console.log("===== ", client)
+                }
+                catch(e) {
+                    console.log(e)
+                }
             }
-            catch(e) {
-                console.log(e)
+            else if(this.showUseremailLoginView) {
+                try {
+                    client = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
+                    console.log("===== ", client)
+                }
+                catch(e) {
+                    console.log(e)
+                }
+            }
+            else {
+                try {
+                    client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+                    console.log("===== ", client)
+                }
+                catch(e) {
+                    console.log(e)
+                }
             }
             console.log(client);
             if(client.isCryptoEnabled()) {

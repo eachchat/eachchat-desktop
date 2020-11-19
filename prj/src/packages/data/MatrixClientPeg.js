@@ -6,6 +6,7 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
 import {crossSigningCallbacks} from './recoveryKeyCallback.js';
 import {getMatrixDefaultDeviceDisplayName} from '../core/Utils.js';
 import DMRoomMap from './DMRoomMap';
+import { net } from '../core/index.js'
 
 class _MatrixClientPeg{
     constructor(){
@@ -111,11 +112,34 @@ class _MatrixClientPeg{
     }
     
     checkHomeServer(homeserver) {
-        const self = this
         this.CreateClient(homeserver);
-        return this.registrationClient.loginFlows().then(function(result) {
-            self._flows = result.flows;
-            return self._flows;
+        return this.registrationClient.loginFlows().then((result) => {
+          var tls = 1;
+          var hostname = '';
+          var port = '';
+          var hostname_split = '';
+          console.log("======== ", homeserver.indexOf("https://"));
+          if(homeserver.indexOf("https://") >= 0) {
+            hostname = homeserver.split("://")[1];
+            port = 443;
+            if(hostname.indexOf(":") > 0) {
+              hostname_split = hostname.split(":")[0];
+              port = hostname_split[1];
+              hostname = hostname_split[0];
+            }
+          }
+          else if(homeserver.indexOf("http://") >= 0) {
+            hostname = homeserver.split("://")[1];
+            port = 80;
+            if(hostname.indexOf(":") > 0) {
+              hostname_split = hostname.split(":")[0];
+              port = hostname_split[1];
+              hostname = hostname_split[0];
+            }
+          }
+          this.commonApi = new net.HTTP(hostname, port, tls);
+          this._flows = result.flows;
+          return this._flows;
         });
     }
 
@@ -215,18 +239,114 @@ class _MatrixClientPeg{
         return matrixcs.createClient(opts);
     }
     
+    /*
+    {
+      "medium": "email或msisdn，必须"//此处emial和msisdn须为Identity Server上已完成注册，并在HomeServer中与matrixId已完成绑定
+      "address": "手机号码或邮箱地址，必须",
+    }
+    */
+    async GetVerCode(medium, address){
+      let response = await this.commonApi.post(
+        "/_matrix/client/r0/login/getvercode",
+        {
+          medium: medium,
+          address: address
+        });
+      console.log("response is ", response);
+      return this.parseStatus(response);
+    }
+
+    async LoginWithVerCode(checkType, username, password) {
+      let response = null;
+      if(checkType == "m.login.verCode.msisdn") {
+        response = await this.commonApi.post(
+          "/_matrix/client/r0/login",
+          {
+            'type': checkType,
+            'msisdn': username,
+            'ver_code': password
+          });
+      }
+      else if(checkType == "m.login.verCode.email") {
+        response = await this.commonApi.post(
+          "/_matrix/client/r0/login",
+          {
+            type: checkType,
+            email: username,
+            ver_code: password
+          });
+      }
+      else {
+        return "Unknown type";
+      }
+
+      var ret = this.parseStatus(response);
+
+      let ops = {
+          baseUrl: this.homeserve,
+          userId: ret.data.user_id,
+          accessToken: ret.data.access_token,
+          deviceId: ret.data.device_id,
+          cryptoCallbacks: {}
+      }
+      Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
+      this.matrixClient = this._CreateMatrixClient(ops);
+      //await this.matrixClient.startClient();
+      var mDirectEvent = this.matrixClient.getAccountData('m.direct');
+      this.mDirectEvent = mDirectEvent ? mDirectEvent.getContent() : {};
+
+      this._populateRoomToUser();
+      this.matrixClient.on('accountData', this._onAccountData);
+
+      await this.matrixClient.store.startup();
+      await this.matrixClient.initCrypto();
+      return this.matrixClient;
+    }
+
+    parseStatus(response) {
+      if (typeof response != "object") {
+        return response;
+      }
+  
+      Object.defineProperty(response, 'success', {
+        get() {
+          if (!("data" in this)) {
+            return false;
+          }
+  
+          if (!("code" in this.data)) {
+            return false;
+          }
+  
+          if(this.data.code == 401)
+          {
+            ipcRenderer.send('token-expired');
+            if(this.mqtt != undefined)
+            {
+              this.mqtt.close();
+              this.service.logout();
+            }
+          }
+  
+          return this.data.code >= 200 && this.data.code < 300;
+        }
+      });
+  
+      return response;
+    }
+  
     async LoginWithPassword(account, password){
         let userLoginResult = await this.registrationClient.loginWithPassword(
             account,
             password);
-            let ops = {
-                baseUrl: this.homeserve,
-                userId: userLoginResult.user_id,
-                accessToken: userLoginResult.access_token,
-                deviceId: userLoginResult.device_id,
-                cryptoCallbacks: {}
-              }
-            Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
+        let ops = {
+            baseUrl: this.homeserve,
+            userId: userLoginResult.user_id,
+            accessToken: userLoginResult.access_token,
+            deviceId: userLoginResult.device_id,
+            cryptoCallbacks: {}
+          }
+        Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
         DMRoomMap.makeShared().start();
   

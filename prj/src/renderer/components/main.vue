@@ -21,7 +21,7 @@
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
             </div>
-            <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
+            <p :class="getUnreadClass(this.unReadCount)" v-show="false">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
