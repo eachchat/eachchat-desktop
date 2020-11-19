@@ -22,18 +22,6 @@ class _MatrixClientPeg{
         this._onAccountData = this._onAccountData.bind(this);
     }
 
-    _getUserToRooms() {
-      if(!this.userToRooms) {
-        var mDirectEvent = this.matrixClient.getAccountData('m.direct');
-        this.mDirectEvent = this.mDirectEvent ? mDirectEvent.getContent() : {};
-        var userToRooms = this.mDirectEvent;
-        // var myUserId = this.matrixClient.getUserId();
-        // var selfDMs = userToRooms[myUserId];
-        this.userToRooms = userToRooms;
-      }
-      return this.userToRooms;
-    }
-
     _populateRoomToUser() {
       this.roomToUser = {};
       for(var user of Object.keys(this._getUserToRooms())) {
