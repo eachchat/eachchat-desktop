@@ -1478,7 +1478,7 @@ export default {
           return "[邀请]：" + inviteMemer.rawDisplayName;
         }
       };
-      console.log("cur chat group is ", chatGroupItem);
+      // console.log("cur chat group is ", chatGroupItem);
       var distTimeLine = undefined;
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
@@ -1491,7 +1491,7 @@ export default {
         return "收到一条短消息";
       }
       var ret = this.NoticeContent(distTimeLine);
-      console.log("ret is ===== ", ret == '');
+      // console.log("ret is ===== ", ret == '');
       if(ret != '') {
         return ret;
       }
