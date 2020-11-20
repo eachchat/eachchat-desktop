@@ -137,7 +137,7 @@ export default class DMRoomMap {
             commonRooms = commonRooms.filter(r => userRooms.includes(r));
         }
 
-        const joinedRooms = commonRooms.map(r => global.mxMatrixClientPeg.matrixClient.get().getRoom(r))
+        const joinedRooms = commonRooms.map(r => global.mxMatrixClientPeg.matrixClient.getRoom(r))
             .filter(r => r && r.getMyMembership() === 'join');
 
         return joinedRooms[0];

@@ -42,6 +42,9 @@ const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import { mapState, mapActions } from 'vuex';
+import * as Rooms from "../../packages/data/Rooms";
+
+
 const OPTS = {
     limit: 200,
 };
@@ -80,6 +83,7 @@ export default {
                 existingRoom.room_id = existingRoom.roomId
                 const obj = {data: existingRoom, handler: 'viewRoom'};
                 this.$emit('close', obj);
+                return;
             }
 
             const createRoomOptions = {inlineErrors: true};
@@ -384,6 +388,9 @@ export default {
             console.log('---createOpts---', createOpts);
             return client.createRoom(createOpts).then((res) => {
                 console.log('--create success!!--', res);
+                let roomId = res.room_id;
+                if(roomId)
+                    Rooms.setDMRoom(roomId, opts.dmUserId);
                 const obj = {data: res, handler: 'viewRoom'};
                 this.$emit('close', obj);
             })
