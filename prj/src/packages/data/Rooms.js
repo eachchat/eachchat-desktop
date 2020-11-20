@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {MatrixClientPeg} from './MatrixClientPeg';
-
 /**
  * Given a room object, return the alias we should use for it,
  * if any. This could be the canonical alias if one exists, otherwise
@@ -101,7 +99,7 @@ export function guessAndSetDMRoom(room, isDirect) {
     let newTarget;
     if (isDirect) {
         const guessedUserId = guessDMRoomTargetId(
-            room, MatrixClientPeg.get().getUserId(),
+            room, global.mxMatrixClientPeg.matrixClient.getUserId(),
         );
         newTarget = guessedUserId;
     } else {
@@ -120,11 +118,11 @@ export function guessAndSetDMRoom(room, isDirect) {
  * @returns {object} A promise
  */
 export function setDMRoom(roomId, userId) {
-    if (MatrixClientPeg.get().isGuest()) {
+    if (global.mxMatrixClientPeg.matrixClient.isGuest()) {
         return Promise.resolve();
     }
 
-    const mDirectEvent = MatrixClientPeg.get().getAccountData('m.direct');
+    const mDirectEvent = global.mxMatrixClientPeg.matrixClient.getAccountData('m.direct');
     let dmRoomMap = {};
 
     if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
@@ -152,7 +150,7 @@ export function setDMRoom(roomId, userId) {
     }
 
 
-    return MatrixClientPeg.get().setAccountData('m.direct', dmRoomMap);
+    return global.mxMatrixClientPeg.matrixClient.setAccountData('m.direct', dmRoomMap);
 }
 
 /**
