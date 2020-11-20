@@ -291,12 +291,8 @@ class _MatrixClientPeg{
       }
       Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
       this.matrixClient = this._CreateMatrixClient(ops);
-      //await this.matrixClient.startClient();
-      var mDirectEvent = this.matrixClient.getAccountData('m.direct');
-      this.mDirectEvent = mDirectEvent ? mDirectEvent.getContent() : {};
-
-      this._populateRoomToUser();
-      this.matrixClient.on('accountData', this._onAccountData);
+      
+      DMRoomMap.makeShared().start();
 
       await this.matrixClient.store.startup();
       await this.matrixClient.initCrypto();

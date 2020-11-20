@@ -579,7 +579,7 @@ export default {
                 this.loginState = '邮箱格式不正确';
                 return;
             }
-            var result = await services.common.EmailCodeLogin(this.username);
+            var result = await global.mxMatrixClientPeg.GetVerCode("email", this.username);
             if(result == true){
                 this.userEmailSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
