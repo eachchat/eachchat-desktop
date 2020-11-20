@@ -160,6 +160,7 @@ import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import log from 'electron-log';
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 import {mapState} from 'vuex';
+import * as RoomUtil from '../script/room-util';
 
 export default {
   components: {
@@ -200,6 +201,19 @@ export default {
         if(existingRoom){
           this.getCreateGroupInfo(existingRoom)
         }
+        else{
+          const createRoomOptions = {inlineErrors: true};
+          createRoomOptions.dmUserId = targetIds[0];
+          RoomUtil.CreateRoom(createRoomOptions).then((res)=>{
+            let roomId = res.room_id;
+            if(roomId)
+                Rooms.setDMRoom(roomId, targetIds[0]);
+            const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers([targetIds[0]]);
+            if(existingRoom){
+              this.getCreateGroupInfo(existingRoom)
+            }
+          });
+        }
       }
     },
     distGroupId: async function() {
@@ -209,6 +223,7 @@ export default {
         if(distInfo != undefined) {
           this.getCreateGroupInfo(distInfo);
         }
+
       }
     },
     updateImg: async function() {
