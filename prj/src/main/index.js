@@ -926,13 +926,13 @@ ipcMain.on('open-image-dialog', function(event, arg) {
   })
 });
 ipcMain.on('open-image-dialog-avatar', function(event, arg) {
-  dialog.showOpenDialog({
+  dialog.showOpenDialog(mainWindow, {
     properties: [arg, ],
     filters: [
       { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
     ]
-  },function(files) {
-    if(files && files.length > 0) {
+  }).then(files=> {
+    if(files.filePaths && files.filePaths.length > 0) {
       event.sender.send('selectedAvatarImageItem', files);
     }
   })
