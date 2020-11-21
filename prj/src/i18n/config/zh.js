@@ -74,7 +74,18 @@ const zh = {
     historyVisibleToAll: '{senderName}s 设定历史浏览功能为 所有聊天室成员。',
     setHistoryVisibleToAnyone: '{senderName}s 设定历史浏览功能为 任何人。',
     setHistoryVisibleToUnknow: '{senderName}s 设定历史浏览功能为 未知的 ({visibility}s)。',
-
+    ChangePassword: '修改密码',
+    oPwdPlaceHolder: '当前密码',
+    nPwdLabel: '重置密码',
+    nPwdPlaceHolder: '输入密码',
+    cPwdLabel: '确认密码',
+    confirmPwdPlaceHolder: '再次输入密码',
+    NewPasswordsDontMatch: "两次输入的新密码不符",
+    PasswordsCantBeEmpty: "密码不能为空",
+    changePasswordSuc: "密码修改成功",
+    changePasswordAlert: "修改密码会重置所有会话上的端对端加密的密钥，使加密聊天记录不可读，除非您先导出您的聊天室密钥，之后再重新导入。在未来会有所改进。",
+    theAlert: "警告",
+    ExportE2ERoomKeys: "导出聊天室的端到端加密密钥",
 }
 
 export default zh;

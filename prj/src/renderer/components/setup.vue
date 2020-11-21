@@ -44,6 +44,10 @@
                     <label class="device-one-last-login-time">时间：{{timeDeal(deviceItem.loginTime)}}</label>
                 </li>
             </ul>
+            <div class="setup-general-change-password">
+                <label class="setup-general-change-password-label">修改密码</label>
+                <img class="setup-general-change-password-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
+            </div>
             <div class="setup-general-file-location">
                 <label class="setup-general-file-location-label">文件保存位置</label>
                 <div class="setup-general-file-location-input-div" @click="openLocalStorageDir">
@@ -113,6 +117,7 @@
       <div class="certficationBorder" v-show="showCertification">
         <certification :backupInfo="backupInfo" :isLogin="false" id="setupCertificationId" @cancelRecovery="cancelRecovery"></certification>
       </div>
+      <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
     </div>
 </template>
 
@@ -131,6 +136,7 @@ import AlertDlg from './alert-dlg.vue'
 import AnnouncementDlg from './announcement.vue'
 import { Config } from '../../packages/data/sqliteutil.js'
 import certification from './Certificate.vue';
+import ChangePassword from './changePassword.vue';
 // import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 
 export default {
@@ -139,6 +145,7 @@ export default {
     AlertDlg,
     AnnouncementDlg,
     certification,
+    ChangePassword
     // listItem
   },
   props: [],
@@ -165,9 +172,17 @@ export default {
       contentType: '',
       ipcPicInited: false,
       canSelecteFile: true,
+      showChangePassword: false,
     };
   },
   methods: {
+    CloseChangePassword: function() {
+      this.showChangePassword = false;
+    },
+    changePassword: function() {
+      console.log("=============changepassword")
+      this.showChangePassword = true;
+    },
     cancelRecovery: function() {
       this.showCertification = false;
     },
@@ -200,9 +215,9 @@ export default {
     },
     toExport: async function(e, paths) {
       console.log("========= toexport ", paths.filePaths);
-      this.canSelecteFile = true;
-      if(paths.filePaths.length == 0) return;
-      var distPath = paths.filePaths[0];
+      // this.canSelecteFile = true;
+      // if(paths.filePaths.length == 0) return;
+      // var distPath = paths.filePaths[0];
       // Promise.resolve().then(() => {
       //   return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
       //   }).then((k) => {
@@ -405,7 +420,7 @@ export default {
   activated: async function() {
     // this.recentDevice = await services.common.GetRecentDevice();
     this.localStorePath = await confservice.getCurFilesDir();
-    console.log("this.recentdeivce ", this.localStorePath);
+    console.log("this.recentdeivce ", this.recentDevice);
     // console.log("this.localStorePath ", this.localStorePath);
     getdirsize(this.localStorePath, this.updateCacheSize);
   }
@@ -852,6 +867,40 @@ export default {
     height: 20px;
     display: inline-block;
       vertical-align: top;
+  }
+
+  .setup-general-change-password {
+    width:100%;
+    height:48px;
+    font-size: 14px;
+    line-height: 48px;
+    background:rgba(255,255,255,1);
+    display: block;
+    letter-spacing:1px;
+  }
+
+  .setup-general-change-password-label {
+    width:calc(100% - 50px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-general-change-password-ico {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-top: 14px;
+    margin-right: 0px;
+    margin-bottom: 14px;
+    display: inline-block;
+    cursor: pointer;
   }
 
   .setup-general-clear-cache {
