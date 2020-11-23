@@ -1956,6 +1956,111 @@ const common = {
     return result.data.results;
   },
 
+  getHostPortTls(BaseUrl) {
+    if(BaseUrl.endsWith("/")) {
+      BaseUrl = BaseUrl.substring(0, BaseUrl.length - 1);
+    }
+    let IHostTls = 1;
+    let IHost = "";
+    let IHostPort = 443;
+    if(BaseUrl.toLowerCase().indexOf("https://") >= 0) {
+      let IHostTmp = BaseUrl.split("https://")[1];
+      if(IHostTmp.indexOf(":") >= 0) {
+        IHost = IHostTmp.split(":")[0];
+        IHostPort = IHostTmp.split(":")[1];
+      }
+      else {
+        IHost = IHostTmp;
+        IHostPort = 443;
+      }
+      IHostTls = 1;
+    }
+    else if(BaseUrl.toLowerCase().indexOf("http://") >= 0) {
+      let IHostTmp = BaseUrl.split("http://")[1];
+      if(IHostTmp.indexOf(":") >= 0) {
+        IHost = IHostTmp.split(":")[0];
+        IHostPort = IHostTmp.split(":")[1];
+      }
+      else {
+        IHost = IHostTmp;
+        IHostPort = 80;
+      }
+      IHostTls = 0;
+    }
+    else {
+      IHost = BaseUrl;
+      IHostPort = 443;
+    }
+    return [IHost, IHostPort, IHostTls];
+  },
+
+  /*
+    {
+      "m.homeserver": {
+        "base_url": "https://matrix.each.chat/"
+      },
+      "m.identity_server": {
+        "base_url": "http://matrix.each.chat:8090"
+      },
+      "m.appserver": {
+        "base_url": "http://139.198.18.180:8888/"
+      },
+      "m.mqttserver": {
+        "base_url": "tcp://139.198.18.180:1883/"
+      }
+    }
+  */
+  setGmsConfiguration(IServerInfo) {
+    let IHostInfo = IServerInfo['m.identity_server'];
+    let AHostInfo = IServerInfo['m.appserver'];
+    let mqttInfo = IServerInfo['m.mqttserver'];
+
+    let IHostBaseUrl = IHostInfo['base_url'];
+    let AHostBaseUrl = AHostInfo['base_url'];
+    let mqttBaseUrl = mqttInfo['base_url'];
+
+    let IHostTls = 1;
+    let IHost = "";
+    let IHostPort = 443;
+    let AHostTls = 1;
+    let AHost = "";
+    let AHostPort = 443;
+    let mqttTls = 1;
+    let mqtt = "";
+    let mqttPort = 443;
+
+    var Iobj = this.getHostPortTls(IHostBaseUrl);
+    IHost = Iobj[0];
+    IHostPort = Iobj[1];
+    IHostTls = Iobj[2];
+    var Aobj  = this.getHostPortTls(AHostBaseUrl);
+    AHost = Aobj[0];
+    AHostPort = Aobj[1];
+    AHostTls = Aobj[2];
+    var mqttOjb = this.getHostPortTls(mqttBaseUrl);
+    mqtt = mqttOjb[0];
+    mqttPort = mqttOjb[1];
+    mqttTls = mqttOjb[2];
+
+    this.config.hostname = AHost;
+    localStorage.setItem("hostname", this.config.hostname);
+
+    this.config.apiPort = AHostPort;
+    localStorage.setItem("apiPort", this.config.apiPort);
+
+    this.config.hostTls = AHostTls;
+    localStorage.setItem("hostTls", this.config.hostTls);
+
+    this.config.mqttHost = mqtt;
+    localStorage.setItem("mqttHost", this.config.mqttHost);
+
+    this.config.mqttPort = mqttPort;
+    localStorage.setItem("mqttPort", this.config.mqttPort);
+
+    this.config.mqttTls = mqttTls;
+    localStorage.setItem("mqttTls", this.config.mqttTls);
+  },
+
   async gmsConfiguration(domainBase64, host=''){
     // let value = Base64.encode("139.198.15.253", true);
     // this.data.orgValue = value;

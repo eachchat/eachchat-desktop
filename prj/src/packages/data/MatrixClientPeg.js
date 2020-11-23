@@ -110,37 +110,67 @@ class _MatrixClientPeg{
         this.registrationClient = matrixcs.createClient(homeserve);
         console.log(this.registrationClient)
     }
+
+    getHostPortTls(BaseUrl) {
+      let IHostTls = 1;
+      let IHost = "";
+      let IHostPort = 443;
+      if(BaseUrl.toLowerCase().indexOf("https://") >= 0) {
+        let IHostTmp = BaseUrl.split("https://")[1];
+        if(IHostTmp.indexOf(":") >= 0) {
+          IHost = IHostTmp.split(":")[0];
+          IHostPort = IHostTmp.split(":")[1];
+        }
+        else {
+          IHost = IHostTmp;
+          IHostPort = 443;
+        }
+        IHostTls = 1;
+      }
+      else if(BaseUrl.toLowerCase().indexOf("http://") >= 0) {
+        let IHostTmp = BaseUrl.split("http://")[1];
+        if(IHostTmp.indexOf(":") >= 0) {
+          IHost = IHostTmp.split(":")[0];
+          IHostPort = IHostTmp.split(":")[1];
+        }
+        else {
+          IHost = IHostTmp;
+          IHostPort = 80;
+        }
+        IHostTls = 0;
+      }
+      else {
+        IHost = BaseUrl;
+        IHostPort = 443;
+      }
+      return [IHost, IHostPort, IHostTls];
+    }
     
     checkHomeServer(homeserver) {
         this.CreateClient(homeserver);
-        return this.registrationClient.loginFlows().then((result) => {
+        return this.registrationClient.loginFlows().then(async (result) => {
           var tls = 1;
           var hostname = '';
           var port = '';
-          var hostname_split = '';
-          console.log("======== ", homeserver.indexOf("https://"));
-          if(homeserver.indexOf("https://") >= 0) {
-            hostname = homeserver.split("://")[1];
-            port = 443;
-            if(hostname.indexOf(":") > 0) {
-              hostname_split = hostname.split(":")[0];
-              port = hostname_split[1];
-              hostname = hostname_split[0];
-            }
-          }
-          else if(homeserver.indexOf("http://") >= 0) {
-            hostname = homeserver.split("://")[1];
-            port = 80;
-            if(hostname.indexOf(":") > 0) {
-              hostname_split = hostname.split(":")[0];
-              port = hostname_split[1];
-              hostname = hostname_split[0];
-            }
-          }
+          var obj = this.getHostPortTls(homeserver);
+          hostname = obj[0];
+          port = obj[1];
+          tls = obj[2];
           this.commonApi = new net.HTTP(hostname, port, tls);
+          
           this._flows = result.flows;
           return this._flows;
         });
+    }
+
+    async getAppServerInfo() {
+      let response = null;
+
+      response = await this.commonApi.get(
+        "/.well-known/matrix/client");
+
+      var ret = this.parseStatus(response);
+      return ret;
     }
 
     logout() {
@@ -259,13 +289,18 @@ class _MatrixClientPeg{
     async LoginWithVerCode(checkType, username, password) {
       let response = null;
       if(checkType == "m.login.verCode.msisdn") {
-        response = await this.commonApi.post(
-          "/_matrix/client/r0/login",
-          {
-            'type': checkType,
-            'msisdn': username,
-            'ver_code': password
-          });
+        try{
+          response = await this.commonApi.post(
+            "/_matrix/client/r0/login",
+            {
+              'type': checkType,
+              'msisdn': username,
+              'ver_code': password
+            });
+        }
+        catch(e) {
+          console.log(e.message);
+        }
       }
       else if(checkType == "m.login.verCode.email") {
         response = await this.commonApi.post(
@@ -281,12 +316,15 @@ class _MatrixClientPeg{
       }
 
       var ret = this.parseStatus(response);
+      return ret;
+    }
 
+    async verCodeLoginMatrixClient(matrixInfo) {
       let ops = {
           baseUrl: this.homeserve,
-          userId: ret.data.user_id,
-          accessToken: ret.data.access_token,
-          deviceId: ret.data.device_id,
+          userId: matrixInfo.data.user_id,
+          accessToken: matrixInfo.data.access_token,
+          deviceId: matrixInfo.data.device_id,
           cryptoCallbacks: {}
       }
       Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
