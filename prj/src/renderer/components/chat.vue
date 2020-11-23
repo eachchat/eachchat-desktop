@@ -1088,13 +1088,12 @@ export default {
             groupNameElement.innerHTML = groupName;
             groupContentNumElement.innerHTML = '';
 
-            var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
-            if(distUrl == null || distUrl == '') {
-                // distUrl = "../../../static/Img/User/group-40px@2x.png"
+            this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
+            if(!this.distUrl || this.distUrl == '') {
                 return;
             }
-            if(groupIcoElement != undefined && distUrl) {
-              groupIcoElement.setAttribute("src", distUrl);
+            if(groupIcoElement != undefined && this.distUrl) {
+              groupIcoElement.setAttribute("src", this.distUrl);
             }
             // var targetPath = "";
             // var distId = "";
@@ -2361,7 +2360,7 @@ s        },
                 "memberList": idsList,
                 "groupName": name, //this.chat.group_name,
                 "groupTopic": topic,
-                "groupAvarar": '', //this.chat.group_avarar,
+                "groupAvarar": this.distUrl, //this.chat.group_avarar,
                 "groupNotice": this.chat.group_notice != undefined ? this.chat.group_notice : '',
                 "groupId": this.chat.roomId, //this.chat.group_id,
                 "isGroup": true, //isGroup,

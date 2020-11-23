@@ -307,6 +307,12 @@ const UserInfo = {
             return userinfos[0];
         return undefined;
     },
+
+    async GetUserInfos(matrixIDArray){
+        return await(await models.UserInfo).find({
+            matrix_id: matrixIDArray
+        });
+    },
     
     async GetUserAddress(userID){
         let address = await(await models.UserAddress).find({
