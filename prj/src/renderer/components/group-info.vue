@@ -111,7 +111,12 @@ import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
 import { UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
+import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js";
 
+// export const ALL_MESSAGES_LOUD = 'all_messages_loud';
+// export const ALL_MESSAGES = 'all_messages';
+// export const MENTIONS_ONLY = 'mentions_only';
+// export const MUTE = 'mute';
 export default {
     name: 'group-info',
     data() {
@@ -148,7 +153,7 @@ export default {
             cursorX: 0,
             cursorY: 0,
             //matrix data
-            mxMute: 0,
+            mxMute: false,
             mxMembers: [],
         }
     },
@@ -246,85 +251,14 @@ export default {
         },
         mxMuteChange: function(mxMute) {
             console.log('---mxMuteChange---', this.mxMute);
-            // if (mxMute) { // set mute
-            //     const cli = window.mxMatrixClientPeg.matrixClient;
-            //     const promises = [];
-            //     const roomId = this.showGroupInfo.groupId;
-            //     const roomRule = cli.getRoomPushRule('global', roomId);
-            //     if (roomRule) {
-            //         promises.push(cli.deletePushRule('global', 'room', roomRule.rule_id));
-            //     }
-
-            //     // add/replace an override rule to squelch everything in this room
-            //     // NB. We use the room ID as the name of this rule too, although this
-            //     // is an override rule, not a room rule: it still pertains to this room
-            //     // though, so using the room ID as the rule ID is logical and prevents
-            //     // duplicate copies of the rule.
-            //     promises.push(cli.addPushRule('global', 'override', roomId, {
-            //         conditions: [
-            //             {
-            //                 kind: 'event_match',
-            //                 key: 'room_id',
-            //                 pattern: roomId,
-            //             },
-            //         ],
-            //         actions: [
-            //             'dont_notify',
-            //         ],
-            //     }));
-            //     console.log('--set mute!!--')
-            //     return Promise.all(promises);
-            // } else { //set unmute
-
-            // }
+            const roomId = this.showGroupInfo.groupId;
+            const newState = this.mxMute ? MUTE : ALL_MESSAGES;
+            console.log('---newState---', newState);
+            setRoomNotifsState(roomId, newState);
         },
-        getRoomNotifsState: function(roomId) { //message setting relevant
-            if (window.mxMatrixClientPeg.matrixClient.isGuest()) {
-                console.log('---isGuest MUTE---');              
-                this.mxMute = 1; 
-                return 'ALL_MESSAGES';
-            }
-            // look through the override rules for a rule affecting this room:
-            // if one exists, it will take precedence.
-            const muteRule = this.findOverrideMuteRule(roomId);
-            if (muteRule) {
-                console.log('---MUTE---');              
-                this.mxMute = 0;
-                return 'MUTE';
-            }
-            // for everything else, look at the room rule.
-            let roomRule = null;
-            try {
-                roomRule = window.mxMatrixClientPeg.matrixClient.getRoomPushRule('global', roomId);
-                console.log('?????>>?>?>>?>?', roomRule);
-            } catch (err) {
-                // Possible that the client doesn't have pushRules yet. If so, it
-                // hasn't started eiher, so indicate that this room is not notifying.
-                console.log('----err return----', err);
-                return null;
-            }
-            console.log('----roomRule----', roomRule);
-            // XXX: We have to assume the default is to notify for all messages
-            // (in particular this will be 'wrong' for one to one rooms because
-            // they will notify loudly for all messages)
-            if (!roomRule || !roomRule.enabled) {
-                console.log('---ALL_MESSAGES---');
-                this.mxMute = 1;
-                return 'ALL_MESSAGES';
-            }
-            // a mute at the room level will still allow mentions
-            // to notify
-            if (this.isMuteRule(roomRule)) {
-                console.log('---MENTIONS_ONLY---');
-                this.mxMute = 1; 
-                return 'MENTIONS_ONLY'; 
-            }
-
-            console.log('---just return---')
-            // const actionsObject = PushProcessor.actionListToActionsObject(roomRule.actions);
-            // if (actionsObject.tweaks.sound) return ALL_MESSAGES_LOUD;
-
-            return null;
+        getRoomNotifs: function(roomId) {
+            const state = getRoomNotifsState(roomId);
+            this.mxMute = state == MUTE;
         },
         findOverrideMuteRule: function(roomId) { //message setting relevant
             if (!window.mxMatrixClientPeg.matrixClient.pushRules ||
@@ -736,6 +670,8 @@ export default {
         // this.curUserInfo = await services.common.GetSelfUserModel();
     },
     mounted() {
+        const roomId = this.showGroupInfo.groupId;
+        this.getRoomNotifs(roomId);
         this.mxGetMembers();
         setTimeout(() => {
             this.$nextTick(() => {

@@ -16,7 +16,7 @@ limitations under the License.
 */
 
 import {MatrixClientPeg} from './MatrixClientPeg';
-import {PushProcessor} from 'matrix-js-sdk/src/pushprocessor';
+// import {PushProcessor} from 'matrix-js-sdk/src/pushprocessor';
 
 export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 export const ALL_MESSAGES = 'all_messages';
@@ -67,7 +67,7 @@ export function getRoomHasBadge(room) {
 }
 
 export function getRoomNotifsState(roomId) {
-    if (MatrixClientPeg.get().isGuest()) return ALL_MESSAGES;
+    if (MatrixClientPeg.matrixClient.isGuest()) return ALL_MESSAGES;
 
     // look through the override rules for a rule affecting this room:
     // if one exists, it will take precedence.
@@ -79,7 +79,7 @@ export function getRoomNotifsState(roomId) {
     // for everything else, look at the room rule.
     let roomRule = null;
     try {
-        roomRule = MatrixClientPeg.get().getRoomPushRule('global', roomId);
+        roomRule = MatrixClientPeg.matrixClient.getRoomPushRule('global', roomId);
     } catch (err) {
         // Possible that the client doesn't have pushRules yet. If so, it
         // hasn't started eiher, so indicate that this room is not notifying.
@@ -95,8 +95,8 @@ export function getRoomNotifsState(roomId) {
     // to notify
     if (isMuteRule(roomRule)) return MENTIONS_ONLY;
 
-    const actionsObject = PushProcessor.actionListToActionsObject(roomRule.actions);
-    if (actionsObject.tweaks.sound) return ALL_MESSAGES_LOUD;
+    // const actionsObject = PushProcessor.actionListToActionsObject(roomRule.actions);
+    // if (actionsObject.tweaks.sound) return ALL_MESSAGES_LOUD;
 
     return null;
 }
@@ -118,7 +118,7 @@ export function getUnreadNotificationCount(room, type=null) {
     const createEvent = room.currentState.getStateEvents("m.room.create", "");
     if (createEvent && createEvent.getContent()['predecessor']) {
         const oldRoomId = createEvent.getContent()['predecessor']['room_id'];
-        const oldRoom = MatrixClientPeg.get().getRoom(oldRoomId);
+        const oldRoom = MatrixClientPeg.matrixClient.getRoom(oldRoomId);
         if (oldRoom) {
             // We only ever care if there's highlights in the old room. No point in
             // notifying the user for unread messages because they would have extreme
@@ -132,7 +132,7 @@ export function getUnreadNotificationCount(room, type=null) {
 }
 
 function setRoomNotifsStateMuted(roomId) {
-    const cli = MatrixClientPeg.get();
+    const cli = MatrixClientPeg.matrixClient;
     const promises = [];
 
     // delete the room rule
@@ -158,12 +158,11 @@ function setRoomNotifsStateMuted(roomId) {
             'dont_notify',
         ],
     }));
-
     return Promise.all(promises);
 }
 
 function setRoomNotifsStateUnmuted(roomId, newState) {
-    const cli = MatrixClientPeg.get();
+    const cli = MatrixClientPeg.matrixClient;
     const promises = [];
 
     const overrideMuteRule = findOverrideMuteRule(roomId);
@@ -202,12 +201,12 @@ function setRoomNotifsStateUnmuted(roomId, newState) {
 }
 
 function findOverrideMuteRule(roomId) {
-    if (!MatrixClientPeg.get().pushRules ||
-        !MatrixClientPeg.get().pushRules['global'] ||
-        !MatrixClientPeg.get().pushRules['global'].override) {
+    if (!MatrixClientPeg.matrixClient.pushRules ||
+        !MatrixClientPeg.matrixClient.pushRules['global'] ||
+        !MatrixClientPeg.matrixClient.pushRules['global'].override) {
         return null;
     }
-    for (const rule of MatrixClientPeg.get().pushRules['global'].override) {
+    for (const rule of MatrixClientPeg.matrixClient.pushRules['global'].override) {
         if (isRuleForRoom(roomId, rule)) {
             if (isMuteRule(rule) && rule.enabled) {
                 return rule;
