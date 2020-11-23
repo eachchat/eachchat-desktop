@@ -657,6 +657,7 @@ export default {
         box-sizing: border-box;
         padding: 0 16px;
         margin-top: 16px;
+        line-height: 32px;
     }
     .room-img {
         height: 32px;

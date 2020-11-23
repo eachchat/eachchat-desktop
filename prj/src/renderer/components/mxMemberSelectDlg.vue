@@ -14,12 +14,15 @@
                         <input @input="searchMember" v-model="memberText" class="search-input" type="text" placeholder="搜索备注名，用户名，姓名或者matrix ID">
                     </div> <!--search input-->
                     <div class="member-list">
-                        <div v-for="item in searchResult" :key="item.user_id" class="member-item">
-                            <input type="checkbox" v-model="item.checked" @change="chooseMember(item)">
-                            <img :src="item.avatar_url" >
-                            <div class="member-info">
-                                <div>{{item.display_name}}</div>
-                                <div>{{item.user_id}}</div>
+                        <div v-for="(item, idx) in searchResult" :key="idx">
+                            <div v-if="item.dvd" class="dvd">{{item.txt}}</div>
+                            <div v-else class="member-item">
+                                <input type="checkbox" v-model="item.checked" @change="chooseMember(item)" style="margin:4px">
+                                <img :src="item.avatar_url" >
+                                <div class="member-info">
+                                    <div>{{item.display_name}}</div>
+                                    <div>{{item.user_id}}</div>
+                                </div>
                             </div>
                         </div>
                     </div> <!--member list-->
@@ -51,6 +54,7 @@ const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
+import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 export default {
     name: 'mxMemberSelectDlg',
     props: ['roomId'],
@@ -151,35 +155,99 @@ export default {
         },
         searchMember: function() {
             const term = this.memberText;
-            if (this.timer) clearTimeout(this.timer);
             const vtx = this;
             const client = window.mxMatrixClientPeg.matrixClient;
-            this.timer = setTimeout(() => {
-                if (!term) return vtx.searchResult = [];
-                client.searchUserDirectory({term}).then((res)=>{
-                    console.log('----search result----', res)
-                    let members = [];
-                    if (res.results && res.results.length) {
-                        members = res.results.map(r => {
-                            r.checked = false;
-                            r.avatar_url = client.mxcUrlToHttp(r.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
-                            return r;
-                        })
-                    }
-                    console.log('----result members----', members);
-                    vtx.searchResult = [...members];
+            if (this.timer) clearTimeout(this.timer);
+            this.timer = setTimeout(async ()=>{
+                const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
+                const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
+                const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
+                // console.log('----searchUsers----', searchUsers);
+                // console.log('----searchContacts----', searchContacts);
+                // console.log('----res----', res);
+                let sus = [];
+                sus.push({dvd:true, txt:'组织人员'})
+                searchUsers.forEach(c => {
+                    //avatar_url
+                    //display_name
+                    //user_id
+                    let u = {}
+                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.display_name || c.user_name || '';
+                    u.user_id = c.matrix_id || '';
+                    c.choosen = false;
+                    sus.push(u);
                 })
-            }, 320);
+                let scs = [];
+                scs.push({dvd:true, txt:'我的联系人'})
+                searchContacts.forEach(c => {
+                    let u = {}
+                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.display_name || c.user_name || '';
+                    u.user_id = c.matrix_id || '';
+                    c.choosen = false;
+                    scs.push(u);
+                })
+                let mxs = [];
+                mxs.push({dvd:true, txt:'其他联系人'})
+                let results = res.results || [];
+                results.forEach(c => {
+                    c.choosen = false; 
+                    c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                    mxs.push(c);
+                })
+                const totalArray = [...sus, ...scs, ...mxs];
+                console.log('----totalArray----', totalArray);
+                vtx.searchResult = [...totalArray];
+                // client.searchUserDirectory({term}).then(r => {
+                //     console.log('searchUserDirectory', r)
+                //     if (r.results) {
+                //         const results = r.results.map(res => {
+                //             res.choosen = false; 
+                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                //             return res
+                //         })
+                //         this.searchedMembers = [...results];
+                //     }
+                // }).catch(e => {
+                //     alert('服务异常');
+                //     console.error('异常', e);
+                // })
+            },320)
+            // this.timer = setTimeout(() => {
+            //     if (!term) return vtx.searchResult = [];
+            //     client.searchUserDirectory({term}).then((res)=>{
+            //         console.log('----search result----', res)
+            //         let members = [];
+            //         if (res.results && res.results.length) {
+            //             members = res.results.map(r => {
+            //                 r.checked = false;
+            //                 r.avatar_url = client.mxcUrlToHttp(r.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+            //                 return r;
+            //             })
+            //         }
+            //         console.log('----result members----', members);
+            //         vtx.searchResult = [...members];
+            //     })
+            // }, 320);
         },
         chooseMember: function(item) {
             console.log('check checkbox', item)
             let choosenMember = this.choosenMember;
+            let searchResult = this.searchResult;
             if (item.checked) {
                 choosenMember.push(item);
+                searchResult.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = true;
+                })
             } else {
                 choosenMember = choosenMember.filter(c => c.user_id != item.user_id)
+                searchResult.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = false;
+                })
             }
             this.choosenMember = [...choosenMember];
+            this.searchResult = [...searchResult];
         }
     },
     components: {
@@ -455,5 +523,16 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+    .dvd {
+        font-size: 12px;
+        height: 32px;
+        color: #666666;
+        background-color: #F7F8FA;
+        box-sizing: border-box;
+        padding: 0 16px;
+        padding-left: 4px;
+        margin-top: 16px;
+        line-height: 32px;
     }
 </style>
