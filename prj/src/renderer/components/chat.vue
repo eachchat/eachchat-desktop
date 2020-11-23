@@ -11,7 +11,7 @@
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
                 </div>
-                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()" v-show="!isSecret">
+                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
                 </div>
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
@@ -29,7 +29,7 @@
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)"
                         @contextmenu="rightClick($event, item)"
-                        v-bind:key="ChatMessageId(item)">
+                        v-bind:key="ChatMessageId(item)" v-show="!isDeleted(item)">
                         <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
@@ -48,13 +48,13 @@
                         </div>
                         <div class="chat-input-file" @click="insertFiles()">
                         </div>
-                        <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()">
+                        <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()" v-show="!isSecret">
                         </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
                     </div>
-                    <div class="chat-send" @click="sendMsg()" v-show="false">
+                    <div class="chat-send" v-show="false">
                         <i class="el-icon-s-promotion"></i>
                     </div>
                 </div>
@@ -265,6 +265,9 @@ export default {
         Invite
     },
     methods: {
+        isDeleted: function(msgItem) {
+            return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
+        },
         joinRoom: function() {
             global.mxMatrixClientPeg.matrixClient.joinRoom(this.chat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
@@ -382,7 +385,7 @@ export default {
             ipcRenderer.send("fileListDlg-min");
         },
         showHistoryMsgList: function() {
-            ipcRenderer.send("showAnotherWindow", this.chat.group_id, "historyMsgList");
+            ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
         },
         showFileList: function() {
             console.log("showfilelist");
@@ -439,20 +442,22 @@ export default {
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
             }
-            var isSecret = false;
-            if(msgItem.key_id != undefined && msgItem.key_id.length != 0) {
-                isSecret = true;
-            }
-
+            var content = msgItem.getContent();
             this.menu = new Menu();
-            if(content.msgtype == "m.text") {
+            if(content.msgtype == 'm.text') {
                 this.menu.append(new MenuItem({
                     label: "复制",
                     click: () => {
                         this.menuCopy(msgItem)
                     }
                 }));
-                if(!isSecret) {
+                this.menu.append(new MenuItem({
+                    label: "引用",
+                    click: () => {
+                        this.menuQuote(msgItem)
+                    }
+                }));
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -474,7 +479,7 @@ export default {
                         this.menuDelete(msgItem)
                     }
                 }));
-                if(!isSecret) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -484,7 +489,7 @@ export default {
                 }
             }
             else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
-                if(!isSecret) {
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -506,7 +511,7 @@ export default {
                         this.menuDelete(msgItem)
                     }
                 }));
-                if(!isSecret) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -522,7 +527,7 @@ export default {
                 }));
             }
             else if(msgItem.message_type == 105) {
-                if(!isSecret) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
@@ -536,7 +541,7 @@ export default {
                         this.menuDelete(msgItem)
                     }
                 }));
-                if(!isSecret) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -546,7 +551,7 @@ export default {
                 }
             }
             else if(msgItem.message_type == 106) {
-                if(!isSecret) {
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -560,7 +565,7 @@ export default {
                         this.menuDelete(msgItem)
                     }
                 }));
-                if(!isSecret) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -573,38 +578,24 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            Message.DeleteMessage(msg.message_id);
-            for(let i=0;i<this.messageList.length;i++) {
-                if(this.messageList[i].sequence_id == msg.sequence_id) {
-                    this.messageList.splice(i, 1);
-                    break;
-                }
-            }
+            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event_id);
+        },
+        menuQuote(msg) {
+            var msgContent = msg.getContent();
+            var text = msgContent.body;
+            var sender = msg.sender.name;
+            var quoteText = '「' + sender + ':' + text + '」' + "<br>- - - - - - - - - - - - - - -";
+            this.content = quoteText + this.content;
+            console.log("this.curontent is ", this.content);
+            this.editor.setContents(this.content);
+            this.$nextTick(() => {
+                this.editor.insertText(this.content.length, '\n');
+                this.editor.setSelection(this.content.length + 1);
+            })
         },
         menuCopy(msg) {
-            var msgContent = strMsgContentToJson(msg.message_content);
-            if(msg.message_type == 101) {
-                clipboard.writeText(msgContent.text);
-            }
-            else if(msg.message_type == 102) {
-                var div = document.getElementById(msg.message_id);
-                var selection = window.getSelection();
-                var range = document.createRange();
-                range.selectNode(div);
-                selection.removeAllRanges();
-                selection.addRange(range);
-                document.execCommand('copy');
-                selection.removeAllRanges();
-                // div.contentEditable = 'true';
-                // var controlRange;
-                // if(document.body.createControlRange) {
-                //     controlRange = document.body.createControlRange();
-                //     controlRange.addElement(div);
-                //     console.log("controlRange is ", controlRange);
-                //     controlRange.execCommand('Copy');
-                // }
-                // div.contentEditable = 'false';
-            }
+            var msgContent = msg.getContent();
+            clipboard.writeText(msgContent.body);
         },
         async transmitFromSoloDlg(e, args) {
             var transmitInfoStr = args;
@@ -1086,7 +1077,8 @@ export default {
             console.log("getShowGroupName is ", chatGroupItem)
             var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
-            groupContentNumElement.innerHTML = '';
+            var totalMemberCount = chatGroupItem.currentState.getJoinedMemberCount() + chatGroupItem.currentState.getInvitedMemberCount();
+            groupContentNumElement.innerHTML = totalMemberCount;
 
             this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
             if(!this.distUrl || this.distUrl == '') {
@@ -2832,7 +2824,7 @@ s        },
             global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
             global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
             console.log("this._timelinewindow is ", this._timelineWindow)
-            this.isSecret = false;
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
             this.needScrollTop = true;
             this.needScrollBottom = true;
             this.existingMsgId = [];
