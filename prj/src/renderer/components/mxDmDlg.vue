@@ -15,15 +15,20 @@
                 <div class="room-list">
                     <div 
                         v-for="(item, idx) in searchedMembers" 
-                        :key="item.user_id" 
-                        class="room-item" 
-                        @click.stop="choose(item, idx)"
-                        :style="{'background': item.choosen ? '#A7E0C4':'#fff'}"
-                    >
-                        <img class="room-img" :src="item.avatar_url"/>
-                        <div class="user-info">
-                            <span class="room-info">{{item.display_name}}</span>
-                            <span class="room-info" style="font-size:12px; color:#999999">{{item.user_id}}</span>
+                        :key="idx"
+                    >   
+                        <div v-if="item.dvd" class="dvd">{{item.txt}}</div>
+                        <div 
+                            class="room-item"
+                            @click.stop="choose(item, idx)"
+                            :style="{'background': item.choosen ? '#A7E0C4':'#fff'}" 
+                            v-else
+                        >
+                            <img class="room-img" :src="item.avatar_url"/>
+                            <div class="user-info">
+                                <span class="room-info">{{item.display_name}}</span>
+                                <span class="room-info" style="font-size:12px; color:#999999">{{item.user_id}}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -43,6 +48,7 @@ import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import { mapState, mapActions } from 'vuex';
 import * as Rooms from "../../packages/data/Rooms";
 import * as RoomUtil from '../script/room-util';
+import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 
 const OPTS = {
     limit: 200,
@@ -78,6 +84,7 @@ export default {
             
             const targetIds = this.choosenMembers.map(t => t.user_id);
             const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
+            console.log('------existingRoom------', existingRoom);
             if (existingRoom) {
                 existingRoom.room_id = existingRoom.roomId
                 const obj = {data: existingRoom, handler: 'viewRoom'};
@@ -235,21 +242,61 @@ export default {
             const term = this.memText;
             const client = window.mxMatrixClientPeg.matrixClient;
             if (this.timer) clearTimeout(this.timer);
-            this.timer = setTimeout(()=>{
-                client.searchUserDirectory({term}).then(r => {
-                    console.log('searchUserDirectory', r)
-                    if (r.results) {
-                        const results = r.results.map(res => {
-                            res.choosen = false; 
-                            res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
-                            return res
-                        })
-                        this.searchedMembers = [...results];
-                    }
-                }).catch(e => {
-                    alert('服务异常');
-                    console.error('异常', e);
+            this.timer = setTimeout(async ()=>{
+                const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
+                const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
+                const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
+                // console.log('----searchUsers----', searchUsers);
+                // console.log('----searchContacts----', searchContacts);
+                // console.log('----res----', res);
+                let sus = [];
+                sus.push({dvd:true, txt:'组织人员'})
+                searchUsers.forEach(c => {
+                    //avatar_url
+                    //display_name
+                    //user_id
+                    let u = {}
+                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.display_name || c.user_name || '';
+                    u.user_id = c.matrix_id || '';
+                    c.choosen = false;
+                    sus.push(u);
                 })
+                let scs = [];
+                scs.push({dvd:true, txt:'我的联系人'})
+                searchContacts.forEach(c => {
+                    let u = {}
+                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.display_name || c.user_name || '';
+                    u.user_id = c.matrix_id || '';
+                    c.choosen = false;
+                    scs.push(u);
+                })
+                let mxs = [];
+                mxs.push({dvd:true, txt:'其他联系人'})
+                let results = res.results || [];
+                results.forEach(c => {
+                    c.choosen = false; 
+                    c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                    mxs.push(c);
+                })
+                const totalArray = [...sus, ...scs, ...mxs];
+                console.log('----totalArray----', totalArray);
+                this.searchedMembers = [...totalArray];
+                // client.searchUserDirectory({term}).then(r => {
+                //     console.log('searchUserDirectory', r)
+                //     if (r.results) {
+                //         const results = r.results.map(res => {
+                //             res.choosen = false; 
+                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                //             return res
+                //         })
+                //         this.searchedMembers = [...results];
+                //     }
+                // }).catch(e => {
+                //     alert('服务异常');
+                //     console.error('异常', e);
+                // })
             },320)
         },
         close: function(room) {
@@ -434,9 +481,11 @@ export default {
     }
     .room-list {
         flex: 1;
-        margin: 12px 16px;
+        margin: 12px 0;
         box-sizing: border-box;
         overflow-y: scroll;
+        background-color: transparent;
+        margin-top: 0;
     }
     .search-logo {
         height: 32px;
@@ -460,6 +509,7 @@ export default {
         margin: 12px 16px;
         border-radius: 2px;
         border: 1px solid #DDDDDD;
+        margin-bottom: 0;
     }
     .wrap-layer {
         height: 100%;
@@ -595,6 +645,18 @@ export default {
         box-sizing: border-box;
         background-color: #fff;
         width: 100%;
+        box-sizing: border-box;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .dvd {
+        font-size: 12px;
+        height: 32px;
+        color: #666666;
+        background-color: #F7F8FA;
+        box-sizing: border-box;
+        padding: 0 16px;
+        margin-top: 16px;
     }
     .room-img {
         height: 32px;
