@@ -451,7 +451,13 @@ export default {
                         this.menuCopy(msgItem)
                     }
                 }));
-                if(!this.isSecret) {
+                this.menu.append(new MenuItem({
+                    label: "引用",
+                    click: () => {
+                        this.menuQuote(msgItem)
+                    }
+                }));
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -483,7 +489,7 @@ export default {
                 }
             }
             else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
-                if(!this.isSecret) {
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -545,7 +551,7 @@ export default {
                 }
             }
             else if(msgItem.message_type == 106) {
-                if(!this.isSecret) {
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -573,6 +579,19 @@ export default {
         },
         menuDelete(msg) {
             global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event_id);
+        },
+        menuQuote(msg) {
+            var msgContent = msg.getContent();
+            var text = msgContent.body;
+            var sender = msg.sender.name;
+            var quoteText = '「' + sender + ':' + text + '」' + "<br>- - - - - - - - - - - - - - -";
+            this.content = quoteText + this.content;
+            console.log("this.curontent is ", this.content);
+            this.editor.setContents(this.content);
+            this.$nextTick(() => {
+                this.editor.insertText(this.content.length, '\n');
+                this.editor.setSelection(this.content.length + 1);
+            })
         },
         menuCopy(msg) {
             var msgContent = msg.getContent();
