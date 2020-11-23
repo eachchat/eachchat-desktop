@@ -248,7 +248,11 @@ class Sql {
       }
 
       if (item[2] instanceof Array) {
-        item[2] = "(" + item[2].join(", ") + ")";
+        var whereIn = "('";
+        whereIn += item[2].join("', '");
+        whereIn += "')";
+
+        item[2] = whereIn;
 
       } else if (typeof item[2] == "string") {
         item[2] = "'" + item[2] + "'";

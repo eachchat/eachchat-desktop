@@ -33,11 +33,12 @@
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
+                    <i class="el-icon-loading" v-show="isLoading"></i>
                 </div>
                 <div class="btn-item">
                     <Button type="success" v-show="showOrganizationViewHost" @click="hostConfirmButtonClicked()">确定</Button>
                     <Button type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
-                    <Button type="success" v-show="showOrganizationViewOrganization" @click="organizationConfirmButtonClicked()">确定</Button>
+                    <Button class="organizationConfirm" type="success" v-show="showOrganizationViewOrganization" :disabled="organizationButtonDisabled" @click="organizationConfirmButtonClicked()">{{$t("confirm")}}</Button>
                 </div>
                 <div class="organization-finder-tip" v-show="false">
                     <p class="forget-title">{{$t("forgetOrganization")}}</p><p
@@ -66,9 +67,10 @@
                     </div>
                     <div class="accountLogin-state">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                            <i class="el-icon-loading" v-show="isLoading"></i>
                     </div>
                     <div class="btn item">
-                        <Button type="success" id="loginButton" @click="login()">{{$t("login")}}</Button>
+                        <Button :disabled="loginButtonDisabled" type="success" id="loginButton" @click="login()">{{$t("login")}}</Button>
                     </div>
                     <div class="otherlogin" v-show="true">
                         <div class="userphone-login" @click="userPhoneLoginClicked()" v-show="supportUserPhoneLogin">
@@ -103,6 +105,7 @@
                     </div>
                     <div class="accountLogin-state">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                            <i class="el-icon-loading" v-show="isLoading"></i>
                     </div>
                     <div class="btn item">
                         <Button type="success" id="loginButton" @click="login()">登录</Button>
@@ -134,6 +137,7 @@
                     </div>
                     <div class="accountLogin-state">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                            <i class="el-icon-loading" v-show="isLoading"></i>
                     </div>
                     <div class="btn item">
                         <Button type="success" id="loginButton" @click="login()">登录</Button>
@@ -166,6 +170,7 @@
                 </div>
                 <div class="organizationFinder-state">
                     <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                    <i class="el-icon-loading" v-show="isLoading"></i>
                 </div>
                 <div class="btn-item">
                     <Button class="server-confirm-button" type="success" :disabled="emialAddressButtonDisabled" @click="organizationFinderConfirmClicked()" >{{ emailSendButtonValue }}</Button>
@@ -180,7 +185,7 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
-        <div class="server-setting-div">
+        <div class="server-setting-div" v-show="false">
             <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView">{{$t("homeServerAddress")}}</div>
             <i class="el-icon-caret-bottom" v-show="showOrganizationView"></i>
         </div>
@@ -216,6 +221,7 @@ export default {
     },
     data () {
         return {
+            isLoading: false,
             backupInfo: {},
             showCertification: false,
             loginState: '',
@@ -227,7 +233,7 @@ export default {
             tokenExpired: false,
             tokenRefreshing: true,
             loadingProcess: '正在验证登录信息',
-            organizationOrHost: '加入您的组织',
+            organizationOrHost: '',
             eachChatEndPoint: '',
             showOrganizationViewHost: false,
             showOrganizationViewOrganization: true,
@@ -241,6 +247,7 @@ export default {
 
             organizationButtonDisabled: false,
             emialAddressButtonDisabled:false,
+            loginButtonDisabled: false,
 
             organizationFinderEmailTime:0,
             organizationAddress:'',
@@ -308,7 +315,7 @@ export default {
         hostConfirmButtonClicked: async function() {
             var host = this.organizationAddress;
             if(host.endsWith("/")) {
-                host = host.subString(0, host.length - 1);
+                host = host.substring(0, host.length - 1);
             }
             if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
                 host = "https://" + host;
@@ -343,21 +350,31 @@ export default {
                 this.organizationButtonDisabled = false;
             })
         },
-        checkHomeServer: function (){
-            var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-            global.mxMatrixClientPeg.checkHomeServer(host).then((flows) => {
+        checkHomeServer: function (address){
+            var host = "";
+            if(address == undefined || address == null) {
+                host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            }
+            else {
+                host = address
+            }
+            return global.mxMatrixClientPeg.checkHomeServer(host).then(async (flows) => {
                 console.log("matrix get flows is ", flows)
                 this.supportedIdentity = flows;
                 for (let i = 0; i < flows.length; i++ ) {
                     this.resetLoginStateTitle();
-                    return;
+                    var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
+                    global.services.common.setGmsConfiguration(appServerInfo.data);
+                    return true;
                 }
                 
-                this.loginState = "未找到该组织";
+                this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
+                return false;
             },(err) => {
-                this.loginState = "未找到该组织";
+                this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
+                return false;
             })
         },
         hostCancelButtonClicked: function() {
@@ -401,13 +418,14 @@ export default {
             this.loginState = "";
         },
         organizationConfirmButtonClicked:async function(){
+            this.isLoading = true;
             this.organizationButtonDisabled = true;
             if(this.organizationAddress == "worklyai-open-dev-tools"){
                 ipcRenderer.send("openDevTools");
                 return;
             }
             if (this.organizationAddress == undefined || this.organizationAddress == ""){
-                this.loginState = "请输入组织ID";
+                this.loginState = this.$t("pleaseInputHSAddress");
                 this.organizationButtonDisabled = false;
                 return;
             }
@@ -416,20 +434,24 @@ export default {
 
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
 
-            var result = await services.common.gmsConfiguration(address, host);
-            console.log(result);
-            if(!result){
-                this.loginState = "未找到该组织";
-                this.organizationButtonDisabled = false;
-                return;
-            }
-            window.localStorage.setItem("Domain", this.organizationAddress);
-            // this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
-            
-            this.organizationButtonDisabled = false;
-            this.resetLoginStateTitle();
-            this.showLoginView = true;
-            this.showOrganizationView = false;
+            // var result = await services.common.gmsConfiguration(address, host);
+            this.checkHomeServer(address)
+                .then((result) => {
+                    console.log(result);
+                    if(!result){
+                        this.loginState = this.$t("invalidServerAddress");
+                        this.organizationButtonDisabled = false;
+                        this.isLoading = false;
+                        return;
+                    }
+                    // window.localStorage.setItem("Domain", this.organizationAddress);
+                    // this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
+                    this.isLoading = false;
+                    this.organizationButtonDisabled = false;
+                    this.resetLoginStateTitle();
+                    this.showLoginView = true;
+                    this.showOrganizationView = false;
+                })
             
         },
         organizationFinderClicked:async function(){
@@ -544,12 +566,15 @@ export default {
                 return;
             }
             var result = await global.mxMatrixClientPeg.GetVerCode("msisdn", this.username);
-            if(result == true){
+            if(result.status == 200){
                 this.userPhoneSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
                 this.userPhoneSendCodeTimer();
-            }else{
-                this.loginState = result.message;
+            }else if(result.status == 429){
+                this.loginState = result.data.error;
+            }
+            else {
+                this.loginState = result.data.error;
             }
             
         },
@@ -637,6 +662,9 @@ export default {
             
         },
         login:async function() {
+            this.isLoading = true;
+            this.loginButtonDisabled = true;
+            // this.loginState = "登录成功";
             if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
                 if(this.showUsernameLoginView){
                     this.loginState = "请输入账号和密码";
@@ -685,21 +713,64 @@ export default {
             var identifier = {};
             
             var client = undefined;
+            var verCodeRet = undefined;
             if(this.showUserphoneLoginView) {
                 try {
-                    client = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.msisdn", this.username, this.password);
-                    console.log("===== ", client)
+                    verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.msisdn", this.username, this.password);
+                    console.log("===== ", verCodeRet)
+                    if(verCodeRet.status == 200) {
+                        client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                    }
+                    else if(verCodeRet.status == 429) {
+                        this.loginState = verCodeRet.data.error;
+                        this.isLoading = false;
+                    }
+                    else if(verCodeRet.status == 400) {
+                        this.loginState = this.$t("unboundedAccount")
+                        this.isLoading = false;
+                    }
+                    else if(verCodeRet.status == 412) {
+                        this.loginState = this.$t("invalidVerCode")
+                        this.isLoading = false;
+                    }
+                    else {
+                        this.loginState = this.$t("invalidVerCode")
+                        this.isLoading = false;
+                    }
                 }
                 catch(e) {
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
                     console.log(e)
                 }
             }
             else if(this.showUseremailLoginView) {
                 try {
                     client = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
-                    console.log("===== ", client)
+                    console.log("===== ", verCodeRet)
+                    if(verCodeRet.status == 200) {
+                        client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                    }
+                    else if(verCodeRet.status == 429) {
+                        this.loginState = verCodeRet.data.error;
+                        this.isLoading = false;
+                    }
+                    else if(verCodeRet.status == 400) {
+                        this.loginState = this.$t("unboundedAccount")
+                        this.isLoading = false;
+                    }
+                    else if(verCodeRet.status == 412) {
+                        this.loginState = this.$t("invalidVerCode")
+                        this.isLoading = false;
+                    }
+                    else {
+                        this.loginState = this.$t("invalidVerCode")
+                        this.isLoading = false;
+                    }
                 }
                 catch(e) {
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
                     console.log(e)
                 }
             }
@@ -709,6 +780,14 @@ export default {
                     console.log("===== ", client)
                 }
                 catch(e) {
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    if(e.message == "Invalid password") {
+                        this.loginState = this.$t("invalidPassword");
+                    }
+                    else {
+                        this.loginState = e.message;
+                    }
                     console.log(e)
                 }
             }
@@ -722,7 +801,7 @@ export default {
                 var elementButton = document.getElementById('loginButton');
                 //this.loginButtonValue = "正在加载数据";
                 this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
-                this.loginState = "登录成功";
+                // this.loginState = "登录成功";
                 this.showLoginView = false;
                 this.showLoadingView = true;
                 this.tokenRefreshing = true;
@@ -732,6 +811,8 @@ export default {
                     this.$router.push("/main")
                 }, 1000);
             }
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
             console.log("the isCryptoEnalbe is ", client.isCryptoEnabled())
             console.log("the isCryptoEnalbe is ", client.getStoredCrossSigningForUser(client.getUserId()))
             // if(response != true){
@@ -747,37 +828,37 @@ export default {
             // }
         }
     },
-    activated: async function() {
-        this.checkHomeServer();
-    },
+    // activated: async function() {
+    //     this.checkHomeServer();
+    // },
     mounted: async function() {
         log.info("Login mounted");
+        this.organizationOrHost = this.$t("homeServerAddress");
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
         
         if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
+            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         }
-        setTimeout(() => {  
-            this.$nextTick(async () => {
+        this.checkHomeServer()
+            .then(() => {
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
                     if(ret == undefined) {
                         this.tokenRefreshing = false;
                         this.showLoadingView = false;
                         this.showLoginView = true;
-                        this.checkHomeServer();
                         return;
                     }
                     
-                    var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
-                    var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-                    var result = await services.common.gmsConfiguration(address, host);
-                    if(!result){
-                        this.loginState = "未找到该组织";
-                        this.organizationButtonDisabled = false;
-                        return;
-                    }
+                    // var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
+                    // var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+                    // var result = await services.common.gmsConfiguration(address, host);
+                    // if(!result){
+                    //     this.loginState = "未找到该组织";
+                    //     this.organizationButtonDisabled = false;
+                    //     return;
+                    // }
                     
                     if(ret.language) {
                         this.$i18n.locale = ret.language;
@@ -786,15 +867,15 @@ export default {
                     this.$router.push("/main")
                 })
             })
-
-        }, 1000);
+        
         ipcRenderer.on('dataJsonPort', function(event, message) { // 监听父页面定义的端口
             console.log("wo cao shou dao le ");
         });
     },
     created: function() {
+        
         if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
+            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         }
     }
 }
@@ -991,6 +1072,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1001,7 +1083,11 @@ export default {
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
             }
-        }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
+            }
+        } 
         .btn {
             margin-top: 7px;
             text-align: center;
@@ -1037,6 +1123,21 @@ export default {
                 outline: none;
             }
 
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+            }
         }
         .otherlogin{
             width: 260px;
@@ -1218,6 +1319,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1227,6 +1329,10 @@ export default {
                 line-height:17px;
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
         .btn {
@@ -1264,6 +1370,21 @@ export default {
                 outline: none;
             }
 
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+            }
         }
         .otherlogin{
             width: 260px;
@@ -1420,6 +1541,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1429,6 +1551,10 @@ export default {
                 line-height:17px;
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
         .btn {
@@ -1466,6 +1592,21 @@ export default {
                 outline: none;
             }
 
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+            }
         }
         .otherlogin{
             width: 260px;
@@ -1568,7 +1709,7 @@ export default {
             margin-top: 28px;
             width: 260px;
             margin-left: 50px;
-            height: 58px;
+            height: 66px;
             .organizaiton-title{
                 width: 100%;
                 margin: 0px;
@@ -1652,12 +1793,28 @@ export default {
                 margin-top: 3px;
             }
 
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+            }
         }
         .organizationLogin-state {
             width: 100%;
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1667,6 +1824,10 @@ export default {
                 line-height:17px;
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
         .organization-finder-tip{
@@ -1799,6 +1960,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1808,6 +1970,10 @@ export default {
                 line-height:17px;
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
             .btn-item{

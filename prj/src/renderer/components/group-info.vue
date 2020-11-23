@@ -71,7 +71,7 @@
             <ul class="groupMember-list">
                 <li v-for="(item, index) in mxMembers" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
                     <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)">
+                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
                         <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
                     </div>
                     <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)">
@@ -109,8 +109,9 @@ import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
-import { UserInfo } from '../../packages/data/sqliteutil.js'
+import { UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
+
 export default {
     name: 'group-info',
     data() {
@@ -557,18 +558,15 @@ export default {
 
             var curAbsoluteTop = distElement.offsetTop;
             var curAbsoluteLeft = distElement.offsetLeft;
-            var isMine = (uid == this.curUserInfo.id);
 
-            console.log("uid is ", uid);
-            var curUserInfo = await services.common.GetDistUserinfo(uid);
-            console.log("curuser inf os ", curUserInfo)
+            var curUserInfo = await UserInfo.GetUserInfo(uid);
             var tipInfos = {
                 "userInfo": curUserInfo[0],
                 // "absoluteTop": curAbsoluteTop + wholeWinTop,
                 "absoluteTop": this.cursorY,
                 // "absoluteLeft": curAbsoluteLeft + wholeWinLeft,
                 "absoluteLeft": this.cursorX - 330,
-                "isMine": isMine,
+                "isMine": false,
                 "showLeft": true,
             }
             // console.log("emit absoluteTop ", curAbsoluteTop + wholeWinTop);
@@ -693,13 +691,25 @@ export default {
             return uid;
         },
         getMemberImage: async function() {
+            this.memberList.forEach(async (item)=>{
+                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(item);
+                if(!item)
+                    return;
+                var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                if(avaterUrl == '')
+                    return;
+                var distElement = document.getElementById(this.getIdThroughMemberUid(item));
+                if(!distElement)
+                    return;
+                distElement.setAttribute("src", avaterUrl);
+            })
+
             for(var i=0; i < this.memberListShow.length; i++) {
                 var distUserInfo = this.memberListShow[i];
                 // console.log("getMemberImage distuserinfo ", distUserInfo);
                 var targetPath = '';
                 if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
-                    var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.user_id));
-                    distElement.setAttribute("src", targetPath);
+                    
                 }
             }
         },
@@ -774,40 +784,21 @@ export default {
             console.log("this.peopleState ", this.peopleState)
             // console.log("this.slienceState ", this.slienceState)
             var adddedMemberId = [];
-            for(var i=0;i<this.memberList.length;i++) {
-                let memberInfoTmp = await global.services.common.GetDistUserinfo(this.memberList[i]);
-                if(memberInfoTmp.length != 0) {
-                    this.memberListShow.push(memberInfoTmp[0]);
-                    this.memberListShowOriginal.push(memberInfoTmp[0]);
-                    adddedMemberId.push(this.memberList[i]);
-                }
-                if(i > 20) {
-                    break;
-                }
-            }
+            this.memberList.forEach(async (item)=>{
+                let res = await Contact.GetContactInfo(item);
+                if(!res)
+                    res = await UserInfo.GetContactInfo(item);
+                this.memberListShow.push(res);
+                this.memberListShowOriginal.push(res)
+            })
+            
             // console.log("watch memberListShow is ", this.memberListShow);
             this.wholeTipElement.style.right = "0px";
             this.wholeTipElement.style.top = "0px";
 
             let elementImg = document.getElementById("groupInfoImageId");
-            console.log("elementImg is ", elementImg);
-            var targetPath = "";
-            if(fs.existsSync(targetPath = await global.services.common.downloadGroupAvatar(this.groupAvarar, this.groupId))){
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
-            }
-            // services.common.downloadGroupAvatar(this.groupAvarar, this.groupId);
-            // .then((ret) => {
-            //     elementImg.setAttribute("src", URL.createObjectURL(ret.data));
-            //     elementImg.onload = () => {
-            //         URL.revokeObjectURL(elementImg.getAttribute("src"))
-            //     }
-            // })
+            elementImg.setAttribute("src", this.groupAvarar);
+
             console.log("this.groupNotice is ", this.groupNotice);
             if(this.groupNotice.length == 0) {
                 this.groupNotice = ""
@@ -819,27 +810,7 @@ export default {
                 })
             }, 0)
 
-            for(var i=0;i<this.memberList.length;i++) {
-                let memberInfoTmp = await global.services.common.GetDistUserinfo(this.memberList[i]);
-                if(memberInfoTmp.length != 0) {
-                    if(adddedMemberId.indexOf(this.memberList[i]) == -1) {
-                        this.memberListShow.push(memberInfoTmp[0]);
-                        this.memberListShowOriginal.push(memberInfoTmp[0]);
-                    }
-                }
-                if(i%20 == 0 && i != 0) {
-                    setTimeout(() => {
-                        this.$nextTick(() => {
-                            this.getMemberImage();
-                        })
-                    }, 0)
-                }
-            }
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    this.getMemberImage();
-                })
-            }, 0)
+
         },
         cleanCache: function() {
             console.log("cleancache is ", this.cleanCache)
