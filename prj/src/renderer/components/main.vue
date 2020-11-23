@@ -188,7 +188,6 @@ export default {
             this.$router.push("/main/ChatContent");
             
             this.curindex = 0;
-            // this.showCurUserIcon();
         },
         async menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;
@@ -275,12 +274,9 @@ export default {
             var elementImg = document.getElementById("userHead");
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
-            // console.log("==========showcurusericon ", avaterUrl == "");
-            if(avaterUrl == "") {
-                // avaterUrl = "../../../static/Img/User/user-40px@2x.png"
-                return;
+            if(avaterUrl != "") {
+                elementImg.setAttribute("src", avaterUrl);
             }
-            elementImg.setAttribute("src", avaterUrl);
         },
         personalCenterClicked:async function(){
             if(this.showPersonalCenter){

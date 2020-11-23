@@ -179,8 +179,6 @@ export default {
         },
         
         calcImgPosition: function() {
-
-            // console.log("remote.b")
             //console.log(document.documentElement.clientHeight);
             var showScreenHeight = document.documentElement.clientHeight;
             var showScreenWidth = document.documentElement.clientWidth;

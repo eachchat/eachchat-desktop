@@ -41,6 +41,9 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
 import imageCropper from './imageCropper.vue'
+import * as utils from '../../packages/core/Utils.js'
+
+
 export default {
     name: 'user-info',
     data() {
@@ -86,13 +89,25 @@ export default {
             // Select Same File Failed.
             var fileList = paths;
             // console.log("======", fileList)
-            if(fileList === null || fileList.length === 0) {
+            if(fileList.filePaths.length === 0) {
                 alert("请选择一个图片文件");
             }
-            this.showImageCropper = true;
-            this.selectImageSource = fileList[0];
-            //await services.common.UpdateUserAvatar(fileList[0]);
-            
+            //this.showImageCropper = true;
+            this.selectImageSource = fileList.filePaths[0];
+            var showfu = new utils.FileUtil(this.selectImageSource);
+            var stream = showfu.ReadfileSync(this.selectImageSource);
+            let uploadFile = showfu.GetUploadfileobj();
+            let matrixClient = global.mxMatrixClientPeg.matrixClient;
+            const httpPromise = matrixClient.uploadContent(uploadFile).then(function(url) {
+                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
+                    let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
+                    if(avaterUrl != '') {
+                        userIconElement.setAttribute("src", avaterUrl);
+                    }
+                    matrixClient.setAvatarUrl(url);
+                    var elementImg = document.getElementById("userHead");
+                    elementImg.setAttribute("src", avaterUrl);
+            });       
         },
         stateListArrowClicked(){
             if(this.showStateList){
@@ -201,7 +216,7 @@ export default {
                 return "";
             }
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(uId);
-            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             var displayName = profileInfo.displayname;
             // console.log("==========showcurusericon ", avaterUrl == "");
             // if(avaterUrl == "") {
@@ -285,7 +300,7 @@ export default {
 <style lang="scss" scoped>
 .personalCenter-view {
     height: 134px;
-    width: 260px;
+    width: 300px;
     padding: 0px;
     //border: 1px solid rgb(242, 242, 246);
     box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);

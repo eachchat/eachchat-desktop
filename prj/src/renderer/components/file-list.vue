@@ -40,7 +40,7 @@ import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, JsonMsgContentTo
 import {services, environment} from '../../packages/data/index.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import {ipcRenderer, remote} from 'electron'
+import {ipcRenderer} from 'electron'
 import winHeaderBar from './win-header.vue'
 import confservice from '../../packages/data/conf_service.js'
 import {shell} from 'electron'

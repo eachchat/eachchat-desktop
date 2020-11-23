@@ -74,6 +74,18 @@ const en = {
     historyVisibleToAll: '{senderName}s made future room history visible to all room members.',
     setHistoryVisibleToAnyone: '{senderName}s made future room history visible to anyone.',
     setHistoryVisibleToUnknow: '{senderName}s made future room history visible to unknown ({visibility}s).',
+    ChangePassword: 'ChangePassword',
+    oPwdPlaceHolder: 'Currnet Password',
+    nPwdLabel: 'New Password',
+    nPwdPlaceHolder: 'Input Password',
+    cPwdLabel: 'Confirm New Password',
+    confirmPwdPlaceHolder: 'Input New Password Again',
+    NewPasswordsDontMatch: "New passwords don't match",
+    PasswordsCantBeEmpty: "Passwords can't be empty",
+    changePasswordSuc: "Password has changed",
+    changePasswordAlert: "Changing password will currently reset any end-to-end encryption keys on all sessions, making encrypted chat history unreadable, unless you first export your room keys and re-import them afterwards. In future this will be improved.",
+    theAlert: "Alert",
+    ExportE2ERoomKeys: "Export E2E room keys",
 }
 
 export default en;

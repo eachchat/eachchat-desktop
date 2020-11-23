@@ -686,74 +686,6 @@ function downloadAvarar(event, arg) {
   };
 }
 
-ipcMain.on("download-avarar", function(event, arg) {
-  let baseURL = arg[0];
-  queue.put(downloadAvarar(event, arg));
-});
-
-function downloadUserAvarar(event, arg) {
-  return function f() {
-    return new Promise(resolve => {
-      var baseURL = arg[0];
-      // console.log("downloadingList is ", downloadingList);
-      var userId = arg[1];
-      var token = arg[2];
-      var distPath = arg[3];
-      var sequenceId = arg[4];
-      var distTemp = distPath + "_tmp";
-      // console.log("distPath is ", distPath);
-      if(downloadExist(distTemp)) {
-        console.log("distTemp is downloading ", distTemp);
-        return;
-      }
-    
-      if(downloadingList.indexOf(baseURL) != -1){
-        return;
-      }
-      downloadingList.push(baseURL);
-      var headers={Authorization:"Bearer " + token};
-      var appendix = {
-              timeout: 35000,
-              responseType: "stream"
-          };
-      var config = Object.assign({
-        headers: headers,
-      }, appendix);
-      axios.get(baseURL,config)
-        .then(function (ret) {
-          ret.data.pipe(fs.createWriteStream(distTemp)
-            .on('finish', function() {
-              try{
-                if(fs.existsSync(distPath)) {
-                  // fs.unlinkSync(distPath);
-                  resolve(true);
-                }
-                fs.renameSync(distTemp, distPath);
-                var index = downloadingList.indexOf(baseURL);
-                downloadingList.splice(index, 1);
-                // let a = (new Date()).getTime();
-                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadUserAvarar distPath is ", distPath);
-                // timeTmp = a;
-                // countTmp += 1;
-                event.sender.send('updateUserImage', [true, '', userId, distPath, sequenceId]);
-                resolve(true);
-              }
-              catch(e) {
-                console.log("rename file failed and details is ", e);
-              }
-            }));
-        });
-    }).then(ret => {
-      console.log("====ret is ", ret);
-    });
-  };
-}
-
-ipcMain.on("download-user-avarar", function(event, arg) {
-  let baseURL = arg[0];
-  queue.put(downloadUserAvarar(event, arg));
-});
-
 function downloadImage(event, arg) {
   return function f() {
     return new Promise(resolve => {
@@ -926,13 +858,13 @@ ipcMain.on('open-image-dialog', function(event, arg) {
   })
 });
 ipcMain.on('open-image-dialog-avatar', function(event, arg) {
-  dialog.showOpenDialog({
+  dialog.showOpenDialog(mainWindow, {
     properties: [arg, ],
     filters: [
       { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
     ]
-  },function(files) {
-    if(files && files.length > 0) {
+  }).then(files=> {
+    if(files.filePaths && files.filePaths.length > 0) {
       event.sender.send('selectedAvatarImageItem', files);
     }
   })

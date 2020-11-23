@@ -273,26 +273,12 @@ export default {
             let userIconElement = document.getElementById(this.getUserInfoIconID(userInfo.matrix_id));
             if(!userIconElement)
                 return;
-            if(this.userType == 'contact'){
-                if(!userInfo.avatar_url)
-                    return;
-                let validUrl = this.matrixClient.mxcUrlToHttp(userInfo.avatar_url);
-                userIconElement.setAttribute("src", validUrl);
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id);
+            if(!profileInfo.avatar_url)
                 return;
-            }
+            let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            userIconElement.setAttribute("src", validUrl);
             
-            var localPath = confservice.getUserThumbHeadLocalPath(userInfo.id);
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }else{
-                global.services.common.downloadUserTAvatar(userInfo.avatarTUrl, userInfo.id);
-            }
         },
         getUserInfoIconID(id){
             return "userInfo" + id;
