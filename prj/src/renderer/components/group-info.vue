@@ -34,28 +34,29 @@
                 <span class="secretTypeAutoLabel">自动</span>
             </div>
         </div>
-        <div class="groupSettingSilenceDiv" @click.stop="openSetting()">
-            <label class="groupSettingSlienceLabel">群聊设置</label>
+        <div class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
+            <label style="font-size:14px">群聊设置</label>
+            <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
         <div class="groupSettingSilenceDiv" v-show="isGroup">
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch class="groupSettingSlienceSwitch" v-model="mxMute" @change="mxMuteChange(mxMute)">
             </el-switch>
         </div>
-        <div class="groupSettingTopDiv" v-show="!isSecret">
+        <!-- <div class="groupSettingTopDiv" v-show="!isSecret">
             <label class="groupSettingTopLabel">置顶聊天</label>
             <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
             </el-switch>
-        </div>
+        </div> -->
         <div class="groupSettingFavouriteDiv" v-show="isGroup">
             <label class="groupSettingFavouriteLabel">保存到收藏</label>
             <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
             </el-switch>
         </div>
-        <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
+        <!-- <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
             <label class="groupSettingOwnerTransferLabel">转让群主</label>
             <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
-        </div>
+        </div> -->
         <div class="groupMemberDiv" v-show="isGroup">
             <div class="groupMemberSearchDiv" v-if="isSearch">
                 <input type="text" class="searchMemberInput" v-model="searchKey" @input="searchMember">
@@ -673,6 +674,22 @@ export default {
         const roomId = this.showGroupInfo.groupId;
         this.getRoomNotifs(roomId);
         this.mxGetMembers();
+
+        ////
+        this.memberList = this.showGroupInfo.memberList;
+        this.groupName = this.showGroupInfo.groupName;
+        console.log('xxxxxx', this.showGroupInfo.groupName)
+        this.groupAvarar = this.showGroupInfo.groupAvarar;
+        this.groupNotice = this.showGroupInfo.groupNotice;
+        this.groupId = this.showGroupInfo.groupId;
+        this.isGroup = this.showGroupInfo.isGroup;
+        this.slienceState = this.showGroupInfo.isSlience;
+        this.groupTopState = this.showGroupInfo.isTop;
+        this.groupFavouriteState = this.showGroupInfo.isFav;
+        this.isOwner = this.showGroupInfo.isOwner //this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
+        this.ownerId = this.showGroupInfo.ownerId;
+
+        ////
         setTimeout(() => {
             this.$nextTick(() => {
                 ipcRenderer.on('updateGroupImg', this.updateGroupImg);
@@ -688,67 +705,68 @@ export default {
         //         this.mxGetMembers();
         //     }
         // },
-        showGroupInfo: async function() {
-            if(this.wholeTipElement == null) {
-                this.wholeTipElement = document.getElementById("groupInfoTipId");
-                // console.log("this.wholeTipElement ", this.wholeTipElement)
-            }
-            console.log("this.showGroupInfo ", this.showGroupInfo)
-            // console.log("this.wholeTipElement ", this.wholeTipElement)
-            if(this.showGroupInfo.groupNotice == undefined || this.wholeTipElement == null) {
-                return;
-            }
-            this.memberList = this.showGroupInfo.memberList;
-            this.groupName = this.showGroupInfo.groupName;
-            console.log('xxxxxx', this.showGroupInfo.groupName)
-            this.groupAvarar = this.showGroupInfo.groupAvarar;
-            this.groupNotice = this.showGroupInfo.groupNotice;
-            this.groupId = this.showGroupInfo.groupId;
-            this.isGroup = this.showGroupInfo.isGroup;
-            this.slienceState = this.showGroupInfo.isSlience;
-            this.groupTopState = this.showGroupInfo.isTop;
-            this.groupFavouriteState = this.showGroupInfo.isFav;
-            this.isOwner = this.showGroupInfo.isOwner //this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
-            this.ownerId = this.showGroupInfo.ownerId;
-            if(this.showGroupInfo.groupType == 102) {
-                var ownerUserInfo = await UserInfo.GetUserInfo(this.ownerId);
-                console.log("ownerUserInfo ", ownerUserInfo);
-                if(ownerUserInfo != undefined) {
-                    this.peopleState = ownerUserInfo.status_description;
-                }
-            }
-            this.isSecret = this.showGroupInfo.isSecret;
-            console.log("this.peopleState ", this.peopleState)
-            // console.log("this.slienceState ", this.slienceState)
-            var adddedMemberId = [];
-            this.memberList.forEach(async (item)=>{
-                let res = await Contact.GetContactInfo(item);
-                if(!res)
-                    res = await UserInfo.GetContactInfo(item);
-                this.memberListShow.push(res);
-                this.memberListShowOriginal.push(res)
-            })
-            
-            // console.log("watch memberListShow is ", this.memberListShow);
-            this.wholeTipElement.style.right = "0px";
-            this.wholeTipElement.style.top = "0px";
+        // showGroupInfo: {
+        //     handler: async function() {
+        //         if(this.wholeTipElement == null) {
+        //             this.wholeTipElement = document.getElementById("groupInfoTipId");
+        //             // console.log("this.wholeTipElement ", this.wholeTipElement)
+        //         }
+        //         console.log("this.showGroupInfo ", this.showGroupInfo)
+        //         // console.log("this.wholeTipElement ", this.wholeTipElement)
+        //         if(this.showGroupInfo.groupNotice == undefined || this.wholeTipElement == null) {
+        //             return;
+        //         }
+        //         this.memberList = this.showGroupInfo.memberList;
+        //         this.groupName = this.showGroupInfo.groupName;
+        //         console.log('xxxxxx', this.showGroupInfo.groupName)
+        //         this.groupAvarar = this.showGroupInfo.groupAvarar;
+        //         this.groupNotice = this.showGroupInfo.groupNotice;
+        //         this.groupId = this.showGroupInfo.groupId;
+        //         this.isGroup = this.showGroupInfo.isGroup;
+        //         this.slienceState = this.showGroupInfo.isSlience;
+        //         this.groupTopState = this.showGroupInfo.isTop;
+        //         this.groupFavouriteState = this.showGroupInfo.isFav;
+        //         this.isOwner = this.showGroupInfo.isOwner //this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
+        //         this.ownerId = this.showGroupInfo.ownerId;
+        //         if(this.showGroupInfo.groupType == 102) {
+        //             var ownerUserInfo = await UserInfo.GetUserInfo(this.ownerId);
+        //             console.log("ownerUserInfo ", ownerUserInfo);
+        //             if(ownerUserInfo != undefined) {
+        //                 this.peopleState = ownerUserInfo.status_description;
+        //             }
+        //         }
+        //         this.isSecret = this.showGroupInfo.isSecret;
+        //         console.log("this.peopleState ", this.peopleState)
+        //         // console.log("this.slienceState ", this.slienceState)
+        //         var adddedMemberId = [];
+        //         this.memberList.forEach(async (item)=>{
+        //             let res = await Contact.GetContactInfo(item);
+        //             if(!res)
+        //                 res = await UserInfo.GetContactInfo(item);
+        //             this.memberListShow.push(res);
+        //             this.memberListShowOriginal.push(res)
+        //         })
+                
+        //         // console.log("watch memberListShow is ", this.memberListShow);
+        //         this.wholeTipElement.style.right = "0px";
+        //         this.wholeTipElement.style.top = "0px";
 
-            let elementImg = document.getElementById("groupInfoImageId");
-            elementImg.setAttribute("src", this.groupAvarar);
+        //         let elementImg = document.getElementById("groupInfoImageId");
+        //         elementImg.setAttribute("src", this.groupAvarar);
 
-            console.log("this.groupNotice is ", this.groupNotice);
-            if(this.groupNotice.length == 0) {
-                this.groupNotice = ""
-            }
-            this.newGroupName = this.groupName;
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    this.getMemberImage();
-                })
-            }, 0)
-
-
-        },
+        //         console.log("this.groupNotice is ", this.groupNotice);
+        //         if(this.groupNotice.length == 0) {
+        //             this.groupNotice = ""
+        //         }
+        //         this.newGroupName = this.groupName;
+        //         setTimeout(() => {
+        //             this.$nextTick(() => {
+        //                 this.getMemberImage();
+        //             })
+        //         }, 0)
+        //     },
+        //     immediate: true
+        // },
         cleanCache: function() {
             console.log("cleancache is ", this.cleanCache)
             if(this.cleanCache) {
@@ -850,7 +868,7 @@ export default {
 }
 
 .groupMember-view-owner {
-    height: calc(100% - 440px);
+    height: calc(100% - 340px);
     width: 100%;
     padding: 0px;
     border: 0px;
