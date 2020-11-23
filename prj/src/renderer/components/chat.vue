@@ -575,29 +575,8 @@ export default {
             global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event_id);
         },
         menuCopy(msg) {
-            var msgContent = strMsgContentToJson(msg.message_content);
-            if(msg.message_type == 101) {
-                clipboard.writeText(msgContent.text);
-            }
-            else if(msg.message_type == 102) {
-                var div = document.getElementById(msg.message_id);
-                var selection = window.getSelection();
-                var range = document.createRange();
-                range.selectNode(div);
-                selection.removeAllRanges();
-                selection.addRange(range);
-                document.execCommand('copy');
-                selection.removeAllRanges();
-                // div.contentEditable = 'true';
-                // var controlRange;
-                // if(document.body.createControlRange) {
-                //     controlRange = document.body.createControlRange();
-                //     controlRange.addElement(div);
-                //     console.log("controlRange is ", controlRange);
-                //     controlRange.execCommand('Copy');
-                // }
-                // div.contentEditable = 'false';
-            }
+            var msgContent = msg.getContent();
+            clipboard.writeText(msgContent.body);
         },
         async transmitFromSoloDlg(e, args) {
             var transmitInfoStr = args;
