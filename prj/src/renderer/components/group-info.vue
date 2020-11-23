@@ -246,37 +246,37 @@ export default {
         },
         mxMuteChange: function(mxMute) {
             console.log('---mxMuteChange---', this.mxMute);
-            if (mxMute) { // set mute
-                const cli = window.mxMatrixClientPeg.matrixClient;
-                const promises = [];
-                const roomId = this.showGroupInfo.groupId;
-                const roomRule = cli.getRoomPushRule('global', roomId);
-                if (roomRule) {
-                    promises.push(cli.deletePushRule('global', 'room', roomRule.rule_id));
-                }
+            // if (mxMute) { // set mute
+            //     const cli = window.mxMatrixClientPeg.matrixClient;
+            //     const promises = [];
+            //     const roomId = this.showGroupInfo.groupId;
+            //     const roomRule = cli.getRoomPushRule('global', roomId);
+            //     if (roomRule) {
+            //         promises.push(cli.deletePushRule('global', 'room', roomRule.rule_id));
+            //     }
 
-                // add/replace an override rule to squelch everything in this room
-                // NB. We use the room ID as the name of this rule too, although this
-                // is an override rule, not a room rule: it still pertains to this room
-                // though, so using the room ID as the rule ID is logical and prevents
-                // duplicate copies of the rule.
-                promises.push(cli.addPushRule('global', 'override', roomId, {
-                    conditions: [
-                        {
-                            kind: 'event_match',
-                            key: 'room_id',
-                            pattern: roomId,
-                        },
-                    ],
-                    actions: [
-                        'dont_notify',
-                    ],
-                }));
-                console.log('--set mute!!--')
-                return Promise.all(promises);
-            } else { //set unmute
+            //     // add/replace an override rule to squelch everything in this room
+            //     // NB. We use the room ID as the name of this rule too, although this
+            //     // is an override rule, not a room rule: it still pertains to this room
+            //     // though, so using the room ID as the rule ID is logical and prevents
+            //     // duplicate copies of the rule.
+            //     promises.push(cli.addPushRule('global', 'override', roomId, {
+            //         conditions: [
+            //             {
+            //                 kind: 'event_match',
+            //                 key: 'room_id',
+            //                 pattern: roomId,
+            //             },
+            //         ],
+            //         actions: [
+            //             'dont_notify',
+            //         ],
+            //     }));
+            //     console.log('--set mute!!--')
+            //     return Promise.all(promises);
+            // } else { //set unmute
 
-            }
+            // }
         },
         getRoomNotifsState: function(roomId) { //message setting relevant
             if (window.mxMatrixClientPeg.matrixClient.isGuest()) {
