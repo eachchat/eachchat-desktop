@@ -99,7 +99,7 @@
             <span class="complex" spellcheck="false" contenteditable="false"></span>
         </div>
         <groupInfoTip 
-            v-show="showGroupInfoTips"
+            v-if="showGroupInfoTips"
             :showGroupInfoTips="showGroupInfoTips"
             :showGroupInfo="groupInfo" 
             :updateUser="updateUser" 
@@ -2372,6 +2372,7 @@ s        },
                 "groupType": 100, //this.chat.group_type,
                 "isSecret": false // (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
             }
+            console.log('======weihemeiyou', groupInfoObj)
             this.groupInfo = groupInfoObj;
             // console.log("more more more ", this.chat.contain_user_ids.split(","))
             // var idsList = this.chat.contain_user_ids.split(",");

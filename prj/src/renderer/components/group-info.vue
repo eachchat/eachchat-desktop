@@ -736,6 +736,7 @@ export default {
         // this.curUserInfo = await services.common.GetSelfUserModel();
     },
     mounted() {
+        this.mxGetMembers();
         setTimeout(() => {
             this.$nextTick(() => {
                 ipcRenderer.on('updateGroupImg', this.updateGroupImg);
@@ -744,13 +745,13 @@ export default {
         document.addEventListener('click', this.updateCursorPosition);
     },
     watch: {
-        showGroupInfoTips: function() {
-            if (this.showGroupInfoTips) {
-                this.getRoomNotifsState();
-                this.mxGetMembers();
-                console.log('----watch showGroupInfoTips----');
-            }
-        },
+        // showGroupInfoTips: function() {
+        //     console.log('----watch showGroupInfoTips----', showGroupInfoTips);
+        //     if (this.showGroupInfoTips) {
+        //         this.getRoomNotifsState();
+        //         this.mxGetMembers();
+        //     }
+        // },
         showGroupInfo: async function() {
             if(this.wholeTipElement == null) {
                 this.wholeTipElement = document.getElementById("groupInfoTipId");
@@ -878,6 +879,8 @@ export default {
     cursor: default;
     overflow-y: hidden;
     box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
+    top: 0;
+    right: 0;
 }
 
 .groupInfoTitleDiv {
