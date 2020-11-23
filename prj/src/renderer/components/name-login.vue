@@ -851,14 +851,14 @@ export default {
                         return;
                     }
                     
-                    var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
-                    var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-                    var result = await services.common.gmsConfiguration(address, host);
-                    if(!result){
-                        this.loginState = "未找到该组织";
-                        this.organizationButtonDisabled = false;
-                        return;
-                    }
+                    // var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
+                    // var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+                    // var result = await services.common.gmsConfiguration(address, host);
+                    // if(!result){
+                    //     this.loginState = "未找到该组织";
+                    //     this.organizationButtonDisabled = false;
+                    //     return;
+                    // }
                     
                     if(ret.language) {
                         this.$i18n.locale = ret.language;
