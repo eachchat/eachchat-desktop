@@ -192,19 +192,15 @@ export default {
             }
             var userId = userInfo.user_id;
             var userAvatarUrl = userInfo.avatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
             let userIconElement = document.getElementById(userInfo.user_id);
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }else{
-                global.services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
-            }
+            if(!userIconElement)
+                return;
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id);
+            console.log(profileInfo)
+            if(!profileInfo.avatar_url)
+                return;
+            let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            userIconElement.setAttribute("src", validUrl);
         },
         getAppBaseData:async function() {
             var rootDepartment = await Department.GetRoot();
@@ -226,24 +222,7 @@ export default {
             console.log(this.organizationList);
 
         },
-        updateUserImage: function(e, args) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            var elementImg = document.getElementById(id);
-            if(elementImg != null){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
-                
-            }
-            
-        },
+
         compare(property){
             return function(a,b){
                 var value1 = a[property];
@@ -262,8 +241,6 @@ export default {
                 that.showUserInfoTips = false;
             }
         });
-        const ipcRenderer = require('electron').ipcRenderer;
-        ipcRenderer.on('updateUserImage', this.updateUserImage);
     }
 }
 </script>
