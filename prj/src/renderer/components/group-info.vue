@@ -70,12 +70,20 @@
         </div>
         <div :class="groupListViewClassName()" v-show="isGroup">
             <ul class="groupMember-list">
-                <li v-for="(item, index) in mxMembers" class="memberItem" @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)">
-                    <div class="groupMemberInfoDiv">
+                <li v-for="(item, index) in mxMembers" class="memberItem"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
+                    <!-- <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
                         <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
+                    </div> -->
+                    <!-- <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)"> -->
+                    <div class="memberItemLeft">
+                        <img src="../../../static/Img/User/user-40px@2x.png" alt="" class="memberItemAvatar"> <!--todo 头像需要更替-->
+                        <div class="memberItemContent">
+                            <div class="memberItemName">{{item.name}}</div>
+                            <div class="memberItemMxId">{{item.userId}}</div>
+                        </div>
                     </div>
-                    <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)">
+                    <img src="../../../static/Img/Main/sandian.png" class="memberItemOptions">
                 </li>
             </ul>
         </div>
@@ -893,6 +901,46 @@ export default {
     height: 48px;
     padding-left: 16px;
     padding-right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.memberItemLeft {
+    display: flex;
+    align-items: center;
+    flex:1;
+}
+
+.memberItemAvatar {
+    height: 32px;
+    width: 32px;
+    flex-shrink: 0;
+}
+
+.memberItemContent {
+    height: 38px;
+    flex:1;
+    margin-left: 4px;
+}
+
+.memberItemName {
+    height: 20;
+    color: #000000;
+    font-size: 14px;
+}
+
+.memberItemMxId {
+    height: 18px;
+    color: #999999;
+    font-size: 12px;
+}
+
+.memberItemOptions {
+    height: 20px;
+    width: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
 }
 
 .groupMemberInfoDiv {
