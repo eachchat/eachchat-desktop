@@ -317,7 +317,6 @@ export default {
             this.$emit("updateChatList", ret, false);
         },
         openUserInfoTip:async function(tipInfos) {
-            console.log("tip inso if ", tipInfos);
             if(this.showUserInfoTips && tipInfos.userInfo == undefined) {
                 this.showUserInfoTips = false;
                 return;
