@@ -152,7 +152,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType} from '../../packages/core/Utils.js'
+import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -396,8 +396,16 @@ export default {
         handleDialogClose() {
             this.$refs.chatGroupCreater.initData();
         },
+        canRedact: function(curEvent) {
+            const cli = global.mxMatrixClientPeg.matrixClient;
+
+            const canRedact = this.chat.currentState.maySendRedactionForEvent(curEvent, cli.credentials.userId);
+
+            return canRedact;
+        },
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
+            var showRedact = this.canRedact(msgItem);
             // console.log("e.target is ", e.target.className)
             let distElement = document.getElementById(msgItem.event.event_id);
             // console.log("distElement is ", distElement.className);
@@ -435,13 +443,15 @@ export default {
                     }));
                     */
                 }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -467,13 +477,15 @@ export default {
                     }));
                     */
                 }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -497,13 +509,15 @@ export default {
                         }
                     }));
                 }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -521,13 +535,15 @@ export default {
                         }
                     }));
                 }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -720,8 +736,22 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            this.fileLink = this.matrixClient.mxcUrlToHttp(msg.event.content.url);
-            console.log(this.fileLink)
+            var chatGroupMsgContent = msg.getContent();
+            getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                .then((blob) => {
+                    let reader = new FileReader();
+                    reader.onload = function() {
+                        if(reader.readyState == 2) {
+                            let a = document.createElement('a');
+                            a.href = window.URL.createObjectURL(blob);
+                            a.download = chatGroupMsgContent.body;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
+                    }
+                    reader.readAsArrayBuffer(blob);
+                })
         },
 
         cleanSelected() {

@@ -337,14 +337,11 @@ export default {
             if(this.decrypting) return;
             if(this.decryptedBlob == null) {
                 this.decrypting = true;
-                var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
                 decryptFile(content.file, this.matrixClient.mxcUrlToHttp(content.file.url))
                     .then((blob) => {
                         let reader = new FileReader();
                         reader.onload = function() {
                             if(reader.readyState == 2) {
-                                // var buffer = new Buffer(reader.result);
-                                // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                                 let a = document.createElement('a');
                                 a.href = window.URL.createObjectURL(blob);
                                 a.download = content.body;
@@ -432,6 +429,9 @@ export default {
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = this.msg.getContent();
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // console.log("this.msg.getType() is ", this.msg.getType())
+            // console.log("chatGroupMsgType.type is ", chatGroupMsgType)
+            // console.log("chatGroupMsgContent.type is ", chatGroupMsgContent.msgtype)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === "m.room.message")
