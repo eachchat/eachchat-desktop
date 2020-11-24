@@ -396,23 +396,6 @@ export default {
         handleDialogClose() {
             this.$refs.chatGroupCreater.initData();
         },
-        updateGroupImg: function(e, args) {
-            console.log("argsd is ", args);
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            if(id == this.chat.group_id || id == this.chat.user_id) {
-                let elementImg = document.getElementById("chat-group-img");
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                var reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
-            }
-        },
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
             // console.log("e.target is ", e.target.className)
@@ -1061,42 +1044,16 @@ export default {
 
             this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
             if(!this.distUrl || this.distUrl == '') {
-                return;
+                let defaultGroupIcon;
+                if(this.isSecret)
+                    defaultGroupIcon = "../../../static/Img/User/group-40px@2x.png";
+                else
+                    defaultGroupIcon = "../../../static/Img/Chat/encrypt-chat-title@2x.png";
+               groupIcoElement.setAttribute("src", defaultGroupIcon); 
             }
             if(groupIcoElement != undefined && this.distUrl) {
               groupIcoElement.setAttribute("src", this.distUrl);
             }
-            // var targetPath = "";
-            // var distId = "";
-            // if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
-            //     distId = chatGroupItem.group_id;
-            // }
-            // else {
-            //     distId = chatGroupItem.user_id;
-            // }
-            // if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, distId))){
-            //     var showfu = new FileUtil(targetPath);
-            //     let showfileObj = showfu.GetUploadfileobj();
-            //     let reader = new FileReader();
-            //     reader.readAsDataURL(showfileObj);
-            //     reader.onloadend = () => {
-            //         groupIcoElement.setAttribute("src", reader.result);
-            //     }
-            // }
-
-            // var groupState = "";
-            // if(chatGroupItem.group_type == 102) {
-            //     if(chatGroupItem.owner == null || chatGroupItem.owner == undefined) {
-            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.user_id);
-            //     }
-            //     else {
-            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
-            //     }
-            //     console.log("================ ownerInfo ", ownerInfo)
-            //     groupState = ownerInfo[0].status_description;
-            //     // console.log("================ ", ownerInfo)
-            // }
-            // groupStateElement.innerHTML = groupState;
         },
         insertFace: function(item) {
             var range = this.editor.getSelection();
@@ -2749,7 +2706,6 @@ s        },
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
                 this.showGroupName(this.chat);
-                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
             })
