@@ -540,7 +540,7 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event_id);
+            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id);
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
