@@ -1,5 +1,5 @@
 <template>
-    <div class="groupInfo" id="groupInfoTipId">
+    <div class="groupInfo" id="groupInfoTipId" @click="closeOptionItem">
         <div class="groupInfoTitleDiv">
             <p class="groupInfoTitle">设置</p>
         </div>
@@ -77,13 +77,22 @@
                     </div> -->
                     <!-- <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)"> -->
                     <div class="memberItemLeft">
-                        <img src="../../../static/Img/User/user-40px@2x.png" alt="" class="memberItemAvatar"> <!--todo 头像需要更替-->
+                        <img src="../../../static/Img/User/user-40px@2x.png" class="memberItemAvatar"> <!--todo 头像需要更替-->
                         <div class="memberItemContent">
                             <div class="memberItemName">{{item.name}}</div>
                             <div class="memberItemMxId">{{item.userId}}</div>
                         </div>
                     </div>
-                    <img src="../../../static/Img/Main/sandian.png" class="memberItemOptions">
+                    <img 
+                        src="../../../static/Img/Main/sandian.png" 
+                        class="memberItemOptionsImg"
+                        @click.self.stop="switchOption(index)"
+                    >
+                    <div class="memberItemOptions" v-show="item.choosen">
+                        <div class="optionItem">设为管理者</div>
+                        <div class="optionItem">设为普通用户</div>
+                        <div class="optionItem">移除成员</div>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -195,6 +204,16 @@ export default {
     computed: {
     },
     methods: {
+        closeOptionItem: function() {
+            let mxMembers = this.mxMembers;
+            mxMembers.forEach(m => m.choosen = false);
+            this.mxMembers = [...mxMembers];
+        },
+        switchOption: function(idx) {
+            let mxMembers = this.mxMembers;
+            mxMembers[idx].choosen = !mxMembers[idx].choosen;
+            this.mxMembers = [...mxMembers];
+        },
         mxLeaveRoom: function() {
             console.log('----mxLeaveRoom----')
             if (!window.alertIsShow) {
@@ -253,7 +272,8 @@ export default {
             console.log('----xie2----', xie2);
             const mxMembers = [];
             for(let key in xie1.currentState.members) {
-                mxMembers.push(xie1.currentState.members[key]);
+                let obj = {...xie1.currentState.members[key], choosen:false}
+                mxMembers.push(obj);
             }
             console.log('mxMembers', mxMembers);
             this.mxMembers = [...this.mxMembers, ...mxMembers];
@@ -904,6 +924,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .memberItemLeft {
@@ -936,11 +957,40 @@ export default {
     font-size: 12px;
 }
 
-.memberItemOptions {
+.memberItemOptionsImg {
     height: 20px;
     width: 20px;
     flex-shrink: 0;
     cursor: pointer;
+}
+
+
+.memberItemOptions{
+    position: absolute;
+    width: 100px;
+    // height: 96px;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 12px 0px rgba(103, 103, 103, 0.14);
+    border-radius: 4px;
+    border: 1px solid #DDDDDD;
+    top: 32px;
+    right: 16px;
+    z-index: 1;
+}
+
+.optionItem {
+    background:transparent;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+}
+
+.optionItem:hover {
+    background: #A7E0C4;
 }
 
 .groupMemberInfoDiv {
