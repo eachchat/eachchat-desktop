@@ -12,7 +12,7 @@
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
         </div>
-        <div class="personalCenter-state">
+        <!-- <div class="personalCenter-state">
             <img ondragstart="return false" class="personalCenter-stateImg" id="personalCenter-stateImg-id" src="../../../static/Img/personalCenter/online-20px@2x.png"> 
             <input class="personalCenter-stateInput" v-model="stateInput" @keyup.enter="stateChangeConfirm()" @input="checkStateInputLength()">
             <img ondragstart="return false" class="personalCenter-stateSelectArrow"  @click="stateListArrowClicked()" src="../../../static/Img/personalCenter/statusArrow-20px@2x.png">
@@ -30,7 +30,7 @@
             <img ondragstart="return false" class="personalCenter-descriptionIcon" src="../../../static/Img/personalCenter/workDescription-20px@2x.png">
             <input class="personalCenter-descriptionInput" placeholder="设置工作状态" v-model="workDescriptionInput" @input="checkDescriptionInputLength()" @keyup.enter="workDescriptionChangeConfirm()">
         </div>
-        <image-cropper v-if="showImageCropper" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
+        <image-cropper v-if="showImageCropper" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper> -->
     </div>
 </template>
 <script>
@@ -299,7 +299,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .personalCenter-view {
-    height: 134px;
+    height: 90px;
     width: 300px;
     padding: 0px;
     //border: 1px solid rgb(242, 242, 246);
