@@ -689,14 +689,12 @@ export default {
         this.groupFavouriteState = this.showGroupInfo.isFav;
         this.isOwner = this.showGroupInfo.isOwner //this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
         this.ownerId = this.showGroupInfo.ownerId;
-
-        ////
-        setTimeout(() => {
-            this.$nextTick(() => {
-                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
-            })
-        }, 0)
         document.addEventListener('click', this.updateCursorPosition);
+
+        this.getMemberImage();
+        let elementImg = document.getElementById("groupInfoImageId");
+        elementImg.setAttribute("src", this.groupAvarar);
+        
     },
     watch: {
         // showGroupInfoTips: function() {
