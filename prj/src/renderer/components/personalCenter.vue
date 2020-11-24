@@ -262,7 +262,8 @@ export default {
     created () {
         var leftPosition = 64;
         var topPosition = 32;
-        
+        if(!global.mxMatrixClientPeg.matrixClient)
+            return;
         this.userId = global.mxMatrixClientPeg.matrixClient.getUserId();
         this.userInfo = global.mxMatrixClientPeg.matrixClient.getUser(this.userId);
         console.log("this.userinfo is ", this.userInfo);
