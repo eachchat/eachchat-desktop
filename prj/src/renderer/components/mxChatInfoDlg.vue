@@ -1,32 +1,36 @@
 <template>
-    <div class="mx-setting-dialog">
-        <div class="inner-wrap">
-            <div class="title">编辑群信息</div>
-            <div class="close" @click.stop="close">x</div>
-            <div class="setting-field">
-                <div class="filed-title">群名称</div>
-                <input 
-                    type="text" 
-                    placeholder="请输入群名称" 
-                    class="title-input"
-                    maxlength="24"
-                    v-model="roomName"
-                />
-                <div class="input-tip">*限制24个字符</div>
-            </div>
-            <div class="setting-field">
-                <div class="filed-title">群名称</div>
-                <textarea 
-                    placeholder="请输入群描述" 
-                    class="desc-text"
-                    maxlength="100"
-                    v-model="roomTopic"
-                ></textarea>
-                <div class="input-tip">*限制100个字符</div>
-            </div>
-            <div class="submit-field">
-                <div class="button" @click.stop="updateInfo">确定</div>
-                <div class="button" @click.stop="close">取消</div>
+    <div class="wrap-layer" @click.self.stop="close">
+        <div class="mx-setting-dialog">
+            <div class="inner-wrap">
+                <div class="title">
+                    <span>编辑群资料</span>
+                    <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png">
+                </div>
+                <div class="setting-field">
+                    <div class="filed-title">群名称</div>
+                    <input 
+                        type="text" 
+                        placeholder="请输入群名称" 
+                        class="title-input"
+                        maxlength="24"
+                        v-model="roomName"
+                    />
+                    <div class="input-tip">*限制24个字符</div>
+                </div>
+                <div class="setting-field">
+                    <div class="filed-title">群名称</div>
+                    <textarea 
+                        placeholder="请输入群描述" 
+                        class="desc-text"
+                        maxlength="100"
+                        v-model="roomTopic"
+                    ></textarea>
+                    <div class="input-tip">*限制100个字符</div>
+                </div>
+                <div class="submit-field">
+                    <div class="button button-close" @click.stop="close">取消</div>
+                    <div :class="{button:true, buttonConfirm:!loading, buttonConfirmLoading:loading}" @click.stop="updateInfo">确定</div>
+                </div>
             </div>
         </div>
     </div>
@@ -43,7 +47,8 @@ export default {
     data () {
         return {
             roomName:'',
-            roomTopic:''
+            roomTopic:'',
+            loading: false
         }
     },
     props: ['roomId'],
@@ -53,15 +58,18 @@ export default {
             this.$emit('close', 'close')
         },
         updateInfo() {
+            if (this.loading) return;
+            this.loading = true;
             const vtx = this;
             const roomId = this.roomId;
             const name = this.roomName;
             const topic = this.roomTopic;
             const client = window.mxMatrixClientPeg.matrixClient;
             let promises = [];
-            let namePromise = client.setRoomName(this.roomId, name).catch((e)=>{console.error('群名称设置失败',e)});
-            let topicPromise = client.setRoomTopic(this.roomId, topic).catch((e)=>{console.error('群描述设置失败',e)});
+            let namePromise = client.setRoomName(this.roomId, name).catch((e)=>{console.error('群名称设置失败',e); vtx.loading = false;});
+            let topicPromise = client.setRoomTopic(this.roomId, topic).catch((e)=>{console.error('群描述设置失败',e); vtx.loading = false;});
             Promise.all(promises).then(()=>{
+                vtx.loading = false;
                 vtx.$emit('close', 'close')
             })
 
@@ -88,14 +96,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .mx-setting-dialog {
+    .wrap-layer {
+        height: 100%;
+        width: 100%;
         position: fixed;
+        top:0px;
+        left:0px;
+        background: rgba(0, 0, 0, 0.6);
+        z-index:3;
+    }
+    .mx-setting-dialog {
+        position: absolute;
         left: 50%;
         top: 20px;
         margin-left: -200px;
-        background-color: #f2f2f2;
+        background-color: #fff;
         padding: 24px;
-        border-radius: 16px;
+        border-radius: 4px;
         width: 400px;
         height: 400px;
         z-index: 99999;
@@ -106,11 +123,13 @@ export default {
                 font-size: 16px;
                 font-weight: bolder;
                 margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
             }
             .close {
-                position: absolute;
-                top: 24px;
-                right: 24px;
+                height: 20px;
+                width: 20px;
             }
             .setting-field {
                 margin-bottom: 20px;
@@ -123,12 +142,18 @@ export default {
                     height: 40px;
                     width: 100%;
                     box-sizing: border-box;
+                    border: 1px solid #DDDDDD;
+                    outline: none;
+                    border-radius: 4px;
                 }
                 .desc-text {
                     height: 120px;
                     width: 100%;
                     box-sizing: border-box;
                     resize: none;
+                    border: 1px solid #DDDDDD;
+                    outline: none;
+                    border-radius: 4px;
                 }
                 .input-tip {
                     color:rgb(118, 118, 118);
@@ -137,20 +162,34 @@ export default {
             }
             .submit-field {
                 display: flex;
-                flex-direction: row-reverse;
+                justify-content: center;
                 align-items: center;
                 .button {
                     width: 100px;
-                    height: 28px;
+                    height: 32px;
                     box-sizing: border-box;
-                    border: .5px solid #000;
-                    background-color: #fff;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 14px;
-                    margin-left: 28px;
                     border-radius: 4px;
+                }
+                .button-close {
+                    border: 1px solid #DDD;
+                    background-color: #fff;
+                    color: #000;
+                }
+                .buttonConfirmLoading {
+                    margin-left: 20px;
+                    border: 1px solid #A7E0C4;
+                    background-color: #A7E0C4;
+                    color: #fff;
+                }
+                .buttonConfirm {
+                    margin-left: 20px;
+                    border: 1px solid #24B36B;
+                    background-color: #24B36B;
+                    color: #fff;
                 }
             }
         }
