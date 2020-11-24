@@ -163,7 +163,7 @@ import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
-import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages/data/sqliteutil.js'
+import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
@@ -172,6 +172,7 @@ import * as Matrix from 'matrix-js-sdk';
 import { timelineEnd } from 'console';
 import Invite from './invite.vue';
 import encrypt from 'browser-encrypt-attachment';
+import {ComponentUtil} from '../script/component-util'
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -340,39 +341,18 @@ export default {
             // console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            var user = await UserInfo.GetUserInfo(distUserInfo.user_id);
-            tempUserInfo.id = user.user_id;
-            tempUserInfo.avatarTUrl = user.avatar_t_url;
-            tempUserInfo.displayName = user.user_display_name;
-            tempUserInfo.title = user.user_title;
-            tempUserInfo.statusDescription = user.status_description;
-            tempUserInfo.workDescription = user.work_description;
-            tempUserInfo.managerId = user.manager_id;
-            tempUserInfo.departmentId = user.belong_to_department_id;
-            
-            //get department
-            var department = await Department.GetDepartmentInfoByUserID(distUserInfo.user_id);
-            tempUserInfo.department = department;
-            //get email
-            var email = await UserInfo.GetUserEmailByUserID(distUserInfo.user_id);
-            tempUserInfo.email = email;
-            //get phone
-            var phone = await UserInfo.GetUserPhoneByUserID(distUserInfo.user_id);
-            var tempPhone = {};
-            for (var i = 0; i < phone.length; i ++){
-                var temp = phone[i];
-                if(temp.phone_type == 'mobile'){
-                    tempPhone.mobile = temp.phone_value;
-                }else{
-                    tempPhone.work = temp.phone_value;
-                }
+
+            let user = await Contact.GetContactInfo(distUserInfo.matrix_id);
+            if(user){
+                tempUserInfo = await ComponentUtil.ShowContactInfo(distUserInfo.matrix_id)
             }
-            tempUserInfo.phone = tempPhone;
-
-
-            var leaders = await UserInfo.GetLeaders(distUserInfo.user_id);
-            tempUserInfo.leaders = leaders;
-            console.log("tetempUserInfo is ", tempUserInfo);
+            else{
+                tempUserInfo = await ComponentUtil.ShowOrgInfoByMatrixID(distUserInfo.matrix_id)
+            }
+            
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserInfo.matrix_id);
+            if(profileInfo)
+                tempUserInfo.avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
 
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
