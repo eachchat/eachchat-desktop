@@ -1506,10 +1506,10 @@ const common = {
 
   async ListAllCollections(){
     await this.ListMessageCollections();
-    await this.ListPictureCollections();
-    await this.ListFileCollections();
-    await this.ListGroupCollections();
-    await this.ListTopicCollections();
+    //await this.ListPictureCollections();
+    //await this.ListFileCollections();
+    //await this.ListGroupCollections();
+    //await this.ListTopicCollections();
   },
 
   async ListMessageCollections(){
@@ -1546,8 +1546,7 @@ const common = {
       result = await this.api.ListAllCollections(this.data.login.access_token,
                                                   type,
                                                   sequenceID,
-                                                  20,
-                                                  order);
+                                                  20);
       if (!result.ok || !result.success) {
         break;
       }
@@ -1558,7 +1557,7 @@ const common = {
         item = result.data.results[index];
         collectionModel = await servicemodels.CollectionModel(item);
 
-        let find = await Collection.FindItemByFavouriteID(item.favoriteId)
+        let find = await Collection.FindItemByCollectionID(item.collectionId)
         if(find == undefined){
           collectionModel.save();
         }
@@ -1573,25 +1572,25 @@ const common = {
     return collections;
   },
 
-  async CollectMessage(timelineIDs){
-    let result = await this.api.CollectMessage(this.data.login.access_token, timelineIDs);
+  async CollectMessage(eventID, content){
+    let result = await this.api.CollectMessage(this.data.login.access_token, eventID, content);
     if (!result.ok || !result.success) {
       return false;
     }
     let item;
     let model;
-    for(let index in result.data.obj){
-      item = result.data.obj[index];
-      model = await servicemodels.CollectionModel(item);
-      let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
-      if(findmodel == undefined){
-        model.save();
-      }
-      else{
-        findmodel.values = model.values;
-        findmodel.save();
-      }
+ 
+    item = result.data.obj;
+    model = await servicemodels.CollectionModel(item);
+    let findmodel = await Collection.FindItemByCollectionID(eventID)
+    if(findmodel == undefined){
+      model.save();
     }
+    else{
+      findmodel.values = model.values;
+      findmodel.save();
+    }
+
     return true;
   },
 

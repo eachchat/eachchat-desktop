@@ -133,9 +133,6 @@ export default {
                 "absoluteLeft": curAbsoluteLeft,
                 "isMine": this.MsgIsMine(),
             }
-            console.log("emit absoluteTop ", curAbsoluteTop);
-            console.log("emit absoluteLeft ", curAbsoluteLeft);
-            // console.log("emit openUserInfoTip ", tipInfos);
             this.$emit("openUserInfoTip", tipInfos);
         },
         msgNameId: function() {
@@ -340,14 +337,11 @@ export default {
             if(this.decrypting) return;
             if(this.decryptedBlob == null) {
                 this.decrypting = true;
-                var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
                 decryptFile(content.file, this.matrixClient.mxcUrlToHttp(content.file.url))
                     .then((blob) => {
                         let reader = new FileReader();
                         reader.onload = function() {
                             if(reader.readyState == 2) {
-                                // var buffer = new Buffer(reader.result);
-                                // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                                 let a = document.createElement('a');
                                 a.href = window.URL.createObjectURL(blob);
                                 a.download = content.body;
@@ -435,6 +429,9 @@ export default {
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = this.msg.getContent();
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
+            // console.log("this.msg.getType() is ", this.msg.getType())
+            // console.log("chatGroupMsgType.type is ", chatGroupMsgType)
+            // console.log("chatGroupMsgContent.type is ", chatGroupMsgContent.msgtype)
             // console.log("this. msg is ", this.msg)
             // 数据库缺省type = 0 
             if(chatGroupMsgType === "m.room.message")
@@ -561,8 +558,6 @@ export default {
             }
         },
         MsgBelongUserImg: async function () {
-            // var distUserInfo = await services.common.GetDistUserinfo(this.msg.message_from_id);
-            // console.log("MsgBelongUserImg this.userInfo is ", this.userInfo)
             if(this.msg == undefined) {
                 return;
             }
@@ -588,74 +583,12 @@ export default {
             if(userUrl != undefined) {
                 this.userIconElement.setAttribute("src", userUrl);
             }
-            /*
-            // console.log("msgconent is ", strMsgContentToJson(this.msg.message_content), "this.userInfo is ", this.userInfo);
-            var targetDir = confservice.getFilePath();
-            var targetFileName = this.msg.message_from_id + ".png";
-            var targetPath = confservice.getUserThumbHeadLocalPath(this.msg.message_from_id);
-            // console.log("msg target path is ", targetPath);
-
-            if(fs.existsSync(targetPath)){
-                //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
-                // var showfu = new FileUtil(targetPath);
-                // let showfileObj = showfu.GetUploadfileobj();
-                // let reader = new FileReader();
-                // reader.readAsDataURL(showfileObj);
-                // reader.onloadend = () => {
-                    this.userIconElement.setAttribute("src", targetPath);
-                // }
-            }
-            else{
-                var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
-                // console.log("userInfo is ", userInfos)
-                if(userInfos == undefined || userInfos.length == 0) {
-                    console.log("err");
-                    this.userInfo = {};
-                    // this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
-                    return;
-                }
-
-                this.userInfo = userInfos[0];
-                var distTAvarar = this.userInfo.avatar_t_url;
-                // ipcRenderer.send('download-image', [this.msg.time_line_id, this.loginInfo.access_token, services.common.config.hostname, services.common.config.apiPort, targetPath, "T", false]);
-                // console.log("message downloag group avatar target path is ", targetPath);
-                if(fs.existsSync(targetPath == await services.common.downloadUserTAvatar(distTAvarar, this.msg.message_from_id))) {
-                    console.log("targetpath is ", targetPath);
-                    this.userIconElement.setAttribute("src", targetPath);
-                }
-                else {
-                    console.log("attriub  is ");
-                    // this.userIconElement.setAttribute("src", "../../../static/Img/User/user-40px@2x.png")
-                }
-                // this.checkAndLoadUserImage(targetPath);
-            }
-
-            // downloadGroupAvatar(distTAvarar, this.loginInfo.access_token)
-            // .then((ret) => {
-            //     console.log("group avatar is ", ret.data)
-            //     this.userIconElement.setAttribute("src", URL.createObjectURL(ret.data));
-            //     this.userIconElement.onload = () => {
-            //         URL.revokeObjectURL(this.userIconElement.getAttribute("src"))
-            //     }
-            // })
-            */
         },
         msgUserInfo: async function() {
-            return '';
-            // console.log("this.msg.message_from_id is ", this.msg.message_from_id);
-            // console.log("this.msg.messagecontent is ", strMsgContentToJson(this.msg.message_content));
-            var userInfos = await services.common.GetDistUserinfo(this.msg.message_from_id);
-            // console.log("userInfo is ", userInfos)
-            if(userInfos == undefined || userInfos.length == 0) {
-                console.log("err");
-                this.userInfo = {};
-                return;
+            this.userInfo = {};
+            if(this.msg.sender){
+                this.userInfo.matrix_id = this.msg.sender.userId;
             }
-
-            this.userInfo = userInfos[0];
-            // this.userInfo.phone = await services.common.GetDistUserPhone(this.msg.message_from_id);
-            // this.userInfo.email = await services.common.GetDistUserEmail(this.msg.message_from_id);
-            // console.log("this.userInfo is ", this.userInfo)
         },
         compare: function(){
             return function(a, b)
@@ -700,12 +633,6 @@ export default {
         }
     },
     mounted: async function() {
-        // When Mounting Can Not Get The Element. Here Need SetTimeout
-        // await this.msgUserInfo();
-        // var userIconElementId = this.getUserIconId();
-        // if(this.userIconElement == undefined) {
-        //     this.userIconElement = document.getElementById(userIconElementId);
-        // }
         setTimeout(() => {
             this.$nextTick(() => {
                 this.MsgBelongUserImg();
@@ -730,7 +657,6 @@ export default {
     },
     watch: {
         msg: async function() {
-            // await this.msgUserInfo();
             setTimeout(() => {
                 // console.log("show state");
                 this.showState = true;

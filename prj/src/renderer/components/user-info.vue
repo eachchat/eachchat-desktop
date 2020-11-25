@@ -270,6 +270,8 @@ export default {
             return total - count * 36;
         },
         getUserImg: async function (userInfo){
+            if(!userInfo.matrix_id)
+                return;
             let userIconElement = document.getElementById(this.getUserInfoIconID(userInfo.matrix_id));
             if(!userIconElement)
                 return;

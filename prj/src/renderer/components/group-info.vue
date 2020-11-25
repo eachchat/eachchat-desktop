@@ -537,7 +537,7 @@ export default {
             }
             var wholeWinTop = this.wholeTipElement.offsetTop;
             var wholeWinLeft = this.wholeTipElement.offsetLeft;
-            var uid = item.user_id;
+            var uid = item.userId;
 
             if(distElement == undefined) {
                 distElement = document.getElementById(this.getLabelIdThroughMemberUid(uid));
@@ -546,9 +546,11 @@ export default {
             var curAbsoluteTop = distElement.offsetTop;
             var curAbsoluteLeft = distElement.offsetLeft;
 
-            var curUserInfo = await UserInfo.GetUserInfo(uid);
+            let userInfo = {
+                matrix_id: uid
+            }
             var tipInfos = {
-                "userInfo": curUserInfo[0],
+                "userInfo": userInfo,
                 // "absoluteTop": curAbsoluteTop + wholeWinTop,
                 "absoluteTop": this.cursorY,
                 // "absoluteLeft": curAbsoluteLeft + wholeWinLeft,
@@ -693,7 +695,6 @@ export default {
 
             for(var i=0; i < this.memberListShow.length; i++) {
                 var distUserInfo = this.memberListShow[i];
-                // console.log("getMemberImage distuserinfo ", distUserInfo);
                 var targetPath = '';
                 if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
                     
@@ -749,14 +750,12 @@ export default {
         this.groupFavouriteState = this.showGroupInfo.isFav;
         this.isOwner = this.showGroupInfo.isOwner //this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
         this.ownerId = this.showGroupInfo.ownerId;
-
-        ////
-        setTimeout(() => {
-            this.$nextTick(() => {
-                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
-            })
-        }, 0)
         document.addEventListener('click', this.updateCursorPosition);
+
+        this.getMemberImage();
+        let elementImg = document.getElementById("groupInfoImageId");
+        elementImg.setAttribute("src", this.groupAvarar);
+        
     },
     watch: {
         // showGroupInfoTips: function() {

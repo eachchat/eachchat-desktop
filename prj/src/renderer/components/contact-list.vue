@@ -189,33 +189,7 @@ export default {
             this.userInfoPosition.left = iconElement.getBoundingClientRect().left;
             this.userInfoPosition.top = iconElement.getBoundingClientRect().top;
             console.log(iconElement.getBoundingClientRect());
-            var tempUserInfo = {};
-            //get userinfo
-            var user = await Contact.GetContactInfo(id);
-            let userInfo = await UserInfo.GetUserInfoByMatrixID(user.matrix_id)
-            let department = {display_name:""};
-            if(userInfo)
-            {
-                department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
-                tempUserInfo.id = userInfo.user_id
-            }
-            else
-                department.display_name = user.company
-            tempUserInfo.avatar_url = user.avatar_url;
-            tempUserInfo.department = department;
-            tempUserInfo.matrix_id = id;
-            tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, id);
-            tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
-            tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);
-            tempUserInfo.workDescription = ComponentUtil.ShowInfoContent(user.work_description);
-            tempUserInfo.email = [];
-            tempUserInfo.email.push({
-                email_value: ComponentUtil.ShowInfoContent(user.email)
-            })
-            tempUserInfo.phone = {
-                mobile: ComponentUtil.ShowInfoContent(user.mobile),
-                work: ComponentUtil.ShowInfoContent(user.telephone)
-            };
+            let tempUserInfo = await ComponentUtil.ShowContactInfo(id);
 
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;

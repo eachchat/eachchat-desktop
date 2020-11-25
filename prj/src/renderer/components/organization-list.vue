@@ -55,6 +55,7 @@ import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
 import '../style/contact-list'
+import { ComponentUtil } from '../script/component-util.js'
 
 export default {
     name: 'organizationList',
@@ -146,42 +147,8 @@ export default {
             this.userInfoPosition.left = iconElement.getBoundingClientRect().left;
             this.userInfoPosition.top = iconElement.getBoundingClientRect().top;
             console.log(iconElement.getBoundingClientRect());
-            var tempUserInfo = {};
             //get userinfo
-            var user = await UserInfo.GetUserInfo(id);
-            tempUserInfo.id = user.user_id;
-            tempUserInfo.matrix_id = user.matrix_id;
-            tempUserInfo.avatarTUrl = user.avatar_t_url;
-            tempUserInfo.displayName = user.user_display_name;
-            tempUserInfo.title = user.user_title;
-            tempUserInfo.statusDescription = user.status_description;
-            tempUserInfo.workDescription = user.work_description;
-            tempUserInfo.managerId = user.manager_id;
-            tempUserInfo.departmentId = user.belong_to_department_id;
-            
-            //get department
-            var department = await Department.GetDepartmentInfoByUserID(id);
-            tempUserInfo.department = department;
-            //get email
-            var email = await UserInfo.GetUserEmailByUserID(id);
-            tempUserInfo.email = email;
-            //get phone
-            var phone = await UserInfo.GetUserPhoneByUserID(id);
-            var tempPhone = {};
-            for (var i = 0; i < phone.length; i ++){
-                var temp = phone[i];
-                if(temp.phone_type == 'mobile'){
-                    tempPhone.mobile = temp.phone_value;
-                }else{
-                    tempPhone.work = temp.phone_value;
-                }
-            }
-            tempUserInfo.phone = tempPhone;
-
-
-            var leaders = await UserInfo.GetLeaders(id);
-            tempUserInfo.leaders = leaders;
-
+            let tempUserInfo = await ComponentUtil.ShowOrgInfoByUserID(id);
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
             this.showUserInfoTips = true;

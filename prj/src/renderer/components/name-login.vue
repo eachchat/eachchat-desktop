@@ -662,8 +662,6 @@ export default {
             
         },
         login:async function() {
-            this.isLoading = true;
-            this.loginButtonDisabled = true;
             // this.loginState = "登录成功";
             if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
                 if(this.showUsernameLoginView){
@@ -705,6 +703,8 @@ export default {
                     return;
                 }
             }
+            this.isLoading = true;
+            this.loginButtonDisabled = true;
             var mac = environment.os.mac;
             var version = this.getOSVersion();
             var hostname = environment.os.hostName;

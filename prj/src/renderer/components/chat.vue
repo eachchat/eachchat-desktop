@@ -152,7 +152,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
-import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType} from '../../packages/core/Utils.js'
+import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatGroupCreater from './chatgroup-creater'
@@ -163,7 +163,7 @@ import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
-import { Group, Message, Department, UserInfo, sqliteutil } from '../../packages/data/sqliteutil.js'
+import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
@@ -172,6 +172,7 @@ import * as Matrix from 'matrix-js-sdk';
 import { timelineEnd } from 'console';
 import Invite from './invite.vue';
 import encrypt from 'browser-encrypt-attachment';
+import {ComponentUtil} from '../script/component-util'
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -316,7 +317,6 @@ export default {
             this.$emit("updateChatList", ret, false);
         },
         openUserInfoTip:async function(tipInfos) {
-            console.log("tip inso if ", tipInfos);
             if(this.showUserInfoTips && tipInfos.userInfo == undefined) {
                 this.showUserInfoTips = false;
                 return;
@@ -340,39 +340,18 @@ export default {
             // console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            var user = await UserInfo.GetUserInfo(distUserInfo.user_id);
-            tempUserInfo.id = user.user_id;
-            tempUserInfo.avatarTUrl = user.avatar_t_url;
-            tempUserInfo.displayName = user.user_display_name;
-            tempUserInfo.title = user.user_title;
-            tempUserInfo.statusDescription = user.status_description;
-            tempUserInfo.workDescription = user.work_description;
-            tempUserInfo.managerId = user.manager_id;
-            tempUserInfo.departmentId = user.belong_to_department_id;
-            
-            //get department
-            var department = await Department.GetDepartmentInfoByUserID(distUserInfo.user_id);
-            tempUserInfo.department = department;
-            //get email
-            var email = await UserInfo.GetUserEmailByUserID(distUserInfo.user_id);
-            tempUserInfo.email = email;
-            //get phone
-            var phone = await UserInfo.GetUserPhoneByUserID(distUserInfo.user_id);
-            var tempPhone = {};
-            for (var i = 0; i < phone.length; i ++){
-                var temp = phone[i];
-                if(temp.phone_type == 'mobile'){
-                    tempPhone.mobile = temp.phone_value;
-                }else{
-                    tempPhone.work = temp.phone_value;
-                }
+
+            let user = await Contact.GetContactInfo(distUserInfo.matrix_id);
+            if(user){
+                tempUserInfo = await ComponentUtil.ShowContactInfo(distUserInfo.matrix_id)
             }
-            tempUserInfo.phone = tempPhone;
-
-
-            var leaders = await UserInfo.GetLeaders(distUserInfo.user_id);
-            tempUserInfo.leaders = leaders;
-            console.log("tetempUserInfo is ", tempUserInfo);
+            else{
+                tempUserInfo = await ComponentUtil.ShowOrgInfoByMatrixID(distUserInfo.matrix_id)
+            }
+            
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserInfo.matrix_id);
+            if(profileInfo)
+                tempUserInfo.avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
 
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;
@@ -417,25 +396,16 @@ export default {
         handleDialogClose() {
             this.$refs.chatGroupCreater.initData();
         },
-        updateGroupImg: function(e, args) {
-            console.log("argsd is ", args);
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            if(id == this.chat.group_id || id == this.chat.user_id) {
-                let elementImg = document.getElementById("chat-group-img");
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                var reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
-            }
+        canRedact: function(curEvent) {
+            const cli = global.mxMatrixClientPeg.matrixClient;
+
+            const canRedact = this.chat.currentState.maySendRedactionForEvent(curEvent, cli.credentials.userId);
+
+            return canRedact;
         },
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
+            var showRedact = this.canRedact(msgItem);
             // console.log("e.target is ", e.target.className)
             let distElement = document.getElementById(msgItem.event.event_id);
             // console.log("distElement is ", distElement.className);
@@ -457,29 +427,29 @@ export default {
                         this.menuQuote(msgItem)
                     }
                 }));
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
                             this.transMit(msgItem)
                         }
                     }));
-                    /*
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
-                    */
                 }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -489,29 +459,35 @@ export default {
                 }
             }
             else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                    /*
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
-                    */
-                }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                    this.menu.append(new MenuItem({
+                        label: "收藏",
+                        click: () => {
+                            this.menuFav(msgItem)
+                        }
+                    }));
                     }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -535,13 +511,15 @@ export default {
                         }
                     }));
                 }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -559,13 +537,15 @@ export default {
                         }
                     }));
                 }
-                this.menu.append(new MenuItem({
-                    label: "删除",
-                    click: () => {
-                        this.menuDelete(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
+                if(showRedact) {
+                    this.menu.append(new MenuItem({
+                        label: "删除",
+                        click: () => {
+                            this.menuDelete(msgItem)
+                        }
+                    }));
+                }
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -578,7 +558,7 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event_id);
+            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id);
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
@@ -700,13 +680,15 @@ export default {
         async menuFav(msg) {
             console.log("fav msg is ", msg);
             console.log("cointent is ", strMsgContentToJson(msg.message_content));
-            var ret = await services.common.CollectMessage([msg.time_line_id]);
-            if(ret) {
-                //
-            }
-            else {
-                //
-            }
+            if(!msg.event || !msg.event.event_id)
+                return;
+            let event_id = msg.event.event_id;
+            let content = msg.event.content;
+            if(msg.sender && msg.sender.userId)
+                content.fromMatrixId = msg.sender.userId;
+            if(msg.event.origin_server_ts)
+                content.fromTimestamp = msg.event.origin_server_ts;
+            global.services.common.CollectMessage(event_id, content);
         },
         async multiFav() {
             var toFavMsgIds = [];
@@ -758,8 +740,22 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            this.fileLink = this.matrixClient.mxcUrlToHttp(msg.event.content.url);
-            console.log(this.fileLink)
+            var chatGroupMsgContent = msg.getContent();
+            getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                .then((blob) => {
+                    let reader = new FileReader();
+                    reader.onload = function() {
+                        if(reader.readyState == 2) {
+                            let a = document.createElement('a');
+                            a.href = window.URL.createObjectURL(blob);
+                            a.download = chatGroupMsgContent.body;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
+                    }
+                    reader.readAsArrayBuffer(blob);
+                })
         },
 
         cleanSelected() {
@@ -1082,42 +1078,16 @@ export default {
 
             this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
             if(!this.distUrl || this.distUrl == '') {
-                return;
+                let defaultGroupIcon;
+                if(this.isSecret)
+                    defaultGroupIcon = "../../../static/Img/User/group-40px@2x.png";
+                else
+                    defaultGroupIcon = "../../../static/Img/Chat/encrypt-chat-title@2x.png";
+               groupIcoElement.setAttribute("src", defaultGroupIcon); 
             }
             if(groupIcoElement != undefined && this.distUrl) {
               groupIcoElement.setAttribute("src", this.distUrl);
             }
-            // var targetPath = "";
-            // var distId = "";
-            // if(chatGroupItem.group_id != undefined && chatGroupItem.group_id.length != 0) {
-            //     distId = chatGroupItem.group_id;
-            // }
-            // else {
-            //     distId = chatGroupItem.user_id;
-            // }
-            // if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(chatGroupItem.group_avarar, distId))){
-            //     var showfu = new FileUtil(targetPath);
-            //     let showfileObj = showfu.GetUploadfileobj();
-            //     let reader = new FileReader();
-            //     reader.readAsDataURL(showfileObj);
-            //     reader.onloadend = () => {
-            //         groupIcoElement.setAttribute("src", reader.result);
-            //     }
-            // }
-
-            // var groupState = "";
-            // if(chatGroupItem.group_type == 102) {
-            //     if(chatGroupItem.owner == null || chatGroupItem.owner == undefined) {
-            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.user_id);
-            //     }
-            //     else {
-            //         var ownerInfo = await services.common.GetDistUserinfo(chatGroupItem.owner);
-            //     }
-            //     console.log("================ ownerInfo ", ownerInfo)
-            //     groupState = ownerInfo[0].status_description;
-            //     // console.log("================ ", ownerInfo)
-            // }
-            // groupStateElement.innerHTML = groupState;
         },
         insertFace: function(item) {
             var range = this.editor.getSelection();
@@ -2771,7 +2741,6 @@ s        },
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
                 this.showGroupName(this.chat);
-                ipcRenderer.on('updateGroupImg', this.updateGroupImg);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
             })
