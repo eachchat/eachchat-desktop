@@ -212,7 +212,17 @@ export default {
     },
     methods: {
         kickMember(item, idx) {
-
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const room = this.showGroupInfo.room;
+            console.log('----setPowerLevel room-----', room)
+            const roomId = room.roomId;
+            const userId = item.userId;
+            client.kick(roomId, userId, undefined).then(()=>{
+                console.log("Kick success");
+                let mxMembers = this.mxMembers;
+                mxMembers.splice(idx, 1);
+                this.mxMembers = [...mxMembers];
+            }).catch(()=>{alert('kick failed')})
         },
         _applyPowerChange(roomId, target, powerLevel, powerLevelEvent, idx) {
             console.log('----_applyPowerChange roomId-----', roomId)
@@ -298,7 +308,7 @@ export default {
             for(let key in xie1.currentState.members) {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let obj = {...xie1.currentState.members[key], choosen:false}
-                mxMembers.push(obj);
+                if (obj.membership != 'leave') mxMembers.push(obj);
             }
             console.log('mxMembers', mxMembers);
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
