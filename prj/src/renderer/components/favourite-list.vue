@@ -13,8 +13,8 @@
                     <li class="message"
                         v-for="(message, index) in favourites" 
                         :key="index">
-                        <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.text }}</p>
-                        <p class="message-sender">{{ message.collection_content.fromUserName }}</p>
+                        <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
+                        <p class="message-sender">{{ message.collection_content.fromMatrixId }}</p>
                         <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                         <div class="favourite-action">
                             <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
@@ -508,7 +508,8 @@ export default {
                 tempFavourite.collection_type = model.collection_type;
                 tempFavourite.favourite_id = model.favourite_id;
                 tempFavourite.collection_content = strMsgContentToJson(model.collection_content);
-                tempFavourite.sequence_id = model.sequence_id;
+                tempFavourite.sequence_id 
+                = model.sequence_id;
                 tempFavourite.timeline_id = model.timeline_id;
                 tempFavourite.timestamp = model.timestamp;
                 
@@ -696,7 +697,7 @@ export default {
         }
         if (this.favouriteType == 'message'){
             this.headerTitle = '收藏';
-            var messageCollectionModel = await services.common.ListMessageCollections();
+            var messageCollectionModel = await global.services.common.ListMessageCollections();
             this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
             
             console.log(this.favourites);

@@ -145,7 +145,6 @@ export default {
         this.showSearchView = false;
         this.favouriteType = 'message';
         this.listKey ++;
-        global.services.common.ListAllCollections();
     }
 }
 </script>
