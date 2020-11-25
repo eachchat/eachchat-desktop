@@ -577,10 +577,13 @@ class APITransaction {
   }
 
   async CollectMessage(accessToken, eventID, content){
+    let type = 101;
+    if(content.msgtype == "m.file" || content.msgtype == "m.image")
+      type = 102;
     var response = await this.commonApi.post(
       "/api/apps/fav/v1/collection",
       {
-        collectionType: 101,
+        collectionType: type,
         collectionId: eventID,
         content:   content
       },

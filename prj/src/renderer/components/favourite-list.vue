@@ -449,28 +449,11 @@ export default {
         },
 
         getImageCollectionContent:async function(image){
-
-            var targetDir = confservice.getThumbImagePath(image.timestamp);
-            var targetPath = path.join(targetDir, image.collection_content.fileName);
-            var needOpen = false;
             var imageCollectionElement = document.getElementById(image.collection_id);
-            if(fs.existsSync(targetPath)){
-
-                    var showfu = new FileUtil(targetPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        imageCollectionElement.setAttribute("src", reader.result);
-                    }
-
-            }
-            else{
-
-                console.log("download collection image ", image)
-                await services.common.downloadMsgTTumbnail(image.collection_content.timelineId, image.timestamp, image.collection_content.fileName, false);
-                //await this.getImageCollectionContent(image);
-                // this.checkAndLoadImg(targetPath);
+            if(imageCollectionElement)
+            {
+                var realUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
+                imageCollectionElement.setAttribute("src", realUrl);
             }
         },
         getGroupAvatarContent:async function(group) {
@@ -688,7 +671,6 @@ export default {
         },
     },
     created:async function() {
-
         this.recentGroups = await Group.GetGroupByTime();
         //console.log(this.recentGroups);
         if(this.showSearchView){
@@ -703,19 +685,18 @@ export default {
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
             this.headerTitle = '收藏';
-            var imageCollectionModel = await services.common.ListPictureCollections();
+            var imageCollectionModel = await global.services.common.ListPictureCollections();
             this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
-            const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.on('updateMsgFile', this.updateCollectionShowImage);
             this.$nextTick(function(){
                 for(var i = 0; i < this.favourites.length; i ++){
                     this.getImageCollectionContent(this.favourites[i]);
                 }
             });
+  
         }else if(this.favouriteType == 'file') {
             this.headerTitle = '收藏';
-            var fileCollectionModel = await services.common.ListFileCollections();
+            var fileCollectionModel = await global.services.common.ListFileCollections();
             this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
             var tempFiles = [];
             for(var i = 0; i < this.favourites.length; i ++){
@@ -730,7 +711,7 @@ export default {
             console.log(this.favourites);
         }else if(this.favouriteType == 'group'){
             this.headerTitle = '收藏';
-            var groupCollectionModel = await services.common.ListGroupCollections();
+            var groupCollectionModel = await global.services.common.ListGroupCollections();
             this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
             console.log(this.favourites);
             this.$nextTick(function(){
@@ -740,7 +721,7 @@ export default {
             });
             
         }
-        this.curUserInfo = await services.common.GetSelfUserModel();
+        this.curUserInfo = await global.services.common.GetSelfUserModel();
     }
 }
 </script>
