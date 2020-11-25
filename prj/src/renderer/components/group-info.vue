@@ -94,10 +94,10 @@
                         v-if="currentUser.powerLevel > item.powerLevel"
                     >
                     <div class="memberItemOptions" v-show="item.choosen">
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel">设为管理者</div>
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel">设为主持人</div>
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel">设为普通用户</div>
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel">移除成员</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为管理者</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为主持人</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为普通用户</div>
+                        <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">移除成员</div>
                     </div>
                 </li>
             </ul>
@@ -211,6 +211,9 @@ export default {
     computed: {
     },
     methods: {
+        kickMember(item, idx) {
+
+        },
         _applyPowerChange(roomId, target, powerLevel, powerLevelEvent, idx) {
             console.log('----_applyPowerChange roomId-----', roomId)
             console.log('----_applyPowerChange powerLevelEvent-----', powerLevelEvent)
