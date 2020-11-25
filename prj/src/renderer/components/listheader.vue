@@ -106,7 +106,7 @@ export default {
         mxDmDlg: function(close) {
             console.log('???', close)
             if (close) {
-                if (close.data) this.$emit(close.handler, close.data);
+                // if (close.data) this.$emit(close.handler, close.data);
                 this.showCreateNewChat = false;
                 return this.mxDmDlgOpen = false;
             }
@@ -115,14 +115,14 @@ export default {
         mxSquare: function(close) {
             console.log('???', close)
             if (close) {
-                if (close.data) this.$emit(close.handler, close.data);
+                // if (close.data) this.$emit(close.handler, close.data);
                 this.showCreateNewChat = false;
                 return this.mxSquareOpen = false;
             }
             this.mxSquareOpen = true;
         },
         mxSelectMember: function(close) {
-            if (close.data) this.$emit(close.handler, close.data);
+            // if (close.data) this.$emit(close.handler, close.data);
             this.showCreateNewChat = false;
             this.mxSelectMemberOpen = false;
         },

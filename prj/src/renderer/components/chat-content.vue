@@ -254,22 +254,31 @@ export default {
         this.$nextTick(() => {
           this.showGroupIcon();
         })
-        global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', async (event, member) => {
+        global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             console.log("join room:" + member.roomId);
             console.log("event is ", event);
             console.log("member is ", member);
-            setTimeout(() => {
-              this.showGroupList = [];
-              console.log('rooms again', global.mxMatrixClientPeg.matrixClient.getRooms());
-              global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
-                if(r.getMyMembership() != "LEAVE") {
-                  this.showGroupList.push(r);
+            const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            setTimeout(()=>{
+              if (member.userId == currentUserId) {
+                let newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
+                console.log('get rooms again', newRooms);
+                newRooms.filter((r, idx) => {
+                  return r.getMyMembership() != "LEAVE"
+                })
+                this.showGroupList = [...newRooms];
+                if (member.membership == 'join') {
+                  newRooms.forEach((r,i) => {
+                    if (r.roomId == member.roomId) {
+                      this.showChat(r, i);
+                    }
+                  })
                 }
-              })
-              this.$nextTick(() => {
-                this.showGroupIcon();
-              })
-            }, 1600)
+                this.$nextTick(() => {
+                  this.showGroupIcon();
+                })
+              }
+            },320)
         })
       }
     }
@@ -337,7 +346,7 @@ export default {
   },
   methods: {
     viewRoom(room) {
-      console.log('---new rooms---',  newRooms);
+      console.log('---viewRoom new rooms---',  newRooms);
       const newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
       for(let i=0; i<newRooms.length; i++) {
         console.log('xie1--', newRooms[i].roomId);
