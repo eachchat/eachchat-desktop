@@ -562,14 +562,13 @@ class APITransaction {
       return this.parseStatus(response);
   }
 
-  async ListAllCollections(accessToken, type, sequenceId, perpage, sortOrder){
+  async ListAllCollections(accessToken, type, sequenceId, perpage){
     var response = await this.commonApi.post(
-      "/api/apps/fav/v1/collection/favorites",
+      "/api/apps/fav/v1/collections",
       {
-        collectionType:type,
+        collectionTypes:type,
         sequenceId:sequenceId,
-        perPage:perpage,
-        sortOrder:sortOrder
+        perPage:perpage
       },
       {
         Authorization: "Bearer " + accessToken
@@ -577,11 +576,13 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async CollectMessage(accessToken, timelineIDs){
+  async CollectMessage(accessToken, eventID, content){
     var response = await this.commonApi.post(
-      "/api/apps/fav/v1/collection/message",
+      "/api/apps/fav/v1/collection",
       {
-        msgIds:   timelineIDs
+        collectionType: 101,
+        collectionId: eventID,
+        content:   content
       },
       {
         Authorization: "Bearer " + accessToken

@@ -427,21 +427,19 @@ export default {
                         this.menuQuote(msgItem)
                     }
                 }));
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
                             this.transMit(msgItem)
                         }
                     }));
-                    /*
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
-                    */
                 }
                 if(showRedact) {
                     this.menu.append(new MenuItem({
@@ -461,22 +459,26 @@ export default {
                 }
             }
             else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                    /*
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
                             this.menuFav(msgItem)
                         }
                     }));
-                    */
-                }
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                    this.menu.append(new MenuItem({
+                        label: "收藏",
+                        click: () => {
+                            this.menuFav(msgItem)
+                        }
+                    }));
+                    }
                 if(showRedact) {
                     this.menu.append(new MenuItem({
                         label: "删除",
@@ -678,13 +680,15 @@ export default {
         async menuFav(msg) {
             console.log("fav msg is ", msg);
             console.log("cointent is ", strMsgContentToJson(msg.message_content));
-            var ret = await services.common.CollectMessage([msg.time_line_id]);
-            if(ret) {
-                //
-            }
-            else {
-                //
-            }
+            if(!msg.event || !msg.event.event_id)
+                return;
+            let event_id = msg.event.event_id;
+            let content = msg.event.content;
+            if(msg.sender && msg.sender.userId)
+                content.fromMatrixId = msg.sender.userId;
+            if(msg.event.origin_server_ts)
+                content.fromTimestamp = msg.event.origin_server_ts;
+            global.services.common.CollectMessage(event_id, content);
         },
         async multiFav() {
             var toFavMsgIds = [];
