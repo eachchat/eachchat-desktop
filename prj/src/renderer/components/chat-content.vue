@@ -247,7 +247,7 @@ export default {
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
           console.log("this is ", r);
           console.log("r.getMyMembership() ", r.getMyMembership());
-          if(r.getMyMembership() != "LEAVE") {
+          if(r.getMyMembership() != "leave") {
             this.showGroupList.push(r);
           }
         })
@@ -264,7 +264,7 @@ export default {
                 let newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
                 console.log('get rooms again', newRooms);
                 newRooms.filter((r, idx) => {
-                  return r.getMyMembership() != "LEAVE"
+                  return r.getMyMembership() != "leave"
                 })
                 this.showGroupList = [...newRooms];
                 if (member.membership == 'join') {
