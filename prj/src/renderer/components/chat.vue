@@ -2362,7 +2362,8 @@ s        },
                 "isFav": false, //this.groupIsInFavourite(this.chat),
                 "ownerId": ownerId, //this.chat.owner,
                 "groupType": 100, //this.chat.group_type,
-                "isSecret": false // (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
+                "isSecret": false, // (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
+                "room": this.chat
             }
             console.log('======weihemeiyou', groupInfoObj)
             this.groupInfo = groupInfoObj;

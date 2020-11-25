@@ -79,7 +79,11 @@
                     <div class="memberItemLeft">
                         <img src="../../../static/Img/User/user-40px@2x.png" class="memberItemAvatar"> <!--todo 头像需要更替-->
                         <div class="memberItemContent">
-                            <div class="memberItemName">{{item.name}}</div>
+                            <div class="memberItemName">
+                                <span>{{item.name}}</span>
+                                <span v-if="item.powerLevel==100" class="adminBadge">管理者</span>
+                                <span v-if="item.powerLevel==50" class="adminBadge">主持人</span>
+                            </div>
                             <div class="memberItemMxId">{{item.userId}}</div>
                         </div>
                     </div>
@@ -87,11 +91,13 @@
                         src="../../../static/Img/Main/sandian.png" 
                         class="memberItemOptionsImg"
                         @click.self.stop="switchOption(index)"
+                        v-if="currentUser.powerLevel > item.powerLevel"
                     >
                     <div class="memberItemOptions" v-show="item.choosen">
-                        <div class="optionItem">设为管理者</div>
-                        <div class="optionItem">设为普通用户</div>
-                        <div class="optionItem">移除成员</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel">设为管理者</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel">设为主持人</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel">设为普通用户</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel">移除成员</div>
                     </div>
                 </li>
             </ul>
@@ -173,6 +179,7 @@ export default {
             //matrix data
             mxMute: false,
             mxMembers: [],
+            currentUser: undefined
         }
     },
     components: {
@@ -204,6 +211,23 @@ export default {
     computed: {
     },
     methods: {
+        _applyPowerChange(roomId, target, powerLevel, powerLevelEvent, idx) {
+            console.log('----_applyPowerChange roomId-----', roomId)
+            console.log('----_applyPowerChange powerLevelEvent-----', powerLevelEvent)
+            const client = window.mxMatrixClientPeg.matrixClient;
+            client.setPowerLevel(roomId, target, parseInt(powerLevel), powerLevelEvent).then(()=>{
+                console.log('设置成功');
+                this.closeOptionItem();
+            }).catch(()=>{alert('设置失败')})
+        },
+        setPowerLevel(item, powerLevel, idx) {
+            const room = this.showGroupInfo.room;
+            console.log('----setPowerLevel room-----', room)
+            const roomId = room.roomId;
+            const target = item.userId;
+            const powerLevelEvent = room.currentState.getStateEvents("m.room.power_levels", "");
+            this._applyPowerChange(roomId, target, powerLevel, powerLevelEvent, idx);
+        },
         closeOptionItem: function() {
             let mxMembers = this.mxMembers;
             mxMembers.forEach(m => m.choosen = false);
@@ -262,21 +286,21 @@ export default {
         openSetting: function() {
             this.$emit('openSetting')
         },
-        mxGetMembers: function() {
+        mxGetMembers: function(userId) {
             const roomId = this.showGroupInfo.groupId;
             const cli = window.mxMatrixClientPeg.matrixClient;
-            console.log('mxGetMembers roomId', roomId);
             const xie1 = cli.getRoom(roomId);
             const xie2 = cli.getRoomPushRule("global", roomId);
-            console.log('----xie1----', xie1);
-            console.log('----xie2----', xie2);
             const mxMembers = [];
             for(let key in xie1.currentState.members) {
+                // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let obj = {...xie1.currentState.members[key], choosen:false}
                 mxMembers.push(obj);
             }
             console.log('mxMembers', mxMembers);
-            this.mxMembers = [...this.mxMembers, ...mxMembers];
+            if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
+            console.log('----mxMembers[userId]----', userId)
+            this.mxMembers = [...mxMembers];
         },
         mxMuteChange: function(mxMute) {
             console.log('---mxMuteChange---', this.mxMute);
@@ -698,10 +722,19 @@ export default {
         // console.log("userinfo-tip login info is ", this.loginInfo);
         // this.curUserInfo = await services.common.GetSelfUserModel();
     },
+    destroyed() {
+        
+    },
     mounted() {
         const roomId = this.showGroupInfo.groupId;
+        const client = window.mxMatrixClientPeg.matrixClient;
+        const userId = client.getUserId();
+        const vtx = this;
         this.getRoomNotifs(roomId);
-        this.mxGetMembers();
+        this.mxGetMembers(userId);
+        client.on("RoomMember.powerLevel", (event, member) => {
+            this.mxGetMembers(userId);
+        });
 
         ////
         this.memberList = this.showGroupInfo.memberList;
@@ -851,6 +884,19 @@ export default {
     border-radius: 5px;
   }
 
+.adminBadge {
+    width: 46px;
+    height: 16px;
+    background: #24B36B;
+    border-radius: 8px;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    margin-left: 4px;
+}  
+
 .groupInfo {
     height: 100%;
     width: 280px;
@@ -949,6 +995,7 @@ export default {
     height: 20;
     color: #000000;
     font-size: 14px;
+    display: flex;
 }
 
 .memberItemMxId {
