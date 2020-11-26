@@ -45,10 +45,10 @@
                                 v-for="(file, index) in favourites"
                                 :key="index">
                                 <div class="file-content" >
-                                    <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
+                                    <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.body)" @click="fileListClicked(file)">
                                     <div class="file-info" @click="fileListClicked(file)">
-                                        <p class="file-name">{{ file.collection_content.fileName }}</p>
-                                        <p class="file-size">{{ file.fileSize }}</p>
+                                        <p class="file-name">{{ file.collection_content.body }}</p>
+                                        <p class="file-size">{{ FileSizeByNumber(file.collection_content.info.size) }}</p>
                                     </div>
                                     <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                                 </div>
@@ -59,21 +59,6 @@
                                     <img ondragstart="return false" class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                                 </div>
 
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="group-view" v-if="showGroupList">
-                        <ul class="group-list">
-                            <li class="group"
-                                v-for="(group, index) in favourites"
-                                :key="index">
-                                <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
-                                <div class="group-name">{{ group.collection_content.groupName }}
-                                </div>
-                                <div class="favourite-group-action">
-                                    <img ondragstart="return false" class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
-                                    <img ondragstart="return false" class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
-                                </div>
                             </li>
                         </ul>
                     </div>
@@ -276,6 +261,11 @@ export default {
         },
     },
     methods: {
+        FileSizeByNumber(size)
+        {
+            return getFileSizeByNumber(size);
+        },
+
         updateChatList: function(ret) {
             ipcRenderer.send("favourite-update-chatlist", ret);
         },
@@ -439,12 +429,6 @@ export default {
             return iconPath
         },
         getFileExist(file) {
-            var targetDir = confservice.getFilePath(file.timestamp);
-            var targetPath = path.join(targetDir, file.collection_content.fileName);
-            console.log("file collection targetPath is ", targetPath);
-            if(fs.existsSync(targetPath)) {
-                return true;
-            }
             return false;
         },
 
@@ -698,30 +682,8 @@ export default {
             this.headerTitle = '收藏';
             var fileCollectionModel = await global.services.common.ListFileCollections();
             this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
-            var tempFiles = [];
-            for(var i = 0; i < this.favourites.length; i ++){
-                    var file = this.favourites[i];
-                    file.local_exist = this.getFileExist(file);
-                    file.fileSize = getFileSizeByNumber(file.collection_content.fileSize);
-                    tempFiles[i] = file;
-            }
-            this.favourites = tempFiles;
-            const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.on('updateMsgFile', this.updateCollectionShowFile);
-            console.log(this.favourites);
-        }else if(this.favouriteType == 'group'){
-            this.headerTitle = '收藏';
-            var groupCollectionModel = await global.services.common.ListGroupCollections();
-            this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
-            console.log(this.favourites);
-            this.$nextTick(function(){
-                for(var i = 0; i < this.favourites.length; i ++){
-                    this.getGroupAvatarContent(this.favourites[i]);
-                }
-            });
-            
+            console.log( this.favourites)
         }
-        this.curUserInfo = await global.services.common.GetSelfUserModel();
     }
 }
 </script>
@@ -963,7 +925,7 @@ display: none;
     }
 
     .file {
-        height: 102px;
+        height: 110px;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
@@ -987,7 +949,6 @@ display: none;
                 display: inline-block;
             }
             .file-action {
-                
                 height: 32px;
                 width: 32px;
                 margin: 0px;
@@ -1042,7 +1003,6 @@ display: none;
             font-weight: 400;
         }
         .file-time{
-            width: 78px;
             display: inline-block;
             font-size: 11px;
             line-height: 18px;
