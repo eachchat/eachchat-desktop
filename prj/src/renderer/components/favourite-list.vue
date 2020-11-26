@@ -284,10 +284,12 @@ export default {
             this.showFavouriteDetailWindow = true;
         },
         imageListClicked(image) {
+            return;
             this.collectionInfo = image;
             this.showFavouriteDetailWindow = true;
         },
         fileListClicked:async function(file) {
+            return;
             if(!this.getFileExist(file)){
                 console.log("download start");
                 await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false, file.collection_content.fileSize);
