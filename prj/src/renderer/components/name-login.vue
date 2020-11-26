@@ -767,7 +767,7 @@ export default {
             }
             else if(this.showUseremailLoginView) {
                 try {
-                    client = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
+                    verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
                     console.log("===== ", verCodeRet)
                     if(verCodeRet.status == 200) {
                         client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
@@ -799,6 +799,29 @@ export default {
                 try {
                     client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
                     console.log("===== ", client)
+                    if(client == undefined || client == null) {
+                        verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                        console.log("===== ", verCodeRet)
+                        if(verCodeRet.status == 200) {
+                            client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                        }
+                        else if(verCodeRet.status == 429) {
+                            this.loginState = verCodeRet.data.error;
+                            this.isLoading = false;
+                        }
+                        else if(verCodeRet.status == 400) {
+                            this.loginState = this.$t("unboundedAccount")
+                            this.isLoading = false;
+                        }
+                        else if(verCodeRet.status == 412) {
+                            this.loginState = this.$t("invalidVerCode")
+                            this.isLoading = false;
+                        }
+                        else {
+                            this.loginState = this.$t("invalidVerCode")
+                            this.isLoading = false;
+                        }
+                    }
                 }
                 catch(e) {
                     this.isLoading = false;
