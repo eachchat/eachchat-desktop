@@ -118,21 +118,6 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="group-view" v-if="showGroupList">
-                        <ul class="group-list">
-                            <li class="group"
-                                v-for="(group, index) in searchResults.group"
-                                :key="index">
-                                <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
-                                <div class="group-name" v-html="msgContentHightLight(group.collection_content.groupName)">{{ group.collection_content.groupName }}
-                                </div>
-                                <div class="favourite-group-action">
-                                    <img ondragstart="return false" class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
-                                    <img ondragstart="return false" class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </el-container>
             <favouriteDetail :collectionInfo="collectionInfo" v-if='showFavouriteDetailWindow' id="FavouriteDetailWindow"></favouriteDetail>
@@ -342,63 +327,45 @@ export default {
 
         },
         deleteMessageCollectionClicked:async function(message) {
-            await services.common.DeleteCollectionMessage(message.favourite_id);
+            await global.services.common.DeleteCollectionMessage(message.collection_id);
+            var messageCollectionModel = await global.services.common.ListMessageCollections();
+            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
+            /*
             if(this.showSearchView){
                 await this.updateSearchCollectionResult(this.searchKey);
                 return;
             }
-            
-            var messageCollectionModel = await services.common.ListMessageCollections();
-            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
             console.log(this.favourites);
+            */
         },
         deleteImageCollectionClicked: async function(image) {
-            await services.common.DeleteCollectionMessage(image.favourite_id);
-            if(this.showSearchView){
-                await this.updateSearchCollectionResult(this.searchKey);
-                return;
-            }
-            var imageCollectionModel = await services.common.ListPictureCollections();
+            await global.services.common.DeleteCollectionMessage(image.collection_id);
+            var imageCollectionModel = await global.services.common.ListPictureCollections();
             this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
-            console.log(this.favourites);
             this.$nextTick(function(){
                 for(var i = 0; i < this.favourites.length; i ++){
                     this.getImageCollectionContent(this.favourites[i]);
                 }
             });
+            /*
+            if(this.showSearchView){
+                await this.updateSearchCollectionResult(this.searchKey);
+                return;
+            }
+            */
         },  
         deleteFileCollectionClicked: async function(file) {
-            await services.common.DeleteCollectionMessage(file.favourite_id);
-            if(this.showSearchView){
-                await this.updateSearchCollectionResult(this.searchKey);
-                return;
-            }
-            var fileCollectionModel = await services.common.ListFileCollections();
+            await global.services.common.DeleteCollectionMessage(file.collection_id);
+            var fileCollectionModel = await global.services.common.ListFileCollections();
             this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
-            var tempFiles = [];
-            for(var i = 0; i < this.favourites.length; i ++){
-                    var file = this.favourites[i];
-                    file.local_exist = this.getFileExist(file);
-                    file.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
-                    tempFiles[i] = file;
-            }
-            this.favourites = tempFiles;
-        },
-        deleteGroupCollectionClicked:async function(group) {
-            await services.common.DeleteCollectionGroup(group.collection_id);
+            /*
             if(this.showSearchView){
                 await this.updateSearchCollectionResult(this.searchKey);
                 return;
             }
-            var groupCollectionModel = await services.common.ListGroupCollections();
-            this.favourites = this.getObjectFromCollectionModel(groupCollectionModel);
-            console.log(this.favourites);
-            this.$nextTick(function(){
-                for(var i = 0; i < this.favourites.length; i ++){
-                    this.getGroupAvatarContent(this.favourites[i]);
-                }
-            });
+            */
         },
+
         transmitMessageCollectionClicked:async function(message) {
             this.showTransmitDlg = true;
             this.transmitKey ++;

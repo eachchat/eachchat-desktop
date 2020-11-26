@@ -609,9 +609,12 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async DeleteCollectionMessage(accessToken, favoriteID){
-    var response = await this.commonApi.delete(
-      "/api/apps/fav/v1/collection/" + favoriteID,
+  async DeleteCollectionMessage(accessToken, collectionIds){
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection/del",
+      {
+        collectionIds: collectionIds,
+      }, 
       {
         Authorization: "Bearer " + accessToken
       });

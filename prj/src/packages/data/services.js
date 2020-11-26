@@ -1620,12 +1620,19 @@ const common = {
     return true;
   },
 
-  async DeleteCollectionMessage(favoriteID){
-    let result = await this.api.DeleteCollectionMessage(this.data.login.access_token, favoriteID);
+  async DeleteCollectionMessage(collectionIds){
+    let arrayIds = [];
+    if(Array.isArray(collectionIds)){
+      arrayIds = collectionIds;
+    }
+    else{
+      arrayIds.push(collectionIds);
+    }
+    let result = await this.api.DeleteCollectionMessage(this.data.login.access_token, arrayIds);
     if (!result.ok || !result.success) {
       return false;
     }
-    await sqliteutil.DeleteItemFromCollectionByFavouriteID(favoriteID)
+    await sqliteutil.DeleteItemFromCollectionByCollectionIdID(arrayIds)
   },
 
   async DeleteCollectionGroup(gorupID){
