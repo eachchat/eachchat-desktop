@@ -6,150 +6,151 @@
             </div>
         </el-header>
         <el-main>
-            <el-container>
-            <div class="favourite-list" v-if="!showSearchView">
-            <div class="message-view" v-if="showMessageList">
-                <ul class="message-list">
-                    <li class="message"
-                        v-for="(message, index) in favourites" 
-                        :key="index">
-                        <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
-                        <p class="message-sender">{{ message.collection_content.fromMatrixId }}</p>
-                        <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
-                        <div class="favourite-action">
-                            <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
-                            <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
-                            <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="image-view" v-if="showImageList">
-                <ul class="image-list">
-                    <li class="image"
-                        v-for="(image, index) in favourites" :key="index">
-                        <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
-                        <p class="image-sender">{{ image.collection_content.fromUserName }}</p>
-                        <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
-                        <div class="favourite-action">
-                            <img ondragstart="return false" class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <img ondragstart="return false" class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="file-view" v-if="showFileList">
-                <ul class="file-list">
-                    <li class="file"
-                        v-for="(file, index) in favourites"
-                        :key="index">
-                        <div class="file-content" >
-                            <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
-                            <div class="file-info" @click="fileListClicked(file)">
-                                <p class="file-name">{{ file.collection_content.fileName }}</p>
-                                <p class="file-size">{{ file.fileSize }}</p>
-                            </div>
-                            <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
-                        </div>
-                        <p class="file-sender">{{ file.collection_content.fromUserName }}</p>
-                        <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
-                        <div class="favourite-action">
-                            <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <img ondragstart="return false" class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
-                        </div>
+            <el-container v-show="!showFavouriteDetailWindow">
+                <div class="favourite-list" v-if="!showSearchView">
+                    <div class="message-view" v-if="showMessageList">
+                        <ul class="message-list">
+                            <li class="message"
+                                v-for="(message, index) in favourites" 
+                                :key="index">
+                                <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
+                                <p class="message-sender">{{ message.collection_content.fromMatrixId }}</p>
+                                <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
+                                <div class="favourite-action">
+                                    <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                                    <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
+                                    <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
+                                    <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="image-view" v-if="showImageList">
+                        <ul class="image-list">
+                            <li class="image"
+                                v-for="(image, index) in favourites" :key="index">
+                                <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
+                                <p class="image-sender">{{ image.collection_content.fromMatrixId }}</p>
+                                <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
+                                <div class="favourite-action">
+                                    <img ondragstart="return false" class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                                    <img ondragstart="return false" class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="file-view" v-if="showFileList">
+                        <ul class="file-list">
+                            <li class="file"
+                                v-for="(file, index) in favourites"
+                                :key="index">
+                                <div class="file-content" >
+                                    <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
+                                    <div class="file-info" @click="fileListClicked(file)">
+                                        <p class="file-name">{{ file.collection_content.fileName }}</p>
+                                        <p class="file-size">{{ file.fileSize }}</p>
+                                    </div>
+                                    <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
+                                </div>
+                                <p class="file-sender">{{ file.collection_content.fromUserName }}</p>
+                                <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
+                                <div class="favourite-action">
+                                    <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                                    <img ondragstart="return false" class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
 
-                    </li>
-                </ul>
-            </div>
-            <div class="group-view" v-if="showGroupList">
-                <ul class="group-list">
-                    <li class="group"
-                        v-for="(group, index) in favourites"
-                        :key="index">
-                        <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
-                        <div class="group-name">{{ group.collection_content.groupName }}
-                        </div>
-                        <div class="favourite-group-action">
-                            <img ondragstart="return false" class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
-                            <img ondragstart="return false" class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            </div>
-            <div class="search-view" v-if="showSearchView">
-            <div class="message-view" v-if="showMessageList">
-                <ul class="message-list">
-                    <li class="message"
-                        v-for="(message, index) in searchResults.message" 
-                        :key="index">
-                        <p class="message-text" v-html="msgContentHightLight(message.collection_content.text)" @click="messageListClicked(message)">{{ message.collection_content.text }}</p>
-                        <p class="message-sender" v-html="msgContentHightLight(message.collection_content.fromUserName)">{{ message.collection_content.fromUserName }}</p>
-                        <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
-                        <div class="favourite-action">
-                            <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
-                            <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
-                            <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="image-view" v-if="showImageList">
-                <ul class="image-list">
-                    <li class="image"
-                        v-for="(image, index) in searchResults.image" :key="index">
-                        <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
-                        <p class="image-sender" v-html="msgContentHightLight(image.collection_content.fromUserName)">{{ image.collection_content.fromUserName }}</p>
-                        <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
-                        <div class="favourite-action">
-                            <img ondragstart="return false" class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <img ondragstart="return false" class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="file-view" v-if="showFileList">
-                <ul class="file-list">
-                    <li class="file"
-                        v-for="(file, index) in searchResults.file"
-                        :key="index">
-                        <div class="file-content" >
-                            <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
-                            <div class="file-info" @click="fileListClicked(file)">
-                                <p class="file-name" v-html="msgContentHightLight(file.collection_content.fileName)">{{ file.collection_content.fileName }}</p>
-                                <p class="file-size">{{ file.fileSize }}</p>
-                            </div>
-                            <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
-                        </div>
-                        <p class="file-sender" v-html="msgContentHightLight(file.collection_content.fromUserName)">{{ file.collection_content.fromUserName }}</p>
-                        <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
-                        <div class="favourite-action">
-                            <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                            <img ondragstart="return false" class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
-                        </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="group-view" v-if="showGroupList">
+                        <ul class="group-list">
+                            <li class="group"
+                                v-for="(group, index) in favourites"
+                                :key="index">
+                                <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
+                                <div class="group-name">{{ group.collection_content.groupName }}
+                                </div>
+                                <div class="favourite-group-action">
+                                    <img ondragstart="return false" class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
+                                    <img ondragstart="return false" class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="search-view" v-if="showSearchView">
+                    <div class="message-view" v-if="showMessageList">
+                        <ul class="message-list">
+                            <li class="message"
+                                v-for="(message, index) in searchResults.message" 
+                                :key="index">
+                                <p class="message-text" v-html="msgContentHightLight(message.collection_content.text)" @click="messageListClicked(message)">{{ message.collection_content.text }}</p>
+                                <p class="message-sender" v-html="msgContentHightLight(message.collection_content.fromUserName)">{{ message.collection_content.fromUserName }}</p>
+                                <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
+                                <div class="favourite-action">
+                                    <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                                    <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
+                                    <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
+                                    <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="image-view" v-if="showImageList">
+                        <ul class="image-list">
+                            <li class="image"
+                                v-for="(image, index) in searchResults.image" :key="index">
+                                <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
+                                <p class="image-sender" v-html="msgContentHightLight(image.collection_content.fromUserName)">{{ image.collection_content.fromUserName }}</p>
+                                <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
+                                <div class="favourite-action">
+                                    <img ondragstart="return false" class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                                    <img ondragstart="return false" class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="file-view" v-if="showFileList">
+                        <ul class="file-list">
+                            <li class="file"
+                                v-for="(file, index) in searchResults.file"
+                                :key="index">
+                                <div class="file-content" >
+                                    <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
+                                    <div class="file-info" @click="fileListClicked(file)">
+                                        <p class="file-name" v-html="msgContentHightLight(file.collection_content.fileName)">{{ file.collection_content.fileName }}</p>
+                                        <p class="file-size">{{ file.fileSize }}</p>
+                                    </div>
+                                    <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
+                                </div>
+                                <p class="file-sender" v-html="msgContentHightLight(file.collection_content.fromUserName)">{{ file.collection_content.fromUserName }}</p>
+                                <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
+                                <div class="favourite-action">
+                                    <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
+                                    <img ondragstart="return false" class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
 
-                    </li>
-                </ul>
-            </div>
-            <div class="group-view" v-if="showGroupList">
-                <ul class="group-list">
-                    <li class="group"
-                        v-for="(group, index) in searchResults.group"
-                        :key="index">
-                        <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
-                        <div class="group-name" v-html="msgContentHightLight(group.collection_content.groupName)">{{ group.collection_content.groupName }}
-                        </div>
-                        <div class="favourite-group-action">
-                            <img ondragstart="return false" class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
-                            <img ondragstart="return false" class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="group-view" v-if="showGroupList">
+                        <ul class="group-list">
+                            <li class="group"
+                                v-for="(group, index) in searchResults.group"
+                                :key="index">
+                                <img ondragstart="return false" class="group-icon" :id="group.collection_id" src="../../../static/Img/User/user-40px@2x.png" alt= "头像">
+                                <div class="group-name" v-html="msgContentHightLight(group.collection_content.groupName)">{{ group.collection_content.groupName }}
+                                </div>
+                                <div class="favourite-group-action">
+                                    <img ondragstart="return false" class="message-img" @click="groupCollectionChatClicked(group)" src="../../../static/Img/Favorite/Group/message@2x.png">
+                                    <img ondragstart="return false" class="delete-img" @click="deleteGroupCollectionClicked(group)" src="../../../static/Img/Favorite/Group/delete@2x.png">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </el-container>
+            <favouriteDetail :collectionInfo="collectionInfo" v-if='showFavouriteDetailWindow' id="FavouriteDetailWindow"></favouriteDetail>
         </el-main>
         <el-container >
             <!-- <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
@@ -173,13 +174,14 @@ import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
 import chatCreaterDlg from './chatCreaterDlg.vue';
 import {Group, Department, UserInfo} from '../../packages/data/sqliteutil.js';
+import favouriteDetail from './favourite-detail.vue'
+
 export default {
     name: 'favourite-list',
     data() {
         return{
             headerTitle: '',
             favourites: [],
-            favouriteDetail: {},
             showFavouriteList: true,
             showTransmitDlg: false,
             showChatCreaterDlg: false,
@@ -195,11 +197,13 @@ export default {
 
             //showFavouriteSearchView: false,
             searchResults:{},
+            showFavouriteDetailWindow: false
         }
     },
     components: {
         transmitDlg,
         chatCreaterDlg,
+        favouriteDetail
     },
     computed: {
 
@@ -301,16 +305,12 @@ export default {
             this.showChatCreaterDlg = false;
         },
         messageListClicked(message) {
-            // open new window and load
-            message.curUserInfo = this.curUserInfo;
-            const ipcRender = require('electron').ipcRenderer;
-            ipcRender.send('showFavouriteDetailWindow', message);
-            
+            this.collectionInfo = message;
+            this.showFavouriteDetailWindow = true;
         },
         imageListClicked(image) {
-            image.curUserInfo = this.curUserInfo;
-            const ipcRender = require('electron').ipcRenderer;
-            ipcRender.send('showFavouriteDetailWindow', image);
+            this.collectionInfo = image;
+            this.showFavouriteDetailWindow = true;
         },
         fileListClicked:async function(file) {
             if(!this.getFileExist(file)){
@@ -847,7 +847,7 @@ display: none;
         }
     }
     .message {
-        height: 106px;
+        height: 120px;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
@@ -880,7 +880,6 @@ display: none;
             font-weight: 400;
         }
         .message-time{
-            width: 78px;
             display: inline-block;
             font-size: 11px;
             line-height: 18px;
@@ -908,7 +907,7 @@ display: none;
         }
     }
     .image {
-        height: 134px;
+        height: 150px;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
@@ -933,7 +932,6 @@ display: none;
             font-weight: 400;
         }
         .image-time{
-            width: 78px;
             display: inline-block;
             font-size: 11px;
             line-height: 18px;

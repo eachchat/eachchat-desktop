@@ -1,15 +1,15 @@
 <template>
     <div class="detailPage" v-if="showView">
         <div class="detailHeader" v-if="showMessageContent">
-            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user-40px@2x.png">
+            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromMatrixId" src="../../../static/Img/User/user-40px@2x.png">
             <div class="userInfo">
-                <p class="userName">{{ collectionInfo.collection_content.fromUserName }}</p>
+                <p class="userName">{{ userName }}</p>
                 <p class="userTime">{{ formatTimeFilter(collectionInfo.timestamp) }}</p>
             </div>
         </div>
         <div class="detailContent">
             <div class="messageContent" v-if="showMessageContent">
-                <p class="messageText">{{ collectionInfo.collection_content.text }}</p>
+                <p class="messageText">{{ collectionInfo.collection_content.body }}</p>
             </div>
             <div class="imageContent" v-if="!showMessageContent">
                 <img ondragstart="return false" class="image" :id="collectionInfo.collection_id" src="../../../static/Img/Chat/loading.gif">
@@ -23,80 +23,47 @@ import * as path from 'path';
 import * as fs from 'fs-extra'
 import {services} from '../../packages/data/index.js';
 import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import { object } from '../../packages/core/types.js';
+import { ComponentUtil } from '../script/component-util'
+
 export default {
     name:'favouriteDetail',
+    props: {
+        collectionInfo:{
+            type: Object,
+            default: {}
+        }
+    },
+
     data() {
         return{
-            collectionInfo: {},
             showMessageContent: true,
             loginInfo:{},
             showView: false,
+            userInfo: {},
+            userName:''
         }
     },
+
     methods:{
-        getAppBaseData:async function() {
-            // Init services
-            // let config = {
-            //     hostname: "139.198.15.253",
-            //     apiPort: 8888,
-            // };
-            // services.common.init(config);
-            // Set accessToken in services
-            // this.loginInfo = await services.common.GetLoginModel();
-            // var curUserInfo = await services.common.GetSelfUserModel();
-            // this.GroupInfo = await Group.FindItemFromGroupByGroupID(this.groupId);
-            // console.log("the init user id is ,", this.GroupInfo)
-            confservice.init(curUserInfo.id);
-            // this.$store.commit("setUserId", this.curUserInfo.id)
-            console.log("lognInfo is ", this.loginInfo);
-            
-            // this.updatePage();
-        },
         getImageCollectionContent:async function(image){
-            //Init services
-            confservice.init(this.collectionInfo.curUserInfo._attr.id);
-            this.loginInfo = await services.common.GetLoginModel();
-            var targetDir = confservice.getThumbImagePath(image.timestamp);
-            var targetPath = path.join(targetDir, image.collection_content.fileName);
-            var needOpen = false;
+            let url = image.collection_content.url;
+            var realUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
             var imageCollectionElement = document.getElementById(image.collection_id);
-            if(fs.existsSync(targetPath)){
-
-                    var showfu = new FileUtil(targetPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        imageCollectionElement.setAttribute("src", reader.result);
-                    }
-
-            }
-            else{
-
-                console.log("download collection image ", image)
-                await services.common.downloadMsgTTumbnail(image.collection_content.timeline_id, image.timestamp, image.collection_content.fileName, false);
-                //await this.getImageCollectionContent(image);
-                // this.checkAndLoadImg(targetPath);
-            }
+            imageCollectionElement.setAttribute("src", realUrl);
         },
+
         getUserImg: async function (user_id){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(user_id == undefined) {
                 return "";
             }
-            var userId = user_id;
-            
-            confservice.init(this.collectionInfo.curUserInfo._attr.id);
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(userId);
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
+            let userIconElement = document.getElementById(user_id);
+            if(userIconElement){
+                this.userInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(user_id);
+                this.collectionInfo.collection_content.fromUserName = this.userInfo.displayname;
+                var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(this.userInfo.avatar_url);
+                userIconElement.setAttribute("src", avaterUrl);
+                this.userName = ComponentUtil.GetDisplayName(this.userInfo.displayname, user_id)
             }
         },
         formatTimeFilter(secondsTime) {
@@ -144,27 +111,22 @@ export default {
         },
     },
     mounted:function() {
-        const ipcRenderer = require('electron').ipcRenderer;
-        
-        ipcRenderer.on("clickedCollectionInfo", (event, collectionInfo) => {
-            this.collectionInfo = collectionInfo;
             this.showView = true;
-            var favouriteType = collectionInfo.collection_type;
+            var favouriteType = this.collectionInfo.collection_type;
             
             if (favouriteType == 101){
                 this.showMessageContent = true;
                 this.$nextTick(function(){
-                    this.getUserImg(collectionInfo.collection_content.fromUserId);
+                    this.getUserImg(this.collectionInfo.collection_content.fromMatrixId);
             });
             }else if(favouriteType == 102) {
                 this.showMessageContent = false;
-                
                 this.$nextTick(function(){
-                    this.getImageCollectionContent(collectionInfo);
+                    this.getImageCollectionContent(this.collectionInfo);
             });
         }
-            console.log(this.collectionInfo);
-        });
+        console.log(this.collectionInfo);
+        
 
     },
     created(){
