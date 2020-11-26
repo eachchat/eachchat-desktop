@@ -364,8 +364,29 @@ export default {
                 for (let i = 0; i < flows.length; i++ ) {
                     this.resetLoginStateTitle();
                     var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
-                    global.services.common.setGmsConfiguration(appServerInfo.data);
-                    return true;
+                    console.log('appServerInfo is ', appServerInfo);
+                    if(appServerInfo.status != 200) {
+                        this.loginState = this.$t("invalidServerAddress");
+                        return false;
+                    }
+                    if(appServerInfo.data['m.gms'] != undefined) {
+                        var gmsHost = appServerInfo.data['m.gms']['base_url'];
+                        var gmsValue = appServerInfo.data['m.gms']['tid'];
+                        var gmsRet = await global.services.common.gmsConfiguration(gmsHost, gmsValue);
+                        if(!gmsRet){
+                            this.loginState = "未找到该组织";
+                            this.organizationButtonDisabled = false;
+                            return false;
+                        }
+                        else {
+                            this.organizationButtonDisabled = false;
+                            return true;
+                        }
+                    }
+                    else if(appServerInfo.data['m.appserver'] != undefined){
+                        global.services.common.setGmsConfiguration(appServerInfo.data);
+                        return true;
+                    }
                 }
                 
                 this.loginState = this.$t("invalidServerAddress");
