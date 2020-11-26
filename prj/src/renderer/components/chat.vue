@@ -1020,7 +1020,6 @@ export default {
             this.showUserInfoTips = false;
         },
         showImageOfMessage(imgSrcInfo) {
-            this.isFileList = false;
             this.$emit('showImageOfMessage', imgSrcInfo);
         },
         playAudioOfMessage(audioMsgId) {
@@ -2395,6 +2394,8 @@ s        },
         },
 
         jumpToEvent: function(eventId) {
+            this.existingMsgId = [];
+            this.distEventId = eventId;
             this.isSerach = false;
             this.isJumpPage = true;
             this.messageList = [];
@@ -2404,23 +2405,45 @@ s        },
             if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
 
             this._timelineWindow.paginate("f", 1, false)
-            this.getHistoryMessage(ev);
+            this.getHistoryMessage(ev, toStartOfTimeline);
         },
-        getHistoryMessage: function(ev) {
+        getHistoryMessage: function(ev, toStartOfTimeline=false) {
+            let uldiv = document.getElementById("message-show-list");
             if(this.isJumpPage) {
-                console.log("=======isJumpPage get time line ", this.chat.timeline);
                 if(this.existingMsgId.indexOf(ev.event.event_id) < 0) {
                     this.existingMsgId.push(ev.event.event_id);
                 }
                 else {
                     return;
                 }
-                this.messageList.unshift(ev);
+                if(toStartOfTimeline) {
+                    this.messageList.unshift(ev);
+                }
+                else {
+                    this.messageList.push(ev);
+                }
+                
+                if(this.lastScrollHeight != "") {
+                    this.$nextTick(() => {
+                        console.log("---------update croll top is ", uldiv.scrollHeight);
+                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                    })
+                }
+                if(this.existingMsgId.indexOf(this.distEventId) >= 0) {
+                    this.lastScrollHeight = uldiv.scrollHeight;
+                    // let box = document.querySelector(".msg-list");
+                    // console.log("box is ", box);
+                }
             }
             else {
-                console.log("======= get time line ", this.chat.timeline);
-                this.messageList = this.chat.timeline;
-
+                for(var i=0;i<this.chat.timeline.length;i++) {
+                    if(this.existingMsgId.indexOf(this.chat.timeline[i].event.event_id) >= 0) {
+                        return;
+                    }
+                    this.existingMsgId.push(this.chat.timeline[i].event.event_id);
+                    this.messageList.unshift(this.chat.timeline[i]);
+                }
+                
                 this.$nextTick(() => {
                     this.needToBottom = true;
                     
@@ -2429,7 +2452,6 @@ s        },
                         div.scrollTop = div.scrollHeight - div.clientHeight;
                         // The left msg get through scroll event
                         div.addEventListener('scroll', this.handleScroll);
-                        // div.addEventListener('onresize', this.checkResize);
                         this.showScrollBar();
                     }
                     this.isRefreshing = false;
@@ -2475,6 +2497,13 @@ s        },
                     var canForwardPaginate = this._timelineWindow.canPaginate("f");
                     if(!canForwardPaginate) {
                         this.isRefreshing = false;
+                        // for(var i=0;i<this.chat.timeline.length;i++) {
+                        //     if(this.existingMsgId.indexOf(this.chat.timeline[i].event.event_id) >= 0) {
+                        //         return;
+                        //     }
+                        //     this.existingMsgId.push(this.chat.timeline[i].event.event_id);
+                        //     this.messageList.unshift(this.chat.timeline[i]);
+                        // }
                         return;
                     }
                     this.lastScrollHeight = uldiv.scrollHeight;
@@ -2493,11 +2522,6 @@ s        },
                         })
                 }
             }
-        },
-        checkResize: function() {
-            console.log("++++++++++++++====")
-            let uldiv = document.getElementById("message-show-list");
-            // console.log("++++++++scroll height is ", uldiv.scrollHeight);
         },
         copyDom: function() {
             let distUlElement = document.getElementById("message-show-list");
@@ -2700,6 +2724,7 @@ s        },
     },
     data() {
         return {
+            distEventId: '',
             timeLineSet: undefined,
             isJumpPage: false,
             searchRoomId: '',
@@ -2838,7 +2863,7 @@ s        },
     computed: {
         messageListShow: {
             get: function() {
-                var final = this.messageList;
+                var final = this.messageList;//.sort(this.mxEvCompare());
                 // console.log("final msglist is ", final);
                 return final;
             }
