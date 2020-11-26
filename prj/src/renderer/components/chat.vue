@@ -18,7 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="chat-main" id="chat-main">
+        <div class="chat-main" id="chat-main" v-show="!isSerach && !isFileList">
             <Invite class="chat-invite" :inviter="inviterInfo" @joinRoom="joinRoom" @rejectRoom="rejectRoom" v-show="isInvite"></Invite>
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
@@ -93,6 +93,8 @@
                 </div>
             </div>
         </div>
+        <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="searchRoomId" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
+        <mxFilePage class="mxFilePage" v-show="isFileList" :distRoomId="searchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
         <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
@@ -169,10 +171,11 @@ import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import {EventTimeline} from "matrix-js-sdk";
 import * as Matrix from 'matrix-js-sdk';
-import { timelineEnd } from 'console';
 import Invite from './invite.vue';
 import encrypt from 'browser-encrypt-attachment';
-import {ComponentUtil} from '../script/component-util'
+import {ComponentUtil} from '../script/component-util';
+import mxHistoryPage from './mxHistoryMsg.vue';
+import mxFilePage from "./mxFileList.vue";
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -263,7 +266,9 @@ export default {
         SendFileDlg,
         mxSettingDialog,
         mxChatInfoDlg,
-        Invite
+        Invite,
+        mxHistoryPage,
+        mxFilePage,
     },
     methods: {
         isDeleted: function(msgItem) {
@@ -364,13 +369,21 @@ export default {
             ipcRenderer.send("fileListDlg-min");
         },
         showHistoryMsgList: function() {
-            ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
+            // ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
+            this.isSerach = true;
+            this.searchRoomId = this.chat.roomId;
+        },
+        CloseSearchPage: function() {
+            this.isSerach = false;
+            this.searchRoomId = "";
         },
         showFileList: function() {
-            console.log("showfilelist");
-            // this.showFileListInfo = true;
-            // this.fileListGroupInfo = this.chat;
-            ipcRenderer.send("showAnotherWindow", this.chat.group_id, "fileList");
+            this.isFileList = true;
+            this.searchRoomId = this.chat.roomId;
+        },
+        CloseFileListPage: function() {
+            this.isFileList = false;
+            this.searchRoomId = "";
         },
         showMsgHistoryOperate: function() {
             var msgHistoryBtnElement = document.getElementById("chat-input-history-id");
@@ -1007,6 +1020,7 @@ export default {
             this.showUserInfoTips = false;
         },
         showImageOfMessage(imgSrcInfo) {
+            this.isFileList = false;
             this.$emit('showImageOfMessage', imgSrcInfo);
         },
         playAudioOfMessage(audioMsgId) {
@@ -2370,15 +2384,75 @@ s        },
             }
             return ret;
         },
+        _loadTimeline: function(eventId, pixelOffset, offsetBase) {
+            this.timeLineSet = this.chat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this.timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            return this._timelineWindow.load(eventId, 20);
+        },
+
+        jumpToEvent: function(eventId) {
+            this.isSerach = false;
+            this.isJumpPage = true;
+            this.messageList = [];
+            this._loadTimeline(eventId, undefined, undefined)
+        },
+        onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
+            if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
+
+            this._timelineWindow.paginate("f", 1, false)
+            this.getHistoryMessage(ev);
+        },
+        getHistoryMessage: function(ev) {
+            if(this.isJumpPage) {
+                console.log("=======isJumpPage get time line ", this.chat.timeline);
+                if(this.existingMsgId.indexOf(ev.event.event_id) < 0) {
+                    this.existingMsgId.push(ev.event.event_id);
+                }
+                else {
+                    return;
+                }
+                this.messageList.unshift(ev);
+            }
+            else {
+                console.log("======= get time line ", this.chat.timeline);
+                this.messageList = this.chat.timeline;
+
+                this.$nextTick(() => {
+                    this.needToBottom = true;
+                    
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.scrollTop = div.scrollHeight - div.clientHeight;
+                        // The left msg get through scroll event
+                        div.addEventListener('scroll', this.handleScroll);
+                        // div.addEventListener('onresize', this.checkResize);
+                        this.showScrollBar();
+                    }
+                    this.isRefreshing = false;
+                })
+            }
+        },
         handleScroll: function() {
             let uldiv = document.getElementById("message-show-list");
-            // console.log("=====scroll height is ", uldiv.scrollHeight);
+            let client = document.getElementById("message-show");
+            // console.log("=====client.clientHeight is ", client.clientHeight);
+            // console.log("=====uldiv.scrollHeight - uldiv.scrollTop is ", uldiv.scrollHeight - uldiv.scrollTop);
+            // console.log("=====uldiv.scrollHeight is ", uldiv.scrollHeight);
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
             // console.log("=====isRefreshing is ", this.isRefreshing);
             if(uldiv) {
                 if(uldiv.scrollTop == 0){
                     console.log("to update msg")
                     var curTime = new Date().getTime();
+                    var canBackPaginate = this._timelineWindow.canPaginate("b");
+                    if(!canBackPaginate) {
+                        this.isRefreshing = false;
+                        return;
+                    }
                     // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScrollTop){
                         this.lastScrollHeight = uldiv.scrollHeight;
@@ -2387,12 +2461,7 @@ s        },
                         // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                         this._timelineWindow.paginate("b", 20)
                             .then((ret) => {
-                                console.log("scroll ret is ", ret);
-                                this.isRefreshing = false;
-                                // this.needScroll = true;
-                                // if(ret.length < 20) {
-                                //     this.needScroll = false;
-                                // }
+                                console.log("b scroll ret is ", ret);
                                 this.needToBottom = false;
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
@@ -2400,6 +2469,28 @@ s        },
                                 })
                             })
                     }
+                }
+                else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
+                    console.log("=======wo bottom");
+                    var canForwardPaginate = this._timelineWindow.canPaginate("f");
+                    if(!canForwardPaginate) {
+                        this.isRefreshing = false;
+                        return;
+                    }
+                    this.lastScrollHeight = uldiv.scrollHeight;
+                    this.isRefreshing = true;
+                    this.lastRefreshTime = new Date().getTime();
+                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+                    this._timelineWindow.paginate("f", 20)
+                        .then((ret) => {
+                            console.log("f scroll ret is ", ret);
+                            this.isRefreshing = false;
+                            this.needToBottom = false;
+                            this.$nextTick(() => {
+                                console.log("---------update croll top is ", uldiv.scrollHeight);
+                                uldiv.scrollTop = uldiv.scrollHeight;
+                            })
+                        })
                 }
             }
         },
@@ -2418,23 +2509,6 @@ s        },
                 // console.log("i is ", i);
                 distUlElement.insertBefore(hideUlElement.childNodes[i], distUlElement[2]);
             }
-        },
-        getHistoryMessage: function() {
-            this.messageList = this.chat.timeline;
-
-            this.$nextTick(() => {
-                this.needToBottom = true;
-                
-                let div = document.getElementById("message-show-list");
-                if(div) {
-                    div.scrollTop = div.scrollHeight - div.clientHeight;
-                    // The left msg get through scroll event
-                    div.addEventListener('scroll', this.handleScroll);
-                    // div.addEventListener('onresize', this.checkResize);
-                    this.showScrollBar();
-                }
-                this.isRefreshing = false;
-            })
         },
         updateChatGroupStatus(groupId, groupStatus, updateType) {
             // console.log("======== ");
@@ -2553,9 +2627,6 @@ s        },
                 paths: varTmp
             }
         },
-        onRoomTimeline(e) {
-            this.getHistoryMessage();
-        },
         onEventDecrypted(e) {
             this.updateMsgContent = {
                 "id" : e.event.event_id
@@ -2629,6 +2700,11 @@ s        },
     },
     data() {
         return {
+            timeLineSet: undefined,
+            isJumpPage: false,
+            searchRoomId: '',
+            isSerach: false,
+            isFileList: false,
             isInvite: false,
             inviterInfo: undefined,
             content: '',
@@ -2773,27 +2849,24 @@ s        },
         chat: function() {
             this.inviterInfo = undefined;
             this.isInvite = false;
+            this.isJumpPage = false;
             this.curGroupId = this.chat.roomId;
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
-            var timeLineSet = this.chat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
             if(this.chat.getMyMembership() == "invite") {
                 this.isRefreshing = false;
                 this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
                 this.isInvite = true;
             }
             else {
-                this._timelineWindow.load(undefined, 20);
-                this.getHistoryMessage();
+                this._loadTimeline(undefined, undefined, undefined)
+                    .then((ret) => {
+                        this.isRefreshing = false;
+                        this.getHistoryMessage();
+                    })
             }
             global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
             global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
-            console.log("this._timelinewindow is ", this._timelineWindow)
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
             this.needScrollTop = true;
             this.needScrollBottom = true;
@@ -3050,6 +3123,22 @@ s        },
         line-height: 100%;
         padding: 12px 0px 22px 0px;
         margin: 0px;
+    }
+
+    .mxHistoryPage {
+        display: block;
+        width: 100%;
+        height: calc(100% - 60px);
+        font-size: 18px;
+        margin-top: 0px;
+    }
+
+    .mxFilePage {
+        display: block;
+        width: 100%;
+        height: calc(100% - 60px);
+        font-size: 18px;
+        margin-top: 0px;
     }
 
     .chat-main {

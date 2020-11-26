@@ -219,7 +219,8 @@ class _MatrixClientPeg{
           userId: userId,
           accessToken: accessToken,
           deviceId: deviceId,
-          cryptoCallbacks: {}
+          cryptoCallbacks: {},
+          timelineSupport: true,
         }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
@@ -325,7 +326,8 @@ class _MatrixClientPeg{
           userId: matrixInfo.data.user_id,
           accessToken: matrixInfo.data.access_token,
           deviceId: matrixInfo.data.device_id,
-          cryptoCallbacks: {}
+          cryptoCallbacks: {},
+          timelineSupport: true,
       }
       Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
       this.matrixClient = this._CreateMatrixClient(ops);
@@ -378,7 +380,8 @@ class _MatrixClientPeg{
             userId: userLoginResult.user_id,
             accessToken: userLoginResult.access_token,
             deviceId: userLoginResult.device_id,
-            cryptoCallbacks: {}
+            cryptoCallbacks: {},
+            timelineSupport: true,
           }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);

@@ -2011,19 +2011,6 @@ export default {
 
   mounted: async function() {
     log.info("chat content mounted");
-    global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
-        if(ret == undefined) {
-            global.mxMatrixClientPeg.logout();
-            ipcRenderer.send("showLoginPageWindow");
-            return;
-        }
-        if(ret.language) {
-          this.$i18n.locale = ret.language;
-        }
-        console.log("the matrix client is ", global.mxMatrixClientPeg)
-        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-    })
-
     if(this.unreadCount < 0) {
       this.unreadCount = 0;
     }
@@ -2041,8 +2028,8 @@ export default {
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
-    // await services.common.initmqtt();
-    // services.common.handlemessage(this.callback);
+    await global.services.common.initmqtt();
+    global.services.common.handlemessage(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")
