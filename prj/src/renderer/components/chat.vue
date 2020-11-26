@@ -2436,13 +2436,14 @@ s        },
                 }
             }
             else {
-                for(var i=0;i<this.chat.timeline.length;i++) {
-                    if(this.existingMsgId.indexOf(this.chat.timeline[i].event.event_id) >= 0) {
-                        return;
-                    }
-                    this.existingMsgId.push(this.chat.timeline[i].event.event_id);
-                    this.messageList.unshift(this.chat.timeline[i]);
-                }
+                // for(var i=0;i<this.chat.timeline.length;i++) {
+                //     if(this.existingMsgId.indexOf(this.chat.timeline[i].event.event_id) >= 0) {
+                //         return;
+                //     }
+                //     this.existingMsgId.push(this.chat.timeline[i].event.event_id);
+                //     this.messageList.unshift(this.chat.timeline[i]);
+                // }
+                this.messageList = this.chat.timeline;
                 
                 this.$nextTick(() => {
                     this.needToBottom = true;
