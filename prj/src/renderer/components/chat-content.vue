@@ -612,7 +612,7 @@ export default {
           }
           if(this.groupIsInFavourite(groupItem)) {
             this.menu.append(new MenuItem({
-                label: "取消收藏",
+                label: "取消置顶",
                 click: () => {
                     this.unFavouriteIt(groupItem)
                 }
@@ -620,7 +620,7 @@ export default {
           }
           else {
             this.menu.append(new MenuItem({
-                label: "收藏",
+                label: "置顶",
                 click: () => {
                     this.favouriteIt(groupItem)
                 }
