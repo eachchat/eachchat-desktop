@@ -1092,7 +1092,7 @@ export default {
             var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
             var totalMemberCount = chatGroupItem.currentState.getJoinedMemberCount() + chatGroupItem.currentState.getInvitedMemberCount();
-            groupContentNumElement.innerHTML = totalMemberCount;
+            groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
 
             this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
             if(!this.distUrl || this.distUrl == '') {
@@ -1679,11 +1679,20 @@ export default {
         
         sendFile: async function(fileinfo) {
             console.log("fileinfo is ", fileinfo);
-            var showfu = new FileUtil(fileinfo.path);
-            let showfileObj = showfu.GetUploadfileobj();
+            var showfileObj = undefined;
+            var stream = "";
+            if(!fs.existsSync(fileinfo.path)) {
+                showfileObj = this.path2File[fileinfo.path];
+                var arrayBuf = await showfileObj.arrayBuffer();
+                stream = Buffer.from(arrayBuf);
+            }
+            else {
+                var showfu = new FileUtil(fileinfo.path);
+                showfileObj = showfu.GetUploadfileobj();
+                stream = showfu.ReadfileSync(fileinfo.path);
+            }
             var reader = new FileReader();
             reader.readAsDataURL(showfileObj);
-            var stream = showfu.ReadfileSync(fileinfo.path);
 
             reader.onload = () => {
                 let type = GetFileType(reader.result);
@@ -2676,60 +2685,29 @@ s        },
                     console.log("tmd is zifuchuan ");
                 }
                 else {
-                    // var showfu = new FileUtil(fileinfo.path);
-                    // let showfileObj = showfu.GetUploadfileobj();
-                    // var reader = new FileReader();
-                    // reader.readAsDataURL(showfileObj);
+                    this.sendFileInfos = {
+                        paths: [],
+                        distGroupInfo: undefined
+                    };
                     var blod = item.getAsFile();
-                    let fileType = FileToContentType(blod.type);
-                    var stream = fs.ReadfileSync(reader.result)// buffer path url
-                    var reader = new FileReader();
-                    reader.readAsDataURL(blod);
-                    reader.onload = (event)=> {
-                        console.log("========== blod is ", blod);
-                        console.log("========== event is ", event);
-                        console.log("========== reader is ", reader);
-                        if(fileType == 'm.image'){
-                            this.SendImage(blod, reader.result, stream);
-                        }
-                        else{
-                            this.matrixClient.uploadContent({
-                                stream: event.target.result,
-                                name: blod.name
-                            }).then((url)=>{
-                                var content = {
-                                    msgtype: fileType,
-                                    body: blod.name,
-                                    url: url,
-                                    info:{
-                                        size: blod.size
-                                    }
-                                };
-                                this.matrixClient.sendMessage(this.chat.roomId, content).then((ret)=>{
-                                    //this.$emit('updateChatList', ret);
-                                });
-                            });
-                        }
+                    var fileObj = new window.File([blod], blod.name, {type: blod.type});
+                    let fileinfo = {};
+                    fileinfo.path = URL.createObjectURL(fileObj);
+                    fileinfo.size = blod.size;
+                    fileinfo.name = blod.name;
+                    this.showSendFileDlg = true;
+                    this.path2File[fileinfo.path] = blod;
+                    this.sendFileInfos = {
+                        distGroupInfo: this.chat,
+                        paths: [fileinfo]
                     }
                 }
             }
-            /*
-            for(let i=0;i<e.clipboardData.files.length;i++) {
-                var item = e.clipboardData.files[i];
-                console.log("item is ", item);
-                if(item.kind == "string") {
-                    console.log("tmd is zifuchuan")
-                }
-                else if(item.kind == "file") {
-                    console.log("tmd is file");
-                    var pasteFile = item.getAsFile();
-                }
-            }
-            */
         }
     },
     data() {
         return {
+            path2File: {},
             distEventId: '',
             timeLineSet: undefined,
             isJumpPage: false,
