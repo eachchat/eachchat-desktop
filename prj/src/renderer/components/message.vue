@@ -842,6 +842,7 @@ export default {
         width: 32px;
         height: 32px;
         border-radius:4px;
+        -webkit-user-select:none;
     }
 
     .msg-info-user-img-no-name:hover {
@@ -851,6 +852,7 @@ export default {
         height: 32px;
         border-radius:4px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
 
     .msg-info-user-img-with-name {
@@ -860,6 +862,7 @@ export default {
         height: 32px;
         border-radius:4px;
         margin-top: 4px;
+        -webkit-user-select:none;
     }
 
     .msg-info-user-img-with-name:hover {
@@ -870,6 +873,7 @@ export default {
         border-radius:4px;
         cursor: pointer;
         margin-top: 4px;
+        -webkit-user-select:none;
     }
 
     .about-msg {
@@ -906,6 +910,7 @@ export default {
         font-size: 10px;
         color: rgb(153, 153, 153);
         text-align: right;
+        -webkit-user-select:none;
     }
 
     .msg-info-username-others {
@@ -915,6 +920,7 @@ export default {
         color: rgb(153, 153, 153);
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
+        -webkit-user-select:none;
     }
     
     .chat-msg-content-others-txt-div {
@@ -1001,6 +1007,7 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
 
     .chat-msg-content-others-file {
@@ -1015,6 +1022,7 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
 
     .chat-msg-content-others-voice {
@@ -1029,6 +1037,7 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
 
     .chat-msg-content-others-file:hover {
@@ -1043,16 +1052,19 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
 
     .file-image {
         height: 46px;
         display: inline-block;
+        -webkit-user-select:none;
     }
     
     .voice-image {
         height: 16px;
         display: inline-block;
+        -webkit-user-select:none;
     }
     
     .file-info {
@@ -1181,6 +1193,7 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
 
     .chat-msg-content-mine-file {
@@ -1195,6 +1208,7 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
     
     .chat-msg-content-mine-file:hover {
@@ -1209,6 +1223,7 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
     
     .chat-msg-content-mine-voice {
@@ -1223,6 +1238,7 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        -webkit-user-select:none;
     }
 
     .chat-msg-content-other-transmit {

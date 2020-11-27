@@ -18,6 +18,7 @@ class _MatrixClientPeg{
         this.defaultDisplayName = getMatrixDefaultDeviceDisplayName();
         this.roomToUser = null;
         this.userToRooms = null;
+        this._isLoggingOut = false;
         console.log("default display name is ", this.defaultDisplayName);
         this._hasSentOutPatchDirectAccountDataPatch = false;
     }
@@ -219,7 +220,8 @@ class _MatrixClientPeg{
           userId: userId,
           accessToken: accessToken,
           deviceId: deviceId,
-          cryptoCallbacks: {}
+          cryptoCallbacks: {},
+          timelineSupport: true,
         }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
@@ -325,7 +327,8 @@ class _MatrixClientPeg{
           userId: matrixInfo.data.user_id,
           accessToken: matrixInfo.data.access_token,
           deviceId: matrixInfo.data.device_id,
-          cryptoCallbacks: {}
+          cryptoCallbacks: {},
+          timelineSupport: true,
       }
       Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
       this.matrixClient = this._CreateMatrixClient(ops);
@@ -378,7 +381,8 @@ class _MatrixClientPeg{
             userId: userLoginResult.user_id,
             accessToken: userLoginResult.access_token,
             deviceId: userLoginResult.device_id,
-            cryptoCallbacks: {}
+            cryptoCallbacks: {},
+            timelineSupport: true,
           }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
@@ -424,6 +428,44 @@ class _MatrixClientPeg{
         this.keyId = Object.keys(keys)[0];
         this.keyInfo = keys[this.keyId];
       }
+    }
+
+    softLogout() {
+        if (!this.matrixClient) return;
+    
+        // Track that we've detected and trapped a soft logout. This helps prevent other
+        // parts of the app from starting if there's no point (ie: don't sync if we've
+        // been soft logged out, despite having credentials and data for a MatrixClient).
+        localStorage.setItem("mx_soft_logout", "true");
+    
+        // Dev note: please keep this log line around. It can be useful for track down
+        // random clients stopping in the middle of the logs.
+        console.log("Soft logout initiated");
+        this._isLoggingOut = true; // to avoid repeated flags
+        // Ensure that we dispatch a view change **before** stopping the client so
+        // so that React components unmount first. This avoids React soft crashes
+        // that can occur when components try to use a null client.
+        stopMatrixClient(/*unsetClient=*/false);
+        // DO NOT CALL LOGOUT. A soft logout preserves data, logout does not.
+    }
+
+    stopMatrixClient(unsetClient=true) {
+      // DeviceListener.sharedInstance().stop();
+      if (DMRoomMap.shared()) DMRoomMap.shared().stop();
+      const cli = this.matrixClient;
+      if (cli) {
+          cli.stopClient();
+          cli.removeAllListeners();
+  
+          if (unsetClient) {
+              MatrixClientPeg.unset();
+              EventIndexPeg.unset();
+          }
+      }
+    }
+
+    isLoggingOut() {
+      return _isLoggingOut;
     }
 
     extendMatrixClient() {

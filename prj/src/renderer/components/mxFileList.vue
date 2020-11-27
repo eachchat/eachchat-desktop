@@ -1,0 +1,500 @@
+<template>
+    <div class="MxFileListDlg" id="MxFileListDlgId">
+        <div class="MxFileListDlgContent">
+            <div class="Mxsearch">
+                <input class="MxFileListDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
+            </div>
+            <i class="el-icon-close" @click="Close()"></i>
+            <ul class="Mxfile-list">
+                <li v-for="(item, index) in fileListShow" class="MxfileItem">
+                    <img class="MxfileImage" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
+                    <div class="MxfileInfoDiv" @click="openFile(item)">
+                        <label class="MxfileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
+                        <label class="MxfileInfoDetailLabel">{{getFileInfo(item)}}</label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+
+<script>
+import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, JsonMsgContentToString, getFileSizeByNumber, getFileBlob} from '../../packages/core/Utils.js'
+import {services, environment} from '../../packages/data/index.js'
+import * as fs from 'fs-extra'
+import * as path from 'path'
+import {ipcRenderer} from 'electron'
+import confservice from '../../packages/data/conf_service.js'
+import {shell} from 'electron'
+import { Group } from '../../packages/data/sqliteutil.js'
+import {Filter} from 'matrix-js-sdk';
+import * as Matrix from 'matrix-js-sdk';
+export default {
+    name: 'MxFileListDlg',
+    data () {
+        return {
+            GroupName: '',
+            fileListShow: [],
+            searchKey: '',
+            GroupInfo: null,
+            fileListInfo: [],
+            existingMsgId: [],
+            groupId: '',
+            operatedItem: null,
+            operateMenuElement: null,
+            showFileListOperateMenu: false,
+            needDownload: false,
+            originalFileList: [],
+            lastSequenceId: 0,
+        }
+    }, 
+    methods: {
+        openFile: async function(curItem) {
+            var chatGroupMsgContent = curItem.getContent();
+            if(chatGroupMsgContent.msgtype == 'm.file'){
+                var distPath = confservice.getFilePath(curItem.event.origin_server_ts);
+                getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                    .then((blob) => {
+                        let reader = new FileReader();
+                        reader.onload = function() {
+                            if(reader.readyState == 2) {
+                                var buffer = new Buffer(reader.result);
+                                var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                                // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                            }
+                        }
+                        reader.readAsArrayBuffer(blob);
+                    })
+            }
+            if(chatGroupMsgContent.msgtype == 'm.image'){
+                var distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                var imageInfo = {
+                    url: distUrl,
+                    info: chatGroupMsgContent.info
+                }
+                this.$emit('showImageOfMessage', imageInfo);
+            }
+            // console.log(curItem);
+            // var targetPath = "";
+            // var targetFileName = curItem.content;
+            // var ext = path.extname(targetFileName);
+            // if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, true, curItem.content.fileSize))) {
+            //     shell.openItem(targetPath);
+            // }
+        },
+        Close: function() {
+            this.$emit("fileListClose");
+        },
+        MsgBelongUserName: function(curItem) {
+            if(curItem === null) {
+                return '';
+            }
+            else {
+                var sender = this.GroupInfo.getMember(curItem.getSender());
+                return sender.name;
+            }
+        },
+        // Get formate message time
+        MsgTime(curItem) {
+            if(curItem === null) {
+                return "";
+            }
+            var secondsTime = curItem.event.origin_server_ts;
+            let distdate = new Date(secondsTime);
+            let y = distdate.getFullYear();
+            let mon = distdate.getMonth() + 1;
+            let d = distdate.getDate();
+            let h = distdate.getHours();
+            let m = distdate.getMinutes();
+            let s = distdate.getSeconds();
+
+            return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
+        },
+        isWindows() {
+            return environment.os.isWindows;
+        },
+        getFileIconThroughExt: function(ext) {
+            var iconPath = getIconPath(ext);
+            return iconPath;
+        },
+        showGroupInfo: async function() {
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    for(var i=0;i<this.fileListShow.length;i++) {
+                        var elementIdTmp = this.getFileIconId(this.fileListShow[i]);
+                        var elementTmp = document.getElementById(elementIdTmp);
+                        if(elementTmp != undefined) {
+                            elementTmp.setAttribute("src", this.getIcon(this.fileListShow[i]));
+                        }
+                    }
+                }, 0)
+            })
+
+        },
+        fileNameHeightLight: function(curItem) {
+            var showContent = curItem.getContent();
+            var fileName = showContent.body;
+            // showContent = showContent + ' ';
+            if(this.searchKey.length == 0) {
+                return fileName
+            }
+            if(fileName.indexOf(this.searchKey) != -1) {
+                let splitValue = fileName.split(this.searchKey);
+                let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                return newInnerHtml;
+            }
+        },
+        search: function() {
+            if(this.searchKey.length == 0) {
+                this.fileListShow = this.originalFileList;
+                this.showGroupInfo();
+            }
+            var curSearchId = new Date().getTime();
+            console.log("searchkey is ", this.searchKey);
+            var searchResult = {
+                "id": curSearchId,
+                "searchList": []
+            };
+            this.searchId = curSearchId;
+            for(let i=0;i<this.originalFileList.length;i++) {
+                var curFileName = this.getFileName(this.originalFileList[i]);
+                if(curFileName.indexOf(this.searchKey) != -1) {
+                    searchResult.searchList.push(this.originalFileList[i]);
+                }
+            }
+
+            if(searchResult.id == this.searchId) {
+                this.fileListShow = searchResult.searchList;
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        this.showGroupInfo();
+                    }, 0)
+                })
+            }
+        },
+        getFileName: function(curItem) {
+            var showContent = curItem.getContent();
+            var fileName = showContent.body;
+            return fileName;
+        },
+        getFileInfo: function(curItem) {
+            var MsgContent = curItem.getContent().info;
+            var fileSize = getFileSizeByNumber(MsgContent.size);
+            var fileDate = this.MsgTime(curItem);
+            var fileFromUserName = this.MsgBelongUserName(curItem);
+            return fileSize + " " + fileFromUserName + " " + fileDate;
+        },
+        getIcon: function(curItem) {
+            var content = curItem.getContent();
+            if(content.body != undefined) {
+                if(content.msgtype == 'm.file'){
+                    let ext = path.extname(content.body);
+                    // console.log("getmsgfileicon ext is ", ext);
+                    return this.getFileIconThroughExt(ext);
+                }
+                else if(content.msgtype == "m.image") {
+                    let iconPath = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(content.url);
+                    return iconPath;
+                }
+            }
+        },
+        getFileIconId: function(curItem) {
+            return "MxfileListItem-" + curItem.event.event_id;
+        },
+        getFileList: function() {
+            this.fileListShow = [];
+            this.originalFileList = [];
+            for(var i=0;i<this.fileListInfo.length;i++){
+                this.fileListShow.unshift(this.fileListInfo[i]);
+                this.originalFileList.unshift(this.fileListInfo[i]);
+            }
+        },
+        updatePage: function() {
+            console.log("filelist group info is ", this.fileListInfo);
+            this.getFileList();
+            this.showGroupInfo(this.GroupInfo);
+        },
+        getAppBaseData:async function() {
+            // Set accessToken in services
+            console.log("global is ", global.mxMatrixClientPeg)
+            this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
+            console.log("the init user id is ,", this.GroupInfo)
+            confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
+            // this.$store.commit("setUserId", this.curUserInfo.id)
+            global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
+            this.timeLineSet = await this.updateTimelineSet(this.groupId);
+            this._loadTimeline(undefined, undefined, undefined)
+                .then((ret) => {
+                    const events = this._timelineWindow.getEvents();
+                    for(var i=0;i<events.length;i++) {
+                        this.getHistoryMessage(events[i]);
+                    }
+                })
+        },
+        _loadTimeline: function(eventId, pixelOffset, offsetBase) {
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this.timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            return this._timelineWindow.load(eventId, 20);
+        },
+        onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
+            if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
+
+            this._timelineWindow.paginate("f", 1, false)
+            this.getHistoryMessage(ev);
+        },
+        getHistoryMessage: function(ev) {
+            console.log("========== get history ev is ", ev);
+            if(this.existingMsgId.indexOf(ev.event.event_id) < 0) {
+                this.existingMsgId.push(ev.event.event_id);
+            }
+            else {
+                return;
+            }
+            this.fileListInfo.unshift(ev);
+            this.updatePage();
+        },
+        async updateTimelineSet(roomId) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+            const room = client.getRoom(roomId);
+
+            this.noRoom = !room;
+
+            if (room) {
+                let timelineSet;
+
+                try {
+                    timelineSet = await this.fetchFileEventsServer(room);
+                } catch (error) {
+                    console.error("Failed to get or create file panel filter", error);
+                }
+                return timelineSet;
+            } else {
+                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
+            }
+        },
+        async fetchFileEventsServer(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+
+            const filter = new Filter(client.credentials.userId);
+            filter.setDefinition(
+                {
+                    "room": {
+                        "timeline": {
+                            "contains_url": true,
+                            "types": [
+                                "m.room.message",
+                            ],
+                        },
+                    },
+                },
+            );
+
+            const filterId = await client.getOrCreateFilter("FILTER_FILES_" + client.credentials.userId, filter);
+            filter.filterId = filterId;
+            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
+
+            return timelineSet;
+        },
+    },
+    props: {
+        distRoomId: {
+            type: String,
+            default: ''
+        }
+    },
+    watch: {
+        distRoomId: async function() {
+            this.existingMsgId = [];
+            this.fileListInfo = [];
+            if(this.distRoomId == "") {
+                this.searchKey = "";
+                return;
+            }
+            this.groupId = this.distRoomId;
+            await this.getAppBaseData();
+        }
+    },
+    mounted: function() {
+        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+        ipcRenderer.on("distGroupInfo", (event, groupId) => {
+            this.groupId = groupId;
+            this.lastSequenceId = 0;
+        })
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+    ::-webkit-scrollbar-track-piece {
+        background-color: #F1F1F1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 7px;
+        height: 12px;
+        display: none;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        height: 50px;
+        background-color: #C1C1C1;
+        border-radius: 10px;
+        outline: none;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        height: 50px;
+        background-color: #A8A8A8;
+        border-radius: 10px;
+    }
+    
+    .MxFileListDlg {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 1);
+    }
+
+    .MxFileListDlgContent {
+        width: calc(100% - 40px);
+        height: 100%;
+        margin: 0 20px 0 20px;
+    }
+
+    .Mxsearch {
+        margin: 0;
+        text-align: left;
+        width: 90%;
+        height: 32px;
+        border: 1px solid rgb(221, 221, 221);
+        border-radius: 2px;
+        display: inline-block;
+    }
+
+    .Mxicon-search {
+        display: inline-block;
+        float: right;
+        height: 20px;
+        line-height: 20px;
+        margin: 6px 10px 6px 10px;
+        color: rgb(51, 51, 51);
+    }
+    
+    .Mxicon-search:hover {
+        display: inline-block;
+        float: right;
+        height: 20px;
+        line-height: 20px;
+        margin: 6px 10px 6px 10px;
+        color: rgb(255,204,102);
+    }
+    
+    .el-icon-close {
+        display: inline-block;
+        float: right;
+        height: 20px;
+        line-height: 20px;
+        margin: 6px 10px 6px 10px;
+    }
+
+    .MxFileListDlgSearchInput {
+        display: inline-block;
+        position: absolute;
+        text-indent: 10px;
+        width: 86%;
+        padding: 0;
+        margin: 0px;
+        height: 32px;
+        outline:none;
+        border: 0px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
+        font-size: 12px;
+        color: rgba(153, 153, 153, 1);
+        background-color: rgba(1, 1, 1, 0);
+    }
+
+    .Mxfile-list {
+        width: 100%;
+        height: calc(100% - 30px);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+    .MxfileItem {
+        width: 100%;
+        height: 64px;
+        padding: 0;    
+    }
+
+    .MxfileItem:hover {
+        width: 100%;
+        height: 64px;
+        padding: 0;
+        background-color: rgba(221, 221, 221, 1);
+    }
+    
+    .MxfileOperate {
+        width: 24px;
+        height: 24px;
+        padding: 20px 8px 20px 8px;
+    }
+
+    .MxfileOperate:hover {
+        width: 24px;
+        height: 24px;
+        padding: 20px 8px 20px 8px;
+        background-color: rgba(221, 221, 221, 1);
+    }
+
+    .MxfileImage {
+        display: inline-block;
+        margin: 0 0 0 4px;
+        padding: 12px 0px 12px 0px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .MxfileInfoDiv {
+        display: inline-block;
+        padding: 12px 0px 12px 4px;
+        width: calc(100% - 100px);
+        height: 40px;
+        vertical-align: top;
+    }
+
+    .MxfileInfoNameLabel {
+        display: block;
+        width: 100%;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .MxfileInfoDetailLabel {
+        display: block;
+        width: 100%;
+        height: 18px;
+        line-height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
+        color: rgba(153, 153, 153, 1);
+    }
+
+</style>

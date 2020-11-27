@@ -111,7 +111,9 @@ const sqliteutil = {
             collection_id: collectionId
         });
         if(collections.length != 0){
-            collections[0].destroy();
+            collections.forEach(item=>{
+                item.destroy();
+            });
         }
     },
 

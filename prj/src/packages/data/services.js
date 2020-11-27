@@ -849,8 +849,7 @@ const common = {
   },
 
   async GetNewVersion() {
-    return;
-    let response = await this.api.getNewVersion(this.data.login.access_token);
+    let response = await this.api.getNewVersion(this.accessToken);
     if (!response.ok || !response.success) {
       return false;
     }
@@ -1336,11 +1335,11 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadUpgradeFile(url, fileName) {
+  async downloadUpgradeFile(url, fileName, versionId) {
     var targetDir = confservice.getTempPath();
     var targetPath = path.join(targetDir, fileName);
-    ipcRenderer.send('download-upgrade', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]);
-    return ret;
+    ipcRenderer.send('toUpgradePackage', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, versionId]);
+    return true;
   },
 
   async downloadFile(timelineId, message_time, fileName, needOpen, fileSize, url='') {
@@ -1620,12 +1619,19 @@ const common = {
     return true;
   },
 
-  async DeleteCollectionMessage(favoriteID){
-    let result = await this.api.DeleteCollectionMessage(this.data.login.access_token, favoriteID);
+  async DeleteCollectionMessage(collectionIds){
+    let arrayIds = [];
+    if(Array.isArray(collectionIds)){
+      arrayIds = collectionIds;
+    }
+    else{
+      arrayIds.push(collectionIds);
+    }
+    let result = await this.api.DeleteCollectionMessage(this.data.login.access_token, arrayIds);
     if (!result.ok || !result.success) {
       return false;
     }
-    await sqliteutil.DeleteItemFromCollectionByFavouriteID(favoriteID)
+    await sqliteutil.DeleteItemFromCollectionByCollectionIdID(arrayIds)
   },
 
   async DeleteCollectionGroup(gorupID){

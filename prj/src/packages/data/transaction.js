@@ -577,9 +577,13 @@ class APITransaction {
   }
 
   async CollectMessage(accessToken, eventID, content){
-    let type = 101;
-    if(content.msgtype == "m.file" || content.msgtype == "m.image")
+    let type;
+    if(content.msgtype == "m.image")
       type = 102;
+    else if(content.msgtype == "m.file")
+      type = 103;
+    else
+      type = 101;
     var response = await this.commonApi.post(
       "/api/apps/fav/v1/collection",
       {
@@ -605,9 +609,12 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async DeleteCollectionMessage(accessToken, favoriteID){
-    var response = await this.commonApi.delete(
-      "/api/apps/fav/v1/collection/" + favoriteID,
+  async DeleteCollectionMessage(accessToken, collectionIds){
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection/del",
+      {
+        collectionIds: collectionIds,
+      }, 
       {
         Authorization: "Bearer " + accessToken
       });

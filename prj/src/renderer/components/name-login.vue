@@ -364,8 +364,29 @@ export default {
                 for (let i = 0; i < flows.length; i++ ) {
                     this.resetLoginStateTitle();
                     var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
-                    global.services.common.setGmsConfiguration(appServerInfo.data);
-                    return true;
+                    console.log('appServerInfo is ', appServerInfo);
+                    if(appServerInfo.status != 200) {
+                        this.loginState = this.$t("invalidServerAddress");
+                        return false;
+                    }
+                    if(appServerInfo.data['m.gms'] != undefined) {
+                        var gmsHost = appServerInfo.data['m.gms']['base_url'];
+                        var gmsValue = appServerInfo.data['m.gms']['tid'];
+                        var gmsRet = await global.services.common.gmsConfiguration(gmsHost, gmsValue);
+                        if(!gmsRet){
+                            this.loginState = "未找到该组织";
+                            this.organizationButtonDisabled = false;
+                            return false;
+                        }
+                        else {
+                            this.organizationButtonDisabled = false;
+                            return true;
+                        }
+                    }
+                    else if(appServerInfo.data['m.appserver'] != undefined){
+                        global.services.common.setGmsConfiguration(appServerInfo.data);
+                        return true;
+                    }
                 }
                 
                 this.loginState = this.$t("invalidServerAddress");
@@ -746,7 +767,7 @@ export default {
             }
             else if(this.showUseremailLoginView) {
                 try {
-                    client = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
+                    verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
                     console.log("===== ", verCodeRet)
                     if(verCodeRet.status == 200) {
                         client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
@@ -778,6 +799,29 @@ export default {
                 try {
                     client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
                     console.log("===== ", client)
+                    if(client == undefined || client == null) {
+                        verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                        console.log("===== ", verCodeRet)
+                        if(verCodeRet.status == 200) {
+                            client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                        }
+                        else if(verCodeRet.status == 429) {
+                            this.loginState = verCodeRet.data.error;
+                            this.isLoading = false;
+                        }
+                        else if(verCodeRet.status == 400) {
+                            this.loginState = this.$t("unboundedAccount")
+                            this.isLoading = false;
+                        }
+                        else if(verCodeRet.status == 412) {
+                            this.loginState = this.$t("invalidVerCode")
+                            this.isLoading = false;
+                        }
+                        else {
+                            this.loginState = this.$t("invalidVerCode")
+                            this.isLoading = false;
+                        }
+                    }
                 }
                 catch(e) {
                     this.isLoading = false;

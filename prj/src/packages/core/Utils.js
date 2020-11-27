@@ -1096,6 +1096,10 @@ function getIconPath(ext) {
     if(ext.startsWith(".")) {
         ext = ext.substring(1, ext.length);
     }
+    else{
+        let index = ext.indexOf(".");
+        ext = ext.substring(ext.lastIndexOf(".") + 1, ext.length)
+    }
     var iconDirPath = './static/Img/Chat';
     var distExt = '';
     var distIconPath = '';

@@ -89,13 +89,13 @@ export default {
         },
         getFilePath(item) {
             var imgPath = './static/Img/Chat/unknown@2x.png';
-            var theType = FilenameToContentType(path.basename(item.path));
+            var theType = FilenameToContentType(path.basename(item.name));
 
             if(theType == 'm.image') {
                 imgPath = item.path;
             }
             else {
-                imgPath = getIconPath(path.extname(item.path));
+                imgPath = getIconPath(path.extname(item.name));
             }
             return imgPath;
         },

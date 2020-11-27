@@ -40,7 +40,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="organization-view">
+                <!-- <div class="organization-view">
                     <div class="item" @click="groupMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/group@2x.png">
                         <div class="item-info">
@@ -50,7 +50,7 @@
                             <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </el-aside>
         <el-container class="right-container">

@@ -204,14 +204,14 @@ export default {
             return userID + 'contactList';
         },
 
-        getUserImg: function(userinfo) {
+        getUserImg: async function(userinfo) {
             var elementImg = document.getElementById(userinfo.matrix_id + 'contactList');
             if(!elementImg)
                 return;
-            let userAvatarUrl = userinfo.avatar_url;
-            if(!userAvatarUrl)
+            var profileInfo = await this.matrixClient.getProfileInfo(userinfo.matrix_id);
+            if(!profileInfo.avatar_url)
                 return;
-            let validUrl = this.matrixClient.mxcUrlToHttp(userAvatarUrl); 
+            let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url); 
             if(validUrl)
                 elementImg.setAttribute("src", validUrl);          
         },
