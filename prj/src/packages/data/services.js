@@ -849,8 +849,7 @@ const common = {
   },
 
   async GetNewVersion() {
-    return;
-    let response = await this.api.getNewVersion(this.data.login.access_token);
+    let response = await this.api.getNewVersion(this.accessToken);
     if (!response.ok || !response.success) {
       return false;
     }
@@ -1336,11 +1335,11 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadUpgradeFile(url, fileName) {
+  async downloadUpgradeFile(url, fileName, versionId) {
     var targetDir = confservice.getTempPath();
     var targetPath = path.join(targetDir, fileName);
-    ipcRenderer.send('download-upgrade', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]);
-    return ret;
+    ipcRenderer.send('toUpgradePackage', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, versionId]);
+    return true;
   },
 
   async downloadFile(timelineId, message_time, fileName, needOpen, fileSize, url='') {

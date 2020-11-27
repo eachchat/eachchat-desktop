@@ -10,9 +10,12 @@
                     <label class="UpgradeContentDetailsContent">{{Details}}</label>
                 </div>
             </div>
-            <div class="UpgradeFotter">
-                <button class="UpgradeCancleButton" @click="Close()" v-show="canCancel">取消</button>
-                <button class="UpgradeConfirmButton" @click="Cancle()">升级</button>
+            <div class="UpgradeFotter" v-show="!isDownloading">
+                <button class="UpgradeCancleButton" @click="Cancle()" v-show="canCancel">取消</button>
+                <button class="UpgradeConfirmButton" @click="upGrade()">升级</button>
+            </div>
+            <div class="upgradeProcess" v-show="isDownloading">
+                <el-progress class="downloadingProgress" :percentage="curPercent" color="#11b067" :show-text="false" :stroke-width="10"></el-progress>
             </div>
         </div>
     </div>
@@ -23,7 +26,10 @@ import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
+import * as path from 'path'
 import {ipcRenderer, remote} from 'electron'
+import confservice from '../../packages/data/conf_service.js'
+import {shell} from 'electron'
 export default {
     name: 'UpgradeDlg',
     props: {
@@ -39,16 +45,48 @@ export default {
     },
     data () {
         return {
+            curPercent: 1,
+            isDownloading: false,
             Abstrace: '',
             Details: '',
             dlgWidth: 440,
             dlgHeight: 179,
+            downloadingInterval: undefined,
+            checkingTmpPath: '',
+            ipcInited: false,
         }
     },
     methods: {
-        Close: function() {
-            services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.verName);
-            // this.$emit("closeUpgradeDlg", "");
+        upGrade: function() {
+            services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.verName, this.upgradeInfo.verId);
+            if(!this.ipcInited) {
+                this.ipcInited = true;
+                ipcRenderer.on('upgradeFileOk', this.toLogout);
+            }
+            var targetDir = confservice.getTempPath();
+            this.checkingTmpPath = path.join(targetDir, this.upgradeInfo.verName+'_tmp');
+            if(this.downloadingInterval) {
+                clearInterval(this.downloadingInterval);
+            }
+            this.downloadingInterval = setInterval(() => {
+                if(fs.existsSync(this.checkingTmpPath)) {
+                    this.isDownloading = true;
+                    var checkingState = fs.statSync(this.checkingTmpPath);
+                    this.curPercent = parseInt(checkingState.size*100/(66.8*1024*1024))
+                    console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
+                }
+            }, 200);
+        },
+        toLogout: function(event, arg) {
+            var distPath = arg[1];
+            console.log("distPath it ", distPath)
+            if(fs.existsSync(distPath)) {
+                console.log("to open it")
+                shell.openItem(distPath);
+                setTimeout(() => {
+                    remote.app.quit();
+                }, 2000)
+            }
         },
         Cancle: function() {
             this.$emit("closeUpgradeDlg", '');
@@ -99,7 +137,7 @@ export default {
             }
 
             this.Details = this.upgradeInfo.description;
-            this.Abstrace = "提示";
+            this.Abstrace = "升级";
 
             var showPosition = this.calcImgPosition();
             console.log("showPositon is ", showPosition)
@@ -118,6 +156,7 @@ export default {
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
+        z-index: 3;
     }
 
     .UpgradeDlg {
@@ -214,5 +253,21 @@ export default {
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
     }
+
+    .upgradeProcess {
+        width: 200px;
+        margin-left: 110px;
+        margin-right: 110px;
+        height: 72px;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .downloadingProgress {
+        display: block;
+        width: 200px;
+        float: right;
+    }
+
  
 </style>

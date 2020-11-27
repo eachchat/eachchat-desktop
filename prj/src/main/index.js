@@ -571,15 +571,16 @@ function downloadFile(event, arg) {
   }
 }
 
-ipcMain.on("download-upgrade", function(event, arg) {
+ipcMain.on("toUpgradePackage", function(event, arg) {
   // url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]
-  // console.log("args is ", arg);
+  // console.log("toUpgradePackage is ", arg);
   var distUrl = arg[0];
   var token = arg[1];
   var baseURL = arg[2];
   var port = arg[3];
   // console.log("downloadingList is ", downloadingList);
   var distPath = arg[4];
+  var versionId = arg[5];
   var distTemp = distPath + "_tmp";
 
   if (typeof port == "number") {
@@ -590,12 +591,12 @@ ipcMain.on("download-upgrade", function(event, arg) {
     baseURL: baseURL + ":" + String(port)
   });
 
-  var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
+  var path = "/api/services/file/v1/version/" + String(versionId);
   var headers = {
     Authorization: "Bearer " + token
   };
   var appendix = {
-    timeout: 35000,
+    timeout: 60000 * 5,
     responseType: "stream"
   };
 
@@ -603,6 +604,34 @@ ipcMain.on("download-upgrade", function(event, arg) {
     headers: headers,
   }, appendix);
 
+  if(fs.existsSync(distTemp)) {
+      fs.unlinkSync(distTemp);
+  }
+
+  if(fs.existsSync(distPath)) {
+      fs.unlinkSync(distPath);
+  }
+  try{
+    sender.get(path, config)
+      .then(function (ret) {
+        // console.log("sender get is ", ret);
+        ret.data.pipe(fs.createWriteStream(distTemp))
+        .on('finish', async function() {
+          console.log("finished ")
+          try{
+            fs.renameSync(distTemp, distPath);
+            // shell.openExternal(distPath);
+            event.sender.send('upgradeFileOk', [true, distPath]);
+          }
+          catch(e) {
+            console.log("rename file failed and details is ", e);
+          }
+        });
+    })
+  }
+  catch(err) {
+    console.log("iiiiiiiiiiiiii ", err)
+  }
 })
 
 ipcMain.on("download-file", function(event, arg) {
