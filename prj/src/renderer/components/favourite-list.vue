@@ -52,7 +52,7 @@
                                     </div>
                                     <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                                 </div>
-                                <p class="file-sender">{{ file.collection_content.fromUserName }}</p>
+                                <p class="file-sender">{{ file.collection_content.fromMatrixId }}</p>
                                 <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
@@ -894,7 +894,7 @@ display: none;
     }
 
     .file {
-        height: 110px;
+        height: 120px;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
