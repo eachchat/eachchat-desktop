@@ -419,9 +419,6 @@ export default {
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
             var showRedact = this.canRedact(msgItem);
-            // console.log("e.target is ", e.target.className)
-            let distElement = document.getElementById(msgItem.event.event_id);
-            // console.log("distElement is ", distElement.className);
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
             }
@@ -588,7 +585,15 @@ export default {
         },
         menuCopy(msg) {
             var msgContent = msg.getContent();
-            clipboard.writeText(msgContent.body);
+            console.log("msgContent is ", msgContent.body)
+            var selectedTxt = window.getSelection ? window.getSelection():document.selection.createRange().text;
+            console.log("selectedTxt ", selectedTxt);
+            if(selectedTxt!=null&&selectedTxt!=""&&msgContent.body.indexOf(selectedTxt) >= 0) {
+                clipboard.writeText(selectedTxt.toString());
+            }
+            else {
+                clipboard.writeText(msgContent.body);
+            }
         },
         async transmitFromSoloDlg(e, args) {
             var transmitInfoStr = args;

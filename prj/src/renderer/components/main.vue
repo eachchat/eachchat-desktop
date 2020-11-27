@@ -322,6 +322,17 @@ export default {
             setTimeout(() => {
                 refreshToken(this);
             }, 1000 * 3600 * 3.5)
+        },
+        softLogout: function(errObj) {
+            if (global.mxMatrixClientPeg.isLoggingOut()) return;
+
+            if (errObj != undefined && errObj.httpStatus === 401 && errObj.data && errObj.data['soft_logout']) {
+                console.warn("Soft logout issued by server - avoiding data deletion");
+                global.mxMatrixClientPeg.softLogout();
+                global.mxMatrixClientPeg.logout();
+                ipcRenderer.send("showLoginPageWindow");
+                return;
+            }
         }
     },
     components: {
@@ -380,6 +391,7 @@ export default {
               break;
           }
         })
+        global.mxMatrixClientPeg.matrixClient.on("Session.logged_out", this.softLogout)
 
         await global.services.common.login()
         global.services.common.InitDbData();
@@ -404,10 +416,11 @@ export default {
     },
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
+        ipcRenderer.on('toLogout', this.softLogout);
         console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
         await this.getAppBaseData();
         this.startCheckUpgrade();
-        this.startRefreshToken();
+        // this.startRefreshToken();
     },
 }
 </script>
@@ -418,7 +431,6 @@ export default {
         margin: 0 0 0 0;
         width: 100%;
         height: 100%;
-        -webkit-user-select:none;
     }
 
     .nav-menu {

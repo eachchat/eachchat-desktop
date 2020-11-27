@@ -147,34 +147,17 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
 });
 
 ipcMain.on("token-expired", function(event, arg) {
-  if(isLogin) {
-    console.log("logout")
-    if(process.platform == 'darwin'){
-      app.dock.setBadge("");
-    }
-    Menu.setApplicationMenu(null)
-    queue.destory();
-    mainWindow.hide();
-    appIcon.destroy();
-    mainWindow.loadURL(winURL);
-    mainWindow.setSize(360, 420)
-    openDevToolsInDevelopment(mainWindow);
-    
-    mainWindow.webContents.on('dom-ready', function(){
-      mainWindow.show();            
-    });
-    isLogin = false;
-  }
+  mainWindow.webContents.send("toLogout");
 })
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
+  isLogin = false;
   Menu.setApplicationMenu(null)
   mainWindow.hide();
   mainWindow.resizable = true;
   mainWindow.setSize(360, 420)
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
-  isLogin = false;
   queue.destory();
   appIcon.destroy();
   mainWindow.webContents.on('dom-ready', function(){

@@ -2119,6 +2119,7 @@ export default {
     flex-direction: column;
     border-right: 1px solid rgb(238, 238, 238);
     -webkit-app-region: drag;
+    -webkit-user-select:none;
   }
 
   .list-header {
