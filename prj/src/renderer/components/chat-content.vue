@@ -19,8 +19,9 @@
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
+                  :id="ChatGroupId(chatGroupItem)"
                   v-show='bInvites'>
-                <div class = 'group-div'>
+                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -47,8 +48,9 @@
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
+                  :id="ChatGroupId(chatGroupItem)"
                   v-show='bCollections'>
-                <div class = 'group-div'>
+                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -76,8 +78,9 @@
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
+                  :id="ChatGroupId(chatGroupItem)"
                   v-show='bRooms'>
-                <div class = 'group-div'>
+                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -421,7 +424,9 @@ export default {
       bRooms: true,
       favouriteRooms: [],
       inviteGroupsList:[],
-      dealShowGroupList:[]
+      dealShowGroupList:[],
+      oldElementGroupItem: null,
+      oldElementGroupDiv: null
     };
   },
   methods: {
@@ -456,6 +461,11 @@ export default {
     ChatGroupId(item) {
       return "chat-v-bind-" + item.roomId;
     },
+
+    ChatGroupDivId(item){
+      return 'chat-group-div-' + item.roomId;
+    },
+
     updateChatList(newMsg, needScroll=true) {
       // ++this.needUpdate;
       this.needScroll = needScroll;
@@ -632,30 +642,7 @@ export default {
       }
       this.groupListElement.style.overflowY = "hidden"
     },
-    groupOrTopClassName(item, index) {
-      // console.log("this.curindex is ", this.curindex);
-      // console.log("cur index is ", index);
-      if(index == this.curindex) {
-        return "group active";
-      }
-      if(this.groupIsTop(item)) {
-        return "group-top";
-      }
-      else {
-        return "group";
-      }
-    },
-    groupDivOrTopClassName(item, index) {
-      if(index == this.curindex) {
-        return "group-div active";
-      }
-      if(this.groupIsTop(item)) {
-        return "group-div-top";
-      }
-      else {
-        return "group-div";
-      }
-    },
+
     isWindows() {
       return environment.os.isWindows;
     },
@@ -1649,7 +1636,47 @@ export default {
 
       return "收到一条短消息";
     },
+
+    SetGroupItemGround(chatGroup){
+      let groupItemElementID = this.ChatGroupId(chatGroup);
+      let groupItemElement = document.getElementById(groupItemElementID)
+      if(groupItemElement)
+        groupItemElement.style.backgroundColor = "#dddddd";
+
+      if(this.oldElementGroupItem)
+      {
+        this.oldElementGroupItem.onmouseover =  function () {
+            this.style.backgroundColor = "#f7f8fa";
+        }
+        this.oldElementGroupItem.onmouseout = function () {
+            this.style.backgroundColor = "#ffffff";
+        };
+        this.oldElementGroupItem.style.backgroundColor = "#ffffff";
+
+      }
+      this.oldElementGroupItem = groupItemElement;
+
+      let groupDivElementID = this.ChatGroupDivId(chatGroup);
+      let groupDivElement = document.getElementById(groupDivElementID)
+      if(groupDivElement)
+        groupDivElement.style.backgroundColor = "#dddddd";
+      if(this.oldElementGroupDiv)
+      {
+        this.oldElementGroupDiv.onmouseover =  function () {
+            this.style.backgroundColor = "#f7f8fa";
+        }
+        this.oldElementGroupDiv.onmouseout = function () {
+            this.style.backgroundColor = "#ffffff";
+        };
+        this.oldElementGroupDiv.style.backgroundColor = "#ffffff";
+      }
+      this.oldElementGroupDiv = groupDivElement;
+    },
+
     showChat: function(chatGroup, index) {
+      this.SetGroupItemGround(chatGroup);
+ 
+
       // this.cleanSearchKey = !this.cleanSearchKey;
       this.isEmpty = false;
       // console.log("this.unreadcount is ", this.unreadCount);
@@ -2504,7 +2531,7 @@ export default {
 
   .group-div:hover {
     height: 60px;
-    background-color: rgba(247, 248, 250, 1);
+    background-color: #f7f8fa;
     border-bottom:1px solid rgba(238,238,238,1);
     margin-left: 16px;
     margin-top: 0px;
@@ -2514,7 +2541,7 @@ export default {
     box-sizing: border-box;
   }
 
-  .group-div.active {
+  .group-div:active {
     height: 60px;
     background-color: rgba(221, 221, 221, 1);
     border-bottom:1px solid rgba(221, 221, 221, 1);
@@ -2538,7 +2565,7 @@ export default {
 
   .group-top:hover {
     height: 60px;
-    background-color: rgba(247, 248, 250, 1);
+    background-color: #f7f8fa;
   }
 
   .group-top.active {
@@ -2551,7 +2578,7 @@ export default {
     background-color: rgba(247, 248, 250, 1);
   }
 
-  .group.active {
+  .group:active {
     height: 60px;
     background-color: rgba(221, 221, 221, 1);
   }
