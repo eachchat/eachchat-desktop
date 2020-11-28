@@ -12,14 +12,14 @@
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
-            <!-- <ul class="group-list"> -->
-            <transition-group class="group-list" name="group-list" tag="ul">
+            <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>邀请</el-link>
+            <ul class="group-list" name="group-list">
               <li :class="groupOrTopClassName(chatGroupItem, index)"
-                  v-for="(chatGroupItem, index) in dealShowGroupList"
+                  v-for="(chatGroupItem, index) in inviteGroupsList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
-                  >
+                  v-show='bInvites'>
                 <div :class="groupDivOrTopClassName(chatGroupItem, index)">
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -38,8 +38,65 @@
                   </div>
                 </div>
               </li>
-            <!-- </ul> -->
-            </transition-group>
+            </ul>
+            <!-- <ul class="group-list"> -->
+            <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>置顶</el-link>
+            <ul class="group-list" name="group-list">
+              <li :class="groupOrTopClassName(chatGroupItem, index)"
+                  v-for="(chatGroupItem, index) in favouriteRooms"
+                  @click="showChat(chatGroupItem, index)"
+                  @contextmenu="rightClick($event, chatGroupItem)"
+                  v-bind:key="ChatGroupId(chatGroupItem)"
+                  v-show='bCollections'>
+                <div :class="groupDivOrTopClassName(chatGroupItem, index)">
+                  <!-- <listItem @groupInfo="chatGroupItem"/> -->
+                  <div class="group-img">
+                    <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
+                  </div>
+                  <div class="group-info">
+                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                  </div>
+                  <div class="group-notice">
+                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+   
+            <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link>
+            <ul class="group-list" name="group-list">
+            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
+              <li :class="groupOrTopClassName(chatGroupItem, index)"
+                  v-for="(chatGroupItem, index) in dealShowGroupList"
+                  @click="showChat(chatGroupItem, index)"
+                  @contextmenu="rightClick($event, chatGroupItem)"
+                  v-bind:key="ChatGroupId(chatGroupItem)"
+                  v-show='bRooms'>
+                <div :class="groupDivOrTopClassName(chatGroupItem, index)">
+                  <!-- <listItem @groupInfo="chatGroupItem"/> -->
+                  <div class="group-img">
+                    <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
+                  </div>
+                  <div class="group-info">
+                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                  </div>
+                  <div class="group-notice">
+                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <!-- </transition-group> -->
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
             <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
@@ -194,6 +251,25 @@ export default {
     //['distUserId', 'distGroupId'],
   },
   watch: {
+    showGroupList: function(){
+      this.showGroupList.forEach((item)=>{
+        if(item.getMyMembership() == "invite") {
+          item.un_read_count = 1;
+          this.inviteGroupsList.push(item);
+        }
+        else{
+          global.mxMatrixClientPeg.matrixClient.getRoomTags(item.roomId).then((tags)=>{
+            if(tags && tags.tags && tags.tags['m.favourite']){
+              this.favouriteRooms.push(item)
+            }
+            else if(item.getMyMembership() != "invite") {
+              this.dealShowGroupList.push(item);
+            }
+          });
+        }
+      })
+    },
+    
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
@@ -254,6 +330,7 @@ export default {
         this.$nextTick(() => {
           this.showGroupIcon();
         })
+        
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             console.log("join room:" + member.roomId);
             console.log("event is ", event);
@@ -287,9 +364,6 @@ export default {
     ...mapState({
       matrixSync: state => state.common.matrixSync
     }),
-    dealShowGroupList: function() {
-      return this.showGroupList
-    }
   },
   data() {
     return {
@@ -342,9 +416,27 @@ export default {
       searchId: 0,      //复合搜索,
       matrixClient: undefined,
       roomToUser: null,
+      bInvites: true,
+      bCollections: true,
+      bRooms: true,
+      favouriteRooms: [],
+      inviteGroupsList:[],
+      dealShowGroupList:[]
     };
   },
   methods: {
+    InvitesClick(){
+      this.bInvites = !this.bInvites;
+    },
+
+    CollectionRoomClick(){
+      this.bCollections = !this.bCollections;
+    },
+
+    RoomsClick(){
+      this.bRooms = !this.bRooms;
+    },
+
     viewRoom(room) {
       console.log('---viewRoom new rooms---',  newRooms);
       const newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
@@ -2357,7 +2449,7 @@ export default {
 
   .group-list {
     width: 100%;
-    height: 100%;
+    //height: 100%;
     padding: 0;
     margin: 0;
     scroll-behavior:smooth;
