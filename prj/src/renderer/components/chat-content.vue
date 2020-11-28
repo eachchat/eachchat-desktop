@@ -14,13 +14,13 @@
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
             <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>邀请</el-link>
             <ul class="group-list" name="group-list">
-              <li :class="groupOrTopClassName(chatGroupItem, index)"
+              <li class = 'group'
                   v-for="(chatGroupItem, index) in inviteGroupsList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   v-show='bInvites'>
-                <div :class="groupDivOrTopClassName(chatGroupItem, index)">
+                <div class = 'group-div'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -42,13 +42,13 @@
             <!-- <ul class="group-list"> -->
             <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>置顶</el-link>
             <ul class="group-list" name="group-list">
-              <li :class="groupOrTopClassName(chatGroupItem, index)"
+              <li class = 'group'
                   v-for="(chatGroupItem, index) in favouriteRooms"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   v-show='bCollections'>
-                <div :class="groupDivOrTopClassName(chatGroupItem, index)">
+                <div class = 'group-div'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -71,13 +71,13 @@
             <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link>
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
-              <li :class="groupOrTopClassName(chatGroupItem, index)"
+              <li class = 'group'
                   v-for="(chatGroupItem, index) in dealShowGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   v-show='bRooms'>
-                <div :class="groupDivOrTopClassName(chatGroupItem, index)">
+                <div class = 'group-div'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
