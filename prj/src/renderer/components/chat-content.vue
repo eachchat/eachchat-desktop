@@ -835,18 +835,10 @@ export default {
         }
     },
     groupIsInFavourite(groupInfo) {
-      if(groupInfo.status == undefined) {
+      if(this.favouriteRooms.indexOf(groupInfo) == -1) {
         return false;
       }
-      if(groupInfo.status == 0) {
-        return false;
-      }
-      else {
-        if(groupInfo.status.substr(4, 1) == "1") {
-            return true;
-        }
-        return false;
-      }
+      return true;
     },
     groupIsSlience(groupInfo) {
       if(groupInfo.status == undefined) {
