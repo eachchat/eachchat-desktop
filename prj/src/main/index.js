@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "/static/Img/Main/logo@2x.png";
 }
 
-if(process.platform == 'darwin') {
+if(process.platform != 'darwin') {
   const singleInstanceLock = app.requestSingleInstanceLock();
   if(!singleInstanceLock) {
     app.quit();
