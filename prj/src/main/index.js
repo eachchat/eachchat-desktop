@@ -52,22 +52,24 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "/static/Img/Main/logo@2x.png";
 }
 
-const singleInstanceLock = app.requestSingleInstanceLock();
-if(!singleInstanceLock) {
-  app.quit();
-}
-else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-      try{
-        mainWindow.show();
-        mainWindow.focus();
-        return true;
-      }
-      catch(error) {
-        console.log("========= ", error);
-        return true;
-      }
-  })
+if(process.platform == 'darwin') {
+  const singleInstanceLock = app.requestSingleInstanceLock();
+  if(!singleInstanceLock) {
+    app.quit();
+  }
+  else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+        try{
+          mainWindow.show();
+          mainWindow.focus();
+          return true;
+        }
+        catch(error) {
+          console.log("========= ", error);
+          return true;
+        }
+    })
+  }
 }
 //ClearDB(1);
 
