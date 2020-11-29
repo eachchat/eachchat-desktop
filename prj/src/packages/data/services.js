@@ -2077,19 +2077,22 @@ const common = {
     // this.config.mqttTls = 1;
     // return true;
     
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length-1)
+    }
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
       // response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
-      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/" + value);
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
       // response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
-      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/" + value);
     else//正式环境
       // response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
       console.log("the url is ", host + "/api/sys/gms/v1/configuration/" + value);
-      response = await axios.get(host + "/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get(host + "/" + value);
     
     if (response.status != 200 
       || response.data == undefined

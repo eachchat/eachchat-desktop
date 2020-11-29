@@ -372,7 +372,7 @@ export default {
                     if(appServerInfo.data['m.gms'] != undefined) {
                         var gmsHost = appServerInfo.data['m.gms']['base_url'];
                         var gmsValue = appServerInfo.data['m.gms']['tid'];
-                        var gmsRet = await global.services.common.gmsConfiguration(gmsHost, gmsValue);
+                        var gmsRet = await global.services.common.gmsConfiguration(gmsValue, gmsHost);
                         if(!gmsRet){
                             this.loginState = "未找到该组织";
                             this.organizationButtonDisabled = false;
