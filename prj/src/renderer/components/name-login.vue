@@ -824,12 +824,33 @@ export default {
                     }
                 }
                 catch(e) {
-                    this.isLoading = false;
-                    this.loginButtonDisabled = false;
-                    if(e.message == "Invalid password") {
-                        this.loginState = this.$t("invalidPassword");
+                    verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                    console.log("===== ", verCodeRet)
+                    if(verCodeRet.status == 200) {
+                        client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                    }
+                    else if(verCodeRet.status == 429) {
+                        this.loginState = verCodeRet.data.error;
+                        this.isLoading = false;
+                    }
+                    else if(verCodeRet.status == 400) {
+                        this.loginState = this.$t("unboundedAccount")
+                        this.isLoading = false;
+                    }
+                    else if(verCodeRet.status == 412) {
+                        this.loginState = this.$t("invalidVerCode")
+                        this.isLoading = false;
                     }
                     else {
+                        this.loginState = this.$t("invalidVerCode")
+                        this.isLoading = false;
+                    }
+                    // this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    if(client == undefined && e.message == "Invalid password") {
+                        this.loginState = this.$t("invalidPassword");
+                    }
+                    else if(client == undefined) {
                         this.loginState = e.message;
                     }
                     console.log(e)

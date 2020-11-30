@@ -313,6 +313,15 @@ class _MatrixClientPeg{
             ver_code: password
           });
       }
+      else if(checkType == "m.login.sso.ldap") {
+        response = await this.commonApi.post(
+          "/_matrix/client/r0/login",
+          {
+            type: checkType,
+            email: username,
+            ver_code: password
+          });
+      }
       else {
         return "Unknown type";
       }
