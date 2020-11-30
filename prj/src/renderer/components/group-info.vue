@@ -179,7 +179,9 @@ export default {
             //matrix data
             mxMute: false,
             mxMembers: [],
-            currentUser: undefined
+            currentUser: undefined,
+            dmRoomIdArr: [],
+            isDm: false
         }
     },
     components: {
@@ -744,6 +746,21 @@ export default {
         const client = window.mxMatrixClientPeg.matrixClient;
         const userId = client.getUserId();
         const vtx = this;
+        const mDirectEvent = global.mxMatrixClientPeg.matrixClient.getAccountData('m.direct');
+        let dmRoomMap = {};
+        if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+        console.log('Room js intent check', mDirectEvent)
+        console.log('----dmRoomMap----', dmRoomMap)
+        let dmRoomIdArr = [];
+        Object.keys(dmRoomMap).forEach(k=>{
+            let arr = dmRoomMap[k];
+            arr.forEach(a=>dmRoomIdArr.push(a))
+        })
+        if (dmRoomIdArr.includes(roomId)) {
+            this.isDm = true;
+            console.log('这是一个单聊');
+        }
+        this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
         this.mxGetMembers(userId);
         client.on("RoomMember.powerLevel", (event, member) => {

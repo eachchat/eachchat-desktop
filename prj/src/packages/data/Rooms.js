@@ -126,7 +126,8 @@ export function setDMRoom(roomId, userId) {
     let dmRoomMap = {};
 
     if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-
+    console.log('Room js intent check', mDirectEvent)
+    console.log('----dmRoomMap----', dmRoomMap)
     // remove it from the lists of any others users
     // (it can only be a DM room for one person)
     for (const thisUserId of Object.keys(dmRoomMap)) {
