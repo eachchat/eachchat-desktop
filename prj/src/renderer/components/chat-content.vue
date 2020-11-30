@@ -712,7 +712,7 @@ export default {
                 }
             }));
           }
-          else {
+          else if(this.groupIsInGroups(groupItem)){
             this.menu.append(new MenuItem({
                 label: "置顶",
                 click: () => {
@@ -848,6 +848,12 @@ export default {
       }
       return true;
     },
+    groupIsInGroups(groupInfo){
+      if(this.dealShowGroupList.indexOf(groupInfo) == -1)
+        return false;
+      return true;
+    },
+
     groupIsSlience(groupInfo) {
       if(groupInfo.status == undefined) {
         return false;
