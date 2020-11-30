@@ -179,6 +179,7 @@ import mxFilePage from "./mxFileList.vue";
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
+var isEnter = false;
 // Quill.register('modules/imageDrop', ImageDrop);
 // Quill.register('modules/resizeImage', resizeImage);
 
@@ -919,7 +920,11 @@ export default {
             var content = this.editor.getContents();
 
             if(event.code == "Enter" && !event.ctrlKey) {
-                this.sendMsg();
+                if(isEnter) {
+                    this.sendMsg();
+                    // console.log("sendmsg");
+                    isEnter = false;
+                }
             }
             else if(event.code == "Enter" && event.ctrlKey) {
                 var range = this.editor.getSelection();
@@ -2787,9 +2792,35 @@ s        },
                      clipboard: {
                         // 粘贴版，处理粘贴时候带图片
                         matchers: [[Node.ELEMENT_NODE, this.handleCustomMatcher]],
-                    }
+                    },
                     // imageDrop: true,
                     // resizeImage: true,
+                    keyboard: {
+                        bindings: {
+                            linebreak: {
+                                key: 13,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    console.log("==========handleser ")
+                                    isEnter = true;
+                                    // let currentLeaf = this.quill.getLeaf(range.index)[0]
+                                    // let nextLeaf = this.quill.getLeaf(range.index + 1)[0]
+
+                                    // this.quill.insertEmbed(range.index, 'break', true, 'user');
+
+                                    // // Insert a second break if:
+                                    // // At the end of the editor, OR next leaf has a different parent (<p>)
+                                    // if (nextLeaf === null || (currentLeaf.parent !== nextLeaf.parent)) {
+                                    //     this.quill.insertEmbed(range.index, 'break', true, 'user');
+                                    // }
+
+                                    // // Now that we've inserted a line break, move the cursor forward
+                                    // this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
                 }
             },
             showFace: false,
