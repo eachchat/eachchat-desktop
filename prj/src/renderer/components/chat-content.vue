@@ -719,18 +719,11 @@ export default {
       this.leaveGroup(groupItem.group_id);
     },
     favouriteIt: function(groupItem){
-        services.common.CollectGroup(groupItem.group_id)
-            .then((ret) => {
-              this.updateChatGroupFavStatus(groupItem.group_id, true);
-            })
+      let metaData = {};
+      global.mxMatrixClientPeg.matrixClient.setRoomTag(groupItem.roomId, "m.favourite", metaData);
     },
     unFavouriteIt: function(groupItem){
-      console.log("unfavouriteid groupitem is ", groupItem)
-        services.common.DeleteCollectionGroup(groupItem.group_id)
-            .then((ret) => {
-              this.updateChatGroupFavStatus(groupItem.group_id, false);
-                console.log("DeleteCollectionGroup ", ret);
-            })
+      global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.favourite");
     },
     setSlience: async function(groupItem){
       var groupIsTop = this.groupIsTop(groupItem);
