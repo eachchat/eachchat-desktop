@@ -1681,14 +1681,23 @@ export default {
             }
             this.closeSendFileDlg();
         },
-        
+        myArrayBuffer(theFile) {
+            // this: File or Blob
+            return new Promise((resolve) => {
+                let fr = new FileReader();
+                fr.onload = () => {
+                    resolve(fr.result);
+                };
+                fr.readAsArrayBuffer(theFile);
+            })
+        },
         sendFile: async function(fileinfo) {
             console.log("fileinfo is ", fileinfo);
             var showfileObj = undefined;
             var stream = "";
             if(!fs.existsSync(fileinfo.path)) {
                 showfileObj = this.path2File[fileinfo.path];
-                var arrayBuf = await showfileObj.arrayBuffer();
+                var arrayBuf = await this.myArrayBuffer(showfileObj);
                 stream = Buffer.from(arrayBuf);
             }
             else {
