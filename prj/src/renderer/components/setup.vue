@@ -12,7 +12,7 @@
           </div>
           <div class="setup-list-item" @click="jumpToSecurity" v-show="false">
             <img class="setupSecurityImage" src="../../../static/Img/Setup/security-nor-20px@2x.png">
-            <label class="setupSecurityLabel" >安全隐私</label>
+            <label class="setupSecurityLabel" >账号安全与隐私设置</label>
           </div>
           <div class="setup-list-item" @click="jumpToUpdateSetup" v-show="false">
             <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px@2x.png">
@@ -73,7 +73,7 @@
                 <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)">
                 </el-switch>
             </div>
-            <div class="setup-security-title">安全隐私</div>
+            <div class="setup-security-title">账号安全与隐私设置</div>
             <div class="setup-security-export-keys">
                 <label class="setup-security-export-keys-label">导出密钥到本地文件</label>
                 <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
@@ -81,6 +81,10 @@
             <div class="setup-security-import-keys">
                 <label class="setup-security-import-keys-label">导入密钥</label>
                 <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
+            </div>
+            <div class="setup-security-account-manager">
+                <label class="setup-setup-security-account-manager-label">账号管理</label>
+                <img class="setup-setup-security-account-manager-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
             </div>
             <div class="setup-update-title" v-show="false">软件升级</div>
             <div class="setup-update-cur-version" v-show="false">
@@ -118,6 +122,7 @@
         <certification :backupInfo="backupInfo" :isLogin="false" id="setupCertificationId" @cancelRecovery="cancelRecovery"></certification>
       </div>
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
+      <AccountManager v-show="showAccountMgr" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
     </div>
 </template>
 
@@ -137,6 +142,7 @@ import AnnouncementDlg from './announcement.vue'
 import { Config } from '../../packages/data/sqliteutil.js'
 import certification from './Certificate.vue';
 import ChangePassword from './changePassword.vue';
+import AccountManager from "./accountManager.vue";
 // import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 
 export default {
@@ -145,7 +151,8 @@ export default {
     AlertDlg,
     AnnouncementDlg,
     certification,
-    ChangePassword
+    ChangePassword,
+    AccountManager
     // listItem
   },
   props: [],
@@ -155,6 +162,7 @@ export default {
   },
   data() {
     return {
+      showAccountMgr: false,
       backupInfo: {},
       showCertification: false,
       soundNotice: true,
@@ -176,6 +184,9 @@ export default {
     };
   },
   methods: {
+    accountMgrDlgClose: function() {
+      this.showAccountMgr = false;
+    },
     CloseChangePassword: function() {
       this.showChangePassword = false;
     },
@@ -185,6 +196,10 @@ export default {
     },
     cancelRecovery: function() {
       this.showCertification = false;
+    },
+    accountManager: function() {
+      console.log("=============")
+      this.showAccountMgr = true;
     },
     importSecurityKey: async function() {
       // this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
@@ -387,6 +402,7 @@ export default {
       // services.common.closemqtt();
       // services.common.logout();
       await global.mxMatrixClientPeg.logout();
+      await global.services.common.logout();
       ipcRenderer.send("showLoginPageWindow");
     }
   },
@@ -1041,6 +1057,43 @@ export default {
     font-weight: 500;
     letter-spacing: 2px;
     font-size: 16px;
+  }
+
+  .setup-setup-security-account-manager {
+    width:100%;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-setup-security-account-manager-label {
+    width:calc(100% - 40px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-setup-security-account-manager-ico {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-top: 14px;
+    margin-right: 0px;
+    margin-bottom: 14px;
+    display: inline-block;
+    cursor: pointer;
   }
 
   .setup-security-export-keys {

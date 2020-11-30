@@ -255,20 +255,22 @@ export default {
   },
   watch: {
     showGroupList: function(){
+      this.inviteGroupsList.length = 0;
+      this.favouriteRooms.length = 0;
+      this.dealShowGroupList.length = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           item.un_read_count = 1;
           this.inviteGroupsList.push(item);
         }
         else{
-          global.mxMatrixClientPeg.matrixClient.getRoomTags(item.roomId).then((tags)=>{
-            if(tags && tags.tags && tags.tags['m.favourite']){
-              this.favouriteRooms.push(item)
-            }
-            else if(item.getMyMembership() != "invite") {
-              this.dealShowGroupList.push(item);
-            }
-          });
+          let tags = item.tags;
+          if(tags && tags['m.favourite']){
+            this.favouriteRooms.push(item)
+          }
+          else{
+            this.dealShowGroupList.push(item);
+          }
         }
       })
     },
@@ -323,6 +325,7 @@ export default {
     },
     matrixSync: function() {
       if (this.matrixSync) {
+        this.showGroupList.length = 0;
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
           console.log("this is ", r);
           console.log("r.getMyMembership() ", r.getMyMembership());
@@ -360,6 +363,9 @@ export default {
               }
             },320)
         })
+        
+        global.mxMatrixClientPeg.matrixClient.on("Room.tags", this.handleRoomTags)
+
       }
     }
   },
@@ -430,6 +436,15 @@ export default {
     };
   },
   methods: {
+    handleRoomTags(event, roomTagsEvent, room){
+      for(let index in this.showGroupList){
+        if(this.showGroupList[index].roomId == room.roomId){
+          this.showGroupList.splice(index * 1, 1, room)
+          return;
+        }
+      }
+    },
+
     InvitesClick(){
       this.bInvites = !this.bInvites;
     },
@@ -697,7 +712,7 @@ export default {
                 }
             }));
           }
-          else {
+          else if(this.groupIsInGroups(groupItem)){
             this.menu.append(new MenuItem({
                 label: "置顶",
                 click: () => {
@@ -833,6 +848,12 @@ export default {
       }
       return true;
     },
+    groupIsInGroups(groupInfo){
+      if(this.dealShowGroupList.indexOf(groupInfo) == -1)
+        return false;
+      return true;
+    },
+
     groupIsSlience(groupInfo) {
       if(groupInfo.status == undefined) {
         return false;
