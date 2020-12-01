@@ -34,7 +34,7 @@
                 <span class="secretTypeAutoLabel">自动</span>
             </div>
         </div>
-        <div class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
+        <div v-if="!isDm" class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
             <label style="font-size:14px">群聊设置</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
