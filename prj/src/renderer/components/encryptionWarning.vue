@@ -3,7 +3,7 @@
         <div class="warnClot" >
             <div class="warnHeader">
                 <img class="warnImg" src="../../../static/Img//Main/warn.png">
-                <div>提示</div>
+                <div style="margin-left:16px;">提示</div>
             </div>
             <div class="warnContent">
                 是否开启端到端加密, 开启后将无法撤销
@@ -12,6 +12,7 @@
                 <div 
                     class="warnBtn" 
                     :class="{'warnBtnSubmit': !loading, 'warnBtnLoading': loading}"
+                    @click.self.stop="submit"                    
                 >确定</div>
                 <div 
                     class="warnBtn warnBtnCancel"
@@ -36,9 +37,7 @@ const OPTS = {
 };
 export default {
     name: 'encryWarn',
-    props: {
-        
-    },
+    props: ['room'],
     data () {
         return {
             loading: false
@@ -48,6 +47,20 @@ export default {
     methods: {
         close() {
             this.$emit('close')
+        },
+        submit() {
+            if (this.loading) return;
+            console.log('encry room++++++', this.room)
+            const roomId = this.room.roomId;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            client.sendStateEvent(roomId,  "m.room.encryption", { algorithm: "m.megolm.v1.aes-sha2" }).then(()=>{
+                this.loading = false;
+                this.$emit('close', true)
+            }).catch((e) => {
+                console.error(e);
+                alert('失败')
+                this.loading = false;
+            });
         }
     },
     components: {
@@ -112,9 +125,9 @@ export default {
         height: 20px;
         font-size: 14px;
         display: flex;
-        justify-content: center;
         align-items: center;
         margin-top: 12px;
+        margin-left: 36px;
     }
     .warnFooter {
         display: flex;

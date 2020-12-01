@@ -45,6 +45,7 @@
                 v-model="mxEncryption" 
                 @change="setMxEncryption"
                 :active-color="'#24B36B'"
+                :disabled="mxEncryption"
             >
             </el-switch>
         </div>
@@ -149,6 +150,7 @@
         <encryWarn 
             v-if="encryptionWarning"
             @close="closeEncryWarn"
+            :room="currentRoom"
         />
     </div>
 </template>
@@ -213,7 +215,8 @@ export default {
             dmRoomIdArr: [],
             isDm: true,
             mxEncryption: false,
-            encryptionWarning: false
+            encryptionWarning: false,
+            currentRoom: undefined
         }
     },
     components: {
@@ -246,8 +249,9 @@ export default {
     computed: {
     },
     methods: {
-        closeEncryWarn() {
+        closeEncryWarn(mxEncryption) {
             this.encryptionWarning = false;
+            if (mxEncryption) this.mxEncryption = true;
         },
         hehe() {
             console.log('---hehe---')
@@ -802,6 +806,7 @@ export default {
         let mxEncryption = client.isRoomEncrypted(roomId);
         console.log('----mxEncryption----', mxEncryption);
         this.mxEncryption = mxEncryption;
+        this.currentRoom = currentRoom;
         let dmRoomIdArr = [];
         Object.keys(dmRoomMap).forEach(k=>{
             let arr = dmRoomMap[k];
