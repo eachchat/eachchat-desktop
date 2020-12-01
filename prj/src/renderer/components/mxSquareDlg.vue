@@ -401,6 +401,8 @@ export default {
         margin: 28px;
         box-sizing: border-box;
         overflow-y: scroll;
+        border: 1px solid #DDD;
+        border-radius: 2px;
     }
     .search-logo {
         height: 32px;
@@ -423,6 +425,8 @@ export default {
         background-color: #fff;
         margin-left: 28px;
         margin-right: 28px;
+        border: 1px solid #DDD;
+        border-radius: 2px;
     }
     .wrap-layer {
         height: 100%;
@@ -439,7 +443,7 @@ export default {
         width: 624px;
         height: 468px;
         display: block;
-        background: #f2f2f2;
+        background: #fff;
         top: 50%;
         left: 50%;
         margin-top: -312px;
