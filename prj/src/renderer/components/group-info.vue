@@ -38,26 +38,51 @@
             <label style="font-size:14px">群聊设置</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
-        <div class="groupSettingSilenceDiv" v-show="isGroup">
+         <div class="groupSettingSilenceDiv" v-if="isDm">
+            <label class="groupSettingSlienceLabel">端到端加密</label>
+            <el-switch 
+                class="groupSettingSlienceSwitch" 
+                v-model="mxEncryption" 
+                @change="setMxEncryption"
+                :active-color="'#24B36B'"
+            >
+            </el-switch>
+        </div>
+        <div class="groupSettingSilenceDiv"> <!--v-show="isGroup"-->
             <label class="groupSettingSlienceLabel">消息免打扰</label>
-            <el-switch class="groupSettingSlienceSwitch" v-model="mxMute" @change="mxMuteChange(mxMute)">
+            <el-switch 
+                class="groupSettingSlienceSwitch" 
+                v-model="mxMute" 
+                @change="mxMuteChange(mxMute)"
+                :active-color="'#24B36B'"
+            >
             </el-switch>
         </div>
         <!-- <div class="groupSettingTopDiv" v-show="!isSecret">
             <label class="groupSettingTopLabel">置顶聊天</label>
-            <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
+            <el-switch 
+                class="groupSettingTopSwitch" 
+                v-model="groupTopState" 
+                @change="groupTopStateChange(groupTopState)"
+                :active-color="'#24B36B'"
+            >
             </el-switch>
         </div> -->
         <div class="groupSettingFavouriteDiv" v-show="isGroup">
             <label class="groupSettingFavouriteLabel">保存到收藏</label>
-            <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
+            <el-switch 
+                class="groupSettingFavouriteSwitch" 
+                v-model="groupFavouriteState" 
+                @change="groupFavouriteStateChange(groupFavouriteState)"
+                :active-color="'#24B36B'"
+            >
             </el-switch>
         </div>
         <!-- <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
             <label class="groupSettingOwnerTransferLabel">转让群主</label>
             <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
         </div> -->
-        <div class="groupMemberDiv" v-show="isGroup">
+        <div class="groupMemberDiv" v-if="isGroup && !isDm">
             <div class="groupMemberSearchDiv" v-if="isSearch">
                 <input type="text" class="searchMemberInput" v-model="searchKey" @input="searchMember">
                 <p class="searchMemberCancel" @click="showAdd">取消</p>
@@ -68,7 +93,7 @@
                 <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
             </div>
         </div>
-        <div :class="groupListViewClassName()" v-show="isGroup">
+        <div :class="groupListViewClassName()" v-if="isGroup && !isDm">
             <ul class="groupMember-list">
                 <li v-for="(item, index) in mxMembers" class="memberItem"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
                     <!-- <div class="groupMemberInfoDiv">
@@ -102,7 +127,7 @@
                 </li>
             </ul>
         </div>
-        <div class="footer">
+        <div class="footer" v-if="!isDm">
             <div class="groupLeave-view"> <!--v-show="isGroup"-->
                 <p class="groupLeaveDiv" @click.stop="mxLeaveRoom()"> <!--@click="leave()"-->
                     退出群聊
@@ -121,6 +146,10 @@
         </div>
         <image-cropper v-if="showImageCropper" :groupId="groupId" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
         <AlertDlg :AlertContnts="alertContnets" :alertType="alertType" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
+        <encryWarn 
+            v-if="encryptionWarning"
+            @close="closeEncryWarn"
+        />
     </div>
 </template>
 <script>
@@ -135,6 +164,7 @@ import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
 import { UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
+import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js";
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
@@ -181,12 +211,15 @@ export default {
             mxMembers: [],
             currentUser: undefined,
             dmRoomIdArr: [],
-            isDm: false
+            isDm: true,
+            mxEncryption: false,
+            encryptionWarning: false
         }
     },
     components: {
         imageCropper,
         AlertDlg,
+        encryWarn
     },
     props: {
         "showGroupInfoTips": {
@@ -213,6 +246,19 @@ export default {
     computed: {
     },
     methods: {
+        closeEncryWarn() {
+            this.encryptionWarning = false;
+        },
+        hehe() {
+            console.log('---hehe---')
+        },
+        setMxEncryption() {
+            console.log('----setMxEncryption----', this.mxEncryption)
+            if (this.mxEncryption) {
+                this.mxEncryption = !this.mxEncryption;
+                this.encryptionWarning = true;
+            }
+        },
         kickMember(item, idx) {
             const client = window.mxMatrixClientPeg.matrixClient;
             const room = this.showGroupInfo.room;
@@ -751,6 +797,11 @@ export default {
         if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
         console.log('Room js intent check', mDirectEvent)
         console.log('----dmRoomMap----', dmRoomMap)
+        console.log('----chat----', this.showGroupInfo.room)
+        let currentRoom = this.showGroupInfo.room;
+        let mxEncryption = client.isRoomEncrypted(roomId);
+        console.log('----mxEncryption----', mxEncryption);
+        this.mxEncryption = mxEncryption;
         let dmRoomIdArr = [];
         Object.keys(dmRoomMap).forEach(k=>{
             let arr = dmRoomMap[k];
@@ -759,7 +810,7 @@ export default {
         if (dmRoomIdArr.includes(roomId)) {
             this.isDm = true;
             console.log('这是一个单聊');
-        }
+        } else {this.isDm = false;}
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
         this.mxGetMembers(userId);
