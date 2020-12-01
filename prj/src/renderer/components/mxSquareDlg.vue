@@ -580,7 +580,7 @@ export default {
         justify-content: center;
         align-items: center;
         color: #fff;
-        background-color: #459ad0;   
+        background-color: #24B36B;   
         margin-left: 160px;
         font-size: 12px;
     }
