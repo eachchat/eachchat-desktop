@@ -247,11 +247,7 @@ export default {
       type: Boolean,
       default: false
     },
-    // matrixSync: {
-    //   type: Boolean,
-    //   default: false
-    // }
-    //['distUserId', 'distGroupId'],
+
   },
   watch: {
     showGroupList: function(){
