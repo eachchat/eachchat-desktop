@@ -1643,45 +1643,41 @@ export default {
       return "收到一条短消息";
     },
 
-    SetGroupItemGround(chatGroup){
-      let groupItemElementID = this.ChatGroupId(chatGroup);
-      let groupItemElement = document.getElementById(groupItemElementID)
-      if(groupItemElement)
-        groupItemElement.style.backgroundColor = "#dddddd";
-
-      if(this.oldElementGroupItem)
-      {
-        this.oldElementGroupItem.onmouseover =  function () {
-            this.style.backgroundColor = "#f7f8fa";
-        }
-        this.oldElementGroupItem.onmouseout = function () {
-            this.style.backgroundColor = "#ffffff";
-        };
-        this.oldElementGroupItem.style.backgroundColor = "#ffffff";
-
+    SetGroupItemGround(id){
+      let tmpElement = document.getElementById(id)
+      if(tmpElement){
+        tmpElement.style.backgroundColor = "#dddddd";
+        tmpElement.onmouseout = function () {
+              this.style.backgroundColor = "#dddddd";
+          };
+        tmpElement.onmouseover = function () {
+              this.style.backgroundColor = "#dddddd";
+          };
       }
-      this.oldElementGroupItem = groupItemElement;
-
-      let groupDivElementID = this.ChatGroupDivId(chatGroup);
-      let groupDivElement = document.getElementById(groupDivElementID)
-      if(groupDivElement)
-        groupDivElement.style.backgroundColor = "#dddddd";
-      if(this.oldElementGroupDiv)
-      {
-        this.oldElementGroupDiv.onmouseover =  function () {
+      return function(oldElement){
+        if(oldElement == tmpElement)
+          return oldElement;
+        if(oldElement){
+          oldElement.onmouseover =  function () {
             this.style.backgroundColor = "#f7f8fa";
+          }
+          oldElement.onmouseout = function () {
+              this.style.backgroundColor = "#ffffff";
+          };
+          oldElement.style.backgroundColor = "#ffffff";
         }
-        this.oldElementGroupDiv.onmouseout = function () {
-            this.style.backgroundColor = "#ffffff";
-        };
-        this.oldElementGroupDiv.style.backgroundColor = "#ffffff";
+        return tmpElement;
       }
-      this.oldElementGroupDiv = groupDivElement;
     },
 
     showChat: function(chatGroup, index) {
-      this.SetGroupItemGround(chatGroup);
- 
+      let groupItemElementID = this.ChatGroupId(chatGroup);
+      let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
+      this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
+
+      let groupDivElementID = this.ChatGroupDivId(chatGroup);
+      let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
+      this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
 
       // this.cleanSearchKey = !this.cleanSearchKey;
       this.isEmpty = false;
