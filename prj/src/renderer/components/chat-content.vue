@@ -12,7 +12,7 @@
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
-            <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>邀请</el-link>
+            <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in inviteGroupsList"
@@ -41,7 +41,7 @@
               </li>
             </ul>
             <!-- <ul class="group-list"> -->
-            <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>置顶</el-link>
+            <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>置顶</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in favouriteRooms"
