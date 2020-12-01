@@ -737,7 +737,7 @@ export default {
           }
         }
         this.menu.append(new MenuItem({
-            label: "删除",
+            label: "退出",
             click: () => {
                 this.deleteGroup(groupItem)
             }
@@ -745,8 +745,7 @@ export default {
         this.menu.popup(remote.getCurrentWindow());
     },
     deleteGroup(groupItem) {
-      services.common.DeleteGroup(groupItem.group_id);
-      this.leaveGroup(groupItem.group_id);
+      this.leaveGroup(groupItem.roomId);
     },
     favouriteIt: function(groupItem){
       let metaData = {};
@@ -1077,18 +1076,9 @@ export default {
       this.imageLayersSrc = '';
       this.showImageLayers = false;
     },
-    leaveGroup(groupId) {
-      console.log("leage group groupid is ", groupId);
-      for(let i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id == groupId) {
-            var dist = this.showGroupList.splice(i, 1);
-            console.log("slice this ", dist);
-            break;
-          }
-        }
-      this.curindex = -1;
-      this.isEmpty = true;
-      this.showGroupIcon();
+    leaveGroup(roomId) {
+      global.mxMatrixClientPeg.matrixClient.leave(roomId);
+      this.forceUpdateGroupList(roomId);
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
