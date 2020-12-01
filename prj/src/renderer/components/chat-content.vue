@@ -273,6 +273,11 @@ export default {
           }
         }
       })
+      if(this.favouriteRooms.length !=0){
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+      }
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
     },
     
     distUserId: async function() {
@@ -436,6 +441,16 @@ export default {
     };
   },
   methods: {
+    SortGroupByTimeLine(item1, item2){
+      let timeline1 = 0;
+      let timeline2 = 0;
+      if(item1.timeline.length != 0)
+        timeline1 = this.GetLastShowMessage(item1).event.origin_server_ts;
+      if(item2.timeline.length != 0)
+        timeline2 = this.GetLastShowMessage(item2).event.origin_server_ts;
+      return timeline2 - timeline1;
+    },
+
     handleRoomTags(event, roomTagsEvent, room){
       for(let index in this.showGroupList){
         if(this.showGroupList[index].roomId == room.roomId){
@@ -1580,6 +1595,16 @@ export default {
         }
         return "";
     },
+
+    GetLastShowMessage(chatGroupItem){
+      for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
+        var timeLineTmp = chatGroupItem.timeline[i];
+        if(['m.room.name', 'm.room.topic', 'm.room.member', 'm.room.history_visibility', 'm.room.join_rules', 'm.room.guest_access', 'm.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) > 0) {
+          return timeLineTmp;
+        }
+      }
+    },
+
     getShowMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
@@ -1588,14 +1613,7 @@ export default {
         }
       };
       // console.log("cur chat group is ", chatGroupItem);
-      var distTimeLine = undefined;
-      for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
-        var timeLineTmp = chatGroupItem.timeline[i];
-        if(['m.room.name', 'm.room.topic', 'm.room.member', 'm.room.history_visibility', 'm.room.join_rules', 'm.room.guest_access', 'm.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) > 0) {
-          distTimeLine = timeLineTmp;
-          break;
-        }
-      }
+      var distTimeLine = this.GetLastShowMessage(chatGroupItem);
       if(distTimeLine == undefined) {
         return "收到一条短消息";
       }
