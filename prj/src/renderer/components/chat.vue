@@ -280,13 +280,16 @@ export default {
                 .then(() => {
                     this.isInvite = false;
                     this.isRefreshing = true;
+                    setTimeout(() => {
+                        this.$emit('JoinRoom', this.chat.roomId);
+                    }, 0)
                 })
         },
         rejectRoom: function() {
             global.mxMatrixClientPeg.matrixClient.leave(this.chat.roomId);
             setTimeout(() => {
-                this.$emit('forceUpdateGroupList', this.chat.roomId);
-            }, 1000)
+                this.$emit('DeleteGroup', this.chat.roomId);
+            }, 0)
         },
         mxChatInfoDlgSetting: function(close) {
             if (close) {
