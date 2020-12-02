@@ -285,13 +285,16 @@ export default {
                 .then(() => {
                     this.isInvite = false;
                     this.isRefreshing = true;
+                    setTimeout(() => {
+                        this.$emit('JoinRoom', this.chat.roomId);
+                    }, 0)
                 })
         },
         rejectRoom: function() {
             global.mxMatrixClientPeg.matrixClient.leave(this.chat.roomId);
             setTimeout(() => {
-                this.$emit('forceUpdateGroupList', this.chat.roomId);
-            }, 1000)
+                this.$emit('DeleteGroup', this.chat.roomId);
+            }, 0)
         },
         mxChatInfoDlgSetting: function(close) {
             if (close) {
@@ -2364,6 +2367,30 @@ s        },
 
             const nameEvent = this.chat.currentState.getStateEvents('m.room.name', '');
             const name = nameEvent && nameEvent.getContent() ? nameEvent.getContent()['name'] : '';
+            const currentState = this.chat.currentState.getStateEvents('m.room.power_levels','');
+            let canInvite = 50;
+            let canKick = 50;
+            let canAvatar = 50;
+            let canEncryption = 100;
+            let canHistory = 100;
+            let canServer = 100;
+            let canName = 50;
+            let canBan = 50;
+            if (currentState) {
+                let levelObj = currentState.getContent();
+                let events = levelObj.events;
+                if (levelObj.ban) canBan = levelObj.ban;
+                if (events && events['m.room.name']) canName = events['m.room.name'];
+                if (events && events['m.room.server_acl']) canServer = events['m.room.server_acl'];
+                if (events && events['m.room.history_visibility']) canHistory = events['history_visibility'];
+                if (events && events['m.room.encryption']) canEncryption = events['m.room.encryption'];
+                if (events && events['m.room.avatar']) canAvatar = events['m.room.avatar'];
+                if (levelObj.kick) canKick = levelObj.kick;
+                if (levelObj.invite) canInvite = levelObj.invite;
+
+            }
+            const totalLevels = {canInvite, canKick, canAvatar, canEncryption, canHistory, canServer, canName, canBan};
+            const userLevel = members[myUserId].powerLevel;
             var groupInfoObj = {
                 "memberList": idsList,
                 "groupName": name, //this.chat.group_name,
@@ -2379,7 +2406,10 @@ s        },
                 "ownerId": ownerId, //this.chat.owner,
                 "groupType": 100, //this.chat.group_type,
                 "isSecret": false, // (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
-                "room": this.chat
+                "room": this.chat,
+                "totalLevels": totalLevels,
+                "myUserId": myUserId,
+                "userLevel": userLevel
             }
             console.log('======weihemeiyou', groupInfoObj)
             this.groupInfo = groupInfoObj;

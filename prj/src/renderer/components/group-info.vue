@@ -6,13 +6,22 @@
         <div class="groupInfo-view">
             <div class="groupInfoImageDiv">
                 <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user-40px@2x.png">
-                <img id="groupInfoImageChangeId" class="groupInfoImageChange" src="../../../static/Img/Chat/updateHeadImg-24px@2x.png" @click="updateGroupImg" v-show="isOwner">
+                <img 
+                    id="groupInfoImageChangeId" 
+                    class="groupInfoImageChange" 
+                    src="../../../static/Img/Chat/updateHeadImg-24px@2x.png" 
+                    @click="updateGroupImg" 
+                    v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canAvatar">
             </div>
             <div class="groupInfoNoticeAndName">
                 <div class="groupInfoName">
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
                     <div class="chat-name">{{groupName}}</div>
-                    <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner" @click.stop="changeChateInfo()"></p>
+                    <p 
+                        class="groupInfoNameEdit" 
+                        id="groupInfoNameEditId" 
+                        v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canName" 
+                        @click.stop="changeChateInfo()"></p>
                 </div>
                 <div class="chat-desc">{{showGroupInfo.groupTopic}}</div>
                 <!-- <div class="peopleInfo" v-if="!isGroup">
@@ -34,30 +43,56 @@
                 <span class="secretTypeAutoLabel">自动</span>
             </div>
         </div>
-        <div class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
+        <div v-if="!isDm && showGroupInfo.userLevel>=100" class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
             <label style="font-size:14px">群聊设置</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
-        <div class="groupSettingSilenceDiv" v-show="isGroup">
+         <div class="groupSettingSilenceDiv" v-if="isDm && showGroupInfo.userLevel >= showGroupInfo.totalLevels.canEncryption">
+            <label class="groupSettingSlienceLabel">端到端加密</label>
+            <el-switch 
+                class="groupSettingSlienceSwitch" 
+                v-model="mxEncryption" 
+                @change="setMxEncryption"
+                :active-color="'#24B36B'"
+                :disabled="mxEncryption"
+            >
+            </el-switch>
+        </div>
+        <div class="groupSettingSilenceDiv"> <!--v-show="isGroup"-->
             <label class="groupSettingSlienceLabel">消息免打扰</label>
-            <el-switch class="groupSettingSlienceSwitch" v-model="mxMute" @change="mxMuteChange(mxMute)">
+            <el-switch 
+                class="groupSettingSlienceSwitch" 
+                v-model="mxMute" 
+                @change="mxMuteChange(mxMute)"
+                :active-color="'#24B36B'"
+            >
             </el-switch>
         </div>
         <!-- <div class="groupSettingTopDiv" v-show="!isSecret">
             <label class="groupSettingTopLabel">置顶聊天</label>
-            <el-switch class="groupSettingTopSwitch" v-model="groupTopState" @change="groupTopStateChange(groupTopState)">
+            <el-switch 
+                class="groupSettingTopSwitch" 
+                v-model="groupTopState" 
+                @change="groupTopStateChange(groupTopState)"
+                :active-color="'#24B36B'"
+            >
             </el-switch>
         </div> -->
         <div class="groupSettingFavouriteDiv" v-show="isGroup">
             <label class="groupSettingFavouriteLabel">保存到收藏</label>
-            <el-switch class="groupSettingFavouriteSwitch" v-model="groupFavouriteState" @change="groupFavouriteStateChange(groupFavouriteState)">
+            <el-switch 
+                class="groupSettingFavouriteSwitch" 
+                v-model="groupFavouriteState" 
+                @change="groupFavouriteStateChange(groupFavouriteState)"
+                :active-color="'#24B36B'"
+            >
             </el-switch>
         </div>
         <!-- <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
             <label class="groupSettingOwnerTransferLabel">转让群主</label>
             <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
         </div> -->
-        <div class="groupMemberDiv" v-show="isGroup">
+        <div class="groupMemberDiv" v-if="isGroup && !isDm">
             <div class="groupMemberSearchDiv" v-if="isSearch">
                 <input type="text" class="searchMemberInput" v-model="searchKey" @input="searchMember">
                 <p class="searchMemberCancel" @click="showAdd">取消</p>
@@ -68,7 +103,7 @@
                 <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
             </div>
         </div>
-        <div :class="groupListViewClassName()" v-show="isGroup">
+        <div :class="groupListViewClassName()" v-if="isGroup && !isDm">
             <ul class="groupMember-list">
                 <li v-for="(item, index) in mxMembers" class="memberItem"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
                     <!-- <div class="groupMemberInfoDiv">
@@ -97,12 +132,12 @@
                         <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为管理者</div>
                         <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为主持人</div>
                         <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为普通用户</div>
-                        <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">移除成员</div>
+                        <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=showGroupInfo.totalLevels.canKick">移除成员</div>
                     </div>
                 </li>
             </ul>
         </div>
-        <div class="footer">
+        <div class="footer" v-if="!isDm">
             <div class="groupLeave-view"> <!--v-show="isGroup"-->
                 <p class="groupLeaveDiv" @click.stop="mxLeaveRoom()"> <!--@click="leave()"-->
                     退出群聊
@@ -121,6 +156,11 @@
         </div>
         <image-cropper v-if="showImageCropper" :groupId="groupId" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
         <AlertDlg :AlertContnts="alertContnets" :alertType="alertType" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
+        <encryWarn 
+            v-if="encryptionWarning"
+            @close="closeEncryWarn"
+            :room="currentRoom"
+        />
     </div>
 </template>
 <script>
@@ -135,6 +175,7 @@ import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
 import { UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
+import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js";
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
@@ -179,12 +220,18 @@ export default {
             //matrix data
             mxMute: false,
             mxMembers: [],
-            currentUser: undefined
+            currentUser: undefined,
+            dmRoomIdArr: [],
+            isDm: true,
+            mxEncryption: false,
+            encryptionWarning: false,
+            currentRoom: undefined
         }
     },
     components: {
         imageCropper,
         AlertDlg,
+        encryWarn
     },
     props: {
         "showGroupInfoTips": {
@@ -211,6 +258,20 @@ export default {
     computed: {
     },
     methods: {
+        closeEncryWarn(mxEncryption) {
+            this.encryptionWarning = false;
+            if (mxEncryption) this.mxEncryption = true;
+        },
+        hehe() {
+            console.log('---hehe---')
+        },
+        setMxEncryption() {
+            console.log('----setMxEncryption----', this.mxEncryption)
+            if (this.mxEncryption) {
+                this.mxEncryption = !this.mxEncryption;
+                this.encryptionWarning = true;
+            }
+        },
         kickMember(item, idx) {
             const client = window.mxMatrixClientPeg.matrixClient;
             const room = this.showGroupInfo.room;
@@ -248,7 +309,8 @@ export default {
         },
         switchOption: function(idx) {
             let mxMembers = this.mxMembers;
-            mxMembers[idx].choosen = !mxMembers[idx].choosen;
+            mxMembers.forEach(m => m.choosen = false);
+            mxMembers[idx].choosen = true;
             this.mxMembers = [...mxMembers];
         },
         mxLeaveRoom: function() {
@@ -744,6 +806,27 @@ export default {
         const client = window.mxMatrixClientPeg.matrixClient;
         const userId = client.getUserId();
         const vtx = this;
+        const mDirectEvent = global.mxMatrixClientPeg.matrixClient.getAccountData('m.direct');
+        let dmRoomMap = {};
+        if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+        console.log('Room js intent check', mDirectEvent)
+        console.log('----dmRoomMap----', dmRoomMap)
+        console.log('----chat----', this.showGroupInfo.room)
+        let currentRoom = this.showGroupInfo.room;
+        let mxEncryption = client.isRoomEncrypted(roomId);
+        console.log('----mxEncryption----', mxEncryption);
+        this.mxEncryption = mxEncryption;
+        this.currentRoom = currentRoom;
+        let dmRoomIdArr = [];
+        Object.keys(dmRoomMap).forEach(k=>{
+            let arr = dmRoomMap[k];
+            arr.forEach(a=>dmRoomIdArr.push(a))
+        })
+        if (dmRoomIdArr.includes(roomId)) {
+            this.isDm = true;
+            console.log('这是一个单聊');
+        } else {this.isDm = false;}
+        this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
         this.mxGetMembers(userId);
         client.on("RoomMember.powerLevel", (event, member) => {

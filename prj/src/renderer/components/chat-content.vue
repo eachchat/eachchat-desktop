@@ -12,7 +12,7 @@
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
-            <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>邀请</el-link>
+            <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in inviteGroupsList"
@@ -41,7 +41,7 @@
               </li>
             </ul>
             <!-- <ul class="group-list"> -->
-            <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>置顶</el-link>
+            <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>置顶</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in favouriteRooms"
@@ -184,7 +184,7 @@
           <div class="win-header">
             <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
           </div>
-          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @forceUpdateGroupList="forceUpdateGroupList"></ChatPage>
+          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -247,32 +247,9 @@ export default {
       type: Boolean,
       default: false
     },
-    // matrixSync: {
-    //   type: Boolean,
-    //   default: false
-    // }
-    //['distUserId', 'distGroupId'],
+
   },
   watch: {
-    showGroupList: function(){
-      this.showGroupList.forEach((item)=>{
-        if(item.getMyMembership() == "invite") {
-          item.un_read_count = 1;
-          this.inviteGroupsList.push(item);
-        }
-        else{
-          global.mxMatrixClientPeg.matrixClient.getRoomTags(item.roomId).then((tags)=>{
-            if(tags && tags.tags && tags.tags['m.favourite']){
-              this.favouriteRooms.push(item)
-            }
-            else if(item.getMyMembership() != "invite") {
-              this.dealShowGroupList.push(item);
-            }
-          });
-        }
-      })
-    },
-    
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
@@ -323,43 +300,51 @@ export default {
     },
     matrixSync: function() {
       if (this.matrixSync) {
+        this.showGroupList.length = 0;
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
           console.log("this is ", r);
           console.log("r.getMyMembership() ", r.getMyMembership());
+          console.log("roomname ", r.name)
           if(r.getMyMembership() != "leave") {
             this.showGroupList.push(r);
           }
         })
+        this.ShowAllGroup();
         this.$nextTick(() => {
           this.showGroupIcon();
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
-            console.log("join room:" + member.roomId);
-            console.log("event is ", event);
-            console.log("member is ", member);
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
             setTimeout(()=>{
               if (member.userId == currentUserId) {
-                let newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
-                console.log('get rooms again', newRooms);
-                newRooms.filter((r, idx) => {
-                  return r.getMyMembership() != "leave"
-                })
-                this.showGroupList = [...newRooms];
-                if (member.membership == 'join') {
-                  newRooms.forEach((r,i) => {
-                    if (r.roomId == member.roomId) {
-                      this.showChat(r, i);
+                console.log("event is ", event);
+                console.log("member is ", member);
+                console.log("membership ", member.membership)
+                //join leave invite
+                let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if (member.membership == 'invite') {
+                  for(let item of this.inviteGroupsList){
+                    if(item.roomId == member.roomId){
+                      return;
                     }
-                  })
+                  }
+                  this.inviteGroupsList.unshift(newRoom);
                 }
+                else if(member.membership == "join"){
+                  this.JoinRoom(member.roomId);
+                }
+
+                
                 this.$nextTick(() => {
                   this.showGroupIcon();
                 })
               }
             },320)
         })
+        
+        global.mxMatrixClientPeg.matrixClient.on("Room.tags", this.handleRoomTags)
+
       }
     }
   },
@@ -422,14 +407,71 @@ export default {
       bInvites: true,
       bCollections: true,
       bRooms: true,
-      favouriteRooms: [],
-      inviteGroupsList:[],
-      dealShowGroupList:[],
+      favouriteRooms: [],//置顶列表
+      inviteGroupsList:[],//邀请列表
+      dealShowGroupList:[],//聊天列表
       oldElementGroupItem: null,
       oldElementGroupDiv: null
     };
   },
   methods: {
+    ShowAllGroup: function(){
+      this.inviteGroupsList.length = 0;
+      this.favouriteRooms.length = 0;
+      this.dealShowGroupList.length = 0;
+      this.showGroupList.forEach((item)=>{
+        if(item.getMyMembership() == "invite") {
+          item.un_read_count = 1;
+          this.inviteGroupsList.push(item);
+        }
+        else{
+          let tags = item.tags;
+          if(tags && tags['m.favourite']){
+            this.favouriteRooms.push(item)
+          }
+          else{
+            this.dealShowGroupList.push(item);
+          }
+        }
+      })
+      if(this.favouriteRooms.length !=0){
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+      }
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
+    },
+    
+    SortGroupByTimeLine(item1, item2){
+      let timeline1 = 0;
+      let timeline2 = 0;
+      if(item1.timeline.length != 0)
+        timeline1 = this.GetLastShowMessage(item1).event.origin_server_ts;
+      if(item2.timeline.length != 0)
+        timeline2 = this.GetLastShowMessage(item2).event.origin_server_ts;
+      return timeline2 - timeline1;
+    },
+
+    handleRoomTags(event, roomTagsEvent, room){
+      console.log("room ", room)
+      console.log("roomname ", room.name)
+      console.log("roomtag", room.tags)
+      if(room.tags['m.favourite']){
+        this.DeleteFromGroups(this.dealShowGroupList, room.roomId);
+        if(this.favouriteRooms.every(item=>{
+          return item.roomId != room.roomId
+        }))
+        this.favouriteRooms.unshift(room);    
+      }
+      else{
+        this.DeleteFromGroups(this.favouriteRooms, room.roomId);
+        if(this.dealShowGroupList.every(item=>{
+          return item.roomId != room.roomId
+        })){
+          this.dealShowGroupList.unshift(room);
+        }
+      }
+    },
+
     InvitesClick(){
       this.bInvites = !this.bInvites;
     },
@@ -697,7 +739,7 @@ export default {
                 }
             }));
           }
-          else {
+          else if(this.groupIsInGroups(groupItem)){
             this.menu.append(new MenuItem({
                 label: "置顶",
                 click: () => {
@@ -707,7 +749,7 @@ export default {
           }
         }
         this.menu.append(new MenuItem({
-            label: "删除",
+            label: "退出",
             click: () => {
                 this.deleteGroup(groupItem)
             }
@@ -715,8 +757,7 @@ export default {
         this.menu.popup(remote.getCurrentWindow());
     },
     deleteGroup(groupItem) {
-      services.common.DeleteGroup(groupItem.group_id);
-      this.leaveGroup(groupItem.group_id);
+      this.leaveGroup(groupItem.roomId);
     },
     favouriteIt: function(groupItem){
       let metaData = {};
@@ -833,6 +874,12 @@ export default {
       }
       return true;
     },
+    groupIsInGroups(groupInfo){
+      if(this.dealShowGroupList.indexOf(groupInfo) == -1)
+        return false;
+      return true;
+    },
+
     groupIsSlience(groupInfo) {
       if(groupInfo.status == undefined) {
         return false;
@@ -1041,18 +1088,9 @@ export default {
       this.imageLayersSrc = '';
       this.showImageLayers = false;
     },
-    leaveGroup(groupId) {
-      console.log("leage group groupid is ", groupId);
-      for(let i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id == groupId) {
-            var dist = this.showGroupList.splice(i, 1);
-            console.log("slice this ", dist);
-            break;
-          }
-        }
-      this.curindex = -1;
-      this.isEmpty = true;
-      this.showGroupIcon();
+    leaveGroup(roomId) {
+      global.mxMatrixClientPeg.matrixClient.leave(roomId);
+      this.DeleteGroup(roomId);
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
@@ -1559,6 +1597,16 @@ export default {
         }
         return "";
     },
+
+    GetLastShowMessage(chatGroupItem){
+      for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
+        var timeLineTmp = chatGroupItem.timeline[i];
+        if(['m.room.name', 'm.room.topic', 'm.room.member', 'm.room.history_visibility', 'm.room.join_rules', 'm.room.guest_access', 'm.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) > 0) {
+          return timeLineTmp;
+        }
+      }
+    },
+
     getShowMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
@@ -1567,14 +1615,7 @@ export default {
         }
       };
       // console.log("cur chat group is ", chatGroupItem);
-      var distTimeLine = undefined;
-      for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
-        var timeLineTmp = chatGroupItem.timeline[i];
-        if(['m.room.name', 'm.room.topic', 'm.room.member', 'm.room.history_visibility', 'm.room.join_rules', 'm.room.guest_access', 'm.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) > 0) {
-          distTimeLine = timeLineTmp;
-          break;
-        }
-      }
+      var distTimeLine = this.GetLastShowMessage(chatGroupItem);
       if(distTimeLine == undefined) {
         return "收到一条短消息";
       }
@@ -1622,45 +1663,41 @@ export default {
       return "收到一条短消息";
     },
 
-    SetGroupItemGround(chatGroup){
-      let groupItemElementID = this.ChatGroupId(chatGroup);
-      let groupItemElement = document.getElementById(groupItemElementID)
-      if(groupItemElement)
-        groupItemElement.style.backgroundColor = "#dddddd";
-
-      if(this.oldElementGroupItem)
-      {
-        this.oldElementGroupItem.onmouseover =  function () {
-            this.style.backgroundColor = "#f7f8fa";
-        }
-        this.oldElementGroupItem.onmouseout = function () {
-            this.style.backgroundColor = "#ffffff";
-        };
-        this.oldElementGroupItem.style.backgroundColor = "#ffffff";
-
+    SetGroupItemGround(id){
+      let tmpElement = document.getElementById(id)
+      if(tmpElement){
+        tmpElement.style.backgroundColor = "#dddddd";
+        tmpElement.onmouseout = function () {
+              this.style.backgroundColor = "#dddddd";
+          };
+        tmpElement.onmouseover = function () {
+              this.style.backgroundColor = "#dddddd";
+          };
       }
-      this.oldElementGroupItem = groupItemElement;
-
-      let groupDivElementID = this.ChatGroupDivId(chatGroup);
-      let groupDivElement = document.getElementById(groupDivElementID)
-      if(groupDivElement)
-        groupDivElement.style.backgroundColor = "#dddddd";
-      if(this.oldElementGroupDiv)
-      {
-        this.oldElementGroupDiv.onmouseover =  function () {
+      return function(oldElement){
+        if(oldElement == tmpElement)
+          return oldElement;
+        if(oldElement){
+          oldElement.onmouseover =  function () {
             this.style.backgroundColor = "#f7f8fa";
+          }
+          oldElement.onmouseout = function () {
+              this.style.backgroundColor = "#ffffff";
+          };
+          oldElement.style.backgroundColor = "#ffffff";
         }
-        this.oldElementGroupDiv.onmouseout = function () {
-            this.style.backgroundColor = "#ffffff";
-        };
-        this.oldElementGroupDiv.style.backgroundColor = "#ffffff";
+        return tmpElement;
       }
-      this.oldElementGroupDiv = groupDivElement;
     },
 
     showChat: function(chatGroup, index) {
-      this.SetGroupItemGround(chatGroup);
- 
+      let groupItemElementID = this.ChatGroupId(chatGroup);
+      let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
+      this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
+
+      let groupDivElementID = this.ChatGroupDivId(chatGroup);
+      let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
+      this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
 
       // this.cleanSearchKey = !this.cleanSearchKey;
       this.isEmpty = false;
@@ -1702,16 +1739,52 @@ export default {
       //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
-    forceUpdateGroupList: function(distGroupId) {
-      console.log("dist id ", distGroupId);
-      for(var i=0;i<this.showGroupList.length;i++) {
-        console.log("this.showid ", this.showGroupList[i].roomId);
-        if(this.showGroupList[i].roomId == distGroupId) {
-          console.log("delete some one");
-          this.showGroupList.splice(i, 1);
-          this.isEmpty = true;
-        }
+    
+
+    JoinRoom: function(roomID){
+      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
+      for(let i in this.inviteGroupsList){
+        if(this.inviteGroupsList[i].roomId == roomID) {
+          this.inviteGroupsList.splice(i, 1);
+          break;
+        } 
       }
+      for(let i in this.dealShowGroupList){
+        if(this.dealShowGroupList[i].roomId == roomID) {
+          this.showChat(newRoom, i);
+          return;
+        } 
+      }
+
+      this.dealShowGroupList.unshift(newRoom);
+      this.$nextTick(() => {
+        this.showGroupIcon();
+        this.showChat(newRoom, 0);
+      })
+    },
+  
+    DeleteFromGroups(groups, groupID){
+      if(groups.some(item=>{
+        return item.roomId == groupID
+      })){
+            for(var i = 0; i < groups.length; i++) {
+              if(groups[i].roomId == groupID) {
+                groups.splice(i, 1);
+              } 
+            }
+          }
+    },
+
+    DeleteGroup: function(distGroupId) {
+      console.log("delete group id ", distGroupId);
+      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(distGroupId);
+      console.log("Room", newRoom)
+      let myMember = newRoom.getMyMembership();
+      console.log("mymembership", myMember)
+
+      this.DeleteFromGroups(this.inviteGroupsList, distGroupId);
+      this.DeleteFromGroups(this.dealShowGroupList, distGroupId);
+
       this.$nextTick(() => {
         this.showGroupIcon();
       })
