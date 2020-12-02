@@ -184,7 +184,7 @@
           <div class="win-header">
             <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
           </div>
-          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @forceUpdateGroupList="forceUpdateGroupList"></ChatPage>
+          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -250,32 +250,6 @@ export default {
 
   },
   watch: {
-    showGroupList: function(){
-      this.inviteGroupsList.length = 0;
-      this.favouriteRooms.length = 0;
-      this.dealShowGroupList.length = 0;
-      this.showGroupList.forEach((item)=>{
-        if(item.getMyMembership() == "invite") {
-          item.un_read_count = 1;
-          this.inviteGroupsList.push(item);
-        }
-        else{
-          let tags = item.tags;
-          if(tags && tags['m.favourite']){
-            this.favouriteRooms.push(item)
-          }
-          else{
-            this.dealShowGroupList.push(item);
-          }
-        }
-      })
-      if(this.favouriteRooms.length !=0){
-        this.favouriteRooms.sort(this.SortGroupByTimeLine);
-      }
-      if(this.dealShowGroupList.length != 0)
-        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
-    },
-    
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
@@ -330,34 +304,38 @@ export default {
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
           console.log("this is ", r);
           console.log("r.getMyMembership() ", r.getMyMembership());
+          console.log("roomname ", r.name)
           if(r.getMyMembership() != "leave") {
             this.showGroupList.push(r);
           }
         })
+        this.ShowAllGroup();
         this.$nextTick(() => {
           this.showGroupIcon();
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
-            console.log("join room:" + member.roomId);
-            console.log("event is ", event);
-            console.log("member is ", member);
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
             setTimeout(()=>{
               if (member.userId == currentUserId) {
-                let newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
-                console.log('get rooms again', newRooms);
-                newRooms.filter((r, idx) => {
-                  return r.getMyMembership() != "leave"
-                })
-                this.showGroupList = [...newRooms];
-                if (member.membership == 'join') {
-                  newRooms.forEach((r,i) => {
-                    if (r.roomId == member.roomId) {
-                      this.showChat(r, i);
+                console.log("event is ", event);
+                console.log("member is ", member);
+                console.log("membership ", member.membership)
+                //join leave invite
+                let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if (member.membership == 'invite') {
+                  for(let item of this.inviteGroupsList){
+                    if(item.roomId == member.roomId){
+                      return;
                     }
-                  })
+                  }
+                  this.inviteGroupsList.unshift(newRoom);
                 }
+                else if(member.membership == "join"){
+                  this.JoinRoom(member.roomId);
+                }
+
+                
                 this.$nextTick(() => {
                   this.showGroupIcon();
                 })
@@ -429,14 +407,40 @@ export default {
       bInvites: true,
       bCollections: true,
       bRooms: true,
-      favouriteRooms: [],
-      inviteGroupsList:[],
-      dealShowGroupList:[],
+      favouriteRooms: [],//置顶列表
+      inviteGroupsList:[],//邀请列表
+      dealShowGroupList:[],//聊天列表
       oldElementGroupItem: null,
       oldElementGroupDiv: null
     };
   },
   methods: {
+    ShowAllGroup: function(){
+      this.inviteGroupsList.length = 0;
+      this.favouriteRooms.length = 0;
+      this.dealShowGroupList.length = 0;
+      this.showGroupList.forEach((item)=>{
+        if(item.getMyMembership() == "invite") {
+          item.un_read_count = 1;
+          this.inviteGroupsList.push(item);
+        }
+        else{
+          let tags = item.tags;
+          if(tags && tags['m.favourite']){
+            this.favouriteRooms.push(item)
+          }
+          else{
+            this.dealShowGroupList.push(item);
+          }
+        }
+      })
+      if(this.favouriteRooms.length !=0){
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+      }
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
+    },
+    
     SortGroupByTimeLine(item1, item2){
       let timeline1 = 0;
       let timeline2 = 0;
@@ -448,10 +452,22 @@ export default {
     },
 
     handleRoomTags(event, roomTagsEvent, room){
-      for(let index in this.showGroupList){
-        if(this.showGroupList[index].roomId == room.roomId){
-          this.showGroupList.splice(index * 1, 1, room)
-          return;
+      console.log("room ", room)
+      console.log("roomname ", room.name)
+      console.log("roomtag", room.tags)
+      if(room.tags['m.favourite']){
+        this.DeleteFromGroups(this.dealShowGroupList, room.roomId);
+        if(this.favouriteRooms.every(item=>{
+          return item.roomId != room.roomId
+        }))
+        this.favouriteRooms.unshift(room);    
+      }
+      else{
+        this.DeleteFromGroups(this.favouriteRooms, room.roomId);
+        if(this.dealShowGroupList.every(item=>{
+          return item.roomId != room.roomId
+        })){
+          this.dealShowGroupList.unshift(room);
         }
       }
     },
@@ -1074,7 +1090,7 @@ export default {
     },
     leaveGroup(roomId) {
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
-      this.forceUpdateGroupList(roomId);
+      this.DeleteGroup(roomId);
     },
     updateChatGroupStatus(groupId, groupStatus, updateType) {
       // ++this.needUpdate;
@@ -1723,16 +1739,52 @@ export default {
       //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
     },
-    forceUpdateGroupList: function(distGroupId) {
-      console.log("dist id ", distGroupId);
-      for(var i=0;i<this.showGroupList.length;i++) {
-        console.log("this.showid ", this.showGroupList[i].roomId);
-        if(this.showGroupList[i].roomId == distGroupId) {
-          console.log("delete some one");
-          this.showGroupList.splice(i, 1);
-          this.isEmpty = true;
-        }
+    
+
+    JoinRoom: function(roomID){
+      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
+      for(let i in this.inviteGroupsList){
+        if(this.inviteGroupsList[i].roomId == roomID) {
+          this.inviteGroupsList.splice(i, 1);
+          break;
+        } 
       }
+      for(let i in this.dealShowGroupList){
+        if(this.dealShowGroupList[i].roomId == roomID) {
+          this.showChat(newRoom, i);
+          return;
+        } 
+      }
+
+      this.dealShowGroupList.unshift(newRoom);
+      this.$nextTick(() => {
+        this.showGroupIcon();
+        this.showChat(newRoom, 0);
+      })
+    },
+  
+    DeleteFromGroups(groups, groupID){
+      if(groups.some(item=>{
+        return item.roomId == groupID
+      })){
+            for(var i = 0; i < groups.length; i++) {
+              if(groups[i].roomId == groupID) {
+                groups.splice(i, 1);
+              } 
+            }
+          }
+    },
+
+    DeleteGroup: function(distGroupId) {
+      console.log("delete group id ", distGroupId);
+      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(distGroupId);
+      console.log("Room", newRoom)
+      let myMember = newRoom.getMyMembership();
+      console.log("mymembership", myMember)
+
+      this.DeleteFromGroups(this.inviteGroupsList, distGroupId);
+      this.DeleteFromGroups(this.dealShowGroupList, distGroupId);
+
       this.$nextTick(() => {
         this.showGroupIcon();
       })
