@@ -12,7 +12,22 @@
                 <div class="setting-field">
                     <div class="filed-title">设置群聊地址</div>
                     <div class="xiaomiaoshu tipdesc">任何服务器上的任何人都可以使用发布的群聊地址加入您的聊天室。如果要发布群聊地址，需要先设置为群聊地址。</div>
-                    <div class="xiaomiaoshu"><input type="text" ></div>
+                    <div class="xiaomiaoshu serverRow">
+                        <div class="serverFrame">
+                            <div class="serverFrameStart">#</div>
+                            <input 
+                                type="text" 
+                                class="serverInput"
+                                v-model="serverAddress"
+                            >
+                            <div class="serverFrameEnd">:matrix.each.chat</div>
+                        </div>
+                        <div 
+                            class="serverBtn" 
+                            :class="{'serverBtnSubmit': !loading, 'serverBtnLoading': loading}"
+                            @click.self.stop="setServerAddress"
+                        >添加</div>
+                    </div>
                 </div>
                 <div class="setting-field">
                     <div class="filed-title">谁可以查看聊天历史？</div>
@@ -44,11 +59,26 @@ export default {
             joinRule: '',
             guestAccess: '',
             history: '',
+            loading: false,
+            serverAddress: ''
         }
     },
     props: ['roomId'],
     puborprtTimer: null,
     methods: {
+        setServerAddress() {
+            if (this.loading) return;
+            this.loading = true;
+            const roomId = this.roomId;
+            const address = '#' + this.serverAddress + ':matrix.each.chat';
+            window.mxMatrixClientPeg.matrixClient.createAlias(address, roomId).then(()=>{
+                this.loading = false;
+                console.log('success!!@')
+            }).catch((e) => {
+                this.loading = false;
+                console.error(e);
+            });
+        },
         close: function() {
             this.$emit('close', 'close')
         },
@@ -123,9 +153,10 @@ export default {
         let room = client.getRoom(this.roomId);
         console.log('++++current room++++', room);
         let currentState = room.currentState.getStateEvents('m.room.power_levels','');
+        let xie = room.currentState.maySendStateEvent('m.room.canonical_alias', client.getUserId());
         if (!currentState) return;
-         const powerLevels = currentState.getContent();
-        console.log('++++powerLevels++++', powerLevels);
+        const powerLevels = currentState.getContent();
+        console.log('++++powerLevels++++', xie);
 
     },
     watch: {}
@@ -195,5 +226,63 @@ export default {
     }
     .tipdesc {
         color: #999999;
+    }
+    .serverRow {
+        display: flex;
+        align-items: center;
+    }
+    .serverFrame {
+        width: 75%;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        background: #FFFFFF;
+        border-radius: 4px;
+        border: 1px solid #DDDDDD;
+        box-sizing: border-box;
+    }
+    .serverFrameStart {
+        margin-left: 12px;
+        height: 100%;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .serverFrameEnd {
+        height: 100%;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+
+    }
+    .serverInput {
+        width: 160px;
+        height: 28px;
+        border: none;
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+    .serverBtn {
+        margin-left: 20px;
+        box-sizing: border-box;
+        height: 32px;
+        width: 60px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 14px;
+    }
+    .serverBtnSubmit {
+        background: #24B36B;
+        border: 1px solid #24B36B;
+    }
+    .serverBtnLoading {
+        background: #A7E0C4;
+        border: 1px solid #A7E0C4;
     }
 </style>
