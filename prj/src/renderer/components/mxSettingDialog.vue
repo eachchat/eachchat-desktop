@@ -110,6 +110,7 @@ export default {
         console.log('--history--', history)
         window.mxMatrixClientPeg.matrixClient.roomState(roomId).then(stateArr => {
             console.log('---stateArr---', stateArr)
+
             stateArr.forEach(r => {
                 if (r.type === 'm.room.join_rules') {
                     vtx.joinRule =  r.content.join_rule;
@@ -118,6 +119,14 @@ export default {
         });
     },
     mounted: function() {
+        const client = window.mxMatrixClientPeg.matrixClient;
+        let room = client.getRoom(this.roomId);
+        console.log('++++current room++++', room);
+        let currentState = room.currentState.getStateEvents('m.room.power_levels','');
+        if (!currentState) return;
+         const powerLevels = currentState.getContent();
+        console.log('++++powerLevels++++', powerLevels);
+
     },
     watch: {}
 }

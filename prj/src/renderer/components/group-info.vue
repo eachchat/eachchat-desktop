@@ -6,13 +6,22 @@
         <div class="groupInfo-view">
             <div class="groupInfoImageDiv">
                 <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user-40px@2x.png">
-                <img id="groupInfoImageChangeId" class="groupInfoImageChange" src="../../../static/Img/Chat/updateHeadImg-24px@2x.png" @click="updateGroupImg" v-show="isOwner">
+                <img 
+                    id="groupInfoImageChangeId" 
+                    class="groupInfoImageChange" 
+                    src="../../../static/Img/Chat/updateHeadImg-24px@2x.png" 
+                    @click="updateGroupImg" 
+                    v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canAvatar">
             </div>
             <div class="groupInfoNoticeAndName">
                 <div class="groupInfoName">
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
                     <div class="chat-name">{{groupName}}</div>
-                    <p class="groupInfoNameEdit" id="groupInfoNameEditId" v-show="isOwner" @click.stop="changeChateInfo()"></p>
+                    <p 
+                        class="groupInfoNameEdit" 
+                        id="groupInfoNameEditId" 
+                        v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canName" 
+                        @click.stop="changeChateInfo()"></p>
                 </div>
                 <div class="chat-desc">{{showGroupInfo.groupTopic}}</div>
                 <!-- <div class="peopleInfo" v-if="!isGroup">
@@ -34,11 +43,11 @@
                 <span class="secretTypeAutoLabel">自动</span>
             </div>
         </div>
-        <div v-if="!isDm" class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
+        <div v-if="!isDm && showGroupInfo.userLevel>=100" class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
             <label style="font-size:14px">群聊设置</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
-         <div class="groupSettingSilenceDiv" v-if="isDm">
+         <div class="groupSettingSilenceDiv" v-if="isDm && showGroupInfo.userLevel >= showGroupInfo.totalLevels.canEncryption">
             <label class="groupSettingSlienceLabel">端到端加密</label>
             <el-switch 
                 class="groupSettingSlienceSwitch" 
@@ -123,7 +132,7 @@
                         <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为管理者</div>
                         <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为主持人</div>
                         <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为普通用户</div>
-                        <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">移除成员</div>
+                        <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=showGroupInfo.totalLevels.canKick">移除成员</div>
                     </div>
                 </li>
             </ul>
@@ -300,7 +309,8 @@ export default {
         },
         switchOption: function(idx) {
             let mxMembers = this.mxMembers;
-            mxMembers[idx].choosen = !mxMembers[idx].choosen;
+            mxMembers.forEach(m => m.choosen = false);
+            mxMembers[idx].choosen = true;
             this.mxMembers = [...mxMembers];
         },
         mxLeaveRoom: function() {
