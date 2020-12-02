@@ -81,7 +81,7 @@
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 220px);
+    width: calc(100% - 180px);
 }
 
 .contact-list-icon{

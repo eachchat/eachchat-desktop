@@ -15,7 +15,7 @@
             <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
-                  v-for="(chatGroupItem, index) in inviteGroupsList"
+                  v-for="(chatGroupItem, index) in showInviteGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
@@ -44,7 +44,7 @@
             <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>置顶</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
-                  v-for="(chatGroupItem, index) in favouriteRooms"
+                  v-for="(chatGroupItem, index) in showFavouriteRooms"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
@@ -74,7 +74,7 @@
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
               <li class = 'group'
-                  v-for="(chatGroupItem, index) in dealShowGroupList"
+                  v-for="(chatGroupItem, index) in showDealGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
@@ -250,6 +250,21 @@ export default {
 
   },
   watch: {
+    inviteGroupsList: function(){
+      if(this.searchKey == '')
+        this.showInviteGroupList = this.inviteGroupsList;
+    },
+
+    dealShowGroupList: function(){
+      if(this.searchKey == '')
+        this.showDealGroupList = this.dealShowGroupList;
+    },
+
+    favouriteRooms:function(){
+      if(this.searchKey == '')
+        this.showFavouriteRooms = this.favouriteRooms;
+    },
+
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
@@ -334,11 +349,6 @@ export default {
                 else if(member.membership == "join"){
                   this.JoinRoom(member.roomId);
                 }
-
-                
-                this.$nextTick(() => {
-                  this.showGroupIcon();
-                })
               }
             },320)
         })
@@ -408,8 +418,11 @@ export default {
       bCollections: true,
       bRooms: true,
       favouriteRooms: [],//置顶列表
+      showFavouriteRooms: [],//显示置顶列表
       inviteGroupsList:[],//邀请列表
+      showInviteGroupList:[],
       dealShowGroupList:[],//聊天列表
+      showDealGroupList:[],
       oldElementGroupItem: null,
       oldElementGroupDiv: null
     };
@@ -509,17 +522,13 @@ export default {
     },
 
     updateChatList(newMsg, needScroll=true) {
-      // ++this.needUpdate;
-      this.needScroll = needScroll;
-      if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
-        this.callback(newMsg, true);
-      }
-      else{
-        this.callback(newMsg, false);
-      }
+      if(this.favouriteRooms.length != 0)
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+      
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
     },
     eventUpdateChatList(event, newMsg) {
-      console.log("updateChatList newMsg ", newMsg);
       // ++this.needUpdate;
       if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
         this.callback(newMsg, true);
@@ -808,38 +817,7 @@ export default {
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
       groupItem.un_read_count = 0;
     },
-    // Download thumb and show in dist id element
-    async updateGroupImg(e, arg) {
-      // console.log("=======================updateGroupImg", arg)
-      var state = arg[0];
-      var stateInfo = arg[1];
-      var id = arg[2];
-      var localPath = arg[3];
-
-      var groupInfoTmp = await Group.FindItemFromGroupByGroupID(id);
-      if(groupInfoTmp == undefined) {
-        return;
-      }
-      // console.log("groupinfotmp is ", groupInfoTmp)
-
-      var distId = this.getChatElementId(id, groupInfoTmp.user_id);
-      // console.log("updateGroupImg dist id ", distId);
-      var elementImg = document.getElementById(distId);
-
-      if(elementImg == undefined) {
-        distId = this.getChatElementId(id, this.curChat.user_id);
-        // console.log("updateGroupImg dist id ", distId);
-        elementImg = document.getElementById(distId);
-      }
-
-      var showfu = new FileUtil(localPath);
-      let showfileObj = showfu.GetUploadfileobj();
-      var reader = new FileReader();
-      reader.readAsDataURL(showfileObj);
-      reader.onloadend = () => {
-          elementImg.setAttribute("src", reader.result);
-      }
-    },
+    
     getUidFromUids(groupInfo) {
       var containUids = groupInfo.contain_user_ids;
       var containUidsList = containUids.split(",");
@@ -855,18 +833,31 @@ export default {
       }
       return distUid;
     },
+
+    UpdateGroupImage: function(distGroup){
+        var elementImg = document.getElementById(distGroup.roomId);
+        var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
+        if(elementImg != undefined && distUrl) {
+          elementImg.setAttribute("src", distUrl);
+        }
+    },
+
+    UpdateGroupsImage: function(groups){
+      for(let item of groups){
+        this.UpdateGroupImage(item);
+      }
+    },
+
     showGroupIcon: async function(distGroup=undefined) {
       // setTimeout(async () => {
-        if(distGroup == undefined) {
-          for(var i=0;i<this.showGroupList.length;i++) {
-            var distId = this.showGroupList[i].roomId;
-            var elementImg = document.getElementById(distId);
-            var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.showGroupList[i]);
-            if(elementImg != undefined && distUrl) {
-              elementImg.setAttribute("src", distUrl);
-            }
-          }
-        }
+      if(distGroup){
+        this.UpdateGroupImage(distGroup);
+      }
+      else{
+          this.UpdateGroupsImage(this.showFavouriteRooms);
+          this.UpdateGroupsImage(this.showInviteGroupList);
+          this.UpdateGroupsImage(this.showDealGroupList);
+      }
     },
     groupIsInFavourite(groupInfo) {
       if(this.favouriteRooms.indexOf(groupInfo) == -1) {
@@ -909,44 +900,15 @@ export default {
         return false;
       }
     },
-    showOriginal() {
-      this.showGroupList = [];
-        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
-          // console.log("this is ", r);
-          // console.log("r.getMyMembership() ", r.getMyMembership());
-          if(r.getMyMembership() != "LEAVE") {
-            this.showGroupList.push(r);
-          }
-        })
-        this.$nextTick(() => {
-          this.showGroupIcon();
-          for(var i=0;i<this.showGroupList.length;i++) {
-            if(this.showGroupList[i].roomId == this.curChat.roomId) {
-              // this.showChat(this.showGroupList[i], i);
-              this.curindex = i;
-            }
-          }
-        })
-        setTimeout(() => {
-          console.log("this.curChat room id ", this.curChat.roomId);
-          for(var i=0;i<this.showGroupList.length;i++) {
-            console.log("============= ", this.showGroupList[i].roomId == this.curChat.roomId)
-            if(this.showGroupList[i].roomId == this.curChat.roomId) {
-              // this.showChat(this.showGroupList[i], i);
-              console.log("===========set index to ", i);
-              this.curindex = i;
-            }
-          }
-        }, 500)
-    },
-    searchRoom(searchKey) {
+    
+    searchRoom(groups, searchKey) {
       var searchResult = [];
       // console.log("search key is ", searchKey);
-      for(var i=0;i<this.showGroupList.length;i++) {
+      for(var i=0;i<groups.length;i++) {
         // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
-        if(this.showGroupList[i].name.indexOf(searchKey) >= 0) {
+        if(groups[i].name.indexOf(searchKey) >= 0) {
           // console.log("inininin put ");
-          searchResult.push(this.showGroupList[i]);
+          searchResult.push(groups[i]);
         }
       }
       return searchResult;
@@ -955,31 +917,17 @@ export default {
       // console.log("searchkey is ", searchKey);
       // console.log("searchkey is ", searchKey.trim());
       this.searchKey = searchKey.trim();
+      console.log("searchkey is ", this.searchKey);
+
       if(this.searchKey.length != 0) {
-        var curSearchId = new Date().getTime();
-        var searchResult = {
-            "id": curSearchId,
-            "searchList": []
-        };
-        this.searchId = curSearchId;
-        var searcheRet = this.searchRoom(searchKey);
-        console.log("searhret ", searcheRet);
-        // console.log("searchResult.id is ", searchResult.id);
-        // console.log("this.searchId is ", this.searchId);
-        if(searchResult.id == this.searchId) {
-          this.showGroupList = searcheRet;
-        }
-        if(this.searchKey.length == 0) {
-          this.showOriginal();
-          console.log("this.issearch = ", this.isSearch)
-        }
-        else {
-          // this.isSearch = true;
-          console.log("this.issearch = ", this.isSearch)
-        }
+        this.showInviteGroupList = this.searchRoom(this.inviteGroupsList, searchKey);
+        this.showFavouriteRooms = this.searchRoom(this.favouriteRooms, searchKey);
+        this.showDealGroupList = this.searchRoom(this.dealShowGroupList, searchKey);
       }
       else{
-        this.showOriginal();
+        this.showInviteGroupList = this.inviteGroupsList;
+        this.showFavouriteRooms = this.favouriteRooms;
+        this.showDealGroupList = this.dealShowGroupList;
       }
     },
     showSearchResultIcon: async function() {
@@ -1758,7 +1706,7 @@ export default {
 
       this.dealShowGroupList.unshift(newRoom);
       this.$nextTick(() => {
-        this.showGroupIcon();
+        this.showGroupIcon(newRoom);
         this.showChat(newRoom, 0);
       })
     },
@@ -1784,23 +1732,8 @@ export default {
 
       this.DeleteFromGroups(this.inviteGroupsList, distGroupId);
       this.DeleteFromGroups(this.dealShowGroupList, distGroupId);
+    },
 
-      this.$nextTick(() => {
-        this.showGroupIcon();
-      })
-    },
-    updateGroupList: async function() {
-      for(var i=0;i<this.showGroupList.length;i++) {
-        console.log("this is ", this.showGroupList[i]);
-        console.log("this.showGroupList[i].getMyMembership() ", this.showGroupList[i].getMyMembership());
-        if(this.showGroupList[i].getMyMembership() == "LEAVE") {
-          this.showGroupList.splice(i, 1);
-        }
-      }
-      this.$nextTick(() => {
-        this.showGroupIcon();
-      })
-    },
     compare: function() {
       return function(a, b)
       {
@@ -1810,374 +1743,7 @@ export default {
       }
     },
     async callback(msg, isUpdate=false) {
-      console.log("chat callback msg is ", msg);
-      // console.log("chat callback msg content is ", msg.message_content);
-      // console.log("chat callback msg is ", msg)
-      var msgContent = strMsgContentToJson(msg.message_content);
-      var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-      if(groupInfo != undefined && groupInfo.group_type == 101 && groupInfo.status.substr(5, 1) == "1") {
-        return;
-      }
-      if(groupInfo != undefined && groupInfo.group_type == 102 && groupInfo.status.substr(5, 1) == "1") {
-        console.log("update status")
-        services.common.UpdateGroupStatus(msg.group_id, "00000000");
-      }
-      if(msg.sequence_id != undefined && msg.sequence_id.length != 0) {
-        var msgExist = await Message.ExistMessageBySequenceID(msg.sequence_id);
-        // console.log("msg exist is ", msgExist);
-        if(this.dealedMsgSequenceId.indexOf(msg.sequence_id) == -1) {
-          // if(isUpdate) {
-          //   console.log("111111111111111")
-          //   this.showGroupIcon();
-          // }
-          this.dealedMsgSequenceId.push(msg.sequence_id);
-        }
-        else if(msgExist) {
-          // console.log("return it ")
-          if(isUpdate) {
-            this.showGroupIcon();
-          }
-          return;
-        }
-        else {
-          if(isUpdate) {
-            this.showGroupIcon();
-          }
-          return;
-        }
-      }
-      if(msgContent.type == undefined && msg.group_avarar != undefined) {
-        this.mqttGroupVar.push(msg);
-        return;
-      }
-      // if(msg.statues != undefined && msg.status[6] == 1) {
-      //   return;
-      // }
-      if(msg.message_from_id != undefined && msg.message_from_id != this.curUserInfo.id){
-        // console.log("process.platfrom is ", this.isWindows())
-        var fromName = "";
-        var fromUserName = "";
-        // console.log("msg.messagefromid ", msg.message_from_id);
-        var fromUserInfo = await UserInfo.GetUserInfo(msg.message_from_id);
-        // var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-        var notificateContent = this.getShowMsgContent(msg);
-        console.log("fromUserInfo ", fromUserInfo);
-        if(fromUserInfo != undefined) {
-          fromName = fromUserInfo.user_display_name;
-        }
-        if(groupInfo != undefined) {
-          if(groupInfo.group_type == 101) {
-            fromUserName = fromName;
-            fromName = groupInfo.group_name;
-            if(fromUserName.length == 0) {
-              notificateContent = notificateContent;
-            }
-            else{
-              notificateContent = fromUserName + ":" + notificateContent;
-            }
-          }
-        }
-        var groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-        if(this.isWindows()) {
-          if(this.$store.getters.flashNotice()) {
-            if(!this.groupIsSlience(groupInfo)) {
-              ipcRenderer.send("flashIcon", fromName, notificateContent);
-            }
-          }
-          try{
-            if(this.$store.getters.soundNotice()) {
-              if(!this.groupIsSlience(groupInfo)) {
-                this.amr.play();
-              }
-            }
-          }
-          catch(e) {
-            
-          }
-        }
-        else {
-          if(this.$store.getters.flashNotice()) {
-            if(!this.groupIsSlience(groupInfo)) {
-              ipcRenderer.send("showNotice", fromName, notificateContent);
-            }
-          }
-        }
-      }
-      var groupExist = false;
-      for(let i=0;i<this.showGroupList.length;i++) {
-        if((this.showGroupList[i].group_id === msg.group_id)) {
-          console.log("exit group is ", this.showGroupList[i], "and i is ", i)
-          if(msgContent.type != undefined && msgContent.type == "invitation") {
-            if(msgContent.userInfos != undefined) {
-              let addUsers = msgContent.userInfos;
-              for(let j=0;j<addUsers.length;j++) {
-                let newUserId = addUsers[j].userId;
-                if(this.showGroupList[i].contain_user_ids.indexOf(newUserId) == -1) {
-                  this.showGroupList[i].contain_user_ids = this.showGroupList[i].contain_user_ids + "," + newUserId;
-                }
-              }
-            }
-          }
-          if(msgContent.type != undefined && msgContent.type == "groupTransfer") {
-            if(msgContent.toUserId != undefined) {
-              let distUserId = msgContent.toUserId;
-              this.showGroupList[i].owner = distUserId;
-            }
-          }
-          if(msgContent.type != undefined && msgContent.type == "notice") {
-            if(msgContent.text != undefined) {
-              this.showGroupList[i].group_notice = msgContent.text;
-            }
-          }
-          if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
-            if(msgContent.userInfos != undefined) {
-              let deleteUsers = msgContent.userInfos;
-              for(let j=0;j<deleteUsers.length;j++) {
-                var deletedUserId = deleteUsers[j].userId;
-                var idsList = this.showGroupList[i].contain_user_ids.split(",");
-                var deleteIndex = idsList.indexOf(deletedUserId);
-                if(deleteIndex != -1) {
-                  idsList.splice(deleteIndex, 1);
-                }
-                this.showGroupList[i].contain_user_ids = idsList.join(",");
-              }
-            }
-          }
-          if(msg.message_from_id != this.curUserInfo.id && msg.group_id != this.curChat.group_id) {
-            let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-              this.showGroupList[i].un_read_count += 1;
-              if(!this.groupIsSlience(groupInfo)) {
-                this.unreadCount += 1;
-                if(this.unreadCount < 0) {
-                  this.unreadCount = 0;
-                }
-              }
-              // console.log("callback this.unreadCount ", this.unreadCount)
-            if(!this.groupIsSlience(groupInfo)) {
-              ipcRenderer.send("updateUnreadCount", this.unreadCount);
-            }
-          }
-          this.showGroupList[i].last_message_time = msg.message_timestamp;
-          this.showGroupList[i].message_content_type = msg.message_type != undefined ? msg.message_type : msg.message_content_type;
-          this.showGroupList[i].message_from_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_from_id : this.showGroupList[i].message_from_id;
-          this.showGroupList[i].message_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.message_id : this.showGroupList[i].message_id;
-          this.showGroupList[i].message_content = msg.message_content;
-          this.showGroupList[i].sequence_id = msg.sequence_id > this.showGroupList[i].sequence_id ? msg.sequence_id : this.showGroupList[i].sequence_id;
-          this.showGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
-          if(this.showGroupList[i].group_type == 102) {
-            this.showGroupList[i].group_id = msg.group_id;
-          }
-          // this.showGroupList[i].status = "00000000";
-          if(msg.group_id == this.curChat.group_id) {
-            if(msgContent.type == "updateGroupName") {
-              this.showGroupList[i].group_name = msgContent.text;
-              let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-              var distElementId = this.getChatGroupNameElementId(msg.group_id, groupInfo.user_id);
-              var distElement = document.getElementById(distElementId);
-              if(distElement != undefined) {
-                distElement.innerHTML = msgContent.text;
-              }
-              this.newMsg = msg;
-            }
-            else{
-              this.curChat = this.showGroupList[i];
-              this.newMsg = msg;
-            }
-          }
-          if(msgContent.type != undefined && msgContent.type == "deleteGroupUser") {
-              let distUsers = msgContent.userInfos;
-              let distUserIds = [];
-              for(let i=0;i<distUsers.length;i++) {
-                distUserIds.push(distUsers[i].userId);
-              }
-              if(distUserIds.indexOf(this.curUserInfo.id) != -1) {
-                for(let i=0;i<this.showGroupList.length;i++) {
-                  if(this.showGroupList[i].group_id == msg.group_id) {
-                      this.showGroupList.slice(i, 1);
-
-                      var owner = msgContent.userName;
-                      var alertContent = "您被 " + owner + " 移出了群聊";
-
-                      alert(alertContent);
-                      break;
-                    }
-                  }
-              }
-          }
-          if(msg.message_from_id != undefined && msg.message_from_id == this.curUserInfo.id) {
-            this.curindex = i;
-          }
-          groupExist = true;
-          break;
-        }
-        if((this.showGroupList[i].group_id == undefined || this.showGroupList[i].group_id.length == 0) && this.showGroupList[i].group_type == 102 && msgContent.type != "invitation") {
-          // console.log("cur msg is ", msg);
-          // var distFromName = await Group.SearchByNameKey(this.showGroupList[i].group_name);
-          var distFromName = [];
-          var isSecretTmp = false;
-          if(msg.key_id != undefined && msg.key_id.length != 0) {
-            if(this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length != 0) {
-              distFromName = await Group.SearchSecretByNameKey(this.showGroupList[i].group_name)
-              isSecretTmp = true;
-            }
-            else {
-              continue;
-            }
-          }
-          else {
-            if(this.showGroupList[i].key_id == undefined || (this.showGroupList[i].key_id != undefined && this.showGroupList[i].key_id.length == 0)) {
-              distFromName = await Group.SearchChatByNameKey(this.showGroupList[i].group_name)
-            }
-            else {
-              continue;
-            }
-          }
-          // var distFromName = await services.common.GetGroupByName(this.showGroupList[i].group_name);
-          // console.log("distFromName is ", distFromName)
-          var isBreak = false;
-          for(let j=0;j<distFromName.length;j++) {
-            let distGroup = distFromName[j];
-            // console.log("distGroup is ", distGroup)
-            // console.log("this.showGroupList[i].group_name ", this.showGroupList[i].group_name);
-            if(distGroup.group_name == this.showGroupList[i].group_name && distGroup.group_type == 102) {
-              // if((isSecretTmp && (distGroup.key_id != undefined && distGroup.key_id.length != 0)) || 
-              //   (!isSecretTmp && (distGroup.key_id == undefined || (distGroup.key_id == undefined && distGroup.key_id.length == 0)))) {
-                console.log("find dist grou pis ", distGroup);
-                // console.log("distGroup.key_id is ", distGroup.key_id);
-                // console.log("msg.key_id is ", msg.key_id);
-                this.showGroupList[i].group_id = distGroup.group_id;
-                this.showGroupList[i].group_avarar = distGroup.group_avarar;
-                this.showGroupList[i].last_message_time = msg.message_timestamp;
-                this.showGroupList[i].message_content = msg.message_content;
-                this.showGroupList[i].message_content_type = msg.message_type;
-                this.showGroupList[i].message_from_id = msg.message_from_id;
-                this.showGroupList[i].message_id = msg.message_id;
-                this.showGroupList[i].sequence_id = msg.sequence_id;
-                this.showGroupList[i].time_line_id = msg.time_line_id;
-                this.showGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
-                this.showGroupList[i].owner = distGroup.owner;
-                let tmp = distGroup.un_read_count - this.showGroupList[i].un_read_count;
-                this.showGroupList[i].un_read_count = distGroup.un_read_count;
-                this.unreadCount += tmp;
-                // console.log("callback this.unreadCount ", this.unreadCount)
-                if(this.unreadCount < 0) {
-                  this.unreadCount = 0;
-                }
-                ipcRenderer.send("updateUnreadCount", this.unreadCount);
-                groupExist = true;
-                // this.needUpdate ++;
-                // console.log("44444444444444444444")
-                this.showGroupIcon();
-                isBreak = true;
-                break;
-              // }
-            }
-          }
-          if(msg.message_from_id != undefined && msg.message_from_id == this.curUserInfo.id) {
-            this.curindex = i;
-          }
-          groupExist = true;
-          if(isBreak) {
-            break;
-          }
-        }
-      }
-      if(!groupExist) {
-          let groupInfo = await Group.FindItemFromGroupByGroupID(msg.group_id);
-          console.log("groupinfo is ", groupInfo);
-          // console.log("this.mqttGroupVar is ", this.mqttGroupVar);
-          if(groupInfo == undefined) {
-            // console.log("groupInfo is undefined");
-            // console.log("this.mqttGroupVar.length is ", this.mqttGroupVar.length);
-            for(let i=0;i<this.mqttGroupVar.length;i++) {
-              if(this.mqttGroupVar[i].group_id == msg.group_id) {
-                // console.log("this.mqttGroupVar[i] is ", this.mqttGroupVar[i]);
-                var groupTmp = {
-                  "contain_user_ids": this.mqttGroupVar[i].contain_user_ids,
-                  "group_avarar": this.mqttGroupVar[i].group_avarar,
-                  "group_id": this.mqttGroupVar[i].group_id,
-                  "group_name": this.mqttGroupVar[i].group_name,
-                  "group_notice": this.mqttGroupVar[i].group_notice,
-                  "group_type": this.mqttGroupVar[i].group_type,
-                  "owner": this.mqttGroupVar[i].owner,
-                  "status": this.mqttGroupVar[i].status,
-                  "updatetime": this.mqttGroupVar[i].updatetime,
-                  "un_read_count": this.mqttGroupVar[i].un_read_count,
-                  "message_content": msg.message_content,
-                  "message_content_type": msg.message_type,
-                  "message_from_id": msg.message_from_id,
-                  "message_id": msg.message_id,
-                  "last_message_time": msg.message_timestamp,
-                  "sequence_id": msg.sequence_id,
-                  "time_line_id": msg.time_line_id,
-                  "key_id": msg.key_id == undefined ? "" : msg.key_id
-                }
-                // console.log("groupTmp is ", groupTmp);
-                this.showGroupList.unshift(groupTmp);
-                // console.log("update show group list ", this.showGroupList);
-                this.mqttGroupVar.slice(i, 1);
-                this.unreadCount += this.mqttGroupVar[i].un_read_count;
-                if(this.unreadCount < 0) {
-                  this.unreadCount = 0;
-                }
-                ipcRenderer.send("updateUnreadCount", this.unreadCount);
-                break;
-              }
-            }
-            // needUpdate ++;
-          }
-          else {
-            // console.log("update groupInfo ", groupInfo);
-            var groupTmpExist = false;
-            var groupTmp = {
-              "contain_user_ids": groupInfo.contain_user_ids,
-              "group_avarar": groupInfo.group_avarar,
-              "group_id": groupInfo.group_id,
-              "group_name": groupInfo.group_name,
-              "group_notice": groupInfo.group_notice,
-              "group_type": groupInfo.group_type,
-              "owner": groupInfo.owner,
-              "status": groupInfo.status,
-              "updatetime": groupInfo.updatetime,
-              "un_read_count": groupInfo.un_read_count,
-              "message_content": msg.message_content,
-              "message_content_type": msg.message_type,
-              "message_from_id": msg.message_from_id,
-              "message_id": msg.message_id,
-              "last_message_time": msg.message_timestamp,
-              "sequence_id": msg.sequence_id,
-              "time_line_id": msg.time_line_id,
-              "key_id": msg.key_id == undefined ? "" : msg.key_id
-            }
-            // console.log("groupTmp is ", groupTmp);
-            for(let i=0;i<this.showGroupList.length;i++) {
-              if(this.showGroupList[i].group_id == groupInfo.group_id) {
-                groupTmpExist = true;
-                this.showGroupList[i].message_content = msg.message_content;
-                this.showGroupList[i].message_content_type = msg.message_type;
-                this.showGroupList[i].message_from_id = msg.message_from_id;
-                this.showGroupList[i].message_id = msg.message_id;
-                this.showGroupList[i].last_message_time = msg.message_timestamp;
-                this.showGroupList[i].sequence_id = msg.sequence_id;
-                this.showGroupList[i].time_line_id = msg.time_line_id;
-                this.showGroupList[i].key_id = msg.key_id == undefined ? "" : msg.key_id;
-              }
-            }
-            if(!groupTmpExist) {
-              this.showGroupList.unshift(groupTmp);
-            }
-            this.unreadCount += groupInfo.un_read_count;
-            if(this.unreadCount < 0) {
-              this.unreadCount = 0;
-            }
-            ipcRenderer.send("updateUnreadCount", this.unreadCount);
-            // console.log("update show group list ", this.showGroupList);
-            // needUpdate ++;
-          }
-        this.$nextTick(() => {
-          this.showGroupIcon();
-        })
-      }
+      
     },
     delayCallback: function(msg) {
       setTimeout(() => {
@@ -2191,17 +1757,9 @@ export default {
     if(this.unreadCount < 0) {
       this.unreadCount = 0;
     }
-    ipcRenderer.send("updateUnreadCount", this.unreadCount);
-    setTimeout(() => {
-        this.$nextTick(() => {
-          ipcRenderer.on('updateGroupImg', this.updateGroupImg);
-          // this.showGroupIcon();
-        })
-    }, 0)
     
     ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
     ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
-    ipcRenderer.on('updateGroupList', this.updateGroupList)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
