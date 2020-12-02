@@ -522,17 +522,13 @@ export default {
     },
 
     updateChatList(newMsg, needScroll=true) {
-      // ++this.needUpdate;
-      this.needScroll = needScroll;
-      if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
-        this.callback(newMsg, true);
-      }
-      else{
-        this.callback(newMsg, false);
-      }
+      if(this.favouriteRooms.length != 0)
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+      
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
     },
     eventUpdateChatList(event, newMsg) {
-      console.log("updateChatList newMsg ", newMsg);
       // ++this.needUpdate;
       if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
         this.callback(newMsg, true);
