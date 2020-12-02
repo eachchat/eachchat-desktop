@@ -15,7 +15,7 @@
             <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
-                  v-for="(chatGroupItem, index) in inviteGroupsList"
+                  v-for="(chatGroupItem, index) in showInviteGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
@@ -44,7 +44,7 @@
             <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>置顶</el-link>
             <ul class="group-list" name="group-list">
               <li class = 'group'
-                  v-for="(chatGroupItem, index) in favouriteRooms"
+                  v-for="(chatGroupItem, index) in showFavouriteRooms"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
@@ -74,7 +74,7 @@
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
               <li class = 'group'
-                  v-for="(chatGroupItem, index) in dealShowGroupList"
+                  v-for="(chatGroupItem, index) in showDealGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
@@ -250,6 +250,21 @@ export default {
 
   },
   watch: {
+    inviteGroupsList: function(){
+      if(this.searchKey == '')
+        this.showInviteGroupList = this.inviteGroupsList;
+    },
+
+    dealShowGroupList: function(){
+      if(this.searchKey == '')
+        this.showDealGroupList = this.dealShowGroupList;
+    },
+
+    favouriteRooms:function(){
+      if(this.searchKey == '')
+        this.showFavouriteRooms = this.favouriteRooms;
+    },
+
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
@@ -334,11 +349,6 @@ export default {
                 else if(member.membership == "join"){
                   this.JoinRoom(member.roomId);
                 }
-
-                
-                this.$nextTick(() => {
-                  this.showGroupIcon();
-                })
               }
             },320)
         })
@@ -408,8 +418,11 @@ export default {
       bCollections: true,
       bRooms: true,
       favouriteRooms: [],//置顶列表
+      showFavouriteRooms: [],//显示置顶列表
       inviteGroupsList:[],//邀请列表
+      showInviteGroupList:[],
       dealShowGroupList:[],//聊天列表
+      showDealGroupList:[],
       oldElementGroupItem: null,
       oldElementGroupDiv: null
     };
@@ -939,14 +952,15 @@ export default {
           }
         }, 500)
     },
-    searchRoom(searchKey) {
+
+    searchRoom(groups, searchKey) {
       var searchResult = [];
       // console.log("search key is ", searchKey);
-      for(var i=0;i<this.showGroupList.length;i++) {
+      for(var i=0;i<groups.length;i++) {
         // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
-        if(this.showGroupList[i].name.indexOf(searchKey) >= 0) {
+        if(groups[i].name.indexOf(searchKey) >= 0) {
           // console.log("inininin put ");
-          searchResult.push(this.showGroupList[i]);
+          searchResult.push(groups[i]);
         }
       }
       return searchResult;
@@ -955,31 +969,17 @@ export default {
       // console.log("searchkey is ", searchKey);
       // console.log("searchkey is ", searchKey.trim());
       this.searchKey = searchKey.trim();
+      console.log("searchkey is ", this.searchKey);
+
       if(this.searchKey.length != 0) {
-        var curSearchId = new Date().getTime();
-        var searchResult = {
-            "id": curSearchId,
-            "searchList": []
-        };
-        this.searchId = curSearchId;
-        var searcheRet = this.searchRoom(searchKey);
-        console.log("searhret ", searcheRet);
-        // console.log("searchResult.id is ", searchResult.id);
-        // console.log("this.searchId is ", this.searchId);
-        if(searchResult.id == this.searchId) {
-          this.showGroupList = searcheRet;
-        }
-        if(this.searchKey.length == 0) {
-          this.showOriginal();
-          console.log("this.issearch = ", this.isSearch)
-        }
-        else {
-          // this.isSearch = true;
-          console.log("this.issearch = ", this.isSearch)
-        }
+        this.showInviteGroupList = this.searchRoom(this.inviteGroupsList, searchKey);
+        this.showFavouriteRooms = this.searchRoom(this.favouriteRooms, searchKey);
+        this.showDealGroupList = this.searchRoom(this.dealShowGroupList, searchKey);
       }
       else{
-        this.showOriginal();
+        this.showInviteGroupList = this.inviteGroupsList;
+        this.showFavouriteRooms = this.favouriteRooms;
+        this.showDealGroupList = this.dealShowGroupList;
       }
     },
     showSearchResultIcon: async function() {
@@ -1784,23 +1784,8 @@ export default {
 
       this.DeleteFromGroups(this.inviteGroupsList, distGroupId);
       this.DeleteFromGroups(this.dealShowGroupList, distGroupId);
+    },
 
-      this.$nextTick(() => {
-        this.showGroupIcon();
-      })
-    },
-    updateGroupList: async function() {
-      for(var i=0;i<this.showGroupList.length;i++) {
-        console.log("this is ", this.showGroupList[i]);
-        console.log("this.showGroupList[i].getMyMembership() ", this.showGroupList[i].getMyMembership());
-        if(this.showGroupList[i].getMyMembership() == "LEAVE") {
-          this.showGroupList.splice(i, 1);
-        }
-      }
-      this.$nextTick(() => {
-        this.showGroupIcon();
-      })
-    },
     compare: function() {
       return function(a, b)
       {
@@ -2201,7 +2186,6 @@ export default {
     
     ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
     ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
-    ipcRenderer.on('updateGroupList', this.updateGroupList)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
