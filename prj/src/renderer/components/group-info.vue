@@ -4,7 +4,7 @@
             <p class="groupInfoTitle">设置</p>
         </div>
         <div class="groupInfo-view">
-            <div class="groupInfoImageDiv">
+            <div class="groupInfoImageDiv" v-if="!isDm">
                 <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user-40px@2x.png">
                 <img 
                     id="groupInfoImageChangeId" 
@@ -13,7 +13,13 @@
                     @click="updateGroupImg" 
                     v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canAvatar">
             </div>
-            <div class="groupInfoNoticeAndName">
+            <div v-else class="groupInfoImageDiv">
+                <img 
+                    id="groupInfoImageId" 
+                    class="groupInfoImage" 
+                    :src="dmMember.user.avatarUrl">
+            </div>
+            <div class="groupInfoNoticeAndName" v-if="!isDm">
                 <div class="groupInfoName">
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
                     <div class="chat-name">{{groupName}}</div>
@@ -31,6 +37,13 @@
                     <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" :disabled="!isOwner" v-model="groupNotice" name="groupInfoNotice" placeholder="未设置" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
                     <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
                 </div> -->
+            </div>
+            <div class="groupInfoNoticeAndName" v-else>
+                <div class="groupInfoName">
+                    <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
+                    <div class="chat-name">{{dmMember.user.displayName}}</div>
+                </div>
+                <div class="chat-desc">{{dmMember.user.userId}}</div>
             </div>
         </div>
         <div class="secretGroupDiv" v-show="!isGroup && isSecret" @click="showSecretType()">
@@ -225,7 +238,8 @@ export default {
             isDm: true,
             mxEncryption: false,
             encryptionWarning: false,
-            currentRoom: undefined
+            currentRoom: undefined,
+            dmMember: undefined
         }
     },
     components: {
@@ -821,11 +835,18 @@ export default {
         })
         if (dmRoomIdArr.includes(roomId)) {
             this.isDm = true;
-            console.log('这是一个单聊');
+            console.log('这是一个单聊', currentRoom);
+            Object.keys(currentRoom.currentState.members).forEach(id => {
+                if (id != userId) {
+                    let dmMember = currentRoom.currentState.members[id];
+                    dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
+                    this.dmMember = dmMember;
+                }
+            })
         } else {this.isDm = false;}
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
-        this.mxGetMembers(userId);
+        this.mxGetMembers(userId); //this.currentUser 是在该方法中赋值的
         client.on("RoomMember.powerLevel", (event, member) => {
             this.mxGetMembers(userId);
         });
