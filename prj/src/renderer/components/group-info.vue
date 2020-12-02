@@ -262,9 +262,6 @@ export default {
             this.encryptionWarning = false;
             if (mxEncryption) this.mxEncryption = true;
         },
-        hehe() {
-            console.log('---hehe---')
-        },
         setMxEncryption() {
             console.log('----setMxEncryption----', this.mxEncryption)
             if (this.mxEncryption) {

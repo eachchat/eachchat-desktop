@@ -41,7 +41,23 @@
                     <div class="xiaomiaoshu"><input @change="setGuestAccess" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess"><label for="whocanjoin0">任何知道群聊链接的人，不包括用户所在域外的来宾用户</label></div>
                     <div class="xiaomiaoshu"><input @change="setGuestAccess" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess"><label for="whocanjoin1">任何知道群聊链接的人，包括用户所在域外的来宾用户</label></div>
                 </div>
+                <div class="encryption-field">
+                    <label class="groupSettingSlienceLabel">端到端加密</label>
+                    <el-switch 
+                        class="groupSettingSlienceSwitch" 
+                        v-model="mxEncryption" 
+                        @change="setMxEncryption"
+                        :active-color="'#24B36B'"
+                        :disabled="mxEncryption"
+                    >
+                    </el-switch>
                 </div>
+                <encryWarn 
+                    v-if="encryptionWarning"
+                    @close="closeEncryWarn"
+                    :room="currentRoom"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -52,6 +68,7 @@ import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer, remote} from 'electron'
+import encryWarn from './encryptionWarning.vue'
 export default {
     name: 'mxSettingDialog',
     data () {
@@ -60,12 +77,26 @@ export default {
             guestAccess: '',
             history: '',
             loading: false,
-            serverAddress: ''
+            serverAddress: '',
+            mxEncryption: false,
+            encryptionWarning: false,
+            currentRoom: undefined
         }
     },
     props: ['roomId'],
     puborprtTimer: null,
     methods: {
+        closeEncryWarn(mxEncryption) {
+            this.encryptionWarning = false;
+            if (mxEncryption) this.mxEncryption = true;
+        },
+        setMxEncryption() {
+             console.log('----setMxEncryption----', this.mxEncryption)
+            if (this.mxEncryption) {
+                this.mxEncryption = !this.mxEncryption;
+                this.encryptionWarning = true;
+            }
+        },
         setServerAddress() {
             if (this.loading) return;
             this.loading = true;
@@ -112,11 +143,14 @@ export default {
         }
     },
     components: {
+        encryWarn
     },
     created: function () {
+        const client = window.mxMatrixClientPeg.matrixClient;
         const roomId = this.roomId;
         const vtx = this;
-        const state = window.mxMatrixClientPeg.matrixClient.getRoom(roomId).currentState;
+        const currentRoom = client.getRoom(roomId);
+        const state =currentRoom.currentState;
         const joinRule = this._pullContentPropertyFromEvent(
             state.getStateEvents("m.room.join_rules", ""),
             'join_rule',
@@ -138,7 +172,10 @@ export default {
         console.log('--joinRule--', joinRule)
         console.log('--guestAccess--', guestAccess)
         console.log('--history--', history)
-        window.mxMatrixClientPeg.matrixClient.roomState(roomId).then(stateArr => {
+        this.currentRoom = currentRoom;
+        let mxEncryption = client.isRoomEncrypted(roomId);
+        this.mxEncryption = mxEncryption;
+        client.roomState(roomId).then(stateArr => {
             console.log('---stateArr---', stateArr)
 
             stateArr.forEach(r => {
@@ -284,5 +321,15 @@ export default {
     .serverBtnLoading {
         background: #A7E0C4;
         border: 1px solid #A7E0C4;
+    }
+    .encryption-field {
+        display: flex;
+        align-items: center;
+    }
+    .groupSettingSlienceLabel {
+        font-size: 14px;
+    }
+    .groupSettingSlienceSwitch {
+        margin-left: 40px;
     }
 </style>
