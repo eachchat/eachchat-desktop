@@ -311,7 +311,7 @@ const common = {
       matrix_id: userID,
       access_token: this.accessToken
     }
-    this.initmqtt();
+    //this.initmqtt();
     return;
 
 
