@@ -1765,8 +1765,7 @@ export default {
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
-    await global.services.common.initmqtt();
-    global.services.common.handlemessage(this.callback);
+    //global.services.common.handlemessage(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")
