@@ -17,7 +17,7 @@
                 <img 
                     id="groupInfoImageId" 
                     class="groupInfoImage" 
-                    :src="dmMember.user.avatarUrl">
+                    :src="dmMember && dmMember.user ? dmMember.user.avatarUrl : ''">
             </div>
             <div class="groupInfoNoticeAndName" v-if="!isDm">
                 <div class="groupInfoName">
@@ -41,9 +41,9 @@
             <div class="groupInfoNoticeAndName" v-else>
                 <div class="groupInfoName">
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
-                    <div class="chat-name">{{dmMember.user.displayName}}</div>
+                    <div class="chat-name">{{dmMember && dmMember.user ? dmMember.user.displayName : ''}}</div>
                 </div>
-                <div class="chat-desc">{{dmMember.user.userId}}</div>
+                <div class="chat-desc">{{dmMember && dmMember.user ? dmMember.user.userId : ''}}</div>
             </div>
         </div>
         <div class="secretGroupDiv" v-show="!isGroup && isSecret" @click="showSecretType()">
