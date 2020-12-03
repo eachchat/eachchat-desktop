@@ -318,6 +318,9 @@ export default {
             },320)
         },
         closeSearchMem() {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const userId = client.getUserId();
+            this.mxGetMembers(userId);
             this.isSearch = false;
         },
         mxSelectMember(close) {
@@ -904,13 +907,24 @@ export default {
         this.mxGetMembers(userId); //this.currentUser 是在该方法中赋值的
 
         client.on("RoomMember.powerLevel", (event, member) => {
-            console.log('ppppwooooooo')
-            this.mxGetMembers(userId);
+            console.log('ppppwooooooo', member)
+            // this.mxGetMembers(userId);
+            let mxMembers = this.mxMembers;
+            mxMembers = mxMembers.map(m => {
+                if (m.userId == member.userId) {
+                    return member;
+                }
+                return m;
+            })
+            this.mxMembers = [...mxMembers];
         });
 
         client.on('RoomState.newMember', (event, state, member) => {
             console.log('???+++___', event)
-            this.mxGetMembers(userId);
+            // this.mxGetMembers(userId);
+            let mxMembers = this.mxMembers;
+            mxMembers.push(member);
+            this.mxMembers = [...mxMembers];
         })
 
         this.memberList = this.showGroupInfo.memberList;
