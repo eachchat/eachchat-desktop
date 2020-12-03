@@ -32,7 +32,7 @@ import * as path from 'path'
 import { getFileSizeNum } from '../../packages/core/Utils.js'
 import AlertDlg from './alert-dlg.vue'
 import {FileUtil} from '../../packages/core/Utils.js'
-import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
+// import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 
 const KEY_FILE_MAX_SIZE = 128;
 
@@ -131,22 +131,22 @@ export default {
                 }
             }
             else {
-                var showfu = new FileUtil(this.elementRecoveryPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                this.readFileAsArrayBuffer(showfileObj).then((arrayBuffer) => {
-                    return MegolmExportEncryption.decryptMegolmKeyFile(
-                        arrayBuffer, 'Wx@6156911128',
-                    );
-                }).then((keys) => {
-                    return global.mxMatrixClientPeg.matrixClient.importRoomKeys(JSON.parse(keys));
-                }).then(() => {
-                    this.Close();
-                    // TODO: it would probably be nice to give some feedback about what we've imported here.
-                    // this.props.onFinished(true);
-                }).catch((e) => {
-                    console.error("Error importing e2e keys:", e);
-                    const msg = e.friendlyText;
-                });
+                // var showfu = new FileUtil(this.elementRecoveryPath);
+                // let showfileObj = showfu.GetUploadfileobj();
+                // this.readFileAsArrayBuffer(showfileObj).then((arrayBuffer) => {
+                //     return MegolmExportEncryption.decryptMegolmKeyFile(
+                //         arrayBuffer, 'Wx@6156911128',
+                //     );
+                // }).then((keys) => {
+                //     return global.mxMatrixClientPeg.matrixClient.importRoomKeys(JSON.parse(keys));
+                // }).then(() => {
+                //     this.Close();
+                //     // TODO: it would probably be nice to give some feedback about what we've imported here.
+                //     // this.props.onFinished(true);
+                // }).catch((e) => {
+                //     console.error("Error importing e2e keys:", e);
+                //     const msg = e.friendlyText;
+                // });
             }
         },
         SelectLocal() {
