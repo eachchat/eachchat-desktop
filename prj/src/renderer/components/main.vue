@@ -289,127 +289,7 @@ export default {
         },
         startCheckUpgrade: function() {
             async function checkUpgrade(self) {
-                var newVersion = await global.services.common.GetNewVersion();
-                console.log("newversion is ", newVersion);
-                if(newVersion == undefined || newVersion == false)
-                {
-                    return;
-                }
-                else {
-                    var sOsType = newVersion.osType;
-                    var sUrl = newVersion.downloadUrl;
-                    var sDescription = newVersion.description;
-                    var smd5Hash = newVersion.md5Hash;
-                    var sId = newVersion.id;
-                    var sUpdateTime = newVersion.updateTime;
-                    var sVerCode = newVersion.verCode;
-                    try{
-                        var sVerCodeSplit = sVerCode.split('.');
-                    }
-                    catch(err) {
-                        return;
-                    }
-                    var sMajor_Version_Number = undefined;
-                    var sMinor_Version_Number = undefined;
-                    var sRevision_Number = undefined;
-                    if(sVerCodeSplit.length >= 3) {
-                        sMajor_Version_Number = sVerCodeSplit[0];
-                        sMinor_Version_Number = sVerCodeSplit[1];
-                        sRevision_Number = sVerCodeSplit[2];
-                    }
-                    else if(sVerCodeSplit.length == 2) {
-                        sMajor_Version_Number = sVerCodeSplit[0];
-                        sMinor_Version_Number = sVerCodeSplit[1];
-                    }
-                    else if(sVerCodeSplit.length == 1) {
-                        sMajor_Version_Number = sVerCodeSplit[0];
-                    }
-                    else {
-                        return;
-                    }
-
-                    var lVersion = remote.app.getVersion();
-                    console.log("lVersion is ", lVersion)
-                    var lVerCodeSplit = lVersion.split('.');
-                    var lMajor_Version_Number = undefined;
-                    var lMinor_Version_Number = undefined;
-                    var lRevision_Number = undefined;
-                    if(lVerCodeSplit.length >= 3) {
-                        lMajor_Version_Number = lVerCodeSplit[0];
-                        lMinor_Version_Number = lVerCodeSplit[1];
-                        lRevision_Number = lVerCodeSplit[2];
-                    }
-                    else if(lVerCodeSplit.length == 2) {
-                        lMajor_Version_Number = lVerCodeSplit[0];
-                        lMinor_Version_Number = lVerCodeSplit[1];
-                    }
-                    else if(lVerCodeSplit.length == 1) {
-                        lMajor_Version_Number = lVerCodeSplit[0];
-                    }
-                    else {
-                        return;
-                    }
-                    console.log("localversion ", lMajor_Version_Number, " ", lMinor_Version_Number, " ", lRevision_Number);
-                    console.log("serverversion ", sMajor_Version_Number, " ", sMinor_Version_Number, " ", sRevision_Number);
-                    var sVerName = newVersion.verName;
-                    var sForceUpdate = newVersion.forceUpdate;
-                    var needUpdate = false;
-                    if(sOsType != undefined && sOsType != "windows") {
-                        return;
-                    }
-                    if(lMajor_Version_Number != undefined && sMajor_Version_Number != undefined) {
-                        if(Number.parseInt(lMajor_Version_Number) > Number.parseInt(sMajor_Version_Number)) {
-                            return;
-                        }
-                        else if(Number.parseInt(lMajor_Version_Number) == Number.parseInt(sMajor_Version_Number)) {
-                            if(lMinor_Version_Number != undefined && sMinor_Version_Number != undefined) {
-                                if(Number.parseInt(lMinor_Version_Number) > Number.parseInt(sMinor_Version_Number)) {
-                                    return;
-                                }
-                                else if(Number.parseInt(lMinor_Version_Number) == Number.parseInt(sMinor_Version_Number)) {
-                                    if(lRevision_Number != undefined && sRevision_Number != undefined) {
-                                        if(Number.parseInt(lRevision_Number) >= Number.parseInt(sRevision_Number)) {
-                                            return;
-                                        }
-                                        else {
-                                            needUpdate = true;
-                                        }
-                                    }
-                                }
-                                else {
-                                    needUpdate = true;
-                                }
-                            }
-                        }
-                        else {
-                            needUpdate = true;
-                        }
-                    }
-                    if(sForceUpdate != undefined && sForceUpdate){
-                        if(needUpdate) {
-                            self.showUpgradeAlertDlg = true;
-                            self.upgradeCanCancel = false;
-                            self.upgradeInfo = {
-                                "downloadUrl": sUrl,
-                                "description": sDescription,
-                                "verName": sVerName,
-                                "verId": sId
-                            };
-                        }
-                    }
-                    else {
-                        if(needUpdate) {
-                            self.showUpgradeAlertDlg = true;
-                            self.upgradeCanCancel = true;
-                            self.upgradeInfo = {
-                                "downloadUrl": sUrl,
-                                "description": sDescription,
-                                "verName": sVerName,
-                                "verId": sId
-                            };
-                        }
-                    }
-                }
+                
             }
             checkUpgrade(this);
             setInterval(() => {
@@ -459,7 +339,6 @@ export default {
             this.loginState = this.$t("invalidServerAddress");
             this.organizationButtonDisabled = false;
 
-            await global
             var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
             console.log("========= ret ", ret)
                 if(ret == undefined) {
@@ -474,7 +353,6 @@ export default {
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
-        await global.services.common.login()
         await global.mxMatrixClientPeg.matrixClient.startClient();
         
 
@@ -494,9 +372,12 @@ export default {
         })
         global.mxMatrixClientPeg.matrixClient.on("Session.logged_out", this.softLogout)
 
+/*     global.mxMatrixClientPeg.matrixClient.getMediaConfig().then((config)=>{
+            console.log(config)
+        })
+*/
         await global.services.common.login()
         global.services.common.InitDbData();
-        //global.services.common.initmqtt();
         this.$nextTick(() => {
             this.showCurUserIcon();
         }) 
@@ -520,7 +401,7 @@ export default {
         ipcRenderer.on('toLogout', this.softLogout);
         console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
         await this.getAppBaseData();
-        this.startCheckUpgrade();
+        //this.startCheckUpgrade();
         // this.startRefreshToken();
     },
 }

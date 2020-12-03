@@ -311,6 +311,7 @@ const common = {
       matrix_id: userID,
       access_token: this.accessToken
     }
+    this.initmqtt();
     return;
 
 
@@ -451,7 +452,7 @@ const common = {
       httpValue = "http";
     let hostname = environment.os.hostName;
     
-    this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttHost + ':' + this.config.mqttPort,
+    this.mqttclient = mqtt.connect(this.config.mqttHost,
                                       {username: 'client', 
                                       password: 'yiqiliao',
                                       clientId: this.data.login.matrix_id + '|' + hostname,
@@ -470,13 +471,6 @@ const common = {
         clearTimeout(servers.retSetTimer);
       if(bClose)
       {
-        //servers.handlemessage(servers.callback);
-        //await servers.UpdateGroups();
-        let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(servers.data.selfuser.id);
-        await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback);
-        servers.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
-        await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback, true)
-        //servers.callback("reconnect");
         bClose = false;
       }
       api.SetMqtt(mqttclient);
@@ -2042,10 +2036,8 @@ const common = {
     AHost = Aobj[0];
     AHostPort = Aobj[1];
     AHostTls = Aobj[2];
-    var mqttOjb = this.getHostPortTls(mqttBaseUrl);
-    mqtt = mqttOjb[0];
-    mqttPort = mqttOjb[1];
-    mqttTls = mqttOjb[2];
+
+    mqtt = mqttBaseUrl;
 
     this.config.hostname = AHost;
     localStorage.setItem("hostname", this.config.hostname);
@@ -2058,12 +2050,6 @@ const common = {
 
     this.config.mqttHost = mqtt;
     localStorage.setItem("mqttHost", this.config.mqttHost);
-
-    this.config.mqttPort = mqttPort;
-    localStorage.setItem("mqttPort", this.config.mqttPort);
-
-    this.config.mqttTls = mqttTls;
-    localStorage.setItem("mqttTls", this.config.mqttTls);
   },
 
   async gmsConfiguration(domainBase64, host=''){

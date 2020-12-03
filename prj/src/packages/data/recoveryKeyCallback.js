@@ -1,4 +1,5 @@
 import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
+// import { deriveKey } from 'matrix-js-sdk/src/crypto/key_passphrase';
     /**
      * Encode a typed array of uint8 as base64.
      * @param {Uint8Array} uint8Array The data to encode.
@@ -9,12 +10,13 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
       }
 
     async function getSecretStorageKey({ keys: keyInfos }, ssssItemName) {
-        console.log("getSecretStorageKey callback and keys is ", keyInfos);
+        console.log("ccccc getSecretStorageKey callback and keys is ", keyInfos);
         const keyInfoEntries = Object.entries(keyInfos);
         if (keyInfoEntries.length > 1) {
             throw new Error("Multiple storage key requests not implemented");
         }
         const [name, info] = keyInfoEntries[0];
+        global.mxMatrixClientPeg.keyInfo = info;
     
         // // Check the in-memory cache
         // if (isCachingAllowed() && secretStorageKeys[name]) {
@@ -32,43 +34,17 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
                 return decodeRecoveryKey(recoveryKey);
             // }
         };
-        // const { finished } = Modal.createTrackedDialog("Access Secret Storage dialog", "",
-        //     AccessSecretStorageDialog,
-        //     /* props= */
-        //     {
-        //         keyInfo: info,
-        //         checkPrivateKey: async (input) => {
-        //             const key = await inputToKey(input);
-        //             return await MatrixClientPeg.get().checkSecretStorageKey(key, info);
-        //         },
-        //     },
-        //     /* className= */ null,
-        //     /* isPriorityModal= */ false,
-        //     /* isStaticModal= */ false,
-        //     /* options= */ {
-        //         onBeforeClose: async (reason) => {
-        //             if (reason === "backgroundClick") {
-        //                 return confirmToDismiss();
-        //             }
-        //             return true;
-        //           },
-        //       },
-        //   );
+
         if(global.mxMatrixClientPeg.recoveryKey.length == 0) {
             return;
         }
-          const input = {recoveryKey: global.mxMatrixClientPeg.recoveryKey};
-          if (!input) {
-              throw new AccessCancelledError();
-          }
-          const key = await inputToKey(input);
+        const input = {recoveryKey: global.mxMatrixClientPeg.recoveryKey};
+        if (!input) {
+            throw new AccessCancelledError();
+        }
+        const key = await inputToKey(input);
       
-          // // Save to cache to avoid future prompts in the current session
-          // if (isCachingAllowed()) {
-          //     secretStorageKeys[name] = key;
-          // }
-      
-          return [name, key];
+        return [name, key];
       }
       
 const onSecretRequested = async function({

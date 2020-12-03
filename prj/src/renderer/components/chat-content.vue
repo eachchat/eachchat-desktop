@@ -325,6 +325,8 @@ export default {
           }
         })
         this.ShowAllGroup();
+        if(this.showGroupList.length != 0)
+          this.curChat = this.showGroupList[0];
         this.$nextTick(() => {
           this.showGroupIcon();
         })
@@ -1764,8 +1766,7 @@ export default {
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
   },
   created: async function() {
-    await global.services.common.initmqtt();
-    global.services.common.handlemessage(this.callback);
+    //global.services.common.handlemessage(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")

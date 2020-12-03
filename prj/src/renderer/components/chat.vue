@@ -2091,7 +2091,7 @@ s        },
                                 this.messageList = this._getEvents();
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
-                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
                                 })
                                 this.isRefreshing = false;
                             })
@@ -2123,8 +2123,7 @@ s        },
                             this.messageList = this._getEvents();
                             this.$nextTick(() => {
                                 console.log("---------update croll top is ", uldiv.scrollHeight);
-                                uldiv.scrollTo({top: uldiv.scrollHeight, behavior:'smooth'})
-                                // uldiv.scrollTop = uldiv.scrollHeight;
+                                // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
                             })
                         })
                 }
@@ -2387,21 +2386,7 @@ s        },
                                 key: 13,
                                 ctrlKey: false,
                                 handler: function (range) {
-                                    console.log("==========handleser ")
                                     isEnter = true;
-                                    // let currentLeaf = this.quill.getLeaf(range.index)[0]
-                                    // let nextLeaf = this.quill.getLeaf(range.index + 1)[0]
-
-                                    // this.quill.insertEmbed(range.index, 'break', true, 'user');
-
-                                    // // Insert a second break if:
-                                    // // At the end of the editor, OR next leaf has a different parent (<p>)
-                                    // if (nextLeaf === null || (currentLeaf.parent !== nextLeaf.parent)) {
-                                    //     this.quill.insertEmbed(range.index, 'break', true, 'user');
-                                    // }
-
-                                    // // Now that we've inserted a line break, move the cursor forward
-                                    // this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
                                     return true;
                                 }
                             }
@@ -2493,16 +2478,18 @@ s        },
                         this.isRefreshing = false;
                         this.messageList = this._getEvents();
                         
-                        this.$nextTick(() => {
-                            this.needToBottom = true;
-                            
-                            let div = document.getElementById("message-show-list");
-                            div.scrollTop = div.scrollHeight;
-                            if(div) {
-                                div.addEventListener('scroll', this.handleScroll);
-                                this.showScrollBar();
-                            }
-                        })
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                this.needToBottom = true;
+                                
+                                let div = document.getElementById("message-show-list");
+                                div.scrollTop = div.scrollHeight;
+                                if(div) {
+                                    div.addEventListener('scroll', this.handleScroll);
+                                    this.showScrollBar();
+                                }
+                            })
+                        }, 0)
                     })
             }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
