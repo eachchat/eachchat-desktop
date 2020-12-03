@@ -13,7 +13,8 @@
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
         </div>
-        <certification v-show="showCertification" :backupInfo=backupInfo></certification>
+        <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
+        <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage>
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
                 <div class="title">
@@ -209,6 +210,7 @@ import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
 import winHeaderBar from './win-header.vue';
 import certification from './Certificate.vue';
+import generalSecureBackUpPage from './generalRecoveryCode.vue'
 import {getDefaultHomeServerAddr} from '../../config.js'
 import log from 'electron-log';
 import { windowsStore } from 'process';
@@ -217,12 +219,14 @@ export default {
     components:{
         macWindowHeader,
         winHeaderBar,
-        certification
+        certification,
+        generalSecureBackUpPage
     },
     data () {
         return {
             isLoading: false,
             backupInfo: {},
+            showGeneralRecoveryKeyPage: false,
             showCertification: false,
             loginState: '',
             username: '',
@@ -265,6 +269,9 @@ export default {
             showOrganizationView: true,
             showOrganizationFinderView: false,
             showLoadingView: true,
+            backupInfo: null,
+            backupSigStatus: null,
+            backupKeyStored: null,
         }
     },
     computed:{
@@ -547,8 +554,23 @@ export default {
             this.showUserWeiXinView = false;
             this.showUserZhifubaoView = false;
             this.showUsernameLoginView = false;
+            this.showGeneralRecoveryKeyPage = false;
 
             this.showCertification = true;
+        },
+        generalRecoveryKeyPageShow() {
+            this.resetLoginStateTitle();
+            this.showLoginView = false;
+            this.showOrganizationView = false;
+            this.showOrganizationFinderView = false;
+            this.showUserphoneLoginView = false;
+            this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
+            this.showUsernameLoginView = false;
+            this.showCertification = false;
+
+            this.showGeneralRecoveryKeyPage = true;
         },
         userNameLoginClicked(){
             this.resetLoginStateTitle();
@@ -662,6 +684,17 @@ export default {
                 return false;
             }
         },
+        async _checkKeyBackupStatus() {
+            try {
+                const {backupInfo, trustInfo} = await global.mxMatrixClientPeg.matrixClient.checkKeyBackup();
+                const backupKeyStored = Boolean(await global.mxMatrixClientPeg.matrixClient.isKeyBackupKeyStored());
+                this.backupInfo = backupInfo;
+                this.backupSigStatus = trustInfo;
+                this.backupKeyStored = backupKeyStored;
+            } catch (e) {
+                console.log("Unable to fetch check backup status", e);
+            }
+        },
         getOSVersion(){
             var agent = navigator.userAgent;
             var version = '';
@@ -681,6 +714,32 @@ export default {
                 return version;
             }
             
+        },
+        _onKeyBackupStatus(){
+            console.log("========ttt===========")
+            // This just loads the current backup status rather than forcing
+            // a re-check otherwise we risk causing infinite loops
+            this._loadBackupStatus();
+        },
+        async _loadBackupStatus() {
+            console.log("==========yyy=========")
+            try {
+                this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+                this.backupSigStatus = await global.mxMatrixClientPeg.matrixClient.isKeyBackupTrusted(this.backupInfo);
+                this.backupKeyStored = await global.mxMatrixClientPeg.matrixClient.isKeyBackupKeyStored();
+
+                if(this.backupInfo) {
+                    console.log("=========== bootstrapSecretStorage");
+                    await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                    this.certificationShow();
+                }
+                else {
+                    console.log("=========== showCreateRecoveryKey");
+                    this.generalRecoveryKeyPageShow();
+                }
+            } catch (e) {
+                console.log("Unable to fetch key backup status", e);
+            }
         },
         login:async function() {
             // this.loginState = "登录成功";
@@ -857,29 +916,77 @@ export default {
                 }
             }
             console.log(client);
+            client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
+            await client.downloadKeys([client.getUserId()]);
+            await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
             if(client.isCryptoEnabled()) {
-                this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
-                await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                this.certificationShow();
+                var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
+                console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
+                if(crossSigningIsSetUp) {
+                    await global.mxMatrixClientPeg.fetchKeyInfo();
+                    if(global.mxMatrixClientPeg.keyInfo) {
+                        //recovery page
+                        console.log("certificationShow");
+                        this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+                        if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
+                            console.log("=========== showCreateRecoveryKey");
+                            // this.generalRecoveryKeyPageShow();
+                            this.loginToMainPage();
+                            //showCreateRecoveryKey
+                        }
+                        else {
+                            console.log("=========== bootstrapSecretStorage");
+                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                            this.certificationShow();
+                        }
+                    }
+                    else {
+                        await this._checkKeyBackupStatus();
+                        if(this.backupInfo) {
+                            console.log("=========== bootstrapSecretStorage");
+                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                            this.certificationShow();
+                        }
+                        else {
+                            console.log("=========== showCreateRecoveryKey");
+                            // this.generalRecoveryKeyPageShow();
+                            this.loginToMainPage();
+                        }
+                    }
+                }
+                else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
+                    //showCreateRecoveryKey
+                    await this._checkKeyBackupStatus();
+                    if(this.backupInfo) {
+                        console.log("=========== bootstrapSecretStorage");
+                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                        this.certificationShow();
+                    }
+                    else {
+                        console.log("=========== showCreateRecoveryKey");
+                        // this.generalRecoveryKeyPageShow();
+                        this.loginToMainPage();
+                    }
+                }
+                else {
+                    await this._checkKeyBackupStatus();
+                    if(this.backupInfo) {
+                        console.log("=========== bootstrapSecretStorage");
+                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                        this.certificationShow();
+                    }
+                    else {
+                        console.log("=========== showCreateRecoveryKey");
+                        // this.generalRecoveryKeyPageShow();
+                        this.loginToMainPage();
+                    }
+                }
             }
             else {
-                var elementButton = document.getElementById('loginButton');
-                //this.loginButtonValue = "正在加载数据";
-                this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
-                // this.loginState = "登录成功";
-                this.showLoginView = false;
-                this.showLoadingView = true;
-                this.tokenRefreshing = true;
-                setTimeout(async () => {
-                    // ipcRenderer.send('showMainPageWindow', true); 
-                    ipcRenderer.send("showMainPageWindow")
-                    this.$router.push("/main")
-                }, 1000);
+                this.loginToMainPage();
             }
             this.isLoading = false;
             this.loginButtonDisabled = false;
-            console.log("the isCryptoEnalbe is ", client.isCryptoEnabled())
-            console.log("the isCryptoEnalbe is ", client.getStoredCrossSigningForUser(client.getUserId()))
             // if(response != true){
             //     var msg = ret_data["message"];
             //     var code = ret_data["code"];
@@ -891,8 +998,32 @@ export default {
             //         return
             //     }
             // }
-        }
-    },
+        },
+        loginToMainPage() {
+            var elementButton = document.getElementById('loginButton');
+            //this.loginButtonValue = "正在加载数据";
+            this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
+            // this.loginState = "登录成功";
+            this.showLoginView = false;
+            this.showLoadingView = true;
+            this.tokenRefreshing = true;
+            setTimeout(async () => {
+                // ipcRenderer.send('showMainPageWindow', true); 
+                ipcRenderer.send("showMainPageWindow")
+                this.$router.push("/main")
+            }, 1000);
+            
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+        keyHasPassphrase(keyInfo) {
+            return (
+                keyInfo.passphrase &&
+                keyInfo.passphrase.salt &&
+                keyInfo.passphrase.iterations
+            );
+        },
+    }, 
     // activated: async function() {
     //     this.checkHomeServer();
     // },

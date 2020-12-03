@@ -19,6 +19,7 @@ class _MatrixClientPeg{
         this.roomToUser = null;
         this.userToRooms = null;
         this._isLoggingOut = false;
+        this.keyInfo = null;
         console.log("default display name is ", this.defaultDisplayName);
         this._hasSentOutPatchDirectAccountDataPatch = false;
     }
@@ -318,8 +319,8 @@ class _MatrixClientPeg{
           "/_matrix/client/r0/login",
           {
             type: checkType,
-            email: username,
-            ver_code: password
+            user: username,
+            password: password
           });
       }
       else {
@@ -414,17 +415,16 @@ class _MatrixClientPeg{
           return;
       }
 
-      await this.fetchKeyInfo();
+      // await this.fetchKeyInfo();
 
       try {
           const decodedKey = this.matrixClient.keyBackupKeyFromRecoveryKey(recoveryKey);
           const correct = await this.matrixClient.checkSecretStorageKey(
               decodedKey, this.keyInfo,
           );
-          console.log("correct is ", correct);
-          return correct;
+          return {recoveryKeyValid: true, recoveryKeyCorrect: correct};
       } catch (e) {
-        return false;
+        return {recoveryKeyValid: false, recoveryKeyCorrect: false};
       }
     }
     async fetchKeyInfo() {

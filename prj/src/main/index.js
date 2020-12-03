@@ -431,7 +431,8 @@ const downloadingList = [];
 ipcMain.on("export_key", function(event, args) {
   console.log("========================= ", args);
   var theKey = args[0];
-  var distpath = path.join(args[1], 'recovery_key.txt');
+  var thePath = args[1];
+  var distpath = thePath;
   // const blob = new Blob([theKey], {
   //     type: 'text/plain;charset=us-ascii',
   // });
@@ -459,6 +460,16 @@ ipcMain.on('open-export-dialog', function(event) {
   }).then(files => {
     console.log("======files is ", files)
     event.sender.send('exportPath', files);
+  })
+});
+
+ipcMain.on('open-download-recoveryKey-dialog', function(event) {
+  dialog.showOpenDialog(mainPageWindow,{
+    title: "导出到",
+    properties: ["openDirectory"]
+  }).then(files => {
+    console.log("======files is ", files)
+    event.sender.send('downloadRecoveryKeyPath', files);
   })
 });
 

@@ -20,7 +20,7 @@
           </div>
           <div class="setup-list-item" @click="jumpToAboutSetup">
             <img class="setupAboutImage" src="../../../static/Img/Setup/about-20px@2x.png">
-            <label class="setupAboutLabel">关于应用</label>
+            <label class="setupAboutLabel" @click="generalCheck">关于应用</label>
           </div>
         </div>
         <div class="setup-details" id="setup-details-id">
@@ -121,6 +121,10 @@
       <div class="certficationBorder" v-show="showCertification">
         <certification :backupInfo="backupInfo" :isLogin="false" id="setupCertificationId" @cancelRecovery="cancelRecovery"></certification>
       </div>
+      <div class="certficationBorder" v-show="showGeneralRecoveryKeyPage">
+        <generalSecureBackUpPage @CanLogout="CanLogout"></generalSecureBackUpPage>
+      </div>
+      <!-- <generalSecureBackUpPage  v-show="showGeneralPage"></generalSecureBackUpPage> -->
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
       <AccountManager v-show="showAccountMgr" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
     </div>
@@ -144,6 +148,7 @@ import certification from './Certificate.vue';
 import ChangePassword from './changePassword.vue';
 import AccountManager from "./accountManager.vue";
 // import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
+import generalSecureBackUpPage from './generalRecoveryCode.vue'
 
 export default {
   components: {
@@ -152,7 +157,8 @@ export default {
     AnnouncementDlg,
     certification,
     ChangePassword,
-    AccountManager
+    AccountManager,
+    generalSecureBackUpPage
     // listItem
   },
   props: [],
@@ -162,6 +168,7 @@ export default {
   },
   data() {
     return {
+      // showGeneralPage: true,
       showAccountMgr: false,
       backupInfo: {},
       showCertification: false,
@@ -181,9 +188,13 @@ export default {
       ipcPicInited: false,
       canSelecteFile: true,
       showChangePassword: false,
+      showGeneralRecoveryKeyPage: false,
     };
   },
   methods: {
+    generalCheck: function() {
+      this.showGeneralPage = true;
+    },
     accountMgrDlgClose: function() {
       this.showAccountMgr = false;
     },
@@ -232,7 +243,7 @@ export default {
       console.log("========= toexport ", paths.filePaths);
       // this.canSelecteFile = true;
       // if(paths.filePaths.length == 0) return;
-      // var distPath = paths.filePaths[0];
+      // var distPath = path.join(paths.filePaths[0], "eachchat_key.txt");
       // Promise.resolve().then(() => {
       //   return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
       //   }).then((k) => {
@@ -398,13 +409,35 @@ export default {
         cacheStoreElement.innerHTML = strSize;
       }
     },
+    CanLogout: async function() {
+        await global.mxMatrixClientPeg.logout();
+        await global.services.common.logout();
+        ipcRenderer.send("showLoginPageWindow");
+    },
     logout: async function() {
       // services.common.closemqtt();
       // services.common.logout();
-      await global.mxMatrixClientPeg.logout();
-      await global.services.common.logout();
-      ipcRenderer.send("showLoginPageWindow");
-    }
+      await this._checkKeyBackupStatus();
+      if(this.backupInfo) {
+        await global.mxMatrixClientPeg.logout();
+        await global.services.common.logout();
+        ipcRenderer.send("showLoginPageWindow");
+      }
+      else {
+        this.showGeneralRecoveryKeyPage = true;
+      }
+    },
+    async _checkKeyBackupStatus() {
+        try {
+            const {backupInfo, trustInfo} = await global.mxMatrixClientPeg.matrixClient.checkKeyBackup();
+            const backupKeyStored = Boolean(await global.mxMatrixClientPeg.matrixClient.isKeyBackupKeyStored());
+            this.backupInfo = backupInfo;
+            this.backupSigStatus = trustInfo;
+            this.backupKeyStored = backupKeyStored;
+        } catch (e) {
+            console.log("Unable to fetch check backup status", e);
+        }
+    },
   },
   mounted: async function() {
   },
