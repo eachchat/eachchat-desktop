@@ -50,7 +50,7 @@ import * as path from 'path'
 import { getFileSizeNum } from '../../packages/core/Utils.js'
 import AlertDlg from './alert-dlg.vue'
 import {FileUtil} from '../../packages/core/Utils.js'
-import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
+// import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 const { clipboard } = require('electron')
 
 const KEY_FILE_MAX_SIZE = 128;
@@ -359,10 +359,9 @@ export default {
                     //   * SSO authentication users which require interactive auth to upload
                     //     keys (and also happen to skip all post-authentication flows at the
                     //     moment via token login)
-                    await cli.bootstrapCrossSigning({
-                        authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
-                    });
                 */
+                    await cli.bootstrapCrossSigning({
+                    });
                     await cli.bootstrapSecretStorage({
                         createSecretStorageKey: async () => this.recoveryKey,
                         keyBackupInfo: this.backupInfo,
