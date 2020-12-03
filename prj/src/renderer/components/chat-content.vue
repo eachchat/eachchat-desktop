@@ -724,12 +724,15 @@ export default {
             }));
           }
           else {
-            this.menu.append(new MenuItem({
-                label: "消息免打扰",
-                click: () => {
-                    this.setSlience(groupItem)
-                }
-            }));
+            if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem))
+            {
+              this.menu.append(new MenuItem({
+                  label: "消息免打扰",
+                  click: () => {
+                      this.setSlience(groupItem)
+                  }
+              }));  
+            }
           }
           if(this.groupIsInFavourite(groupItem)) {
             this.menu.append(new MenuItem({
@@ -748,12 +751,14 @@ export default {
             }));
           }
         }
+       
         this.menu.append(new MenuItem({
             label: "退出",
             click: () => {
                 this.deleteGroup(groupItem)
             }
-        }));
+        }));   
+        
         this.menu.popup(remote.getCurrentWindow());
     },
     deleteGroup(groupItem) {
