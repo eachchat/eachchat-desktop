@@ -332,6 +332,7 @@ export default {
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
+            console.log('chat-content membership')
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
             setTimeout(()=>{
               if (member.userId == currentUserId) {
