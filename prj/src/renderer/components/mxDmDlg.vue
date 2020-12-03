@@ -44,7 +44,7 @@
 <script>
 const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
-import DMRoomMap from '../../packages/data/DMRoomMap.js'
+import DMRoomMap from '../../packages/data/DMRoomMap.js';
 import { mapState, mapActions } from 'vuex';
 import * as Rooms from "../../packages/data/Rooms";
 import * as RoomUtil from '../script/room-util';

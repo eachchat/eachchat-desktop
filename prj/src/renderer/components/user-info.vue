@@ -11,7 +11,12 @@
         <div class="userInfoAction-view" v-show="!isOwn">
             <!-- <img ondragstart="return false" class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img ondragstart="return false" class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img ondragstart="return false" class="userInfoChatIcon" src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" @click="jumpToChat" >
+            <img 
+                ondragstart="return false" 
+                class="userInfoChatIcon" 
+                src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" 
+                @click="createDm" 
+            >  <!--click jumpToChat-->
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
@@ -64,6 +69,9 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import { functions } from 'electron-log'
 import {ComponentUtil} from '../script/component-util.js'
+import DMRoomMap from '../../packages/data/DMRoomMap.js'
+import * as Rooms from "../../packages/data/Rooms"
+import * as RoomUtil from '../script/room-util'
 
 
 export default {
@@ -72,7 +80,8 @@ export default {
         return {
             pagePosition: {},
             inputEdit: true,
-            services: null
+            services: null,
+            data: false,
         }
     },
     props: {
@@ -164,6 +173,57 @@ export default {
         }
     },
     methods: {
+        createRoom: function(opts) {
+            return RoomUtil.CreateRoom(opts).then((res) => {
+                console.log('--create success!!--', res);
+                let roomId = res.room_id;
+                if(roomId)
+                    Rooms.setDMRoom(roomId, opts.dmUserId);
+                const obj = {data: res, handler: 'viewRoom'};
+                this.$emit('close', obj);
+            })
+        },
+        createDm: function() {
+            if (this.loading) return;
+            // if (!this.choosenMembers || !this.choosenMembers) return;
+            this.loading = true;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            console.log('-----this.userInfo----', this.userInfo)
+            const targetIds = [this.userInfo.matrix_id];
+            const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
+            console.log('------existingRoom------', existingRoom);
+            if (existingRoom) {
+                existingRoom.room_id = existingRoom.roomId
+                const obj = {data: existingRoom, handler: 'viewRoom'};
+                this.$emit('close', obj);
+                return;
+            }
+
+            const createRoomOptions = {inlineErrors: true};
+            //TODO 加密处理
+
+            let createRoomPromise = Promise.resolve();
+            const isSelf = targetIds.length === 1 && targetIds[0] === client.getUserId();
+            if (targetIds.length === 1 && !isSelf) {
+                createRoomOptions.dmUserId = targetIds[0];
+                createRoomPromise = this.createRoom(createRoomOptions);
+            } else if (isSelf) {
+                createRoomPromise = this.createRoom(createRoomOptions);
+            } else {
+                console.log('后续增加更多人选');
+                //TODO
+                // // Create a boring room and try to invite the targets manually.
+                // createRoomPromise = createRoom(createRoomOptions).then(roomId => {
+                //     return inviteMultipleToRoom(roomId, targetIds);
+                // }).then(result => {
+                //     if (this._shouldAbortAfterInviteError(result)) {
+                //         return true; // abort
+                //     }
+                // });
+            }
+
+
+        },
         GetDisplayName: function(displayName, userid){
             return ComponentUtil.GetDisplayName(displayName, userid);
         },
@@ -286,7 +346,9 @@ export default {
             return "userInfo" + id;
         }
     },
+
     created () {
+        console.log('-----userInfo------', this.userInfo)
         this.services = global.services.common;
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
 

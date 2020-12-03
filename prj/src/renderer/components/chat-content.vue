@@ -192,7 +192,17 @@
       <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
       </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
-      <userInfoContent id="userInfoId" :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
+      <userInfoContent 
+        id="userInfoId" 
+        :userInfo="userInfo" 
+        :isOwn="isOwn" 
+        :originPosition="userInfoPosition" 
+        v-show="showUserInfoTips" 
+        @getCreateGroupInfo="getCreateGroupInfo" 
+        :key="userInfoTipKey"
+        @close="closeUserInfoTip"
+      >
+      </userInfoContent> 
     </div>
 </template>
 
@@ -608,6 +618,7 @@ export default {
     },
     closeUserInfoTip: function() {
       this.showUserInfoTips = false;
+      console.log('hhhhahahahahahahahah', this.showUserInfoTips)
     },
     showGroup: async function(groupInfo) {
       // console.log("in chat content distGroupId is ", groupInfo);

@@ -122,7 +122,16 @@
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
-        <userInfoContent :userInfo="userInfo" :isOwn="isOwn" :originPosition="userInfoPosition" v-show="showUserInfoTips" @getCreateGroupInfo="getCreateGroupInfo" :key="userInfoTipKey"></userInfoContent> 
+        <userInfoContent 
+            :userInfo="userInfo" 
+            :isOwn="isOwn" 
+            :originPosition="userInfoPosition" 
+            v-show="showUserInfoTips" 
+            @getCreateGroupInfo="getCreateGroupInfo" 
+            :key="userInfoTipKey"
+            @close="closeUserInfoTipChat"
+        >
+        </userInfoContent> 
         <chatCreaterDlg v-show="showChatCreaterDlg" :addMemberGroupType="addMemberGroupType" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
         </chatCreaterDlg>
         <SendFileDlg v-show="showSendFileDlg" :sendInfos="sendFileInfos" @closeSendFileDlg="closeSendFileDlg" @SendFiles="SendFiles"></SendFileDlg>
@@ -274,6 +283,10 @@ export default {
         mxFilePage,
     },
     methods: {
+        closeUserInfoTipChat() {
+            this.showUserInfoTips = false;
+            console.log('22chat');
+        },
         chatMsgDivId: function(eventId) {
             return "chatMsgDivId_" + eventId;
         },
