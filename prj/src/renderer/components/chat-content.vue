@@ -712,19 +712,7 @@ export default {
           isSecret = true;
         }
         this.menu = new Menu();
-        // console.log("this.unreadCount ", this.unreadCount)
-        // console.log("groupItem.un_read_count ", groupItem.un_read_count)
-        // this.unreadCount = this.unreadCount - groupItem.un_read_count;
-        // console.log("rightClick ", this.unReadCount);
-        // ipcRenderer.send("updateUnreadCount", this.unreadCount);
-        if(groupItem.un_read_count != 0) {
-          this.menu.append(new MenuItem({
-              label: "标记已读",
-              click: () => {
-                  this.clesrUnread(groupItem)
-              }
-          }));
-        }
+
         if(!isSecret) {
           if(this.groupIsSlience(groupItem)) {
             this.menu.append(new MenuItem({
@@ -803,21 +791,8 @@ export default {
           })
     },
     clesrUnread(groupItem) {
-      // this.isEmpty = false;
-      var isSecret = false;
-      if(groupItem.key_id != undefined && groupItem.key_id.length != 0 && groupItem.group_type == 102) {
-        isSecret = true;
-      }
-      services.common.MessageRead(groupItem.group_id, groupItem.sequence_id, isSecret);
-      this.unreadCount = this.unreadCount - groupItem.un_read_count;
-      // console.log("clesrUnread ", this.unreadCount);
-      // console.log("groupItem ", groupItem);
-      // console.log("groupItem.un_read_count ", groupItem.un_read_count);
-      if(this.unreadCount < 0) {
-        this.unreadCount = 0;
-      }
-      ipcRenderer.send("updateUnreadCount", this.unreadCount);
-      groupItem.un_read_count = 0;
+      let room = global.mxMatrixClientPeg.matrixClient.getRoom(groupItem.roomId);
+      room.setUnreadNotificationCount("total", 0);
     },
     
     getUidFromUids(groupInfo) {

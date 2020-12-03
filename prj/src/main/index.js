@@ -132,22 +132,6 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   // setAutoRun(true);
 });
 
-ipcMain.on("updateUnreadCount", function(event, arg) {
-  console.log("==========arg ", arg);
-  if(process.platform == 'darwin' && arg != null){
-    if(arg == 0) {
-      app.dock.setBadge("");
-    }
-    else if(arg >= 100) {
-      app.dock.setBadge("99+");
-    }
-    else {
-      app.dock.setBadge(arg.toString());
-    }
-  }
-  mainWindow.webContents.send("setUnreadCount", arg);
-});
-
 ipcMain.on("token-expired", function(event, arg) {
   mainWindow.webContents.send("toLogout");
 })
