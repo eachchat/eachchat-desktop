@@ -618,7 +618,7 @@ export default {
     },
     closeUserInfoTip: function() {
       this.showUserInfoTips = false;
-      console.log('hhhhahahahahahahahah', this.showUserInfoTips)
+      console.log('chat-content中的userInfo模版', this.showUserInfoTips)
     },
     showGroup: async function(groupInfo) {
       // console.log("in chat content distGroupId is ", groupInfo);

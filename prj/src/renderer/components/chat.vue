@@ -285,7 +285,7 @@ export default {
     methods: {
         closeUserInfoTipChat() {
             this.showUserInfoTips = false;
-            console.log('22chat');
+            console.log('chat 中的userInfo模版');
         },
         chatMsgDivId: function(eventId) {
             return "chatMsgDivId_" + eventId;
