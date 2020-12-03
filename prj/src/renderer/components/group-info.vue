@@ -895,8 +895,12 @@ export default {
         document.addEventListener('click', this.updateCursorPosition);
 
         this.getMemberImage();
-        let elementImg = document.getElementById("groupInfoImageId");
-        elementImg.setAttribute("src", this.groupAvarar);
+        this.$nextTick(()=>{
+            if (!this.isDm) {
+                let elementImg = document.getElementById("groupInfoImageId");
+                elementImg.setAttribute("src", this.groupAvarar);
+            }
+        })
         
     },
     watch: {
