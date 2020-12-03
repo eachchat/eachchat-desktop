@@ -11,8 +11,8 @@
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
                 </div>
-                <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
-                </div>
+                <!-- <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
+                </div> -->
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
