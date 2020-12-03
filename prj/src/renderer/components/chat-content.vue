@@ -325,6 +325,8 @@ export default {
           }
         })
         this.ShowAllGroup();
+        if(this.showGroupList.length != 0)
+          this.curChat = this.showGroupList[0];
         this.$nextTick(() => {
           this.showGroupIcon();
         })
