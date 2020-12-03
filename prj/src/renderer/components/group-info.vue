@@ -113,7 +113,12 @@
             <div class="groupMemberAddDiv" v-else>
                 <label class="groupMemberAddDivLabel">群成员</label>
                 <img class="groupMemberSearchImage" src="../../../static/Img/Chat/search-20px@2x.png" @click="showSearch">
-                <img id="groupMemberAddDivImageId" class="groupMemberAddDivImage" src="../../../static/Img/Chat/add-20px@2x.png" @click="showAddMembers">
+                <img 
+                    id="groupMemberAddDivImageId" 
+                    class="groupMemberAddDivImage" 
+                    src="../../../static/Img/Chat/add-20px@2x.png" 
+                    @click="mxAddMember"
+                > <!--@click="showAddMembers"-->
             </div>
         </div>
         <div :class="groupListViewClassName()" v-if="isGroup && !isDm">
@@ -174,6 +179,12 @@
             @close="closeEncryWarn"
             :room="currentRoom"
         />
+         <mxMemberSelectDlg 
+            v-if="mxSelectMemberOpen" 
+            @close="mxSelectMember"
+            :roomId="showGroupInfo.groupId"
+        >
+        </mxMemberSelectDlg>
     </div>
 </template>
 <script>
@@ -189,7 +200,9 @@ import imageCropper from './imageCropper.vue'
 import { UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
 import encryWarn from './encryptionWarning.vue'
-import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js";
+import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
+import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
+
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 // export const ALL_MESSAGES = 'all_messages';
@@ -239,13 +252,15 @@ export default {
             mxEncryption: false,
             encryptionWarning: false,
             currentRoom: undefined,
-            dmMember: undefined
+            dmMember: undefined,
+            mxSelectMemberOpen: false
         }
     },
     components: {
         imageCropper,
         AlertDlg,
-        encryWarn
+        encryWarn,
+        mxMemberSelectDlg
     },
     props: {
         "showGroupInfoTips": {
@@ -272,6 +287,13 @@ export default {
     computed: {
     },
     methods: {
+        mxSelectMember: function(close) {
+            // if (close.data) this.$emit(close.handler, close.data);
+            this.mxSelectMemberOpen = false;
+        },
+        mxAddMember() {
+            this.mxSelectMemberOpen = true;
+        },
         closeEncryWarn(mxEncryption) {
             this.encryptionWarning = false;
             if (mxEncryption) this.mxEncryption = true;
@@ -847,11 +869,17 @@ export default {
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
         this.mxGetMembers(userId); //this.currentUser 是在该方法中赋值的
+
         client.on("RoomMember.powerLevel", (event, member) => {
+            console.log('ppppwooooooo')
             this.mxGetMembers(userId);
         });
 
-        ////
+        client.on('RoomState.newMember', (event, state, member) => {
+            console.log('???+++___', event)
+            this.mxGetMembers(userId);
+        })
+
         this.memberList = this.showGroupInfo.memberList;
         this.groupName = this.showGroupInfo.groupName;
         console.log('xxxxxx', this.showGroupInfo.groupName)
