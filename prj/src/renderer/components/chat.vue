@@ -2273,6 +2273,8 @@ s        },
             }
             
             console.log("files is ", files);
+            if(files.length == 0)
+                return;
             this.showSendFileDlg = true;
             this.sendFileInfos = {
                 distGroupInfo: this.chat,
