@@ -2058,10 +2058,33 @@ s        },
         onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
             this.$emit("updateChatList", ev);
             if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
+            
+            let bottom = this.IsBottom();
             this._timelineWindow.paginate("f", 1, false).then(() => {
                 this.messageList = this._getEvents();
             })
+            if(bottom){             
+                setTimeout(() => {
+                this.$nextTick(() => {
+                        this.SetToBottom();
+                    })  
+                }, 100);   
+            }  
         },
+
+        IsBottom: function(){
+            let uldiv = document.getElementById("message-show-list");
+            let client = document.getElementById("message-show");
+            if(Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 5)
+                return true;
+            return false;
+        },
+
+        SetToBottom: function(){
+            let uldiv = document.getElementById("message-show-list");
+            uldiv.scrollTop = uldiv.scrollHeight;
+        },
+
         handleScroll: function() {
             let uldiv = document.getElementById("message-show-list");
             let client = document.getElementById("message-show");
