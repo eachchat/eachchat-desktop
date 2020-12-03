@@ -193,7 +193,7 @@ export default {
         let xie = room.currentState.maySendStateEvent('m.room.canonical_alias', client.getUserId());
         if (!currentState) return;
         const powerLevels = currentState.getContent();
-        console.log('++++powerLevels++++', xie);
+        console.log('++++powerLevels++++', powerLevels);
 
     },
     watch: {}

@@ -107,8 +107,16 @@
         </div> -->
         <div class="groupMemberDiv" v-if="isGroup && !isDm">
             <div class="groupMemberSearchDiv" v-if="isSearch">
-                <input type="text" class="searchMemberInput" v-model="searchKey" @input="searchMember">
-                <p class="searchMemberCancel" @click="showAdd">取消</p>
+                <input 
+                    type="text" 
+                    class="searchMemberInput" 
+                    v-model="memberFilter" 
+                    @input="mxSearchMem"
+                > <!--
+                    v-model="searchKey" 
+                    @input="searchMember"
+                    -->
+                <p class="searchMemberCancel" @click="closeSearchMem">取消</p> <!--@click="showAdd"-->
             </div>
             <div class="groupMemberAddDiv" v-else>
                 <label class="groupMemberAddDivLabel">群成员</label>
@@ -253,7 +261,8 @@ export default {
             encryptionWarning: false,
             currentRoom: undefined,
             dmMember: undefined,
-            mxSelectMemberOpen: false
+            mxSelectMemberOpen: false,
+            memberFilter: '',
         }
     },
     components: {
@@ -287,7 +296,31 @@ export default {
     computed: {
     },
     methods: {
-        mxSelectMember: function(close) {
+        mxSearchMem(mf) {
+            //mxMembers
+            console.log('---mf---', mf)
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const userId = client.getUserId();
+            let query = this.memberFilter;
+            let mxMembers = this.mxMembers
+             if (this.timer) clearTimeout(this.timer);
+            this.timer = setTimeout(()=>{
+                if (!query) return this.mxGetMembers(userId);
+                let newMems = mxMembers.filter((m) => {
+                    query = query.toLowerCase();
+                    const matchesName = m.name.toLowerCase().indexOf(query) !== -1;
+                    const matchesId = m.userId.toLowerCase().indexOf(query) !== -1;
+                    if (matchesName || matchesId) {
+                        return m;
+                    }
+                });
+                this.mxMembers = [...newMems];
+            },320)
+        },
+        closeSearchMem() {
+            this.isSearch = false;
+        },
+        mxSelectMember(close) {
             // if (close.data) this.$emit(close.handler, close.data);
             this.mxSelectMemberOpen = false;
         },
