@@ -1,6 +1,6 @@
 <template>
     <div class="detailPage" v-if="showView">
-        <div class="detailHeader" v-if="showMessageContent">
+        <div class="detailHeader">
             <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromMatrixId" src="../../../static/Img/User/user-40px@2x.png">
             <div class="userInfo">
                 <p class="userName">{{ userName }}</p>
@@ -48,22 +48,17 @@ export default {
     methods:{
         getImageCollectionContent:async function(image){
             let url = image.collection_content.url;
-            var realUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
             var imageCollectionElement = document.getElementById(image.collection_id);
-            imageCollectionElement.setAttribute("src", realUrl);
+            imageCollectionElement.setAttribute("src", url);
         },
 
-        getUserImg: async function (user_id){
-            if(user_id == undefined) {
-                return "";
+        getUserImg: async function (user_id, avaterUrl){
+            if(user_id == undefined || avaterUrl == '') {
+                return;
             }
             let userIconElement = document.getElementById(user_id);
             if(userIconElement){
-                this.userInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(user_id);
-                this.collectionInfo.collection_content.fromUserName = this.userInfo.displayname;
-                var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(this.userInfo.avatar_url);
                 userIconElement.setAttribute("src", avaterUrl);
-                this.userName = ComponentUtil.GetDisplayName(this.userInfo.displayname, user_id)
             }
         },
         formatTimeFilter(secondsTime) {
@@ -111,23 +106,26 @@ export default {
         },
     },
     mounted:function() {
+        const ipcRenderer = require('electron').ipcRenderer;
+        ipcRenderer.on("clickedCollectionInfo", (event, collectionInfo) => {
             this.showView = true;
+            this.collectionInfo = collectionInfo;
+            this.userName = collectionInfo.user_name;
             var favouriteType = this.collectionInfo.collection_type;
-            
+            this.$nextTick(function(){
+                    this.getUserImg(this.collectionInfo.collection_content.fromMatrixId, collectionInfo.avaterUrl);
+            });
             if (favouriteType == 101){
                 this.showMessageContent = true;
-                this.$nextTick(function(){
-                    this.getUserImg(this.collectionInfo.collection_content.fromMatrixId);
-            });
+                
             }else if(favouriteType == 102) {
                 this.showMessageContent = false;
                 this.$nextTick(function(){
                     this.getImageCollectionContent(this.collectionInfo);
-            });
-        }
+                });
+            }
+        });
         console.log(this.collectionInfo);
-        
-
     },
     created(){
     }

@@ -6,7 +6,7 @@
             </div>
         </el-header>
         <el-main>
-            <el-container v-show="!showFavouriteDetailWindow">
+            <el-container>
                 <div class="favourite-list" v-if="!showSearchView">
                     <div class="message-view" v-if="showMessageList">
                         <ul class="message-list">
@@ -120,7 +120,6 @@
                     </div>
                 </div>
             </el-container>
-            <favouriteDetail :collectionInfo="collectionInfo" v-if='showFavouriteDetailWindow' id="FavouriteDetailWindow"></favouriteDetail>
         </el-main>
         <el-container >
             <!-- <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
@@ -167,8 +166,7 @@ export default {
             chatCreaterDialogRootDepartments:[],
 
             //showFavouriteSearchView: false,
-            searchResults:{},
-            showFavouriteDetailWindow: false
+            searchResults:{}
         }
     },
     components: {
@@ -280,14 +278,23 @@ export default {
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
         },
+
+        OpenFavouriteDetail(message){
+            let fromMatrixId = message.collection_content.fromMatrixId;
+            global.mxMatrixClientPeg.matrixClient.getProfileInfo(fromMatrixId).then(profileInfo=>{
+                var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                message.avaterUrl = avaterUrl;
+                const ipcRender = require('electron').ipcRenderer;
+                ipcRender.send('showFavouriteDetailWindow', message)
+            });
+        },
+
         messageListClicked(message) {
-            this.collectionInfo = message;
-            this.showFavouriteDetailWindow = true;
+            this.OpenFavouriteDetail(message);
         },
         imageListClicked(image) {
-            return;
-            this.collectionInfo = image;
-            this.showFavouriteDetailWindow = true;
+            image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
+            this.OpenFavouriteDetail(image);
         },
         fileListClicked:async function(file) {
             return;
