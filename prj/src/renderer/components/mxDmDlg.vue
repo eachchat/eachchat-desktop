@@ -81,6 +81,7 @@ export default {
             if (!this.choosenMembers || !this.choosenMembers.length) return;
             this.loading = true;
             const client = window.mxMatrixClientPeg.matrixClient;
+            console.log('检查非matrix用户')
             const targetIds = this.choosenMembers.map(t => t.user_id);
             const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
             console.log('------existingRoom------', existingRoom);
@@ -643,10 +644,12 @@ export default {
         align-items: center;
         box-sizing: border-box;
         background-color: #fff;
-        width: 100%;
+        // width: 100%;
         box-sizing: border-box;
-        padding-left: 16px;
-        padding-right: 16px;
+        margin-left: 16px;
+        margin-right: 16px;
+        border-bottom: 1px solid #DDD;
+        
     }
     .dvd {
         font-size: 12px;
