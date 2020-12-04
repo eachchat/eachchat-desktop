@@ -78,10 +78,9 @@ export default {
     methods: {
         createDm: function() {
             if (this.loading) return;
-            if (!this.choosenMembers || !this.choosenMembers) return;
+            if (!this.choosenMembers || !this.choosenMembers.length) return;
             this.loading = true;
             const client = window.mxMatrixClientPeg.matrixClient;
-            
             const targetIds = this.choosenMembers.map(t => t.user_id);
             const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
             console.log('------existingRoom------', existingRoom);
