@@ -377,8 +377,9 @@ export default {
             }
             
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserInfo.matrix_id);
-            if(profileInfo)
-                tempUserInfo.avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            if(!profileInfo)
+                return;
+            tempUserInfo.avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
 
             this.userInfo = tempUserInfo;
             this.userInfoTipKey ++;

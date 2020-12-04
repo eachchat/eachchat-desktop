@@ -95,6 +95,8 @@ const ComponentUtil = {
 
     async ShowOrgInfoByMatrixID(matrix_id){
         let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
+        if(!userInfo)
+            return;
         return await this.ShowOrgInfoByUserID(userInfo.user_id);
     }
 }
