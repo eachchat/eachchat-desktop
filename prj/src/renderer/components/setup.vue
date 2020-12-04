@@ -44,10 +44,10 @@
                     <label class="device-one-last-login-time">时间：{{timeDeal(deviceItem.loginTime)}}</label>
                 </li>
             </ul>
-            <div class="setup-general-change-password">
+            <!-- <div class="setup-general-change-password">
                 <label class="setup-general-change-password-label">修改密码</label>
                 <img class="setup-general-change-password-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
-            </div>
+            </div> -->
             <div class="setup-general-file-location">
                 <label class="setup-general-file-location-label">文件保存位置</label>
                 <div class="setup-general-file-location-input-div" @click="openLocalStorageDir">
