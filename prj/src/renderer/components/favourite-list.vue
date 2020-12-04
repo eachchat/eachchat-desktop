@@ -14,7 +14,7 @@
                                 v-for="(message, index) in favourites" 
                                 :key="index">
                                 <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
-                                <p class="message-sender">{{ message.collection_content.fromMatrixId }}</p>
+                                <p class="message-sender">{{ message.user_name }}</p>
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
@@ -30,7 +30,7 @@
                             <li class="image"
                                 v-for="(image, index) in favourites" :key="index">
                                 <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
-                                <p class="image-sender">{{ image.collection_content.fromMatrixId }}</p>
+                                <p class="image-sender">{{ image.user_name }}</p>
                                 <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
@@ -52,7 +52,7 @@
                                     </div>
                                     <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                                 </div>
-                                <p class="file-sender">{{ file.collection_content.fromMatrixId }}</p>
+                                <p class="file-sender">{{ file.user_name }}</p>
                                 <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
@@ -145,6 +145,7 @@ import transmitDlg from './transmitDlg.vue';
 import chatCreaterDlg from './chatCreaterDlg.vue';
 import {Group, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import favouriteDetail from './favourite-detail.vue'
+import { ComponentUtil } from '../script/component-util.js';
 
 export default {
     name: 'favourite-list',
@@ -430,7 +431,7 @@ export default {
 
         },
 
-        getObjectFromCollectionModel(collectionModels) {
+        async getObjectFromCollectionModel(collectionModels) {
             var favourites = [];
             for(var i = 0; i < collectionModels.length; i ++){
                 var model = collectionModels[i];
@@ -444,6 +445,7 @@ export default {
                 tempFavourite.collection_type = model.collection_type;
                 tempFavourite.favourite_id = model.favourite_id;
                 tempFavourite.collection_content = strMsgContentToJson(model.collection_content);
+                tempFavourite.user_name = await ComponentUtil.GetDisplayNameByMatrixID(tempFavourite.collection_content.fromMatrixId);
                 tempFavourite.sequence_id 
                 = model.sequence_id;
                 tempFavourite.timeline_id = model.timeline_id;
@@ -633,13 +635,13 @@ export default {
         if (this.favouriteType == 'message'){
             this.headerTitle = '收藏';
             var messageCollectionModel = await global.services.common.ListMessageCollections();
-            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
+            this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
             
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
             this.headerTitle = '收藏';
             var imageCollectionModel = await global.services.common.ListPictureCollections();
-            this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
+            this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
             this.$nextTick(function(){
                 for(var i = 0; i < this.favourites.length; i ++){
@@ -650,7 +652,7 @@ export default {
         }else if(this.favouriteType == 'file') {
             this.headerTitle = '收藏';
             var fileCollectionModel = await global.services.common.ListFileCollections();
-            this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
+            this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
             console.log( this.favourites)
         }
     }

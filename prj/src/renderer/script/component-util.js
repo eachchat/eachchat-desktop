@@ -19,6 +19,16 @@ const ComponentUtil = {
         return displayName;
     },
 
+    async GetDisplayNameByMatrixID(matrix_id){
+        var user = await Contact.GetContactInfo(matrix_id);
+        if(user && user.display_name.length != 0)
+            return user.display_name;
+        let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
+        if(userInfo && userInfo.user_display_name.length != 0)
+            return userInfo.user_display_name;
+        return this.GetDisplayName("", matrix_id);
+    },
+
     ShowInfoContent(content){
         if(content == undefined)
             return '';
