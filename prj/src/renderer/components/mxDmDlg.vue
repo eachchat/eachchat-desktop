@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div class="submit-field">
-                <div class="cancel-button">取消</div>
+                <div class="cancel-button" @click.self.stop="close('close')">取消</div>
                 <div class="submit-button" :style="{'background': loading ? '#A7E0C4' : '#24B36B'}" @click.stop="createDm">创建</div>
             </div>
         </div>
