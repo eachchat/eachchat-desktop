@@ -362,6 +362,9 @@ export default {
                 else if(member.membership == "join"){
                   this.JoinRoom(member.roomId);
                 }
+                else{
+                  this.leaveGroup(member.roomId);
+                }
               }
             },320)
         })
@@ -1718,14 +1721,9 @@ export default {
     },
 
     DeleteGroup: function(distGroupId) {
-      console.log("delete group id ", distGroupId);
-      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(distGroupId);
-      console.log("Room", newRoom)
-      let myMember = newRoom.getMyMembership();
-      console.log("mymembership", myMember)
-
       this.DeleteFromGroups(this.inviteGroupsList, distGroupId);
       this.DeleteFromGroups(this.dealShowGroupList, distGroupId);
+      this.DeleteFromGroups(this.favouriteRooms, distGroupId);
     },
 
     compare: function() {
