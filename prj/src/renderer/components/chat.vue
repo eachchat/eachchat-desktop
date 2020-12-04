@@ -2136,33 +2136,33 @@ s        },
                 }
                 else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
                     console.log("=======wo bottom");
+                    var curTime = new Date().getTime();
                     var canForwardPaginate = this._timelineWindow.canPaginate("f");
                     if(!canForwardPaginate) {
                         this.isRefreshing = false;
-                        // for(var i=0;i<this.chat.timeline.length;i++) {
-                        //     if(this.existingMsgId.indexOf(this.chat.timeline[i].event.event_id) >= 0) {
-                        //         return;
-                        //     }
-                        //     this.existingMsgId.push(this.chat.timeline[i].event.event_id);
-                        //     this.messageList.unshift(this.chat.timeline[i]);
-                        // }
                         return;
                     }
-                    this.lastScrollHeight = uldiv.scrollHeight;
-                    this.isRefreshing = true;
-                    this.lastRefreshTime = new Date().getTime();
-                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                    this._timelineWindow.paginate("f", 20)
-                        .then((ret) => {
-                            console.log("f scroll ret is ", ret);
-                            this.isRefreshing = false;
-                            this.needToBottom = false;
-                            this.messageList = this._getEvents();
-                            this.$nextTick(() => {
-                                console.log("---------update croll top is ", uldiv.scrollHeight);
-                                // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing) {
+                        this.lastScrollTop = uldiv.scrollTop;
+                        console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
+                        this.lastRefreshTime = new Date().getTime();
+                        // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+                        this._timelineWindow.paginate("f", 20)
+                            .then((ret) => {
+                                console.log("f scroll ret is ", ret);
+                                this.messageList = this._getEvents();
+                                this.isRefreshing = false;
+                                setTimeout(() => {
+                                    this.$nextTick(() => {
+                                        // console.log("---------update croll top is ", uldiv.scrollHeight);
+                                        uldiv.scrollTop = this.lastScrollTop;
+                                        // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
+                                        // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                                    })
+                                }, 100)
+                                this.needToBottom = false;
                             })
-                        })
+                    }
                 }
             }
         },
@@ -2488,9 +2488,9 @@ s        },
     computed: {
         messageListShow: {
             get: function() {
-                var final = this.messageList;//.sort(this.mxEvCompare());
+                // var final = this.messageList;//.sort(this.mxEvCompare());
                 // console.log("final msglist is ", final);
-                return final;
+                return this.messageList;
             }
         }
     },

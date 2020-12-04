@@ -1,12 +1,12 @@
 <template>
     <div class="MxHistoryMsgDlg" id="MxHistoryMsgDlgId">
-        <div class="MxHistoryMsgDlgContent">
+        <div class="MxHistoryMsgDlgContent" id="MxHistoryMsgDlgContentId">
             <div class="Mxsearch">
                 <input class="MxHistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <i class="el-icon-close" @click="Close()"></i>
-            <ul class="MxHistoryMsg-list">
+            <ul class="MxHistoryMsg-list" id="MxHistoryMsg-list-Id">
                 <li v-for="(item, index) in messageListShow" class="MxmessageItem" v-on:click="ShowFile(item)">
                     <img class="MxmessageOwnerImage" src="../../../static/Img/User/user-40px@2x.png" :id="getUserHeadImageId(item)" @click="openFile(item)">
                     <div class="MxmessageInfoDiv">
@@ -55,13 +55,29 @@ export default {
     name: 'HistoryMsgDlg',
     data () {
         return {
-            messageListShow: [],
             searchKey: '',
             GroupInfo: null,
             groupId: '',
             showEmpty: true,
+            ret: {},
         }
     },  
+    computed: {
+        messageListShow: {
+            get: function() {
+                var searchResult = [];
+                if(this.ret.results == undefined) {
+                    return searchResult;
+                }
+                for(let i=0;i<this.ret.results.length;i++) {
+                    var timeLine = this.ret.results[i].context.getTimeline()[this.ret.results[i].context.getOurEventIndex()];
+
+                    searchResult.push(timeLine);
+                }
+                return searchResult;
+            }
+        }
+    },
     methods: {
         ShowFile: function(item) {
             this.$emit('jumpToEvent', item.event.event_id);
@@ -273,29 +289,45 @@ export default {
                 .then((ret) => {
                     console.log("search ret is ", ret);
                     if(ret.results == undefined) {
-                        this.messageListShow = []
+                        this.ret = []
                         // console.log("this.messagelsitshow is ", this.messageListShow)
                         this.showGroupInfo();
                         this.showEmpty = true;
                     }
                     else {
                         this.showEmpty = false;
-                        for(let i=0;i<ret.results.length;i++) {
-                            var timeLine = ret.results[i].context.getTimeline()[ret.results[i].context.getOurEventIndex()];
-
-                            searchResult.searchList.push(timeLine);
-                        }
-
                         if(searchResult.id == this.searchId) {
-                            this.messageListShow = searchResult.searchList;
+                            this.ret = ret;
                             setTimeout(() => {
                                 this.$nextTick(() => {
                                     this.showGroupInfo();
+                                    let div = document.getElementById("MxHistoryMsg-list-Id");
+                                    div.addEventListener('scroll', this.handleScroll);
                                 })
-                            }, 500)
+                            }, 0)
                         }
                     }
                 })
+        },
+        handleScroll: function() {
+            let uldiv = document.getElementById("MxHistoryMsg-list-Id");
+            let client = document.getElementById("MxHistoryMsgDlgContentId");
+            if(uldiv) {
+                if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
+                    console.log("=======wo bottom");
+                    if(this.ret.next_batch) {
+                        searchPagination(this.ret)
+                            .then((ret) => {
+                                this.ret = ret;
+                                setTimeout(() => {
+                                    this.$nextTick(() => {
+                                        this.showGroupInfo();
+                                    })
+                                }, 0)
+                            })
+                    }
+                }
+            }
         },
         msgContentHeightLight: function(curMsg) {
             var showContent = curMsg.getContent();
@@ -336,30 +368,12 @@ export default {
             var fileDate = this.MsgTime(curMsg);
             return fileDate;
         },
-        getHistoryMessage: function(groupInfo) {
-            // console.log("gethistorymessage groupInfo is ", this.GroupInfo)
-            // console.log("gethistorymessage groupInfo.group_id is ", this.GroupInfo.group_id)
-            // console.log("gethistorymessage groupInfo.sequence_id is ", this.GroupInfo.sequence_id)
-            services.common.historyMessage(this.GroupInfo.group_id, this.GroupInfo.sequence_id, 50)
-                .then((ret) => {
-                    var messageListTmp = ret;
-                    this.messageListShow = [];
-                    console.log("this. is ", ret)
-                    for(var i=0;i<messageListTmp.length;i++){
-                        if(messageListTmp[i].message_type == 101) {
-                            this.messageListShow.unshift(messageListTmp[i]);
-                        }
-                    }
-                    // console.log("this.filelistshow is ", this.messageListShow);
-                })
-        },
         updatePage: function() {
             console.log("filelist group info is ", this.GroupInfo);
             if(this.GroupInfo == undefined) {
                 return;
             };
             
-            // this.getHistoryMessage(this.GroupInfo);
             if(this.searchKey.length == 0) {
                 this.showEmpty = true;
             }
