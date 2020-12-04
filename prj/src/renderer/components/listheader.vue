@@ -7,7 +7,7 @@
             <img class="new-chat-content-div-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
-            <div class="normal-chat" @click.stop="mxDmDlg()"> <!--showCreateGroup-->
+            <div class="normal-chat" @click.stop="mxDmDlgChange()"> <!--showCreateGroup-->
                 <img class="normal-chat-img" src="../../../static/Img/Main/jdr.png">
                 <span class="normal-chat-label">发起聊天</span>
             </div>
@@ -51,7 +51,7 @@
         </mxSquareDlg>
         <mxDmDlg
             v-if="mxDmDlgOpen"
-            @close="mxDmDlg" 
+            @close="mxDmDlgChange"
         >
         </mxDmDlg>
     </div>
@@ -103,8 +103,8 @@ export default {
         }
     },
     methods: {
-        mxDmDlg: function(close) {
-            console.log('???', close)
+        mxDmDlgChange: function(close) {
+            console.log('mxDmDlg???', close)
             if (close) {
                 if (close.data) this.$emit(close.handler, close.data);
                 this.showCreateNewChat = false;

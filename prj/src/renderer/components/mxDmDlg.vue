@@ -35,7 +35,20 @@
             </div>
             <div class="submit-field">
                 <div class="cancel-button" @click.self.stop="close('close')">取消</div>
-                <div class="submit-button" :style="{'background': loading ? '#A7E0C4' : '#24B36B'}" @click.stop="createDm">创建</div>
+                <!-- <div class="submit-button" 
+                    :style="{'background': (loading || !choosenMembers || !choosenMembers.length) ? '#A7E0C4' : '#24B36B'}" 
+                    @click.stop="createDm">创建</div> -->
+                <div 
+                    class="submit-button"
+                    style="background:#A7E0C4"
+                    v-if="loading || !choosenMembers || !choosenMembers.length"
+                >创建</div>
+                <div 
+                    class="submit-button" 
+                    style="background:#24B36B"
+                    @click.self.stop="createDm"
+                    v-else
+                >创建</div>
             </div>
         </div>
     </div>
