@@ -14,9 +14,9 @@
                 </div>
                 <div class="crumbs" v-show="crumbs.length > 1">
                     <div 
-                        class="crumbs-item" 
+                        :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
                         v-for="(item, idx) in crumbs"
-                        :key="item.id"
+                        :key="item.department_id"
                     >
                         <span v-show="idx!==0" style="margin-left:4px; margin-right:4px;">/</span>
                         <span>{{item.name}}</span>
@@ -512,15 +512,16 @@ export default {
                 let newCrumbs = []
                 for(let i=0; i<len; i++) {
                     newCrumbs.push(crumbs[i]);
-                    if (crumbs[i].id === department_id) {
+                    if (crumbs[i].department_id === department_id) {
                         break;
                     }
                     if (i === len-1) {
-                        let layer = {name:obj.display_name, id:obj.department_id}
+                        let layer = {name:obj.display_name, department_id:obj.department_id}
                         newCrumbs.push(layer);
                     }
                 }
-                newCrumbs[newCrumbs.length-1].choosen = true
+                newCrumbs[newCrumbs.length-1].choosen = true;
+                console.log('>>>>>', newCrumbs)
                 this.crumbs = [...newCrumbs];
                 const subDep = await Department.GetSubDepartment(department_id);
                 const subUsers = await UserInfo.GetSubUserinfo(department_id);
@@ -541,7 +542,7 @@ export default {
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
         const dvd = {dvd:true, txt:'我的联系人'};
-        const layer = {name:rootDep.display_name, id:rootDep.department_id, choosen: true}
+        const layer = {name:rootDep.display_name, department_id:rootDep.department_id, choosen: true}
         let totalArray = [rootDep, dvd, ...contactUsers];
         totalArray.forEach(t => t.choosen = false)
         this.totalList = [...totalArray];
@@ -847,5 +848,18 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+    .crumbs {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        margin-left: 16px;
+        font-size: 12px;
+    }
+    .crumbsItem {
+        color: #24B36B
+    }
+    .crumbsItemActive {
+        color: #000;
     }
 </style>
