@@ -50,7 +50,10 @@ import {ipcRenderer, remote} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
-import {UserInfo} from '../../packages/data/sqliteutil.js';
+import {UserInfo, Message} from '../../packages/data/sqliteutil.js';
+import { models } from '../../packages/data/models.js';
+
+
 import UpdateAlertDlg from './update-alert-dlg.vue'
 import { setInterval } from 'timers';
 export default {
@@ -394,6 +397,22 @@ export default {
         });
         ipcRenderer.on('setUnreadCount', (e, count) => {
             this.unReadCount = count;
+        })
+
+        ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId)=>{
+            let msgs = await Message.FindMessageByMesssageID(eventId);
+            if(msgs.length != 0){
+                msgs[0].file_local_path = finalName;
+                msgs[0].save();
+            }
+            else{
+                let msgValue = {
+                    message_id: eventId,
+                    file_local_path: finalName
+                }
+                let model = await new(await models.Message)(msgValue);
+                model.save();
+            }
         })
     },
     created: async function () {
