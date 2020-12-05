@@ -29,14 +29,16 @@
                     >   
                         <div 
                             v-if="item.type === 'dep'"
-                            class="room-item"
-                            :style="{'background': item.choosen ? '#A7E0C4':'#fff'}"
-
-                        >
-                            <img class="room-img"/>
-                            <div class="user-info">
-                                <span class="room-info">{{item.display_name}}</span>
+                            class="room-item room-item-dep"
+                            @click.self.stop="changeLayer(item)"
+                        >   
+                            <div style="display:flex; align-items:center;">
+                                <img class="room-img" src="../../../static/Img/Main/zzjg.png"/> <!-- src="../../../static/Img/Main/yjt.png" -->
+                                <div class="user-info">
+                                    <span class="room-info">{{item.display_name}}</span>
+                                </div>
                             </div>
+                            <img style="height:20px; width:20px;" src="../../../static/Img/Main/yjt.png">
                         </div>
                         <div v-else-if="item.dvd" class="dvd">{{item.txt}}</div>
                         <div 
@@ -490,7 +492,45 @@ export default {
             //     });
             //     return null;
             // });
-        }
+        },
+        async changeLayer(obj) {
+            console.log('caonimao', this.crumbs)
+            let department_id = obj.department_id;
+            if (false) {
+                const rootDep = await Department.GetRoot();
+                const dvd = {dvd:true, txt:'我的联系人'};
+                const contactUsers = await Contact.GetAllContact();
+                rootDep.type = 'dep';
+                let totalArray = [rootDep, dvd, ...contactUsers];
+                totalArray.forEach(t => t.choosen = false);
+                this.totalList = [...totalArray];
+                this.crumbs[0].choosen = true;
+                this.crumbs = [this.crumbs[0]];
+            } else {
+                let crumbs = this.crumbs;
+                const len = crumbs.length;
+                let newCrumbs = []
+                for(let i=0; i<len; i++) {
+                    newCrumbs.push(crumbs[i]);
+                    if (crumbs[i].id === department_id) {
+                        break;
+                    }
+                    if (i === len-1) {
+                        let layer = {name:obj.display_name, id:obj.department_id}
+                        newCrumbs.push(layer);
+                    }
+                }
+                newCrumbs[newCrumbs.length-1].choosen = true
+                this.crumbs = [...newCrumbs];
+                const subDep = await Department.GetSubDepartment(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                subDep.forEach(s=>s.type = 'dep')
+                subUsers.forEach(s=>s.display_name = s.user_display_name || s.user_name)
+                let totalArray = [...subDep, ...subUsers];
+                totalArray.forEach(t => t.choose = false)
+                this.totalList = [...totalArray];   
+            }
+        },
     },
     components: {
     },
@@ -505,7 +545,7 @@ export default {
         let totalArray = [rootDep, dvd, ...contactUsers];
         totalArray.forEach(t => t.choosen = false)
         this.totalList = [...totalArray];
-        let crumbs = [layer];
+        this.crumbs = [layer];
 
 
 
@@ -516,43 +556,7 @@ export default {
         console.log('subDep', subDep);
         console.log('subUsers', subUsers);
     },
-    async changeLayer(obj) {
-        let department_id = obj.department_id;
-        if (department_id === this.crumbs[0].department_id) {
-            const rootDep = await Department.GetRoot();
-            const dvd = {dvd:true, txt:'我的联系人'};
-            const contactUsers = await Contact.GetAllContact();
-            rootDep.type = 'dep';
-            let totalArray = [rootDep, dvd, ...contactUsers];
-            totalArray.forEach(t => t.choosen = false);
-            this.totalList = [...totalArray];
-            this.crumbs[0].choosen = true;
-            this.crumbs = [this.crumbs[0]];
-        } else {
-            let crumbs = this.crumbs;
-            const len = crumbs.length;
-            let newCrumbs = []
-            for(let i=0; i<len; i++) {
-                newCrumbs.push(crumbs[i]);
-                if (crumbs[i].id === department_id) {
-                    break;
-                }
-                if (i === len-1) {
-                    let layer = {name:obj.display_name, id:obj.department_id}
-                    newCrumbs.push(layer);
-                }
-            }
-            newCrumbs[newCrumbs.length-1].choosen = true
-            this.crumbs = [...newCrumbs];
-            const subDep = await Department.GetSubDepartment(department_id);
-            const subUsers = await UserInfo.GetSubUserinfo(department_id);
-            subDep.forEach(s=>s.type = 'dep')
-            subUsers.forEach(s=>s.display_name = user_display_name || user_name)
-            let totalArray = [...subDep, ...subUsers];
-            totalArray.forEach(t => t.choose = false)
-            this.totalList = [...totalArray];   
-        }
-    },
+    
     mounted() {
     },
     watch: {
@@ -771,6 +775,9 @@ export default {
         border-bottom: 1px solid #DDD;
         
     }
+     .room-item-dep {
+         justify-content: space-between;
+     }
     .dvd {
         font-size: 12px;
         height: 32px;
