@@ -12,7 +12,48 @@
                     </div>
                     <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
                 </div>
-                <div class="room-list">
+                <div class="crumbs" v-show="crumbs.length > 1">
+                    <div 
+                        class="crumbs-item" 
+                        v-for="(item, idx) in crumbs"
+                        :key="item.id"
+                    >
+                        <span v-show="idx!==0" style="margin-left:4px; margin-right:4px;">/</span>
+                        <span>{{item.name}}</span>
+                    </div>
+                </div>
+                <div class="room-list" v-if="!isSearch">
+                    <div 
+                        v-for="(item, idx) in totalList" 
+                        :key="idx"
+                    >   
+                        <div 
+                            v-if="item.type === 'dep'"
+                            class="room-item"
+                            :style="{'background': item.choosen ? '#A7E0C4':'#fff'}"
+
+                        >
+                            <img class="room-img"/>
+                            <div class="user-info">
+                                <span class="room-info">{{item.display_name}}</span>
+                            </div>
+                        </div>
+                        <div v-else-if="item.dvd" class="dvd">{{item.txt}}</div>
+                        <div 
+                            class="room-item"
+                            @click.stop="choose(item, idx)"
+                            :style="{'background': item.choosen ? '#A7E0C4':'#fff'}" 
+                            v-else
+                        >
+                            <img class="room-img" :src="item.avatar_url"/>
+                            <div class="user-info">
+                                <span class="room-info">{{item.display_name}}</span>
+                                <span class="room-info" style="font-size:12px; color:#999999">{{item.user_id}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="room-list" v-else>
                     <div 
                         v-for="(item, idx) in searchedMembers" 
                         :key="idx"
@@ -71,7 +112,7 @@ export default {
     props: {
         
     },
-    data () {
+    data() {
         return {
             name:'',
             isPublic:false,
@@ -84,7 +125,10 @@ export default {
 
             searchedMembers: [],
             memText:'',
-            choosenMembers: []
+            choosenMembers: [],
+            crumbs: [],
+            totalList: [],
+            isSearch: false
         }
     },
     timer: null,
@@ -255,6 +299,11 @@ export default {
             const term = this.memText;
             const client = window.mxMatrixClientPeg.matrixClient;
             if (this.timer) clearTimeout(this.timer);
+            if (!term) {
+                this.searchedMembers = [];
+                this.isSearch = false;
+                return
+            }
             this.timer = setTimeout(async ()=>{
                 const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
                 const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
@@ -295,6 +344,7 @@ export default {
                 })
                 const totalArray = [...sus, ...scs, ...mxs];
                 console.log('----totalArray----', totalArray);
+                this.isSearch = true;
                 this.searchedMembers = [...totalArray];
                 // client.searchUserDirectory({term}).then(r => {
                 //     console.log('searchUserDirectory', r)
@@ -444,7 +494,64 @@ export default {
     },
     components: {
     },
-    created() {
+    async created() {
+        const rootDep = await Department.GetRoot();
+        rootDep.type = 'dep';
+        
+        const contactUsers = await Contact.GetAllContact();
+        console.log('contactUsers', contactUsers);
+        const dvd = {dvd:true, txt:'我的联系人'};
+        const layer = {name:rootDep.display_name, id:rootDep.department_id, choosen: true}
+        let totalArray = [rootDep, dvd, ...contactUsers];
+        totalArray.forEach(t => t.choosen = false)
+        this.totalList = [...totalArray];
+        let crumbs = [layer];
+
+
+
+        console.log('rootDep', rootDep);
+        console.log('contactUsers', contactUsers);
+        const subDep = await Department.GetSubDepartment("0a59d5bd13cb476698fee9d58599e37e");
+        const subUsers = await UserInfo.GetSubUserinfo("0a59d5bd13cb476698fee9d58599e37e");
+        console.log('subDep', subDep);
+        console.log('subUsers', subUsers);
+    },
+    async changeLayer(obj) {
+        let department_id = obj.department_id;
+        if (department_id === this.crumbs[0].department_id) {
+            const rootDep = await Department.GetRoot();
+            const dvd = {dvd:true, txt:'我的联系人'};
+            const contactUsers = await Contact.GetAllContact();
+            rootDep.type = 'dep';
+            let totalArray = [rootDep, dvd, ...contactUsers];
+            totalArray.forEach(t => t.choosen = false);
+            this.totalList = [...totalArray];
+            this.crumbs[0].choosen = true;
+            this.crumbs = [this.crumbs[0]];
+        } else {
+            let crumbs = this.crumbs;
+            const len = crumbs.length;
+            let newCrumbs = []
+            for(let i=0; i<len; i++) {
+                newCrumbs.push(crumbs[i]);
+                if (crumbs[i].id === department_id) {
+                    break;
+                }
+                if (i === len-1) {
+                    let layer = {name:obj.display_name, id:obj.department_id}
+                    newCrumbs.push(layer);
+                }
+            }
+            newCrumbs[newCrumbs.length-1].choosen = true
+            this.crumbs = [...newCrumbs];
+            const subDep = await Department.GetSubDepartment(department_id);
+            const subUsers = await UserInfo.GetSubUserinfo(department_id);
+            subDep.forEach(s=>s.type = 'dep')
+            subUsers.forEach(s=>s.display_name = user_display_name || user_name)
+            let totalArray = [...subDep, ...subUsers];
+            totalArray.forEach(t => t.choose = false)
+            this.totalList = [...totalArray];   
+        }
     },
     mounted() {
     },
