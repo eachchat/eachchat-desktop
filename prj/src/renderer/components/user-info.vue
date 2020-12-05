@@ -198,7 +198,7 @@ export default {
                 existingRoom.room_id = existingRoom.roomId
                 const obj = {data: existingRoom, handler: 'viewRoom'};
                 this.$emit('close', obj);
-                this.jumpToChat();
+                this.jumpToChat(existingRoom.room_id);
                 return;
             }
 
@@ -224,19 +224,22 @@ export default {
                 //     }
                 // });
             }
-            this.jumpToChat();
+            createRoomPromise.then((res)=> {
+                if(res && res.room_id)
+                    this.jumpToChat(res.room_id);    
+            })
         },
         GetDisplayName: function(displayName, userid){
             return ComponentUtil.GetDisplayName(displayName, userid);
         },
 
-        jumpToChat: async function() {
+        jumpToChat: async function(roomId) {
             if(this.$route.name == "organization" || this.$route.name == "favourite") {
                 this.$router.push(
                     {
                         name: 'ChatContent', 
                         params: {
-                            user_id: this.userInfo.matrix_id
+                            group_id: roomId
                         }
                     })
             }
