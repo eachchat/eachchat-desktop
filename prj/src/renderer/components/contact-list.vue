@@ -20,7 +20,7 @@
             
             </div>
         </el-header>
-        <el-main>
+        <el-main  style="overflow: hidden">
             <el-container class="bottom-container" id="contact-main-container">
                 <div class="contact-view">
                     <ul class="managers-list">
@@ -244,10 +244,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-::-webkit-scrollbar {
-/*隐藏滚轮*/
-display: none;
-}
+
 
 .chat-tool-invite-div {
     display: inline-block;
@@ -303,7 +300,7 @@ display: none;
 }
 
 .contact-view {
-    width: 90%;
+    width: 100%;
     height: 100%;
     //display: flex;
     flex-direction: column;
@@ -432,9 +429,6 @@ display: none;
         height: 100%;
         overflow: scroll;
         padding: 0px;
-    .bottom-container {
-        overflow: scroll;
-    }
     }
     .avatarTUrl {
         width:40px;
