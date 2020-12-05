@@ -17,6 +17,7 @@
                         :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
                         v-for="(item, idx) in crumbs"
                         :key="item.department_id"
+                        @click.stop="changeLayerByCrumb(item)"
                     >
                         <span v-show="idx!==0" style="margin-left:4px; margin-right:4px;">/</span>
                         <span>{{item.name}}</span>
@@ -30,7 +31,7 @@
                         <div 
                             v-if="item.type === 'dep'"
                             class="room-item room-item-dep"
-                            @click.self.stop="changeLayer(item)"
+                            @click.stop="changeLayer(item)"
                         >   
                             <div style="display:flex; align-items:center;">
                                 <img class="room-img" src="../../../static/Img/Main/zzjg.png"/> <!-- src="../../../static/Img/Main/yjt.png" -->
@@ -77,7 +78,7 @@
                 </div>
             </div>
             <div class="submit-field">
-                <div class="cancel-button" @click.self.stop="close('close')">取消</div>
+                <div class="cancel-button" @click.stop="close('close')">取消</div>
                 <!-- <div class="submit-button" 
                     :style="{'background': (loading || !choosenMembers || !choosenMembers.length) ? '#A7E0C4' : '#24B36B'}" 
                     @click.stop="createDm">创建</div> -->
@@ -89,7 +90,7 @@
                 <div 
                     class="submit-button" 
                     style="background:#24B36B"
-                    @click.self.stop="createDm"
+                    @click.stop="createDm"
                     v-else
                 >创建</div>
             </div>
@@ -493,10 +494,10 @@ export default {
             //     return null;
             // });
         },
-        async changeLayer(obj) {
+        async changeLayerByCrumb(obj) {
             console.log('caonimao', this.crumbs)
             let department_id = obj.department_id;
-            if (false) {
+            if (department_id === this.crumbs[0].department_id) {
                 const rootDep = await Department.GetRoot();
                 const dvd = {dvd:true, txt:'我的联系人'};
                 const contactUsers = await Contact.GetAllContact();
@@ -531,6 +532,32 @@ export default {
                 totalArray.forEach(t => t.choose = false)
                 this.totalList = [...totalArray];   
             }
+        },
+        async changeLayer(obj) {
+            let department_id = obj.department_id;
+            let crumbs = this.crumbs;
+            const len = crumbs.length;
+            let newCrumbs = []
+            for(let i=0; i<len; i++) {
+                newCrumbs.push(crumbs[i]);
+                if (crumbs[i].department_id === department_id) {
+                    break;
+                }
+                if (i === len-1) {
+                    let layer = {name:obj.display_name, department_id:obj.department_id}
+                    newCrumbs.push(layer);
+                }
+            }
+            newCrumbs[newCrumbs.length-1].choosen = true;
+            console.log('>>>>>', newCrumbs)
+            this.crumbs = [...newCrumbs];
+            const subDep = await Department.GetSubDepartment(department_id);
+            const subUsers = await UserInfo.GetSubUserinfo(department_id);
+            subDep.forEach(s=>s.type = 'dep')
+            subUsers.forEach(s=>s.display_name = s.user_display_name || s.user_name)
+            let totalArray = [...subDep, ...subUsers];
+            totalArray.forEach(t => t.choose = false)
+            this.totalList = [...totalArray];   
         },
     },
     components: {
