@@ -1,12 +1,12 @@
 <template>
     <div class="MxFileListDlg" id="MxFileListDlgId">
-        <div class="MxFileListDlgContent">
+        <div class="MxFileListDlgContent" id="MxFileListDlgContentId">
             <div class="Mxsearch">
                 <input class="MxFileListDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <i class="el-icon-close" @click="Close()"></i>
-            <ul class="Mxfile-list">
+            <ul class="Mxfile-list" id="Mxfile-list-id">
                 <li v-for="(item, index) in fileListShow" class="MxfileItem">
                     <img class="MxfileImage" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
                     <div class="MxfileInfoDiv" @click="openFile(item)">
@@ -34,6 +34,7 @@ export default {
     name: 'MxFileListDlg',
     data () {
         return {
+            isRefreshing: false,
             GroupName: '',
             fileListShow: [],
             searchKey: '',
@@ -76,15 +77,10 @@ export default {
                 }
                 this.$emit('showImageOfMessage', imageInfo);
             }
-            // console.log(curItem);
-            // var targetPath = "";
-            // var targetFileName = curItem.content;
-            // var ext = path.extname(targetFileName);
-            // if(fs.existsSync(targetPath = await services.common.downloadFile(curItem.timelineId, curItem.timestamp, curItem.msgId + ext, true, curItem.content.fileSize))) {
-            //     shell.openItem(targetPath);
-            // }
         },
         Close: function() {
+            this.fileListInfo = [];
+            this.updatePage();
             this.$emit("fileListClose");
         },
         MsgBelongUserName: function(curItem) {
@@ -227,11 +223,55 @@ export default {
             this.timeLineSet = await this.updateTimelineSet(this.groupId);
             this._loadTimeline(undefined, undefined, undefined)
                 .then((ret) => {
-                    const events = this._timelineWindow.getEvents();
-                    for(var i=0;i<events.length;i++) {
-                        this.getHistoryMessage(events[i]);
-                    }
+                    this.fileListInfo = this._timelineWindow.getEvents();
+                    this.updatePage();
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            var div = document.getElementById("Mxfile-list-id");
+                            div.addEventListener('scroll', this.handleScroll);
+                            this.handleScroll(true);
+                        })
+                    }, 0)
                 })
+        },
+        handleScroll: function(force=false) {
+            let uldiv = document.getElementById("Mxfile-list-id");
+            let client = document.getElementById("MxFileListDlgContentId");
+            // console.log("=====client.clientHeight is ", client.clientHeight);
+            // console.log("=====uldiv.scrollHeight - uldiv.scrollTop is ", uldiv.scrollHeight - uldiv.scrollTop);
+            // console.log("=====uldiv.scrollHeight is ", uldiv.scrollHeight);
+            // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
+            // console.log("=====isRefreshing is ", this.isRefreshing);
+            if(uldiv) {
+                if((uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight && !this.isRefreshing) || force==true) {
+                    console.log("=======wo bottom");
+                    this.isRefreshing = true;
+                    var canForwardPaginate = this._timelineWindow.canPaginate("f");
+                    if(!canForwardPaginate && !(force==true)) {
+                        this.isRefreshing = false;
+                        return;
+                    }
+                    this.lastScrollHeight = uldiv.scrollHeight;
+                    this.lastRefreshTime = new Date().getTime();
+                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+                    this._timelineWindow.paginate("b", 20)
+                        .then((ret) => {
+                            if(ret == false) {
+                                return;
+                            }
+                            console.log("f scroll ret is ", ret);
+                            this.isRefreshing = false;
+                            this.fileListInfo = this._timelineWindow.getEvents();
+                            this.$nextTick(() => {
+                                console.log("---------update croll top is ", uldiv.scrollHeight);
+                                // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                            })
+                            if(this.fileListInfo.length == 0) {
+                                this.handleScroll(true);
+                            }
+                        })
+                }
+            }
         },
         _loadTimeline: function(eventId, pixelOffset, offsetBase) {
             this._timelineWindow = new Matrix.TimelineWindow(

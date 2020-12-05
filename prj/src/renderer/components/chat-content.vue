@@ -299,13 +299,8 @@ export default {
     },
     distGroupId: async function() {
       console.log("in chat content distGroupId is ", this.distGroupId);
-      if(this.distGroupId.length != 0) {
-        var distInfo = await Group.FindItemFromGroupByGroupID(this.distGroupId);
-        if(distInfo != undefined) {
-          this.getCreateGroupInfo(distInfo);
-        }
-
-      }
+      let room = global.mxMatrixClientPeg.matrixClient.getRoom(this.distGroupId);
+      this.viewRoom(room)
     },
     updateImg: async function() {
       // console.log("in chat content updateImg ");

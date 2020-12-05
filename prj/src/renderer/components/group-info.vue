@@ -891,7 +891,9 @@ export default {
             let arr = dmRoomMap[k];
             arr.forEach(a=>dmRoomIdArr.push(a))
         })
-        if (dmRoomIdArr.includes(roomId)) {
+        let room = global.mxMatrixClientPeg.matrixClient.getRoom(roomId);
+        let numCount = room.getInvitedAndJoinedMemberCount();
+        if (dmRoomIdArr.includes(roomId) && numCount == 2) {
             this.isDm = true;
             console.log('这是一个单聊', currentRoom);
             Object.keys(currentRoom.currentState.members).forEach(id => {

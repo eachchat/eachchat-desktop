@@ -20,8 +20,15 @@ class _MatrixClientPeg{
         this.userToRooms = null;
         this._isLoggingOut = false;
         this.keyInfo = null;
+        this.accountPassword = null;
+        this.loadType = null;
+        this.account = null;
         console.log("default display name is ", this.defaultDisplayName);
         this._hasSentOutPatchDirectAccountDataPatch = false;
+    }
+
+    setRecoveryKey(recoveryKey) {
+      this.recoveryKey = recoveryKey;
     }
 
     getRoomAvatar(theRoom) {
@@ -223,6 +230,7 @@ class _MatrixClientPeg{
           deviceId: deviceId,
           cryptoCallbacks: {},
           timelineSupport: true,
+          unstableClientRelationAggregation: true,
         }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
@@ -293,6 +301,9 @@ class _MatrixClientPeg{
       let response = null;
       if(checkType == "m.login.verCode.msisdn") {
         try{
+          this.loadType = checkType;
+          this.account = username;
+          this.password = password;
           response = await this.commonApi.post(
             "/_matrix/client/r0/login",
             {
@@ -327,6 +338,8 @@ class _MatrixClientPeg{
         return "Unknown type";
       }
 
+      this.accountPassword = password;
+
       var ret = this.parseStatus(response);
       return ret;
     }
@@ -339,6 +352,7 @@ class _MatrixClientPeg{
           deviceId: matrixInfo.data.device_id,
           cryptoCallbacks: {},
           timelineSupport: true,
+          unstableClientRelationAggregation: true,
       }
       Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
       this.matrixClient = this._CreateMatrixClient(ops);
@@ -393,6 +407,7 @@ class _MatrixClientPeg{
             deviceId: userLoginResult.device_id,
             cryptoCallbacks: {},
             timelineSupport: true,
+            unstableClientRelationAggregation: true,
           }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
         this.matrixClient = this._CreateMatrixClient(ops);
@@ -474,7 +489,7 @@ class _MatrixClientPeg{
     }
 
     isLoggingOut() {
-      return _isLoggingOut;
+      return this._isLoggingOut;
     }
 
     extendMatrixClient() {

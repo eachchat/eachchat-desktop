@@ -50,7 +50,10 @@ import {ipcRenderer, remote} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
-import {UserInfo} from '../../packages/data/sqliteutil.js';
+import {UserInfo, Message} from '../../packages/data/sqliteutil.js';
+import { models } from '../../packages/data/models.js';
+
+
 import UpdateAlertDlg from './update-alert-dlg.vue'
 import { setInterval } from 'timers';
 export default {
@@ -314,7 +317,21 @@ export default {
                 ipcRenderer.send("showLoginPageWindow");
                 return;
             }
-        }
+        },
+        async _doBootstrapUIAuth(makeRequest) {
+            await makeRequest({
+                type: 'm.login.password',
+                identifier: {
+                    type: 'm.id.user',
+                    user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                },
+                // TODO: Remove `user` once servers support proper UIA
+                // See https://github.com/matrix-org/synapse/issues/5665
+                user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                password: global.mxMatrixClientPeg.accountPassword,
+            });
+        },
+
     },
     components: {
         organization,
@@ -353,7 +370,11 @@ export default {
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
-        await global.mxMatrixClientPeg.matrixClient.startClient();
+      let ops = {
+      }
+      ops.pendingEventOrdering = "detached";
+      ops.lazyLoadMembers = true;
+        await global.mxMatrixClientPeg.matrixClient.startClient(ops);
         
 
         const ctx = this;
@@ -371,6 +392,9 @@ export default {
           }
         })
         global.mxMatrixClientPeg.matrixClient.on("Session.logged_out", this.softLogout)
+        // await global.mxMatrixClientPeg.matrixClient.bootstrapCrossSigning({
+        //     authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
+        // });
 
 /*     global.mxMatrixClientPeg.matrixClient.getMediaConfig().then((config)=>{
             console.log(config)
@@ -394,6 +418,22 @@ export default {
         });
         ipcRenderer.on('setUnreadCount', (e, count) => {
             this.unReadCount = count;
+        })
+
+        ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId)=>{
+            let msgs = await Message.FindMessageByMesssageID(eventId);
+            if(msgs.length != 0){
+                msgs[0].file_local_path = finalName;
+                msgs[0].save();
+            }
+            else{
+                let msgValue = {
+                    message_id: eventId,
+                    file_local_path: finalName
+                }
+                let model = await new(await models.Message)(msgValue);
+                model.save();
+            }
         })
     },
     created: async function () {

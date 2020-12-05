@@ -137,14 +137,15 @@ import {services} from '../../packages/data/index.js';
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell, ipcRenderer} from 'electron'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, getFileBlob} from '../../packages/core/Utils.js'
 import { bool } from '../../packages/core/types';
 import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
 import chatCreaterDlg from './chatCreaterDlg.vue';
-import {Group, Department, UserInfo} from '../../packages/data/sqliteutil.js';
+import {Group, Department, UserInfo, Message} from '../../packages/data/sqliteutil.js';
 import favouriteDetail from './favourite-detail.vue'
 import { ComponentUtil } from '../script/component-util.js';
+
 
 export default {
     name: 'favourite-list',
@@ -296,40 +297,50 @@ export default {
             image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
             this.OpenFavouriteDetail(image);
         },
-        fileListClicked:async function(file) {
-            return;
-            if(!this.getFileExist(file)){
-                console.log("download start");
-                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false, file.collection_content.fileSize);
-                shell.openItem(targetPath);
+
+        DownloadFile: function(file){
+            let filepath = file.localPath;
+            if(filepath.length == 0){
+                var chatGroupMsgContent = file.collection_content;
+                let msgKey = Base64.encode(chatGroupMsgContent.url, true)
+                var distPath = confservice.getFilePath(chatGroupMsgContent.fromTimestamp);
+                getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                .then((blob) => {
+                    let reader = new FileReader();
+                    reader.onload = function() {
+                        if(reader.readyState == 2) {
+                            var buffer = new Buffer(reader.result);
+                            var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                            ipcRenderer.send("save_file", finalPath, buffer, msgKey, false);
+                        }
+                    }
+                    reader.readAsArrayBuffer(blob);
+                })
+                return;
             }
-            var targetDir = confservice.getFilePath(file.timestamp);
-            var targetPath = path.join(targetDir, file.collection_content.fileName);
-            shell.openItem(targetPath);
+            let folder = path.dirname(filepath);
+            shell.openExternal(folder);
+        },
+
+        fileListClicked:async function(file) {
+            this.DownloadFile(file);
         },
         fileActionClicked:async function(file) {
-            if(this.getFileExist(file)){
-                var targetDir = confservice.getFilePath(file.timestamp);
-                var targetPath = path.join(targetDir, file.collection_content.fileName);
-                shell.showItemInFolder(targetPath);
-                
-            }else{
-                console.log("download start");
-                await services.common.downloadFile(file.collection_content.timelineId, file.timestamp, file.collection_content.fileName, false, file.collection_content.fileSize);
-            }
+            this.DownloadFile(file);
         },
         updateFileCollectionList() {
             var tempFiles = [];
             for(var i = 0; i < this.favourites.length; i ++){
                     var file = this.favourites[i];
-                    file.local_exist = this.getFileExist(file);
+                    file.local_exist = file.localPath;
                     //file.collection_content.fileSize = getFileSizeByNumber(file.collection_content.fileSize)
                     tempFiles[i] = file;
             }
             this.favourites = tempFiles;
         },
         getFileStateSourceImage(file) {
-            if(this.getFileExist(file)){
+            if(file.localPath.length != 0){
                 return require("../../../static/Img/Favorite/File/directory@2x.png");
             }else{
                 return require("../../../static/Img/Favorite/File/download@2x.png");
@@ -405,8 +416,15 @@ export default {
             var iconPath = getIconPath(ext);
             return iconPath
         },
-        getFileExist(file) {
-            return false;
+
+        async getFileExist(file) {
+            let fileOriginUrl = file.collection_content.url;
+            let key = Base64.encode(fileOriginUrl, true);
+            let msgs = await Message.FindMessageByMesssageID(key);
+            console.log(msgs)
+            if(msgs.length != 0 && msgs[0].file_local_path != "")
+                return msgs[0].file_local_path;
+            return '';
         },
 
         getImageCollectionContent:async function(image){
@@ -452,6 +470,9 @@ export default {
                 tempFavourite.collection_type = model.collection_type;
                 tempFavourite.favourite_id = model.favourite_id;
                 tempFavourite.collection_content = strMsgContentToJson(model.collection_content);
+                if(103 == tempFavourite.collection_type){
+                    tempFavourite.localPath = await this.getFileExist(tempFavourite);
+                }
                 tempFavourite.user_name = await ComponentUtil.GetDisplayNameByMatrixID(tempFavourite.collection_content.fromMatrixId);
                 tempFavourite.sequence_id 
                 = model.sequence_id;
@@ -554,6 +575,7 @@ export default {
             console.log(temp);
 
         },
+        
         updateSearchCollectionResult:async function(key){
             var tempResult = await this.getSearchCollectionResult(key);
             this.headerTitle = '收藏';
@@ -611,7 +633,7 @@ export default {
             }
 
         },
-        updateCollectionShowFile: function(e, args) {
+        updateCollectionShowFile: function(e, msgId, filepath) {
             var state = args[0];
             var stateInfo = args[1];
             var id = args[2];
@@ -631,8 +653,22 @@ export default {
             }
 
         },
+
+        UpdateFileLocalPath: async function(e, finalName, eventId){
+            if(this.favouriteType !== 'file')
+                return;
+            this.favourites.map(file => {
+                let fileOriginUrl = file.collection_content.url;
+                let key = Base64.encode(fileOriginUrl, true);
+                if(key === eventId)
+                    file.localPath = finalName;
+                return file;
+            })
+        },
     },
+
     created:async function() {
+        ipcRenderer.on("SAVED_FILE", this.UpdateFileLocalPath);
         this.recentGroups = await Group.GetGroupByTime();
         //console.log(this.recentGroups);
         if(this.showSearchView){
@@ -659,6 +695,7 @@ export default {
         }else if(this.favouriteType == 'file') {
             this.headerTitle = '收藏';
             var fileCollectionModel = await global.services.common.ListFileCollections();
+
             this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
             console.log( this.favourites)
         }
