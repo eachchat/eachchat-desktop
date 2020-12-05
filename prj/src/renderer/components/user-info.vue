@@ -192,10 +192,13 @@ export default {
             const targetIds = [this.userInfo.matrix_id];
             const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
             console.log('------existingRoom------', existingRoom);
+            
+            //判断群组个数
             if (existingRoom) {
                 existingRoom.room_id = existingRoom.roomId
                 const obj = {data: existingRoom, handler: 'viewRoom'};
                 this.$emit('close', obj);
+                this.jumpToChat();
                 return;
             }
 
@@ -221,8 +224,7 @@ export default {
                 //     }
                 // });
             }
-
-
+            this.jumpToChat();
         },
         GetDisplayName: function(displayName, userid){
             return ComponentUtil.GetDisplayName(displayName, userid);
