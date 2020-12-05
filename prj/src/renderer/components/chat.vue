@@ -95,8 +95,8 @@
                 </div>
             </div>
         </div>
-        <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="searchRoomId" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
-        <mxFilePage class="mxFilePage" v-show="isFileList" :distRoomId="searchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
+        <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
+        <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="chat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
         <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
@@ -394,19 +394,19 @@ export default {
         showHistoryMsgList: function() {
             // ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
             this.isSerach = true;
-            this.searchRoomId = this.chat.roomId;
+            this.HistorySearchRoomId = this.chat.roomId;
         },
         CloseSearchPage: function() {
             this.isSerach = false;
-            this.searchRoomId = "";
+            this.HistorySearchRoomId = "";
         },
         showFileList: function() {
             this.isFileList = true;
-            this.searchRoomId = this.chat.roomId;
+            this.FilelistSearchRoomId = this.chat.roomId;
         },
         CloseFileListPage: function() {
             this.isFileList = false;
-            this.searchRoomId = "";
+            this.FilelistSearchRoomId = "";
         },
         showMsgHistoryOperate: function() {
             var msgHistoryBtnElement = document.getElementById("chat-input-history-id");
@@ -2340,7 +2340,8 @@ s        },
             distEventId: '',
             timeLineSet: undefined,
             isJumpPage: false,
-            searchRoomId: '',
+            HistorySearchRoomId: '',
+            FilelistSearchRoomId: '',
             isSerach: false,
             isFileList: false,
             isInvite: false,

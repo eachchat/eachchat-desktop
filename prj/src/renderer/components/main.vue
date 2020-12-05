@@ -317,7 +317,21 @@ export default {
                 ipcRenderer.send("showLoginPageWindow");
                 return;
             }
-        }
+        },
+        async _doBootstrapUIAuth(makeRequest) {
+            await makeRequest({
+                type: 'm.login.password',
+                identifier: {
+                    type: 'm.id.user',
+                    user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                },
+                // TODO: Remove `user` once servers support proper UIA
+                // See https://github.com/matrix-org/synapse/issues/5665
+                user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                password: global.mxMatrixClientPeg.accountPassword,
+            });
+        },
+
     },
     components: {
         organization,
@@ -356,7 +370,11 @@ export default {
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
-        await global.mxMatrixClientPeg.matrixClient.startClient();
+      let ops = {
+      }
+      ops.pendingEventOrdering = "detached";
+      ops.lazyLoadMembers = true;
+        await global.mxMatrixClientPeg.matrixClient.startClient(ops);
         
 
         const ctx = this;
@@ -374,6 +392,9 @@ export default {
           }
         })
         global.mxMatrixClientPeg.matrixClient.on("Session.logged_out", this.softLogout)
+        // await global.mxMatrixClientPeg.matrixClient.bootstrapCrossSigning({
+        //     authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
+        // });
 
 /*     global.mxMatrixClientPeg.matrixClient.getMediaConfig().then((config)=>{
             console.log(config)
