@@ -3,7 +3,7 @@
         <el-header height="56px" class="organization-header">
             <p class="organization-header-title">{{ $t("organizeMenuName") }}</p>
         </el-header>
-        <el-main>
+        <el-main style="overflow: hidden">
             <el-container class="bottom-container" id="organization-main-container">
                 <div v-for="(orgItem, orgIndex) in organizationList">
                     <div class="organization-view-one">
@@ -213,12 +213,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 
-::-webkit-scrollbar {
-/*隐藏滚轮*/
-display: none;
-}
-
-
 .organization-header {
     display: float;
     width: 100%;
@@ -264,14 +258,7 @@ display: none;
     width: 100%;
     height: 100%;
     min-width: 280px;
-    //display: flex;
     flex-direction: column;
-    //border-right: 0.5px solid rgb(221, 221, 221);
-    overflow-y: scroll;
-    overflow-x: hidden;
-    // ::-webkit-scrollbar-track {ß
-    //     border-radius: 10px;
-    // }
     margin: 0px;
     cursor: pointer;
 }
