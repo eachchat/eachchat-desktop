@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
-                <div class="text-input" @keydown="keyHandle($event)">
+                <div class="text-input" @keydown="keyHandle($event)" @keyup="keyUpHandle($event)">
                     <quillEditor
                         ref="chatQuillEditor"
                         v-model="content"
@@ -121,7 +121,7 @@
         </groupInfoTip> <!--todo html-->
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
-        <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" v-show="chatMemberDlgVisible"/>
+        <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" :selectClicked="toSelect" v-show="chatMemberDlgVisible"/>
         <userInfoContent 
             :userInfo="userInfo" 
             :isOwn="isOwn" 
@@ -191,6 +191,7 @@ import mxFilePage from "./mxFileList.vue";
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
+var canNewLine = false;
 // Quill.register('modules/imageDrop', ImageDrop);
 // Quill.register('modules/resizeImage', resizeImage);
 
@@ -851,7 +852,7 @@ export default {
                 curInputIndexTmp = range.index;
             }
             if(range != null) {
-                console.log("range.index is ", range.index);
+                // console.log("range.index is ", range.index);
             }
             var atIndex = this.curContent.lastIndexOf("@");
             // console.log("atIndex is ", atIndex);
@@ -897,6 +898,7 @@ export default {
                 this.chatMemberDlgVisible = false;
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgchat = {};
+            canNewLine = true;
             }
         },
         deleteDistContent() {
@@ -935,17 +937,109 @@ export default {
                 }
             }
         },
+        keyUpHandle(event) {
+            // console.log("handle up event ", event)
+            var range = this.editor.getSelection();
+            // console.log("handle up event range is ", range.index);
+
+            if(event.code == "ArrowUp") {
+                console.log("handle up this.chatMemberDlgVisible ", this.chatMemberDlgVisible)
+                if(!this.chatMemberDlgVisible) {
+                    return;
+                }
+                
+                console.log("handle up event range is ", range);
+                if(range == null) {
+                    this.editor.setSelection(0);
+                }
+                else {
+                    console.log("to set 1");
+                    this.editor.setSelection(range.index + 1);
+                }
+            }
+        },
         keyHandle(event) {
             // console.log("event ", event)
             // console.log("clipboard ", clipboard.readImage())
             var range = this.editor.getSelection();
+            // console.log("handle down event range is ", range.index);
             var content = this.editor.getContents();
 
             if(event.code == "Enter" && !event.ctrlKey) {
-                if(isEnter) {
+                if(this.chatMemberDlgVisible) {
+                    this.toSelect = !this.toSelect;
+                    isEnter = false;
+                }
+                else if(isEnter) {
                     this.sendMsg();
                     // console.log("sendmsg");
                     isEnter = false;
+                    canNewLine = true;
+                }
+            }
+            else if(event.code == "Escape") {
+                if(this.chatMemberDlgVisible) {
+                    this.chatMemberDlgVisible = false;
+                    this.charMemberDlgChat = {};
+                    this.chatMemberSearchKey = null;
+                    canNewLine = true;
+                }
+            }
+            else if(event.code == "ArrowDown" || event.code == "ArrowUp") {
+                if(!this.chatMemberDlgVisible) {
+                    return;
+                }
+                
+                // if(range == null) {
+                //     this.editor.setSelection(0);
+                // }
+                // else if(range.index > 0) {
+                //     this.editor.setSelection(0);
+                // }
+                
+                if(this.ulElement == undefined) {
+                    this.ulElement = document.getElementById("atListId");
+                }
+                console.log(this.ulElement.children);
+                switch(event.keyCode) {
+                    case 38: {
+                        console.log("=======up ", this.curSelectedIndex);
+                        if(this.curSelectedIndex == 0) {
+                            this.curSelectedIndex = this.ulElement.children.length - 1;
+                            this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
+                        }
+                        else if(this.curSelectedIndex > 0 && this.curSelectedIndex < this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        else if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[0].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        break;
+                    }
+                    case 40: {
+                        console.log("=======down", this.curSelectedIndex);
+                        if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
+                            this.ulElement.children[0].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.curSelectedIndex = 0;
+                        }
+                        else if(this.curSelectedIndex < this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
+                            if(this.ulElement.children[this.curSelectedIndex-1]){
+                                this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            }
+                            this.curSelectedIndex++;
+                        }
+                        break;
+                    }
                 }
             }
             else if(event.code == "Enter" && event.ctrlKey) {
@@ -1012,6 +1106,7 @@ export default {
                 
                 this.chatMemberDlgVisible = true;
                 this.chatMemberDlgchat = this.chat;
+                canNewLine = false;
             }
         },
         atMember(atMemberInfo) {
@@ -1045,6 +1140,7 @@ export default {
             this.chatMemberDlgVisible = false;
             this.charMemberDlgChat = {};
             this.chatMemberSearchKey = null;
+            canNewLine = true;
         },
         getCreateGroupInfo(groupInfo) {
             console.log("chat get create group info is ", groupInfo);
@@ -1082,6 +1178,7 @@ export default {
                 this.chatMemberDlgVisible = false;
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgchat = {};
+                canNewLine = true;
             }
             
             var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
@@ -2336,6 +2433,9 @@ s        },
     },
     data() {
         return {
+            toSelect: false,
+            ulElement: undefined,
+            curSelectedIndex: 0,
             path2File: {},
             distEventId: '',
             timeLineSet: undefined,
@@ -2427,7 +2527,12 @@ s        },
                                 ctrlKey: false,
                                 handler: function (range) {
                                     isEnter = true;
-                                    return true;
+                                    if(canNewLine) {
+                                        return true;
+                                    }
+                                    else {
+                                        return false;
+                                    }
                                 }
                             }
                         }

@@ -1,7 +1,7 @@
 <template>
     <div class="atDlg" id="atDlgId">
         <div class="atList-view">
-            <ul class="atList">
+            <ul class="atList" id="atListId">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @click="atMember(item)">
                     <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" src="../../../static/Img/User/user-40px@2x.png">
@@ -39,7 +39,7 @@ export default {
     },
     components: {
     },
-    props: ["GroupInfo", "showPosition", "chatMemberSearchKey"],
+    props: ["GroupInfo", "showPosition", "chatMemberSearchKey", "selectClicked"],
     computed: {
     },
     methods: {
@@ -130,6 +130,24 @@ export default {
             this.groupId = this.GroupInfo.roomId; 
             
         },
+        selectClicked: function() {
+            this.$nextTick(() => {
+                var ulDiv = document.getElementById("atListId");
+                var selectedIndex = -1;
+                for(var i=0;i<ulDiv.children.length;i++) {
+                    if(ulDiv.children[i].style.backgroundColor == "rgb(17, 180, 105)") {
+                        selectedIndex = i;
+                        break;
+                    }
+                }
+                if(selectedIndex != -1) {
+                    var memberInfo = this.memberListShow[i];
+                    this.memberListShowOriginal = [];
+                    this.memberListShow = [];
+                    this.$emit("atMember", memberInfo);
+                }
+            })
+        },
         showPosition: function() {
             // console.log("this showposition is ", this.showPosition)
         },
@@ -167,8 +185,8 @@ export default {
 
                 this.searchId = curSearchId;
                 for(var i=0;i<this.memberListShowOriginal.length;i++) {
-                    console.log("searchResult is ", this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey));
-                    if(this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey) != -1) {
+                    console.log("searchResult is ", this.memberListShowOriginal[i].name.indexOf(this.chatMemberSearchKey));
+                    if(this.memberListShowOriginal[i].name.indexOf(this.chatMemberSearchKey) != -1) {
                         if(searchResult.searchList.indexOf(this.memberListShowOriginal[i]) == -1) {
                             searchResult.searchList.push(this.memberListShowOriginal[i]);
                         }
