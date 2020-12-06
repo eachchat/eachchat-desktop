@@ -443,7 +443,8 @@ export default {
     .search-field {
         display: flex;
         height: 32px;
-        padding: 4px 8px;
+        padding: 2px;
+        padding-left:3px;
         background-color: #d7d7d7;
     }
     .search-logo {
