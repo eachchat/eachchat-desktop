@@ -292,7 +292,7 @@ export default {
             return "chatMsgDivId_" + eventId;
         },
         isDeleted: function(msgItem) {
-            return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
+            return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction" || (!this.showNoticeOrNot(msgItem) && !this.showMessageOrNot(msgItem));
         },
         joinRoom: function() {
             global.mxMatrixClientPeg.matrixClient.joinRoom(this.chat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
@@ -1564,31 +1564,48 @@ export default {
         },
         // If message is notice set visible
         showNoticeOrNot: function(curMsg) {
-            // if(curMsg === null) {
-            //     return false;
-            // }
-            // let event = curMsg.event;
-            // let chatGroupMsgType = event.type;
-            // var chatGroupMsgContent = event.content;
-            // let index = ['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType);
-            // if(['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType) == -1)
-            //     return true;
-            // return false;
-            return curMsg.isState();
+            var showNotice = true;
+            if(curMsg.isState()) {
+                switch (curMsg.getType()) {
+                    case "m.room.canonical_alias":
+                        console.log("canonical_alias")
+                        showNotice = false;
+                        break;
+                    case "m.room.third_party_invite":
+                        console.log("third_party_invite")
+                        showNotice = false;
+                        break;
+                    case "m.room.history_visibility":
+                        showNotice = false;
+                    case "m.room.power_levels":
+                        showNotice = false;
+                    case "m.room.pinned_events":
+                        console.log("pinned_events")
+                        break;
+                    case "m.room.server_acl":
+                        showNotice = false;
+                        break;
+                    case "m.room.tombstone":
+                        showNotice = false;
+                        break;
+                    case "m.room.join_rules":
+                        showNotice = false;
+                        break;
+                    case "m.room.guest_access":
+                        showNotice = false;
+                        break;
+                    case "m.room.related_groups":
+                        showNotice = false;
+                        break;
+                    case "im.vector.modular.widgets":
+                        showNotice = false;
+                        break;
+                }
+            }
+            return showNotice;
 s        },
         // Notice show difference with message.
-        showMessageOrNot: function(curMsg) {
-            // if(curMsg === null) {
-            //     return false;
-            // }
-            // let event = curMsg.event;
-            // let chatGroupMsgType = event.type;
-            // var chatGroupMsgContent = event.content;
-            // let index = ['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType);
-
-            // if(['m.room.encrypted', 'm.room.message'].indexOf(chatGroupMsgType) == -1)
-            //     return false;
-            // return true;            
+        showMessageOrNot: function(curMsg) {  
             return !curMsg.isState();
         },
         textForJoinRulesEvent(ev) {
