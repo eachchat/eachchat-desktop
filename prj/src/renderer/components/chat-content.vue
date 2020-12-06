@@ -1029,6 +1029,11 @@ export default {
       this.showImageLayers = false;
     },
     leaveGroup(roomId) {
+      if(this.curChat && roomId == this.curChat.roomId)
+      {
+        this.isEmpty = true;
+        this.curChat = undefined;
+      }
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       this.DeleteGroup(roomId);
     },
