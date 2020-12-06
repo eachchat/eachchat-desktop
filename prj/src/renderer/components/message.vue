@@ -101,7 +101,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
 import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
-import { UserInfo } from '../../packages/data/sqliteutil.js'
+import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
 
 export default {
     components: {
@@ -141,6 +141,17 @@ export default {
         getUserIconId: function() {
             return this.msg.event.event_id + "-usericon"
         },
+        async getFileExist() {
+            let msgs = await Message.FindMessageByMesssageID(this.msg.event.event_id);
+            console.log(msgs)
+            if(msgs.length != 0 && msgs[0].file_local_path != "")
+                return msgs[0].file_local_path;
+            return '';
+        },
+        ProCallback: function(receivedLength, contentLength) {
+            this.receivedLength = receivedLength
+            this.contentLength = contentLength;
+        },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
             let msgType = this.msg.msgtype;
@@ -167,19 +178,32 @@ export default {
             if(chatGroupMsgType === "m.room.message") {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
-                    getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
-                        .then((blob) => {
-                            let reader = new FileReader();
-                            reader.onload = function() {
-                                if(reader.readyState == 2) {
-                                    var buffer = new Buffer(reader.result);
-                                    var finalPath = path.join(distPath, chatGroupMsgContent.body);
-                                    // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
-                                    ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                    var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                    var existLocalFile = await this.getFileExist();
+                    this.checkingTmpPath = finalPath + "_tmp";
+                    if(!fs.existsSync(existLocalFile)) {
+                        getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
+                            .then((blob) => {
+                                let reader = new FileReader();
+                                reader.onload = function() {
+                                    if(reader.readyState == 2) {
+                                        var buffer = new Buffer(reader.result);
+                                        // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                        ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                                    }
                                 }
-                            }
-                            reader.readAsArrayBuffer(blob);
-                        })
+                                reader.readAsArrayBuffer(blob);
+                            })
+                            
+                        this.downloadingInterval = setInterval(() => {
+                            this.showProgress = true;
+                            this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
+                                // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
+                        }, 200);
+                    }
+                    else {
+                        shell.openExternal(existLocalFile);
+                    }
                 }
                 if(chatGroupMsgContent.msgtype == 'm.image'){
                     var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
@@ -690,72 +714,19 @@ export default {
                 return;
             }
             setTimeout(() => {
-                // console.log("updateMsg show state");
                 this.showState = true;
                 this.updateStatus = !this.updateStatus;
             }, 500)
-            var state = this.updateMsg[0];
-            var stateInfo = this.updateMsg[1];
-            var id = this.updateMsg[2];
-            var localPath = this.updateMsg[3];
-            var needOpen = this.updateMsg[4];
+            var id = this.updateMsg[1];
+            var localPath = this.updateMsg[0];
 
-            if(id != this.msg.time_line_id) {
+            if(id != this.msg.event.event_id) {
                 return;
             }
 
             this.showProgress = false;
             if(this.downloadingInterval) {
                 clearInterval(this.downloadingInterval);
-            }
-
-            if(fs.existsSync(localPath)){
-                // if(this.msg.file_local_path.length != 0 && !fs.existsSync(this.msg.file_local_path)) {
-                //     return;
-                // }
-                console.log("Update db locak path ", localPath);
-                services.common.SetFilePath(this.msg.message_id, localPath);
-                // Update message localpath throuth messageId
-                // console.log("update msg file path to ", localPath);
-                if(this.msg.message_type == 102) {
-                    var chatGroupMsgContent = strMsgContentToJson(this.msg.message_content);
-                    // console.log("message chatGroupMsgContent ", chatGroupMsgContent);
-                    var msg_id = this.msg.message_id;
-                    var imgMsgImgElement = document.getElementById(msg_id);
-                    services.common.SetFilePath(this.msg.message_id, localPath);
-                    var showfu = new FileUtil(localPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        let imageHeight = 100;
-                        if(chatGroupMsgContent.imgHeight < 100){
-                            imageHeight = chatGroupMsgContent.imgHeight;
-                        }
-                        this.imageHeight = imageHeight;
-                        imgMsgImgElement.setAttribute("style", "");
-                        imgMsgImgElement.setAttribute("src", reader.result);
-                        imgMsgImgElement.setAttribute("height", imageHeight);
-                    }
-                }
-                else if(this.msg.message_type == 105 && needOpen) {
-                    if(this.amr == null){
-                        this.amr = new BenzAMRRecorder();
-                    }
-                    if(this.amr.isPlaying()) {
-                        console.log("stop")
-                        this.amr.stop();
-                    }
-                    if(this.amr.isInit()) {
-                        console.log("play")
-                        this.amr.play();
-                    }
-                    else {
-                        this.amr.initWithUrl(localPath).then(() => {
-                            this.amr.play();
-                        })
-                    }
-                }
             }
         },
         updateUser: function() {

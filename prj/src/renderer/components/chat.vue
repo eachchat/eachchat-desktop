@@ -42,6 +42,10 @@
                 <!-- </ul> -->
                 </transition-group>
             </div>
+            <div class="uploadingProc" v-show="showUploadProgress">
+                <label class="uploadingName">{{UploadingName}}</label>
+                <el-progress class="upload-file-progress" :percentage="curPercent" color="#11b067" :show-text="false" :width="70"></el-progress>
+            </div>
             <div class="chat-input" id="chat-input-id" v-show="!multiSelect && !isInvite">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
@@ -1335,7 +1339,7 @@ export default {
                     fileinfo.path = fileList[i];
                     fileinfo.size = fileSize;
                     fileinfo.name = path.basename(fileList[i])
-                    if(fileSize > 100 * 1024 * 1024) {
+                    if(fileSize > 50 * 1024 * 1024) {
                         this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                         continue
                     }
@@ -1383,6 +1387,12 @@ export default {
                 fr.readAsArrayBuffer(theFile);
             })
         },
+        onUploadProgress(ev) {
+            console.log("=========== ",ev);
+            this.sendLength = ev.loaded;
+            this.contentLength = ev.total;
+            this.curPercent = parseInt(this.sendLength*100/Number(this.contentLength))
+        },
         sendFile: async function(fileinfo) {
             console.log("fileinfo is ", fileinfo);
             var showfileObj = undefined;
@@ -1403,15 +1413,17 @@ export default {
             reader.onload = () => {
                 let type = GetFileType(reader.result);
                 let fileResult = reader.result;
+                this.showUploadProgress = true;
+                this.UploadingName = fileinfo.name;
                 if(type == 'm.image'){
                     this.SendImage(showfileObj, fileResult, stream)
                 }
                 else{
                     var roomID = this.chat.roomId;
                     let filename = fileinfo.name;
-                    global.mxMatrixClientPeg.matrixClient.uploadContent({
-                        stream: stream,
-                        name: filename
+                    global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
+                        name: filename,
+                        progressHandler: this.onUploadProgress
                     }).then((url)=>{
                         var content = {
                             msgtype: 'm.file',
@@ -1422,6 +1434,7 @@ export default {
                             }
                         };
                         global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
+                        this.showUploadProgress = false;
                     });
                 }
                 
@@ -1442,6 +1455,8 @@ export default {
                 img.src = fileResult;
                 var encryptInfo;
                 var uploadPromise;
+                this.showUploadProgress = true;
+                this.UploadingName = fileinfo.name;
                 //let tt1 = fileResult.substring(fileResult.indexOf("\,") + 1)
                 //let tt0 = Buffer.from(tt1, "base64");
                 img.onload = ()=>{
@@ -1455,7 +1470,8 @@ export default {
                             var blob = new Blob([encryptResult.data]);
                             global.mxMatrixClientPeg.matrixClient.uploadContent(
                                     blob,
-                                    {includeFilename: false}
+                                    {includeFilename: false,
+                                    progressHandler: this.onUploadProgress}
                                 ).then((url)=>{
                                     encryptInfo.url = url;
                                     encryptInfo.mimetype = fileinfo.type;
@@ -1473,6 +1489,7 @@ export default {
                                         }
                                     };
                                     uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
+                                    this.showUploadProgress = false;
                                     return uploadPromise;
                                 });
                         })
@@ -1480,7 +1497,8 @@ export default {
                     else {
                         global.mxMatrixClientPeg.matrixClient.uploadContent({
                             stream: stream,
-                            name: filename
+                            name: filename,
+                            progressHandler: this.onUploadProgress
                         }).then((url)=>{
                             var content = {
                                 msgtype: 'm.image',
@@ -2346,9 +2364,10 @@ s        },
                 }
             }
         },
-        updateMsgFile(e, args) {
-            console.log("updateMsgfile ", args);
-            this.updateMsg = args;
+        updateMsgFile(e, localPath, eventId) {
+            console.log("updateMsgfile ", localPath, eventId);
+            var myPackage = [localPath, eventId];
+            this.updateMsg = myPackage;
         },
         updateUserImage(e, args) {
             console.log("updateUserImage ", args);
@@ -2392,7 +2411,7 @@ s        },
                 fileinfo.size = files[i].size;
                 fileinfo.name = files[i].name;
                 
-                if(files[i].size > 100 * 1024 * 1024) {
+                if(files[i].size > 50 * 1024 * 1024) {
                     this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
                     continue
                 }
@@ -2450,6 +2469,9 @@ s        },
     },
     data() {
         return {
+            UploadingName: '',
+            showUploadProgress: false,
+            curPercent: 0,
             toSelect: false,
             ulElement: undefined,
             curSelectedIndex: 0,
@@ -2579,7 +2601,7 @@ s        },
         setTimeout(() => {
             this.$nextTick(() => {
                 // console.log("==============ipc on")
-                ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+                ipcRenderer.on('SAVED_FILE', this.updateMsgFile);
                 ipcRenderer.on('updateUserImage', this.updateUserImage);
                 ipcRenderer.on('transmitFromSoloDlg', this.transmitFromSoloDlg);
                 ipcRenderer.on('setFocuse', this.setFocuse);
@@ -3526,6 +3548,35 @@ s        },
     .el-dialog-content {
         height: 300px;
         width: 600px;
+        overflow: hidden;
+    }
+
+    .uploadingProc{
+        display: block;
+        width: 100%;
+        float: right;
+        height: 18px;
+    }
+
+    .upload-file-progress {
+        display: inline-block;
+        width: 90%;
+        float: left;
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+
+    .uploadingName {
+        display: inline-block;
+        width: 10%;
+        font-size: 12px;
+        height: 18px;
+        line-height: 18px;
+        font-family: 'PingFangSC-Regular';
+        float: left;
+        color: rgba(221, 221, 221, 1);
+        white-space: nowrap;
+        text-overflow: ellipsis;
         overflow: hidden;
     }
 

@@ -815,26 +815,58 @@ function decryptFile(file, url) {
     });
 }
 
-function getFileBlob(fileInfo, url) {
+function getFileBlob(fileInfo, url, proCallback) {
     // const url = MatrixClientPeg.get().mxcUrlToHttp(file.url);
     // Download the encrypted file as an array buffer.
-    return Promise.resolve(fetch(url)).then(function(response) {
-        return response.arrayBuffer();
-    }).then(function(dataArray) {
-        // Turn the array into a Blob and give it the correct MIME-type.
+    return Promise.resolve(fetch(url)).then(async function(response) {
+        if(response.ok) {
+            const reader = response.body.getReader();
+            const contentLength = +response.headers.get('Content-Length');
+            let receivedLength = 0;
+            let chunks = [];
+            while(true) {
+                const {done, value} = await reader.read();
+              
+                if (done) {
+                  break;
+                }
+              
+                chunks.push(value);
+                receivedLength += value.length;
+              
+                console.log(`Received ${receivedLength} of ${contentLength}`)
+                if(proCallback) {
+                    proCallback(receivedLength, contentLength);
+                }
+            }
+            
+            let mimetype = fileInfo.mimetype ? fileInfo.mimetype.split(";")[0].trim() : '';
+            if (!ALLOWED_BLOB_MIMETYPES[mimetype]) {
+                mimetype = 'application/octet-stream';
+            }
 
-        // IMPORTANT: we must not allow scriptable mime-types into Blobs otherwise
-        // they introduce XSS attacks if the Blob URI is viewed directly in the
-        // browser (e.g. by copying the URI into a new tab or window.)
-        // See warning at top of file.
-        let mimetype = fileInfo.mimetype ? fileInfo.mimetype.split(";")[0].trim() : '';
-        if (!ALLOWED_BLOB_MIMETYPES[mimetype]) {
-            mimetype = 'application/octet-stream';
+            const blob = new Blob(chunks, {type: mimetype});
+            return blob;
         }
+        else {
+            return false;
+        }
+    })
+    // .then(function(dataArray) {
+    //     // Turn the array into a Blob and give it the correct MIME-type.
 
-        const blob = new Blob([dataArray], {type: mimetype});
-        return blob;
-    });
+    //     // IMPORTANT: we must not allow scriptable mime-types into Blobs otherwise
+    //     // they introduce XSS attacks if the Blob URI is viewed directly in the
+    //     // browser (e.g. by copying the URI into a new tab or window.)
+    //     // See warning at top of file.
+    //     let mimetype = fileInfo.mimetype ? fileInfo.mimetype.split(";")[0].trim() : '';
+    //     if (!ALLOWED_BLOB_MIMETYPES[mimetype]) {
+    //         mimetype = 'application/octet-stream';
+    //     }
+
+    //     const blob = new Blob([dataArray], {type: mimetype});
+    //     return blob;
+    // });
 }
 
 class FileUtil
