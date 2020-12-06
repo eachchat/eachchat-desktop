@@ -1397,6 +1397,8 @@ export default {
             console.log("fileinfo is ", fileinfo);
             var showfileObj = undefined;
             var stream = "";
+            var encryptInfo;
+            var uploadPromise;
             if(!fs.existsSync(fileinfo.path)) {
                 showfileObj = this.path2File[fileinfo.path];
                 var arrayBuf = await this.myArrayBuffer(showfileObj);
@@ -1415,27 +1417,58 @@ export default {
                 let fileResult = reader.result;
                 this.showUploadProgress = true;
                 this.UploadingName = fileinfo.name;
+                let filename = fileinfo.name;
+                var roomID = this.chat.roomId;
                 if(type == 'm.image'){
                     this.SendImage(showfileObj, fileResult, stream)
                 }
                 else{
-                    var roomID = this.chat.roomId;
-                    let filename = fileinfo.name;
-                    global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
-                        name: filename,
-                        progressHandler: this.onUploadProgress
-                    }).then((url)=>{
-                        var content = {
-                            msgtype: 'm.file',
-                            body: filename,
-                            url: url,
-                            info:{
-                                size: fileinfo.size,
-                            }
-                        };
-                        global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                        this.showUploadProgress = false;
-                    });
+                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId)) {
+                        var prom = this.readFileAsArrayBuffer(showfileObj).then((data) => {
+                            return encrypt.encryptAttachment(data);
+                        }).then((encryptResult) => {
+                            encryptInfo = encryptResult.info;
+                            var blob = new Blob([encryptResult.data]);
+                            global.mxMatrixClientPeg.matrixClient.uploadContent(
+                                    blob,
+                                    {includeFilename: false,
+                                    progressHandler: this.onUploadProgress}
+                                ).then((url)=>{
+                                    encryptInfo.url = url;
+                                    encryptInfo.mimetype = fileinfo.type;
+                                    var content = {
+                                        msgtype: 'm.file',
+                                        body: filename,
+                                        file: encryptInfo,
+                                        url: url,
+                                        info:{
+                                            size: fileinfo.size,
+                                            mimetype: fileinfo.type
+                                        }
+                                    };
+                                    uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
+                                    this.showUploadProgress = false;
+                                });
+                        })
+                    }
+                    else {
+                        let filename = fileinfo.name;
+                        global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
+                            name: filename,
+                            progressHandler: this.onUploadProgress
+                        }).then((url)=>{
+                            var content = {
+                                msgtype: 'm.file',
+                                body: filename,
+                                url: url,
+                                info:{
+                                    size: fileinfo.size,
+                                }
+                            };
+                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
+                            this.showUploadProgress = false;
+                        });
+                    }
                 }
                 
             }
