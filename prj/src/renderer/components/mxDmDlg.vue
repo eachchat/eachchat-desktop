@@ -44,7 +44,7 @@
                         <div v-else-if="item.dvd" class="dvd">{{item.txt}}</div>
                         <div 
                             class="room-item"
-                            @click.stop="choose(item, idx)"
+                            @click.stop="chooseT(item, idx)"
                             :style="{'background': item.choosen ? '#A7E0C4':'#fff'}" 
                             v-else
                         >
@@ -142,7 +142,7 @@ export default {
             this.loading = true;
             const client = window.mxMatrixClientPeg.matrixClient;
             console.log('检查非matrix用户')
-            const targetIds = this.choosenMembers.map(t => t.user_id);
+            const targetIds = this.choosenMembers.map(t => t.matrix_id || t.user_id);
             const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
             console.log('------existingRoom------', existingRoom);
             if (existingRoom) {
@@ -191,6 +191,14 @@ export default {
                 return true; // abort
             }
             return false;
+        },
+        chooseT: function(member, idx) {
+            console.log('idxxxxx', idx)
+            const totalList = this.totalList;
+            totalList.forEach(m => {if (m.choosen) m.choosen = false});
+            totalList[idx].choosen = true;
+            this.totalList = [...totalList];
+            this.choosenMembers = [member];
         },
         choose: function(member, idx) {
             console.log('idxxxxx', idx)
@@ -523,6 +531,7 @@ export default {
                 }
                 newCrumbs[newCrumbs.length-1].choosen = true;
                 console.log('>>>>>', newCrumbs)
+                newCrumbs[1].name = '组织';
                 this.crumbs = [...newCrumbs];
                 const subDep = await Department.GetSubDepartment(department_id);
                 const subUsers = await UserInfo.GetSubUserinfo(department_id);
@@ -550,6 +559,7 @@ export default {
             }
             newCrumbs[newCrumbs.length-1].choosen = true;
             console.log('>>>>>', newCrumbs)
+            newCrumbs[1].name = '组织';
             this.crumbs = [...newCrumbs];
             const subDep = await Department.GetSubDepartment(department_id);
             const subUsers = await UserInfo.GetSubUserinfo(department_id);
@@ -569,7 +579,7 @@ export default {
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
         const dvd = {dvd:true, txt:'我的联系人'};
-        const layer = {name:rootDep.display_name, department_id:rootDep.department_id, choosen: true}
+        const layer = {name:'联系人', department_id:'lxr', choosen: true}
         let totalArray = [rootDep, dvd, ...contactUsers];
         totalArray.forEach(t => t.choosen = false)
         this.totalList = [...totalArray];
