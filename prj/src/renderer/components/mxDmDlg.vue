@@ -913,7 +913,7 @@ export default {
         font-size: 12px;
     }
     .crumbsItem {
-        color: #24B36B
+        color: #24B36B;
     }
     .crumbsItemActive {
         color: #000;

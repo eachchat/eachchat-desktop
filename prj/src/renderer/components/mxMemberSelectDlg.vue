@@ -3,7 +3,7 @@
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">邀请联系人</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close">
+                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.stop="close">
             </div>
             <div class="member-field">
                 <div class="member-field-left"> <!--left-->
@@ -11,7 +11,7 @@
                         <div class="search-logo">
                             <i class="el-icon-search"></i>
                         </div>
-                        <input @input="searchMember" v-model="memberText" class="search-input" type="text" placeholder="搜索备注名，用户名，姓名或者matrix ID">
+                        <input @input="searchMember" v-model="memberText" class="search-input" type="text" placeholder="搜索...">
                     </div> <!--search input-->
                     <div class="member-list">
                         <div v-for="(item, idx) in searchResult" :key="idx">
@@ -39,10 +39,10 @@
                                 <div>{{item.display_name}}</div>
                                 <div>{{item.user_id}}</div>
                             </div>
-                            <div class="rm-choosen" @click.self.stop="removeMember(item)">X</div>
+                            <div class="rm-choosen" @click.stop="removeMember(item)">X</div>
                         </div>
                     </div> <!--member list-->
-                    <div class="confirm-button" @click.self.stop="invite">确认</div>
+                    <div class="confirm-button" @click.stop="invite">确认</div>
                 </div>
             </div>
         </div>
@@ -513,7 +513,7 @@ export default {
         bottom: 12px;
         left: 50%;
         margin-left: -60px;
-        background-color: #459ad0;
+        background-color: #24B36B;
         color: #fff;
         display: flex;
         align-items: center;
