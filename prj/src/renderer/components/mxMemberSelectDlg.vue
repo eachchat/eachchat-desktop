@@ -39,7 +39,7 @@
                                 <div>{{item.display_name}}</div>
                                 <div>{{item.user_id}}</div>
                             </div>
-                            <div class="rm-choosen" @click.stop="removeMember(item)">X</div>
+                            <img style="height:20px; width:20px;" @click.stop="removeMember(item)" src="../../../static/Img/Chat/delete-20px@2x.png">
                         </div>
                     </div> <!--member list-->
                     <div class="confirm-button" @click.stop="invite">确认</div>
