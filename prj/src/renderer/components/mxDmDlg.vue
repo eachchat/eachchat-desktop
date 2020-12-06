@@ -319,9 +319,9 @@ export default {
                 const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
                 const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
                 const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
-                // console.log('----searchUsers----', searchUsers);
-                // console.log('----searchContacts----', searchContacts);
-                // console.log('----res----', res);
+                console.log('----searchUsers----', searchUsers);
+                console.log('----searchContacts----', searchContacts);
+                console.log('----res----', res);
                 let sus = [];
                 sus.push({dvd:true, txt:'组织人员'})
                 searchUsers.forEach(c => {
@@ -329,8 +329,9 @@ export default {
                     //display_name
                     //user_id
                     let u = {}
-                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
-                    u.display_name =  c.display_name || c.user_name || '';
+                    console.log('有吗',client.getUser(c.matrix_id))
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
                     c.choosen = false;
                     sus.push(u);
@@ -339,7 +340,7 @@ export default {
                 scs.push({dvd:true, txt:'我的联系人'})
                 searchContacts.forEach(c => {
                     let u = {}
-                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
                     u.display_name =  c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
                     c.choosen = false;
