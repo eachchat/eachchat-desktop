@@ -68,7 +68,8 @@ export default {
             memberText: '',
             searchResult: [],
             choosenMember: [],
-            busy: false
+            busy: false,
+            isSearch: false
         }
     },
     timer: null,
@@ -134,17 +135,6 @@ export default {
                 vtx.close(obj);
             });
         },
-        removeMember: function(item) {
-            let id = item.user_id;
-            let searchResult = this.searchResult;
-            let choosenMember = this.choosenMember;
-            choosenMember = choosenMember.filter(c => c.user_id != id)
-            searchResult.forEach(s => {
-                if (s.user_id == id) s.checked = false;
-            })
-            this.searchResult = [...searchResult];
-            this.choosenMember = [...choosenMember];
-        },
         close: function() {
             const obj = {};
             obj.data = {room_id: this.roomId};
@@ -158,13 +148,19 @@ export default {
             const vtx = this;
             const client = window.mxMatrixClientPeg.matrixClient;
             if (this.timer) clearTimeout(this.timer);
+            if (!term) {
+                this.searchResult = [];
+                this.isSearch = false;
+                return
+            }
             this.timer = setTimeout(async ()=>{
+                const choosenMember = this.choosenMember;
                 const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
                 const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
                 const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
-                // console.log('----searchUsers----', searchUsers);
-                // console.log('----searchContacts----', searchContacts);
-                // console.log('----res----', res);
+                console.log('----searchUsers----', searchUsers);
+                console.log('----searchContacts----', searchContacts);
+                console.log('----res----', res);
                 let sus = [];
                 sus.push({dvd:true, txt:'组织人员'})
                 searchUsers.forEach(c => {
@@ -172,64 +168,44 @@ export default {
                     //display_name
                     //user_id
                     let u = {}
-                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
-                    u.display_name =  c.display_name || c.user_name || '';
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
-                    c.choosen = false;
+                    u.checked = false; //todo
+                    choosenMember.forEach( m => {
+                        if (m.user_id == u.user_id) u.checked = true;
+                    })
                     sus.push(u);
                 })
                 let scs = [];
                 scs.push({dvd:true, txt:'我的联系人'})
                 searchContacts.forEach(c => {
                     let u = {}
-                    u.avatar_url = c.avatar_o_url || '../../../static/Img/User/user-40px@2x.png';
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
                     u.display_name =  c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
-                    c.choosen = false;
+                    u.checked = false;
+                    choosenMember.forEach( m => {
+                        if (m.user_id == u.user_id) u.checked = true;
+                    })
                     scs.push(u);
                 })
                 let mxs = [];
                 mxs.push({dvd:true, txt:'其他联系人'})
                 let results = res.results || [];
                 results.forEach(c => {
-                    c.choosen = false; 
+                    c.checked = false;
+                    choosenMember.forEach( m => {
+                        if (m.user_id == c.user_id) c.checked = true;
+                    })
                     c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
                     mxs.push(c);
                 })
                 const totalArray = [...sus, ...scs, ...mxs];
                 console.log('----totalArray----', totalArray);
+                vtx.isSearch = true;
                 vtx.searchResult = [...totalArray];
-                // client.searchUserDirectory({term}).then(r => {
-                //     console.log('searchUserDirectory', r)
-                //     if (r.results) {
-                //         const results = r.results.map(res => {
-                //             res.choosen = false; 
-                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
-                //             return res
-                //         })
-                //         this.searchedMembers = [...results];
-                //     }
-                // }).catch(e => {
-                //     alert('服务异常');
-                //     console.error('异常', e);
-                // })
             },320)
-            // this.timer = setTimeout(() => {
-            //     if (!term) return vtx.searchResult = [];
-            //     client.searchUserDirectory({term}).then((res)=>{
-            //         console.log('----search result----', res)
-            //         let members = [];
-            //         if (res.results && res.results.length) {
-            //             members = res.results.map(r => {
-            //                 r.checked = false;
-            //                 r.avatar_url = client.mxcUrlToHttp(r.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
-            //                 return r;
-            //             })
-            //         }
-            //         console.log('----result members----', members);
-            //         vtx.searchResult = [...members];
-            //     })
-            // }, 320);
         },
         chooseMember: function(item) {
             console.log('check checkbox', item)
@@ -248,7 +224,18 @@ export default {
             }
             this.choosenMember = [...choosenMember];
             this.searchResult = [...searchResult];
-        }
+        },
+        removeMember: function(item) {
+            let id = item.user_id;
+            let searchResult = this.searchResult;
+            let choosenMember = this.choosenMember;
+            choosenMember = choosenMember.filter(c => c.user_id != id)
+            searchResult.forEach(s => {
+                if (s.user_id == id) s.checked = false;
+            })
+            this.searchResult = [...searchResult];
+            this.choosenMember = [...choosenMember];
+        },
     },
     components: {
     },

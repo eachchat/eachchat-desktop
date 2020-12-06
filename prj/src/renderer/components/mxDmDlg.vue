@@ -329,7 +329,6 @@ export default {
                     //display_name
                     //user_id
                     let u = {}
-                    console.log('有吗',client.getUser(c.matrix_id))
                     u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
                     u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
