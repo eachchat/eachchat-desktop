@@ -505,11 +505,15 @@ export default {
         },
         async changeLayerByCrumb(obj) {
             console.log('caonimao', this.crumbs)
+            const client = window.mxMatrixClientPeg.matrixClient;
             let department_id = obj.department_id;
             if (department_id === this.crumbs[0].department_id) {
                 const rootDep = await Department.GetRoot();
                 const dvd = {dvd:true, txt:'我的联系人'};
                 const contactUsers = await Contact.GetAllContact();
+                contactUsers.forEach(c => {
+                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                })
                 rootDep.type = 'dep';
                 let totalArray = [rootDep, dvd, ...contactUsers];
                 totalArray.forEach(t => t.choosen = false);
@@ -517,33 +521,39 @@ export default {
                 this.crumbs[0].choosen = true;
                 this.crumbs = [this.crumbs[0]];
             } else {
-                let crumbs = this.crumbs;
-                const len = crumbs.length;
-                let newCrumbs = []
-                for(let i=0; i<len; i++) {
-                    newCrumbs.push(crumbs[i]);
-                    if (crumbs[i].department_id === department_id) {
-                        break;
-                    }
-                    if (i === len-1) {
-                        let layer = {name:obj.display_name, department_id:obj.department_id}
-                        newCrumbs.push(layer);
-                    }
-                }
-                newCrumbs[newCrumbs.length-1].choosen = true;
-                console.log('>>>>>', newCrumbs)
-                newCrumbs[1].name = '组织';
-                this.crumbs = [...newCrumbs];
-                const subDep = await Department.GetSubDepartment(department_id);
-                const subUsers = await UserInfo.GetSubUserinfo(department_id);
-                subDep.forEach(s=>s.type = 'dep')
-                subUsers.forEach(s=>s.display_name = s.user_display_name || s.user_name)
-                let totalArray = [...subDep, ...subUsers];
-                totalArray.forEach(t => t.choose = false)
-                this.totalList = [...totalArray];   
+                // let crumbs = this.crumbs;
+                // const len = crumbs.length;
+                // let newCrumbs = []
+                // for(let i=0; i<len; i++) {
+                //     newCrumbs.push(crumbs[i]);
+                //     if (crumbs[i].department_id === department_id) {
+                //         break;
+                //     }
+                //     if (i === len-1) {
+                //         let layer = {name:obj.display_name, department_id:obj.department_id}
+                //         newCrumbs.push(layer);
+                //     }
+                // }
+                // newCrumbs[newCrumbs.length-1].choosen = true;
+                // console.log('>>>>>', newCrumbs)
+                // newCrumbs[1].name = '组织';
+                // this.crumbs = [...newCrumbs];
+                // const subDep = await Department.GetSubDepartment(department_id);
+                // const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                // subDep.forEach(s=>s.type = 'dep')
+                // subUsers.forEach(c=>{
+                //     c.display_name = c.user_display_name || c.user_name;
+                //     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                    
+                // })
+                // let totalArray = [...subDep, ...subUsers];
+                // totalArray.forEach(t => t.choose = false)
+                // this.totalList = [...totalArray];
+                this.changeLayer(obj);
             }
         },
         async changeLayer(obj) {
+            const client = window.mxMatrixClientPeg.matrixClient;
             let department_id = obj.department_id;
             let crumbs = this.crumbs;
             const len = crumbs.length;
@@ -565,7 +575,11 @@ export default {
             const subDep = await Department.GetSubDepartment(department_id);
             const subUsers = await UserInfo.GetSubUserinfo(department_id);
             subDep.forEach(s=>s.type = 'dep')
-            subUsers.forEach(s=>s.display_name = s.user_display_name || s.user_name)
+            subUsers.forEach(c=>{
+                c.display_name = c.user_display_name || c.user_name;
+                c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                
+            })
             let totalArray = [...subDep, ...subUsers];
             totalArray.forEach(t => t.choose = false)
             this.totalList = [...totalArray];   
@@ -574,11 +588,15 @@ export default {
     components: {
     },
     async created() {
+        const client = window.mxMatrixClientPeg.matrixClient;
         const rootDep = await Department.GetRoot();
         rootDep.type = 'dep';
         
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
+        contactUsers.forEach(c => {
+            c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+        })
         const dvd = {dvd:true, txt:'我的联系人'};
         const layer = {name:'联系人', department_id:'lxr', choosen: true}
         let totalArray = [rootDep, dvd, ...contactUsers];
