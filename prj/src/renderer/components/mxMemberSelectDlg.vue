@@ -13,7 +13,44 @@
                         </div>
                         <input @input="searchMember" v-model="memberText" class="search-input" type="text" placeholder="搜索...">
                     </div> <!--search input-->
-                    <div class="member-list">
+                    <div class="crumbs" v-show="crumbs.length > 1 && !isSearch">
+                        <div 
+                            :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
+                            v-for="(item, idx) in crumbs"
+                            :key="item.department_id"
+                            @click.stop="changeLayerByCrumb(item)"
+                        >
+                            <span v-show="idx!==0" style="margin-left:4px; margin-right:4px;">/</span>
+                            <span>{{item.name}}</span>
+                        </div>
+                    </div>
+                    <div class="member-list" v-if="!isSearch">
+                        <div v-for="(item, idx) in totalList" :key="idx">
+                            <div 
+                                v-if="item.type === 'dep'"
+                                class="room-item room-item-dep"
+                                @click.stop="changeLayer(item)"
+                            >   
+                                <div style="display:flex; align-items:center;">
+                                    <img class="room-img" src="../../../static/Img/Main/zzjg.png"/> <!-- src="../../../static/Img/Main/yjt.png" -->
+                                    <div class="user-info">
+                                        <span class="room-info">{{item.display_name}}</span>
+                                    </div>
+                                </div>
+                                <img style="height:20px; width:20px;" src="../../../static/Img/Main/yjt.png">
+                            </div>
+                            <div v-else-if="item.dvd" class="dvd">{{item.txt}}</div>
+                            <div v-else class="member-item">
+                                <input type="checkbox" v-model="item.checked" @change="chooseMemberT(item)" style="margin:4px">
+                                <img :src="item.avatar_url" >
+                                <div class="member-info">
+                                    <div>{{item.display_name}}</div>
+                                    <div>{{item.user_id}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="member-list" v-else>
                         <div v-for="(item, idx) in searchResult" :key="idx">
                             <div v-if="item.dvd" class="dvd">{{item.txt}}</div>
                             <div v-else class="member-item">
@@ -69,7 +106,10 @@ export default {
             searchResult: [],
             choosenMember: [],
             busy: false,
+            crumbs: [],
+            totalList: [],
             isSearch: false
+
         }
     },
     timer: null,
@@ -207,6 +247,23 @@ export default {
                 vtx.searchResult = [...totalArray];
             },320)
         },
+        chooseMemberT(item) {
+            let choosenMember = this.choosenMember;
+            let totalList = this.totalList;
+            if (item.checked) {
+                choosenMember.push(item);
+                totalList.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = true;
+                })
+            } else {
+                choosenMember = choosenMember.filter(c => c.user_id != item.user_id)
+                totalList.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = false;
+                })
+            }
+            this.choosenMember = [...choosenMember];
+            this.totalList = [...totalList];
+        },
         chooseMember: function(item) {
             console.log('check checkbox', item)
             let choosenMember = this.choosenMember;
@@ -229,17 +286,111 @@ export default {
             let id = item.user_id;
             let searchResult = this.searchResult;
             let choosenMember = this.choosenMember;
+            let totalList = this.totalList;
             choosenMember = choosenMember.filter(c => c.user_id != id)
             searchResult.forEach(s => {
                 if (s.user_id == id) s.checked = false;
             })
+            totalList.forEach(s => {
+                if (s.user_id == id) s.checked = false;
+            })
             this.searchResult = [...searchResult];
             this.choosenMember = [...choosenMember];
+            this.totalList = [...totalList];
+        },
+        async changeLayerByCrumb(obj) {
+            console.log('caonimao', this.crumbs)
+            const choosenMember = this.choosenMember;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            let department_id = obj.department_id;
+            if (department_id === this.crumbs[0].department_id) {
+                const rootDep = await Department.GetRoot();
+                const dvd = {dvd:true, txt:'我的联系人'};
+                const contactUsers = await Contact.GetAllContact();
+                contactUsers.forEach(c => {
+                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                })
+                rootDep.type = 'dep';
+                let totalArray = [rootDep, dvd, ...contactUsers];
+                totalArray.forEach(t => {
+                    t.checked = false;
+                    choosenMember.forEach(c => {
+                        if (t.user_id == c.user_id) t.checked = true;
+                    })
+                });
+                this.totalList = [...totalArray];
+                this.crumbs[0].choosen = true;
+                this.crumbs = [this.crumbs[0]];
+            } else {
+                this.changeLayer(obj);
+            }
+        },
+        async changeLayer(obj) {
+            const choosenMember = this.choosenMember;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            let department_id = obj.department_id;
+            let crumbs = this.crumbs;
+            const len = crumbs.length;
+            let newCrumbs = []
+            for(let i=0; i<len; i++) {
+                newCrumbs.push(crumbs[i]);
+                if (crumbs[i].department_id === department_id) {
+                    break;
+                }
+                if (i === len-1) {
+                    let layer = {name:obj.display_name, department_id:obj.department_id}
+                    newCrumbs.push(layer);
+                }
+            }
+            newCrumbs[newCrumbs.length-1].choosen = true;
+            console.log('>>>>>', newCrumbs)
+            newCrumbs[1].name = '组织';
+            this.crumbs = [...newCrumbs];
+            const subDep = await Department.GetSubDepartment(department_id);
+            const subUsers = await UserInfo.GetSubUserinfo(department_id);
+            subDep.forEach(s=>s.type = 'dep')
+            subUsers.forEach(c=>{
+                c.display_name = c.user_display_name || c.user_name;
+                c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                
+            })
+            let totalArray = [...subDep, ...subUsers];
+            totalArray.forEach(t => {
+                t.checked = false;
+                choosenMember.forEach(c => {
+                    if (t.user_id == c.user_id) t.checked = true;
+                })
+            });
+            this.totalList = [...totalArray];   
         },
     },
     components: {
     },
-    created() {
+    async created() {
+        const client = window.mxMatrixClientPeg.matrixClient;
+        const rootDep = await Department.GetRoot();
+        rootDep.type = 'dep';
+        
+        const contactUsers = await Contact.GetAllContact();
+        console.log('contactUsers', contactUsers);
+        contactUsers.forEach(c => {
+            c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+        })
+        const dvd = {dvd:true, txt:'我的联系人'};
+        const layer = {name:'联系人', department_id:'lxr', checked: true}
+        let totalArray = [rootDep, dvd, ...contactUsers];
+        totalArray.forEach(t => t.checked = false)
+        this.totalList = [...totalArray];
+        this.crumbs = [layer];
+
+
+
+        console.log('rootDep', rootDep);
+        console.log('contactUsers', contactUsers);
+        const subDep = await Department.GetSubDepartment("0a59d5bd13cb476698fee9d58599e37e");
+        const subUsers = await UserInfo.GetSubUserinfo("0a59d5bd13cb476698fee9d58599e37e");
+        console.log('subDep', subDep);
+        console.log('subUsers', subUsers);
     },
     mounted() {
     },
@@ -411,7 +562,6 @@ export default {
     .member-field-left {
         width: 60%;
         height: 100%;
-        background: green;
         border-bottom-left-radius: 8px;
         display: flex;
         flex-direction: column;
@@ -522,5 +672,105 @@ export default {
         padding-left: 4px;
         margin-top: 16px;
         line-height: 32px;
+    }
+
+
+
+
+
+
+    .room-name {
+        height: 80%;
+        border: none;
+        width: 40%;
+    }
+    .room-item {
+        height: 48px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        background-color: #fff;
+        // width: 100%;
+        box-sizing: border-box;
+        margin-left: 16px;
+        margin-right: 16px;
+        border-bottom: 1px solid #DDD;
+        
+    }
+     .room-item-dep {
+         justify-content: space-between;
+     }
+    .room-img {
+        height: 32px;
+        width: 32px;
+        margin-right: 16px;
+    }
+    .room-info {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        /* width: 80px; */
+        font-size: 14px;
+        height: 16px;
+        line-height: 16px;
+    }
+    .room-join {
+        height: 24px;
+        width: 60px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        background-color: #459ad0;   
+        margin-left: 160px;
+        font-size: 12px;
+    }
+    .user-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .submit-field {
+        height: 72px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .submit-button {
+        box-sizing: border-box;
+        width: 100px;
+        height: 32px;
+        background: #24B36B;
+        border-radius: 4px;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .cancel-button {
+        box-sizing: border-box;
+        width: 100px;
+        height: 32px;
+        background: #fff;
+        border-radius: 4px;
+        border: 1px solid #DDDDDD;
+        color: #000;
+        margin-right: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .crumbs {
+        display: flex;
+        margin-left: 16px;
+        font-size: 12px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+    }
+    .crumbsItem {
+        color: #24B36B;
+    }
+    .crumbsItemActive {
+        color: #000;
     }
 </style>

@@ -12,7 +12,7 @@
                     </div>
                     <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
                 </div>
-                <div class="crumbs" v-show="crumbs.length > 1">
+                <div class="crumbs" v-show="crumbs.length > 1 && !isSearch">
                     <div 
                         :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
                         v-for="(item, idx) in crumbs"
@@ -520,34 +520,6 @@ export default {
                 this.crumbs[0].choosen = true;
                 this.crumbs = [this.crumbs[0]];
             } else {
-                // let crumbs = this.crumbs;
-                // const len = crumbs.length;
-                // let newCrumbs = []
-                // for(let i=0; i<len; i++) {
-                //     newCrumbs.push(crumbs[i]);
-                //     if (crumbs[i].department_id === department_id) {
-                //         break;
-                //     }
-                //     if (i === len-1) {
-                //         let layer = {name:obj.display_name, department_id:obj.department_id}
-                //         newCrumbs.push(layer);
-                //     }
-                // }
-                // newCrumbs[newCrumbs.length-1].choosen = true;
-                // console.log('>>>>>', newCrumbs)
-                // newCrumbs[1].name = '组织';
-                // this.crumbs = [...newCrumbs];
-                // const subDep = await Department.GetSubDepartment(department_id);
-                // const subUsers = await UserInfo.GetSubUserinfo(department_id);
-                // subDep.forEach(s=>s.type = 'dep')
-                // subUsers.forEach(c=>{
-                //     c.display_name = c.user_display_name || c.user_name;
-                //     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
-                    
-                // })
-                // let totalArray = [...subDep, ...subUsers];
-                // totalArray.forEach(t => t.choose = false)
-                // this.totalList = [...totalArray];
                 this.changeLayer(obj);
             }
         },
@@ -905,11 +877,11 @@ export default {
         align-items: center;
     }
     .crumbs {
-        height: 40px;
         display: flex;
-        align-items: center;
         margin-left: 16px;
         font-size: 12px;
+        flex-wrap: wrap;
+        margin-top: 8px;
     }
     .crumbsItem {
         color: #24B36B;
