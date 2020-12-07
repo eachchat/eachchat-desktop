@@ -2833,14 +2833,15 @@ s        },
     .chat-page {
         width: 100%;
         height: 100%;
+        background: rgba(245, 246, 249, 1);
     }
 
     .chat-title {
         display: float;
         width: 100%;
         height: 32px;
-        background-color: rgb(255, 255, 255);
-        border-bottom: 0px solid rgb(242, 242, 246);
+        background: rgba(245, 246, 249, 1);
+        border-bottom: 0px solid rgba(221, 221, 221, 1);
         margin-bottom: 9px;
         -webkit-app-region: drag;
         * {
@@ -3053,6 +3054,7 @@ s        },
     
     .msg-list {
         min-height: 99%;
+        background: rgba(245, 246, 249, 1);
         list-style: none;
         margin: 0;
         padding: 0;
@@ -3062,7 +3064,7 @@ s        },
         // height: 100%;
         overflow-y: scroll;
         overflow-x: hidden;
-        border-bottom: 1px solid rgba(238,238,238,1);
+        border-bottom: 1px solid rgba(221, 221, 221, 1);
         li {
             list-style-type: none;
         }
@@ -3366,7 +3368,7 @@ s        },
 
     .chat-input-tool {
         display: inline-block;
-        background-color: white;
+        background: rgba(245, 246, 249, 1);
         width: calc(100%-50px);
         height: 40px;
     }
