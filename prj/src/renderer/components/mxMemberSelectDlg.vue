@@ -45,7 +45,7 @@
                                 <img :src="item.avatar_url" >
                                 <div class="member-info">
                                     <div>{{item.display_name}}</div>
-                                    <div>{{item.user_id}}</div>
+                                    <div>{{item.matrix_id || item.user_id}}</div>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                                 <img :src="item.avatar_url" >
                                 <div class="member-info">
                                     <div>{{item.display_name}}</div>
-                                    <div>{{item.user_id}}</div>
+                                    <div>{{item.matrix_id || item.user_id}}</div>
                                 </div>
                             </div>
                         </div>
@@ -115,6 +115,7 @@ export default {
     timer: null,
     methods: {
         inviteConduct: async function(roomId, addr, ignoreProfile) {
+            console.log('---get addr----', addr);
             const addrType = getAddressType(addr);
             const client = window.mxMatrixClientPeg.matrixClient;
             if (addrType === 'email') {
@@ -155,7 +156,7 @@ export default {
             if (this.busy) return;
             this.busy = true;
             const vtx = this;
-            const targetIds = this.choosenMember.map(t => t.user_id);
+            const targetIds = this.choosenMember.map(t => t.matrix_id || t.user_id );
             const client = window.mxMatrixClientPeg.matrixClient;
             const roomId = this.roomId;
             // const room = client.getRoom(this.roomId);

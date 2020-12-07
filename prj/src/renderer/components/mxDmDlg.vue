@@ -51,7 +51,7 @@
                             <img class="room-img" :src="item.avatar_url"/>
                             <div class="user-info">
                                 <span class="room-info">{{item.display_name}}</span>
-                                <span class="room-info" style="font-size:12px; color:#999999">{{item.user_id}}</span>
+                                <span class="room-info" style="font-size:12px; color:#999999">{{item.matrix_id || item.user_id}}</span>
                             </div>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
                             <img class="room-img" :src="item.avatar_url"/>
                             <div class="user-info">
                                 <span class="room-info">{{item.display_name}}</span>
-                                <span class="room-info" style="font-size:12px; color:#999999">{{item.user_id}}</span>
+                                <span class="room-info" style="font-size:12px; color:#999999">{{item.matrix_id || item.user_id}}</span>
                             </div>
                         </div>
                     </div>
