@@ -727,7 +727,8 @@ export default {
                 return;
             }
             var result = await global.mxMatrixClientPeg.GetVerCode("email", this.username);
-            if(result == true){
+            console.log("result is ", result);
+            if(result.status == 200){
                 this.userEmailSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
                 this.userEmailSendCodeTimer();
