@@ -7,7 +7,7 @@
                     <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
                 </div>
             </div>
-            <div class="personalCenter-baseInfo">
+            <div class="personalCenter-baseInfo" @click="personalDetailClicked()">
                 <p class="personalCenter-name" id="personalCenter-namd-id"></p>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
@@ -64,7 +64,12 @@ export default {
     computed: {
 
     },
+
     methods: {
+        personalDetailClicked(){
+            this.$emit("showPersonalInfoHanlder", true)
+        },
+
         statueImg(statue) {
             if(statue.state == "online") {
                 return "/static/Img/personalCenter/online-20px@2x.png"

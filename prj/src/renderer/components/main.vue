@@ -29,7 +29,8 @@
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg"/>
             </keep-alive>
         </el-main>
-        <personalCenter v-show="showPersonalCenter" :key="personalCenterKey"></personalCenter>
+        <personalCenter v-show="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
+        <userInfoContent :userInfo="userInfo" :originPosition="pagePosition" v-if="showPersonalInfo" :key="userInfoTipKey"  :userType="userType" :isOwn="isOwn"></userInfoContent>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo" :canCancel="upgradeCanCancel"/>
     </el-container>
 </template>
@@ -52,6 +53,8 @@ import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
 import {UserInfo, Message} from '../../packages/data/sqliteutil.js';
 import { models } from '../../packages/data/models.js';
+import userInfoContent from './user-info';
+import {ComponentUtil} from '../script/component-util.js'
 
 
 import UpdateAlertDlg from './update-alert-dlg.vue'
@@ -82,10 +85,15 @@ export default {
                 }
                 this.curindex = 1;
             }
-        }
+        },
     },
     data () {
         return {
+            userInfo: undefined,
+            isOwn: true,
+            userInfoTipKey: 1,   //用户信息弹窗强制更新
+            pagePosition:{},
+            userType: "mainUserInfo",
             unReadCount: 0,
             updateImg: false,
             upgradeInfo: {},
@@ -125,12 +133,26 @@ export default {
             ],
             elementImg: null,
             ipcInited: false,
-            
+    
             showPersonalCenter:false,
+            showPersonalInfo: false,
             personalCenterKey: 0
         }
     },
     methods: {
+        showPersonalInfoHanlder: async function(value){
+            if(value){
+                var leftPosition = 64;
+                var topPosition = 32;
+                this.pagePosition.left = 64;
+                this.pagePosition.top = 32;
+                this.personalCenterKey ++;
+                const userId = window.localStorage.getItem("mx_user_id");
+                this.userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
+                this.showPersonalCenter = false;
+                this.showPersonalInfo = true;
+            }
+        },
         getUnReadCount(unReadCount) {
             return '';
             if(unReadCount === 0) return "";
@@ -288,6 +310,7 @@ export default {
             }
             console.log("this.showpersonalcenter is ", this.showPersonalCenter);
             this.showPersonalCenter = true;
+            this.showPersonalInfo = false;
             this.personalCenterKey ++;
         },
         startCheckUpgrade: function() {
@@ -372,8 +395,8 @@ export default {
                 }
             }
         },
-
     },
+
     components: {
         organization,
         ChatContent,
@@ -381,6 +404,7 @@ export default {
         macWindowHeader,
         personalCenter,
         UpdateAlertDlg,
+        userInfoContent
     },
     mounted: async function() {
         if(global.mxMatrixClientPeg.homeserve == '') {
@@ -454,6 +478,7 @@ export default {
                 if(e.target.className.indexOf('cropper') == -1){
                     console.log("============")
                     _this.showPersonalCenter = false;
+                    _this.showPersonalInfo = false;
                 }
 
             }

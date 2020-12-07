@@ -60,7 +60,7 @@
             <label style="font-size:14px">群聊设置</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
-         <div class="groupSettingSilenceDiv" v-if="isDm && showGroupInfo.userLevel >= showGroupInfo.totalLevels.canEncryption">
+        <!-- <div class="groupSettingSilenceDiv" v-if="isDm && showGroupInfo.userLevel >= showGroupInfo.totalLevels.canEncryption">
             <label class="groupSettingSlienceLabel">端到端加密</label>
             <el-switch 
                 class="groupSettingSlienceSwitch" 
@@ -70,7 +70,7 @@
                 :disabled="mxEncryption"
             >
             </el-switch>
-        </div>
+        </div> -->
         <div class="groupSettingSilenceDiv"> <!--v-show="isGroup"-->
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch 

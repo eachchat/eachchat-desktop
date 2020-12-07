@@ -113,7 +113,10 @@ const OPTS = {
 export default {
     name: 'mxDmDlg',
     props: {
-        
+        erpDm: {
+            type: Boolean,
+            default: false
+        }, 
     },
     data() {
         return {
@@ -154,6 +157,10 @@ export default {
 
             const createRoomOptions = {inlineErrors: true};
             //TODO 加密处理
+            if (this.erpDm) {
+                console.log('走了加密')
+                createRoomOptions.encryption = true;
+            }
 
             let createRoomPromise = Promise.resolve();
             const isSelf = targetIds.length === 1 && targetIds[0] === client.getUserId();

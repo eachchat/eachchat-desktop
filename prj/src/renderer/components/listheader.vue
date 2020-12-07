@@ -7,6 +7,10 @@
             <img class="new-chat-content-div-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
+            <div class="normal-chat" @click.stop="mxDmDlgChangeErp()"> <!--showCreateGroup-->
+                <img class="normal-chat-img" src="../../../static/Img/Main/cjml.png">
+                <span class="normal-chat-label">发起密聊</span>
+            </div>
             <div class="normal-chat" @click.stop="mxDmDlgChange()"> <!--showCreateGroup-->
                 <img class="normal-chat-img" src="../../../static/Img/Main/jdr.png">
                 <span class="normal-chat-label">发起聊天</span>
@@ -51,6 +55,7 @@
         </mxSquareDlg>
         <mxDmDlg
             v-if="mxDmDlgOpen"
+            :erpDm="erpDm"
             @close="mxDmDlgChange"
         >
         </mxDmDlg>
@@ -99,10 +104,21 @@ export default {
             mxSelectMemberOpen: false,
             newRoomId: '',
             mxSquareOpen: false,
-            mxDmDlgOpen: false
+            mxDmDlgOpen: false,
+            erpDm: false
         }
     },
     methods: {
+        mxDmDlgChangeErp: function(close) {
+            console.log('mxDmDlg???', close)
+            if (close) {
+                if (close.data) this.$emit(close.handler, close.data);
+                this.showCreateNewChat = false;
+                return this.mxDmDlgOpen = false;
+            }
+            this.erpDm = true;
+            this.mxDmDlgOpen = true;
+        },
         mxDmDlgChange: function(close) {
             console.log('mxDmDlg???', close)
             if (close) {
@@ -110,6 +126,7 @@ export default {
                 this.showCreateNewChat = false;
                 return this.mxDmDlgOpen = false;
             }
+            this.erpDm = false;
             this.mxDmDlgOpen = true;
         },
         mxSquare: function(close) {
@@ -396,7 +413,7 @@ export default {
         position: absolute;
         background-color: rgba(255, 255, 255, 1);
         width: 128px;
-        height: 120px;
+        height: 160px;
         border-radius: 4px;
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
