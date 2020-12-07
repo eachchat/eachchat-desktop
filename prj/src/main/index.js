@@ -933,7 +933,6 @@ function createWindow () {
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({
     height: 420,
-    useContentSize: true,
     width: 360,
     frame: false,
     resizable: resizableValue,
