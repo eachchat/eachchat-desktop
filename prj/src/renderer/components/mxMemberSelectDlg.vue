@@ -370,6 +370,7 @@ export default {
     async created() {
         const client = window.mxMatrixClientPeg.matrixClient;
         const rootDep = await Department.GetRoot();
+        console.log('---rootDep---', rootDep);
         rootDep.type = 'dep';
         
         const contactUsers = await Contact.GetAllContact();
@@ -386,7 +387,6 @@ export default {
 
 
 
-        console.log('rootDep', rootDep);
         console.log('contactUsers', contactUsers);
         const subDep = await Department.GetSubDepartment("0a59d5bd13cb476698fee9d58599e37e");
         const subUsers = await UserInfo.GetSubUserinfo("0a59d5bd13cb476698fee9d58599e37e");
