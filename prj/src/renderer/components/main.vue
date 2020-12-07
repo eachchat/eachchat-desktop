@@ -89,6 +89,7 @@ export default {
     },
     data () {
         return {
+            displayName: '',
             userInfo: undefined,
             isOwn: true,
             userInfoTipKey: 1,   //用户信息弹窗强制更新
@@ -148,7 +149,9 @@ export default {
                 this.pagePosition.top = 32;
                 this.personalCenterKey ++;
                 const userId = window.localStorage.getItem("mx_user_id");
+
                 this.userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
+                this.userInfo.displayName = this.displayName;
                 this.showPersonalCenter = false;
                 this.showPersonalInfo = true;
             }
@@ -310,6 +313,8 @@ export default {
             console.log("this.showpersonalcenter is ", this.showPersonalCenter);
             this.showPersonalCenter = true;
             this.showPersonalInfo = false;
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
+            this.displayName = profileInfo.displayname;
             this.personalCenterKey ++;
         },
         startCheckUpgrade: function() {
@@ -477,7 +482,7 @@ export default {
         var _this = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname is ", e.target.className)
-            if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1){
+            if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
                     console.log("============")
                     _this.showPersonalCenter = false;
