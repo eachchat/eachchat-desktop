@@ -21,7 +21,7 @@
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
             </div>
-            <p :class="getUnreadClass(this.unReadCount)" v-show="false">{{getUnReadCount(this.unReadCount)}}</p>
+            <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
@@ -154,7 +154,6 @@ export default {
             }
         },
         getUnReadCount(unReadCount) {
-            return '';
             if(unReadCount === 0) return "";
             else return unReadCount > 99 ? "···" : unReadCount;
         },
@@ -407,6 +406,10 @@ export default {
         userInfoContent
     },
     mounted: async function() {
+        ipcRenderer.on('setUnreadCount', (e, count) => {
+            console.log("lfjs;ldajf;lkaj;lsjdf;lkj")
+            this.unReadCount = count;
+        })
         if(global.mxMatrixClientPeg.homeserve == '') {
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
@@ -483,9 +486,6 @@ export default {
 
             }
         });
-        ipcRenderer.on('setUnreadCount', (e, count) => {
-            this.unReadCount = count;
-        })
 
         ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId)=>{
             let msgs = await Message.FindMessageByMesssageID(eventId);
