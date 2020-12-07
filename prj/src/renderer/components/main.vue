@@ -414,13 +414,11 @@ export default {
     },
     mounted: async function() {
         ipcRenderer.on('setUnreadCount', (e, count) => {
-            console.log("lfjs;ldajf;lkaj;lsjdf;lkj")
             this.unReadCount = count;
         })
         if(global.mxMatrixClientPeg.homeserve == '') {
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
-            console.log("matrix get flows is ", flows)
             this.supportedIdentity = flows;
             for (let i = 0; i < flows.length; i++ ) {
                 var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();

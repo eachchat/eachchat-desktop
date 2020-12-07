@@ -34,8 +34,14 @@ export default new Vuex.Store({
     isFirstLogin: false,
     soundNotice: true, 
     flashNotice: true,
+    draft: {},
   },
   mutations: {
+    setDraft(state, draftInfo) {
+      var roomId = draftInfo[0];
+      var draft = draftInfo[1];
+      state.draft[roomId] = draft;
+    },
     setHost(state, host){
       state.host = host;
     },
@@ -216,6 +222,9 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getDraft: state => (roomId) => {
+      return state.draft[roomId] == undefined ? "" : state.draft[roomId];
+    },
     getHost: state => () => {
       return state.host;
     },

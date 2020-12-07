@@ -36,7 +36,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
                 <!-- </ul> -->
@@ -67,6 +67,7 @@
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
                 <div class="text-input" @keydown="keyHandle($event)" @keyup="keyUpHandle($event)">
                     <quillEditor
+                        id="chatQuillEditorId"
                         ref="chatQuillEditor"
                         v-model="content"
                         :options="editorOption"
@@ -286,6 +287,9 @@ export default {
         mxFilePage,
     },
     methods: {
+        showImportE2EKey() {
+            this.$emit("showImportE2EKey");
+        },
         closeUserInfoTipChat() {
             this.showUserInfoTips = false;
             console.log('chat 中的userInfo模版');
@@ -3634,5 +3638,4 @@ s        },
         text-overflow: ellipsis;
         overflow: hidden;
     }
-
 </style>

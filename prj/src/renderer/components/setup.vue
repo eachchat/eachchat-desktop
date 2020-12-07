@@ -74,16 +74,17 @@
                 </el-switch>
             </div>
             <div class="setup-security-title">账号安全与隐私设置</div>
-            <div class="setup-security-export-keys" v-show="false">
+            <div class="setup-security-export-keys">
                 <label class="setup-security-export-keys-label">导出密钥到本地文件</label>
                 <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
             </div>
-            <div class="setup-security-import-keys" v-show="false">
+            <div class="setup-security-import-keys">
                 <label class="setup-security-import-keys-label">导入密钥</label>
                 <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
             <div class="setup-security-account-manager" v-show="false">
-                <label class="setup-setup-security-account-manager-label">账号管理</label>
+                <label class="setup-setup-security-account-manager-label">邮箱绑定</label>
+                <label class="setup-general-clear-cache-label2" id="setup-general-clear-cache-label2-id">{{curEmail}}</label>
                 <img class="setup-setup-security-account-manager-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
             </div>
             <div class="setup-update-title" v-show="false">软件升级</div>
@@ -124,6 +125,12 @@
       <div class="certficationBorder" v-show="showGeneralRecoveryKeyPage">
         <generalSecureBackUpPage @CanLogout="CanLogout"></generalSecureBackUpPage>
       </div>
+      <div class="certficationBorder" v-show="showImportE2EKeyPage">
+        <ImportE2EKeypage @closeE2EImportPage="closeE2EImportPage"></ImportE2EKeypage>
+      </div>
+      <div class="certficationBorder" v-show="showExportE2EKeyPage">
+        <ExportE2EKeyPage @closeE2EExportPage="closeE2EExportPage" :toUpdateExport="toUpdateExport" @CanLogout="CanLogout"></ExportE2EKeyPage>
+      </div>
       <!-- <generalSecureBackUpPage  v-show="showGeneralPage"></generalSecureBackUpPage> -->
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
       <AccountManager v-show="showAccountMgr" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
@@ -147,8 +154,9 @@ import { Config } from '../../packages/data/sqliteutil.js'
 import certification from './Certificate.vue';
 import ChangePassword from './changePassword.vue';
 import AccountManager from "./accountManager.vue";
-// import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
-import generalSecureBackUpPage from './generalRecoveryCode.vue'
+import generalSecureBackUpPage from './generalRecoveryCode.vue';
+import ExportE2EKeyPage from './expore-e2e-key.vue';
+import ImportE2EKeypage from './importE2E.vue';
 
 export default {
   components: {
@@ -158,7 +166,9 @@ export default {
     certification,
     ChangePassword,
     AccountManager,
-    generalSecureBackUpPage
+    generalSecureBackUpPage,
+    ExportE2EKeyPage,
+    ImportE2EKeypage
     // listItem
   },
   props: [],
@@ -169,6 +179,10 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      toUpdateExport: false,
+      showExportE2EKeyPage: false,
+      showImportE2EKeyPage: false,
+      curEmail: "",
       showAccountMgr: false,
       backupInfo: {},
       showCertification: false,
@@ -192,6 +206,12 @@ export default {
     };
   },
   methods: {
+    closeE2EExportPage() {
+      this.showExportE2EKeyPage = false;
+    },
+    closeE2EImportPage() {
+      this.showImportE2EKeyPage = false;
+    },
     generalCheck: function() {
       this.showGeneralPage = true;
     },
@@ -208,71 +228,18 @@ export default {
     cancelRecovery: function() {
       this.showCertification = false;
     },
+    bindEmail: function() {
+      this.showAccountMgr = true;
+    },
     accountManager: function() {
       console.log("=============")
       this.showAccountMgr = true;
     },
     importSecurityKey: async function() {
-      // this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
-      // await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-      var setupCertificationElement = document.getElementById("setupCertificationId");
-      if(setupCertificationElement != undefined) {
-        setupCertificationElement.style.position = 'absolute';
-        setupCertificationElement.style.height = '350px';
-        setupCertificationElement.style.width = '400px';
-        setupCertificationElement.style.margin = "auto";
-        setupCertificationElement.style.left = '0px';
-        setupCertificationElement.style.right = '0px';
-        setupCertificationElement.style.top = '0px';
-        setupCertificationElement.style.bottom = '0px';
-      }
-      this.showCertification = true;
+      this.showImportE2EKeyPage = true;
     },
     exportSecurityKey: async function() {
-      if(this.canSelecteFile) {
-          this.canSelecteFile = false;
-          ipcRenderer.send('open-export-dialog');
-      }
-      if(!this.ipcPicInited){
-          this.ipcPicInited = true;
-          console.log("=========init ")
-          ipcRenderer.on('exportPath', this.toExport);
-      }
-    },
-    toExport: async function(e, paths) {
-      console.log("========= toexport ", paths.filePaths);
-      // this.canSelecteFile = true;
-      // if(paths.filePaths.length == 0) return;
-      // var distPath = path.join(paths.filePaths[0], "eachchat_key.txt");
-      // Promise.resolve().then(() => {
-      //   return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
-      //   }).then((k) => {
-      //       return MegolmExportEncryption.encryptMegolmKeyFile(
-      //           JSON.stringify(k), "Wx@6156911128",
-      //       );
-      //   }).then((f) => {
-      //       const blob = new Blob([f], {
-      //           type: 'text/plain;charset=us-ascii',
-      //       });
-      //       let reader = new FileReader();
-      //       reader.onload = function() {
-      //         var buffer = new Buffer(reader.result);
-      //         ipcRenderer.send("export_key", [buffer, distPath]);
-      //       }
-      //       reader.readAsArrayBuffer(blob);
-      //       // FileSaver.saveAs(blob, 'element-keys.txt');
-      //       // console.log("========== ", f)
-      //       // ipcRenderer.send("export_key", [blob, distPath]);
-      //   }).catch((e) => {
-      //       console.error("Error exporting e2e keys:", e);
-      //       const msg = e.friendlyText;
-      //   })
-      // var identityKey = await global.mxMatrixClientPeg.matrixClient.createRecoveryKeyFromPassphrase();
-      // const blob = new Blob([identityKey.encodedPrivateKey], {
-      //     type: 'text/plain;charset=us-ascii',
-      // });
-      // console.log("========== ", identityKey)
-      // ipcRenderer.send("export_key", [identityKey.encodedPrivateKey, distPath]);
+      this.showExportE2EKeyPage = true;
     },
     autoSoundNoticeStateChange: async function(state) {
       if(state == true) {
@@ -422,15 +389,18 @@ export default {
     logout: async function() {
       // services.common.closemqtt();
       // services.common.logout();
-      await this._checkKeyBackupStatus();
-      if(this.backupInfo) {
-        await global.mxMatrixClientPeg.logout();
-        await global.services.common.logout();
-        ipcRenderer.send("showLoginPageWindow");
-      }
-      else {
-        this.showGeneralRecoveryKeyPage = true;
-      }
+
+      // await this._checkKeyBackupStatus();
+      // if(this.backupInfo) {
+      //   await global.mxMatrixClientPeg.logout();
+      //   await global.services.common.logout();
+      //   ipcRenderer.send("showLoginPageWindow");
+      // }
+      // else {
+      //   this.showGeneralRecoveryKeyPage = true;
+      // }
+      this.toUpdateExport = !this.toUpdateExport;
+      this.showExportE2EKeyPage = true;
     },
     async _checkKeyBackupStatus() {
         try {
@@ -1111,7 +1081,7 @@ export default {
   }
 
   .setup-setup-security-account-manager-label {
-    width:calc(100% - 40px);
+    width:calc(100% - 110px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;

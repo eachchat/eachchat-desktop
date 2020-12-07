@@ -158,6 +158,7 @@ class _MatrixClientPeg{
     }
     
     checkHomeServer(homeserver) {
+      try{
         this.CreateClient(homeserver);
         return this.registrationClient.loginFlows().then(async (result) => {
           var tls = 1;
@@ -172,6 +173,11 @@ class _MatrixClientPeg{
           this._flows = result.flows;
           return this._flows;
         });
+      }
+      catch(e) {
+        console.log("Chaek Home Server Exception ", e.message);
+        return false;
+      }
     }
 
     async getAppServerInfo() {
@@ -236,7 +242,13 @@ class _MatrixClientPeg{
           unstableClientRelationAggregation: true,
         }
         Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
-        this.matrixClient = this._CreateMatrixClient(ops);
+        try {
+          this.matrixClient = this._CreateMatrixClient(ops);
+        }
+        catch(e) {
+          console.log("Restore Token exception ", e.message);
+          return undefined;
+        }
         DMRoomMap.makeShared().start();
   
         await this.matrixClient.initCrypto();

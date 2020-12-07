@@ -174,6 +174,9 @@ export default {
                     }
                     this.$emit('showImageOfMessage', imageInfo);
                 }
+                if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
+                    this.$emit('showImportE2EKey');
+                }
             }
             if(chatGroupMsgType === "m.room.message") {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -519,6 +522,8 @@ export default {
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.text'){
                     console.log()
+                    var textElement = document.getElementById(this.msg.event.event_id);
+                    textElement.style.color = "RGB(0,9,0)";
                     this.messageContent = chatGroupMsgContent.body;
                     if(this.messageContent.length == 0) {
                         this.messageContent = "\n";
@@ -536,8 +541,8 @@ export default {
                 else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
                     var textElement = document.getElementById(this.msg.event.event_id);
                     textElement.style.color = "RGB(59,137,207)";
+                    textElement.style.cursor = "pointer";
                     this.messageContent = "**无法解密:发送方的设备没有给我们发送此消息的密钥。**";
-                    
                 }
             }
             else if(chatGroupMsgType === 105)//语音消息

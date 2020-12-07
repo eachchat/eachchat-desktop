@@ -13,8 +13,8 @@
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
         </div>
-        <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
-        <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage>
+        <!-- <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
+        <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage> -->
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
                 <div class="title">
@@ -1024,73 +1024,73 @@ export default {
             console.log(client);
             // client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
             // await client.downloadKeys([client.getUserId()]);
-            await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
-            if(client.isCryptoEnabled()) {
-                var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
-                console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
-                if(crossSigningIsSetUp) {
-                    await global.mxMatrixClientPeg.fetchKeyInfo();
-                    if(global.mxMatrixClientPeg.keyInfo) {
-                        //recovery page
-                        console.log("certificationShow");
-                        this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
-                        if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
-                            console.log("=========== showCreateRecoveryKey");
-                            // this.generalRecoveryKeyPageShow();
-                            this.loginToMainPage();
-                            //showCreateRecoveryKey
-                        }
-                        else {
-                            console.log("=========== bootstrapSecretStorage");
-                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                            this.certificationShow();
-                        }
-                    }
-                    else {
-                        await this._checkKeyBackupStatus();
-                        if(this.backupInfo) {
-                            console.log("=========== bootstrapSecretStorage");
-                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                            this.certificationShow();
-                        }
-                        else {
-                            console.log("=========== showCreateRecoveryKey");
-                            // this.generalRecoveryKeyPageShow();
-                            this.loginToMainPage();
-                        }
-                    }
-                }
-                else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
-                    //showCreateRecoveryKey
-                    await this._checkKeyBackupStatus();
-                    if(this.backupInfo) {
-                        console.log("=========== bootstrapSecretStorage");
-                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                        this.certificationShow();
-                    }
-                    else {
-                        console.log("=========== showCreateRecoveryKey");
-                        // this.generalRecoveryKeyPageShow();
-                        this.loginToMainPage();
-                    }
-                }
-                else {
-                    await this._checkKeyBackupStatus();
-                    if(this.backupInfo) {
-                        console.log("=========== bootstrapSecretStorage");
-                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                        this.certificationShow();
-                    }
-                    else {
-                        console.log("=========== showCreateRecoveryKey");
-                        // this.generalRecoveryKeyPageShow();
-                        this.loginToMainPage();
-                    }
-                }
-            }
-            else {
-                this.loginToMainPage();
-            }
+            // await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
+            // if(client.isCryptoEnabled()) {
+            //     var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
+            //     console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
+            //     if(crossSigningIsSetUp) {
+            //         await global.mxMatrixClientPeg.fetchKeyInfo();
+            //         if(global.mxMatrixClientPeg.keyInfo) {
+            //             //recovery page
+            //             console.log("certificationShow");
+            //             this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+            //             if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
+            //                 console.log("=========== showCreateRecoveryKey");
+            //                 // this.generalRecoveryKeyPageShow();
+            //                 this.loginToMainPage();
+            //                 //showCreateRecoveryKey
+            //             }
+            //             else {
+            //                 console.log("=========== bootstrapSecretStorage");
+            //                 await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //                 this.certificationShow();
+            //             }
+            //         }
+            //         else {
+            //             await this._checkKeyBackupStatus();
+            //             if(this.backupInfo) {
+            //                 console.log("=========== bootstrapSecretStorage");
+            //                 await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //                 this.certificationShow();
+            //             }
+            //             else {
+            //                 console.log("=========== showCreateRecoveryKey");
+            //                 // this.generalRecoveryKeyPageShow();
+            //                 this.loginToMainPage();
+            //             }
+            //         }
+            //     }
+            //     else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
+            //         //showCreateRecoveryKey
+            //         await this._checkKeyBackupStatus();
+            //         if(this.backupInfo) {
+            //             console.log("=========== bootstrapSecretStorage");
+            //             await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //             this.certificationShow();
+            //         }
+            //         else {
+            //             console.log("=========== showCreateRecoveryKey");
+            //             // this.generalRecoveryKeyPageShow();
+            //             this.loginToMainPage();
+            //         }
+            //     }
+            //     else {
+            //         await this._checkKeyBackupStatus();
+            //         if(this.backupInfo) {
+            //             console.log("=========== bootstrapSecretStorage");
+            //             await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //             this.certificationShow();
+            //         }
+            //         else {
+            //             console.log("=========== showCreateRecoveryKey");
+            //             // this.generalRecoveryKeyPageShow();
+            //             this.loginToMainPage();
+            //         }
+            //     }
+            // }
+            // else {
+            this.loginToMainPage();
+            // }
             this.isLoading = false;
             this.loginButtonDisabled = false;
             // if(response != true){
@@ -1143,7 +1143,8 @@ export default {
         //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         // }
         this.checkHomeServer()
-            .then(() => {
+            .then((ret) => {
+                console.log("============= check home server ", ret);
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
                     if(ret == undefined) {
                         this.tokenRefreshing = false;
