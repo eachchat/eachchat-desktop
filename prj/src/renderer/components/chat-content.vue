@@ -1730,7 +1730,7 @@ export default {
       // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
       var isSecret = false;
 
-      if(this.curChat.roomId != undefined) {
+      if(this.curChat != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
         // console.log("showchat this.unreadCount ", this.unreadCount)
         if(this.unreadCount < 0) {

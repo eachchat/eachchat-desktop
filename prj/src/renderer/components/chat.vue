@@ -136,8 +136,6 @@
             @close="closeUserInfoTipChat"
         >
         </userInfoContent> 
-        <chatCreaterDlg v-show="showChatCreaterDlg" :addMemberGroupType="addMemberGroupType" :createNewChat="createNewChat" :addMemberGroupId="chat.group_id" @closeChatCreaterDlg="closeChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
-        </chatCreaterDlg>
         <SendFileDlg v-show="showSendFileDlg" :sendInfos="sendFileInfos" @closeSendFileDlg="closeSendFileDlg" @SendFiles="SendFiles"></SendFileDlg>
         <div class="history-dropdown-content" id="history-dropdown-content-id">
             <div class="history-msg" @click="showHistoryMsgList()">

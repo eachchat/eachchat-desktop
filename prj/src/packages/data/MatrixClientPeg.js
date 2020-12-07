@@ -227,7 +227,7 @@ class _MatrixClientPeg{
       }
       if(accessToken && userId && hsUrl) {
         let ops = {
-          baseUrl: 'https://matrix.each.chat',//this.homeserve,
+          baseUrl: this.homeserve,
           userId: userId,
           accessToken: accessToken,
           deviceId: deviceId,
@@ -291,14 +291,15 @@ class _MatrixClientPeg{
     }
     */
     async GetVerCode(medium, address){
-      let response = await this.commonApi.post(
+      return this.commonApi.post(
         "/_matrix/client/r0/login/getvercode",
         {
           medium: medium,
           address: address
-        });
-      console.log("response is ", response);
-      return this.parseStatus(response);
+        }).then((response) => {
+          console.log("response is ", response);
+          return this.parseStatus(response);
+        })
     }
 
     async LoginWithVerCode(checkType, username, password) {
@@ -350,7 +351,7 @@ class _MatrixClientPeg{
 
     async verCodeLoginMatrixClient(matrixInfo) {
       let ops = {
-          baseUrl: 'https://matrix.each.chat',//this.homeserve,
+          baseUrl: this.homeserve,
           userId: matrixInfo.data.user_id,
           accessToken: matrixInfo.data.access_token,
           deviceId: matrixInfo.data.device_id,
@@ -409,7 +410,7 @@ class _MatrixClientPeg{
             account,
             password);
         let ops = {
-            baseUrl: 'https://matrix.each.chat',//this.homeserve,
+            baseUrl: this.homeserve,
             userId: userLoginResult.user_id,
             accessToken: userLoginResult.access_token,
             deviceId: userLoginResult.device_id,
