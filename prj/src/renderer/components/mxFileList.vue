@@ -89,6 +89,9 @@ export default {
             }
             else {
                 var sender = this.GroupInfo.getMember(curItem.getSender());
+                if(sender == null) {
+                    return '';
+                }
                 return sender.name;
             }
         },
