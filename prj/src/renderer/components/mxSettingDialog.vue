@@ -41,7 +41,7 @@
                     <div class="xiaomiaoshu"><input @change="setGuestAccess" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess"><label for="whocanjoin0">任何知道群聊链接的人，不包括用户所在域外的来宾用户</label></div>
                     <div class="xiaomiaoshu"><input @change="setGuestAccess" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess"><label for="whocanjoin1">任何知道群聊链接的人，包括用户所在域外的来宾用户</label></div>
                 </div>
-                <div class="encryption-field">
+                <!-- <div class="encryption-field">
                     <label class="groupSettingSlienceLabel">端到端加密</label>
                     <el-switch 
                         class="groupSettingSlienceSwitch" 
@@ -56,7 +56,7 @@
                     v-if="encryptionWarning"
                     @close="closeEncryWarn"
                     :room="currentRoom"
-                />
+                /> -->
             </div>
         </div>
     </div>
