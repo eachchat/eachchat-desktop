@@ -1237,7 +1237,7 @@ export default {
             console.log("getShowGroupName is ", chatGroupItem)
             var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
-            var totalMemberCount = chatGroupItem.currentState.getJoinedMemberCount() + chatGroupItem.currentState.getInvitedMemberCount();
+            var totalMemberCount = chatGroupItem.currentState.getJoinedMemberCount();
             if(totalMemberCount > 2) {
                 groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
             }
