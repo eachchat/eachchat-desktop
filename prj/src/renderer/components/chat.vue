@@ -399,7 +399,8 @@ export default {
             else{
                 tempUserInfo = await ComponentUtil.ShowOrgInfoByMatrixID(distUserInfo.matrix_id)
             }
-            
+            if(!tempUserInfo)
+                return;
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserInfo.matrix_id);
             if(!profileInfo)
                 return;
