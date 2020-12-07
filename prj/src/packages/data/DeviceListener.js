@@ -43,6 +43,12 @@ export default class DeviceListener {
         this._onAccountData = this._onAccountData.bind(this);
         this._onSync = this._onSync.bind(this);
         this._onRoomStateEvents = this._onRoomStateEvents.bind(this);
+        // this.dismissed = this.dismissed.bind(this);
+        // this.dismissedThisDeviceToast = this.dismissedThisDeviceToast.bind(this);
+        // this.keyBackupInfo = this.keyBackupInfo.bind(this);
+        // this.keyBackupFetchedAt = this.keyBackupFetchedAt.bind(this);
+        // this.ourDeviceIdsAtStart = this.ourDeviceIdsAtStart.bind(this);
+        // this.displayingToastsForDeviceIds = this.displayingToastsForDeviceIds.bind(this);
     }
 
     static sharedInstance() {
@@ -68,7 +74,7 @@ export default class DeviceListener {
         this.dismissedThisDeviceToast = false;
         this.keyBackupInfo = null;
         this.keyBackupFetchedAt = null;
-        this.ourDeviceIdsAtStart = null;
+        this.ourDeviceIdsAtStart = [];
         this.displayingToastsForDeviceIds = [];
     }
 
@@ -83,9 +89,6 @@ export default class DeviceListener {
             this.matrixClient.removeListener('sync', this._onSync);
             this.matrixClient.removeListener('RoomState.events', this._onRoomStateEvents);
         }
-        this.keyBackupInfo = null;
-        this.keyBackupFetchedAt = null;
-        this.ourDeviceIdsAtStart = null;
     }
 
     _ensureDeviceIdsAtStartPopulated() {
@@ -104,14 +107,14 @@ export default class DeviceListener {
         if (initialFetch) return;
 
         const myUserId = this.matrixClient.getUserId();
-        if (users.includes(myUserId)) this._ensureDeviceIdsAtStartPopulated();
+        if (users.indexOf(myUserId) >= 0) this._ensureDeviceIdsAtStartPopulated();
 
         // No need to do a recheck here: we just need to get a snapshot of our devices
         // before we download any new ones.
     }
 
     _onDevicesUpdated(users) {
-        if (!users.includes(this.matrixClient.getUserId())) return;
+        if (users.indexOf(this.matrixClient.getUserId()) < 0) return;
         this._recheck();
     }
 
@@ -179,7 +182,7 @@ export default class DeviceListener {
         // if (isSecretStorageBeingAccessed()) return false;
         // Show setup toasts once the user is in at least one encrypted room.
         const cli = this.matrixClient;
-        return cli && cli.getRooms().some(r => cli.isRoomEncrypted(r.roomId));
+        return cli && cli.getRooms().map(r => cli.isRoomEncrypted(r.roomId));
     }
 
     async _recheck() {
@@ -246,38 +249,38 @@ export default class DeviceListener {
         // you can't see or dismiss any device toasts
         if (crossSigningReady) {
             const devices = cli.getStoredDevicesForUser(cli.getUserId());
-            for (const device of devices) {
-                if (device.deviceId === cli.deviceId) continue;
+            for(var i=0;i<devices.length;i++) {
+                if(devices[i] == cli.deviceId) return;
 
-                const deviceTrust = await cli.checkDeviceTrust(cli.getUserId(), device.deviceId);
-                if (!deviceTrust.isCrossSigningVerified() && !this.dismissed.has(device.deviceId)) {
-                    if (this.ourDeviceIdsAtStart.has(device.deviceId)) {
-                        oldUnverifiedDeviceIds.add(device.deviceId);
+                const deviceTrust = await cli.checkDeviceTrust(cli.getUserId(), devices[i].deviceId);
+                if (!deviceTrust.isCrossSigningVerified() && this.dismissed.indexOf(devices[i].deviceId) < 0) {
+                    if (this.ourDeviceIdsAtStart.indexOf(devices[i].deviceId) < 0) {
+                        oldUnverifiedDeviceIds.push(devices[i].deviceId);
                     } else {
-                        newUnverifiedDeviceIds.add(device.deviceId);
+                        newUnverifiedDeviceIds.push(devices[i].deviceId);
                     }
                 }
             }
         }
 
         // Display or hide the batch toast for old unverified sessions
-        if (oldUnverifiedDeviceIds.size > 0) {
+        if (oldUnverifiedDeviceIds.length > 0) {
             // showBulkUnverifiedSessionsToast(oldUnverifiedDeviceIds);
         } else {
             // hideBulkUnverifiedSessionsToast();
         }
 
         // Show toasts for new unverified devices if they aren't already there
-        for (const deviceId of newUnverifiedDeviceIds) {
-            // showUnverifiedSessionsToast(deviceId);
-        }
+        // for (const deviceId of newUnverifiedDeviceIds) {
+        //     // showUnverifiedSessionsToast(deviceId);
+        // }
 
         // ...and hide any we don't need any more
-        for (const deviceId of this.displayingToastsForDeviceIds) {
-            if (!newUnverifiedDeviceIds.has(deviceId)) {
-                // hideUnverifiedSessionsToast(deviceId);
-            }
-        }
+        // for (const deviceId of this.displayingToastsForDeviceIds) {
+        //     if (newUnverifiedDeviceIds.indexOf(deviceId) < 0) {
+        //         // hideUnverifiedSessionsToast(deviceId);
+        //     }
+        // }
 
         this.displayingToastsForDeviceIds = newUnverifiedDeviceIds;
     }

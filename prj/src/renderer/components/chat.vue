@@ -303,6 +303,24 @@ export default {
                 .then(() => {
                     this.isInvite = false;
                     this.isRefreshing = true;
+                    this._loadTimeline(undefined, undefined, undefined)
+                        .then((ret) => {
+                            this.isRefreshing = false;
+                            this.messageList = this._getEvents();
+                            
+                            setTimeout(() => {
+                                this.$nextTick(() => {
+                                    this.needToBottom = true;
+                                    
+                                    let div = document.getElementById("message-show-list");
+                                    div.scrollTop = div.scrollHeight;
+                                    if(div) {
+                                        div.addEventListener('scroll', this.handleScroll);
+                                        this.showScrollBar();
+                                    }
+                                })
+                            }, 0)
+                        })
                     setTimeout(() => {
                         this.$emit('JoinRoom', this.chat.roomId);
                     }, 0)

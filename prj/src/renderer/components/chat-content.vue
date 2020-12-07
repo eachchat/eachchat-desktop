@@ -533,6 +533,9 @@ export default {
     },
     getNotificationContent(msg) {
       let event = msg.event;
+      if(event.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+        return;
+      }
       let chatGroupMsgType = event.type;
       var chatGroupMsgContent = msg.getContent();
       if(chatGroupMsgType === "m.room.message")
@@ -541,7 +544,7 @@ export default {
             return "[文件]:" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
-            var sender = distTimeLine.sender.name;
+            var sender = event.sender.name;
             var content = chatGroupMsgContent.body;
             return sender + ":" + content;
           }
@@ -555,7 +558,7 @@ export default {
             return "[文件]:" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
-            var sender = distTimeLine.sender.name;
+            var sender = event.sender.name;
             var content = chatGroupMsgContent.body;
             return sender + ":" + content;
           } 
