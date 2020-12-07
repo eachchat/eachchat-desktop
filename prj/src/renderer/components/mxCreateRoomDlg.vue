@@ -6,7 +6,7 @@
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close">
             </div>
             <div class="mxChatCreaterContent">
-                <div class="setting-field">
+                <div class="setting-field" style="border-bottom:1px solid rgba(221,221,221,1);">
                     <div>群聊名称</div>
                     <input 
                         type="text"
@@ -21,7 +21,11 @@
                         <div class="setting-title">群聊类型</div>
                         <div class="setting-tip">公共-任何人可以加入</div>
                     </div>
-                    <el-switch class="groupSettingSlienceSwitch" v-model="isPublic">
+                    <el-switch 
+                        class="groupSettingSlienceSwitch" 
+                        v-model="isPublic"
+                        :active-color="'#24B36B'"
+                    >
                     </el-switch>
                 </div>
                 <div class="setting-field">
@@ -29,7 +33,11 @@
                         <div class="setting-title">群聊目录</div>
                         <div class="setting-tip">将群发布到群聊目录</div>
                     </div>
-                    <el-switch class="groupSettingSlienceSwitch" v-model="commu" >
+                    <el-switch 
+                        class="groupSettingSlienceSwitch" 
+                        v-model="commu" 
+                        :active-color="'#24B36B'"
+                    >
                     </el-switch>
                 </div>
                 <div class="setting-field" v-if="!isPublic">
@@ -37,7 +45,11 @@
                         <div class="setting-title">端到端加密</div>
                         <div class="setting-tip">一旦开启端到端加密，将无法撤销</div>
                     </div>
-                    <el-switch class="groupSettingSlienceSwitch" v-model="isEncrypted">
+                    <el-switch 
+                        class="groupSettingSlienceSwitch" 
+                        v-model="isEncrypted"
+                        :active-color="'#24B36B'"
+                    >
                     </el-switch>
                 </div>
             </div>
@@ -381,8 +393,8 @@ export default {
         width: 100px;
         height: 28px;
         box-sizing: border-box;
-        background-color: #459ad0;
-        border:1px solid #459ad0;
+        background-color: #24B36B;
+        border:1px solid #24B36B;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -395,7 +407,7 @@ export default {
     .setting-field {
         margin-top: 28px;
         height: 40px;
-        border-bottom:1px solid rgba(221,221,221,1);
+        // border-bottom:1px solid rgba(221,221,221,1);
         display: flex;
         justify-content: space-between;
         align-items: center;
