@@ -4,7 +4,7 @@
         <div class="userInfoBaseInfo-view">
             <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)">
             <div class="userInfo-baseInfo">
-                <p class="userInfo-name">{{ GetDisplayName("", userInfo.matrix_id) }}</p>
+                <p class="userInfo-name">{{ GetDisplayName(userInfo.displayName, userInfo.matrix_id) }}</p>
                 <p class="userInfo-title">{{ userInfo.matrix_id }}</p>
             </div>
         </div>
@@ -22,7 +22,7 @@
             <ul class="userInfoState-list">
                 <li v-if="userType == 'contact' || userType == 'mainUserInfo'" >
                     <p class="userInfo-key">昵称</p>
-                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入昵称...">
+                    <input :readonly = 'nameEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入昵称...">
                 </li>
                 <li v-if="showStatusDescription">
                     <p class="userInfo-key">个人状态</p>
@@ -80,6 +80,7 @@ export default {
         return {
             pagePosition: {},
             inputEdit: true,
+            nameEdit: true,
             services: null,
             data: false,
         }
@@ -353,11 +354,21 @@ export default {
 
     created () {
         console.log('-----userInfo------', this.userInfo)
+        this.originDisplayName = this.userInfo.displayName;
         this.services = global.services.common;
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
 
-        if(this.userType == 'contact' || this.userType == 'mainUserInfo' ){
+        if(this.userType == 'contact'){
             this.inputEdit = false;
+            this.nameEdit = false;
+        }
+        else if(this.userType == 'mainUserInfo' ){
+            this.inputEdit = true;
+            this.nameEdit = false;
+        }
+        else{
+            this.inputEdit = true;
+            this.nameEdit = true;
         }
         var pageWidth = 280;
         var pageHeight = this.getPageHeight();
@@ -399,7 +410,11 @@ export default {
                                         this.userInfo.department.display_name,
                                         this.userInfo.title);
         }
-        
+        if(this.userType == 'mainUserInfo')
+        {
+            if(this.originDisplayName != this.userInfo.displayName)
+                global.mxMatrixClientPeg.matrixClient.setDisplayName(this.userInfo.displayName)
+        }
     }
 }
 </script>

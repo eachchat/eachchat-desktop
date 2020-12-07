@@ -33,10 +33,6 @@
                     <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
-                  <div class="group-notice">
-                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
-                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
-                  </div>
                 </div>
               </li>
             </ul>
@@ -443,9 +439,12 @@ export default {
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           item.un_read_count = 1;
+          this.unreadCount += 1;
           this.inviteGroupsList.push(item);
         }
         else{
+          const notificationCount = item.getUnreadNotificationCount();
+          this.unreadCount += notificationCount;
           let tags = item.tags;
           if(tags && tags['m.favourite']){
             this.favouriteRooms.push(item)
@@ -459,7 +458,9 @@ export default {
         this.favouriteRooms.sort(this.SortGroupByTimeLine);
       }
       if(this.dealShowGroupList.length != 0)
-        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine);
+      
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
     },
     
     SortGroupByTimeLine(item1, item2){
@@ -551,6 +552,7 @@ export default {
       }
       else if(chatGroupMsgType === "m.room.encrypted") {
           // chatGroupMsgContent = this.msg.getContent();
+          return "收到一条加密消息";
           if(chatGroupMsgContent.msgtype == 'm.file'){
             return "[文件]:" + chatGroupMsgContent.body;
           }
@@ -577,6 +579,7 @@ export default {
       if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
       }
+      this.unreadCount += 1;
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.room_id);
       var notificateContent = this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
@@ -613,7 +616,8 @@ export default {
         this.favouriteRooms.sort(this.SortGroupByTimeLine);
       
       if(this.dealShowGroupList.length != 0)
-        this.dealShowGroupList.sort(this.SortGroupByTimeLine)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine);
+      
     },
     eventUpdateChatList(event, newMsg) {
       // ++this.needUpdate;

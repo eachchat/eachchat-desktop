@@ -21,7 +21,7 @@
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
             </div>
-            <p :class="getUnreadClass(this.unReadCount)" v-show="false">{{getUnReadCount(this.unReadCount)}}</p>
+            <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
@@ -89,6 +89,7 @@ export default {
     },
     data () {
         return {
+            displayName: '',
             userInfo: undefined,
             isOwn: true,
             userInfoTipKey: 1,   //用户信息弹窗强制更新
@@ -148,13 +149,16 @@ export default {
                 this.pagePosition.top = 32;
                 this.personalCenterKey ++;
                 const userId = window.localStorage.getItem("mx_user_id");
+
                 this.userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
-                this.showPersonalCenter = false;
-                this.showPersonalInfo = true;
+                if(this.userInfo){
+                    this.showPersonalCenter = false;
+                    this.showPersonalInfo = true;
+                    this.userInfo.displayName = this.displayName;
+                }
             }
         },
         getUnReadCount(unReadCount) {
-            return '';
             if(unReadCount === 0) return "";
             else return unReadCount > 99 ? "···" : unReadCount;
         },
@@ -311,6 +315,8 @@ export default {
             console.log("this.showpersonalcenter is ", this.showPersonalCenter);
             this.showPersonalCenter = true;
             this.showPersonalInfo = false;
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
+            this.displayName = profileInfo.displayname;
             this.personalCenterKey ++;
         },
         startCheckUpgrade: function() {
@@ -407,6 +413,10 @@ export default {
         userInfoContent
     },
     mounted: async function() {
+        ipcRenderer.on('setUnreadCount', (e, count) => {
+            console.log("lfjs;ldajf;lkaj;lsjdf;lkj")
+            this.unReadCount = count;
+        })
         if(global.mxMatrixClientPeg.homeserve == '') {
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
@@ -474,7 +484,7 @@ export default {
         var _this = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname is ", e.target.className)
-            if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1){
+            if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
                     console.log("============")
                     _this.showPersonalCenter = false;
@@ -483,9 +493,6 @@ export default {
 
             }
         });
-        ipcRenderer.on('setUnreadCount', (e, count) => {
-            this.unReadCount = count;
-        })
 
         ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId)=>{
             let msgs = await Message.FindMessageByMesssageID(eventId);

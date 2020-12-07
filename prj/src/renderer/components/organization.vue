@@ -33,9 +33,9 @@
                     <div class='grid-content'>联系人</div>
                     <li class="manager"
                         v-for="(contact, index) in searchContacts"
-                        @click="SearchContactItemClicked(contact.user_id)" 
+                        @click="SearchContactItemClicked(contact.matrix_id)" 
                         :key="index">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.user_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
                         <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ contact.title }}</p>
