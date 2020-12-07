@@ -4,7 +4,7 @@
         <div class="userInfoBaseInfo-view">
             <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)">
             <div class="userInfo-baseInfo">
-                <p class="userInfo-name">{{ GetDisplayName("", userInfo.matrix_id) }}</p>
+                <p class="userInfo-name">{{ GetDisplayName(userInfo.displayName, userInfo.matrix_id) }}</p>
                 <p class="userInfo-title">{{ userInfo.matrix_id }}</p>
             </div>
         </div>
