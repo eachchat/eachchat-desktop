@@ -92,10 +92,6 @@
                     <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
-                  <div class="group-notice">
-                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
-                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
-                  </div>
                 </div>
               </li>
             </ul>
@@ -608,9 +604,7 @@ export default {
       }
       else {
         if(this.$store.getters.flashNotice()) {
-          if(!this.groupIsSlience(groupInfo)) {
-            ipcRenderer.send("showNotice", fromName, notificateContent);
-          }
+          ipcRenderer.send("showNotice", fromName, notificateContent);
         }
       }
 
