@@ -425,10 +425,12 @@ export default {
         },
         showFileList: function() {
             this.isFileList = true;
+            this.isScroll = true;
             this.FilelistSearchRoomId = this.chat.roomId;
         },
         CloseFileListPage: function() {
             this.isFileList = false;
+            this.isScroll = false;
             this.FilelistSearchRoomId = "";
         },
         showMsgHistoryOperate: function() {
@@ -2220,6 +2222,7 @@ s        },
         },
         _getEvents() {
             var events = this._timelineWindow.getEvents();
+            console.log("========== getEvent");
             return events;
         },
         jumpToEvent: function(eventId) {
@@ -2254,7 +2257,9 @@ s        },
             }
         },
         onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
-            this.$emit("updateChatList", ev);
+            if(!this.isScroll) {
+                this.$emit("updateChatList", ev);
+            }
             if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
             
             let bottom = this.IsBottom();
@@ -2302,6 +2307,7 @@ s        },
                     }
                     // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScrollTop){
+                        this.isScroll = true;
                         this.lastScrollHeight = uldiv.scrollHeight;
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
@@ -2313,6 +2319,7 @@ s        },
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
                                     uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                    this.isScroll = false;
                                 })
                                 this.isRefreshing = false;
                             })
@@ -2327,6 +2334,7 @@ s        },
                         return;
                     }
                     if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing) {
+                        this.isScroll = true;
                         this.lastScrollTop = uldiv.scrollTop;
                         console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                         this.lastRefreshTime = new Date().getTime();
@@ -2340,6 +2348,7 @@ s        },
                                     this.$nextTick(() => {
                                         // console.log("---------update croll top is ", uldiv.scrollHeight);
                                         uldiv.scrollTop = this.lastScrollTop;
+                                        this.isScroll = false;
                                         // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                                         // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
                                     })
@@ -2521,6 +2530,7 @@ s        },
     },
     data() {
         return {
+            isScroll: false,
             UploadingName: '',
             showUploadProgress: false,
             curPercent: 0,
