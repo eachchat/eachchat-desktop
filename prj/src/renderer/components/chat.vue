@@ -4,7 +4,7 @@
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
-                <p class="chat-name" id="chat-group-name"></p>
+                <p class="chat-name" id="chat-group-name">{{chat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <p class="chat-name-state" id="chat-group-state"></p>
             </div>
@@ -1247,43 +1247,7 @@ export default {
             
             return mxMembers.length;
         },
-        showGroupName: async function(chatGroupItem) {
-            if(chatGroupItem.roomId == undefined && chatGroupItem.myUserId == undefined){
-                return "";
-            }
-            var groupNameElement = document.getElementById("chat-group-name");
-            var groupIcoElement = document.getElementById("chat-group-img");
-            var groupStateElement = document.getElementById("chat-group-state");
-            var groupContentNumElement = document.getElementById("chat-group-content-num");
-            console.log("getShowGroupName is ", chatGroupItem)
-            var groupName = this.chat.name;
-            if(!groupNameElement){
-                console.log("groupNameElement is undefined");
-                return;
-            }
-            groupNameElement.innerHTML = groupName;
-            var totalMemberCount = this.mxGetMembers();
-            if(totalMemberCount > 2) {
-                groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
-            }
-            else {
-                groupContentNumElement.innerHTML = "";
-            }
-
-            this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
-            console.log("=================distUrl ", this.distUrl);
-            if(!this.distUrl || this.distUrl == '') {
-                let defaultGroupIcon;
-                // if(this.isSecret)
-                    defaultGroupIcon = "../../../static/Img/User/group-40px@2x.png";
-                // else
-                //     defaultGroupIcon = "../../../static/Img/Chat/encrypt-chat-title@2x.png";
-               groupIcoElement.setAttribute("src", defaultGroupIcon); 
-            }
-            if(groupIcoElement != undefined && this.distUrl) {
-              groupIcoElement.setAttribute("src", this.distUrl);
-            }
-        },
+        
         insertFace: function(item) {
             var range = this.editor.getSelection();
             var curIndex = range==null ? 0 : range.index;
@@ -2699,7 +2663,6 @@ s        },
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
-                this.showGroupName(this.chat);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
             })
@@ -2771,7 +2734,6 @@ s        },
             this.needScrollTop = true;
             this.needScrollBottom = true;
             this.existingMsgId = [];
-            this.showGroupName(this.chat);
             if(this.editor == undefined) {
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
