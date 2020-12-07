@@ -3,7 +3,7 @@ import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js';
 
 const ComponentUtil = {
     GetDisplayName(displayName, userid){
-        if(displayName == '')
+        if(displayName == '' && userid)
         {
             let beginPos = userid.indexOf("@");
             if(beginPos == -1)
