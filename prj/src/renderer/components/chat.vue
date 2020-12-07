@@ -1258,6 +1258,10 @@ export default {
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             console.log("getShowGroupName is ", chatGroupItem)
             var groupName = this.chat.name;
+            if(!groupNameElement){
+                console.log("groupNameElement is undefined");
+                return;
+            }
             groupNameElement.innerHTML = groupName;
             var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
@@ -2301,7 +2305,7 @@ s        },
         IsBottom: function(){
             let uldiv = document.getElementById("message-show-list");
             let client = document.getElementById("message-show");
-            if(Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 5)
+            if(uldiv && client && Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 5)
                 return true;
             return false;
         },
@@ -2755,8 +2759,8 @@ s        },
                                 this.needToBottom = true;
                                 
                                 let div = document.getElementById("message-show-list");
-                                div.scrollTop = div.scrollHeight;
                                 if(div) {
+                                    div.scrollTop = div.scrollHeight;
                                     div.addEventListener('scroll', this.handleScroll);
                                     this.showScrollBar();
                                 }

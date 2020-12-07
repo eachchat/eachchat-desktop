@@ -181,6 +181,8 @@ export default {
                     Rooms.setDMRoom(roomId, opts.dmUserId);
                 const obj = {data: res, handler: 'viewRoom'};
                 this.$emit('close', obj);
+                if(res && res.room_id)
+                    this.jumpToChat(res.room_id);
             })
         },
         createDm: function() {
@@ -225,10 +227,6 @@ export default {
                 //     }
                 // });
             }
-            createRoomPromise.then((res)=> {
-                if(res && res.room_id)
-                    this.jumpToChat(res.room_id);    
-            })
         },
         GetDisplayName: function(displayName, userid){
             return ComponentUtil.GetDisplayName(displayName, userid);
