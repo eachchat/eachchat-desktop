@@ -77,9 +77,9 @@ export default {
         margin-left: -200px;
         background-color: #f2f2f2;
         padding: 24px;
-        border-radius: 16px;
+        border-radius: 4px;
         width: 400px;
-        height: 240px;
+        height: 160px;
         z-index: 99999;
         .inner-wrap {
             height: 100%;
@@ -93,6 +93,8 @@ export default {
                 position: absolute;
                 top: 24px;
                 right: 24px;
+                font-size: 20px;
+                cursor: pointer;
             }
             .setting-field {
                 margin-bottom: 20px;
@@ -136,6 +138,7 @@ export default {
                     font-size: 14px;
                     margin-left: 28px;
                     border-radius: 4px;
+                    cursor: pointer;
                 }
             }
         }
