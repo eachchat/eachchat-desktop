@@ -151,9 +151,11 @@ export default {
                 const userId = window.localStorage.getItem("mx_user_id");
 
                 this.userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
-                this.userInfo.displayName = this.displayName;
-                this.showPersonalCenter = false;
-                this.showPersonalInfo = true;
+                if(this.userInfo){
+                    this.showPersonalCenter = false;
+                    this.showPersonalInfo = true;
+                    this.userInfo.displayName = this.displayName;
+                }
             }
         },
         getUnReadCount(unReadCount) {
