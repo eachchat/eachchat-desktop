@@ -571,7 +571,17 @@ export default {
         return "收到一条短消息";
 
     },
+
+    sortGroup(){
+      if(this.favouriteRooms.length != 0)
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+      
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine);
+    },
+
     async updateChatList(newMsg) {
+      this.sortGroup();
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -611,13 +621,6 @@ export default {
           ipcRenderer.send("showNotice", fromName, notificateContent);
         }
       }
-
-      if(this.favouriteRooms.length != 0)
-        this.favouriteRooms.sort(this.SortGroupByTimeLine);
-      
-      if(this.dealShowGroupList.length != 0)
-        this.dealShowGroupList.sort(this.SortGroupByTimeLine);
-      
     },
     eventUpdateChatList(event, newMsg) {
       // ++this.needUpdate;
