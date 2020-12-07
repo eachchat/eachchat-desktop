@@ -577,6 +577,9 @@ export default {
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender.name;
+      if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+        return;
+      }
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.room_id);
       var notificateContent = this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
@@ -1743,7 +1746,7 @@ export default {
         //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       }
       this.curChat = chatGroup;
-     
+
       if(this.curChat.un_read_count != undefined && this.curChat.un_read_count != 0) {
         ipcRenderer.send("stopFlash");
       }
@@ -1782,7 +1785,7 @@ export default {
       this.dealShowGroupList.unshift(newRoom);
       this.$nextTick(() => {
         this.showGroupIcon(newRoom);
-        this.showChat(newRoom, 0);
+        // this.showChat(newRoom, 0);
       })
     },
   

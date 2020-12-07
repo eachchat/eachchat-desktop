@@ -302,28 +302,31 @@ export default {
             global.mxMatrixClientPeg.matrixClient.joinRoom(this.chat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
                     this.isInvite = false;
-                    this.isRefreshing = true;
-                    this._loadTimeline(undefined, undefined, undefined)
-                        .then((ret) => {
-                            this.isRefreshing = false;
-                            this.messageList = this._getEvents();
-                            
-                            setTimeout(() => {
-                                this.$nextTick(() => {
-                                    this.needToBottom = true;
-                                    
-                                    let div = document.getElementById("message-show-list");
-                                    div.scrollTop = div.scrollHeight;
-                                    if(div) {
-                                        div.addEventListener('scroll', this.handleScroll);
-                                        this.showScrollBar();
-                                    }
-                                })
-                            }, 0)
-                        })
+                    // this.isRefreshing = true;
                     setTimeout(() => {
                         this.$emit('JoinRoom', this.chat.roomId);
-                    }, 0)
+                    }, 500)
+                    setTimeout(() => {
+                        this._loadTimeline(undefined, undefined, undefined)
+                            .then((ret) => {
+                                console.log("join room chat is ", this.chat);
+                                this.isRefreshing = false;
+                                this.messageList = this._getEvents();
+                                
+                                setTimeout(() => {
+                                    this.$nextTick(() => {
+                                        this.needToBottom = true;
+                                        
+                                        let div = document.getElementById("message-show-list");
+                                        div.scrollTop = div.scrollHeight;
+                                        if(div) {
+                                            div.addEventListener('scroll', this.handleScroll);
+                                            this.showScrollBar();
+                                        }
+                                    })
+                                }, 0)
+                            })
+                    })
                 })
         },
         rejectRoom: function() {
@@ -1228,6 +1231,23 @@ export default {
         showExpression: function() {
             this.showFace = !this.showFace;
         },
+        mxGetMembers: function() {
+            var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            const roomId = this.chat.roomId;
+            const cli = window.mxMatrixClientPeg.matrixClient;
+            const xie1 = cli.getRoom(roomId);
+            const xie2 = cli.getRoomPushRule("global", roomId);
+            const mxMembers = [];
+            for(let key in xie1.currentState.members) {
+                // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+                let obj = {...xie1.currentState.members[key], choosen:false}
+                if (obj.membership != 'leave') mxMembers.push(obj);
+            }
+            console.log('mxMembers', mxMembers);
+            console.log('----mxMembers[userId]----', userId)
+            
+            return mxMembers.length;
+        },
         showGroupName: async function(chatGroupItem) {
             if(chatGroupItem.roomId == undefined && chatGroupItem.myUserId == undefined){
                 return "";
@@ -1239,9 +1259,12 @@ export default {
             console.log("getShowGroupName is ", chatGroupItem)
             var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
-            var totalMemberCount = chatGroupItem.currentState.getJoinedMemberCount();
+            var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
                 groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+            }
+            else {
+                groupContentNumElement.innerHTML = "";
             }
 
             this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
@@ -2222,7 +2245,7 @@ s        },
         },
         _getEvents() {
             var events = this._timelineWindow.getEvents();
-            console.log("========== getEvent");
+            console.log("========== getEvent ", events);
             return events;
         },
         jumpToEvent: function(eventId) {
@@ -2704,6 +2727,9 @@ s        },
     props: ['chat', 'newMsg', 'toBottom'],
     watch: {
         chat: function() {
+            if(this.chat == null) {
+                return;
+            }
             this.inviterInfo = undefined;
             this.isInvite = false;
             this.isJumpPage = false;
@@ -2718,7 +2744,7 @@ s        },
                 this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
                 this.isInvite = true;
             }
-            else {
+            // else {
                 this._loadTimeline(undefined, undefined, undefined)
                     .then((ret) => {
                         this.isRefreshing = false;
@@ -2737,7 +2763,7 @@ s        },
                             })
                         }, 0)
                     })
-            }
+            // }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
             this.needScrollTop = true;
             this.needScrollBottom = true;
