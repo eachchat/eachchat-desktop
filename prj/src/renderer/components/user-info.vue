@@ -4,7 +4,7 @@
         <div class="userInfoBaseInfo-view">
             <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)">
             <div class="userInfo-baseInfo">
-                <p class="userInfo-name">{{ GetDisplayName(userInfo.displayName, userInfo.matrix_id) }}</p>
+                <p class="userInfo-name">{{ GetDisplayName("", userInfo.matrix_id) }}</p>
                 <p class="userInfo-title">{{ userInfo.matrix_id }}</p>
             </div>
         </div>
@@ -20,9 +20,9 @@
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
-                <li v-if="userType == 'contact'">
-                    <p class="userInfo-key">备注</p>
-                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入备注名...">
+                <li v-if="userType == 'contact' || userType == 'mainUserInfo'" >
+                    <p class="userInfo-key">昵称</p>
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入昵称...">
                 </li>
                 <li v-if="showStatusDescription">
                     <p class="userInfo-key">个人状态</p>
@@ -131,7 +131,7 @@ export default {
             return !this.isEmpty(this.userInfo.workDescription);
         },
         showPhone: function() {
-            if(this.userType == 'contact')
+            if(this.userType == 'contact' || this.userType == 'mainUserInfo')
                 return true;
             if (this.userInfo.phone == undefined){
                 return false;
@@ -139,7 +139,7 @@ export default {
             return !this.isEmpty(this.userInfo.phone.mobile);
         },
         showTelephone: function (){
-            if(this.userType == 'contact')
+            if(this.userType == 'contact' || this.userType == 'mainUserInfo')
                 return true;
             if (this.userInfo.phone == undefined){
                 return false;
@@ -166,7 +166,7 @@ export default {
             return false;
         },
         showRelation: function() {
-            if (this.userInfo == undefined){
+            if (this.userInfo == undefined || this.userType == "mainUserInfo"){
                 return false;
             }
             return !this.isEmpty(this.userInfo.managerId);
@@ -193,8 +193,9 @@ export default {
             const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
             console.log('------existingRoom------', existingRoom);
             
-            //判断群组个数
             if (existingRoom) {
+                let roomMember = existingRoom.getInvitedAndJoinedMemberCount();
+                console.log("roomMember ", roomMember)
                 existingRoom.room_id = existingRoom.roomId
                 const obj = {data: existingRoom, handler: 'viewRoom'};
                 this.$emit('close', obj);
@@ -357,8 +358,9 @@ export default {
         this.services = global.services.common;
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
 
-        if(this.userType == 'contact' )
+        if(this.userType == 'contact' || this.userType == 'mainUserInfo' ){
             this.inputEdit = false;
+        }
         var pageWidth = 280;
         var pageHeight = this.getPageHeight();
         var showScreenHeight = document.documentElement.clientHeight;
@@ -379,6 +381,10 @@ export default {
         
         this.pagePosition.left = this.originPosition.left.toString() + "px";
         this.pagePosition.top = topPosition.toString() + "px";
+        if(this.userType == 'mainUserInfo'){
+            this.pagePosition.left = "64px";
+            this.pagePosition.top = "32px";
+        }
         this.$nextTick(function(){
             this.getUserImg(this.userInfo);
         });
