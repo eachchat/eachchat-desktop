@@ -6,6 +6,7 @@ import { decodeRecoveryKey } from 'matrix-js-sdk/src/crypto/recoverykey';
 import {crossSigningCallbacks} from './recoveryKeyCallback.js';
 import {getMatrixDefaultDeviceDisplayName} from '../core/Utils.js';
 import DMRoomMap from './DMRoomMap';
+import DeviceListener from './DeviceListener.js';
 import { net } from '../core/index.js'
 
 class _MatrixClientPeg{
@@ -22,6 +23,7 @@ class _MatrixClientPeg{
         this.keyInfo = null;
         this.accountPassword = null;
         this.loadType = null;
+        this.checkType = null;
         this.account = null;
         console.log("default display name is ", this.defaultDisplayName);
         this._hasSentOutPatchDirectAccountDataPatch = false;
@@ -213,7 +215,8 @@ class _MatrixClientPeg{
       if(!window.localStorage) {
           return false;
       }
-      const hsUrl = window.localStorage.getItem("mx_hs_url");
+      // const hsUrl = window.localStorage.getItem("mx_hs_url");
+      const hsUrl = "https://matrix.each.chat";
       const accessToken = window.localStorage.getItem("mx_access_token");
       const userId = window.localStorage.getItem("mx_user_id");
       const deviceId = window.localStorage.getItem("mx_device_id");
@@ -224,7 +227,7 @@ class _MatrixClientPeg{
       }
       if(accessToken && userId && hsUrl) {
         let ops = {
-          baseUrl: hsUrl,
+          baseUrl: 'https://matrix.each.chat',//this.homeserve,
           userId: userId,
           accessToken: accessToken,
           deviceId: deviceId,
@@ -239,6 +242,7 @@ class _MatrixClientPeg{
         await this.matrixClient.initCrypto();
         // await this.matrixClient.startClient();
         await this.matrixClient.store.startup();
+        DeviceListener.sharedInstance().start();
         ops["language"] = this.curLanguage;
         return ops;
       }
@@ -299,11 +303,11 @@ class _MatrixClientPeg{
 
     async LoginWithVerCode(checkType, username, password) {
       let response = null;
+      this.checkType = checkType;
+      this.account = username;
+      this.password = password;
       if(checkType == "m.login.verCode.msisdn") {
         try{
-          this.loadType = checkType;
-          this.account = username;
-          this.password = password;
           response = await this.commonApi.post(
             "/_matrix/client/r0/login",
             {
@@ -346,7 +350,7 @@ class _MatrixClientPeg{
 
     async verCodeLoginMatrixClient(matrixInfo) {
       let ops = {
-          baseUrl: this.homeserve,
+          baseUrl: 'https://matrix.each.chat',//this.homeserve,
           userId: matrixInfo.data.user_id,
           accessToken: matrixInfo.data.access_token,
           deviceId: matrixInfo.data.device_id,
@@ -359,8 +363,9 @@ class _MatrixClientPeg{
       
       DMRoomMap.makeShared().start();
 
-      await this.matrixClient.store.startup();
       await this.matrixClient.initCrypto();
+      await this.matrixClient.store.startup();
+      DeviceListener.sharedInstance().start();
       return this.matrixClient;
     }
 
@@ -397,11 +402,14 @@ class _MatrixClientPeg{
     }
   
     async LoginWithPassword(account, password){
+        this.checkType = 'm.login.password';
+        this.account = account;
+        this.password = password;
         let userLoginResult = await this.registrationClient.loginWithPassword(
             account,
             password);
         let ops = {
-            baseUrl: this.homeserve,
+            baseUrl: 'https://matrix.each.chat',//this.homeserve,
             userId: userLoginResult.user_id,
             accessToken: userLoginResult.access_token,
             deviceId: userLoginResult.device_id,
@@ -413,8 +421,9 @@ class _MatrixClientPeg{
         this.matrixClient = this._CreateMatrixClient(ops);
         DMRoomMap.makeShared().start();
   
-        await this.matrixClient.store.startup();
         await this.matrixClient.initCrypto();
+        await this.matrixClient.store.startup();
+        DeviceListener.sharedInstance().start();
         return this.matrixClient;
     }
 
@@ -430,7 +439,7 @@ class _MatrixClientPeg{
           return;
       }
 
-      // await this.fetchKeyInfo();
+      await this.fetchKeyInfo();
 
       try {
           const decodedKey = this.matrixClient.keyBackupKeyFromRecoveryKey(recoveryKey);
@@ -443,6 +452,7 @@ class _MatrixClientPeg{
       }
     }
     async fetchKeyInfo() {
+      console.log("```````````````matrixClientPeg.keyInfo ", this.keyInfo);
       var keys = await this.matrixClient.isSecretStored('m.cross_signing.master', false);
       if(keys == null || Object.keys(keys).length == 0) {
         this.keyId = null;
@@ -451,6 +461,8 @@ class _MatrixClientPeg{
       else {
         this.keyId = Object.keys(keys)[0];
         this.keyInfo = keys[this.keyId];
+        console.log("```````````````fetchKeyInfo.keyId ", this.keyId);
+        console.log("```````````````fetchKeyInfo.keyInfo ", this.keyInfo);
       }
     }
 

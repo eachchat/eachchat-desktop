@@ -28,7 +28,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="青云" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -190,6 +190,13 @@
             <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView">{{$t("homeServerAddress")}}</div>
             <i class="el-icon-caret-bottom" v-show="showOrganizationView"></i>
         </div>
+        <div class="domain-dropdown-content" id="domain-dropdown-content-id" v-show="showDomListView">
+            <ul class="domain-list">
+                <li class="domain-item" v-for="domainItem in DomainList" @click="selectDomain(domainItem)">
+                    {{domainItem}}
+                </li>
+            </ul>
+        </div>
         <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView">
             <span class="login-setup-language-label" id="login-language-label">
                 简体中文
@@ -224,6 +231,10 @@ export default {
     },
     data () {
         return {
+            toDetect: true,
+            showDomListView: false,
+            DomainList: [],
+            searchId: 0,
             isLoading: false,
             backupInfo: {},
             showGeneralRecoveryKeyPage: false,
@@ -357,43 +368,61 @@ export default {
                 this.organizationButtonDisabled = false;
             })
         },
-        checkHomeServer: function (address){
+        checkHomeServer: async function (domain){
+            var Domain = domain == null ? window.localStorage.getItem("Domain") : domain;
+            var gmsRet = await global.services.common.newGmsConfiguration(Domain);
+            if(!gmsRet){
+                if(domain != undefined){
+                    this.loginState = "未找到该组织";
+                }
+                this.organizationButtonDisabled = false;
+                return false;
+            }
+            window.localStorage.setItem("Domain", domain);
             var host = "";
-            if(address == undefined || address == null) {
+            // if(address == undefined || address == null) {
                 host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-            }
-            else {
-                host = address
-            }
+                host = "https://matrix.each.chat"
+            // }
+            // else {
+            //     host = address
+            // }
+            console.log("host si ", host);
             return global.mxMatrixClientPeg.checkHomeServer(host).then(async (flows) => {
                 console.log("matrix get flows is ", flows)
                 this.supportedIdentity = flows;
                 for (let i = 0; i < flows.length; i++ ) {
                     this.resetLoginStateTitle();
-                    var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
-                    console.log('appServerInfo is ', appServerInfo);
-                    if(appServerInfo.status != 200) {
-                        this.loginState = this.$t("invalidServerAddress");
+                    if(window.localStorage.getItem("Domain") == null) {
                         return false;
                     }
-                    if(appServerInfo.data['m.gms'] != undefined) {
-                        var gmsHost = appServerInfo.data['m.gms']['base_url'];
-                        var gmsValue = appServerInfo.data['m.gms']['tid'];
-                        var gmsRet = await global.services.common.gmsConfiguration(gmsValue, gmsHost);
-                        if(!gmsRet){
-                            this.loginState = "未找到该组织";
-                            this.organizationButtonDisabled = false;
-                            return false;
-                        }
-                        else {
-                            this.organizationButtonDisabled = false;
-                            return true;
-                        }
-                    }
-                    else if(appServerInfo.data['m.appserver'] != undefined){
-                        global.services.common.setGmsConfiguration(appServerInfo.data);
+                    else {
                         return true;
                     }
+                    // var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
+                    // console.log('appServerInfo is ', appServerInfo);
+                    // if(appServerInfo.status != 200) {
+                    //     this.loginState = this.$t("invalidServerAddress");
+                    //     return false;
+                    // }
+                    // if(appServerInfo.data['m.gms'] != undefined) {
+                    //     var gmsHost = appServerInfo.data['m.gms']['base_url'];
+                    //     var gmsValue = appServerInfo.data['m.gms']['tid'];
+                    //     var gmsRet = await global.services.common.gmsConfiguration(gmsValue, gmsHost);
+                    //     if(!gmsRet){
+                    //         this.loginState = "未找到该组织";
+                    //         this.organizationButtonDisabled = false;
+                    //         return false;
+                    //     }
+                    //     else {
+                    //         this.organizationButtonDisabled = false;
+                    //         return true;
+                    //     }
+                    // }
+                    // else if(appServerInfo.data['m.appserver'] != undefined){
+                    //     global.services.common.setGmsConfiguration(appServerInfo.data);
+                    //     return true;
+                    // }
                 }
                 
                 this.loginState = this.$t("invalidServerAddress");
@@ -445,6 +474,56 @@ export default {
         resetLoginStateTitle(){
             this.loginState = "";
         },
+        toDected: function() {
+            this.organizationAddress = this.organizationAddress.trim();
+            if(this.organizationAddress.length == 0 || !this.toDetect) {
+                return;
+            }
+            
+            var curSearchId = new Date().getTime();
+            console.log("searchkey is ", this.organizationAddress);
+            var searchResult = {
+                "id": curSearchId,
+                "searchList": []
+            };
+            this.searchId = curSearchId;
+            global.services.common.gmsDetector(this.organizationAddress)
+                .then((ret) => {
+                    console.log("gmsDetector ret is ", ret);
+                    if(ret.data == undefined || ret.data.results == undefined) {
+                        this.DomainList = [];
+                    }
+                    else {
+                        if(searchResult.id == this.searchId) {
+                            this.DomainList = ret.data.results;
+                            if(this.DomainList.length != 0) {
+                                this.showDomainPage();
+                            }
+                        }
+                    }
+                })
+        },
+        selectDomain: function(item) {
+            this.toDetect = false;
+            this.DomainList = [];
+            this.showDomListView = false;
+            this.organizationAddress = item;
+            this.$nextTick(() => {
+                this.toDetect = true;
+            })
+            console.log("=============ffff ", this.showDomListView);
+        },
+        showDomainPage: function() {
+            var domainInputElement = document.getElementById("item-input-id");
+            var domainListElement = document.getElementById("domain-dropdown-content-id");
+            var top = domainInputElement.offsetTop + domainInputElement.offsetHeight;
+            var left = domainInputElement.offsetLeft;
+            domainListElement.style.top = top + "px";
+            domainListElement.style.left = left + "px";
+            
+            this.showDomListView = true;
+            console.log("show=====showDomListView========", this.showDomListView);
+        },
         organizationConfirmButtonClicked:async function(){
             this.isLoading = true;
             this.organizationButtonDisabled = true;
@@ -458,12 +537,12 @@ export default {
                 return;
             }
             
-            var address = this.organizationAddress;// + ".each.chat";
+            var domain = this.organizationAddress;// + ".each.chat";
 
-            var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-
-            // var result = await services.common.gmsConfiguration(address, host);
-            this.checkHomeServer(address)
+            // var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            // var detectorRet = await services.common.gmsDetector(address);
+            console.log("domain is ", domain);
+            this.checkHomeServer(domain)
                 .then((result) => {
                     console.log(result);
                     if(!result){
@@ -856,7 +935,32 @@ export default {
             }
             else {
                 try {
-                    client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+                    // if(window.localStorage.getItem("defaultIdentity") == "ldap") {
+                    //     verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                    //     console.log("===== ", verCodeRet)
+                    //     if(verCodeRet.status == 200) {
+                    //         client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                    //     }
+                    //     else if(verCodeRet.status == 429) {
+                    //         this.loginState = verCodeRet.data.error;
+                    //         this.isLoading = false;
+                    //     }
+                    //     else if(verCodeRet.status == 400) {
+                    //         this.loginState = this.$t("unboundedAccount")
+                    //         this.isLoading = false;
+                    //     }
+                    //     else if(verCodeRet.status == 412) {
+                    //         this.loginState = this.$t("invalidVerCode")
+                    //         this.isLoading = false;
+                    //     }
+                    //     else {
+                    //         this.loginState = this.$t("invalidVerCode")
+                    //         this.isLoading = false;
+                    //     }
+                    // }
+                    // else {
+                        client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+                    // }
                     console.log("===== ", client)
                     if(client == undefined || client == null) {
                         verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
@@ -914,10 +1018,11 @@ export default {
                     }
                     console.log(e)
                 }
+                this.loginButtonDisabled = false;
             }
             console.log(client);
-            client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
-            await client.downloadKeys([client.getUserId()]);
+            // client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
+            // await client.downloadKeys([client.getUserId()]);
             await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
             if(client.isCryptoEnabled()) {
                 var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
@@ -1028,15 +1133,14 @@ export default {
     //     this.checkHomeServer();
     // },
     mounted: async function() {
-        log.info("Login mounted");
-        this.organizationOrHost = this.$t("homeServerAddress");
+        this.organizationOrHost = this.$t("joinYourOrganization");
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
         
-        if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-        }
+        // if(window.localStorage) {
+        //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+        // }
         this.checkHomeServer()
             .then(() => {
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
@@ -1069,9 +1173,8 @@ export default {
         });
     },
     created: function() {
-        
         if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
         }
     }
 }
@@ -2292,6 +2395,104 @@ export default {
             line-height: 18px;
         }
     }
+
+    
+    .domain-dropdown-content {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 1);
+        width:260px;
+        height: 80px;
+        border-radius: 4px;
+        box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);
+        border:1px solid rgba(221,221,221,1);
+    }
+
+    .domain-dropdown-content div:hover {
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+    }
+
+    .domain-list {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .domain-item {
+        display: block;
+        width:248px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 1px;
+        vertical-align: top;
+        margin: 0 0 0 0;
+        padding-left: 12px;
+        background-color: rgba(0, 0, 0, 0);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing:1px;
+    }
+    
+    .domain-item:hover {
+        display: block;
+        width:248px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 1px;
+        vertical-align: top;
+        margin: 0 0 0 0;
+        padding-left: 12px;
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing:1px;
+    }
+    
+    .domain-item-label {
+        width:260px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 1px;
+        vertical-align: top;
+        background-color: rgba(0, 0, 0, 0);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing:1px;
+    }
+
+    .domain-item-label:hover {
+        width:260px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 1px;
+        vertical-align: top;
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing:1px;
+    }
+
 
     .language {
         width: 40%;

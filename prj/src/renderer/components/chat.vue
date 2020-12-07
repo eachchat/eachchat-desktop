@@ -1220,15 +1220,18 @@ export default {
             var groupName = this.chat.name;
             groupNameElement.innerHTML = groupName;
             var totalMemberCount = chatGroupItem.currentState.getJoinedMemberCount() + chatGroupItem.currentState.getInvitedMemberCount();
-            groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+            if(totalMemberCount > 2) {
+                groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+            }
 
             this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
+            console.log("=================distUrl ", this.distUrl);
             if(!this.distUrl || this.distUrl == '') {
                 let defaultGroupIcon;
-                if(this.isSecret)
+                // if(this.isSecret)
                     defaultGroupIcon = "../../../static/Img/User/group-40px@2x.png";
-                else
-                    defaultGroupIcon = "../../../static/Img/Chat/encrypt-chat-title@2x.png";
+                // else
+                //     defaultGroupIcon = "../../../static/Img/Chat/encrypt-chat-title@2x.png";
                groupIcoElement.setAttribute("src", defaultGroupIcon); 
             }
             if(groupIcoElement != undefined && this.distUrl) {
@@ -1617,6 +1620,7 @@ export default {
         showNoticeOrNot: function(curMsg) {
             var showNotice = true;
             if(curMsg.isState()) {
+                return false;
                 switch (curMsg.getType()) {
                     case "m.room.canonical_alias":
                         console.log("canonical_alias")
@@ -1631,7 +1635,7 @@ export default {
                     case "m.room.power_levels":
                         showNotice = false;
                     case "m.room.pinned_events":
-                        console.log("pinned_events")
+                        // console.log("pinned_events")
                         break;
                     case "m.room.server_acl":
                         showNotice = false;
@@ -1949,11 +1953,8 @@ s        },
             if(lastMsg === undefined) {
                 return true;
             }
-            let chatGroupMsgType = curMsg.message_type;
-            if(chatGroupMsgType == 104){
-                return true;
-            }
-            let cutTime = curMsg.message_timestamp - lastMsg.message_timestamp;
+            
+            let cutTime = curMsg.event.origin_server_ts - lastMsg.event.origin_server_ts;
 
             if(cutTime > 1000 * 1 * 60) {
                 return true;

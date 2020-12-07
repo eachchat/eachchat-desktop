@@ -74,15 +74,15 @@
                 </el-switch>
             </div>
             <div class="setup-security-title">账号安全与隐私设置</div>
-            <div class="setup-security-export-keys">
+            <div class="setup-security-export-keys" v-show="false">
                 <label class="setup-security-export-keys-label">导出密钥到本地文件</label>
                 <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
             </div>
-            <div class="setup-security-import-keys">
+            <div class="setup-security-import-keys" v-show="false">
                 <label class="setup-security-import-keys-label">导入密钥</label>
                 <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
-            <div class="setup-security-account-manager">
+            <div class="setup-security-account-manager" v-show="false">
                 <label class="setup-setup-security-account-manager-label">账号管理</label>
                 <img class="setup-setup-security-account-manager-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
             </div>
@@ -409,10 +409,15 @@ export default {
         cacheStoreElement.innerHTML = strSize;
       }
     },
-    CanLogout: async function() {
+    CanLogout: async function(force) {
+      if(force) {
         await global.mxMatrixClientPeg.logout();
         await global.services.common.logout();
         ipcRenderer.send("showLoginPageWindow");
+      }
+      else {
+        this.showGeneralRecoveryKeyPage = false;
+      }
     },
     logout: async function() {
       // services.common.closemqtt();

@@ -2052,6 +2052,77 @@ const common = {
     localStorage.setItem("mqttHost", this.config.mqttHost);
   },
 
+  async gmsDetector(tenant, host='') {
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length-1)
+    }
+    var response = await axios.post("https://chat.yunify.com/gms/v1/tenant/names", 
+      {
+        'tenantName': tenant
+      }
+    );
+    console.log("============== response is ", response);
+    return response;
+  },
+
+  async newGmsConfiguration(domain) {
+    var response = await axios.post("https://chat.yunify.com/gms/v1/configuration", 
+      {
+        'tenantName': domain
+      }
+    );
+    if (response.status != 200 
+      || response.data == undefined
+      || response.data.obj == undefined) {
+      return false;
+    }
+    
+    let entry = response.data.obj.entry;
+    let mqtt = response.data.obj.mqtt;
+    let channel = response.data.obj.channel;
+    let defaultIdentity = response.data.obj.defaultIdentity;
+    let favorite = response.data.obj.favorite;
+    let identities = response.data.obj.identities;
+    let im = response.data.obj.im;
+    let matrix = response.data.obj.matrix;
+    let notification = response.data.obj.notification;
+    let org = response.data.obj.org;
+    let team = response.data.obj.team;
+    if(entry.tls == true)
+      entry.tls = 1
+    else
+      entry.tls = 0;
+    
+    if(mqtt.tls == true)
+      mqtt.tls = 1;
+    else
+      mqtt.tls = 0;
+
+    this.config.hostname = entry.host;
+    localStorage.setItem("hostname", this.config.hostname);
+
+    this.config.apiPort = entry.port;
+    localStorage.setItem("apiPort", this.config.apiPort);
+
+    this.config.hostTls = entry.tls;
+    localStorage.setItem("hostTls", this.config.hostTls);
+
+    this.config.mqttHost = mqtt.host;
+    localStorage.setItem("mqttHost", this.config.mqttHost);
+
+    this.config.mqttPort = mqtt.port;
+    localStorage.setItem("mqttPort", this.config.mqttPort);
+
+    this.config.mqttTls = mqtt.tls;
+    localStorage.setItem("mqttTls", this.config.mqttTls);
+    
+    localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
+    localStorage.setItem("mx_hs_url", matrix.homeServer);
+    localStorage.setItem("mx_i_url", matrix.identityServer);
+
+    return response.data.obj;
+  },
+
   async gmsConfiguration(domainBase64, host=''){
     // let value = Base64.encode("139.198.15.253", true);
     // this.data.orgValue = value;
@@ -2070,15 +2141,15 @@ const common = {
     this.data.orgValue = value;
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
-      // response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
-      response = await axios.get(host + "/" + value);
+      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
+      // response = await axios.get(host + "/" + value);
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
-      // response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
-      response = await axios.get(host + "/" + value);
+      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
+      // response = await axios.get(host + "/" + value);
     else//正式环境
-      // response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
-      console.log("the url is ", host + "/api/sys/gms/v1/configuration/" + value);
-      response = await axios.get(host + "/" + value);
+      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
+      console.log("the url is ", host + "/gms/v1/configuration/" + value);
+      // response = await axios.get(host + "/" + value);
     
     if (response.status != 200 
       || response.data == undefined

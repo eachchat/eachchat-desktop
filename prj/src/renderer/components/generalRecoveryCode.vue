@@ -84,13 +84,69 @@ export default {
         }
     },
     methods: {
+        async _doBootstrapUIAuth(makeRequest) {
+            let response = null;
+            var checkType = global.mxMatrixClientPeg.checkType;
+            var username = global.mxMatrixClientPeg.account;
+            var password = global.mxMatrixClientPeg.password;
+            if(checkType == "m.login.verCode.msisdn") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        msisdn: username,
+                        ver_code: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+            else if(checkType == "m.login.verCode.email") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        email: username,
+                        ver_code: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+            else if(checkType == "m.login.sso.ldap") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        user: username,
+                        password: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+        },
         copyRecoveryKey() {
+            global.mxMatrixClientPeg.setRecoveryKey(this.recoveryKey.encodedPrivateKey);
             this._bootstrapSecretStorage();
             this.hasDownloadOrCopy = true;
             clipboard.writeText(this.recoveryKey.encodedPrivateKey);
             this.$toastMessage({message:"复制成功", time: 3000, type:'success'});
         },
         downloadRecoveryKey() {
+            global.mxMatrixClientPeg.setRecoveryKey(this.recoveryKey.encodedPrivateKey);
             this._bootstrapSecretStorage();
             if(this.canSelecteFile) {
                 this.canSelecteFile = false;
@@ -165,7 +221,7 @@ export default {
             this.showAlertDlg = false;
         },
         clearCache: function() {
-            this.$emit("CanLogout");
+            this.$emit("CanLogout", true);
         },
         Close (){
             this.showAlert();
@@ -188,8 +244,11 @@ export default {
                 this.showGeneralTypePage = false;
                 this.showRecoveryKeyPage = true;
             }
+            else if(this.showRecoveryKeyPage) {
+                this.$emit("CanLogout", false);
+            }
             else {
-                this.$emit("CanLogout");
+                this.$emit("CanLogout", true);
             }
         },
         SelectLocal() {
@@ -347,6 +406,28 @@ export default {
         promptForBackupPassphrase() {
             return Promise
         },
+        async _createBackup() {
+            let info;
+            try {
+                await accessSecretStorage(async () => {
+                    info = await MatrixClientPeg.get().prepareKeyBackupVersion(
+                        null /* random key */,
+                        { secureSecretStorage: true },
+                    );
+                    info = await MatrixClientPeg.get().createKeyBackupVersion(info);
+                });
+                await MatrixClientPeg.get().scheduleAllGroupSessionsForBackup();
+            } catch (e) {
+                console.error("Error creating key backup", e);
+                // TODO: If creating a version succeeds, but backup fails, should we
+                // delete the version, disable backup, or do nothing?  If we just
+                // disable without deleting, we'll enable on next app reload since
+                // it is trusted.
+                if (info) {
+                    MatrixClientPeg.get().deleteKeyBackupVersion(info.version);
+                }
+            }
+        },
         async _bootstrapSecretStorage(){
             const cli = global.mxMatrixClientPeg.matrixClient;
 
@@ -361,13 +442,37 @@ export default {
                     //     moment via token login)
                 */
                     await cli.bootstrapCrossSigning({
+                        authUploadDeviceSigningKeys: this._doBootstrapUIAuth
                     });
+                    console.log("this.backupInfo is ", this.backupInfo);
+                    console.log("global backupinfo is ", this.backupInfo);
                     await cli.bootstrapSecretStorage({
                         createSecretStorageKey: async () => this.recoveryKey,
                         keyBackupInfo: this.backupInfo,
                         setupNewKeyBackup: !this.backupInfo,
                         undefined,
                     });
+                    // this._fetchBackupInfo();
+                    // await cli.bootstrapSecretStorage({
+                    //     createSecretStorageKey: async () => this.recoveryKey,
+                    //     keyBackupInfo: this.backupInfo,
+                    //     setupNewKeyBackup: !this.backupInfo,
+                    //     undefined,
+                    // });
+                    // await cli.bootstrapSecretStorage({
+                    //     createSecretStorageKey: async () => this.recoveryKey,
+                    //     keyBackupInfo: this.backupInfo,
+                    //     setupNewKeyBackup: !this.backupInfo,
+                    //     undefined,
+                    // });
+                    // var correct = global.mxMatrixClientPeg.checkPrivateKey(this.recoveryKey);
+                    // try{
+                    //     await global.mxMatrixClientPeg.matrixClient.checkOwnCrossSigningTrust();
+                    //     await global.mxMatrixClientPeg.matrixClient.restoreKeyBackupWithSecretStorage(this.backupInfo);
+                    // }
+                    // catch(error) {
+                    //     console.log("err ", error.message);
+                    // }
                 // this.props.onFinished(true);
             } catch (e) {
                 if (e.httpStatus === 401 && e.data.flows) {
@@ -381,13 +486,14 @@ export default {
 
     },
     mounted: async function() {
-        const setupMethods = getSecureBackupSetupMethods();
-        if (setupMethods.includes("key")) {
-            this.state.passPhraseKeySelected = CREATE_STORAGE_OPTION_KEY;
-        } else {
-            this.state.passPhraseKeySelected = CREATE_STORAGE_OPTION_PASSPHRASE;
-        }
+        // const setupMethods = getSecureBackupSetupMethods();
+        // if (setupMethods.includes("key")) {
+        //     this.state.passPhraseKeySelected = CREATE_STORAGE_OPTION_KEY;
+        // } else {
+        //     this.state.passPhraseKeySelected = CREATE_STORAGE_OPTION_PASSPHRASE;
+        // }
         await this._queryKeyUploadAuth();
+        // this._createBackup();
         this._fetchBackupInfo();
     }
 }

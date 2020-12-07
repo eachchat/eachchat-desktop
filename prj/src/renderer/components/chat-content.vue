@@ -531,8 +531,83 @@ export default {
     ChatGroupDivId(item){
       return 'chat-group-div-' + item.roomId;
     },
+    getNotificationContent(msg) {
+      let event = msg.event;
+      let chatGroupMsgType = event.type;
+      var chatGroupMsgContent = msg.getContent();
+      if(chatGroupMsgType === "m.room.message")
+      {
+          if(chatGroupMsgContent.msgtype == 'm.file'){
+            return "[文件]:" + chatGroupMsgContent.body;
+          }
+          else if(chatGroupMsgContent.msgtype == 'm.text'){
+            var sender = distTimeLine.sender.name;
+            var content = chatGroupMsgContent.body;
+            return sender + ":" + content;
+          }
+          else if(chatGroupMsgContent.msgtype == 'm.image'){
+            return "[图片]";
+          } 
+      }
+      else if(chatGroupMsgType === "m.room.encrypted") {
+          // chatGroupMsgContent = this.msg.getContent();
+          if(chatGroupMsgContent.msgtype == 'm.file'){
+            return "[文件]:" + chatGroupMsgContent.body;
+          }
+          else if(chatGroupMsgContent.msgtype == 'm.text'){
+            var sender = distTimeLine.sender.name;
+            var content = chatGroupMsgContent.body;
+            return sender + ":" + content;
+          } 
+          else if(chatGroupMsgContent.msgtype == 'm.image'){
+            return "[图片]";
+          }
+          else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
+             return this.messageContent = chatGroupMsgContent.body;
+          }
+      }
+        return "收到一条短消息";
 
-    updateChatList(newMsg, needScroll=true) {
+    },
+    async updateChatList(newMsg) {
+      var fromName = "";
+      var fromUserName = "";
+      // console.log("msg.messagefromid ", msg.message_from_id);
+      var fromUserInfo = newMsg.sender.name;
+      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.room_id);
+      var notificateContent = this.getNotificationContent(newMsg);
+      // console.log("fromUserInfo ", fromUserInfo);
+      if(groupInfo != undefined) {
+        fromUserName = fromName;
+        fromName = groupInfo.name;
+        if(fromUserName.length == 0) {
+          notificateContent = notificateContent;
+        }
+        else{
+          notificateContent = fromUserName + ":" + notificateContent;
+        }
+      }
+      if(this.isWindows()) {
+        if(this.$store.getters.flashNotice()) {
+          ipcRenderer.send("flashIcon", fromName, notificateContent);
+        }
+        try{
+          if(this.$store.getters.soundNotice()) {
+            this.amr.play();
+          }
+        }
+        catch(e) {
+          
+        }
+      }
+      else {
+        if(this.$store.getters.flashNotice()) {
+          if(!this.groupIsSlience(groupInfo)) {
+            ipcRenderer.send("showNotice", fromName, notificateContent);
+          }
+        }
+      }
+
       if(this.favouriteRooms.length != 0)
         this.favouriteRooms.sort(this.SortGroupByTimeLine);
       
@@ -1745,7 +1820,7 @@ export default {
   },
 
   mounted: async function() {
-    log.info("chat content mounted");
+    console.log("chat content mounted");
     if(this.unreadCount < 0) {
       this.unreadCount = 0;
     }

@@ -319,17 +319,58 @@ export default {
             }
         },
         async _doBootstrapUIAuth(makeRequest) {
-            await makeRequest({
-                type: 'm.login.password',
-                identifier: {
-                    type: 'm.id.user',
-                    user: global.mxMatrixClientPeg.matrixClient.getUserId(),
-                },
-                // TODO: Remove `user` once servers support proper UIA
-                // See https://github.com/matrix-org/synapse/issues/5665
-                user: global.mxMatrixClientPeg.matrixClient.getUserId(),
-                password: global.mxMatrixClientPeg.accountPassword,
-            });
+            let response = null;
+            var checkType = global.mxMatrixClientPeg.checkType;
+            var username = global.mxMatrixClientPeg.account;
+            var password = global.mxMatrixClientPeg.password;
+            if(checkType == "m.login.verCode.msisdn") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        msisdn: username,
+                        ver_code: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+            else if(checkType == "m.login.verCode.email") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        email: username,
+                        ver_code: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+            else if(checkType == "m.login.sso.ldap") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        user: username,
+                        password: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
         },
 
     },
@@ -392,9 +433,10 @@ export default {
           }
         })
         global.mxMatrixClientPeg.matrixClient.on("Session.logged_out", this.softLogout)
-        // await global.mxMatrixClientPeg.matrixClient.bootstrapCrossSigning({
-        //     authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
-        // });
+        await global.mxMatrixClientPeg.matrixClient.bootstrapCrossSigning({
+            authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
+        });
+        // await global.mxMatrixClientPeg.matrixClient.downloadKeys([global.mxMatrixClientPeg.matrixClient.getUserId()]);
 
 /*     global.mxMatrixClientPeg.matrixClient.getMediaConfig().then((config)=>{
             console.log(config)
