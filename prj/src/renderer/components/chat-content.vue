@@ -292,7 +292,8 @@ export default {
     distGroupId: async function() {
       console.log("in chat content distGroupId is ", this.distGroupId);
       let room = global.mxMatrixClientPeg.matrixClient.getRoom(this.distGroupId);
-      this.viewRoom(room)
+      if(room)
+        this.viewRoom(room)
     },
     updateImg: async function() {
       // console.log("in chat content updateImg ");
@@ -1728,9 +1729,6 @@ export default {
       // console.log("this.unreadcount is ", this.unreadCount);
       // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
       var isSecret = false;
-      if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
-        isSecret = true;
-      }
 
       if(this.curChat.roomId != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
