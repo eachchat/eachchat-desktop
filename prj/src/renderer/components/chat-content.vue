@@ -514,7 +514,8 @@ export default {
       for(let i=0; i<newRooms.length; i++) {
         console.log('xie1--', newRooms[i].roomId);
         console.log('xie2--', room.room_id);
-        if (newRooms[i].roomId === room.room_id) {
+        console.log('xie3--', room.roomId);
+        if (newRooms[i].roomId === room.room_id || newRooms[i].roomId === room.roomId) {
           console.log('---to show---');
           return this.showChat(newRooms[i], i);
         }
