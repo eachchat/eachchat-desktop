@@ -176,7 +176,7 @@
           <div class="win-header">
             <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
           </div>
-          <ChatPage :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom"></ChatPage>
+          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @showImportE2EKey="showImportE2EKey"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -184,6 +184,9 @@
       <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
       </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
+      <div class="TheBorder" v-show="showImportE2EKeyPage">
+          <ImportE2EKeypage @closeE2EImportPage="closeE2EImportPage"></ImportE2EKeypage>
+      </div>
       <userInfoContent 
         id="userInfoId" 
         :userInfo="userInfo" 
@@ -223,6 +226,7 @@ import log from 'electron-log';
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
+import ImportE2EKeypage from './importE2E.vue';
 
 export default {
   components: {
@@ -233,6 +237,7 @@ export default {
     searchChatSelecterDlg,
     searchSenderSelecterDlg,
     userInfoContent,
+    ImportE2EKeypage,
     // avatarBlock,
     // listItem
   },
@@ -370,6 +375,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      showImportE2EKeyPage: false,
       toBottom: false,  //聊天页面是否滚动到最底部
       showSearchAllChat: false,   //复合搜索中是否显示  显示所有聊天相关
       showSearchAllMember: false,   //复合搜索中是是否显示  显示所有联系人相关
@@ -432,6 +438,12 @@ export default {
     };
   },
   methods: {
+    closeE2EImportPage() {
+        this.showImportE2EKeyPage = false;
+    },
+    showImportE2EKey() {
+        this.showImportE2EKeyPage = true;
+    },
     ShowAllGroup: function(){
       this.inviteGroupsList.length = 0;
       this.favouriteRooms.length = 0;
@@ -571,7 +583,17 @@ export default {
         return "收到一条短消息";
 
     },
+
+    sortGroup(){
+      if(this.favouriteRooms.length != 0)
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+      
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine);
+    },
+
     async updateChatList(newMsg) {
+      this.sortGroup();
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -611,13 +633,6 @@ export default {
           ipcRenderer.send("showNotice", fromName, notificateContent);
         }
       }
-
-      if(this.favouriteRooms.length != 0)
-        this.favouriteRooms.sort(this.SortGroupByTimeLine);
-      
-      if(this.dealShowGroupList.length != 0)
-        this.dealShowGroupList.sort(this.SortGroupByTimeLine);
-      
     },
     eventUpdateChatList(event, newMsg) {
       // ++this.needUpdate;
@@ -1730,7 +1745,14 @@ export default {
       // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
       var isSecret = false;
 
-      if(this.curChat != undefined) {
+      if(this.curChat != undefined && this.curChat.roomId != undefined) {
+        var charRef = this.$refs.chatPageRef;
+        var editor = charRef.editor;
+        var content = editor.getContents();
+        this.$store.commit("setDraft", [this.curChat.roomId, content]);
+      }
+
+      if(this.curChat != undefined && this.curChat.un_read_count != undefined) {
         this.unreadCount = this.unreadCount - this.curChat.un_read_count;
         // console.log("showchat this.unreadCount ", this.unreadCount)
         if(this.unreadCount < 0) {
@@ -1760,6 +1782,14 @@ export default {
       this.curChat.setUnreadNotificationCount("total", 0);
       //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
+      
+      if(this.curChat != undefined && this.curChat.roomId != undefined) {
+        var charRef = this.$refs.chatPageRef;
+        var editor = charRef.editor;
+        var content = this.$store.getters.getDraft(this.curChat.roomId);
+        console.log("get content is ", content);
+        editor.setContents(content);
+      }
     },
     
 
@@ -1887,7 +1917,7 @@ export default {
   .chat-empty {
     width:100%;
     padding-top: 20px;
-    background-color: white;
+    background-color: rgba(245, 246, 249, 1);
     display: flex;
     justify-content: center;
     align-items: center;  
@@ -1897,12 +1927,12 @@ export default {
   .chat-empty-bg {
     width: 168px;
     height: 168px;
-    background-color: white;
+    background-color: rgba(245, 246, 249, 1);
   }
 
   .chat {
     width:100%;
-    background-color: white;
+    background-color: rgba(245, 246, 249, 1);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -2448,4 +2478,15 @@ export default {
     background-image: url("../../../static/Img/Chat/slience-20px@2x.png");
     background-size: contain;
   }
+
+  .TheBorder {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index:3;
+  }
+
 </style>

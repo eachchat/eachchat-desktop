@@ -166,13 +166,16 @@ export default {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.decryptAndDownloadFile();
                 }
-                if(chatGroupMsgContent.msgtype == 'm.image'){
-                    console.log("1 ", this.decryptedUrl);
-                    var imageInfo = {
-                        url: this.decryptedUrl,
-                        info: chatGroupMsgContent.info
-                    }
-                    this.$emit('showImageOfMessage', imageInfo);
+                // if(chatGroupMsgContent.msgtype == 'm.image'){
+                //     console.log("1 ", this.decryptedUrl);
+                //     var imageInfo = {
+                //         url: this.decryptedUrl,
+                //         info: chatGroupMsgContent.info
+                //     }
+                //     this.$emit('showImageOfMessage', imageInfo);
+                // }
+                if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
+                    this.$emit('showImportE2EKey');
                 }
             }
             if(chatGroupMsgType === "m.room.message") {
@@ -205,14 +208,14 @@ export default {
                         shell.openExternal(existLocalFile);
                     }
                 }
-                if(chatGroupMsgContent.msgtype == 'm.image'){
-                    var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-                    var imageInfo = {
-                        url: distUrl,
-                        info: chatGroupMsgContent.info
-                    }
-                    this.$emit('showImageOfMessage', imageInfo);
-                }
+                // if(chatGroupMsgContent.msgtype == 'm.image'){
+                //     var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                //     var imageInfo = {
+                //         url: distUrl,
+                //         info: chatGroupMsgContent.info
+                //     }
+                //     this.$emit('showImageOfMessage', imageInfo);
+                // }
             }
             if(msgType === 102)
             {
@@ -519,6 +522,8 @@ export default {
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.text'){
                     console.log()
+                    var textElement = document.getElementById(this.msg.event.event_id);
+                    textElement.style.color = "RGB(0,9,0)";
                     this.messageContent = chatGroupMsgContent.body;
                     if(this.messageContent.length == 0) {
                         this.messageContent = "\n";
@@ -534,7 +539,10 @@ export default {
                     this.decryptImg();
                 }
                 else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
-                    this.messageContent = chatGroupMsgContent.body;
+                    var textElement = document.getElementById(this.msg.event.event_id);
+                    textElement.style.color = "RGB(59,137,207)";
+                    textElement.style.cursor = "pointer";
+                    this.messageContent = "**无法解密:发送方的设备没有给我们发送此消息的密钥。**";
                 }
             }
             else if(chatGroupMsgType === 105)//语音消息
@@ -896,7 +904,7 @@ export default {
     
     .chat-msg-content-others-txt-div {
         float: left;
-        background-color: rgba(247,248,250,1);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -915,7 +923,7 @@ export default {
 
     .chat-msg-content-others-txt-div:hover {
         float: left;
-        background-color: rgb(233,234,235);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -934,7 +942,7 @@ export default {
     
     .chat-msg-content-others-txt{
         float: left;
-        background-color: rgba(1,1,1,0);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -952,7 +960,7 @@ export default {
 
     .chat-msg-content-others-txt:hover{
         float: left;
-        background-color: rgba(1,1,1,0);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
@@ -970,7 +978,7 @@ export default {
 
     .chat-msg-content-others-img {
         float: left;
-        background-color: rgba(1,1,1,0);
+        background-color: rgba(255, 255, 255, 1);
         min-width: 104px;
         min-height: 100px;
         border-radius: 5px;
@@ -983,7 +991,7 @@ export default {
 
     .chat-msg-content-others-file {
         float: left;
-        background-color: rgba(247,248,250,1);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 40px;
@@ -998,7 +1006,7 @@ export default {
 
     .chat-msg-content-others-voice {
         float: left;
-        background-color: rgba(247,248,250,1);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 12px;
@@ -1013,7 +1021,7 @@ export default {
 
     .chat-msg-content-others-file:hover {
         float: left;
-        background-color: rgb(233,234,235);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 40px;
@@ -1082,7 +1090,7 @@ export default {
 
     .chat-msg-content-mine-txt-div {
         float:right;
-        background-color: rgba(233, 247, 240, 1);
+        background-color: rgba(120,231,175,100);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -1101,7 +1109,7 @@ export default {
 
     .chat-msg-content-mine-txt-div:hover{
         float:right;
-        background-color: rgb(209,232,221);
+        background-color: RGB(90,231,160);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -1169,7 +1177,7 @@ export default {
 
     .chat-msg-content-mine-file {
         float:right;
-        background:rgba(247,248,250,1);
+        background:rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 40px;
@@ -1199,7 +1207,7 @@ export default {
     
     .chat-msg-content-mine-voice {
         float:right;
-        background-color: rgba(233, 247, 240, 1);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 12px;
@@ -1214,7 +1222,7 @@ export default {
 
     .chat-msg-content-other-transmit {
         float:left;
-        background-color: rgba(247, 248, 250, 1);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 200px;
         border-radius: 5px;
@@ -1227,7 +1235,7 @@ export default {
 
     .chat-msg-content-mine-transmit {
         float:right;
-        background-color: rgba(247, 248, 250, 1);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 200px;
         border-radius: 5px;
@@ -1240,7 +1248,7 @@ export default {
 
     .transmit-title {
         display: block;
-        background-color: rgba(1,1,1,0);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         border: 0px solid rgba(221, 221, 221, 1);
@@ -1257,7 +1265,7 @@ export default {
     .transmit-content {
         display: block;
         left:right;
-        background-color: rgba(1,1,1,0);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;

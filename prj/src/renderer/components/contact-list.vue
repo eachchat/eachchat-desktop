@@ -121,10 +121,12 @@ export default {
     methods: {
         AddContact: function(){
             this.showChatContactDlg = true;
+            this.showInputContactDlg = false;
         },
 
         InputContact: function(){
             this.showInputContactDlg = true;
+            this.showChatContactDlg = false;
         },
 
         CloseAlertDlg: function(){

@@ -4,7 +4,7 @@
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
-                <p class="chat-name" id="chat-group-name"></p>
+                <p class="chat-name" id="chat-group-name">{{chat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <p class="chat-name-state" id="chat-group-state"></p>
             </div>
@@ -22,7 +22,7 @@
             <Invite class="chat-invite" :inviter="inviterInfo" @joinRoom="joinRoom" @rejectRoom="rejectRoom" v-show="isInvite"></Invite>
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
-                <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
+                <transition-group name="msg-list" v-viewer="options" class="msg-list" id="message-show-list" tag="ul">
                     <li class="msg-loading" v-show="isRefreshing" v-bind:key="123">
                         <i class="el-icon-loading"></i>
                     </li>
@@ -36,7 +36,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain"></imessage>
+                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
                 <!-- </ul> -->
@@ -67,6 +67,7 @@
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
                 <div class="text-input" @keydown="keyHandle($event)" @keyup="keyUpHandle($event)">
                     <quillEditor
+                        id="chatQuillEditorId"
                         ref="chatQuillEditor"
                         v-model="content"
                         :options="editorOption"
@@ -149,13 +150,13 @@
         </div>
         <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="chat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="chat.roomId"></mxChatInfoDlg>
-        <mxMemberSelectDlg 
+        <!-- <mxMemberSelectDlg 
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
             :roomId="chat.roomId"
             :isDm="isDm"
         >
-        </mxMemberSelectDlg>
+        </mxMemberSelectDlg> -->
     </div>
 </template>
 
@@ -328,6 +329,9 @@ export default {
                 })
             } else {this.isDm = false;}
         },
+        showImportE2EKey() {
+            this.$emit("showImportE2EKey");
+        },
         closeUserInfoTipChat() {
             this.showUserInfoTips = false;
             console.log('chat 中的userInfo模版');
@@ -366,7 +370,7 @@ export default {
                                     })
                                 }, 0)
                             })
-                    })
+                    }, 500)
                 })
         },
         rejectRoom: function() {
@@ -441,7 +445,8 @@ export default {
             else{
                 tempUserInfo = await ComponentUtil.ShowOrgInfoByMatrixID(distUserInfo.matrix_id)
             }
-            
+            if(!tempUserInfo)
+                return;
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserInfo.matrix_id);
             if(!profileInfo)
                 return;
@@ -1292,17 +1297,11 @@ export default {
             if(chatGroupItem.roomId == undefined && chatGroupItem.myUserId == undefined){
                 return "";
             }
-            var groupNameElement = document.getElementById("chat-group-name");
             var groupIcoElement = document.getElementById("chat-group-img");
             var groupStateElement = document.getElementById("chat-group-state");
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             console.log("getShowGroupName is ", chatGroupItem)
             var groupName = this.chat.name;
-            if(!groupNameElement){
-                console.log("groupNameElement is undefined");
-                return;
-            }
-            groupNameElement.innerHTML = groupName;
             var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
                 groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
@@ -2597,6 +2596,13 @@ s        },
     },
     data() {
         return {
+            options: {
+                filter (image) {
+                    if(image.className == "msg-image") {
+                        return image;
+                    }
+                }
+            },
             isScroll: false,
             UploadingName: '',
             showUploadProgress: false,
@@ -2790,7 +2796,7 @@ s        },
                 this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
                 this.isInvite = true;
             }
-            // else {
+            else {
                 this._loadTimeline(undefined, undefined, undefined)
                     .then((ret) => {
                         this.isRefreshing = false;
@@ -2809,7 +2815,7 @@ s        },
                             })
                         }, 0)
                     })
-            // }
+            }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
             this.needScrollTop = true;
             this.needScrollBottom = true;
@@ -2877,14 +2883,15 @@ s        },
     .chat-page {
         width: 100%;
         height: 100%;
+        background: rgba(245, 246, 249, 1);
     }
 
     .chat-title {
         display: float;
         width: 100%;
         height: 32px;
-        background-color: rgb(255, 255, 255);
-        border-bottom: 0px solid rgb(242, 242, 246);
+        background: rgba(245, 246, 249, 1);
+        border-bottom: 0px solid rgba(221, 221, 221, 1);
         margin-bottom: 9px;
         -webkit-app-region: drag;
         * {
@@ -3097,6 +3104,7 @@ s        },
     
     .msg-list {
         min-height: 99%;
+        background: rgba(245, 246, 249, 1);
         list-style: none;
         margin: 0;
         padding: 0;
@@ -3106,7 +3114,7 @@ s        },
         // height: 100%;
         overflow-y: scroll;
         overflow-x: hidden;
-        border-bottom: 1px solid rgba(238,238,238,1);
+        border-bottom: 1px solid rgba(221, 221, 221, 1);
         li {
             list-style-type: none;
         }
@@ -3410,7 +3418,7 @@ s        },
 
     .chat-input-tool {
         display: inline-block;
-        background-color: white;
+        background: rgba(245, 246, 249, 1);
         width: calc(100%-50px);
         height: 40px;
     }
@@ -3713,5 +3721,4 @@ s        },
         text-overflow: ellipsis;
         overflow: hidden;
     }
-
 </style>

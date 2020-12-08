@@ -13,8 +13,8 @@
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
         </div>
-        <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
-        <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage>
+        <!-- <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
+        <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage> -->
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
                 <div class="title">
@@ -28,7 +28,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="青云" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -197,7 +197,7 @@
                 </li>
             </ul>
         </div>
-        <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView">
+        <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView && false">
             <span class="login-setup-language-label" id="login-language-label">
                 简体中文
             </span>
@@ -368,9 +368,27 @@ export default {
                 this.organizationButtonDisabled = false;
             })
         },
-        checkHomeServer: async function (domain){
-            var Domain = domain == null ? window.localStorage.getItem("Domain") : domain;
+        checkHomeServer: async function (domain){            
+            var Domain = "";
+            if(domain != null && domain != undefined) {
+                Domain = domain;
+            }
+            console.log("1 Domain is ", Domain);
+            if(Domain == "") {
+                Domain = window.localStorage.getItem("Domain");
+            }
+            console.log("2 Domain is ", Domain);
+            if(Domain == undefined || Domain == null || Domain == "undefined") {
+                Domain = "";
+            }
+            console.log("4 Domain is ", Domain);
+            this.organizationAddress = Domain;
+            console.log("Domain is ", this.organizationAddress);
+            if(Domain.length == 0) {
+                return false;
+            }
             var gmsRet = await global.services.common.newGmsConfiguration(Domain);
+            console.log("gmsRet is ", gmsRet);
             if(!gmsRet){
                 if(domain != undefined){
                     this.loginState = "未找到该组织";
@@ -381,13 +399,15 @@ export default {
             window.localStorage.setItem("Domain", domain);
             var host = "";
             // if(address == undefined || address == null) {
-                host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-                host = "https://matrix.each.chat"
+            host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             // }
             // else {
             //     host = address
             // }
-            console.log("host si ", host);
+            console.log("=======host si ", host);
+            if(host.indexOf("https://") < 0 && host.indexOf("http://") < 0) {
+                host = "https://" + host;
+            }
             return global.mxMatrixClientPeg.checkHomeServer(host).then(async (flows) => {
                 console.log("matrix get flows is ", flows)
                 this.supportedIdentity = flows;
@@ -653,6 +673,8 @@ export default {
         },
         userNameLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
@@ -665,6 +687,8 @@ export default {
         },
         userPhoneLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
@@ -703,6 +727,8 @@ export default {
 
         userEmailLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
@@ -884,24 +910,34 @@ export default {
                     else if(verCodeRet.status == 429) {
                         this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 400) {
                         this.loginState = this.$t("unboundedAccount")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 412) {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                 }
                 catch(e) {
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     console.log(e)
+                    this.loginButtonDisabled = false;
+                    return;
                 }
             }
             else if(this.showUseremailLoginView) {
@@ -914,54 +950,72 @@ export default {
                     else if(verCodeRet.status == 429) {
                         this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 400) {
                         this.loginState = this.$t("unboundedAccount")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 412) {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                 }
                 catch(e) {
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     console.log(e)
+                    this.loginButtonDisabled = false;
+                    return;
                 }
             }
             else {
                 try {
-                    // if(window.localStorage.getItem("defaultIdentity") == "ldap") {
-                    //     verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
-                    //     console.log("===== ", verCodeRet)
-                    //     if(verCodeRet.status == 200) {
-                    //         client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
-                    //     }
-                    //     else if(verCodeRet.status == 429) {
-                    //         this.loginState = verCodeRet.data.error;
-                    //         this.isLoading = false;
-                    //     }
-                    //     else if(verCodeRet.status == 400) {
-                    //         this.loginState = this.$t("unboundedAccount")
-                    //         this.isLoading = false;
-                    //     }
-                    //     else if(verCodeRet.status == 412) {
-                    //         this.loginState = this.$t("invalidVerCode")
-                    //         this.isLoading = false;
-                    //     }
-                    //     else {
-                    //         this.loginState = this.$t("invalidVerCode")
-                    //         this.isLoading = false;
-                    //     }
-                    // }
-                    // else {
+                    if(window.localStorage.getItem("defaultIdentity") == "ldap") {
+                        verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                        console.log("===== ", verCodeRet)
+                        if(verCodeRet.status == 200) {
+                            client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                        }
+                        else if(verCodeRet.status == 429) {
+                            this.loginState = verCodeRet.data.error;
+                            this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
+                        }
+                        else if(verCodeRet.status == 400) {
+                            this.loginState = this.$t("unboundedAccount")
+                            this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
+                        }
+                        else if(verCodeRet.status == 412) {
+                            this.loginState = this.$t("invalidVerCode")
+                            this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
+                        }
+                        else {
+                            this.loginState = this.$t("invalidVerCode")
+                            this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
+                        }
+                    }
+                    else {
                         client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
-                    // }
+                    }
                     console.log("===== ", client)
                     if(client == undefined || client == null) {
                         verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
@@ -972,18 +1026,26 @@ export default {
                         else if(verCodeRet.status == 429) {
                             this.loginState = verCodeRet.data.error;
                             this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
                         }
                         else if(verCodeRet.status == 400) {
                             this.loginState = this.$t("unboundedAccount")
                             this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
                         }
                         else if(verCodeRet.status == 412) {
                             this.loginState = this.$t("invalidVerCode")
                             this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
                         }
                         else {
                             this.loginState = this.$t("invalidVerCode")
                             this.isLoading = false;
+                            this.loginButtonDisabled = false;
+                            return;
                         }
                     }
                 }
@@ -996,26 +1058,40 @@ export default {
                     else if(verCodeRet.status == 429) {
                         this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                            return;
                     }
                     else if(verCodeRet.status == 400) {
                         this.loginState = this.$t("unboundedAccount")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                            return;
                     }
                     else if(verCodeRet.status == 412) {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                            return;
                     }
                     else {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                            return;
                     }
                     // this.isLoading = false;
                     this.loginButtonDisabled = false;
                     if(client == undefined && e.message == "Invalid password") {
                         this.loginState = this.$t("invalidPassword");
+                        this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                            return;
                     }
                     else if(client == undefined) {
                         this.loginState = e.message;
+                        this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                            return;
                     }
                     console.log(e)
                 }
@@ -1024,73 +1100,73 @@ export default {
             console.log(client);
             // client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
             // await client.downloadKeys([client.getUserId()]);
-            await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
-            if(client.isCryptoEnabled()) {
-                var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
-                console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
-                if(crossSigningIsSetUp) {
-                    await global.mxMatrixClientPeg.fetchKeyInfo();
-                    if(global.mxMatrixClientPeg.keyInfo) {
-                        //recovery page
-                        console.log("certificationShow");
-                        this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
-                        if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
-                            console.log("=========== showCreateRecoveryKey");
-                            // this.generalRecoveryKeyPageShow();
-                            this.loginToMainPage();
-                            //showCreateRecoveryKey
-                        }
-                        else {
-                            console.log("=========== bootstrapSecretStorage");
-                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                            this.certificationShow();
-                        }
-                    }
-                    else {
-                        await this._checkKeyBackupStatus();
-                        if(this.backupInfo) {
-                            console.log("=========== bootstrapSecretStorage");
-                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                            this.certificationShow();
-                        }
-                        else {
-                            console.log("=========== showCreateRecoveryKey");
-                            // this.generalRecoveryKeyPageShow();
-                            this.loginToMainPage();
-                        }
-                    }
-                }
-                else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
-                    //showCreateRecoveryKey
-                    await this._checkKeyBackupStatus();
-                    if(this.backupInfo) {
-                        console.log("=========== bootstrapSecretStorage");
-                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                        this.certificationShow();
-                    }
-                    else {
-                        console.log("=========== showCreateRecoveryKey");
-                        // this.generalRecoveryKeyPageShow();
-                        this.loginToMainPage();
-                    }
-                }
-                else {
-                    await this._checkKeyBackupStatus();
-                    if(this.backupInfo) {
-                        console.log("=========== bootstrapSecretStorage");
-                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-                        this.certificationShow();
-                    }
-                    else {
-                        console.log("=========== showCreateRecoveryKey");
-                        // this.generalRecoveryKeyPageShow();
-                        this.loginToMainPage();
-                    }
-                }
-            }
-            else {
-                this.loginToMainPage();
-            }
+            // await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
+            // if(client.isCryptoEnabled()) {
+            //     var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
+            //     console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
+            //     if(crossSigningIsSetUp) {
+            //         await global.mxMatrixClientPeg.fetchKeyInfo();
+            //         if(global.mxMatrixClientPeg.keyInfo) {
+            //             //recovery page
+            //             console.log("certificationShow");
+            //             this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+            //             if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
+            //                 console.log("=========== showCreateRecoveryKey");
+            //                 // this.generalRecoveryKeyPageShow();
+            //                 this.loginToMainPage();
+            //                 //showCreateRecoveryKey
+            //             }
+            //             else {
+            //                 console.log("=========== bootstrapSecretStorage");
+            //                 await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //                 this.certificationShow();
+            //             }
+            //         }
+            //         else {
+            //             await this._checkKeyBackupStatus();
+            //             if(this.backupInfo) {
+            //                 console.log("=========== bootstrapSecretStorage");
+            //                 await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //                 this.certificationShow();
+            //             }
+            //             else {
+            //                 console.log("=========== showCreateRecoveryKey");
+            //                 // this.generalRecoveryKeyPageShow();
+            //                 this.loginToMainPage();
+            //             }
+            //         }
+            //     }
+            //     else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
+            //         //showCreateRecoveryKey
+            //         await this._checkKeyBackupStatus();
+            //         if(this.backupInfo) {
+            //             console.log("=========== bootstrapSecretStorage");
+            //             await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //             this.certificationShow();
+            //         }
+            //         else {
+            //             console.log("=========== showCreateRecoveryKey");
+            //             // this.generalRecoveryKeyPageShow();
+            //             this.loginToMainPage();
+            //         }
+            //     }
+            //     else {
+            //         await this._checkKeyBackupStatus();
+            //         if(this.backupInfo) {
+            //             console.log("=========== bootstrapSecretStorage");
+            //             await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+            //             this.certificationShow();
+            //         }
+            //         else {
+            //             console.log("=========== showCreateRecoveryKey");
+            //             // this.generalRecoveryKeyPageShow();
+            //             this.loginToMainPage();
+            //         }
+            //     }
+            // }
+            // else {
+            this.loginToMainPage();
+            // }
             this.isLoading = false;
             this.loginButtonDisabled = false;
             // if(response != true){
@@ -1143,7 +1219,14 @@ export default {
         //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         // }
         this.checkHomeServer()
-            .then(() => {
+            .then((ret) => {
+                console.log("============= check home server ", ret);
+                if(ret == false) {
+                    this.tokenRefreshing = false;
+                    this.showLoadingView = false;
+                    this.showLoginView = true;
+                    return
+                }
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
                     if(ret == undefined) {
                         this.tokenRefreshing = false;
