@@ -28,7 +28,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="青云" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -197,7 +197,7 @@
                 </li>
             </ul>
         </div>
-        <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView">
+        <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView && false">
             <span class="login-setup-language-label" id="login-language-label">
                 简体中文
             </span>
@@ -673,6 +673,8 @@ export default {
         },
         userNameLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
@@ -685,6 +687,8 @@ export default {
         },
         userPhoneLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
@@ -723,6 +727,8 @@ export default {
 
         userEmailLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
@@ -904,24 +910,34 @@ export default {
                     else if(verCodeRet.status == 429) {
                         this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 400) {
                         this.loginState = this.$t("unboundedAccount")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 412) {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                 }
                 catch(e) {
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     console.log(e)
+                    this.loginButtonDisabled = false;
+                    return;
                 }
             }
             else if(this.showUseremailLoginView) {
@@ -934,24 +950,34 @@ export default {
                     else if(verCodeRet.status == 429) {
                         this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 400) {
                         this.loginState = this.$t("unboundedAccount")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else if(verCodeRet.status == 412) {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                     else {
                         this.loginState = this.$t("invalidVerCode")
                         this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
                     }
                 }
                 catch(e) {
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     console.log(e)
+                    this.loginButtonDisabled = false;
+                    return;
                 }
             }
             else {
