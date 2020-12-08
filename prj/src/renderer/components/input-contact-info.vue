@@ -95,27 +95,13 @@ export default {
         closeDialog() {
             //this.display = false;
             this.$emit("closeInputContact", "");
-        },
-
-        calcImgPosition() {
-            var showScreenHeight = document.documentElement.clientHeight;
-            var showScreenWidth = document.documentElement.clientWidth;
-            var left = (showScreenWidth - this.imgWidth) / 2;
-            var top = (showScreenHeight - this.imgHeight) / 2;
-            var ret = {
-                "left": left,
-                "top": top
-            }
-            return ret;
         }
     },
     components: {
     },
 
     created() {
-        var showPosition = this.calcImgPosition();
-        this.dlgPosition.left = showPosition.left.toString() + "px";
-        this.dlgPosition.top = showPosition.top.toString() + "px";
+
     },
     mounted:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
@@ -148,8 +134,13 @@ display: none;
     }
 
     .ChatCreaterDlg {
+        margin: auto;
         position: absolute;
-        width: 624px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 440px;
         height: 568px;
         display: block;
         background: rgba(255, 255, 255, 1);
@@ -182,7 +173,7 @@ display: none;
     }
 
     .ChatCreaterContent {
-        width: 560px;
+        width: 370px;
         height: 440x;
         margin: 0;
         margin-left: 32px;

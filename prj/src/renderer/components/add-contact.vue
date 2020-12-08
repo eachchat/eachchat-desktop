@@ -1,6 +1,6 @@
 <template>
     <div class="ChatCreaterLayers" id="ChatCreaterLayersId" >
-        <div :style="dlgPosition" class="ChatCreaterDlg" id="ChatCreaterDlgId">
+        <div class="ChatCreaterDlg" id="ChatCreaterDlgId">
             <div class="ChatCreaterHeader">
                 <div class="ChatCreaterHeaderTitle">{{ $t('addContactDlgName') }}</div>
                 <img ondragstart="return false" class="ChatCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
@@ -177,22 +177,7 @@ export default {
                 userIconElement.setAttribute("src", validUrl);
             }
         },
-        
-        calcImgPosition: function() {
-            //console.log(document.documentElement.clientHeight);
-            var showScreenHeight = document.documentElement.clientHeight;
-            var showScreenWidth = document.documentElement.clientWidth;
-            //console.log("showScreenHeight ", showScreenHeight)
-            //console.log("showScreenWidth ", showScreenWidth)
-            var left = (showScreenWidth - this.imgWidth) / 2;
-            var top = (showScreenHeight - this.imgHeight) / 2;
-            var ret = {
-                "left": left,
-                "top": top
-            }
 
-            return ret;
-        },
         
         getDepartment(department_id){
             var tempDepartment = {};
@@ -208,9 +193,7 @@ export default {
     components: {
     },
     created() {
-        var showPosition = this.calcImgPosition();
-        this.dlgPosition.left = showPosition.left.toString() + "px";
-        this.dlgPosition.top = showPosition.top.toString() + "px";
+  
     },
     mounted:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
@@ -236,8 +219,13 @@ display: none;
     }
 
     .ChatCreaterDlg {
+        margin: auto;
         position: absolute;
-        width: 624px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 440px;
         height: 468px;
         display: block;
         background: rgba(255, 255, 255, 1);
@@ -270,7 +258,7 @@ display: none;
     }
 
     .ChatCreaterContent {
-        width: 560px;
+        width: 376px;
         height: 340x;
         margin: 0;
         margin-left: 32px;
@@ -411,8 +399,7 @@ display: none;
     .search-input {
         display: inline-block;
         position: absolute;
-        text-indent: 10px;
-        width: 70%;
+        width: 78%;
         padding: 0;
         margin: 0px;
         height: 32px;
