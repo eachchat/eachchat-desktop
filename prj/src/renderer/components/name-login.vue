@@ -399,8 +399,7 @@ export default {
             window.localStorage.setItem("Domain", domain);
             var host = "";
             // if(address == undefined || address == null) {
-                host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-                host = "https://matrix.each.chat"
+            host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             // }
             // else {
             //     host = address

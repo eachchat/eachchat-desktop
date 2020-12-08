@@ -222,8 +222,8 @@ class _MatrixClientPeg{
       if(!window.localStorage) {
           return false;
       }
-      // const hsUrl = window.localStorage.getItem("mx_hs_url");
-      const hsUrl = "https://matrix.each.chat";
+      const hsUrl = window.localStorage.getItem("mx_hs_url");
+      // const hsUrl = "https://matrix.each.chat";
       const accessToken = window.localStorage.getItem("mx_access_token");
       const userId = window.localStorage.getItem("mx_user_id");
       const deviceId = window.localStorage.getItem("mx_device_id");
