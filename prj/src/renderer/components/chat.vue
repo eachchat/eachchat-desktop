@@ -11,8 +11,8 @@
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
                 </div>
-                <!-- <div class="chat-tool-invite-div" @click="showAddMembersPrepare()">
-                </div> -->
+                <div class="chat-tool-invite-div" @click.stop="createAnother">
+                </div> <!-- @click="showAddMembersPrepare()" -->
                 <div class="chat-tool-call" @click="Call()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
@@ -149,6 +149,13 @@
         </div>
         <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="chat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="chat.roomId"></mxChatInfoDlg>
+        <mxMemberSelectDlg 
+            v-if="mxSelectMemberOpen" 
+            @close="mxSelectMember"
+            :roomId="chat.roomId"
+            :isDm="isDm"
+        >
+        </mxMemberSelectDlg>
     </div>
 </template>
 
@@ -189,6 +196,8 @@ import encrypt from 'browser-encrypt-attachment';
 import {ComponentUtil} from '../script/component-util';
 import mxHistoryPage from './mxHistoryMsg.vue';
 import mxFilePage from "./mxFileList.vue";
+import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
+
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -284,8 +293,41 @@ export default {
         Invite,
         mxHistoryPage,
         mxFilePage,
+        mxMemberSelectDlg
     },
     methods: {
+        mxSelectMember() {
+
+        },
+        createAnother() {
+            console.log('this.chat', this.chat)
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const mDirectEvent = client.getAccountData('m.direct');
+            let dmRoomMap = {};
+            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+            let currentRoom = this.chat;
+            let dmRoomIdArr = [];
+            const roomId = currentRoom.roomId;
+            const userId = client.getUserId();
+            Object.keys(dmRoomMap).forEach(k=>{
+                let arr = dmRoomMap[k];
+                arr.forEach(a=>dmRoomIdArr.push(a))
+            })
+            if (dmRoomIdArr.includes(roomId)) {
+                this.isDm = true;
+                console.log('这是一个单聊', currentRoom);
+                Object.keys(currentRoom.currentState.members).forEach(id => {
+                    if (id != userId) {
+                        let dmMember = currentRoom.currentState.members[id];
+                        console.log( 'dmMember', dmMember)
+                        console.log( 'dmMember.user', dmMember.user)
+                        if (!dmMember.user) dmMember.user = {};
+                        dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
+                        this.dmMember = dmMember;
+                    }
+                })
+            } else {this.isDm = false;}
+        },
         closeUserInfoTipChat() {
             this.showUserInfoTips = false;
             console.log('chat 中的userInfo模版');
@@ -2680,7 +2722,9 @@ s        },
             matrixClient: undefined,
             mxRoomDlg: false,
             mxChat: false,
-            services: null
+            services: null,
+            mxSelectMemberOpen: false,
+            isDm: false
         }
     },
     mounted: function() {

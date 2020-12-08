@@ -550,7 +550,6 @@ input::-webkit-input-placeholder {
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: bottom;
-    font-family: PingFangSC-Regular;
     font-weight: 400;
 }
 .userInfo-report-value {
@@ -567,7 +566,6 @@ input::-webkit-input-placeholder {
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: bottom;
-    font-family: PingFangSC-Regular;
     font-weight: 400;
 }
 .userInfo-email-value {
@@ -584,7 +582,6 @@ input::-webkit-input-placeholder {
     white-space: nowrap;
     text-overflow: ellipsis;
     vertical-align: bottom;
-    font-family: PingFangSC-Regular;
     font-weight: 400;
 }
 .userInfo-phone-value{
@@ -597,7 +594,6 @@ input::-webkit-input-placeholder {
     padding-left: 16px;
     margin-top: 9px;
     margin-bottom: 5px;
-    font-family: PingFangSC-Regular;
     font-weight: 400;
     
 }

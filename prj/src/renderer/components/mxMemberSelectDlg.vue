@@ -74,7 +74,7 @@
                             <img :src="item.avatar_url" >
                             <div class="member-info" style="width: 152px;">
                                 <div>{{item.display_name}}</div>
-                                <div>{{item.user_id}}</div>
+                                <div>{{item.matrix_id || item.user_id}}</div>
                             </div>
                             <img style="height:20px; width:20px;" @click.stop="removeMember(item)" src="../../../static/Img/Chat/delete-20px@2x.png">
                         </div>
@@ -94,7 +94,7 @@ import { mapState, mapActions } from 'vuex';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 export default {
     name: 'mxMemberSelectDlg',
-    props: ['roomId'],
+    props: ['roomId', 'isDm'],
     data () {
         return {
             name:'',
@@ -109,7 +109,6 @@ export default {
             crumbs: [],
             totalList: [],
             isSearch: false
-
         }
     },
     timer: null,

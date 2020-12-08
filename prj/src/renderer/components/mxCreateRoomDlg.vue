@@ -68,9 +68,7 @@ import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
 export default {
     name: 'mxCreateRoomDlg',
-    props: {
-        
-    },
+    props: {},
     data () {
         return {
             name:'',

@@ -902,6 +902,9 @@ export default {
             Object.keys(currentRoom.currentState.members).forEach(id => {
                 if (id != userId) {
                     let dmMember = currentRoom.currentState.members[id];
+                    console.log( 'dmMember', dmMember.user)
+                    console.log( 'dmMember.user', dmMember.user)
+                    if (!dmMember.user) dmMember.user = {};
                     dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
                     this.dmMember = dmMember;
                 }
