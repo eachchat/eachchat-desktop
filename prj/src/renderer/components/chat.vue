@@ -2889,7 +2889,7 @@ s        },
         margin:0;
         float: left;
         height: 100%;
-        width: calc(100% - 50px);
+        width: calc(100% - 250px);
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
