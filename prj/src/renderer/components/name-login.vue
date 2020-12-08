@@ -405,6 +405,9 @@ export default {
             //     host = address
             // }
             console.log("=======host si ", host);
+            if(host.indexOf("https://") < 0 && host.indexOf("http://") < 0) {
+                host = "https://" + host;
+            }
             return global.mxMatrixClientPeg.checkHomeServer(host).then(async (flows) => {
                 console.log("matrix get flows is ", flows)
                 this.supportedIdentity = flows;
