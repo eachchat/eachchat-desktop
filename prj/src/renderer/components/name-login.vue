@@ -368,9 +368,27 @@ export default {
                 this.organizationButtonDisabled = false;
             })
         },
-        checkHomeServer: async function (domain){
-            var Domain = domain == null ? window.localStorage.getItem("Domain") : domain;
+        checkHomeServer: async function (domain){            
+            var Domain = "";
+            if(domain != null && domain != undefined) {
+                Domain = domain;
+            }
+            console.log("1 Domain is ", Domain);
+            if(Domain == "") {
+                Domain = window.localStorage.getItem("Domain");
+            }
+            console.log("2 Domain is ", Domain);
+            if(Domain == undefined || Domain == null || Domain == "undefined") {
+                Domain = "";
+            }
+            console.log("4 Domain is ", Domain);
+            this.organizationAddress = Domain;
+            console.log("Domain is ", this.organizationAddress);
+            if(Domain.length == 0) {
+                return false;
+            }
             var gmsRet = await global.services.common.newGmsConfiguration(Domain);
+            console.log("gmsRet is ", gmsRet);
             if(!gmsRet){
                 if(domain != undefined){
                     this.loginState = "未找到该组织";
@@ -387,7 +405,7 @@ export default {
             // else {
             //     host = address
             // }
-            console.log("host si ", host);
+            console.log("=======host si ", host);
             return global.mxMatrixClientPeg.checkHomeServer(host).then(async (flows) => {
                 console.log("matrix get flows is ", flows)
                 this.supportedIdentity = flows;
@@ -1145,6 +1163,12 @@ export default {
         this.checkHomeServer()
             .then((ret) => {
                 console.log("============= check home server ", ret);
+                if(ret == false) {
+                    this.tokenRefreshing = false;
+                    this.showLoadingView = false;
+                    this.showLoginView = true;
+                    return
+                }
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
                     if(ret == undefined) {
                         this.tokenRefreshing = false;
