@@ -383,14 +383,13 @@ export default {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 92px);
+    width: 69%;
 }
 .department-name {
     display: flex;
     place-items: center;
     text-align: left;
     height: 20px;
-    width: 70%;
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 12px;
