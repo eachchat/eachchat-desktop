@@ -22,7 +22,7 @@
             <Invite class="chat-invite" :inviter="inviterInfo" @joinRoom="joinRoom" @rejectRoom="rejectRoom" v-show="isInvite"></Invite>
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
-                <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
+                <transition-group name="msg-list" v-viewer="options" class="msg-list" id="message-show-list" tag="ul">
                     <li class="msg-loading" v-show="isRefreshing" v-bind:key="123">
                         <i class="el-icon-loading"></i>
                     </li>
@@ -2524,6 +2524,13 @@ s        },
     },
     data() {
         return {
+            options: {
+                filter (image) {
+                    if(image.className == "msg-image") {
+                        return image;
+                    }
+                }
+            },
             isScroll: false,
             UploadingName: '',
             showUploadProgress: false,

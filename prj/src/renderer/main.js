@@ -14,6 +14,9 @@ import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 import VueVirtualScroller from "vue-virtual-scroller";
 import i18n from '../i18n/';
 import warningDlg from './globalComponents/warningDlg.js';
+import 'viewerjs/dist/viewer.css'
+import Viewer from 'v-viewer'
+Vue.use(Viewer)
 Vue.use(VueCropper)
 Vue.use(toastMessage)
 Vue.use(ElementUI)

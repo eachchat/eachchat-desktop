@@ -6,9 +6,9 @@
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <i class="el-icon-close" @click="Close()"></i>
-            <ul class="Mxfile-list" id="Mxfile-list-id">
+            <ul class="Mxfile-list" id="Mxfile-list-id" v-viewer="options">
                 <li v-for="(item, index) in fileListShow" class="MxfileItem">
-                    <img class="MxfileImage" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
+                    <img :class="MxgetClassName(item)" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
                     <div class="MxfileInfoDiv" @click="openFile(item)">
                         <label class="MxfileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
                         <label class="MxfileInfoDetailLabel">{{getFileInfo(item)}}</label>
@@ -34,6 +34,14 @@ export default {
     name: 'MxFileListDlg',
     data () {
         return {
+            options: {
+                filter (image) {
+                    console.log("==========image className is ", image.className)
+                    if(image.className == "MxfileImageImage") {
+                        return image;
+                    }
+                }
+            },
             isRefreshing: false,
             GroupName: '',
             fileListShow: [],
@@ -51,6 +59,18 @@ export default {
         }
     }, 
     methods: {
+        MxgetClassName: function(curItem) {
+            var content = curItem.getContent();
+            if(content.body != undefined) {
+                if(content.msgtype == 'm.file'){
+                    return "MxfileImageFile"
+                }
+                else if(content.msgtype == "m.image") {
+                    return "MxfileImageImage"
+                }
+            }
+            return "MxfileImage"
+        },
         openFile: async function(curItem) {
             var chatGroupMsgContent = curItem.getContent();
             if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -69,14 +89,14 @@ export default {
                         reader.readAsArrayBuffer(blob);
                     })
             }
-            if(chatGroupMsgContent.msgtype == 'm.image'){
-                var distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-                var imageInfo = {
-                    url: distUrl,
-                    info: chatGroupMsgContent.info
-                }
-                this.$emit('showImageOfMessage', imageInfo);
-            }
+            // if(chatGroupMsgContent.msgtype == 'm.image'){
+            //     var distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+            //     var imageInfo = {
+            //         url: distUrl,
+            //         info: chatGroupMsgContent.info
+            //     }
+            //     this.$emit('showImageOfMessage', imageInfo);
+            // }
         },
         Close: function() {
             this.fileListInfo = [];
@@ -500,6 +520,22 @@ export default {
     }
 
     .MxfileImage {
+        display: inline-block;
+        margin: 0 0 0 4px;
+        padding: 12px 0px 12px 0px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .MxfileImageFile {
+        display: inline-block;
+        margin: 0 0 0 4px;
+        padding: 12px 0px 12px 0px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .MxfileImageImage {
         display: inline-block;
         margin: 0 0 0 4px;
         padding: 12px 0px 12px 0px;
