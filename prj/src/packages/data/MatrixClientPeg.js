@@ -200,7 +200,8 @@ class _MatrixClientPeg{
       window.localStorage.setItem("mx_hs_url", organizationAddress);
       window.localStorage.setItem("Domain", domain);
       window.sessionStorage.clear();
-      this.matrixClient.clearStores();
+      if(this.matrixClient)
+        this.matrixClient.clearStores();
     }
 
     getStorageLocale() {
