@@ -460,7 +460,6 @@ export default {
     color:rgba(0,0,0,1);
     line-height:22px;
     letter-spacing:2px;
-    font-family: PingFangSC-Medium;
 }
 .userInfo-title {
     width: 100%;
@@ -472,7 +471,6 @@ export default {
     line-height: 18px;
     letter-spacing: 1px;
     color: rgb(153, 153, 153);
-    font-family: PingFangSC-Regular;
     overflow: hidden;
     text-overflow:ellipsis;
     white-space: nowrap;
@@ -534,7 +532,6 @@ input::-webkit-input-placeholder {
     margin-bottom: 5px;
     font-size: 12px;
     color: rgb(153, 153, 153);
-    font-family: PingFangSC-Regular;
     font-weight: 400;
 }
 .userInfo-value {

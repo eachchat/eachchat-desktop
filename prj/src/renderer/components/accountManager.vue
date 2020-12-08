@@ -248,7 +248,6 @@ export default {
         width: 142px;
         height: 22px;
         font-size: 16px;
-        font-family: SCPingFang-Medium;
         font-weight: 500;
         color: #000000;
         line-height: 22px;
@@ -300,7 +299,6 @@ export default {
         color:rgba(0,0,0,1);
         line-height:20px;
         letter-spacing:1px;
-        font-family: PingFangSC-Regular;
         float: left;
         padding: 35px 0 35px 0;
     }
@@ -313,7 +311,6 @@ export default {
         color:aqua;
         line-height:20px;
         letter-spacing:1px;
-        font-family: PingFangSC-Regular;
         float: right;
         padding: 35px 0 35px 0;
     }
@@ -338,7 +335,6 @@ export default {
         color:rgba(0,0,0,1);
         line-height:20px;
         letter-spacing:1px;
-        font-family: PingFangSC-Regular;
         float: left;
         padding: 35px 0 35px 0;
     }
@@ -351,7 +347,6 @@ export default {
         color:aqua;
         line-height:20px;
         letter-spacing:1px;
-        font-family: PingFangSC-Regular;
         float: right;
         padding: 35px 0 35px 0;
     }
@@ -360,7 +355,6 @@ export default {
         width: calc(100% - 28px);
         height: 20px;
         font-size: 14px;
-        font-family: SCPingFangSC-Regular;
         font-weight: 400;
         color: #333333;
         line-height: 20px;
@@ -373,7 +367,6 @@ export default {
         width: calc(100% - 28px);
         height: 20px;
         font-size: 14px;
-        font-family: SCPingFangSC-Regular;
         font-weight: 400;
         color: #333333;
         line-height: 20px;
@@ -398,7 +391,6 @@ export default {
         background: white;
         border:0px;
         color: rgba(36, 179, 107, 1);
-        font-family: PingFangSC-Regular;
     }
 
     .reSendBtn:disabled {
@@ -408,7 +400,6 @@ export default {
         background: white;
         border:0px;
         color: #DDDDDD;
-        font-family: PingFangSC-Regular;
     }
 
     .accountManagerFotter {
@@ -427,7 +418,6 @@ export default {
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
-        font-family: PingFangSC-Regular;
     }
  
     .accountManagerConfirmButton:hover {
@@ -439,7 +429,6 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(36, 179, 107, 1);
-        font-family: PingFangSC-Regular;
     }
 
     .accountManagerConfirmButton:disabled {
@@ -451,7 +440,6 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(167, 224, 196, 1);
-        font-family: PingFangSC-Regular;
     }
 
     .accountManagerCancleButton {
@@ -463,6 +451,5 @@ export default {
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
-        font-family: PingFangSC-Regular;
     }
 </style>

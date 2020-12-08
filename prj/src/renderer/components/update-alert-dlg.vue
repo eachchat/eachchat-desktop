@@ -190,7 +190,6 @@ export default {
     .UpgradeContentAbstraceContent {
         width: calc(100% - 40px);
         font-size: 16px;
-        font-family: "Microsoft Yahei";
         vertical-align: top;
         margin-left: 16px;
     }
@@ -205,7 +204,6 @@ export default {
     .UpgradeContentDetailsContent {
         width: 336px;
         font-size: 14px;
-        font-family: "Microsoft Yahei";
         vertical-align: top;
     }
 

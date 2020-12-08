@@ -990,7 +990,6 @@ export default {
         max-width: 150px;
         font-size: 14px;
         font-weight: 550;
-        font-family:Microsoft Yahei;
         color: rgb(51, 51, 51);
         overflow: hidden;
         margin-left: 10px;
@@ -1004,7 +1003,6 @@ export default {
 
     .file-size {
         font-size: 12px;
-        font-family:Microsoft Yahei;
         color: rgb(153, 153, 153);
         overflow: hidden;
         margin-left: 10px;

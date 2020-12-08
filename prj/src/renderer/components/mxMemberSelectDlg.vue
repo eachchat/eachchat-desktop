@@ -483,7 +483,6 @@ export default {
 
     .mxTransmitCancleButton {
         border-radius:4px;
-        font-family: PingFangSC-Regular;
         width: 100px;
         height: 28px;
         box-sizing: border-box;
@@ -499,7 +498,6 @@ export default {
 
     .mxTransmitConfirmButton {
         border-radius:4px;
-        font-family: PingFangSC-Regular;
         width: 100px;
         height: 28px;
         box-sizing: border-box;
