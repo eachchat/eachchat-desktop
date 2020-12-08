@@ -328,7 +328,7 @@ export default {
                                     })
                                 }, 0)
                             })
-                    })
+                    }, 500)
                 })
         },
         rejectRoom: function() {
@@ -2714,7 +2714,7 @@ s        },
                 this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
                 this.isInvite = true;
             }
-            // else {
+            else {
                 this._loadTimeline(undefined, undefined, undefined)
                     .then((ret) => {
                         this.isRefreshing = false;
@@ -2733,7 +2733,7 @@ s        },
                             })
                         }, 0)
                     })
-            // }
+            }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
             this.needScrollTop = true;
             this.needScrollBottom = true;
