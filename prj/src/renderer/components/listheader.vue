@@ -110,7 +110,7 @@ export default {
     },
     methods: {
         mxDmDlgChangeErp: function(close) {
-            console.log('mxDmDlg???', close)
+            console.log('mxDmDlgErp???', close)
             if (close) {
                 if (close.data) this.$emit(close.handler, close.data);
                 this.showCreateNewChat = false;
