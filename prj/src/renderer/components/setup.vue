@@ -33,7 +33,7 @@
             </div> -->
             <div class="setup-general-autorun">
                 <label class="setup-general-autorun-label">电脑开机时，自动启动亿洽</label>
-                <el-switch class="setup-general-autorun-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)">
+                <el-switch class="setup-general-autorun-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <label class="setup-general-device-manager-label" v-show="false">设备管理</label>
@@ -65,12 +65,12 @@
             <div class="setup-notice-title">通知设置</div>
             <div class="setup-notice-message-notice">
                 <label class="setup-notice-message-notice-label">消息提示音</label>
-                <el-switch class="setup-notice-message-notice-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)">
+                <el-switch class="setup-notice-message-notice-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-notice-desktop-notice">
                 <label class="setup-notice-desktop-notice-label">消息桌面通知</label>
-                <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)">
+                <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-security-title">账号安全与隐私设置</div>
@@ -97,7 +97,7 @@
             </div>
             <div class="setup-update-auto-update" v-show="false">
                 <label class="setup-update-auto-update-label">自动更新</label>
-                <el-switch class="setup-update-auto-update-switch">
+                <el-switch class="setup-update-auto-update-switch" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-about-title">关于应用</div>
