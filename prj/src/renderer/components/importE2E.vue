@@ -3,6 +3,7 @@
         <div class="E2EKeyCertification" v-show="E2EKeyKeyCertification">
             <div class="E2EKeyCertificationTitleDiv">
                 <label class="E2EKeyKeyConficationLabel">导入密钥</label>
+                <img class="E2EKeyKeyConficationClose" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close"/>
             </div>
             <p class="E2EKeyKeyTipLabel">
                 1.导入本端或其他客户端导出的加密密钥。之后您可以解密该客户端的加密消息
@@ -17,12 +18,12 @@
             </div>
             <div class="E2EPwd">
                 <p class="makeSurlPwd">确认密码</p>
-                <input prefix="ios-contact-outline" v-model="E2EPassword" type="password" :placeholder="$t('secretKeyTip')" class="E2EKeyInput"/>
+                <input prefix="ios-contact-outline" v-model="E2EPassword" type="password" placeholder="输入密码" class="E2EKeyInput"/>
             </div>
             <label class="E2EState">{{E2EState}}</label>
             <div class="E2EKeyCertificationFooter">
                 <button class="E2EKeyCertificationCancleButton" @click="Close()" v-show="canCancel">{{$t("cancel")}}</button>
-                <button class="E2EKeyCertificationConfirmButton" @click="Continue()">{{$t("next")}}</button>
+                <button class="E2EKeyCertificationConfirmButton" @click="Continue()":disabled="!(E2EPassword.trim().length != 0 && this.elementRecoveryPath.length != 0)">{{$t("next")}}</button>
             </div>
         </div>
     </div>
@@ -163,16 +164,28 @@ export default {
         width: 100%;
         height: 30px;
         line-height: 30px;
+    }
 
-        .E2EKeyKeyConficationLabel {
-            display: inline-block;
-            width: calc(100%-20px);
-            height:36px;
-            font-size:24px;
-            font-weight:600;
-            color:rgba(39,45,52,1);
-            line-height:36px;
-        }
+    .E2EKeyKeyConficationLabel {
+        display: inline-block;
+        width: calc(100%-25px);
+        height:36px;
+        font-size:16px;
+        font-weight:500;
+        color:rgba(0,0,0,1);
+        line-height:36px;
+        font-family: PingFangSC-Medium;
+        letter-spacing: 2px;
+        vertical-align:top;
+    }
+
+    .E2EKeyKeyConficationClose {
+        width: 20px;
+        height: 20px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        display: line-block;
+        float: right;
     }
 
     .E2EState {
@@ -195,27 +208,27 @@ export default {
         margin-bottom: 0px;
         width: calc(100% - 30px);
         height: 36px;
-        line-height: 23px;
-        font-size:12px;
+        line-height: 36px;
+        font-size:14px;
         font-weight:400;
         color:rgba(102,102,102,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing:0px;
         font-family: PingFangSC-Regular;
     }
 
     .E2EKeyKeyTipLabel2{
         margin-top: 0px;
         margin-left: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         width: calc(100% - 30px);
         height: 36px;
         line-height: 23px;
-        font-size:12px;
+        font-size:14px;
         font-weight:400;
         color:rgba(102,102,102,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing:0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -229,6 +242,8 @@ export default {
         width: 25%;
         height: 30px;
         border: 1px solid #24B36B;
+        font-family: PingFangSC-Regular;
+        color: white;
         background:rgba(36,179,107,1);
         margin-left: 10px;
         margin-bottom: 10px;
@@ -243,7 +258,18 @@ export default {
         width: 100%;
         height: 18px;
         margin: 0 0 10px 10px;
+        font-size:14px;
+        font-family: PingFangSC-Regular;
+        font-weight:400;
+        color:rgba(51, 51, 51, 1);
         padding: 0;
+    }
+
+    .E2EKeyInput::placeholder {
+        color: rgba(153, 153, 153, 1);
+        font-size:14px;
+        font-family: PingFangSC-Regular;
+        font-weight:400;
     }
 
     .E2EKeyInput {
@@ -272,7 +298,7 @@ export default {
         height:17px;
         font-size:12px;
         font-weight:400;
-        color: rgba(221,221,221,1);
+        color: rgba(153, 153, 153, 1);
         line-height:17px;
         letter-spacing:1px;
         white-space: nowrap;
@@ -283,11 +309,13 @@ export default {
         vertical-align: middle;
         width: 60%;
     }
+
     .E2EKeyCertificationFooter {
         width: 90%;
         height: 72px;
         display: inline-block;
         text-align: center;
+        margin-top: 10px;
         
         .E2EKeyCertificationConfirmButton {
             width: 100px;
@@ -296,11 +324,29 @@ export default {
             margin-top: 20px;
             margin-bottom: 20px;
             margin-right: 15px;
-            background: rgba(36, 179, 107, 1);
+            background-color: rgba(36, 179, 107, 1);
             border:1px solid rgba(221,221,221,1);
             color: white;
             border-radius:4px;
             font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    
+        .E2EKeyCertificationConfirmButton:disabled {
+            width: 100px;
+            height: 32px;
+            margin-left: 5px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            margin-right: 15px;
+            background-color: rgba(167, 224, 196, 1);
+            border:1px solid rgba(221,221,221,1);
+            color: white;
+            border-radius:4px;
+            font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
         }
     
         .E2EKeyCertificationConfirmButton:hover {
@@ -310,11 +356,13 @@ export default {
             margin-top: 20px;
             margin-bottom: 20px;
             margin-right: 15px;
-            background: rgba(36, 179, 107, 1);
+            background-color: rgba(36, 179, 107, 1);
             border:1px solid rgba(221,221,221,1);
             color: white;
             border-radius:4px;
             font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
         }
     
         .E2EKeyCertificationCancleButton {
@@ -324,10 +372,12 @@ export default {
             margin-top: 20px;
             margin-bottom: 20px;
             margin-left: 15px;
-            background: white;
+            background-color: white;
             border-radius:4px;
             border:1px solid rgba(221,221,221,1);
             font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
         }
     }
 

@@ -75,11 +75,13 @@
             </div>
             <div class="setup-security-title">账号安全与隐私设置</div>
             <div class="setup-security-export-keys">
-                <label class="setup-security-export-keys-label">导出密钥到本地文件</label>
+                <label class="setup-security-export-keys-label">导出密钥</label>
+                <label class="setup-security-export-keys-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
                 <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
             </div>
             <div class="setup-security-import-keys">
                 <label class="setup-security-import-keys-label">导入密钥</label>
+                <label class="setup-security-import-keys-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
             <div class="setup-security-account-manager" v-show="false">
@@ -967,6 +969,7 @@ export default {
     color: rgba(153,153,153,1);
     white-space: nowrap;
     text-overflow: ellipsis;
+    text-align:right;
   }
 
   .setup-general-clear-cache-ico {
@@ -1121,7 +1124,7 @@ export default {
   }
 
   .setup-security-export-keys-label {
-    width:calc(100% - 40px);
+    width:calc(100% - 180px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1133,10 +1136,27 @@ export default {
     vertical-align: top;
   }
 
+  .setup-security-export-keys-label2 {
+    width:140px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
   .setup-security-export-keys-ico {
     width: 20px;
     height: 20px;
-    margin-left: 5px;
+    margin-left: 0px;
     margin-top: 14px;
     margin-right: 0px;
     margin-bottom: 14px;
@@ -1158,7 +1178,7 @@ export default {
   }
 
   .setup-security-import-keys-label {
-    width:calc(100% - 40px);
+    width:calc(100% - 180px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1170,10 +1190,27 @@ export default {
     vertical-align: top;
   }
 
+  .setup-security-import-keys-label2 {
+    width:140px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
   .setup-security-import-keys-ico {
     width: 20px;
     height: 20px;
-    margin-left: 5px;
+    margin-left: 0px;
     margin-top: 14px;
     margin-right: 0px;
     margin-bottom: 14px;

@@ -527,7 +527,7 @@ export default {
         line-height: 20px;
         font-size: 14px;
         font-weight: 500;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
         vertical-align: top;
         color: rgba(0, 0, 0, 1);
     }
@@ -558,7 +558,7 @@ export default {
         margin:0px 0px 0px 0px;
         float: left;
         font-size: 14px;
-        font-family: SCPingFang-Regular;;
+        font-family: PingFangSC-Regular;;
         font-weight: 400;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -626,7 +626,7 @@ export default {
         outline:none;
         text-indent:38px;
         border: 0px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 1px;
         font-size: 12px;
