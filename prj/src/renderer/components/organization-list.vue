@@ -372,6 +372,7 @@ export default {
     margin-right: 0px;
     margin-bottom: 10px;
     border-radius: 4px;
+    border-radius: 50%;
 }
 .manager-info {
     display: inline-block;

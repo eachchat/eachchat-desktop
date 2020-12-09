@@ -363,6 +363,7 @@ export default {
     margin-right: 0px;
     margin-bottom: 10px;
     border-radius: 4px;
+    border-radius: 50%;
 }
 
 .delete-button{

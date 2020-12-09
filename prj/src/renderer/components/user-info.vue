@@ -438,11 +438,10 @@ export default {
 .userInfo-icon {
     width: 48px;
     height: 48px;
-    
+    border-radius: 50%;
     margin-top: 20px;
     margin-left: 116px;
     margin-bottom: 0px;
-    border-radius: 4px;
 }
 .userInfo-baseInfo {
     height: 60px;
