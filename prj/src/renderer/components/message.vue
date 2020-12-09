@@ -647,7 +647,7 @@ export default {
                         }
                         else{
                             info.w = info.w/(info.h/maxSize)
-                            info.w = maxSize;
+                            info.h = maxSize;
                         }
 
                     }
