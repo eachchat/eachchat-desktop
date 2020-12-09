@@ -459,6 +459,7 @@ export default {
     color:rgba(0,0,0,1);
     line-height:22px;
     letter-spacing:2px;
+    font-family: PingFangSC-Medium;
 }
 .userInfo-title {
     width: 100%;
@@ -473,6 +474,7 @@ export default {
     overflow: hidden;
     text-overflow:ellipsis;
     white-space: nowrap;
+    font-family: PingFangSC-Regular;
 }
 .userInfoAction-view {
     height: 48px;
@@ -532,6 +534,7 @@ input::-webkit-input-placeholder {
     font-size: 12px;
     color: rgb(153, 153, 153);
     font-weight: 400;
+    font-family: PingFangSC-Regular;
 }
 .userInfo-value {
     display:inline-block;
@@ -547,6 +550,7 @@ input::-webkit-input-placeholder {
     text-overflow: ellipsis;
     vertical-align: bottom;
     font-weight: 400;
+    font-family: PingFangSC-Regular;
 }
 .userInfo-report-value {
     display:inline-block;
@@ -563,6 +567,7 @@ input::-webkit-input-placeholder {
     text-overflow: ellipsis;
     vertical-align: bottom;
     font-weight: 400;
+    font-family: PingFangSC-Regular;
 }
 .userInfo-email-value {
     -webkit-user-select: text;
@@ -579,6 +584,7 @@ input::-webkit-input-placeholder {
     text-overflow: ellipsis;
     vertical-align: bottom;
     font-weight: 400;
+    font-family: PingFangSC-Regular;
 }
 .userInfo-phone-value{
     -webkit-user-select: text;
@@ -591,7 +597,7 @@ input::-webkit-input-placeholder {
     margin-top: 9px;
     margin-bottom: 5px;
     font-weight: 400;
-    
+    font-family: PingFangSC-Regular;
 }
 
 

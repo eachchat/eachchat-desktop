@@ -719,7 +719,6 @@ export default {
         margin-left: 0px;
         vertical-align: top;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         -webkit-app-region: drag;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -773,7 +772,6 @@ export default {
         height: 32px;
         outline:none;
         border: 0px;
-        font-family: 'Microsoft YaHei';
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -799,7 +797,6 @@ export default {
         width:104px;
         height:18px;
         font-size:12px;
-        font-family:"Microsoft YaHei";
         font-weight:400;
         color:rgba(153,153,153,1);
         line-height:18px;
@@ -850,7 +847,6 @@ export default {
         width: 100%;
         line-height: 20px;
         font-size: 14px;
-        font-family:Microsoft Yahei;
         font-weight: 590;
         vertical-align: top;
     }
@@ -862,7 +858,6 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
         float: left;
     }
 
@@ -873,7 +868,6 @@ export default {
         height: 20px;
         line-height: 20px;
         font-size: 12px;
-        font-family:Microsoft Yahei;
         float: right;
     }
 
@@ -882,7 +876,6 @@ export default {
         width: 100%;
         height: auto;
         font-size: 12px;
-        font-family:Microsoft Yahei;
     }
 
     .chat-msg-content-others-txt-div {
@@ -892,7 +885,6 @@ export default {
         margin: 0;
         padding: 0;
         font-size: 12px;
-        font-family:Microsoft Yahei;
         vertical-align: top;
     }
 
@@ -901,7 +893,6 @@ export default {
         width: 100%;
         height: auto;
         font-size: 12px;
-        font-family:Microsoft Yahei;
         margin: 0px;
     }
 
@@ -911,7 +902,6 @@ export default {
         min-width: 104px;
         border-radius: 5px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -926,7 +916,6 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin-bottom: 5px;
         cursor: pointer;
@@ -941,7 +930,6 @@ export default {
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;
@@ -956,7 +944,6 @@ export default {
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;
-        font-family: 'Microsoft YaHei';
         text-align: left;
         margin: 0px;
         cursor: pointer;

@@ -1328,7 +1328,6 @@ export default {
     //     padding-left: 30px;
     //     padding-bottom: 10px;
     //     font-size: 24px;
-    //     font-family: 'Microsoft YaHei';
     // }
 
     // .welcome-zh-line2 {
@@ -1337,7 +1336,6 @@ export default {
     //     padding-left: 30px;
     //     padding-bottom: 10px;
     //     font-size: 24px;
-    //     font-family: 'Microsoft YaHei';
     // }
 
     // .welcome-en {
@@ -1345,7 +1343,6 @@ export default {
     //     padding-left: 30px;
     //     padding-bottom: 30px;
     //     font-size: 15px;
-    //     font-family: 'Microsoft YaHei';
     //     color: rgba(60, 60, 67, 0.6);
     // }
     
@@ -1362,7 +1359,6 @@ export default {
     // .welcome-loading {
     //     width: 100%;;
     //     font-size: 12px;
-    //     font-family: 'Microsoft YaHei';
     //     text-align: center;
     //     margin: 0px;
     //     padding: 0px;
@@ -1374,7 +1370,6 @@ export default {
     // .copy-right {
     //     width: 100%;;
     //     font-size: 14px;
-    //     font-family: 'Microsoft YaHei';
     //     text-align: center;
     //     margin: 0px;
     //     padding: 0px;
