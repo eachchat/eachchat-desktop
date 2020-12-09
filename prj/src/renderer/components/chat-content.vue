@@ -549,6 +549,7 @@ export default {
           return this.showChat(newRooms[i], i);
         }
       }
+      console.log('chongxinchaxun')
       setTimeout(()=>{this.viewRoom(room)}, 160);
     },
     isSecret(item) {
