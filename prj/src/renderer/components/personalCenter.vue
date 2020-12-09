@@ -335,6 +335,7 @@ export default {
         height: 48px;
         position: absolute;
         border-radius: 4px;
+        border-radius: 50%;
         display: inline-block;
         cursor: pointer;
 }
