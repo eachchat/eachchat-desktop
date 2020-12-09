@@ -300,8 +300,10 @@ export default {
     distGroupId: async function() {
       console.log("in chat content distGroupId is ", this.distGroupId);
       let room = global.mxMatrixClientPeg.matrixClient.getRoom(this.distGroupId);
-      if(room)
-        this.viewRoom(room)
+      if(room) {
+        console.log('------distGroupId------');
+        this.viewRoom(room);
+      }
     },
     updateImg: async function() {
       // console.log("in chat content updateImg ");
@@ -356,6 +358,7 @@ export default {
                   this.inviteGroupsList.unshift(newRoom);
                 }
                 else if(member.membership == "join"){
+                  console.log('JoinRoom!!!')
                   this.JoinRoom(member.roomId);
                 }
                 else{
@@ -522,7 +525,7 @@ export default {
     },
 
     viewRoom(room) {
-      console.log('---viewRoom new rooms---',  newRooms);
+      console.log('---viewRoom new rooms---',  room);
       const newRooms = global.mxMatrixClientPeg.matrixClient.getRooms();
       for(let i=0; i<newRooms.length; i++) {
         console.log('xie1--', newRooms[i].roomId);
@@ -1815,7 +1818,7 @@ export default {
       this.dealShowGroupList.unshift(newRoom);
       this.$nextTick(() => {
         this.showGroupIcon(newRoom);
-        // this.showChat(newRoom, 0);
+        this.showChat(newRoom, 0);
       })
     },
   

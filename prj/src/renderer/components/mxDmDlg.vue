@@ -151,6 +151,7 @@ export default {
             if (existingRoom) {
                 existingRoom.room_id = existingRoom.roomId
                 const obj = {data: existingRoom, handler: 'viewRoom'};
+                console.log('通过emit, 向上层组件触发viewRoom')
                 this.$emit('close', obj);
                 return;
             }
@@ -164,6 +165,7 @@ export default {
 
             let createRoomPromise = Promise.resolve();
             const isSelf = targetIds.length === 1 && targetIds[0] === client.getUserId();
+            console.log('脱出，直接靠RoomMembership触发')
             if (targetIds.length === 1 && !isSelf) {
                 createRoomOptions.dmUserId = targetIds[0];
                 createRoomPromise = this.createRoom(createRoomOptions);
@@ -446,10 +448,9 @@ export default {
             return RoomUtil.CreateRoom(opts).then((res) => {
                 console.log('--create success!!--', res);
                 let roomId = res.room_id;
-                if(roomId)
-                    Rooms.setDMRoom(roomId, opts.dmUserId);
-                const obj = {data: res, handler: 'viewRoom'};
-                this.$emit('close', obj);
+                if(roomId) Rooms.setDMRoom(roomId, opts.dmUserId);
+                // const obj = {data: res, handler: 'viewRoom'};
+                this.$emit('close', 'close'); // 新创建时可以靠上层组件中的监听跳跳转，无需传obj
             })
 
             // let modal;
