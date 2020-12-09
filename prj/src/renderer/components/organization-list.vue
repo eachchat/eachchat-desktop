@@ -362,6 +362,7 @@ export default {
     margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 10px;
+    border-radius: 50%;
 }
 .manager-icon {
     width: 40px;

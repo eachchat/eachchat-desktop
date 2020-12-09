@@ -450,6 +450,7 @@ display: none;
     margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 10px;
+    border-radius: 50%;
 }
 .department-info {
     display: inline-block;
@@ -511,6 +512,7 @@ display: none;
                 margin-right: 0px;
                 margin-bottom: 10px;
                 border-radius: 4px;
+                border-radius: 50%;
             }
         }
         .manager:hover {
