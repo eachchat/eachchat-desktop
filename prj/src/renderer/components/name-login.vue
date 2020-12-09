@@ -29,7 +29,7 @@
                         {{organizationOrHost}}
                     </p>
                     <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
-                    <p class="organization-input-label">{{eachChatEndPoint}}</p>
+                    <p class="organization-input-label" v-show="false">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
                 <div class="organizationLogin-state">

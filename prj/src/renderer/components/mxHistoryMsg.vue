@@ -1,11 +1,19 @@
 <template>
     <div class="MxHistoryMsgDlg" id="MxHistoryMsgDlgId">
         <div class="MxHistoryMsgDlgContent" id="MxHistoryMsgDlgContentId">
+            <div class="MxTitle">
+                <img class="MxTitleGoBackImg" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" />
+                <div class="MxTitleGoBackLabel">返回聊天</div>
+            </div>
+            <div class="MxGroupInfo">
+                <img class="MxGroupInfoImg" id="MxGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
+                <label class="MxGroupInfoName">{{GroupInfo.name}}</label>
+                <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId"></label>
+            </div>
             <div class="Mxsearch">
                 <input class="MxHistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
-            <i class="el-icon-close" @click="Close()"></i>
             <ul class="MxHistoryMsg-list" id="MxHistoryMsg-list-Id">
                 <li v-for="(item, index) in messageListShow" class="MxmessageItem" v-on:click="ShowFile(item)">
                     <img class="MxmessageOwnerImage" src="../../../static/Img/User/user-40px@2x.png" :id="getUserHeadImageId(item)" @click="openFile(item)">
@@ -26,10 +34,7 @@
                             </div>
                         </div>
                         <div class="MxmessageVoice" v-else-if="MsgIsVoice(item)">
-                            <img class="mx-voice-image" :id="getMxImgId(item)" style="vertical-align:middle">
-                            <div class="mx-voice-info">
-                                <p class="mx-file-size">{{this.voiceLenth}} s</p>
-                            </div>
+                            <img class="mx-voice-image" :id="getMxImgId(item)" src="../../../static/Img/Chat/msg-voice@2x.png" style="vertical-align:middle">
                         </div>
                     </div>
                 </li>
@@ -126,9 +131,8 @@ export default {
             }
         },
         MsgIsVoice: function(curItem) {
-            let chatGroupMsgType = curItem.event.content.msgtype;
-            // console.log("chatGroupMsgType is ", chatGroupMsgType)
-            if(chatGroupMsgType == 105){
+            let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
+            if(chatGroupMsgType == 'm.audio'){
                 return true;
             }
             else if(chatGroupMsgType == "m.bad.encrypted") {
@@ -154,6 +158,23 @@ export default {
             console.log("=======")
             this.$emit("searchClose");
         },
+        mxGetMembers: function() {
+            var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            const roomId = this.groupId;
+            const cli = window.mxMatrixClientPeg.matrixClient;
+            const xie1 = cli.getRoom(roomId);
+            const xie2 = cli.getRoomPushRule("global", roomId);
+            const mxMembers = [];
+            for(let key in xie1.currentState.members) {
+                // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+                let obj = {...xie1.currentState.members[key], choosen:false}
+                if (obj.membership != 'leave') mxMembers.push(obj);
+            }
+            console.log('mxMembers', mxMembers);
+            console.log('----mxMembers[userId]----', userId)
+            
+            return mxMembers.length;
+        },
         getAppBaseData:async function() {
             // Init services
             // Set accessToken in services
@@ -161,6 +182,7 @@ export default {
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
             console.log("the init user id is ,", this.GroupInfo)
             confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
+
             // this.$store.commit("setUserId", this.curUserInfo.id)
             
             this.updatePage();
@@ -221,7 +243,16 @@ export default {
             if(this.GroupInfo.roomId == undefined){
                 return "";
             }
-
+            var groupContentNumElement = document.getElementById("MxGroupInfoMemberNumId");
+            if(groupContentNumElement) {
+                var totalMemberCount = this.mxGetMembers();
+                if(totalMemberCount > 2) {
+                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+                }
+                else {
+                    groupContentNumElement.innerHTML = "";
+                }
+            }
             for(let i=0;i<this.messageListShow.length;i++) {
                 var curItem = this.messageListShow[i];
                 var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
@@ -272,7 +303,7 @@ export default {
         search: function() {
             // console.log("this.searchKeylneth ", this.searchKey.length);
             if(this.searchKey.length == 0) {
-                this.messageListShow = []
+                this.ret = []
                 // console.log("this.messagelsitshow is ", this.messageListShow)
                 this.showGroupInfo();
                 this.showEmpty = true;
@@ -343,7 +374,7 @@ export default {
                     return newInnerHtml;
                 }
             }
-            if(showContent.msgtype == "m.file") {
+            else if(showContent.msgtype == "m.file") {
                 var fileName = showContent.body;
                 if(fileName.indexOf(this.searchKey) != -1) {
                     let splitValue = fileName.split(this.searchKey);
@@ -351,7 +382,15 @@ export default {
                     return newInnerHtml;
                 }
             }
-            if(showContent.msgtype == "m.image") {
+            else if(showContent.msgtype == "m.image") {
+                var fileName = showContent.body;
+                if(fileName.indexOf(this.searchKey) != -1) {
+                    let splitValue = fileName.split(this.searchKey);
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                    return newInnerHtml;
+                }
+            }
+            else if(showContent.msgtype == "m.audio") {
                 var fileName = showContent.body;
                 if(fileName.indexOf(this.searchKey) != -1) {
                     let splitValue = fileName.split(this.searchKey);
@@ -464,10 +503,89 @@ export default {
         margin: 0 20px 0 20px;
     }
 
-    .Mxsearch {
+    .MxTitle {
         margin: 0;
+        height: 36px;
+        width: 100%;
+    }
+
+    .MxTitleGoBackImg {
+        display: inline-block;
+        margin: 0px 6px 16px 0px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .MxTitleGoBackLabel {
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: SCPingFang-Medium;
+        vertical-align: top;
+        color: rgba(0, 0, 0, 1);
+    }
+
+    .MxGroupInfo {
+        height: 60px;
+        width: 100%;
+        margin: 0;
+    }
+
+    .MxGroupInfoImg {
+        margin:12px 12px 12px 2px;
+        height: 32px;
+        width: 32px;
+        float: left;
+        border: 0px solid rgba(0, 0, 0, 0);
+        border-radius: 50%;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .MxGroupInfoName {
+        height: 56px;
+        max-width: 150px;
+        line-height: 56px;
+        margin:0px 0px 0px 0px;
+        float: left;
+        font-size: 14px;
+        font-family: SCPingFang-Regular;;
+        font-weight: 400;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        letter-spacing:1px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .MxGroupInfoMemberNum {
+        height: 32px;
+        max-width: 150px;
+        line-height: 32px;
+        margin:0px 0px 0px 0px;
+        float: left;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        font-weight: 500;
+        overflow: hidden;
+        letter-spacing:1px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .Mxsearch {
+        margin: 0, 0, 3px 0;
         text-align: left;
-        width: 90%;
+        width: 100%;
         height: 32px;
         border: 1px solid rgb(221, 221, 221);
         border-radius: 2px;
@@ -476,7 +594,7 @@ export default {
 
     .Mxicon-search {
         display: inline-block;
-        float: right;
+        float: left;
         height: 20px;
         line-height: 20px;
         margin: 6px 10px 6px 10px;
@@ -485,19 +603,11 @@ export default {
     
     .Mxicon-search:hover {
         display: inline-block;
-        float: right;
+        float: left;
         height: 20px;
         line-height: 20px;
         margin: 6px 10px 6px 10px;
         color: rgb(255,204,102);
-    }
-
-    .el-icon-close {
-        display: inline-block;
-        float: right;
-        height: 20px;
-        line-height: 20px;
-        margin: 6px 10px 6px 10px;
     }
     
     .MxHistoryMsgDlgSearchInput {
@@ -509,12 +619,13 @@ export default {
         margin: 0px;
         height: 32px;
         outline:none;
+        text-indent:38px;
         border: 0px;
-        font-family: PingFangSC-Regular;
+        font-family: SCPingFang-Regular;
         font-weight: 400;
         letter-spacing: 1px;
         font-size: 12px;
-        color: rgba(153, 153, 153, 1);
+        color:rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
     }
 
@@ -670,7 +781,7 @@ export default {
     }
     
     .MxmessageVoice {
-        background-color: rgba(233, 247, 240, 1);
+        background-color: rgb(233,234,235);;
         max-width: 260px;
         min-width: 20px;
         min-height: 12px;

@@ -1,5 +1,7 @@
 <template>
     <div class="chat-page">
+        <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
+        <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="chat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
         <div class="chat-title">
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png"/>
@@ -100,8 +102,6 @@
                 </div>
             </div>
         </div>
-        <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
-        <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="chat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
         <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
@@ -464,19 +464,32 @@ export default {
         },
         showHistoryMsgList: function() {
             // ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
+            var chatElement = document.getElementById("chat-page-id");
+            chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
+            this.$emit("isSearching", true);
             this.isSerach = true;
             this.HistorySearchRoomId = this.chat.roomId;
         },
         CloseSearchPage: function() {
+            var chatElement = document.getElementById("chat-page-id");
+            chatElement.style.backgroundColor = "rgba(245, 246, 249, 1)";
+            this.$emit("isSearching", false);
             this.isSerach = false;
             this.HistorySearchRoomId = "";
         },
         showFileList: function() {
+            // ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
+            var chatElement = document.getElementById("chat-page-id");
+            chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
+            this.$emit("isSearching", true);
             this.isFileList = true;
             this.isScroll = true;
             this.FilelistSearchRoomId = this.chat.roomId;
         },
         CloseFileListPage: function() {
+            var chatElement = document.getElementById("chat-page-id");
+            chatElement.style.backgroundColor = "rgba(245, 246, 249, 1)";
+            this.$emit("isSearching", false);
             this.isFileList = false;
             this.isScroll = false;
             this.FilelistSearchRoomId = "";
@@ -2296,6 +2309,9 @@ s        },
             div.removeEventListener('scroll', this.handleScroll);
             this.existingMsgId = [];
             this.distEventId = eventId;
+            var chatElement = document.getElementById("chat-page-id");
+            chatElement.style.backgroundColor = "rgba(245, 246, 249, 1)";
+            this.$emit("isSearching", false);
             this.isSerach = false;
             this.isJumpPage = true;
             this.messageList = [];
@@ -2946,7 +2962,7 @@ s        },
         width: 32px;
         float: left;
         border: 0px solid rgba(0, 0, 0, 0);
-        border-radius:4px;
+        border-radius: 50%;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -3070,7 +3086,7 @@ s        },
     .mxHistoryPage {
         display: block;
         width: 100%;
-        height: calc(100% - 60px);
+        height: 100%;
         font-size: 18px;
         margin-top: 0px;
     }
@@ -3078,7 +3094,7 @@ s        },
     .mxFilePage {
         display: block;
         width: 100%;
-        height: calc(100% - 60px);
+        height: 100%;
         font-size: 18px;
         margin-top: 0px;
     }
@@ -3528,7 +3544,7 @@ s        },
     .history-dropdown-content {
         display: none;
         position: absolute;
-        background-color: rgba(0, 0, 0, 0);
+        background-color: rgba(255, 255, 255, 1);
         width: 128px;
         height: 80px;
         border-radius: 4px;

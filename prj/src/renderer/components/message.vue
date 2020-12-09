@@ -1023,7 +1023,7 @@ export default {
         vertical-align: top;
         width: 32px;
         height: 32px;
-        border-radius:4px;
+        border-radius: 50%;
         -webkit-user-select:none;
     }
 
@@ -1032,7 +1032,7 @@ export default {
         vertical-align: top;
         width: 32px;
         height: 32px;
-        border-radius:4px;
+        border-radius: 50%;
         cursor: pointer;
         -webkit-user-select:none;
     }
@@ -1042,7 +1042,7 @@ export default {
         vertical-align: top;
         width: 32px;
         height: 32px;
-        border-radius:4px;
+        border-radius: 50%;
         margin-top: 4px;
         -webkit-user-select:none;
     }
@@ -1052,7 +1052,7 @@ export default {
         vertical-align: top;
         width: 32px;
         height: 32px;
-        border-radius:4px;
+        border-radius: 50%;
         cursor: pointer;
         margin-top: 4px;
         -webkit-user-select:none;
