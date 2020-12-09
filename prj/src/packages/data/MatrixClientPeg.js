@@ -304,15 +304,20 @@ class _MatrixClientPeg{
     }
     */
     async GetVerCode(medium, address){
-      return this.commonApi.post(
-        "/_matrix/client/r0/login/getvercode",
-        {
-          medium: medium,
-          address: address
-        }).then((response) => {
-          console.log("response is ", response);
-          return this.parseStatus(response);
-        })
+      try{
+        var ret = await this.commonApi.sender.post(
+          "/_matrix/client/r0/login/getvercode",
+          {
+            medium: medium,
+            address: address
+          });
+
+          return this.parseStatus(ret);
+      }
+      catch(error) {
+        console.log("err ", error.response);
+        return error.response;
+      }
     }
 
     async LoginWithVerCode(checkType, username, password) {
@@ -322,7 +327,7 @@ class _MatrixClientPeg{
       this.password = password;
       if(checkType == "m.login.verCode.msisdn") {
         try{
-          response = await this.commonApi.post(
+          response = await this.commonApi.sender.post(
             "/_matrix/client/r0/login",
             {
               'type': checkType,
@@ -331,33 +336,46 @@ class _MatrixClientPeg{
             });
         }
         catch(e) {
-          console.log(e.message);
+          console.log(e.response);
+          return e.response;
         }
       }
       else if(checkType == "m.login.verCode.email") {
-        response = await this.commonApi.post(
-          "/_matrix/client/r0/login",
-          {
-            type: checkType,
-            email: username,
-            ver_code: password
-          });
+        try{
+          response = await this.commonApi.sender.post(
+            "/_matrix/client/r0/login",
+            {
+              type: checkType,
+              email: username,
+              ver_code: password
+            });
+        }
+        catch(e) {
+          console.log(e.response);
+          return e.response;
+        }
       }
       else if(checkType == "m.login.sso.ldap") {
-        response = await this.commonApi.post(
-          "/_matrix/client/r0/login",
-          {
-            type: checkType,
-            user: username,
-            password: password
-          });
+        try{
+          response = await this.commonApi.sender.post(
+            "/_matrix/client/r0/login",
+            {
+              type: checkType,
+              user: username,
+              password: password
+            });
+        }
+        catch(e) {
+          console.log(e.response);
+          return e.response;
+        }
       }
       else {
         return "Unknown type";
       }
 
       this.accountPassword = password;
-
+      console.log("===== r", response);
       var ret = this.parseStatus(response);
       return ret;
     }

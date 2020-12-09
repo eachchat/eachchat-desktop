@@ -1644,7 +1644,7 @@ export default {
     GetLastShowMessage(chatGroupItem){
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
-        if(['m.room.name', 'm.room.topic', 'm.room.member', 'm.room.history_visibility', 'm.room.join_rules', 'm.room.guest_access', 'm.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) > 0) {
+        if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
           return timeLineTmp;
         }
       }
@@ -1686,6 +1686,7 @@ export default {
           } 
       }
       else if(chatGroupMsgType === "m.room.encrypted") {
+          return "收到一条加密消息";
           // chatGroupMsgContent = this.msg.getContent();
           if(chatGroupMsgContent.msgtype == 'm.file'){
             return "[文件]:" + chatGroupMsgContent.body;
