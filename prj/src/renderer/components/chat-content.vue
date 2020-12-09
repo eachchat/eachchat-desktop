@@ -170,16 +170,19 @@
           </div>
         </div>
         <div class="chat-empty" v-show="isEmpty">
-          <div class="win-header">
-            <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+          <div class="win-header-white">
+            <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <img class="chat-empty-bg" src="../../../static/Img/Chat/empyt2@2x.png">
+          <img class="chat-empty-bg" v-show="isEmpty" src="../../../static/Img/Chat/empyt2@2x.png">
         </div>
-        <div class="chat" v-show="!isEmpty">
-          <div class="win-header">
+        <div class="chat" id="chat-page-id" v-show="!isEmpty">
+          <div class="win-header" v-show="!isMsgSearch">
             <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
           </div>
-          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @showImportE2EKey="showImportE2EKey"></ChatPage>
+          <div class="win-header-white" v-show="isMsgSearch">
+            <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
+          </div>
+          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -211,6 +214,7 @@ import {APITransaction} from '../../packages/data/transaction.js'
 import {services, environment} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
 import winHeaderBar from './win-header.vue'
+import winHeaderBarWhite from './win-header-login.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
@@ -236,6 +240,7 @@ export default {
     ChatPage,
     listHeader,
     winHeaderBar,
+    winHeaderBarWhite,
     imageLayer,
     searchChatSelecterDlg,
     searchSenderSelecterDlg,
@@ -412,6 +417,7 @@ export default {
       searchMessageItems: [],      //复合搜索聊天条目
       needScroll: false,      //群组是否滚动
       isSearch: false,      //展示是否是复合搜索
+      isMsgSearch: false,
       curChat: {},      //当前chat
       needUpdate: 1,      //页面强制更新（好像没用到）
       curindex: -1,      //当前索引
@@ -444,6 +450,9 @@ export default {
     };
   },
   methods: {
+    isSearching(isMsgSearch) {
+        this.isMsgSearch = isMsgSearch;
+    },
     closeE2EImportPage() {
         this.showImportE2EKeyPage = false;
     },
@@ -1753,6 +1762,7 @@ export default {
     },
 
     showChat: function(chatGroup, index) {
+      this.isMsgSearch = false;
       let groupItemElementID = this.ChatGroupId(chatGroup);
       let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
       this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);

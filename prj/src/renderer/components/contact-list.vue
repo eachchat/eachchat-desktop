@@ -31,11 +31,11 @@
                             @mouseleave="OnMouseLeave(index)"
                             :key="index">
                             <img ondragstart="return false" class="manager-icon" :id="SetUserImgID(user.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
-                            <div class="contact-list-info">
+                            <div class="show-contact-list-info">
                                 <p class="contact-list-name">{{ GetDisplayName(user.display_name, user.matrix_id) }}</p>
                                 <p class="contact-list-titile">{{ user.matrix_id }}</p>
                             </div>
-                            <el-button icon="el-icon-delete" circle class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)"></el-button>
+                            <el-button icon="el-icon-delete" circle class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)" size="small"></el-button>
                         </li>
                     </ul>
                 </div>
@@ -271,7 +271,16 @@ export default {
     // * {            
     //     -webkit-app-region: no-drag;
     // }
+    
 }
+
+.show-contact-list-info{
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 115px);
+}
+
 .contact-header-title{
     display: inline-block;
     float: left;

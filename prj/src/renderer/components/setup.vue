@@ -33,7 +33,7 @@
             </div> -->
             <div class="setup-general-autorun">
                 <label class="setup-general-autorun-label">电脑开机时，自动启动亿洽</label>
-                <el-switch class="setup-general-autorun-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)">
+                <el-switch class="setup-general-autorun-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <label class="setup-general-device-manager-label" v-show="false">设备管理</label>
@@ -65,21 +65,23 @@
             <div class="setup-notice-title">通知设置</div>
             <div class="setup-notice-message-notice">
                 <label class="setup-notice-message-notice-label">消息提示音</label>
-                <el-switch class="setup-notice-message-notice-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)">
+                <el-switch class="setup-notice-message-notice-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-notice-desktop-notice">
                 <label class="setup-notice-desktop-notice-label">消息桌面通知</label>
-                <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)">
+                <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-security-title">账号安全与隐私设置</div>
             <div class="setup-security-export-keys">
-                <label class="setup-security-export-keys-label">导出密钥到本地文件</label>
+                <label class="setup-security-export-keys-label">导出密钥</label>
+                <label class="setup-security-export-keys-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
                 <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
             </div>
             <div class="setup-security-import-keys">
                 <label class="setup-security-import-keys-label">导入密钥</label>
+                <label class="setup-security-import-keys-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
             <div class="setup-security-account-manager" v-show="false">
@@ -95,7 +97,7 @@
             </div>
             <div class="setup-update-auto-update" v-show="false">
                 <label class="setup-update-auto-update-label">自动更新</label>
-                <el-switch class="setup-update-auto-update-switch">
+                <el-switch class="setup-update-auto-update-switch" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-about-title">关于应用</div>
@@ -129,7 +131,7 @@
         <ImportE2EKeypage @closeE2EImportPage="closeE2EImportPage"></ImportE2EKeypage>
       </div>
       <div class="certficationBorder" v-show="showExportE2EKeyPage">
-        <ExportE2EKeyPage @closeE2EExportPage="closeE2EExportPage" :toUpdateExport="toUpdateExport" @CanLogout="CanLogout"></ExportE2EKeyPage>
+        <ExportE2EKeyPage @closeE2EExportPage="closeE2EExportPage" :needLogout="needLogout" :toUpdateExport="toUpdateExport" @CanLogout="CanLogout"></ExportE2EKeyPage>
       </div>
       <!-- <generalSecureBackUpPage  v-show="showGeneralPage"></generalSecureBackUpPage> -->
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
@@ -179,6 +181,7 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      needLogout: false,
       toUpdateExport: false,
       showExportE2EKeyPage: false,
       showImportE2EKeyPage: false,
@@ -239,6 +242,7 @@ export default {
       this.showImportE2EKeyPage = true;
     },
     exportSecurityKey: async function() {
+      this.needLogout = false;
       this.showExportE2EKeyPage = true;
     },
     autoSoundNoticeStateChange: async function(state) {
@@ -400,6 +404,7 @@ export default {
       //   this.showGeneralRecoveryKeyPage = true;
       // }
       this.toUpdateExport = !this.toUpdateExport;
+      this.needLogout = true;
       this.showExportE2EKeyPage = true;
     },
     async _checkKeyBackupStatus() {
@@ -964,6 +969,7 @@ export default {
     color: rgba(153,153,153,1);
     white-space: nowrap;
     text-overflow: ellipsis;
+    text-align:right;
   }
 
   .setup-general-clear-cache-ico {
@@ -1118,7 +1124,7 @@ export default {
   }
 
   .setup-security-export-keys-label {
-    width:calc(100% - 40px);
+    width:calc(100% - 180px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1130,10 +1136,27 @@ export default {
     vertical-align: top;
   }
 
+  .setup-security-export-keys-label2 {
+    width:140px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
   .setup-security-export-keys-ico {
     width: 20px;
     height: 20px;
-    margin-left: 5px;
+    margin-left: 0px;
     margin-top: 14px;
     margin-right: 0px;
     margin-bottom: 14px;
@@ -1155,7 +1178,7 @@ export default {
   }
 
   .setup-security-import-keys-label {
-    width:calc(100% - 40px);
+    width:calc(100% - 180px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1167,10 +1190,27 @@ export default {
     vertical-align: top;
   }
 
+  .setup-security-import-keys-label2 {
+    width:140px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
   .setup-security-import-keys-ico {
     width: 20px;
     height: 20px;
-    margin-left: 5px;
+    margin-left: 0px;
     margin-top: 14px;
     margin-right: 0px;
     margin-bottom: 14px;
