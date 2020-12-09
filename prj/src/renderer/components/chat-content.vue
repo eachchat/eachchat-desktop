@@ -484,10 +484,24 @@ export default {
     SortGroupByTimeLine(item1, item2){
       let timeline1 = 0;
       let timeline2 = 0;
-      if(item1.timeline.length != 0)
-        timeline1 = this.GetLastShowMessage(item1).event.origin_server_ts;
-      if(item2.timeline.length != 0)
-        timeline2 = this.GetLastShowMessage(item2).event.origin_server_ts;
+      if(item1.timeline.length != 0){
+        let msg1 = this.GetLastShowMessage(item1);
+        if(msg1 && msg1.event){
+          timeline1 = msg1.event.origin_server_ts;
+        }
+        else{
+          timeline1 = 0;
+        }
+      }
+      if(item2.timeline.length != 0){
+        let msg2 = this.GetLastShowMessage(item2);
+        if(msg2 && msg2.event){
+          timeline2 = msg2.origin_server_ts;
+        }
+        else{
+          timeline2 = 0;
+        }
+      }
       return timeline2 - timeline1;
     },
 
