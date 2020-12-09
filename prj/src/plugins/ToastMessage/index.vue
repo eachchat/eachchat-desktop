@@ -78,6 +78,7 @@ export default {
         letter-spacing:2px;
         vertical-align: top;
         text-align: left;
+        font-family: PingFangSC-Regular;
     }
 }
 </style>

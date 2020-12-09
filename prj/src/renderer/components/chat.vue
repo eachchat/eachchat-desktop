@@ -1190,7 +1190,7 @@ export default {
             complexSpan.id = generalGuid();
             complexSpan.innerHTML = "@" + atMemberInfo.name + ":";
             var distStyle = this.atConstStyle
-            // 'display:inline-block;outline:none;border: 0px;font-size:14px;font-family:Microsoft YaHei',
+            // 'display:inline-block;outline:none;border: 0px;font-size:14px;',
             // console.log("diststyle is ", distStyle);
             complexSpan.style = distStyle;
             let msgInfo = {

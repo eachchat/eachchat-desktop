@@ -254,6 +254,7 @@ export default {
         letter-spacing: 2px;
         float: left;
         margin: 18px 0px 18px 0px;
+        font-family: SCPingFang-Medium;
     }
 
     .el-icon-close {
@@ -301,6 +302,7 @@ export default {
         letter-spacing:1px;
         float: left;
         padding: 35px 0 35px 0;
+        font-family: PingFangSC-Regular;
     }
 
     .phoneBindBtn {
@@ -313,6 +315,7 @@ export default {
         letter-spacing:1px;
         float: right;
         padding: 35px 0 35px 0;
+        font-family: PingFangSC-Regular;
     }
 
     .emailBind {
@@ -337,6 +340,7 @@ export default {
         letter-spacing:1px;
         float: left;
         padding: 35px 0 35px 0;
+        font-family: PingFangSC-Regular;
     }
 
     .emailBindBtn {
@@ -349,6 +353,7 @@ export default {
         letter-spacing:1px;
         float: right;
         padding: 35px 0 35px 0;
+        font-family: PingFangSC-Regular;
     }
 
     .toSetAddressLabel {
@@ -391,6 +396,7 @@ export default {
         background: white;
         border:0px;
         color: rgba(36, 179, 107, 1);
+        font-family: PingFangSC-Regular;
     }
 
     .reSendBtn:disabled {
@@ -400,6 +406,7 @@ export default {
         background: white;
         border:0px;
         color: #DDDDDD;
+        font-family: PingFangSC-Regular;
     }
 
     .accountManagerFotter {
@@ -418,6 +425,7 @@ export default {
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
+        font-family: PingFangSC-Regular;
     }
  
     .accountManagerConfirmButton:hover {
@@ -429,6 +437,7 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(36, 179, 107, 1);
+        font-family: PingFangSC-Regular;
     }
 
     .accountManagerConfirmButton:disabled {
@@ -440,6 +449,7 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(167, 224, 196, 1);
+        font-family: PingFangSC-Regular;
     }
 
     .accountManagerCancleButton {
@@ -451,5 +461,6 @@ export default {
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
+        font-family: PingFangSC-Regular;
     }
 </style>

@@ -711,6 +711,7 @@ export default {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        font-family: 'PingFangSC-Regular';
     }
 
     .mx-file-size {
@@ -723,6 +724,7 @@ export default {
         margin-bottom: 4px;
         white-space: nowrap;
         text-overflow: ellipsis;
+        font-family: 'PingFangSC-Regular';
     }
 
 </style>

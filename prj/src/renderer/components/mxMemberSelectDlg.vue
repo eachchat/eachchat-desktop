@@ -494,6 +494,7 @@ export default {
         font-size: 14px;
         margin-left: 28px;
         border-radius: 4px;
+        font-family: PingFangSC-Regular;
     }
 
     .mxTransmitConfirmButton {
@@ -510,6 +511,7 @@ export default {
         margin-left: 28px;
         border-radius: 4px;
         color: #fff;
+        font-family: PingFangSC-Regular;
     }
 
     .setting-field {

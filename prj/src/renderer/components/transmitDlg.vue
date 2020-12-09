@@ -1270,7 +1270,6 @@ display: none;
     //     color: rgba(153, 153, 153, 1);
     //     letter-spacing:1px;
     //     font-weight:400;
-    //     font-family:Microsoft Yahei;
     //     line-height:20px;
     //     padding: 16px;
     // }
@@ -1289,7 +1288,6 @@ display: none;
     //     color: rgba(153, 153, 153, 1);
     //     letter-spacing:1px;
     //     font-weight:400;
-    //     font-family:Microsoft Yahei;
     //     line-height:20px;
     //     padding: 16px;
     //     outline: none;
