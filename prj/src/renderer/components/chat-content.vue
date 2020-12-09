@@ -12,7 +12,8 @@
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
-            <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link>
+            <!-- <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link> -->
+            <div class = "grid-content">邀请</div>
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showInviteGroupList"
@@ -37,7 +38,8 @@
               </li>
             </ul>
             <!-- <ul class="group-list"> -->
-            <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'>置顶</el-link>
+            <!-- <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'><span class = "grid-content" >置顶</span></el-link> -->
+            <div class = "grid-content">置顶</div>
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showFavouriteRooms"
@@ -66,7 +68,8 @@
               </li>
             </ul>
    
-            <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link>
+            <!-- <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link> -->
+            <div class = "grid-content">聊天列表</div>
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
               <li class = 'group'
