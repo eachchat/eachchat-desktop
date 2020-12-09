@@ -1,11 +1,19 @@
 <template>
     <div class="MxFileListDlg" id="MxFileListDlgId">
         <div class="MxFileListDlgContent" id="MxFileListDlgContentId">
+            <div class="MxTitle">
+                <img class="MxTitleGoBackImg" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" />
+                <div class="MxTitleGoBackLabel">返回聊天</div>
+            </div>
+            <div class="MxGroupInfo">
+                <img class="MxGroupInfoImg" id="MxGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
+                <label class="MxGroupInfoName">{{GroupInfo.name}}</label>
+                <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId"></label>
+            </div>
             <div class="Mxsearch">
                 <input class="MxFileListDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
-            <i class="el-icon-close" @click="Close()"></i>
             <ul class="Mxfile-list" id="Mxfile-list-id" v-viewer="options">
                 <li v-for="(item, index) in fileListShow" class="MxfileItem">
                     <img :class="MxgetClassName(item)" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
@@ -30,10 +38,13 @@ import {shell} from 'electron'
 import { Group } from '../../packages/data/sqliteutil.js'
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
+import { Message } from '../../packages/data/sqliteutil.js'
+import BenzAMRRecorder from 'benz-amr-recorder'
 export default {
     name: 'MxFileListDlg',
     data () {
         return {
+            amr: null,
             options: {
                 filter (image) {
                     console.log("==========image className is ", image.className)
@@ -71,23 +82,87 @@ export default {
             }
             return "MxfileImage"
         },
+        async getFileExist(curItem) {
+            let msgs = await Message.FindMessageByMesssageID(curItem.event.event_id);
+            console.log(msgs)
+            if(msgs.length != 0 && msgs[0].file_local_path != "")
+                return msgs[0].file_local_path;
+            return '';
+        },
         openFile: async function(curItem) {
             var chatGroupMsgContent = curItem.getContent();
             if(chatGroupMsgContent.msgtype == 'm.file'){
                 var distPath = confservice.getFilePath(curItem.event.origin_server_ts);
-                getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
-                    .then((blob) => {
-                        let reader = new FileReader();
-                        reader.onload = function() {
-                            if(reader.readyState == 2) {
-                                var buffer = new Buffer(reader.result);
-                                var finalPath = path.join(distPath, chatGroupMsgContent.body);
-                                // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
-                                ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                var existLocalFile = await this.getFileExist(curItem);
+                
+                if(!fs.existsSync(existLocalFile)) {
+                    getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                        .then((blob) => {
+                            let reader = new FileReader();
+                            reader.onload = function() {
+                                if(reader.readyState == 2) {
+                                    var buffer = new Buffer(reader.result);
+                                    var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                                    // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                    ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                                }
                             }
-                        }
-                        reader.readAsArrayBuffer(blob);
-                    })
+                            reader.readAsArrayBuffer(blob);
+                        })
+                }
+                else {
+                    shell.openExternal(existLocalFile);
+                }
+            }
+            else if(chatGroupMsgContent.msgtype == "m.audio") {
+                console.log("audio ================= ")
+                this.playingAudioId = curItem.event.event_id;
+                var distPath = confservice.getFilePath(curItem.event.origin_server_ts);
+                var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                var existLocalFile = await this.getFileExist(curItem);
+                this.checkingTmpPath = finalPath + "_tmp";
+                if(!fs.existsSync(existLocalFile)) {
+                    getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
+                        .then((blob) => {
+                            if(this.amr == null){
+                                this.amr = new BenzAMRRecorder();
+                            }
+                            if(this.amr.isPlaying()) {
+                                console.log("stop")
+                                this.amr.stop();
+                            }
+                            if(this.amr.isInit()) {
+                                console.log("play")
+                                this.amr.play();
+                            }
+                            else {
+                                this.amr.initWithUrl(URL.createObjectURL(blob)).then(() => {
+                                    this.amr.play();
+                                })
+                            }
+                        })
+                }
+                else {
+                    if(this.amr == null){
+                        this.amr = new BenzAMRRecorder();
+                    }
+                    if(this.amr.isPlaying()) {
+                        console.log("stop")
+                        this.amr.stop();
+                    }
+                    if(this.amr.isInit()) {
+                        console.log("play")
+                        this.amr.play();
+                    }
+                    else {
+                        var showfu = new FileUtil(existLocalFile);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        this.amr.initWithUrl(URL.createObjectURL(showfileObj)).then(() => {
+                            this.amr.play();
+                        })
+                    }
+                }
             }
             // if(chatGroupMsgContent.msgtype == 'm.image'){
             //     var distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
@@ -168,7 +243,7 @@ export default {
         search: function() {
             if(this.searchKey.length == 0) {
                 this.fileListShow = this.originalFileList;
-                this.showGroupInfo();
+                // this.showGroupInfo();
             }
             var curSearchId = new Date().getTime();
             console.log("searchkey is ", this.searchKey);
@@ -186,11 +261,11 @@ export default {
 
             if(searchResult.id == this.searchId) {
                 this.fileListShow = searchResult.searchList;
-                this.$nextTick(() => {
-                    setTimeout(() => {
-                        this.showGroupInfo();
-                    }, 0)
-                })
+                // this.$nextTick(() => {
+                //     setTimeout(() => {
+                //         this.showGroupInfo();
+                //     }, 0)
+                // })
             }
         },
         getFileName: function(curItem) {
@@ -217,6 +292,10 @@ export default {
                     let iconPath = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(content.url);
                     return iconPath;
                 }
+                else if(content.msgtype == "m.audio") {
+                    let iconPath = "../../../static/Img/Chat/msg-voice@2x.png";
+                    return iconPath;
+                }
             }
         },
         getFileIconId: function(curItem) {
@@ -233,7 +312,7 @@ export default {
         updatePage: function() {
             console.log("filelist group info is ", this.fileListInfo);
             this.getFileList();
-            this.showGroupInfo(this.GroupInfo);
+            // this.showGroupInfo(this.GroupInfo);
         },
         getAppBaseData:async function() {
             // Set accessToken in services
@@ -429,10 +508,89 @@ export default {
         margin: 0 20px 0 20px;
     }
 
-    .Mxsearch {
+    .MxTitle {
         margin: 0;
+        height: 36px;
+        width: 100%;
+    }
+
+    .MxTitleGoBackImg {
+        display: inline-block;
+        margin: 0px 6px 16px 0px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .MxTitleGoBackLabel {
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: PingFangSC-Medium;
+        vertical-align: top;
+        color: rgba(0, 0, 0, 1);
+    }
+
+    .MxGroupInfo {
+        height: 60px;
+        width: 100%;
+        margin: 0;
+    }
+
+    .MxGroupInfoImg {
+        margin:12px 12px 12px 2px;
+        height: 32px;
+        width: 32px;
+        float: left;
+        border: 0px solid rgba(0, 0, 0, 0);
+        border-radius: 50%;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .MxGroupInfoName {
+        height: 56px;
+        max-width: 150px;
+        line-height: 56px;
+        margin:0px 0px 0px 0px;
+        float: left;
+        font-size: 14px;
+        font-family: PingFangSC-Regular;;
+        font-weight: 400;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        letter-spacing:1px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .MxGroupInfoMemberNum {
+        height: 32px;
+        max-width: 150px;
+        line-height: 32px;
+        margin:0px 0px 0px 0px;
+        float: left;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        font-weight: 500;
+        overflow: hidden;
+        letter-spacing:1px;
+        -webkit-app-region: drag;
+        * {
+            -webkit-app-region: no-drag;
+        }
+    }
+
+    .Mxsearch {
+        margin: 0, 0, 3px 0;
         text-align: left;
-        width: 90%;
+        width: 100%;
         height: 32px;
         border: 1px solid rgb(221, 221, 221);
         border-radius: 2px;
@@ -441,7 +599,7 @@ export default {
 
     .Mxicon-search {
         display: inline-block;
-        float: right;
+        float: left;
         height: 20px;
         line-height: 20px;
         margin: 6px 10px 6px 10px;
@@ -450,21 +608,13 @@ export default {
     
     .Mxicon-search:hover {
         display: inline-block;
-        float: right;
+        float: left;
         height: 20px;
         line-height: 20px;
         margin: 6px 10px 6px 10px;
         color: rgb(255,204,102);
     }
     
-    .el-icon-close {
-        display: inline-block;
-        float: right;
-        height: 20px;
-        line-height: 20px;
-        margin: 6px 10px 6px 10px;
-    }
-
     .MxFileListDlgSearchInput {
         display: inline-block;
         position: absolute;
@@ -474,12 +624,13 @@ export default {
         margin: 0px;
         height: 32px;
         outline:none;
+        text-indent:38px;
         border: 0px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 1px;
         font-size: 12px;
-        color: rgba(153, 153, 153, 1);
+        color:rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
     }
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="ChatHeaderBar" v-show="isWindows()">
+    <div class="ChatHeaderBarWhite" v-show="isWindows()">
         <img class="header-btn-close" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" v-show="showClose">
         <img class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px@2x.png" @click="Max()" v-show="showMax">
         <img class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px@2x.png" @click="Min()" v-show="showMin">
@@ -10,7 +10,7 @@
 import { ipcRenderer } from 'electron'
 import { environment} from '../../packages/data/index.js'
 export default {
-    name: 'winHeadbar',
+    name: 'winHeadbarWhite',
     props: {
         showClose: {
             type: Boolean,
@@ -65,7 +65,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .ChatHeaderBar {
+    .ChatHeaderBarWhite {
         height: 24px;
         width: 96px;
         position: absolute;

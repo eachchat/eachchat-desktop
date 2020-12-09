@@ -3,6 +3,7 @@
         <div class="E2EKeyCertification" v-show="E2EKeyKeyCertification">
             <div class="E2EKeyCertificationTitleDiv">
                 <label class="E2EKeyKeyConficationLabel">导出密钥</label>
+                <img class="E2EKeyKeyConficationClose" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close"/>
             </div>
             <p class="E2EKeyKeyTipLabel">
                 1.请输入用于加密密钥备份的密码，导入密钥时需要此密码
@@ -21,7 +22,7 @@
             <label class="E2EState">{{E2EState}}</label>
             <div class="E2EKeyCertificationFooter">
                 <button class="E2EKeyCertificationCancleButton" @click="Close()" v-show="canCancel">{{$t("cancel")}}</button>
-                <button class="E2EKeyCertificationConfirmButton" @click="Continue()">{{ContinueTxt}}</button>
+                <button class="E2EKeyCertificationConfirmButton" @click="Continue()" :disabled="!(E2EOPassword.trim().length != 0 && E2ECPassword.trim().length != 0)">{{ContinueTxt}}</button>
             </div>
         </div>
     </div>
@@ -32,7 +33,7 @@ import {ipcRenderer} from 'electron'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import { getFileSizeNum } from '../../packages/core/Utils.js'
-import {FileUtil} from '../../packages/core/Utils.js'
+import {FileUtil, Appendzero} from '../../packages/core/Utils.js'
 import * as MegolmExportEncryption from '../../packages/core/MegolmExportEncryption.js'
 
 export default {
@@ -41,6 +42,10 @@ export default {
         toUpdateExport: {
             type: Boolean,
             default: true,
+        },
+        needLogout: {
+            type: Boolean,
+            default: false
         }
     },
     watch: {
@@ -122,11 +127,25 @@ export default {
                 ipcRenderer.on('exportPath', this.toExport);
             }
         },
+        generalFileName: function() {
+            var curUser = global.mxMatrixClientPeg.matrixClient.getUser(global.mxMatrixClientPeg.matrixClient.getUserId());
+            console.log("=======curuser ", curUser);
+            let curDate = new Date();
+            let curDateSecond = curDate.getTime();
+            let curYeat = curDate.getFullYear();
+            let curMonth = curDate.getMonth() + 1;
+            let curDay = curDate.getDate();
+            let h = curDate.getHours();
+            let m = curDate.getMinutes();
+            let s = curDate.getSeconds();
+            let fileName = "eachchat_key" + "-" + Appendzero(curYeat) + Appendzero(curMonth) + Appendzero(curDay) + "-" + Appendzero(h) + Appendzero(m) + Appendzero(s) + "-" + curUser.displayName + ".txt";
+            return fileName;
+        },
         toExport: async function(e, paths) {
             console.log("========= toexport ", paths.filePaths);
             this.canSelecteFile = true;
             if(paths.filePaths.length == 0) return;
-            var distPath = path.join(paths.filePaths[0], "eachchat_key.txt");
+            var distPath = path.join(paths.filePaths[0], this.generalFileName());
             Promise.resolve().then(() => {
                 return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
                 }).then((k) => {
@@ -194,16 +213,28 @@ export default {
         width: 100%;
         height: 30px;
         line-height: 30px;
+    }
+    
+    .E2EKeyKeyConficationLabel {
+        display: inline-block;
+        width: calc(100%-25px);
+        height:36px;
+        font-size:16px;
+        font-weight:500;
+        color:rgba(0,0,0,1);
+        line-height:36px;
+        font-family: PingFangSC-Medium;
+        letter-spacing: 2px;
+        vertical-align:top;
+    }
 
-        .E2EKeyKeyConficationLabel {
-            display: inline-block;
-            width: calc(100%-20px);
-            height:36px;
-            font-size:24px;
-            font-weight:600;
-            color:rgba(39,45,52,1);
-            line-height:36px;
-        }
+    .E2EKeyKeyConficationClose {
+        width: 20px;
+        height: 20px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        display: line-block;
+        float: right;
     }
 
     .E2EState {
@@ -227,11 +258,11 @@ export default {
         width: calc(100% - 30px);
         height: 22px;
         line-height: 23px;
-        font-size:12px;
+        font-size:14px;
         font-weight:400;
         color:rgba(102,102,102,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing:0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -242,11 +273,11 @@ export default {
         width: calc(100% - 30px);
         height: 36px;
         line-height: 23px;
-        font-size:12px;
+        font-size:14px;
         font-weight:400;
         color:rgba(102,102,102,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing:0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -288,7 +319,18 @@ export default {
         width: 100%;
         height: 18px;
         margin: 0 0 10px 10px;
+        font-size:14px;
+        font-family: PingFangSC-Regular;
+        font-weight:400;
+        color:rgba(51, 51, 51, 1);
         padding: 0;
+    }
+
+    .E2EKeyPwdInput::placeholder {
+        color: rgba(153, 153, 153, 1);
+        font-size:14px;
+        font-family: PingFangSC-Regular;
+        font-weight:400;
     }
 
     .E2EKeyPwdInput {
@@ -331,6 +373,7 @@ export default {
         height: 72px;
         display: inline-block;
         text-align: center;
+        margin-top: 10px;
         
         .E2EKeyCertificationConfirmButton {
             width: 100px;
@@ -339,11 +382,29 @@ export default {
             margin-top: 20px;
             margin-bottom: 20px;
             margin-right: 15px;
-            background: rgba(36, 179, 107, 1);
+            background-color: rgba(36, 179, 107, 1);
             border:1px solid rgba(221,221,221,1);
             color: white;
             border-radius:4px;
             font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    
+        .E2EKeyCertificationConfirmButton:disabled {
+            width: 100px;
+            height: 32px;
+            margin-left: 5px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            margin-right: 15px;
+            background-color: rgba(167, 224, 196, 1);
+            border:1px solid rgba(221,221,221,1);
+            color: white;
+            border-radius:4px;
+            font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
         }
     
         .E2EKeyCertificationConfirmButton:hover {
@@ -353,11 +414,13 @@ export default {
             margin-top: 20px;
             margin-bottom: 20px;
             margin-right: 15px;
-            background: rgba(36, 179, 107, 1);
+            background-color: rgba(36, 179, 107, 1);
             border:1px solid rgba(221,221,221,1);
             color: white;
             border-radius:4px;
             font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
         }
     
         .E2EKeyCertificationCancleButton {
@@ -367,10 +430,12 @@ export default {
             margin-top: 20px;
             margin-bottom: 20px;
             margin-left: 15px;
-            background: white;
+            background-color: white;
             border-radius:4px;
             border:1px solid rgba(221,221,221,1);
             font-family: PingFangSC-Regular;
+            font-size: 14px;
+            font-weight: 500;
         }
     }
 
