@@ -70,7 +70,7 @@
                     <div class="chat-msg-content-others-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
                         <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
-                        <div class="voice-info">
+                        <div class="voice-info" v-show="false">
                             <p class="file-size">{{this.voiceLenth}} s</p>
                         </div>
                     </div>
@@ -152,6 +152,46 @@ export default {
             this.receivedLength = receivedLength
             this.contentLength = contentLength;
         },
+        decryptAndPlayingFile: async function() {
+            const content = this.msg.getContent();
+            if(this.decrypting) return;
+            if(this.decryptedBlob == null) {
+                this.decrypting = true;
+                decryptFile(content.file, this.matrixClient.mxcUrlToHttp(content.file.url))
+                    .then((blob) => {
+                        if(this.amr == null){
+                            this.amr = new BenzAMRRecorder();
+                        }
+                        if(this.amr.isPlaying()) {
+                            console.log("stop")
+                            this.amr.stop();
+                        }
+                        if(this.amr.isInit()) {
+                            console.log("play")
+                            this.amr.play();
+                            this.voicePlayingImg();
+                            this.amr.onEnded(() => {
+                                clearInterval(this.flashingInterval);
+                                this.flashingIndex = 0;
+                                var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                            })
+                        }
+                        else {
+                            this.amr.initWithUrl(URL.createObjectURL(blob)).then(() => {
+                                this.amr.play();
+                                this.voicePlayingImg();
+                                this.amr.onEnded(() => {
+                                    clearInterval(this.flashingInterval);
+                                    this.flashingIndex = 0;
+                                    var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                })
+                            })
+                        }
+                    })
+            }
+        },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
             let msgType = this.msg.msgtype;
@@ -163,6 +203,7 @@ export default {
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = this.msg.getContent();
             if(chatGroupMsgType === "m.room.encrypted") {
+                console.log("========= encrypted file ");
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     this.decryptAndDownloadFile();
                 }
@@ -174,12 +215,17 @@ export default {
                 //     }
                 //     this.$emit('showImageOfMessage', imageInfo);
                 // }
-                if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
+                else if(chatGroupMsgContent.msgtype == "m.audio") {
+                    this.decryptAndPlayingFile();
+                }
+                else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
                     this.$emit('showImportE2EKey');
                 }
             }
-            if(chatGroupMsgType === "m.room.message") {
+            else if(chatGroupMsgType === "m.room.message") {
+                console.log("tmd sha wanyierer ", chatGroupMsgContent.msgtype);
                 if(chatGroupMsgContent.msgtype == 'm.file'){
+                    console.log("========= file ");
                     var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
                     var existLocalFile = await this.getFileExist();
@@ -207,6 +253,69 @@ export default {
                     else {
                         shell.openExternal(existLocalFile);
                     }
+                }
+                else if(chatGroupMsgContent.msgtype == "m.audio") {
+                    console.log("audio ================= ")
+                    this.playingAudioId = this.msg.event.event_id;
+                    var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+                    var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                    var existLocalFile = await this.getFileExist();
+                    this.checkingTmpPath = finalPath + "_tmp";
+                    if(!fs.existsSync(existLocalFile)) {
+                        getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
+                            .then((blob) => {
+                                let reader = new FileReader();
+                                reader.onload = function() {
+                                    if(reader.readyState == 2) {
+                                        var buffer = new Buffer(reader.result);
+                                        // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                        ipcRenderer.send("save_file", finalPath, buffer, event.event_id, false);
+                                    }
+                                }
+                                reader.readAsArrayBuffer(blob);
+                            })
+                            
+                        this.downloadingInterval = setInterval(() => {
+                            this.showProgress = true;
+                            this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
+                                // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
+                        }, 200);
+                    }
+                    else {
+                        if(this.amr == null){
+                            this.amr = new BenzAMRRecorder();
+                        }
+                        if(this.amr.isPlaying()) {
+                            console.log("stop")
+                            this.amr.stop();
+                        }
+                        if(this.amr.isInit()) {
+                            console.log("play")
+                            this.amr.play();
+                            this.voicePlayingImg();
+                            this.amr.onEnded(() => {
+                                clearInterval(this.flashingInterval);
+                                this.flashingIndex = 0;
+                                var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                            })
+                        }
+                        else {
+                            var showfu = new FileUtil(existLocalFile);
+                            let showfileObj = showfu.GetUploadfileobj();
+                            this.amr.initWithUrl(URL.createObjectURL(showfileObj)).then(() => {
+                                this.amr.play();
+                                this.voicePlayingImg();
+                                this.amr.onEnded(() => {
+                                    clearInterval(this.flashingInterval);
+                                    this.flashingIndex = 0;
+                                    var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                })
+                            })
+                        }
+                    }
+                    this.$emit('playAudioOfMessage', this.msg.event.event_id);
                 }
                 // if(chatGroupMsgContent.msgtype == 'm.image'){
                 //     var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
@@ -256,10 +365,24 @@ export default {
                     if(this.amr.isInit()) {
                         console.log("play")
                         this.amr.play();
+                        this.voicePlayingImg();
+                        this.amr.onEnded(() => {
+                            clearInterval(this.flashingInterval);
+                            this.flashingIndex = 0;
+                            var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                            fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                        })
                     }
                     else {
                         this.amr.initWithUrl(targetPath).then(() => {
                             this.amr.play();
+                            this.voicePlayingImg();
+                            this.amr.onEnded(() => {
+                                clearInterval(this.flashingInterval);
+                                this.flashingIndex = 0;
+                                var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                            })
                         })
                     }
                 }
@@ -276,6 +399,29 @@ export default {
             else if(msgType == 106) {
                 ipcRenderer.send("showAnotherWindow", [this.msg.time_line_id, this.msg.group_id], "TransmitMsgList");
             }
+        },
+        voicePlayingImg:function() {
+            this.flashingInterval = setInterval(() => {
+                console.log("this.indexi ", this.flashingIndex);
+                var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                // console.log("fileMsgImgElement ia ", fileMsgImgElement);
+                if(this.flashingIndex == 0) {
+                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin0-20px@2x.png");
+                    this.flashingIndex = 1;
+                }
+                else if(this.flashingIndex == 1){
+                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin1-20px@2x.png");
+                    this.flashingIndex = 2;
+                }
+                else if(this.flashingIndex == 2){
+                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    this.flashingIndex = 0;
+                }
+                else {
+                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    this.flashingIndex = 0;
+                }
+            }, 330);
         },
         MsgIsFailed: function() {
             if(this.msg.message_status == 2 && this.showState) {
@@ -334,9 +480,8 @@ export default {
             }
         },
         MsgIsVoice: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype;
-            // console.log("chatGroupMsgType is ", chatGroupMsgType)
-            if(chatGroupMsgType == 105){
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
+            if(chatGroupMsgType == 'm.audio'){
                 return true;
             }
             else if(chatGroupMsgType == "m.bad.encrypted") {
@@ -510,7 +655,34 @@ export default {
                     style += ";"
                     style += "height:" + info.h + "px";
                     imgMsgImgElement.setAttribute("style", style);
-                } 
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.audio'){
+                    this.messageContent = chatGroupMsgContent.body;
+                    this.fileName = this.messageContent;
+                    
+                    var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+                    var finalPath = path.join(distPath, chatGroupMsgContent.body);
+                    var existLocalFile = await this.getFileExist();
+                    this.checkingTmpPath = finalPath + "_tmp";
+                    if(!fs.existsSync(existLocalFile)) {
+                        getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
+                            .then((blob) => {
+                                let reader = new FileReader();
+                                reader.onload = function() {
+                                    if(reader.readyState == 2) {
+                                        var buffer = new Buffer(reader.result);
+                                        // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                                        ipcRenderer.send("save_file", finalPath, buffer, event.event_id, false);
+                                    }
+                                }
+                                reader.readAsArrayBuffer(blob);
+                            })
+                    }
+                    var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                    // console.log("fileMsgImgElement ia ", fileMsgImgElement);
+                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                    fileMsgImgElement.setAttribute("height", 12);
+                }
             }
             else if(chatGroupMsgType === "m.room.encrypted") {
                 // chatGroupMsgContent = this.msg.getContent();
@@ -537,6 +709,12 @@ export default {
                     style += "height:400px";
                     imgMsgImgElement.setAttribute("style", style);
                     this.decryptImg();
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.audio'){
+                    var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                    // console.log("fileMsgImgElement ia ", fileMsgImgElement);
+                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                    fileMsgImgElement.setAttribute("height", 12);
                 }
                 else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
                     var textElement = document.getElementById(this.msg.event.event_id);
@@ -633,6 +811,7 @@ export default {
     },
     data() {
         return {
+            playingAudioId: '',
             decrypting: false,
             decryptedUrl: null,
             decryptedThumbnailUrl: null,
@@ -640,6 +819,8 @@ export default {
             showProgress: false,
             curPercent: 0,
             downloadingInterval: undefined,
+            flashingInterval: undefined,
+            flashingIndex: 0,
             checkingTmpPath: '',
             checkingPath: '',
             showState: false,
@@ -711,9 +892,9 @@ export default {
             })
         },
         playingMsgId: function() {
-            if(this.amr != null && this.playingMsgId != this.msg.message_id) {
+            if(this.amr != null && this.playingMsgId != this.msg.event.event_id) {
                 console.log("this.playingMsgId is ", this.playingMsgId);
-                console.log("this.msg.id is ", this.msg.message_id);
+                console.log("this.msg.id is ", this.msg.event.event_id);
                 this.amr.stop();
             }
         },
@@ -735,6 +916,28 @@ export default {
             this.showProgress = false;
             if(this.downloadingInterval) {
                 clearInterval(this.downloadingInterval);
+            }
+            if(id == this.playingAudioId) {
+                if(this.amr == null){
+                    this.amr = new BenzAMRRecorder();
+                }
+                if(this.amr.isPlaying()) {
+                    console.log("stop")
+                    this.amr.stop();
+                }
+                else {
+                    this.amr.initWithUrl(localPath).then(() => {
+                        this.amr.play();
+                        this.voicePlayingImg();
+                        this.amr.onEnded(() => {
+                            clearInterval(this.flashingInterval);
+                            this.flashingIndex = 0;
+                            var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                            fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                        })
+                        this.playingAudioId = '';
+                    })
+                }
             }
         },
         updateUser: function() {
@@ -992,11 +1195,10 @@ export default {
     .chat-msg-content-others-file {
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
-        min-width: 20px;
-        min-height: 40px;
+        width: 266px;
+        height: 60px;
         border-radius: 5px;
-        padding: 10px 12px 10px 12px;
+        padding: 0;
         font-size: 14px;
         text-align: left;
         margin: 0px;
@@ -1007,8 +1209,7 @@ export default {
     .chat-msg-content-others-voice {
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
-        min-width: 20px;
+        width: 90px;
         min-height: 12px;
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
@@ -1022,11 +1223,10 @@ export default {
     .chat-msg-content-others-file:hover {
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
-        min-width: 20px;
-        min-height: 40px;
+        width: 266px;
+        height: 60px;
         border-radius: 5px;
-        padding: 10px 12px 10px 12px;
+        padding: 0;
         font-size: 14px;
         text-align: left;
         margin: 0px;
@@ -1035,7 +1235,11 @@ export default {
     }
 
     .file-image {
-        height: 46px;
+        height: 40px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 18px;
+        margin-right: 5px;
         display: inline-block;
         -webkit-user-select:none;
     }
@@ -1047,7 +1251,11 @@ export default {
     }
     
     .file-info {
-        min-height: 46px;
+        height: 40px;
+        margin-top: 10px;
+        margin-left: 0px;
+        margin-right: 5px;
+        margin-bottom: 10px;
         display: inline-block;
         vertical-align: top;
     }
@@ -1060,14 +1268,14 @@ export default {
     }
 
     .file-name {
-        max-width: 150px;
+        max-width: 170px;
         font-size: 14px;
         font-weight: 550;
         font-family: 'PingFangSC-Regular';
         color: rgb(51, 51, 51);
         overflow: hidden;
         margin-left: 10px;
-        margin-top: 4px;
+        margin-top: 0px;
         margin-right: 0px;
         margin-bottom: 3px;
         white-space: nowrap;
@@ -1081,7 +1289,7 @@ export default {
         color: rgb(153, 153, 153);
         overflow: hidden;
         margin-left: 10px;
-        margin-top: 3px;
+        margin-top: 5px;
         margin-right: 0px;
         margin-bottom: 4px;
         white-space: nowrap;
@@ -1178,11 +1386,10 @@ export default {
     .chat-msg-content-mine-file {
         float:right;
         background:rgba(255, 255, 255, 1);
-        max-width: 260px;
-        min-width: 20px;
-        min-height: 40px;
+        width: 266px;
+        height: 60px;
         border-radius: 5px;
-        padding: 10px 12px 10px 12px;
+        padding: 0;
         font-size: 14px;
         text-align: left;
         margin: 0px;
@@ -1193,11 +1400,10 @@ export default {
     .chat-msg-content-mine-file:hover {
         float:right;
         background-color: rgb(233,234,235);
-        max-width: 260px;
-        min-width: 20px;
-        min-height: 40px;
+        width: 266px;
+        height: 60px;
         border-radius: 5px;
-        padding: 10px 12px 10px 12px;
+        padding: 0;
         font-size: 14px;
         text-align: left;
         margin: 0px;
@@ -1208,8 +1414,7 @@ export default {
     .chat-msg-content-mine-voice {
         float:right;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
-        min-width: 20px;
+        width: 90px;
         min-height: 12px;
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
