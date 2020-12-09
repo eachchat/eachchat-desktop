@@ -214,7 +214,7 @@ import os from 'os';
 import {ipcRenderer} from 'electron'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
 import certification from './Certificate.vue';
 import generalSecureBackUpPage from './generalRecoveryCode.vue'
 import {getDefaultHomeServerAddr} from '../../config.js'
