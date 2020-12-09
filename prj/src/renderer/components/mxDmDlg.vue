@@ -146,18 +146,30 @@ export default {
             const client = window.mxMatrixClientPeg.matrixClient;
             console.log('检查非matrix用户')
             const targetIds = this.choosenMembers.map(t => t.matrix_id || t.user_id);
-            const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiers(targetIds);
+            const existingRoom = DMRoomMap.shared().getDMRoomForIdentifiersEachChart(targetIds);
             console.log('------existingRoom------', existingRoom);
-            if (existingRoom) {
-                existingRoom.room_id = existingRoom.roomId
-                const obj = {data: existingRoom, handler: 'viewRoom'};
+            let goRoom;
+            const erpDm = this.erpDm;
+            existingRoom.forEach(r => {
+                if (erpDm && r.currentState.getStateEvents('m.room.encryption', '')) {
+                    goRoom = r;
+                }
+                if (!erpDm && !r.currentState.getStateEvents('m.room.encryption', '')) {
+                    goRoom = r;
+                }
+
+            })
+            
+            if (goRoom) {
+                existingRoom.room_id = goRoom.roomId
+                const obj = {data: goRoom, handler: 'viewRoom'};
                 console.log('通过emit, 向上层组件触发viewRoom')
                 this.$emit('close', obj);
                 return;
             }
 
             const createRoomOptions = {inlineErrors: true};
-            //TODO 加密处理
+            //加密处理
             if (this.erpDm) {
                 console.log('走了加密')
                 createRoomOptions.encryption = true;

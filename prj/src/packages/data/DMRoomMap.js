@@ -143,6 +143,22 @@ export default class DMRoomMap {
         return joinedRooms[0];
     }
 
+    getDMRoomForIdentifiersEachChart(ids) {
+        // TODO: [Canonical DMs] Handle lookups for email addresses.
+        // For now we'll pretend we only get user IDs and end up returning nothing for email addresses
+
+        let commonRooms = this.getDMRoomsForUserId(ids[0]);
+        for (let i = 1; i < ids.length; i++) {
+            const userRooms = this.getDMRoomsForUserId(ids[i]);
+            commonRooms = commonRooms.filter(r => userRooms.includes(r));
+        }
+
+        const joinedRooms = commonRooms.map(r => global.mxMatrixClientPeg.matrixClient.getRoom(r))
+            .filter(r => r && r.getMyMembership() === 'join');
+
+        return joinedRooms;
+    }
+
     getUserIdForRoomId(roomId) {
         if (this.roomToUser == null) {
             // we lazily populate roomToUser so you can use
