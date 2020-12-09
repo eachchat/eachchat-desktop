@@ -1921,7 +1921,7 @@ export default {
   .chat-empty {
     width:100%;
     padding-top: 20px;
-    background-color: rgba(245, 246, 249, 1);
+    background-color:  rgba(255, 255, 255, 1);
     display: flex;
     justify-content: center;
     align-items: center;  
@@ -1931,7 +1931,7 @@ export default {
   .chat-empty-bg {
     width: 168px;
     height: 168px;
-    background-color: rgba(245, 246, 249, 1);
+    background-color: rgba(255, 255, 255, 1);
   }
 
   .chat {
