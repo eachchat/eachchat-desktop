@@ -567,7 +567,7 @@ export default {
         height: 32px;
         text-align: center;
         font-size: 16px;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
         font-weight: 500;
         line-height: 32px;
         letter-spacing: 2px;

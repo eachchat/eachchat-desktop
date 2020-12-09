@@ -254,7 +254,7 @@ export default {
         letter-spacing: 2px;
         float: left;
         margin: 18px 0px 18px 0px;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
     }
 
     .el-icon-close {

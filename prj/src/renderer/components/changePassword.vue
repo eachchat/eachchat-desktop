@@ -160,7 +160,7 @@ export default {
         width: 72px;
         height: 22px;
         font-size: 16px;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
         font-weight: 500;
         color: #000000;
         line-height: 22px;
