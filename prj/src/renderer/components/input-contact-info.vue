@@ -8,31 +8,32 @@
             
             <el-container class="ChatCreaterContent">
                 <el-form :rules="rules" ref="contactInfo" :model="contactInfo" label-width="100px" width='600px'>
-                    <el-form-item label="Matrix ID">
+                    <el-form-item label="Matrix ID" prop = "matrix_id">
                         <el-input v-model="contactInfo.matrix_id" size='mini' width="200px"></el-input>
                     </el-form-item>
-                    <el-form-item label="备注名">
+                    <el-form-item label="备注名" prop = "display_name">
                         <el-input v-model="contactInfo.display_name"  size='mini' width="100px"></el-input>
                     </el-form-item>
-                    <el-form-item label="手机">
+                    <el-form-item label="手机" prop = "mobile">
                         <el-input v-model="contactInfo.mobile" size='mini'></el-input>
                     </el-form-item>
-                    <el-form-item label="座机">
+                    <el-form-item label="座机" prop = "telephone">
                         <el-input v-model="contactInfo.telephone" size='mini'></el-input>
                     </el-form-item>
-                    <el-form-item label="邮箱">
+                    <el-form-item label="邮箱" prop = "email">
                         <el-input v-model="contactInfo.email" size='mini'></el-input>
                     </el-form-item>
-                    <el-form-item label="公司">
+                    <el-form-item label="公司" prop = "company_name">
                         <el-input v-model="contactInfo.company_name" size='mini'></el-input>
                     </el-form-item>
-                    <el-form-item label="职位">
+                    <el-form-item label="职位" prop = "title">
                         <el-input v-model="contactInfo.title" size='mini'></el-input>
                     </el-form-item>
                 </el-form>
             </el-container>
             <div style="text-align:center">
-                <button class = 'SaveButton' @click="SaveContact()">保存</button>                     
+                <button class = 'SaveButton' @click="closeDialog()">取消</button>  
+                <button class = 'SaveButton' @click="SaveContact()">确定</button>                     
             </div>
         </div>
  
@@ -189,7 +190,6 @@ display: none;
         margin-right: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-left: 110px;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);

@@ -42,9 +42,9 @@
                 <userInfoContent :userInfo="userInfo" :originPosition="userInfoPosition" v-if="showUserInfoTips" :key="userInfoTipKey"  :userType="contactType"></userInfoContent>
             </el-container>
         </el-main>
-        <addContact v-show="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact">
+        <addContact v-if="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact">
         </addContact>
-        <InputContactInfo v-show='showInputContactDlg' @closeInputContact="CloseInputContactDlg">
+        <InputContactInfo v-if='showInputContactDlg' @closeInputContact="CloseInputContactDlg">
         </InputContactInfo>
         <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="ClearCache"/>
     </el-container>
@@ -209,6 +209,8 @@ export default {
         getUserImg: async function(userinfo) {
             var elementImg = document.getElementById(userinfo.matrix_id + 'contactList');
             if(!elementImg)
+                return;
+            if(userinfo.matrix_id[0] != "@")
                 return;
             var profileInfo = await this.matrixClient.getProfileInfo(userinfo.matrix_id);
             if(!profileInfo.avatar_url)

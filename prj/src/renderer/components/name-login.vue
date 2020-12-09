@@ -28,7 +28,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -192,8 +192,7 @@
         </div>
         <div class="domain-dropdown-content" id="domain-dropdown-content-id" v-show="showDomListView">
             <ul class="domain-list">
-                <li class="domain-item" v-for="domainItem in DomainList" @click="selectDomain(domainItem)">
-                    {{domainItem}}
+                <li class="domain-item" v-for="domainItem in DomainList" @click="selectDomain(domainItem)" v-html="msgContentHeightLight(domainItem)">
                 </li>
             </ul>
         </div>
@@ -215,7 +214,7 @@ import os from 'os';
 import {ipcRenderer} from 'electron'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
 import certification from './Certificate.vue';
 import generalSecureBackUpPage from './generalRecoveryCode.vue'
 import {getDefaultHomeServerAddr} from '../../config.js'
@@ -319,6 +318,18 @@ export default {
         }
     },
     methods: {
+        msgContentHeightLight: function(showContent) {
+            if(this.showOrganizationView) {
+                if(this.organizationAddress.length == 0) {
+                    return showContent
+                }
+                if(showContent.indexOf(this.organizationAddress) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress);
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress + "</span>");
+                    return newInnerHtml;
+                }
+            }
+        },
         serverSettingClicked: function() {
             var distElement = document.getElementById("item-organization-id");
             if(distElement != undefined) {
@@ -706,12 +717,14 @@ export default {
             this.resetLoginStateTitle();
             if(this.isEmpty(this.username)){
                 this.loginState = '请输入手机号';
+                return;
             }
             if(!this.phoneFormatTest(this.username)){
                 this.loginState = '手机号格式不正确';
                 return;
             }
             var result = await global.mxMatrixClientPeg.GetVerCode("msisdn", this.username);
+            console.log("userPhoneSendCodeClicked", result)
             if(result.status == 200){
                 this.userPhoneSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
@@ -720,7 +733,9 @@ export default {
                 this.loginState = result.data.error;
             }
             else {
-                this.loginState = result.data.error;
+                if(result.data.errcode == "M_TEMPORARY_NOT_BIND_MSISDN") {
+                    this.loginState = "手机号未绑定";
+                }
             }
             
         },
@@ -758,8 +773,13 @@ export default {
                 this.userEmailSendCodeTime = 61;
                 this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
                 this.userEmailSendCodeTimer();
-            }else{
-                this.loginState = result.message;
+            }else if(result.status == 429){
+                this.loginState = result.data.error;
+            }
+            else {
+                if(result.data.errcode == "M_EMAIL_NOT_BIND") {
+                    this.loginState = "邮箱未绑定";
+                }
             }
         },
         organizationFinderBackToLoginClicked(){
@@ -982,40 +1002,40 @@ export default {
             }
             else {
                 try {
-                    if(window.localStorage.getItem("defaultIdentity") == "ldap") {
-                        verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
-                        console.log("===== ", verCodeRet)
-                        if(verCodeRet.status == 200) {
-                            client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
-                        }
-                        else if(verCodeRet.status == 429) {
-                            this.loginState = verCodeRet.data.error;
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                        else if(verCodeRet.status == 400) {
-                            this.loginState = this.$t("unboundedAccount")
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                        else if(verCodeRet.status == 412) {
-                            this.loginState = this.$t("invalidVerCode")
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                        else {
-                            this.loginState = this.$t("invalidVerCode")
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                    }
-                    else {
+                    // if(window.localStorage.getItem("defaultIdentity") == "ldap") {
+                    //     verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                    //     console.log("===== ", verCodeRet)
+                    //     if(verCodeRet.status == 200) {
+                    //         client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                    //     }
+                    //     else if(verCodeRet.status == 429) {
+                    //         this.loginState = verCodeRet.data.error;
+                    //         this.isLoading = false;
+                    //         this.loginButtonDisabled = false;
+                    //         return;
+                    //     }
+                    //     else if(verCodeRet.status == 400) {
+                    //         this.loginState = this.$t("unboundedAccount")
+                    //         this.isLoading = false;
+                    //         this.loginButtonDisabled = false;
+                    //         return;
+                    //     }
+                    //     else if(verCodeRet.status == 412) {
+                    //         this.loginState = this.$t("invalidVerCode")
+                    //         this.isLoading = false;
+                    //         this.loginButtonDisabled = false;
+                    //         return;
+                    //     }
+                    //     else {
+                    //         this.loginState = this.$t("invalidVerCode")
+                    //         this.isLoading = false;
+                    //         this.loginButtonDisabled = false;
+                    //         return;
+                    //     }
+                    // }
+                    // else {
                         client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
-                    }
+                    // }
                     console.log("===== ", client)
                     if(client == undefined || client == null) {
                         verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
@@ -1062,19 +1082,25 @@ export default {
                             return;
                     }
                     else if(verCodeRet.status == 400) {
-                        this.loginState = this.$t("unboundedAccount")
+                        this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
                         this.loginButtonDisabled = false;
                             return;
                     }
                     else if(verCodeRet.status == 412) {
-                        this.loginState = this.$t("invalidVerCode")
+                        this.loginState = verCodeRet.data.error;
+                        this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                            return;
+                    }
+                    else if(verCodeRet.status == 500) {
+                        this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
                         this.loginButtonDisabled = false;
                             return;
                     }
                     else {
-                        this.loginState = this.$t("invalidVerCode")
+                        this.loginState = verCodeRet.data.error;
                         this.isLoading = false;
                         this.loginButtonDisabled = false;
                             return;
@@ -1362,6 +1388,13 @@ export default {
         margin-top: 0px;
         height: calc(100% - 36px);
         overflow: hidden;
+
+    .item-input::placeholder {
+        font-size: 14px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        color: rgba(153, 153, 153, 1);
+    }
 .account-content{
     .username-content{
             .title {
@@ -2485,7 +2518,7 @@ export default {
         position: absolute;
         background-color: rgba(255, 255, 255, 1);
         width:260px;
-        height: 80px;
+        min-height: 40px;
         border-radius: 4px;
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);
         border:1px solid rgba(221,221,221,1);
