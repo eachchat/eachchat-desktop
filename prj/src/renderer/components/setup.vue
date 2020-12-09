@@ -129,7 +129,7 @@
         <ImportE2EKeypage @closeE2EImportPage="closeE2EImportPage"></ImportE2EKeypage>
       </div>
       <div class="certficationBorder" v-show="showExportE2EKeyPage">
-        <ExportE2EKeyPage @closeE2EExportPage="closeE2EExportPage" :toUpdateExport="toUpdateExport" @CanLogout="CanLogout"></ExportE2EKeyPage>
+        <ExportE2EKeyPage @closeE2EExportPage="closeE2EExportPage" :needLogout="needLogout" :toUpdateExport="toUpdateExport" @CanLogout="CanLogout"></ExportE2EKeyPage>
       </div>
       <!-- <generalSecureBackUpPage  v-show="showGeneralPage"></generalSecureBackUpPage> -->
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
@@ -179,6 +179,7 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      needLogout: false,
       toUpdateExport: false,
       showExportE2EKeyPage: false,
       showImportE2EKeyPage: false,
@@ -239,6 +240,7 @@ export default {
       this.showImportE2EKeyPage = true;
     },
     exportSecurityKey: async function() {
+      this.needLogout = false;
       this.showExportE2EKeyPage = true;
     },
     autoSoundNoticeStateChange: async function(state) {
@@ -400,6 +402,7 @@ export default {
       //   this.showGeneralRecoveryKeyPage = true;
       // }
       this.toUpdateExport = !this.toUpdateExport;
+      this.needLogout = true;
       this.showExportE2EKeyPage = true;
     },
     async _checkKeyBackupStatus() {
