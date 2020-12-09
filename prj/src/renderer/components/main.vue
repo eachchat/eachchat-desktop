@@ -560,6 +560,7 @@ export default {
         width: 40px;
         height: 40px;
         border-radius:4px;
+        border-radius: 50%;
     }
 
     .nav-unread {

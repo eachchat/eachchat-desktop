@@ -14,10 +14,10 @@
                         <li class="contact-list-item"
                             v-for="(contact, index) in searchUsers"
                             :key="index">
-                            <img ondragstart="return false" class="contact-list-icon" :id="SetUserImgID(contact.user_id)" src="../../../static/Img/User/user-40px@2x.png">
+                            <img ondragstart="return false" class="contact-list-icon" :id="SetUserImgID(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="contact-list-info">
-                                <p class="contact-list-name">{{ contact.display_name }}</p>
-                                <p class="contact-list-titile">{{ contact.user_id }}</p>
+                                <p class="contact-list-name">{{ contact.user_display_name }}</p>
+                                <p class="contact-list-titile">{{ contact.matrix_id }}</p>
                             </div>
                             <button class="contact-list-button" @click="HandleSave(index, contact)" :disabled='DisableSave(contact)'>保存</button>
                         </li>
@@ -31,7 +31,6 @@
 
 <script>
 import {services, environment} from '../../packages/data/index.js'
-import {Contact} from '../../packages/data/sqliteutil.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer} from 'electron'
 import { object } from '../../packages/core/types'
@@ -40,6 +39,7 @@ import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from
 import * as path from 'path'
 import { model } from '../../packages/core'
 import { models } from '../../packages/data/models.js';
+import { UserInfo, Contact, Department } from '../../packages/data/sqliteutil'
 
 
 export default {
@@ -73,18 +73,38 @@ export default {
     methods: {
         DisableSave(row){
             for(let item of this.contacts){
-                if(row.user_id == item.matrix_id)
+                if(row.matrix_id == item.matrix_id)
                     return true;
             }
             return false;
         },
 
-        HandleSave: async function(index, row){
-            let info = {
-                matrix_id : row.user_id,
-                display_name: row.display_name,
-                avatar_url: row.avatar_url,
+        async AddUserinfoToContact(userinfo){
+            let contactInfo = {
+                matrix_id : userinfo.matrix_id,
+                display_name: userinfo.user_display_name,
             }
+            let email = await UserInfo.GetUserEmailByUserID(userinfo.user_id);
+            if(email.length != 0)
+                contactInfo.email = email[0].email_value;
+            let phone = await UserInfo.GetUserPhoneByUserID(userinfo.user_id);
+            for (var i = 0; i < phone.length; i ++){
+                var temp = phone[i];
+                if(temp.phone_type == 'mobile'){
+                    contactInfo.mobile = temp.phone_value;
+                }else{
+                    contactInfo.telephone = temp.phone_value;
+                }
+            }
+            let company = await Department.GetDepartmentInfoByUserID(userinfo.user_id);
+            if(company)
+                contactInfo.company = company.display_name
+            contactInfo.title = userinfo.user_title;
+            return contactInfo
+        },
+
+        HandleSave: async function(index, row){
+            let info = await this.AddUserinfoToContact(row);
             await this.services.AddContact(info);
             await this.services.GetAllContact();
             this.contacts = await Contact.GetAllContact();
@@ -94,12 +114,29 @@ export default {
             this.$emit("showInputContact", "");
         },
 
+        GetSearchUsers(searchUsers, searchContacts, matrixUsers){
+            let searchs = searchUsers;
+            searchContacts.forEach(item => {
+
+            })
+        },
+
         search:async function () {
             if(this.searchKey == ''){
                 return;
             }
             this.showSearchView = true;
             this.showOrganizationView = false;
+
+            this.searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
+            this.$nextTick(function(){
+                    for(var i = 0; i < this.searchUsers.length; i ++){
+                        this.getUserImg(this.searchUsers[i], 'addContact');
+                    }
+                });
+            /*
+            let searchContacts = await Contact.SearchByNameKey(this.searchKey);
+
             let ops = {};
             ops.term = this.searchKey;
             ops.number = 10;
@@ -114,7 +151,7 @@ export default {
                     }
                 });
             });
-            
+            */
            
         },
         searchDeleteClicked(){
@@ -162,12 +199,11 @@ export default {
         },
 
         getUserImg: async function (userInfo, key='type'){
-            if(!userInfo || !userInfo.user_id)
+            if(!userInfo || !userInfo.matrix_id)
                 return;
             
-            var userId = userInfo.user_id;
             var userAvatarUrl = userInfo.avatar_url;
-            let userIconElement = document.getElementById(userInfo.user_id + 'addContact');
+            let userIconElement = document.getElementById(userInfo.matrix_id + 'addContact');
             if(!userIconElement){
                 return;
             }
