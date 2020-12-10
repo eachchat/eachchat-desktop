@@ -1,78 +1,84 @@
 <template>
     <div class="setting-wrap" @click.self.stop="close">
         <div class="mx-setting-dialog">
-            <div class="inner-wrap">
+            <div class="titleLine">
                 <div class="title">群聊设置</div>
                 <img class="close" @click.self.stop="close" src="../../../static/Img/Main/xincaca.png">
-                <div class="setting-field">
-                    <div class="filed-title">群聊类型</div>
-                    <div class="xiaomiaoshu"><input @change="setJoinRule" id="puborprt0" type="radio" value="public" v-model="joinRule"><label for="puborprt0"  >公共群聊-任何人可以加入</label></div>
-                    <div class="xiaomiaoshu"><input @change="setJoinRule" id="puborprt1" type="radio" value="invite" v-model="joinRule"><label for="puborprt1"  >私人群聊-受邀请才能加入</label></div>
-                </div>
-                <div class="setting-field">
-                    <div class="filed-title">设置群聊地址</div>
-                    <div class="xiaomiaoshu tipdesc">任何服务器上的任何人都可以使用发布的群聊地址加入您的聊天室。如果要发布群聊地址，需要先设置为群聊地址。</div>
-                    <div class="xiaomiaoshu serverRow">
-                        <div class="serverFrame">
-                            <div class="serverFrameStart">#</div>
-                            <input 
-                                type="text" 
-                                class="serverInput"
-                                v-model="serverAddress"
-                            >
-                            <div class="serverFrameEnd">:matrix.each.chat</div>
-                        </div>
-                        <div 
-                            class="serverBtn" 
-                            :class="{'serverBtnSubmit': !loading, 'serverBtnLoading': loading}"
-                            @click.self.stop="setServerAddress"
-                        >添加</div>
-                    </div>
-                </div>
-                <div class="setting-field">
-                    <div class="filed-title">谁可以查看聊天历史？</div>
-                    <div class="xiaomiaoshu tipdesc">对谁可以阅读历史记录的更改仅适用于此群聊中将来的消息。现有聊天历史的可见性将保持不变。</div>
-                    <div class="xiaomiaoshu">
-                        <input @change="setHistory" type="radio" id="histcheck0" value="invited" v-model="history">
-                        <label for="histcheck0">只有群成员(从群成员被邀请时 )</label>
-                    </div>
-                    <div class="xiaomiaoshu">
-                        <input @change="setHistory" type="radio" id="histcheck1" value="joined" v-model="history">
-                        <label for="histcheck1">只有群成员(从群成员加入群聊时 )</label>
-                    </div>
-                    <div class="xiaomiaoshu">
-                        <input @change="setHistory" type="radio" id="histcheck2" value="shared" v-model="history">
-                        <label for="histcheck2">只有群成员（从此选项被选中的那一时刻)</label>
-                    </div>
-                </div>
-                <div class="setting-field">
-                    <div class="filed-title">谁可以加入此群聊</div>
-                    <div class="xiaomiaoshu">
-                        <input @change="setGuestAccess" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess">
-                        <label for="whocanjoin0">任何知道群聊链接的人，不包括用户所在域外的来宾用户</label>
-                    </div>
-                    <div class="xiaomiaoshu">
-                        <input @change="setGuestAccess" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess">
-                        <label for="whocanjoin1">任何知道群聊链接的人，包括用户所在域外的来宾用户</label>
-                    </div>
-                </div>
-                <!-- <div class="encryption-field">
-                    <label class="groupSettingSlienceLabel">端到端加密</label>
-                    <el-switch 
-                        class="groupSettingSlienceSwitch" 
-                        v-model="mxEncryption" 
-                        @change="setMxEncryption"
-                        :active-color="'#24B36B'"
-                        :disabled="mxEncryption"
-                    >
-                    </el-switch>
-                </div>
-                <encryWarn 
-                    v-if="encryptionWarning"
-                    @close="closeEncryWarn"
-                    :room="currentRoom"
-                /> -->
             </div>
+            <div class="setting-field">
+                <div class="filed-title">群聊类型</div>
+                <div class="xiaomiaoshu">
+                    <input @change="setJoinRule" id="puborprt0" type="radio" value="public" v-model="joinRule">
+                    <label for="puborprt0"  >公共-任何人可以加入</label></div>
+                <div class="xiaomiaoshu">
+                    <input @change="setJoinRule" id="puborprt1" type="radio" value="invite" v-model="joinRule">
+                    <label for="puborprt1"  >私人-需要邀请加入</label>
+                </div>
+            </div>
+            <div class="setting-field">
+                <div class="filed-title">设置群聊地址</div>
+                <div class="xiaomiaoshu tipdesc">任何服务器上的任何人都可以使用发布的群聊地址加入您的聊天室。如果要发布群聊地址，需要先设置为去群聊地址。</div>
+                <div class="xiaomiaoshu serverRow">
+                    <div class="serverFrame">
+                        <div class="serverFrameStart">#</div>
+                        <input 
+                            type="text" 
+                            placeholder="群聊地址"
+                            class="serverInput"
+                            v-model="serverAddress"
+                        >
+                        <div class="serverFrameEnd">:matrix.each.chat</div>
+                    </div>
+                    <!-- <div 
+                        class="serverBtn" 
+                        :class="{'serverBtnSubmit': !loading, 'serverBtnLoading': loading}"
+                        @click.self.stop="setServerAddress"
+                    >添加</div> -->
+                </div>
+            </div>
+            <div class="setting-field">
+                <div class="filed-title">谁可以查看聊天历史？</div>
+                <div class="xiaomiaoshu tipdesc">对谁可以阅读历史记录的更改仅适用于此群聊中将来的消息。现有聊天历史的可见性将保持不变。</div>
+                <div class="xiaomiaoshu">
+                    <input @change="setHistory" type="radio" id="histcheck0" value="invited" v-model="history">
+                    <label for="histcheck0">只有群成员(从群成员被邀请时 )</label>
+                </div>
+                <div class="xiaomiaoshu">
+                    <input @change="setHistory" type="radio" id="histcheck1" value="joined" v-model="history">
+                    <label for="histcheck1">只有群成员(从群成员加入群聊时 )</label>
+                </div>
+                <div class="xiaomiaoshu">
+                    <input @change="setHistory" type="radio" id="histcheck2" value="shared" v-model="history">
+                    <label for="histcheck2">只有群成员（从此选项被选中的那一时刻)</label>
+                </div>
+            </div>
+            <div class="setting-field">
+                <div class="filed-title">谁可以加入群聊</div>
+                <div class="xiaomiaoshu">
+                    <input @change="setGuestAccess" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess">
+                    <label for="whocanjoin0">任何知道群聊链接的人，不包括所在域外的用户</label>
+                </div>
+                <div class="xiaomiaoshu">
+                    <input @change="setGuestAccess" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess">
+                    <label for="whocanjoin1">任何知道群聊链接的人，包括所在域外的用户</label>
+                </div>
+            </div>
+            <!-- <div class="encryption-field">
+                <label class="groupSettingSlienceLabel">端到端加密</label>
+                <el-switch 
+                    class="groupSettingSlienceSwitch" 
+                    v-model="mxEncryption" 
+                    @change="setMxEncryption"
+                    :active-color="'#24B36B'"
+                    :disabled="mxEncryption"
+                >
+                </el-switch>
+            </div>
+            <encryWarn 
+                v-if="encryptionWarning"
+                @close="closeEncryWarn"
+                :room="currentRoom"
+            /> -->
         </div>
     </div>
 </template>
@@ -238,43 +244,65 @@ export default {
     .mx-setting-dialog {
         position: absolute;
         left: 50%;
-        top: 20px;
+        top: 50%;
+        margin-top: -305px;
         margin-left: -220px;
         background-color: #fff;
-        padding: 26px;
         border-radius: 4px;
         width: 440px;
-        height: 600px;
+        height: 610px;
         z-index: 99999;
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
     }
     .inner-wrap {
         height: 100%;
         overflow-y: scroll;
     }
+    .titleLine {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-left: 32px;
+        margin-right: 20px;
+        margin-bottom: 16px;
+        height: 56px;
+    }
     .title {
+        height: 22px;
         font-size: 16px;
-        font-weight: bolder;
-        margin-bottom: 20px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        line-height: 22px;
+        letter-spacing: 2px;
     }
     .close {
-        position: absolute;
-        top: 26px;
-        right: 26px;
         height: 20px;
         width: 20px;
     }
     .setting-field {
         margin-bottom: 20px;
-        font-size: 12px;
+        margin-left: 40px;
+        margin-right: 40px;
     }
     .filed-title {
         height: 20px;
         font-size: 14px;
-        margin-bottom: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 20px;
+        letter-spacing: 1px;
+
     }
     .xiaomiaoshu {
         font-size: 14px;
         margin-bottom: 8px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 20px;
+        letter-spacing: 1px;
     }
     .tipdesc {
         color: #999999;
@@ -284,7 +312,7 @@ export default {
         align-items: center;
     }
     .serverFrame {
-        width: 75%;
+        width: 100%;
         height: 32px;
         display: flex;
         align-items: center;
@@ -311,7 +339,7 @@ export default {
 
     }
     .serverInput {
-        width: 160px;
+        width: 180px;
         height: 28px;
         border: none;
         margin-left: 8px;
