@@ -323,31 +323,38 @@ export default {
 
     .mx-create-room-dialog {
         position: absolute;
-        width: 624px;
-        height: 468px;
+        width: 440px;  
+        height: 426px;
         display: block;
-        background: rgba(255, 255, 255, 1);
+        background: #FFFFFF;
         top: 50%;
         left: 50%;
-        margin-top: -312px;
-        margin-left: -234px;
-        border-radius: 8px;
+        margin-top: -213px;
+        margin-left: -220px;
+        border-radius: 4px;
     }
 
     .mxCreaterHeader {
         height: 56px;
-        background: rgba(255, 255, 255, 1);
+        background: #FFFFFF;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-left:28px;
-        padding-right:28px;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
+        padding-left: 32px;
+        padding-right: 20px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
     }
 
     .mxCreaterHeaderTitle {
-        font-size: 14px;
+        width: 72px;
+        height: 22px;
+        font-size: 16px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        line-height: 22px;
+        letter-spacing: 2px;
     }
 
     .mxCreaterClose {
