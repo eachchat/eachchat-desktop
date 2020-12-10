@@ -12,11 +12,11 @@
             <!-- <img ondragstart="return false" class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img ondragstart="return false" class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
             <img 
-                ondragstart="return false" 
-                class="userInfoChatIcon" 
+                ondragstart="return false"
                 src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" 
                 @click="createDm" 
             >  <!--click jumpToChat-->
+            <img ondragstart="return false" v-show = "bShowSaveContact" src="../../../static/Img/Organization/UserInfo/addToConact_32px@2x.png" @click="SaveContact">
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
@@ -64,8 +64,8 @@
 <script>
 import * as path from 'path'
 import * as fs from 'fs-extra'
-import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
+import {Contact} from '../../packages/data/sqliteutil.js'
 import confservice from '../../packages/data/conf_service.js'
 import { functions } from 'electron-log'
 import {ComponentUtil} from '../script/component-util.js'
@@ -78,6 +78,7 @@ export default {
     name: 'user-info',
     data() {
         return {
+            bShowSaveContact: false,
             pagePosition: {},
             inputEdit: true,
             nameEdit: true,
@@ -174,6 +175,27 @@ export default {
         }
     },
     methods: {
+        async ControlShowElement(){
+            let matrix_id = "";
+            if(this.userInfo && this.userInfo.matrix_id){
+                matrix_id = this.userInfo.matrix_id;
+                let conctacts = await Contact.GetContactInfo(matrix_id);
+                if(conctacts)
+                    this.bShowSaveContact = false;
+                else
+                    this.bShowSaveContact = true;
+            }
+                
+        },
+
+        SaveContact: async function(){
+            if(this.userType === "origanise"){
+                let contact = await ComponentUtil.OrgUserInfoToContact(this.userInfo);
+                await this.services.AddContact(contact);
+            }
+            console.log("save ", this.userInfo)
+        },
+
         createRoom: function(opts) {
             return RoomUtil.CreateRoom(opts).then((res) => {
                 console.log('--create success!!--', res);
@@ -394,6 +416,7 @@ export default {
             this.pagePosition.left = "64px";
             this.pagePosition.top = "32px";
         }
+        this.ControlShowElement();
         this.$nextTick(function(){
             this.getUserImg(this.userInfo);
         });
@@ -480,7 +503,15 @@ export default {
     height: 48px;
     width: 100%;
     margin: 0px;
+	text-align: center;
 }
+
+.userInfoAction-view img{
+    margin-top: 8px;
+    height: 32px;
+    width: 32px;
+}
+
 .userInfoAudioIcon {
     height: 28px;
     width: 28px;
@@ -496,8 +527,9 @@ export default {
 .userInfoChatIcon {
     height: 32px;
     width: 32px;
-    margin-top: 8px;
-    margin-left: 124px;
+    //margin: auto;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .userInfoState-view {
