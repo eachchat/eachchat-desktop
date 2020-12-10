@@ -2337,8 +2337,8 @@ const common = {
     if (!result.ok || !result.success) {
       return result;
     }
-    const contactModel = await models.Contact;
-    let contactModelValue = await new contactModel(contactInfo);
+    let item = result.data.obj;
+    let contactModelValue = await servicemodels.ContactModel(item);
     await contactModelValue.save();
   },
 
