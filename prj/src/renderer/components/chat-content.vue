@@ -28,12 +28,15 @@
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
-                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
-                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
+                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="JoinRoom(chatGroupItem.roomId)"/>
+                  <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
             </ul>
@@ -54,10 +57,11 @@
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
-                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
-                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
@@ -85,11 +89,16 @@
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
-                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
-                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                  </div>
+                  <div class="group-notice">
+                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
               </li>
@@ -1309,8 +1318,14 @@ export default {
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
-      if(chatGroupItem.timeline.length == 0) return;
-      var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      if(chatGroupItem.timeline.length == 0) {
+        // console.log("getMsgLastMsgTime ", chatGroupItem.currentState)
+        // var distTimeLine = chatGroupItem.currentState._modified;
+        return;
+      }
+      else {
+        var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      }
       
       let event = distTimeLine.event;
 
@@ -1824,7 +1839,12 @@ export default {
       }
     },
     
-
+    RejectRoom: function(roomId) {
+      global.mxMatrixClientPeg.matrixClient.leave(roomId);
+      setTimeout(() => {
+          this.DeleteGroup(roomId);
+      }, 0)
+    },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
       for(let i in this.inviteGroupsList){
@@ -2339,7 +2359,7 @@ export default {
     margin-top: 0px;
     margin-right: 0px;
     margin-bottom: 0px;
-    border-radius:4px;
+    border-radius:50px;
     // z-index:-1;
   }
 
@@ -2352,6 +2372,7 @@ export default {
     margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 10px;
+    vertical-align: top;
   }
   
   .group-info {
@@ -2361,13 +2382,43 @@ export default {
     margin-left: 12px;
   }
 
+  .secret-flag {
+    display:inline-block;
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-right: 2px;
+    margin-bottom: 0px;
+    height: 20px;
+    width: 20px;
+    vertical-align: top;
+  }
+
   .group-name {
-    width: 100%;
+    display: inline-block;
+    width: calc(100%-18px);
     height: 20px;
     font-size: 14px;
     font-weight: 500;
     font-family:PingFangSC-Medium;
     color: rgba(0, 0, 0, 1);
+    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    letter-spacing:1px;
+  }
+
+  .group-name-secret {
+    display: inline-block;
+    width: calc(100%-18px);
+    height: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family:PingFangSC-Medium;
+    color: rgba(36, 179, 107, 1);
     overflow: hidden;
     margin-left: 0px;
     margin-top: 10px;
@@ -2419,8 +2470,8 @@ export default {
 
   .group-unread-slience {
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -0px;
+    right: -0px;
     font-size: 0px;
     font-family:PingFangSC-Medium;
     float: right;
@@ -2435,20 +2486,10 @@ export default {
     // z-index:-1;
   }
 
-  .secret-flag {
-    position: absolute;
-    bottom: -5px;
-    right: -8px;
-    float: right;
-    margin: 0px;
-    height: 16px;
-    width: 16px;
-  }
-
   .group-unread {
     position: absolute;
-    top: -7px;
-    right: -7px;
+    top: -3px;
+    right: -3px;
     font-size: 10px;
     font-family: PingFangSC-Medium;
     float: right;
@@ -2521,4 +2562,24 @@ export default {
       z-index:3;
   }
 
+  .accept-invite{
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: solid 0px #009933;
+      margin-top: 19px;
+      margin-left: 4px;
+      vertical-align: top;
+  }
+
+  .reject-invite {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: solid 0px rgba(221, 221, 221, 1);
+      margin-right: 25px;
+      margin-top: 19px;
+      vertical-align: top;
+      float: right;
+  }
 </style>
