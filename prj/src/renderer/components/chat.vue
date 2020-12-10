@@ -2338,10 +2338,31 @@ s        },
                 console.log("ths uldiv scrollTop is ", ulDiv.scrollTop);
             }
         },
+
+        UpdateUserAvater(ev){
+            if(ev.getType() === 'm.room.member' && ev.getSender() === this.userID){
+                if(ev.event && ev.event.content){
+                    let content = ev.event.content;
+                    let url = content.avatar_url;
+                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url, 40, 40);
+                    var elementImg = document.getElementById("userHead");
+                    if(elementImg){
+                        if(avaterUrl == ''){
+                            elementImg.setAttribute('src', '../../../static/Img/User/user-40px@2x.png');
+                        }
+                        else
+                            elementImg.setAttribute('src', avaterUrl);
+                    }
+                }
+            }
+        },
+
         onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
             if(!this.isScroll) {
                 this.$emit("updateChatList", ev);
             }
+            this.UpdateUserAvater(ev);
+            
             if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
             
             let bottom = this.IsBottom();
