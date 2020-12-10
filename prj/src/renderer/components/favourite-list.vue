@@ -142,7 +142,6 @@
 
 </template>
 <script>
-import {services} from '../../packages/data/index.js';
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell, ipcRenderer} from 'electron'
@@ -572,10 +571,10 @@ export default {
         getSearchCollectionResult:async function (key) {
             var temp = {};
 
-            var messageSearch = await services.common.SearchMessageCollection(key);
-            var imageSearch = await services.common.SearchPictureCollecion(key);
-            var fileSearch = await services.common.SearchFileCollecion(key);
-            var groupSearch = await services.common.SearchGroupCollecion(key);
+            var messageSearch = await global.services.common.SearchMessageCollection(key);
+            var imageSearch = await global.services.common.SearchPictureCollecion(key);
+            var fileSearch = await global.services.common.SearchFileCollecion(key);
+            //var groupSearch = await global.services.common.SearchGroupCollecion(key);
             temp.searchKey = this.searchKey;
             temp.message = messageSearch;
             temp.image = imageSearch;

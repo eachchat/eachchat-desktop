@@ -2,9 +2,9 @@
     <el-container>
         <el-aside width="280px">
             <div class="list-header">
-                <div class="search">
+                <!-- <div class="search">
                     <el-input size='mini' class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." clearable></el-input>
-                </div>
+                </div> -->
             </div>
             <div class="list-content">
                 <div class="organization-view">
