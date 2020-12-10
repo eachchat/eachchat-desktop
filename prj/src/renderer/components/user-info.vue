@@ -571,7 +571,7 @@ input::-webkit-input-placeholder {
 .userInfo-value {
     display:inline-block;
     line-height: 18px;
-    width: 100px;
+    width: 150px;
     font-size: 12px;
     border: 0;
     padding-left: 16px;
