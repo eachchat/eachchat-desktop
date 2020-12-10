@@ -3,7 +3,7 @@
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">发起群聊</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close">
+                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close">
             </div>
             <div class="mxChatCreaterContent">
                 <div class="setting-field" style="border-bottom:1px solid rgba(221,221,221,1);">
