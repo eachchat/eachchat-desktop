@@ -21,6 +21,10 @@
                                     <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
                                     <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
                                     <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>    
+                               
+                                <div>
+                                    <hr align=center width=100% color=#DDDDDD SIZE=1>
                                 </div>
                             </li>
                         </ul>
@@ -35,6 +39,9 @@
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                                     <img ondragstart="return false" class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
+                                <div>
+                                    <hr align=center width=100% color=#DDDDDD SIZE=1>
                                 </div>
                             </li>
                         </ul>
@@ -58,7 +65,9 @@
                                     <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                                     <img ondragstart="return false" class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                                 </div>
-
+                                <div>
+                                    <hr align=center width=100% color=#DDDDDD SIZE=1>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -388,6 +397,7 @@ export default {
         },
 
         transmitMessageCollectionClicked:async function(message) {
+			return;
             this.showTransmitDlg = true;
             this.transmitKey ++;
             this.transmitCollectionInfo = message;
@@ -784,7 +794,7 @@ display: none;
         display: none;
         font-size: 0px;
         vertical-align: top;
-        padding-top: 10px;
+        padding-top: 17px;
         padding-right: 0px;
         width: 78px;
         height: 20px;
@@ -850,7 +860,7 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 82px);
+            width: calc(100% - 100px);
             margin-top: 8px;
             margin-bottom: 0px;
             font-family: PingFangSC-Regular;
@@ -902,8 +912,8 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 82px);
-            margin-top: 12px;
+            width: calc(100% - 100px);
+            margin-top: 8px;
             margin-bottom: 0px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
@@ -1011,8 +1021,8 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 82px);
-            margin-top: 12px;
+            width: calc(100% - 100px);
+            margin-top: 8px;
             margin-bottom: 0px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
