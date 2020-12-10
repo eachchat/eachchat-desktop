@@ -469,6 +469,7 @@ export default {
         this.showImportE2EKeyPage = true;
     },
     ShowAllGroup: function(){
+      this.unreadCount = 0;
       this.inviteGroupsList.length = 0;
       this.favouriteRooms.length = 0;
       this.dealShowGroupList.length = 0;
