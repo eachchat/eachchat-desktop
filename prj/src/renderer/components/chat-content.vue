@@ -17,7 +17,6 @@
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showInviteGroupList"
-                  @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
@@ -656,11 +655,11 @@ export default {
         }
       }
       if(this.isWindows()) {
-        if(this.$store.getters.flashNotice()) {
+        if(global.localStorage.getItem("message_notice")) {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
         try{
-          if(this.$store.getters.soundNotice()) {
+          if(global.localStorage.getItem("message_sound")) {
             this.amr.play();
           }
         }
@@ -669,7 +668,7 @@ export default {
         }
       }
       else {
-        if(this.$store.getters.flashNotice()) {
+        if(global.localStorage.getItem("message_notice")) {
           ipcRenderer.send("showNotice", fromName, notificateContent);
         }
       }
