@@ -232,9 +232,15 @@ export default {
             }
 
             console.log('---createOpts---', createOpts);
+            const commu = this.commu
             return client.createRoom(createOpts).then((res) => {
                 console.log('create success!!', res);
-                this.$emit('nextStep', res);
+                client.setRoomDirectoryVisibility(
+                    res.room_id,
+                    commu ? 'public' : 'private',
+                ).then(()=>{
+                    this.$emit('nextStep', res);
+                })
             })
 
             // let modal;
