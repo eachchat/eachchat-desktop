@@ -2413,7 +2413,7 @@ export default {
 
   .group-name-secret {
     display: inline-block;
-    width: calc(100%-18px);
+    width: 82%;
     height: 20px;
     font-size: 14px;
     font-weight: 500;
