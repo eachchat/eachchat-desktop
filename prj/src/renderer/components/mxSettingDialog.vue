@@ -32,14 +32,29 @@
                 <div class="setting-field">
                     <div class="filed-title">谁可以查看聊天历史？</div>
                     <div class="xiaomiaoshu tipdesc">对谁可以阅读历史记录的更改仅适用于此群聊中将来的消息。现有聊天历史的可见性将保持不变。</div>
-                    <div class="xiaomiaoshu"><input @change="setHistory" type="radio" id="histcheck0" value="invited" v-model="history"><label for="histcheck0">只有群成员(从群成员被邀请时 )</label></div>
-                    <div class="xiaomiaoshu"><input @change="setHistory" type="radio" id="histcheck1" value="joined" v-model="history"><label for="histcheck1">只有群成员(从群成员加入群聊时 )</label></div>
-                    <div class="xiaomiaoshu"><input @change="setHistory" type="radio" id="histcheck2" value="shared" v-model="history"><label for="histcheck2">只有群成员（从此选项被选中的那一时刻)</label></div>
+                    <div class="xiaomiaoshu">
+                        <input @change="setHistory" type="radio" id="histcheck0" value="invited" v-model="history">
+                        <label for="histcheck0">只有群成员(从群成员被邀请时 )</label>
+                    </div>
+                    <div class="xiaomiaoshu">
+                        <input @change="setHistory" type="radio" id="histcheck1" value="joined" v-model="history">
+                        <label for="histcheck1">只有群成员(从群成员加入群聊时 )</label>
+                    </div>
+                    <div class="xiaomiaoshu">
+                        <input @change="setHistory" type="radio" id="histcheck2" value="shared" v-model="history">
+                        <label for="histcheck2">只有群成员（从此选项被选中的那一时刻)</label>
+                    </div>
                 </div>
                 <div class="setting-field">
                     <div class="filed-title">谁可以加入此群聊</div>
-                    <div class="xiaomiaoshu"><input @change="setGuestAccess" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess"><label for="whocanjoin0">任何知道群聊链接的人，不包括用户所在域外的来宾用户</label></div>
-                    <div class="xiaomiaoshu"><input @change="setGuestAccess" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess"><label for="whocanjoin1">任何知道群聊链接的人，包括用户所在域外的来宾用户</label></div>
+                    <div class="xiaomiaoshu">
+                        <input @change="setGuestAccess" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess">
+                        <label for="whocanjoin0">任何知道群聊链接的人，不包括用户所在域外的来宾用户</label>
+                    </div>
+                    <div class="xiaomiaoshu">
+                        <input @change="setGuestAccess" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess">
+                        <label for="whocanjoin1">任何知道群聊链接的人，包括用户所在域外的来宾用户</label>
+                    </div>
                 </div>
                 <!-- <div class="encryption-field">
                     <label class="groupSettingSlienceLabel">端到端加密</label>

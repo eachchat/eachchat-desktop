@@ -6,8 +6,8 @@
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close">
             </div>
             <div class="mxChatCreaterContent">
-                <div class="setting-field" style="border-bottom:1px solid rgba(221,221,221,1);">
-                    <div>群聊名称</div>
+                <div class="qlmcField" style="margin-top:16px;">
+                    <div class="setting-title">群聊名称</div>
                     <input 
                         type="text"
                         class="room-name" 
@@ -16,7 +16,20 @@
                         v-model="name"
                     />
                 </div>
-                <div class="setting-field">
+                <div class="qllx">群聊类型</div>
+                <div class="qllxXuanxiang">
+                    <img class="imgGouxuan" v-if="isPublic == 'y'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="sgk">
+                    <input class="gkrdo" type="radio" id="gongkai" value="y" v-model="isPublic">
+                    <label class="qllxZi" for="gongkai">公共-任何人可以加入</label>
+                </div>
+                <div class="qllxXuanxiang">
+                    <img class="imgGouxuan" v-if="isPublic == 'n'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="ssr">
+                    <input class="gkrdo" type="radio" id="siren" value="n" v-model="isPublic">
+                    <label class="qllxZi" for="siren">私人-需要邀请加入</label>
+                </div>
+                <!-- <div class="setting-field">
                     <div class="field-left">
                         <div class="setting-title">群聊类型</div>
                         <div class="setting-tip">公共-任何人可以加入</div>
@@ -27,11 +40,11 @@
                         :active-color="'#24B36B'"
                     >
                     </el-switch>
-                </div>
-                <div class="setting-field">
+                </div> -->
+                <div class="setting-field" >
                     <div class="field-left">
-                        <div class="setting-title">群聊目录</div>
-                        <div class="setting-tip">将群发布到群聊目录</div>
+                        <div class="setting-title">群聊广场</div>
+                        <div class="setting-tip">将群聊发布到群聊广场中</div>
                     </div>
                     <el-switch 
                         class="groupSettingSlienceSwitch" 
@@ -40,7 +53,7 @@
                     >
                     </el-switch>
                 </div>
-                <div class="setting-field" v-if="!isPublic">
+                <div class="setting-field" >
                     <div class="field-left">
                         <div class="setting-title">端到端加密</div>
                         <div class="setting-tip">一旦开启端到端加密，将无法撤销</div>
@@ -72,13 +85,19 @@ export default {
     data () {
         return {
             name:'',
-            isPublic:false,
+            isPublic: 'y',
             commu: false,
             isEncrypted: false,
             alias: ''
         }
     },
     methods: {
+        ssr() {
+            this.isPublic = 'n';
+        },
+        sgk() {
+            this.isPublic = 'y';
+        },
         close: function() {
             this.$emit('close', 'close');
         },
@@ -363,40 +382,39 @@ export default {
     }
 
     .mxChatCreaterContent {
-        padding: 48px;
+        padding: 40px;
         padding-top: 0px;
+        padding-bottom: 30px;
     }
 
     .mxTransmitFotter {
         display: flex;
         flex-direction: row-reverse;
-        align-items: center;
-        position: absolute;
-        bottom: 32px;
-        right: 32px;
+        justify-content: center;
 }
 
     .mxTransmitCancleButton {
         border-radius:4px;
-        font-family: PingFangSC-Regular;
         width: 100px;
-        height: 28px;
+        height: 32px;
         box-sizing: border-box;
-        border:1px solid rgba(221,221,221,1);
+        border:1px solid #DDD;
         background-color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 14px;
-        margin-left: 28px;
-        border-radius: 4px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        letter-spacing: 1px;
     }
 
     .mxTransmitConfirmButton {
         border-radius:4px;
         font-family: PingFangSC-Regular;
         width: 100px;
-        height: 28px;
+        height: 32px;
         box-sizing: border-box;
         background-color: #24B36B;
         border:1px solid #24B36B;
@@ -404,19 +422,16 @@ export default {
         align-items: center;
         justify-content: center;
         font-size: 14px;
-        margin-left: 28px;
-        border-radius: 4px;
         color: #fff;
+        margin-left: 20px;
     }
 
     .setting-field {
-        margin-top: 28px;
-        height: 40px;
+        margin-top: 20px;
         // border-bottom:1px solid rgba(221,221,221,1);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        width: 80%;
     }
 
     .groupSettingSlienceSwitch {
@@ -427,21 +442,67 @@ export default {
     }
 
     .field-left {
-        height: 100%;
+        // height: 100%;
     }
 
     .setting-title {
-        line-height: 16px;
-        height: 1px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 20px;
+        letter-spacing: 1px;
     }
     .setting-tip {
-        line-height: 58px;
-        font-size: 12px;
-        height: 1px;
+        height: 20px;
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 20px;
     }
     .room-name {
-        height: 80%;
-        border: none;
-        width: 40%;
+        width: 100%;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        height: 32px;
+        margin-top: 8px;
+    }
+    .qllx {
+        width: 60px;
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 20px;
+        letter-spacing: 1px;
+        margin-top: 20px;
+        margin-bottom: 8px;
+    }
+    .qllxXuanxiang {
+        height: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .qllxZi {
+        width: 145px;
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333333;
+        line-height: 20px;
+        letter-spacing: 1px;
+    }
+
+    .gkrdo {
+        display: none;
+        margin-right: 4px;
+    }
+    .imgGouxuan {
+        height: 20px;
+        width: 20px;
+        margin-right: 4px;
     }
 </style>
