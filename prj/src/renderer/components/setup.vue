@@ -247,30 +247,26 @@ export default {
     },
     autoSoundNoticeStateChange: async function(state) {
       if(state == true) {
-        Config.SetMessageSound(1);
-        this.$store.commit("setSoundNotice", true);
+        global.localStorage.setItem("message_sound", true);
       }
       else {
-        Config.SetMessageSound(2);
-        this.$store.commit("setSoundNotice", false);
+        global.localStorage.setItem("message_sound", false);
       }
     },
     autoFlashNoticeStateChange: async function(state) {
       if(state == true) {
-        Config.SetMessageNotice(1);
-        this.$store.commit("setFlashNotice", true);
+        global.localStorage.setItem("message_notice", true);
       }
       else {
-        Config.SetMessageNotice(2);
-        this.$store.commit("setFlashNotice", false);
+        global.localStorage.setItem("message_notice", false);
       }
     },
     autoRunStateChange: async function(state){
       if(state == true) {
-        Config.SetAutoStart(1);
+        global.localStorage.setItem("autoStart", true);
       }
       else {
-        Config.SetAutoStart(0);
+        global.localStorage.setItem("autoStart", false);
       }
       ipcRenderer.send("setAutoRun", state);
     },
@@ -424,26 +420,22 @@ export default {
   created: async function() {
     // this.loginInfo = await services.common.GetLoginModel();
     // this.curUserInfo = await services.common.GetSelfUserModel();
-    var config = await Config.GetValue();
-    var autoStart = await Config.GetAutoStart();
-    console.log("=====get config is ", config)
+    var message_sound = global.localStorage.getItem("message_sound");
+    var message_notice = global.localStorage.getItem("message_notice");
+    var autoStart = global.localStorage.getItem("autoStart");
+    // var config = await Config.GetValue();
+    // var autoStart = await Config.GetAutoStart();
+    // console.log("=====get config is ", config)
     console.log("=====autoStart is ", autoStart)
-    if(config != undefined) {
-      this.autoRun = autoStart == 0 ? false : true;
-      this.soundNotice = (config.message_sound == 0 || config.message_sound == 1) ? true : false;
-      if(this.soundNotice) {
-        this.$store.commit("setSoundNotice", true);
-      }
-      else {
-        this.$store.commit("setSoundNotice", false);
-      }
-      this.flashNotice = (config.message_notice == 0 || config.message_notice == 1) ? true : false;
-      if(this.flashNotice) {
-        this.$store.commit("setFlashNotice", true);
-      }
-      else {
-        this.$store.commit("setFlashNotice", false);
-      }
+    if(autoStart == null) {
+      ipcRenderer.send("setAutoRun", true);
+      global.localStorage.setItem("autoStart", true);
+    }
+    if(message_sound == null) {
+      global.localStorage.setItem("message_sound", true);
+    }
+    if(message_notice == null) {
+      global.localStorage.setItem("message_notice", true);
     }
   },
   activated: async function() {
