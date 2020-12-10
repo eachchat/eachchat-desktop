@@ -3,7 +3,7 @@
         <el-aside width="292px">
             <div class="list-header">
                 <div class="search">
-                    <el-input size='mini' clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." ></el-input>
+                    <el-input size='mini' clearable prefix-icon="el-icon-search" class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." ></el-input>
                 </div>
             </div>
             <div class="search-view" v-show="showSearchView">
@@ -613,7 +613,7 @@ display: none;
         display: inline-block;
         position: absolute;
         text-indent: 10px;
-        width: 194px;
+        width: 230px;
         padding: 0;
         margin: 0px;
         height: 32px;
