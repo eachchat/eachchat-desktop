@@ -60,8 +60,8 @@
             </div>
         </el-aside>
         <el-container class="right-container">
-            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" :key="organizationListTimer"></organizationList>
-            <contactList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></contactList>
+            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
+            <contactList  v-show='bContactShow' :parentInfo="currentDepartment" ></contactList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
