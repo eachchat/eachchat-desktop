@@ -6,7 +6,7 @@
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close">
             </div>
             <div class="mxChatCreaterContent">
-                <div class="qlmcField" style="margin-top:16px;">
+                <div class="qlmcField">
                     <div class="setting-title">群聊名称</div>
                     <input 
                         type="text"
@@ -127,7 +127,7 @@ export default {
             const opts = {};
             const createOpts = opts.createOpts = {};
             createOpts.name = this.name;
-            if (this.isPublic) {
+            if (this.isPublic === 'y') {
                 createOpts.visibility = "public";
                 createOpts.preset = "public_chat";
                 opts.guestAccess = false;
@@ -138,23 +138,27 @@ export default {
             if (this.topic) {
                 createOpts.topic = this.topic;
             }
-            if (this.noFederate) {
-                createOpts.creation_content = {'m.federate': false};
-            }
+            // if (this.noFederate) {
+            //     createOpts.creation_content = {'m.federate': false};
+            // }
 
-            if (!this.isPublic) {
-                if (this.canChangeEncryption) {
-                    opts.encryption = this.isEncrypted;
-                } else {
-                    // the server should automatically do this for us, but for safety
-                    // we'll demand it too.
-                    opts.encryption = true;
-                }
-            }
+            // if (!this.isPublic) { 
+            //     if (this.canChangeEncryption) {
+            //         opts.encryption = this.isEncrypted;
+            //     } else {
+            //         // the server should automatically do this for us, but for safety
+            //         // we'll demand it too.
+            //         opts.encryption = true;
+            //     }
+            // }
 
             // if (CommunityPrototypeStore.instance.getSelectedCommunityId()) { //无此设置
             //     opts.associatedWithCommunity = CommunityPrototypeStore.instance.getSelectedCommunityId();
             // }
+
+            if (this.isEncrypted) {
+                opts.encryption = true;
+            }
 
             return opts;
         },
@@ -302,14 +306,14 @@ export default {
             handler: function(val, oldVal) {
                 console.log(1113, val);
                 const vtx = this;
-                if (val) {
-                    console.log(222);
-                    const client = window.mxMatrixClientPeg.matrixClient;
-                    vtx.isEncrypted = vtx.privateShouldBeEncrypted()
-                    client.doesServerForceEncryptionForPreset("private")
-                        .then(isForced => vtx.canChangeEncryption = !isForced);
-                    console.log(333)
-                }
+                // if (val) {
+                //     console.log(222);
+                //     const client = window.mxMatrixClientPeg.matrixClient;
+                //     vtx.isEncrypted = vtx.privateShouldBeEncrypted()
+                //     client.doesServerForceEncryptionForPreset("private")
+                //         .then(isForced => vtx.canChangeEncryption = !isForced);
+                //     console.log(333)
+                // }
             },
             immediate: true
         }
