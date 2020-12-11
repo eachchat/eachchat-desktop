@@ -1538,6 +1538,13 @@ export default {
                                     };
                                     uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                                     this.showUploadProgress = false;
+                                    var div = document.getElementById("message-show-list");
+                                    if(div) {
+                                        this.$nextTick(() => {
+                                            console.log("div scrolltop is ", div.scrollHeight)
+                                            div.scrollTop = div.scrollHeight;
+                                        })
+                                    }
                                 });
                         })
                     }
@@ -1557,6 +1564,13 @@ export default {
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                             this.showUploadProgress = false;
+                            var div = document.getElementById("message-show-list");
+                            if(div) {
+                                this.$nextTick(() => {
+                                    console.log("div scrolltop is ", div.scrollHeight)
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
                         });
                     }
                 }
@@ -1613,6 +1627,13 @@ export default {
                                     };
                                     uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                                     this.showUploadProgress = false;
+                                    var div = document.getElementById("message-show-list");
+                                    if(div) {
+                                        this.$nextTick(() => {
+                                            console.log("div scrolltop is ", div.scrollHeight)
+                                            div.scrollTop = div.scrollHeight;
+                                        })
+                                    }
                                     return uploadPromise;
                                 });
                         })
@@ -1634,6 +1655,14 @@ export default {
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
+                            var div = document.getElementById("message-show-list");
+                            if(div) {
+                                this.$nextTick(() => {
+                                    console.log("div scrolltop is ", div.scrollHeight)
+                                    div.scrollTop = div.scrollHeight;
+                                })
+                            }
+                            this.showUploadProgress = false;
                         });
                     }
                 }
@@ -2838,7 +2867,7 @@ s        },
                                     this.showScrollBar();
                                 }
                             })
-                        }, 0)
+                        }, 100)
                     })
             }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
