@@ -1333,10 +1333,10 @@ export default {
             if(!this.distUrl || this.distUrl == '') {
                 let defaultGroupIcon;
                 if(this.DMCheck(this.chat))
-                    defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+                    this.distUrl = "./static/Img/User/user-40px@2x.png";
                 else
-                    defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-               groupIcoElement.setAttribute("src", defaultGroupIcon); 
+                    this.distUrl = "./static/Img/User/group-40px@2x.png";
+               groupIcoElement.setAttribute("src", this.distUrl); 
             }
             if(groupIcoElement != undefined && this.distUrl) {
               groupIcoElement.setAttribute("src", this.distUrl);
