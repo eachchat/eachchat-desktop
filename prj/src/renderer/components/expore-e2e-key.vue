@@ -113,7 +113,7 @@ export default {
                 this.SelectLocal();
             }
             else {
-                this.$emit("CanLogout", true);
+                this.$emit("CanLogout", this.needLogout);
             }
         },
         SelectLocal() {
