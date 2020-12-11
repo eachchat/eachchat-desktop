@@ -6,12 +6,16 @@
                 <img class="close" @click.self.stop="close" src="../../../static/Img/Main/xincaca.png">
             </div>
             <div class="setting-field">
-                <div class="filed-title">群聊类型</div>
+                <div class="filed-title">群聊类型</div> <!--@change="setJoinRule" -->
                 <div class="xiaomiaoshu">
-                    <input @change="setJoinRule" id="puborprt0" type="radio" value="public" v-model="joinRule">
+                    <img class="imgGouxuan" v-if="joinRule == 'public'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setJoinRule1('public')">
+                    <input style="display:none;" id="puborprt0" type="radio" value="public" v-model="joinRule"> 
                     <label for="puborprt0"  >公共-任何人可以加入</label></div>
                 <div class="xiaomiaoshu">
-                    <input @change="setJoinRule" id="puborprt1" type="radio" value="invite" v-model="joinRule">
+                    <img class="imgGouxuan" v-if="joinRule == 'invite'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setJoinRule1('invite')">
+                    <input style="display:none;" id="puborprt1" type="radio" value="invite" v-model="joinRule">
                     <label for="puborprt1"  >私人-需要邀请加入</label>
                 </div>
             </div>
@@ -37,29 +41,39 @@
                 </div>
             </div>
             <div class="setting-field">
-                <div class="filed-title">谁可以查看聊天历史？</div>
+                <div class="filed-title">谁可以查看聊天历史？</div> <!--@change="setHistory"-->
                 <div class="xiaomiaoshu tipdesc">对谁可以阅读历史记录的更改仅适用于此群聊中将来的消息。现有聊天历史的可见性将保持不变。</div>
                 <div class="xiaomiaoshu">
-                    <input @change="setHistory" type="radio" id="histcheck0" value="invited" v-model="history">
+                    <img class="imgGouxuan" v-if="history == 'invited'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setHistory1('invited')">
+                    <input style="display:none;" type="radio" id="histcheck0" value="invited" v-model="history">
                     <label for="histcheck0">只有群成员(从群成员被邀请时 )</label>
                 </div>
                 <div class="xiaomiaoshu">
-                    <input @change="setHistory" type="radio" id="histcheck1" value="joined" v-model="history">
+                    <img class="imgGouxuan" v-if="history == 'joined'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setHistory1('joined')">
+                    <input style="display:none;" type="radio" id="histcheck1" value="joined" v-model="history">
                     <label for="histcheck1">只有群成员(从群成员加入群聊时 )</label>
                 </div>
                 <div class="xiaomiaoshu">
-                    <input @change="setHistory" type="radio" id="histcheck2" value="shared" v-model="history">
+                    <img class="imgGouxuan" v-if="history == 'shared'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setHistory1('shared')">
+                    <input style="display:none;" type="radio" id="histcheck2" value="shared" v-model="history">
                     <label for="histcheck2">只有群成员（从此选项被选中的那一时刻)</label>
                 </div>
             </div>
             <div class="setting-field">
-                <div class="filed-title">谁可以加入群聊</div>
+                <div class="filed-title">谁可以加入群聊</div> <!--@change="setGuestAccess"-->
                 <div class="xiaomiaoshu">
-                    <input @change="setGuestAccess" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess">
+                    <img class="imgGouxuan" v-if="guestAccess == 'forbidden'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setGuestAccess1('forbidden')">
+                    <input style="display:none;" type="radio" id="whocanjoin0" value="forbidden" v-model="guestAccess">
                     <label for="whocanjoin0">任何知道群聊链接的人，不包括所在域外的用户</label>
                 </div>
                 <div class="xiaomiaoshu">
-                    <input @change="setGuestAccess" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess">
+                    <img class="imgGouxuan" v-if="guestAccess == 'can_join'" src="../../../static/Img/Main/xgg.png">
+                    <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setGuestAccess1('can_join')">
+                    <input style="display:none;" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess">
                     <label for="whocanjoin1">任何知道群聊链接的人，包括所在域外的用户</label>
                 </div>
             </div>
@@ -134,6 +148,9 @@ export default {
         close: function() {
             this.$emit('close', 'close')
         },
+        setJoinRule1(txt) {
+            this.joinRule = txt;
+        },
         setJoinRule: function(e) {
             const joinRule = e.target.value;
             console.log('joinRule', joinRule)
@@ -142,6 +159,9 @@ export default {
                 console.error(e);
             });
         },
+        setGuestAccess1(txt) {
+            this.guestAccess = txt;
+        },
         setGuestAccess: function(e) {
             const guestAccess = e.target.value;
             console.log('guestAccess', guestAccess)
@@ -149,6 +169,9 @@ export default {
             window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.guest_access", {guest_access: guestAccess}, "").catch((e) => {
                 console.error(e);
             });
+        },
+        setHistory1(txt) {
+            this.history = txt;
         },
         setHistory: function(e) {
             const history = e.target.value;
@@ -303,6 +326,8 @@ export default {
         color: #333333;
         line-height: 20px;
         letter-spacing: 1px;
+        display: flex;
+        align-items: center;
     }
     .tipdesc {
         color: #999999;
@@ -374,5 +399,10 @@ export default {
     }
     .groupSettingSlienceSwitch {
         margin-left: 40px;
+    }
+    .imgGouxuan {
+        height: 20px;
+        width: 20px;
+        margin-right: 4px;
     }
 </style>
