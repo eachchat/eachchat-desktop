@@ -350,7 +350,7 @@ export default {
                     //display_name
                     //user_id
                     let u = {}
-                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                     u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
                     c.choosen = false;
@@ -360,7 +360,7 @@ export default {
                 scs.push({dvd:true, txt:'我的联系人'})
                 searchContacts.forEach(c => {
                     let u = {}
-                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                     u.display_name =  c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
                     c.choosen = false;
@@ -371,7 +371,7 @@ export default {
                 let results = res.results || [];
                 results.forEach(c => {
                     c.choosen = false; 
-                    c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                    c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
                     mxs.push(c);
                 })
                 const totalArray = [...sus, ...scs, ...mxs];
@@ -531,7 +531,7 @@ export default {
                 const dvd = {dvd:true, txt:'我的联系人'};
                 const contactUsers = await Contact.GetAllContact();
                 contactUsers.forEach(c => {
-                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                 })
                 rootDep.type = 'dep';
                 let totalArray = [rootDep, dvd, ...contactUsers];
@@ -568,7 +568,7 @@ export default {
             subDep.forEach(s=>s.type = 'dep')
             subUsers.forEach(c=>{
                 c.display_name = c.user_display_name || c.user_name;
-                c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+                c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                 
             })
             let totalArray = [...subDep, ...subUsers];
@@ -586,7 +586,7 @@ export default {
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
         contactUsers.forEach(c => {
-            c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || '../../../static/Img/User/user-40px@2x.png';
+            c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
         })
         const dvd = {dvd:true, txt:'我的联系人'};
         const layer = {name:'联系人', department_id:'lxr', choosen: true}
