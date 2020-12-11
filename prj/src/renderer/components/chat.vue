@@ -2367,16 +2367,18 @@ s        },
             this._timelineWindow.paginate("f", 1, false).then(() => {
                 this.messageList = this._getEvents();
             })
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    var div = document.getElementById("message-show-list");
-                    if(div) {
-                            console.log("div scrolltop is ", div.scrollHeight)
-                            // div.scrollTop = div.scrollHeight;
-                            div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
-                        }
-                })
-            }, 100)
+            if(!this.isScroll) {
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        var div = document.getElementById("message-show-list");
+                        if(div) {
+                                console.log("div scrolltop is ", div.scrollHeight)
+                                // div.scrollTop = div.scrollHeight;
+                                div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+                            }
+                    })
+                }, 100)
+            }
         },
 
         IsBottom: function(){
