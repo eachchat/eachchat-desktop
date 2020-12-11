@@ -300,6 +300,23 @@ export default {
         mxSelectMember() {
 
         },
+        DMCheck(curRoomItem) {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const mDirectEvent = client.getAccountData('m.direct');
+            let dmRoomMap = {};
+            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+            let currentRoom = curRoomItem;
+            let dmRoomIdArr = [];
+            const roomId = currentRoom.roomId;
+            const userId = client.getUserId();
+            Object.keys(dmRoomMap).forEach(k=>{
+                let arr = dmRoomMap[k];
+                arr.forEach(a=>dmRoomIdArr.push(a))
+            })
+            if (dmRoomIdArr.includes(roomId)) {
+                return true;
+            } else {return false;}
+        },
         createAnother() {
             console.log('this.chat', this.chat)
             const client = window.mxMatrixClientPeg.matrixClient;
@@ -368,7 +385,7 @@ export default {
                                             this.showScrollBar();
                                         }
                                     })
-                                }, 0)
+                                }, 100)
                             })
                     }, 500)
                 })
@@ -546,7 +563,7 @@ export default {
                         this.menuQuote(msgItem)
                     }
                 }));
-                if(!this.isSecret) {
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -585,19 +602,7 @@ export default {
                             this.menuFav(msgItem)
                         }
                     }));
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                    }
+                }
                 if(showRedact) {
                     this.menu.append(new MenuItem({
                         label: "删除",
@@ -615,7 +620,7 @@ export default {
                     }));
                 }
                 this.menu.append(new MenuItem({
-                    label: "下载",
+                    label: "另存为",
                     click: () => {
                         this.downloadFile(msgItem);
                     }
@@ -1327,11 +1332,11 @@ export default {
             console.log("=================distUrl ", this.distUrl);
             if(!this.distUrl || this.distUrl == '') {
                 let defaultGroupIcon;
-                // if(this.isSecret)
-                    defaultGroupIcon = "../../../static/Img/User/group-40px@2x.png";
-                // else
-                //     defaultGroupIcon = "../../../static/Img/Chat/encrypt-chat-title@2x.png";
-               groupIcoElement.setAttribute("src", defaultGroupIcon); 
+                if(this.DMCheck(this.chat))
+                    this.distUrl = "./static/Img/User/user-40px@2x.png";
+                else
+                    this.distUrl = "./static/Img/User/group-40px@2x.png";
+               groupIcoElement.setAttribute("src", this.distUrl); 
             }
             if(groupIcoElement != undefined && this.distUrl) {
               groupIcoElement.setAttribute("src", this.distUrl);
@@ -1646,20 +1651,13 @@ export default {
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
+                            this.showUploadProgress = false;
                         });
                     }
                 }
         },
 
         SendText: function(sendBody, varcontent){
-            var div = document.getElementById("message-show-list");
-            if(div) {
-                this.$nextTick(() => {
-                    console.log("div scrolltop is ", div.scrollHeight)
-                    div.scrollTop = div.scrollHeight;
-                })
-            }
-            
             this.cleanEditor();
             global.mxMatrixClientPeg.matrixClient.sendMessage(this.chat.roomId, sendBody);
         },
@@ -2323,7 +2321,7 @@ s        },
                         this.scrollToDistMsg(eventId);
                         div.addEventListener('scroll', this.handleScroll);
                     })
-                }, 0);
+                }, 500);
             })
         },
         scrollToDistMsg: function(eventId) {
@@ -2369,13 +2367,16 @@ s        },
             this._timelineWindow.paginate("f", 1, false).then(() => {
                 this.messageList = this._getEvents();
             })
-            if(bottom){             
-                setTimeout(() => {
+            setTimeout(() => {
                 this.$nextTick(() => {
-                        this.SetToBottom();
-                    })  
-                }, 100);   
-            }  
+                    var div = document.getElementById("message-show-list");
+                    if(div) {
+                            console.log("div scrolltop is ", div.scrollHeight)
+                            // div.scrollTop = div.scrollHeight;
+                            div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+                        }
+                })
+            }, 100)
         },
 
         IsBottom: function(){
@@ -2850,7 +2851,7 @@ s        },
                                     this.showScrollBar();
                                 }
                             })
-                        }, 0)
+                        }, 100)
                     })
             }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);

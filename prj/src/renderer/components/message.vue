@@ -33,6 +33,10 @@
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
+                        v-on:click="ShowFile()" v-else-if="MsgIsLink()">
+                        <a class="chat-msg-content-mine-link" :id="msg.event.event_id">{{messageContent}}</a>
+                    </div>
+                    <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-mine-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
@@ -115,25 +119,7 @@ export default {
             return "message-template-" + this.msg.event.event_id;
         },
         showUserInfoTip: async function() {
-            if(this.userIconElement == undefined) {
-                this.userIconElement = document.getElementById(userIconElementId);
-            }
-            if(this.userIconElement == undefined) {
-                // ToDo exception.
-                return;
-            }
-            var curAbsoluteTop = getElementTop(this.userIconElement);
-            var curAbsoluteLeft = getElementLeft(this.userIconElement);
-            if(this.userInfo == undefined) {
-                await this.msgUserInfo()
-            }
-            var tipInfos = {
-                "userInfo": this.userInfo,
-                "absoluteTop": curAbsoluteTop,
-                "absoluteLeft": curAbsoluteLeft,
-                "isMine": this.MsgIsMine(),
-            }
-            this.$emit("openUserInfoTip", tipInfos);
+            return;
         },
         msgNameId: function() {
             return this.msg.event.event_id + "-username";
@@ -317,6 +303,9 @@ export default {
                     }
                     this.$emit('playAudioOfMessage', this.msg.event.event_id);
                 }
+                else if(this.MsgIsLink(this.msg)) {
+                    shell.openExternal(chatGroupMsgContent.body);
+                }
                 // if(chatGroupMsgContent.msgtype == 'm.image'){
                 //     var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
                 //     var imageInfo = {
@@ -483,6 +472,24 @@ export default {
             let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.audio'){
                 return true;
+            }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
+            else{
+                return false;
+            }
+        },
+        MsgIsLink: function() {
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
+            if(chatGroupMsgType == 'm.text'){
+                var chatGroupMsgContent = this.msg.getContent();
+                if(chatGroupMsgContent.body.indexOf("http://") >= 0 ||
+                    chatGroupMsgContent.body.indexOf("https://") >= 0 || 
+                    chatGroupMsgContent.body.indexOf("www.") >= 0) {
+                        return true;
+                    }
+                return false;
             }
             else if(chatGroupMsgType == "m.bad.encrypted") {
                 return false;
@@ -1334,6 +1341,44 @@ export default {
         letter-spacing:1px;
     }
 
+    .chat-msg-content-mine-link {
+        float:right;
+        background-color: rgba(1,1,1,0);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
+        color: #3B89CF;
+    }
+
+    .chat-msg-content-mine-link:hover{
+        float:right;
+        background-color: rgba(1,1,1,0);
+        max-width: 260px;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing:1px;
+        color: #3B89CF;
+        text-decoration: underline
+    }
     .chat-msg-content-mine-txt {
         float:right;
         background-color: rgba(1,1,1,0);

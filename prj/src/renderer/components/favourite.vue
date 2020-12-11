@@ -2,9 +2,9 @@
     <el-container>
         <el-aside width="280px">
             <div class="list-header">
-                <div class="search">
+                <!-- <div class="search">
                     <el-input size='mini' class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." clearable></el-input>
-                </div>
+                </div> -->
             </div>
             <div class="list-content">
                 <div class="organization-view">
@@ -67,7 +67,7 @@
 import {services} from '../../packages/data/index.js';
 import listHeader from './listheader';
 import favouriteList from './favourite-list'
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
 import {ipcRenderer} from 'electron'
 export default {
     name: 'favourite',

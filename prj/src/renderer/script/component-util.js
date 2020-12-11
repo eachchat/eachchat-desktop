@@ -108,7 +108,32 @@ const ComponentUtil = {
         if(!userInfo)
             return;
         return await this.ShowOrgInfoByUserID(userInfo.user_id);
-    }
+    },
+
+    async OrgUserInfoToContact(userinfo){
+        let contactInfo = {
+            matrix_id : userinfo.matrix_id,
+            display_name: userinfo.user_display_name,
+        }
+        let email = await UserInfo.GetUserEmailByUserID(userinfo.user_id);
+        if(email.length != 0)
+            contactInfo.email = email[0].email_value;
+        let phone = await UserInfo.GetUserPhoneByUserID(userinfo.user_id);
+        for (var i = 0; i < phone.length; i ++){
+            var temp = phone[i];
+            if(temp.phone_type == 'mobile'){
+                contactInfo.mobile = temp.phone_value;
+            }else{
+                contactInfo.telephone = temp.phone_value;
+            }
+        }
+        let company = await Department.GetDepartmentInfoByUserID(userinfo.user_id);
+        if(company)
+            contactInfo.company = company.display_name
+        contactInfo.title = userinfo.user_title;
+        return contactInfo
+        
+    },
 }
 
 export{

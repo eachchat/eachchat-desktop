@@ -3,7 +3,7 @@
         <el-aside width="292px">
             <div class="list-header">
                 <div class="search">
-                    <el-input size='mini' clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." ></el-input>
+                    <el-input size='mini' clearable prefix-icon="el-icon-search" class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." ></el-input>
                 </div>
             </div>
             <div class="search-view" v-show="showSearchView">
@@ -13,7 +13,7 @@
                         v-for="(department, index) in searchDeparements"
                         @click="searchDeparmentItemClicked(department.department_id)" 
                         :key="index">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Common/department_list@2x.png">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/organization-40px@2x.png">
                         <div class="manager-info">
                         <p v-html="msgContentHightLight(department.display_name)" class="contact-list-name">{{ department.display_name }}</p>
                         <p v-html="msgContentHightLight(department.description)" class="contact-list-titile">{{ department.description }}</p>
@@ -49,7 +49,7 @@
                         v-for="(department, index) in departments"
                         @click="departmentMenuItemClicked(department)" 
                         :key="index">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png"><div class="department-info">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
                             <p class="department-name">{{ department.display_name }}</p>
                         </div>
                         <div align="center" class="item-arrow">
@@ -60,8 +60,8 @@
             </div>
         </el-aside>
         <el-container class="right-container">
-            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" :key="organizationListTimer"></organizationList>
-            <contactList  v-show='bContactShow' :parentInfo="currentDepartment" :key="organizationListTimer"></contactList>
+            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
+            <contactList  v-show='bContactShow' :parentInfo="currentDepartment" ></contactList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
@@ -80,7 +80,7 @@ import organizationList from './organization-list';
 import contactList from './contact-list'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
 import {ipcRenderer} from 'electron'
 import {ComponentUtil} from '../script/component-util.js'
 import '../style/organise.css'
@@ -554,9 +554,9 @@ display: none;
 }
 
     .search {
-        margin: 12px 0px 0px 16px;
+        margin: 12px 14px 0px 12px;
         text-align: left;
-        width: calc(100% - 86px);
+        width: 100%;
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
@@ -613,7 +613,7 @@ display: none;
         display: inline-block;
         position: absolute;
         text-indent: 10px;
-        width: 194px;
+        width: 245px;
         padding: 0;
         margin: 0px;
         height: 32px;

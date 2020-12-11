@@ -15,7 +15,7 @@
                 <img class="dropdown-item-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
                 <span class="dropdown-item-label">创建联系人</span> <!--发起密聊-->
             </el-dropdown-item>
-            <el-button slot="reference" icon="el-icon-plus" size="mini" circle></el-button>
+            <el-image slot="reference"  src="../../../static/Img/Organization/Image/addContact-24px.png"></el-image>
             </el-popover>
             
             </div>

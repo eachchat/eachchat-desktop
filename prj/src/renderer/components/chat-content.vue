@@ -17,7 +17,6 @@
             <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showInviteGroupList"
-                  @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
@@ -28,12 +27,15 @@
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
-                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
-                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
+                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
+                  <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
             </ul>
@@ -54,10 +56,11 @@
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
-                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
-                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
@@ -85,11 +88,16 @@
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
-                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag.png" v-show="isSecret(chatGroupItem)">
                   </div>
                   <div class="group-info">
-                    <p class="group-name" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                  </div>
+                  <div class="group-notice">
+                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
               </li>
@@ -450,6 +458,23 @@ export default {
     };
   },
   methods: {
+    DMCheck(curRoomItem) {
+        const client = window.mxMatrixClientPeg.matrixClient;
+        const mDirectEvent = client.getAccountData('m.direct');
+        let dmRoomMap = {};
+        if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+        let currentRoom = curRoomItem;
+        let dmRoomIdArr = [];
+        const roomId = currentRoom.roomId;
+        const userId = client.getUserId();
+        Object.keys(dmRoomMap).forEach(k=>{
+            let arr = dmRoomMap[k];
+            arr.forEach(a=>dmRoomIdArr.push(a))
+        })
+        if (dmRoomIdArr.includes(roomId)) {
+            return true;
+        } else {return false;}
+    },
     isSearching(isMsgSearch) {
         this.isMsgSearch = isMsgSearch;
     },
@@ -460,6 +485,7 @@ export default {
         this.showImportE2EKeyPage = true;
     },
     ShowAllGroup: function(){
+      this.unreadCount = 0;
       this.inviteGroupsList.length = 0;
       this.favouriteRooms.length = 0;
       this.dealShowGroupList.length = 0;
@@ -646,11 +672,11 @@ export default {
         }
       }
       if(this.isWindows()) {
-        if(this.$store.getters.flashNotice()) {
+        if(global.localStorage.getItem("message_notice")) {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
         try{
-          if(this.$store.getters.soundNotice()) {
+          if(global.localStorage.getItem("message_sound")) {
             this.amr.play();
           }
         }
@@ -659,14 +685,14 @@ export default {
         }
       }
       else {
-        if(this.$store.getters.flashNotice()) {
+        if(global.localStorage.getItem("message_notice")) {
           ipcRenderer.send("showNotice", fromName, notificateContent);
         }
       }
     },
     eventUpdateChatList(event, newMsg) {
       // ++this.needUpdate;
-      if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
+      if(this.curChat.group_type == 102 && (this.curChat.roomId == undefined || this.curChat.roomId.length == 0)) {
         this.callback(newMsg, true);
       }
       else{
@@ -954,6 +980,14 @@ export default {
     UpdateGroupImage: function(distGroup){
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
+        if(!this.distUrl || this.distUrl == '') {
+            let defaultGroupIcon;
+            if(this.DMCheck(distGroup))
+                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+            else
+                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
+            elementImg.setAttribute("src", defaultGroupIcon); 
+        }
         if(elementImg != undefined && distUrl) {
           elementImg.setAttribute("src", distUrl);
         }
@@ -1190,7 +1224,7 @@ export default {
       // ++this.needUpdate;
       console.log("isFavourete ", toFavourete);
       for(var i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id === groupId) {
+        if(this.showGroupList[i].roomId === groupId) {
           if(toFavourete) {
             this.showGroupList[i].status = changeStr(this.showGroupList[i].status, 4, "1");
             console.log("this.showgourlist statues ", this.showGroupList[i].status);
@@ -1309,8 +1343,14 @@ export default {
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
-      if(chatGroupItem.timeline.length == 0) return;
-      var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      if(chatGroupItem.timeline.length == 0) {
+        // console.log("getMsgLastMsgTime ", chatGroupItem.currentState)
+        // var distTimeLine = chatGroupItem.currentState._modified;
+        return;
+      }
+      else {
+        var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      }
       
       let event = distTimeLine.event;
 
@@ -1823,8 +1863,21 @@ export default {
         editor.setContents(content);
       }
     },
-    
-
+    ToJoinRoom: function(roomId) {
+      global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
+          .then(() => {
+              // this.isRefreshing = true;
+              setTimeout(() => {
+                this.JoinRoom(roomId);
+              }, 500)
+          })
+    },
+    RejectRoom: function(roomId) {
+      global.mxMatrixClientPeg.matrixClient.leave(roomId);
+      setTimeout(() => {
+          this.DeleteGroup(roomId);
+      }, 0)
+    },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
       for(let i in this.inviteGroupsList){
@@ -2339,7 +2392,7 @@ export default {
     margin-top: 0px;
     margin-right: 0px;
     margin-bottom: 0px;
-    border-radius:4px;
+    border-radius:50px;
     // z-index:-1;
   }
 
@@ -2352,6 +2405,7 @@ export default {
     margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 10px;
+    vertical-align: top;
   }
   
   .group-info {
@@ -2361,13 +2415,43 @@ export default {
     margin-left: 12px;
   }
 
+  .secret-flag {
+    display:inline-block;
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-right: 2px;
+    margin-bottom: 0px;
+    height: 20px;
+    width: 20px;
+    vertical-align: top;
+  }
+
   .group-name {
-    width: 100%;
+    display: inline-block;
+    max-width: 96%;
     height: 20px;
     font-size: 14px;
     font-weight: 500;
     font-family:PingFangSC-Medium;
     color: rgba(0, 0, 0, 1);
+    overflow: hidden;
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    letter-spacing:1px;
+  }
+
+  .group-name-secret {
+    display: inline-block;
+    max-width: 82%;
+    height: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family:PingFangSC-Medium;
+    color: rgba(36, 179, 107, 1);
     overflow: hidden;
     margin-left: 0px;
     margin-top: 10px;
@@ -2419,8 +2503,8 @@ export default {
 
   .group-unread-slience {
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -0px;
+    right: -0px;
     font-size: 0px;
     font-family:PingFangSC-Medium;
     float: right;
@@ -2435,20 +2519,10 @@ export default {
     // z-index:-1;
   }
 
-  .secret-flag {
-    position: absolute;
-    bottom: -5px;
-    right: -8px;
-    float: right;
-    margin: 0px;
-    height: 16px;
-    width: 16px;
-  }
-
   .group-unread {
     position: absolute;
-    top: -7px;
-    right: -7px;
+    top: -3px;
+    right: -3px;
     font-size: 10px;
     font-family: PingFangSC-Medium;
     float: right;
@@ -2521,4 +2595,24 @@ export default {
       z-index:3;
   }
 
+  .accept-invite{
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: solid 0px #009933;
+      margin-top: 19px;
+      margin-left: 13px;
+      vertical-align: top;
+  }
+
+  .reject-invite {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: solid 0px rgba(221, 221, 221, 1);
+      margin-right: 16px;
+      margin-top: 19px;
+      vertical-align: top;
+      float: right;
+  }
 </style>

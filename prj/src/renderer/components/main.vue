@@ -476,9 +476,9 @@ export default {
 */
         await global.services.common.login()
         global.services.common.InitDbData();
-        this.$nextTick(() => {
+        setTimeout(() => {
             this.showCurUserIcon();
-        }) 
+        }, 1000)
         var _this = this;
         document.addEventListener('click',function(e){
             console.log("e.target.classname is ", e.target.className)
