@@ -1180,6 +1180,7 @@ export default {
     height: 32px;
     width: 32px;
     flex-shrink: 0;
+    border-radius: 50%;
 }
 
 .memberItemContent {
@@ -1299,7 +1300,7 @@ export default {
     position: absolute;
     top: 0px;
     left: 0px;
-    border-radius:4px;
+    border-radius: 50%;
 }
 
 .groupInfoImageChange {

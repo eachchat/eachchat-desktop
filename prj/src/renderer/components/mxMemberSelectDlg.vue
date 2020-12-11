@@ -619,6 +619,7 @@ export default {
             width: 48px;
             margin-left: 8px;
             margin-right: 8px;
+            border-radius: 50%;
         }
     }
     .member-info {
@@ -704,6 +705,7 @@ export default {
         height: 32px;
         width: 32px;
         margin-right: 16px;
+        border-radius: 50%;
     }
     .room-info {
         text-overflow: ellipsis;

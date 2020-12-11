@@ -840,6 +840,7 @@ export default {
         height: 32px;
         width: 32px;
         margin-right: 16px;
+        border-radius: 50%;
     }
     .room-info {
         text-overflow: ellipsis;
