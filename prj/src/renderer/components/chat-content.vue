@@ -458,6 +458,23 @@ export default {
     };
   },
   methods: {
+    DMCheck(curRoomItem) {
+        const client = window.mxMatrixClientPeg.matrixClient;
+        const mDirectEvent = client.getAccountData('m.direct');
+        let dmRoomMap = {};
+        if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+        let currentRoom = curRoomItem;
+        let dmRoomIdArr = [];
+        const roomId = currentRoom.roomId;
+        const userId = client.getUserId();
+        Object.keys(dmRoomMap).forEach(k=>{
+            let arr = dmRoomMap[k];
+            arr.forEach(a=>dmRoomIdArr.push(a))
+        })
+        if (dmRoomIdArr.includes(roomId)) {
+            return true;
+        } else {return false;}
+    },
     isSearching(isMsgSearch) {
         this.isMsgSearch = isMsgSearch;
     },
@@ -963,6 +980,14 @@ export default {
     UpdateGroupImage: function(distGroup){
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
+        if(!this.distUrl || this.distUrl == '') {
+            let defaultGroupIcon;
+            if(this.DMCheck(distGroup))
+                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+            else
+                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
+            elementImg.setAttribute("src", defaultGroupIcon); 
+        }
         if(elementImg != undefined && distUrl) {
           elementImg.setAttribute("src", distUrl);
         }

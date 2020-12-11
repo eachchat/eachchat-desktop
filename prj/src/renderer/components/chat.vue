@@ -300,6 +300,23 @@ export default {
         mxSelectMember() {
 
         },
+        DMCheck(curRoomItem) {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const mDirectEvent = client.getAccountData('m.direct');
+            let dmRoomMap = {};
+            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+            let currentRoom = curRoomItem;
+            let dmRoomIdArr = [];
+            const roomId = currentRoom.roomId;
+            const userId = client.getUserId();
+            Object.keys(dmRoomMap).forEach(k=>{
+                let arr = dmRoomMap[k];
+                arr.forEach(a=>dmRoomIdArr.push(a))
+            })
+            if (dmRoomIdArr.includes(roomId)) {
+                return true;
+            } else {return false;}
+        },
         createAnother() {
             console.log('this.chat', this.chat)
             const client = window.mxMatrixClientPeg.matrixClient;
@@ -1315,10 +1332,10 @@ export default {
             console.log("=================distUrl ", this.distUrl);
             if(!this.distUrl || this.distUrl == '') {
                 let defaultGroupIcon;
-                // if(this.isSecret)
-                    defaultGroupIcon = "../../../static/Img/User/group-40px@2x.png";
-                // else
-                //     defaultGroupIcon = "../../../static/Img/Chat/encrypt-chat-title@2x.png";
+                if(this.DMCheck(this.chat))
+                    defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+                else
+                    defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
                groupIcoElement.setAttribute("src", defaultGroupIcon); 
             }
             if(groupIcoElement != undefined && this.distUrl) {
