@@ -145,7 +145,8 @@ export default {
             console.log("========= toexport ", paths.filePaths);
             this.canSelecteFile = true;
             if(paths.filePaths.length == 0) return;
-            var distPath = path.join(paths.filePaths[0], this.generalFileName());
+            var finalFileName = this.generalFileName();
+            var distPath = path.join(paths.filePaths[0], finalFileName);
             Promise.resolve().then(() => {
                 return global.mxMatrixClientPeg.matrixClient.exportRoomKeys()
                 }).then((k) => {
@@ -168,7 +169,7 @@ export default {
                     return;
                 })
 
-            this.$toastMessage({message:"导出 eachchat_key.txt 成功", time: 3000, type:'success'});
+            this.$toastMessage({message:"导出 export_key 成功", time: 3000, type:'success'});
             this.ContinueTxt = "退出";
         },
     }

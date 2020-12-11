@@ -383,7 +383,7 @@ export default {
         ipcRenderer.send("showLoginPageWindow");
       }
       else {
-        this.showGeneralRecoveryKeyPage = false;
+        this.showExportE2EKeyPage = false;
       }
     },
     logout: async function() {
