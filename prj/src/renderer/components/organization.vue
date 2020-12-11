@@ -80,7 +80,7 @@ import organizationList from './organization-list';
 import contactList from './contact-list'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
 import {ipcRenderer} from 'electron'
 import {ComponentUtil} from '../script/component-util.js'
 import '../style/organise.css'

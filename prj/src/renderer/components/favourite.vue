@@ -67,7 +67,7 @@
 import {services} from '../../packages/data/index.js';
 import listHeader from './listheader';
 import favouriteList from './favourite-list'
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
 import {ipcRenderer} from 'electron'
 export default {
     name: 'favourite',
