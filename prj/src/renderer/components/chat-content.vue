@@ -30,11 +30,11 @@
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
-                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
-                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="JoinRoom(chatGroupItem.roomId)"/>
+                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
@@ -59,8 +59,8 @@
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
-                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
@@ -91,8 +91,8 @@
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
-                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.group_id, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
@@ -458,6 +458,23 @@ export default {
     };
   },
   methods: {
+    DMCheck(curRoomItem) {
+        const client = window.mxMatrixClientPeg.matrixClient;
+        const mDirectEvent = client.getAccountData('m.direct');
+        let dmRoomMap = {};
+        if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+        let currentRoom = curRoomItem;
+        let dmRoomIdArr = [];
+        const roomId = currentRoom.roomId;
+        const userId = client.getUserId();
+        Object.keys(dmRoomMap).forEach(k=>{
+            let arr = dmRoomMap[k];
+            arr.forEach(a=>dmRoomIdArr.push(a))
+        })
+        if (dmRoomIdArr.includes(roomId)) {
+            return true;
+        } else {return false;}
+    },
     isSearching(isMsgSearch) {
         this.isMsgSearch = isMsgSearch;
     },
@@ -675,7 +692,7 @@ export default {
     },
     eventUpdateChatList(event, newMsg) {
       // ++this.needUpdate;
-      if(this.curChat.group_type == 102 && (this.curChat.group_id == undefined || this.curChat.group_id.length == 0)) {
+      if(this.curChat.group_type == 102 && (this.curChat.roomId == undefined || this.curChat.roomId.length == 0)) {
         this.callback(newMsg, true);
       }
       else{
@@ -963,6 +980,14 @@ export default {
     UpdateGroupImage: function(distGroup){
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
+        if(!this.distUrl || this.distUrl == '') {
+            let defaultGroupIcon;
+            if(this.DMCheck(distGroup))
+                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+            else
+                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
+            elementImg.setAttribute("src", defaultGroupIcon); 
+        }
         if(elementImg != undefined && distUrl) {
           elementImg.setAttribute("src", distUrl);
         }
@@ -1199,7 +1224,7 @@ export default {
       // ++this.needUpdate;
       console.log("isFavourete ", toFavourete);
       for(var i=0;i<this.showGroupList.length;i++) {
-        if(this.showGroupList[i].group_id === groupId) {
+        if(this.showGroupList[i].roomId === groupId) {
           if(toFavourete) {
             this.showGroupList[i].status = changeStr(this.showGroupList[i].status, 4, "1");
             console.log("this.showgourlist statues ", this.showGroupList[i].status);
@@ -1838,7 +1863,15 @@ export default {
         editor.setContents(content);
       }
     },
-    
+    ToJoinRoom: function(roomId) {
+      global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
+          .then(() => {
+              // this.isRefreshing = true;
+              setTimeout(() => {
+                this.JoinRoom(roomId);
+              }, 500)
+          })
+    },
     RejectRoom: function(roomId) {
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       setTimeout(() => {
@@ -2395,7 +2428,7 @@ export default {
 
   .group-name {
     display: inline-block;
-    width: calc(100%-18px);
+    max-width: 96%;
     height: 20px;
     font-size: 14px;
     font-weight: 500;
@@ -2413,7 +2446,7 @@ export default {
 
   .group-name-secret {
     display: inline-block;
-    width: 82%;
+    max-width: 82%;
     height: 20px;
     font-size: 14px;
     font-weight: 500;
@@ -2568,7 +2601,7 @@ export default {
       height: 20px;
       border: solid 0px #009933;
       margin-top: 19px;
-      margin-left: 4px;
+      margin-left: 13px;
       vertical-align: top;
   }
 
@@ -2577,7 +2610,7 @@ export default {
       width: 20px;
       height: 20px;
       border: solid 0px rgba(221, 221, 221, 1);
-      margin-right: 25px;
+      margin-right: 16px;
       margin-top: 19px;
       vertical-align: top;
       float: right;

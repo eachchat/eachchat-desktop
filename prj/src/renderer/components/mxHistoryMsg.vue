@@ -22,7 +22,7 @@
                             <label class="MxmessageInfoOwnerNameLabel" :id="getUserNameId(item)"></label>
                             <label class="MxmessageInfoTimeLabel">{{getMsgTime(item)}}</label>
                         </div>
-                        <div class="MxmessageInfoDetailLabel" v-html="msgContentHeightLight(item)"></div>
+                        <div class="MxmessageInfoDetailLabel" v-html="msgContentHeightLight(item)" v-show="!MsgIsVoice(item)"></div>
                         <div class="MxmessageImg" v-if="MsgIsImage(item)">
                             <img class="Mx-msg-image" :id="getMxImgId(item)" :src="getMsgImgIcon(item)" alt="图片">
                         </div>
@@ -178,9 +178,9 @@ export default {
         getAppBaseData:async function() {
             // Init services
             // Set accessToken in services
-            console.log("global is ", global.mxMatrixClientPeg)
+            // console.log("global is ", global.mxMatrixClientPeg)
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
-            console.log("the init user id is ,", this.GroupInfo)
+            // console.log("the init user id is ,", this.GroupInfo)
             confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
 
             // this.$store.commit("setUserId", this.curUserInfo.id)
@@ -239,7 +239,7 @@ export default {
             return environment.os.isWindows;
         },
         showGroupInfo: async function(chatGroupItem) {
-            console.log("showGroupInfo groupinfo is ", this.GroupInfo)
+            // console.log("showGroupInfo groupinfo is ", this.GroupInfo)
             if(this.GroupInfo.roomId == undefined){
                 return "";
             }
@@ -258,10 +258,11 @@ export default {
                 var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
                 var distUserNameElement = document.getElementById(this.getUserNameId(curItem));
 
-                var sender = this.GroupInfo.getMember(curItem.getSender());
+                var sender = global.mxMatrixClientPeg.matrixClient.getUser(curItem.event.sender);
+                // console.log("============ sender ", sender)
                 
-                var userUrl = sender.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), 40, 40, undefined, false, false);
-                var distUserName = sender.name;
+                var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, 40, 40);;
+                var distUserName = sender.displayName;
                 distUserNameElement.innerHTML = distUserName;
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
                     distUserImgElement.setAttribute("src", userUrl);

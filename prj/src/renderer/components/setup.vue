@@ -948,7 +948,7 @@ export default {
   }
 
   .setup-general-clear-cache-label2 {
-    width:65px;
+    width:75px;
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
