@@ -77,6 +77,10 @@
                     <label for="whocanjoin1">任何知道群聊链接的人，包括所在域外的用户</label>
                 </div>
             </div>
+            <div class="mxTransmitFotter">
+                <button :class="{mxTransmitConfirmButton:!busy, mxTransmitConfirmButtonLoading:busy}" @click.stop="confirm">确认</button>
+                <button class="mxTransmitCancleButton" @click.stop="close">取消</button>
+            </div>
             <!-- <div class="encryption-field">
                 <label class="groupSettingSlienceLabel">端到端加密</label>
                 <el-switch 
@@ -115,12 +119,44 @@ export default {
             serverAddress: '',
             mxEncryption: false,
             encryptionWarning: false,
-            currentRoom: undefined
+            currentRoom: undefined,
+            busy: false
         }
     },
     props: ['roomId'],
     puborprtTimer: null,
     methods: {
+        confirm() {
+            if (this.busy) return;
+            this.busy = true;
+            const roomId = this.roomId;
+            const address = '#' + this.serverAddress + ':matrix.each.chat';
+            const joinRule = this.joinRule;
+            const history = this.history;
+            const guestAccess = this.guestAccess;
+            let promises = [];
+            let p1 = window.mxMatrixClientPeg.matrixClient.createAlias(address, roomId).then(()=>{
+                console.log('success!!@')
+            }).catch((e) => {
+                console.error(e);
+            });
+            let p2 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.join_rules", {join_rule: joinRule}, "").catch((e) => {
+                console.error(e);
+            });
+            let p3 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.guest_access", {guest_access: guestAccess}, "").catch((e) => {
+                console.error(e);
+            });
+            let p4 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.history_visibility", {history_visibility: history}, "").catch((e) => {
+                console.error(e);
+            });
+            promises = [p1,p2,p3,p4];
+            Promise.all(promises).then(()=>{
+                this.busy = false;
+                this.close();
+            }).catch(() => {
+                this.busy = false;
+            })
+        },
         closeEncryWarn(mxEncryption) {
             this.encryptionWarning = false;
             if (mxEncryption) this.mxEncryption = true;
@@ -175,7 +211,7 @@ export default {
         },
         setHistory: function(e) {
             const history = e.target.value;
-            console.log('guestAccess', history)
+            console.log('history', history)
             const roomId = this.roomId;
             window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.history_visibility", {history_visibility: history}, "").catch((e) => {
                 console.error(e);
@@ -404,5 +440,57 @@ export default {
         height: 20px;
         width: 20px;
         margin-right: 4px;
+    }
+    .mxTransmitFotter {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+    }
+    .mxTransmitCancleButton {
+        border-radius:4px;
+        width: 100px;
+        height: 32px;
+        box-sizing: border-box;
+        border:1px solid #DDD;
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        letter-spacing: 1px;
+    }
+
+    .mxTransmitConfirmButton {
+        border-radius:4px;
+        font-family: PingFangSC-Regular;
+        width: 100px;
+        height: 32px;
+        box-sizing: border-box;
+        background-color: #24B36B;
+        border:1px solid #24B36B;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #fff;
+        margin-left: 20px;
+    }
+    .mxTransmitConfirmButtonLoading {
+        border-radius:4px;
+        font-family: PingFangSC-Regular;
+        width: 100px;
+        height: 32px;
+        box-sizing: border-box;
+        background-color: #A7E0C4;
+        border:1px solid #A7E0C4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #fff;
+        margin-left: 20px;
     }
 </style>

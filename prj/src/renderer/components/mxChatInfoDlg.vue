@@ -68,6 +68,7 @@ export default {
             let promises = [];
             let namePromise = client.setRoomName(this.roomId, name).catch((e)=>{console.error('群名称设置失败',e); vtx.loading = false;});
             let topicPromise = client.setRoomTopic(this.roomId, topic).catch((e)=>{console.error('群描述设置失败',e); vtx.loading = false;});
+            promises = [namePromise, topicPromise];
             Promise.all(promises).then(()=>{
                 vtx.loading = false;
                 vtx.$emit('close', 'close')
