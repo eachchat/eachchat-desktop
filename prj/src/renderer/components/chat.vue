@@ -368,7 +368,7 @@ export default {
                                             this.showScrollBar();
                                         }
                                     })
-                                }, 0)
+                                }, 100)
                             })
                     }, 500)
                 })
@@ -1538,13 +1538,6 @@ export default {
                                     };
                                     uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                                     this.showUploadProgress = false;
-                                    var div = document.getElementById("message-show-list");
-                                    if(div) {
-                                        this.$nextTick(() => {
-                                            console.log("div scrolltop is ", div.scrollHeight)
-                                            div.scrollTop = div.scrollHeight;
-                                        })
-                                    }
                                 });
                         })
                     }
@@ -1564,13 +1557,6 @@ export default {
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                             this.showUploadProgress = false;
-                            var div = document.getElementById("message-show-list");
-                            if(div) {
-                                this.$nextTick(() => {
-                                    console.log("div scrolltop is ", div.scrollHeight)
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
                         });
                     }
                 }
@@ -1627,13 +1613,6 @@ export default {
                                     };
                                     uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                                     this.showUploadProgress = false;
-                                    var div = document.getElementById("message-show-list");
-                                    if(div) {
-                                        this.$nextTick(() => {
-                                            console.log("div scrolltop is ", div.scrollHeight)
-                                            div.scrollTop = div.scrollHeight;
-                                        })
-                                    }
                                     return uploadPromise;
                                 });
                         })
@@ -1655,13 +1634,6 @@ export default {
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                            var div = document.getElementById("message-show-list");
-                            if(div) {
-                                this.$nextTick(() => {
-                                    console.log("div scrolltop is ", div.scrollHeight)
-                                    div.scrollTop = div.scrollHeight;
-                                })
-                            }
                             this.showUploadProgress = false;
                         });
                     }
@@ -1669,14 +1641,6 @@ export default {
         },
 
         SendText: function(sendBody, varcontent){
-            var div = document.getElementById("message-show-list");
-            if(div) {
-                this.$nextTick(() => {
-                    console.log("div scrolltop is ", div.scrollHeight)
-                    div.scrollTop = div.scrollHeight;
-                })
-            }
-            
             this.cleanEditor();
             global.mxMatrixClientPeg.matrixClient.sendMessage(this.chat.roomId, sendBody);
         },
@@ -2386,13 +2350,16 @@ s        },
             this._timelineWindow.paginate("f", 1, false).then(() => {
                 this.messageList = this._getEvents();
             })
-            if(bottom){             
-                setTimeout(() => {
+            setTimeout(() => {
                 this.$nextTick(() => {
-                        this.SetToBottom();
-                    })  
-                }, 100);   
-            }  
+                    var div = document.getElementById("message-show-list");
+                    if(div) {
+                            console.log("div scrolltop is ", div.scrollHeight)
+                            // div.scrollTop = div.scrollHeight;
+                            div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+                        }
+                })
+            }, 100)
         },
 
         IsBottom: function(){
