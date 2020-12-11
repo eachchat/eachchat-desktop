@@ -546,7 +546,7 @@ export default {
                         this.menuQuote(msgItem)
                     }
                 }));
-                if(!this.isSecret) {
+                if(!this.isSecret && false) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -585,19 +585,7 @@ export default {
                             this.menuFav(msgItem)
                         }
                     }));
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                    }
+                }
                 if(showRedact) {
                     this.menu.append(new MenuItem({
                         label: "删除",
@@ -615,7 +603,7 @@ export default {
                     }));
                 }
                 this.menu.append(new MenuItem({
-                    label: "下载",
+                    label: "另存为",
                     click: () => {
                         this.downloadFile(msgItem);
                     }
@@ -2323,7 +2311,7 @@ s        },
                         this.scrollToDistMsg(eventId);
                         div.addEventListener('scroll', this.handleScroll);
                     })
-                }, 0);
+                }, 500);
             })
         },
         scrollToDistMsg: function(eventId) {
