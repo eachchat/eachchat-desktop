@@ -793,7 +793,7 @@ display: none;
         display: none;
         font-size: 0px;
         vertical-align: top;
-        padding-top: 17px;
+        padding-top: 10px;
         padding-right: 0px;
         width: 78px;
         height: 20px;

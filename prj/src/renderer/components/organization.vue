@@ -554,9 +554,9 @@ display: none;
 }
 
     .search {
-        margin: 12px 0px 0px 16px;
+        margin: 12px 14px 0px 12px;
         text-align: left;
-        width: calc(100% - 86px);
+        width: 100%;
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
@@ -613,7 +613,7 @@ display: none;
         display: inline-block;
         position: absolute;
         text-indent: 10px;
-        width: 230px;
+        width: 245px;
         padding: 0;
         margin: 0px;
         height: 32px;
