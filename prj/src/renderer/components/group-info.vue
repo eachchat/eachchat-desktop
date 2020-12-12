@@ -41,7 +41,7 @@
             <div class="groupInfoNoticeAndName" v-else>
                 <div class="groupInfoName">
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
-                    <div class="chat-name">{{dmMember && dmMember.user ? dmMember.user.displayName : ''}}</div>
+                    <div class="chat-name">{{dmMember.rawDisplayName || dmMember.name}}</div>
                 </div>
                 <div class="chat-desc">{{dmMember && dmMember.user ? dmMember.user.userId : ''}}</div>
             </div>
@@ -928,7 +928,7 @@ export default {
             Object.keys(currentRoom.currentState.members).forEach(id => {
                 if (id != userId) {
                     let dmMember = currentRoom.currentState.members[id];
-                    console.log( 'dmMember', dmMember.user)
+                    console.log( 'dmMember', dmMember)
                     console.log( 'dmMember.user', dmMember.user)
                     if (!dmMember.user) dmMember.user = {};
                     dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
