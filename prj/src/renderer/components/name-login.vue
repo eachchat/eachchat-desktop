@@ -52,31 +52,32 @@
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="username-content" v-show="showUsernameLoginView">
                     <div class="title">
-                            {{$t("loginToEachChat")}}
+                            {{loginPageTitle}}
                     </div>
                     <div class="item-account">
                         <p class="account-title">
-                            {{$t("userNameCapitals")}}
+                            {{loginPageAccountLabel}}
                         </p>
-                        <input prefix="ios-contact-outline" v-model="username" :placeholder="$t('pwdTypeAccountInputPlaceHolder')" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                        <input prefix="ios-contact-outline" id="accountInputId" v-model="username" :placeholder="loginPageAccountPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
                     </div>
                     <div class="item-pwd">
                         <p class="password-title">
-                            {{$t("passwordCapitals")}}
+                            {{loginPagePwdLabel}}
                         </p>
-                        <input prefix="ios-lock-outline" type="password" v-model="password" :placeholder="$t('pwdTypePwdInputPlaceHolder')" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                        <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
                     </div>
-                    <div class="accountLogin-state">
+                    <div class="accountLogin-state" v-show="false">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
                             <i class="el-icon-loading" v-show="isLoading"></i>
                     </div>
+                    <div class="forget-password" @click="toResetPwd" :disabled="forgetPwdButtonDisabled">{{forgetPasswordContent}}</div>
                     <div class="btn item">
-                        <Button :disabled="loginButtonDisabled" type="success" id="loginButton" @click="login()">{{$t("login")}}</Button>
+                        <Button :disabled="loginButtonDisabled" type="success" id="loginButton" @click="login()">{{LoginBtnText}}</Button>
                     </div>
                     <div class="otherlogin" v-show="true">
-                        <div class="userphone-login" @click="userPhoneLoginClicked()" v-show="supportUserPhoneLogin">
+                        <div class="userphone-login" @click="userPhoneLoginClicked()" v-show="supportUserPhoneLogin && false">
                             {{$t("loginThroughSMS")}}
-                        </div><div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin">
+                        </div><div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin && false">
                             {{$t("loginThroughEmail")}}
                             </div>
                     </div>
@@ -206,6 +207,7 @@
                 <el-dropdown-item command="en">English</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="AlertConfirm" :width="alertWidth" :height="alertHeight" :contentLeft="alertContentLeft" :iconType="iconType"/>
     </div>
 </template>
 
@@ -219,17 +221,43 @@ import certification from './Certificate.vue';
 import generalSecureBackUpPage from './generalRecoveryCode.vue'
 import {getDefaultHomeServerAddr} from '../../config.js'
 import log from 'electron-log';
+import AlertDlg from './alert-dlg.vue'
 import { windowsStore } from 'process';
+import * as Matrix from 'matrix-js-sdk'
 export default {
     name: 'login',
     components:{
         macWindowHeader,
         winHeaderBar,
         certification,
-        generalSecureBackUpPage
+        generalSecureBackUpPage,
+        AlertDlg
     },
     data () {
         return {
+            forgetPwdButtonDisabled: false,
+            iconType: "alert",
+            LoginBtnText: "登录",
+            alertWidth: 0,
+            alertHeight: 0,
+            alertContentLeft: 0,
+            alertContnets: {},
+            showAlertDlg: false,
+            showEmailSendPage: false,
+            sessionId: '',
+            identityServerDomain: null,
+            clientSecret: null,
+            pwdResetClient: null,
+            isRecetPwd: false,
+            toVerfyEmail: false,
+            isLdap: false,
+            isMatrixPwd: false,
+            forgetPasswordContent: '',
+            loginPageTitle: '',
+            loginPageAccountLabel: '',
+            loginPageAccountPlaceholder: '',
+            loginPagePwdLabel: '',
+            loginPagePwdPlaceholder: '',
             toDetect: true,
             showDomListView: false,
             DomainList: [],
@@ -318,6 +346,79 @@ export default {
         }
     },
     methods: {
+        toResetPwd: function() {
+            this.loginPageTitle = "重置密码";
+            this.loginPageAccountLabel = "邮箱";
+            this.loginPageAccountPlaceholder = "请输入您的邮箱";
+            this.loginPagePwdLabel = "新密码";
+            this.loginPagePwdPlaceholder = "请输入新密码";
+            this.LoginBtnText = "确认";
+            this.forgetPasswordContent = "";
+            this.forgetPwdButtonDisabled = true;
+            this.username = "";
+            this.password = "";
+            this.isLdap = false;
+            this.isMatrixPwd = false;
+            this.isRecetPwd = true;
+            this.toVerfyEmail = false;
+            var identityUrl = global.localStorage.getItem("mx_i_url");
+            var homeServerUel = global.localStorage.getItem("mx_hs_url");
+            this.pwdResetClient = Matrix.createClient({
+                baseUrl: homeServerUel,
+                idBaseUrl: identityUrl,
+            });
+            this.clientSecret = this.pwdResetClient.generateClientSecret();
+            this.identityServerDomain = identityUrl ? identityUrl.split("://")[1] : null;
+        },
+        doesServerRequireIdServerParam() {
+            return this.pwdResetClient.doesServerRequireIdServerParam();
+        },
+        resetPassword(emailAddress, newPassword) {
+            this.password = newPassword;
+            return this.pwdResetClient.requestPasswordEmailToken(emailAddress, this.clientSecret, 1).then((res) => {
+                this.sessionId = res.sid;
+                return res;
+            }, function(err) {
+                if (err.errcode === 'M_THREEPID_NOT_FOUND') {
+                    err.message = _t('This email address was not found');
+                } else if (err.httpStatus) {
+                    err.message = err.message + ` (Status ${err.httpStatus})`;
+                }
+                throw err;
+            });
+        },
+        async checkEmailLinkClicked() {
+            const creds = {
+                sid: this.sessionId,
+                client_secret: this.clientSecret,
+            };
+            if (await this.doesServerRequireIdServerParam()) {
+                creds.id_server = this.identityServerDomain;
+            }
+
+            try {
+                await this.pwdResetClient.setPassword({
+                    // Note: Though this sounds like a login type for identity servers only, it
+                    // has a dual purpose of being used for homeservers too.
+                    type: "m.login.email.identity",
+                    // TODO: Remove `threepid_creds` once servers support proper UIA
+                    // See https://github.com/matrix-org/synapse/issues/5665
+                    // See https://github.com/matrix-org/matrix-doc/issues/2220
+                    threepid_creds: creds,
+                    threepidCreds: creds,
+                }, this.password);
+            } catch (err) {
+                if (err.httpStatus === 401) {
+                    err.message = "邮箱验证失败：请确保你已点击邮件中的链接";
+                } else if (err.httpStatus === 404) {
+                    err.message =
+                        '你似乎没有将此邮箱地址同在此主服务器上的任何一个 Matrix 账号绑定。';
+                } else if (err.httpStatus) {
+                    err.message += ` (Status ${err.httpStatus})`;
+                }
+                throw err;
+            }
+        },
         msgContentHeightLight: function(showContent) {
             if(this.showOrganizationView) {
                 if(this.organizationAddress.length == 0) {
@@ -504,6 +605,11 @@ export default {
         },
         resetLoginStateTitle(){
             this.loginState = "";
+            var accountInputDom = document.getElementById("accountInputId");
+            accountInputDom.style.borderColor = "rgba(221,221,221,1)";
+            var passwordInputDom = document.getElementById("passwordInputId");
+            passwordInputDom.style.borderColor = "rgba(221,221,221,1)";
+            return;
         },
         toDected: function() {
             this.organizationAddress = this.organizationAddress.trim();
@@ -587,6 +693,29 @@ export default {
                     this.isLoading = false;
                     this.organizationButtonDisabled = false;
                     this.resetLoginStateTitle();
+                    this.defaultIdentity = global.localStorage.getItem("defaultIdentity");
+                    if(this.defaultIdentity == "ldap" && false) {
+                        this.isLdap = true;
+                        this.isMatrixPwd = false;
+                        this.loginPageTitle = "组织认证";
+                        this.loginPageAccountLabel = "组织ID";
+                        this.loginPageAccountPlaceholder = "请输入您的组织ID";
+                        this.loginPagePwdLabel = "密码";
+                        this.loginPagePwdPlaceholder = "请输入密码";
+                        this.forgetPasswordContent = "";
+                        this.forgetPwdButtonDisabled = true;
+                    }
+                    else {
+                        this.isLdap = false;
+                        this.isMatrixPwd = true;
+                        this.loginPageTitle = "用户名登录";
+                        this.loginPageAccountLabel = "用户名";
+                        this.loginPageAccountPlaceholder = "请输入用户名";
+                        this.loginPagePwdLabel = "密码";
+                        this.loginPagePwdPlaceholder = "请输入密码";
+                        this.forgetPasswordContent = "忘记密码";
+                        this.forgetPwdButtonDisabled = false;
+                    }
                     this.showLoginView = true;
                     this.showOrganizationView = false;
                 })
@@ -604,7 +733,7 @@ export default {
                 if(result){
                     this.emialAddressButtonDisabled = true;
                     this.time = 61;
-                    this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                    this.$toastMessage({message:"发送成功", time: 2000, type:'success', showWidth:'280px'});
                     this.timer();
                 }
                 else{
@@ -727,7 +856,7 @@ export default {
             console.log("userPhoneSendCodeClicked", result)
             if(result.status == 200){
                 this.userPhoneSendCodeTime = 61;
-                this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                this.$toastMessage({message:"发送成功", time: 2000, type:'success', showWidth:'280px'});
                 this.userPhoneSendCodeTimer();
             }else if(result.status == 429){
                 this.loginState = result.data.error;
@@ -771,7 +900,7 @@ export default {
             console.log("result is ", result);
             if(result.status == 200){
                 this.userEmailSendCodeTime = 61;
-                this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                this.$toastMessage({message:"发送成功", time: 2000, type:'success', showWidth:'280px'});
                 this.userEmailSendCodeTimer();
             }else if(result.status == 429){
                 this.loginState = result.data.error;
@@ -783,10 +912,35 @@ export default {
             }
         },
         organizationFinderBackToLoginClicked(){
-            this.resetLoginStateTitle();
-            this.showLoginView = true;
-            this.showOrganizationFinderView = false;
-            this.showOrganizationView = true;
+            if(this.isRecetPwd || this.toVerfyEmail) {
+                this.loginPageTitle = "用户名登录";
+                this.loginPageAccountLabel = "用户名";
+                this.loginPageAccountPlaceholder = "请输入用户名";
+                this.loginPagePwdLabel = "密码";
+                this.loginPagePwdPlaceholder = "请输入密码";
+                this.isMatrixPwd = true;
+                this.forgetPasswordContent = "忘记密码";
+                this.forgetPwdButtonDisabled = false;
+                this.isRecetPwd = false;
+                this.toVerfyEmail = false;
+                this.isLdap = false;
+                var accountInputDom = document.getElementById("accountInputId");
+                if(accountInputDom) {
+                    accountInputDom.disabled = false;
+                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                }
+                var passwordInputDom = document.getElementById("passwordInputId");
+                if(passwordInputDom) {
+                    passwordInputDom.disabled = false;
+                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                }
+            }
+            else {
+                this.resetLoginStateTitle();
+                this.showLoginView = true;
+                this.showOrganizationFinderView = false;
+                this.showOrganizationView = true;
+            }
         },
         isCheckToken() {
             return this.tokenRefreshing;
@@ -867,47 +1021,97 @@ export default {
                 console.log("Unable to fetch key backup status", e);
             }
         },
-        login:async function() {
-            // this.loginState = "登录成功";
-            if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
-                if(this.showUsernameLoginView){
-                    this.loginState = "请输入账号和密码";
-                    return;
-                }else if(this.showUserphoneLoginView){
-                    this.loginState = "请输入手机号和验证码";
-                    return;
-                }else if(this.showUseremailLoginView){
-                    this.loginState = "请输入邮箱账号和验证码";
+        phoneLogin: async function() {
+            try {
+                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.msisdn", this.username, this.password);
+                console.log("===== ", verCodeRet)
+                if(verCodeRet.status == 200) {
+                    client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                }
+                else if(verCodeRet.status == 429) {
+                    this.loginState = verCodeRet.data.error;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
                     return;
                 }
-                
+                else if(verCodeRet.status == 400) {
+                    this.loginState = this.$t("unboundedAccount")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(verCodeRet.status == 412) {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
             }
-            if(this.isEmpty(this.username)){
-                if(this.showUsernameLoginView){
-                    this.loginState = "请输入用户名";
-                    return;
-                }else if(this.showUserLdapView){
-                    this.loginState = "请输入用户名或邮箱";
-                    return;
-                }else if(this.showUserphoneLoginView){
-                    this.loginState = "请输入手机号";
-                    return;
-                }else if(this.showUseremailLoginView){
-                    this.loginState = "请输入邮箱账号";
+            catch(e) {
+                this.isLoading = false;
+                this.loginButtonDisabled = false;
+                console.log(e)
+                this.loginButtonDisabled = false;
+                return;
+            }
+        },
+        emailLogin: async function() {
+            try {
+                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
+                console.log("===== ", verCodeRet)
+                if(verCodeRet.status == 200) {
+                    client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                }
+                else if(verCodeRet.status == 429) {
+                    this.loginState = verCodeRet.data.error;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
                     return;
                 }
+                else if(verCodeRet.status == 400) {
+                    this.loginState = this.$t("unboundedAccount")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(verCodeRet.status == 412) {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+            }
+            catch(e) {
+                this.isLoading = false;
+                this.loginButtonDisabled = false;
+                console.log(e)
+                this.loginButtonDisabled = false;
+                return;
+            }
+        },
+        matrixPwdLogin: async function() {
+            // this.loginState = "登录成功";
+            if(this.isEmpty(this.username)){
+                var accountInputDom = document.getElementById("accountInputId");
+                accountInputDom.style.borderColor = "red";
+                return;
             }
             if(this.isEmpty(this.password)){
-                if(this.showUsernameLoginView){
-                    this.loginState = "请输入密码";
-                    return;
-                }else if(this.showUserphoneLoginView){
-                    this.loginState = "请输入验证码";
-                    return;
-                }else if(this.showUseremailLoginView){
-                    this.loginState = "请输入验证码";
-                    return;
-                }
+                var passwordInputDom = document.getElementById("passwordInputId");
+                passwordInputDom.style.borderColor = "red";
+                return;
             }
             this.isLoading = true;
             this.loginButtonDisabled = true;
@@ -916,301 +1120,293 @@ export default {
             var hostname = environment.os.hostName;
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
-            var identifier = {};
-            
+
             var client = undefined;
             var verCodeRet = undefined;
-            if(this.showUserphoneLoginView) {
-                try {
-                    verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.msisdn", this.username, this.password);
-                    console.log("===== ", verCodeRet)
-                    if(verCodeRet.status == 200) {
-                        client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
-                    }
-                    else if(verCodeRet.status == 429) {
-                        this.loginState = verCodeRet.data.error;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                    else if(verCodeRet.status == 400) {
-                        this.loginState = this.$t("unboundedAccount")
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                    else if(verCodeRet.status == 412) {
-                        this.loginState = this.$t("invalidVerCode")
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                    else {
-                        this.loginState = this.$t("invalidVerCode")
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                }
-                catch(e) {
+            try {
+                client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+                console.log("===== ", client)
+                if(client == undefined || client == null) {
+                    this.$toastMessage({message:"创建连接异常", time: 3000, type:'error', showWidth:'280px'});
                     this.isLoading = false;
-                    this.loginButtonDisabled = false;
-                    console.log(e)
                     this.loginButtonDisabled = false;
                     return;
                 }
             }
-            else if(this.showUseremailLoginView) {
-                try {
-                    verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
-                    console.log("===== ", verCodeRet)
-                    if(verCodeRet.status == 200) {
-                        client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
-                    }
-                    else if(verCodeRet.status == 429) {
-                        this.loginState = verCodeRet.data.error;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                    else if(verCodeRet.status == 400) {
-                        this.loginState = this.$t("unboundedAccount")
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                    else if(verCodeRet.status == 412) {
-                        this.loginState = this.$t("invalidVerCode")
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                    else {
-                        this.loginState = this.$t("invalidVerCode")
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                        return;
-                    }
-                }
-                catch(e) {
-                    this.isLoading = false;
-                    this.loginButtonDisabled = false;
-                    console.log(e)
-                    this.loginButtonDisabled = false;
-                    return;
-                }
-            }
-            else {
-                try {
-                    // if(window.localStorage.getItem("defaultIdentity") == "ldap") {
-                    //     verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
-                    //     console.log("===== ", verCodeRet)
-                    //     if(verCodeRet.status == 200) {
-                    //         client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
-                    //     }
-                    //     else if(verCodeRet.status == 429) {
-                    //         this.loginState = verCodeRet.data.error;
-                    //         this.isLoading = false;
-                    //         this.loginButtonDisabled = false;
-                    //         return;
-                    //     }
-                    //     else if(verCodeRet.status == 400) {
-                    //         this.loginState = this.$t("unboundedAccount")
-                    //         this.isLoading = false;
-                    //         this.loginButtonDisabled = false;
-                    //         return;
-                    //     }
-                    //     else if(verCodeRet.status == 412) {
-                    //         this.loginState = this.$t("invalidVerCode")
-                    //         this.isLoading = false;
-                    //         this.loginButtonDisabled = false;
-                    //         return;
-                    //     }
-                    //     else {
-                    //         this.loginState = this.$t("invalidVerCode")
-                    //         this.isLoading = false;
-                    //         this.loginButtonDisabled = false;
-                    //         return;
-                    //     }
-                    // }
-                    // else {
-                        client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
-                    // }
-                    console.log("===== ", client)
-                    if(client == undefined || client == null) {
-                        verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
-                        console.log("===== ", verCodeRet)
-                        if(verCodeRet.status == 200) {
-                            client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
-                        }
-                        else if(verCodeRet.status == 429) {
-                            this.loginState = verCodeRet.data.error;
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                        else if(verCodeRet.status == 400) {
-                            this.loginState = this.$t("unboundedAccount")
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                        else if(verCodeRet.status == 412) {
-                            this.loginState = this.$t("invalidVerCode")
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                        else {
-                            this.loginState = this.$t("invalidVerCode")
-                            this.isLoading = false;
-                            this.loginButtonDisabled = false;
-                            return;
-                        }
-                    }
-                }
-                catch(e) {
-                    verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
-                    console.log("===== ", verCodeRet)
-                    if(verCodeRet.status == 200) {
-                        client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
-                    }
-                    else if(verCodeRet.status == 429) {
-                        this.loginState = verCodeRet.data.error;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                            return;
-                    }
-                    else if(verCodeRet.status == 400) {
-                        this.loginState = verCodeRet.data.error;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                            return;
-                    }
-                    else if(verCodeRet.status == 412) {
-                        this.loginState = verCodeRet.data.error;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                            return;
-                    }
-                    else if(verCodeRet.status == 500) {
-                        this.loginState = verCodeRet.data.error;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                            return;
-                    }
-                    else {
-                        this.loginState = verCodeRet.data.error;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                            return;
-                    }
-                    // this.isLoading = false;
-                    this.loginButtonDisabled = false;
-                    if(client == undefined && e.message == "Invalid password") {
-                        this.loginState = this.$t("invalidPassword");
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                            return;
-                    }
-                    else if(client == undefined) {
-                        this.loginState = e.message;
-                        this.isLoading = false;
-                        this.loginButtonDisabled = false;
-                            return;
-                    }
-                    console.log(e)
-                }
+            catch(e) {
+                // this.isLoading = false;
                 this.loginButtonDisabled = false;
+                if(client == undefined && e.message == "Invalid password") {
+                    this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(client == undefined) {
+                    this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'280px'});
+                    this.loginState = e.message;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                console.log(e)
             }
+            this.loginButtonDisabled = false;
             console.log(client);
-            // client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
-            // await client.downloadKeys([client.getUserId()]);
-            // await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
-            // if(client.isCryptoEnabled()) {
-            //     var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
-            //     console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
-            //     if(crossSigningIsSetUp) {
-            //         await global.mxMatrixClientPeg.fetchKeyInfo();
-            //         if(global.mxMatrixClientPeg.keyInfo) {
-            //             //recovery page
-            //             console.log("certificationShow");
-            //             this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
-            //             if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
-            //                 console.log("=========== showCreateRecoveryKey");
-            //                 // this.generalRecoveryKeyPageShow();
-            //                 this.loginToMainPage();
-            //                 //showCreateRecoveryKey
-            //             }
-            //             else {
-            //                 console.log("=========== bootstrapSecretStorage");
-            //                 await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-            //                 this.certificationShow();
-            //             }
-            //         }
-            //         else {
-            //             await this._checkKeyBackupStatus();
-            //             if(this.backupInfo) {
-            //                 console.log("=========== bootstrapSecretStorage");
-            //                 await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-            //                 this.certificationShow();
-            //             }
-            //             else {
-            //                 console.log("=========== showCreateRecoveryKey");
-            //                 // this.generalRecoveryKeyPageShow();
-            //                 this.loginToMainPage();
-            //             }
-            //         }
-            //     }
-            //     else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
-            //         //showCreateRecoveryKey
-            //         await this._checkKeyBackupStatus();
-            //         if(this.backupInfo) {
-            //             console.log("=========== bootstrapSecretStorage");
-            //             await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-            //             this.certificationShow();
-            //         }
-            //         else {
-            //             console.log("=========== showCreateRecoveryKey");
-            //             // this.generalRecoveryKeyPageShow();
-            //             this.loginToMainPage();
-            //         }
-            //     }
-            //     else {
-            //         await this._checkKeyBackupStatus();
-            //         if(this.backupInfo) {
-            //             console.log("=========== bootstrapSecretStorage");
-            //             await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
-            //             this.certificationShow();
-            //         }
-            //         else {
-            //             console.log("=========== showCreateRecoveryKey");
-            //             // this.generalRecoveryKeyPageShow();
-            //             this.loginToMainPage();
-            //         }
-            //     }
-            // }
-            // else {
             this.loginToMainPage();
-            // }
             this.isLoading = false;
             this.loginButtonDisabled = false;
-            // if(response != true){
-            //     var msg = ret_data["message"];
-            //     var code = ret_data["code"];
-            //     if(code != 200)
-            //         {
-            //         console.log("code != 200")
-                    
-            //         this.loginState = msg
-            //         return
-            //     }
-            // }
+        },
+        ldapLogin: async function() {
+            if(this.isEmpty(this.username)){
+                var accountInputDom = document.getElementById("accountInputId");
+                accountInputDom.style.borderColor = "red";
+                return;
+            }
+            if(this.isEmpty(this.password)){
+                var passwordInputDom = document.getElementById("passwordInputId");
+                passwordInputDom.style.borderColor = "red";
+                return;
+            }
+            this.isLoading = true;
+            this.loginButtonDisabled = true;
+            var mac = environment.os.mac;
+            var version = this.getOSVersion();
+            var hostname = environment.os.hostName;
+            // console.log("mac is ", environment.os);
+            // console.log("hostname is ", hostname);
+
+            var client = undefined;
+            var verCodeRet = undefined;
+            try {
+                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                console.log("===== ", verCodeRet)
+                if(verCodeRet.status == 200) {
+                    client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                    console.log("===== ", client)
+                    if(client == undefined || client == null) {
+                        this.$toastMessage({message:"创建连接异常", time: 3000, type:'error', showWidth:'280px'});
+                        this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
+                    }
+                }
+                else if(verCodeRet.status == 429) {
+                    this.$toastMessage({message:verCodeRet.data.error, time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    this.loginState = verCodeRet.data.error;
+                    return;
+                }
+                else if(verCodeRet.status == 400) {
+                    this.$toastMessage({message:this.$t("unboundedAccount"), time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(verCodeRet.status == 412) {
+                    this.$toastMessage({message:this.$t("invalidVerCode"), time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else {
+                    this.$toastMessage({message:verCodeRet.data.error, time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+            }
+            catch(e) {
+                // this.isLoading = false;
+                this.loginButtonDisabled = false;
+                if(client == undefined && e.message == "Invalid password") {
+                    this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(client == undefined) {
+                    this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'280px'});
+                    this.loginState = e.message;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                console.log(e)
+            }
+            this.loginButtonDisabled = false;
+            console.log(client);
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+        checkRecoveryKey: async function(client) {
+            client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
+            await client.downloadKeys([client.getUserId()]);
+            await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
+            if(client.isCryptoEnabled()) {
+                var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
+                console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
+                if(crossSigningIsSetUp) {
+                    await global.mxMatrixClientPeg.fetchKeyInfo();
+                    if(global.mxMatrixClientPeg.keyInfo) {
+                        //recovery page
+                        console.log("certificationShow");
+                        this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+                        if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
+                            console.log("=========== showCreateRecoveryKey");
+                            // this.generalRecoveryKeyPageShow();
+                            this.loginToMainPage();
+                            //showCreateRecoveryKey
+                        }
+                        else {
+                            console.log("=========== bootstrapSecretStorage");
+                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                            this.certificationShow();
+                        }
+                    }
+                    else {
+                        await this._checkKeyBackupStatus();
+                        if(this.backupInfo) {
+                            console.log("=========== bootstrapSecretStorage");
+                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                            this.certificationShow();
+                        }
+                        else {
+                            console.log("=========== showCreateRecoveryKey");
+                            // this.generalRecoveryKeyPageShow();
+                            this.loginToMainPage();
+                        }
+                    }
+                }
+                else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
+                    //showCreateRecoveryKey
+                    await this._checkKeyBackupStatus();
+                    if(this.backupInfo) {
+                        console.log("=========== bootstrapSecretStorage");
+                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                        this.certificationShow();
+                    }
+                    else {
+                        console.log("=========== showCreateRecoveryKey");
+                        // this.generalRecoveryKeyPageShow();
+                        this.loginToMainPage();
+                    }
+                }
+                else {
+                    await this._checkKeyBackupStatus();
+                    if(this.backupInfo) {
+                        console.log("=========== bootstrapSecretStorage");
+                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                        this.certificationShow();
+                    }
+                    else {
+                        console.log("=========== showCreateRecoveryKey");
+                        // this.generalRecoveryKeyPageShow();
+                        this.loginToMainPage();
+                    }
+                }
+            }
+        },
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+            this.alertContnets = {};
+        },
+        AlertConfirm: function() {
+            if(this.isRecetPwd) {
+                this.resetPassword(this.username, this.password).then(() => {
+                    this.alertContnets = {
+                        "Details": "邮件已经发送至Ankiliu@cck.com，请查收邮件并点击链接进行密码修改验证",
+                        "Abstrace": "发送成功"
+                    };
+                    this.isRecetPwd = false;
+                    this.toVerfyEmail = true;
+                    this.LoginBtnText = "确认";
+                    this.showAlertDlg = true;
+                    this.alertWidth = 330;
+                    this.alertHeight = 230;
+                    this.alertContentLeft = 25;
+                    this.iconType = "suc";
+                    this.LoginBtnText = "我已验证邮箱";
+                    var accountInputDom = document.getElementById("accountInputId");
+                    if(accountInputDom) {
+                        accountInputDom.disabled = true;
+                        accountInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                    }
+                    var passwordInputDom = document.getElementById("passwordInputId");
+                    if(passwordInputDom) {
+                        passwordInputDom.disabled = true;
+                        passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                    }
+                }, (err) => {
+                    this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error'});
+                });
+            }
+            else {
+                this.showAlertDlg = false;
+            }
+        },
+        VerfyEmail: async function() {
+            try {
+                await this.checkEmailLinkClicked();
+                
+                this.loginPageTitle = "用户名登录";
+                this.loginPageAccountLabel = "用户名";
+                this.loginPageAccountPlaceholder = "请输入用户名";
+                this.loginPagePwdLabel = "密码";
+                this.loginPagePwdPlaceholder = "请输入密码";
+                this.isMatrixPwd = true;
+                this.isRecetPwd = false;
+                this.toVerfyEmail = false;
+                this.isLdap = false;
+                var accountInputDom = document.getElementById("accountInputId");
+                if(accountInputDom) {
+                    accountInputDom.disabled = false;
+                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                }
+                var passwordInputDom = document.getElementById("passwordInputId");
+                if(passwordInputDom) {
+                    passwordInputDom.disabled = false;
+                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                }
+                this.LoginBtnText = "登录";
+                this.forgetPasswordContent = "忘记密码";
+                this.forgetPwdButtonDisabled = false;
+            } catch (err) {
+                this.$toastMessage({message:"邮件认证失败：" + err.message, time: 3000, type:'error', showWidth:'280px', showHeight:"100px"});
+            }
+        },
+        resetPwd: async function() {
+            this.alertContnets = {
+                "Details": "更改您的密码将会重置会话上的加密密钥，在重置密码之前，请先备份密钥或从另一个会话中导出聊天室密钥",
+                "Abstrace": "提示"
+            };
+            this.LoginBtnText = "确认";
+            this.showAlertDlg = true;
+            this.alertWidth = 330;
+            this.alertHeight = 230;
+            this.alertContentLeft = 25;
+            this.iconType = "alert";
+        },
+        login:async function() {
+            if(this.isLdap) {
+                this.ldapLogin();
+            }
+            else if(this.isMatrixPwd) {
+                this.matrixPwdLogin();
+            }
+            else if(this.isRecetPwd) {
+                this.resetPwd();
+            }
+            else if(this.toVerfyEmail) {
+                this.VerfyEmail();
+            }
         },
         loginToMainPage() {
             var elementButton = document.getElementById('loginButton');
             //this.loginButtonValue = "正在加载数据";
-            this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
+            this.$toastMessage({message:"登录成功", time: 3000, type:'success', showWidth:'280px'});
             // this.loginState = "登录成功";
             this.showLoginView = false;
             this.showLoadingView = true;
@@ -1499,6 +1695,35 @@ export default {
                 margin: 0px;
             }
         } 
+        .forget-password {
+            height: 18px;
+            width: calc(100%-50px);
+            font-size: 12px;
+            font-family: PingFangSC-Regular;
+            font-weight: 400;
+            color: rgba(36, 179, 107, 1);
+            line-height: 18px;
+            letter-spacing: 1px;
+            text-align: right;
+            margin-top: 5px;
+            margin-bottom: 12px;
+            padding-right: 50px;
+        }
+        .forget-password:hover {
+            height: 18px;
+            width: calc(100%-50px);
+            font-size: 12px;
+            font-family: PingFangSC-Regular;
+            font-weight: 400;
+            color: rgba(36, 179, 107, 1);
+            line-height: 18px;
+            letter-spacing: 1px;
+            text-align: right;
+            margin-top: 5px;
+            margin-bottom: 12px;
+            padding-right: 50px;
+            cursor: pointer;
+        }
         .btn {
             margin-top: 7px;
             text-align: center;
