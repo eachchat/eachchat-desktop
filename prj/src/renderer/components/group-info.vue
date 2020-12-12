@@ -71,6 +71,16 @@
             >
             </el-switch>
         </div> -->
+        <div class="groupSettingFavouriteDiv" v-show="isGroup">
+            <label class="groupSettingFavouriteLabel">置顶聊天</label>
+            <el-switch 
+                class="groupSettingFavouriteSwitch" 
+                v-model="mxFavo" 
+                @change="mxFavoChange(mxFavo)"
+                :active-color="'#24B36B'"
+            >
+            </el-switch>
+        </div>
         <div class="groupSettingSilenceDiv"> <!--v-show="isGroup"-->
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch 
@@ -91,7 +101,7 @@
             >
             </el-switch>
         </div> -->
-        <div class="groupSettingFavouriteDiv" v-show="isGroup">
+        <!-- <div class="groupSettingFavouriteDiv" v-show="isGroup">
             <label class="groupSettingFavouriteLabel">保存到收藏</label>
             <el-switch 
                 class="groupSettingFavouriteSwitch" 
@@ -100,7 +110,7 @@
                 :active-color="'#24B36B'"
             >
             </el-switch>
-        </div>
+        </div> -->
         <!-- <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
             <label class="groupSettingOwnerTransferLabel">转让群主</label>
             <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
@@ -253,6 +263,7 @@ export default {
             cursorY: 0,
             //matrix data
             mxMute: false,
+            mxFavo: false,
             mxMembers: [],
             currentUser: undefined,
             dmRoomIdArr: [],
@@ -452,6 +463,24 @@ export default {
             const newState = this.mxMute ? MUTE : ALL_MESSAGES;
             console.log('---newState---', newState);
             setRoomNotifsState(roomId, newState);
+        },
+        mxFavoChange(mxFavo) {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const roomId = this.showGroupInfo.groupId;
+            if (this.mxFavo) {
+                let metaData = {};
+                client.setRoomTag(roomId, "m.favourite", metaData);
+            } else {
+                client.deleteRoomTag(roomId, "m.favourite");
+
+            }
+        },
+        getRoomFavo(room) {
+            if (room.tags['m.favourite']) {
+                this.mxFavo = true;
+            } else {
+                this.mxFavo = false;
+            }
         },
         getRoomNotifs: function(roomId) {
             const state = getRoomNotifsState(roomId);
@@ -909,6 +938,7 @@ export default {
         } else {this.isDm = false;}
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
+        this.getRoomFavo(room);
         this.mxGetMembers(userId); //this.currentUser 是在该方法中赋值的
 
         client.on("RoomMember.powerLevel", (event, member) => {
