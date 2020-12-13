@@ -925,6 +925,7 @@ export default {
         if (dmRoomIdArr.includes(roomId)) {
             this.isDm = true;
             console.log('这是一个单聊', currentRoom);
+            console.log('room===', room);
             Object.keys(currentRoom.currentState.members).forEach(id => {
                 if (id != userId) {
                     let dmMember = currentRoom.currentState.members[id];
