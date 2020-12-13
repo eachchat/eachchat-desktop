@@ -38,7 +38,7 @@
                             @click.stop="changeLayer(item)"
                         >   
                             <div style="display:flex; align-items:center;">
-                                <img class="room-img" src="../../../static/Img/Main/zzjg.png"/> <!-- src="../../../static/Img/Main/yjt.png" -->
+                                <img class="room-img" style="margin-right:2px;" src="../../../static/Img/Main/xinzuzhi.png"/> <!-- src="../../../static/Img/Main/yjt.png" -->
                                 <div class="user-info">
                                     <span class="room-info">{{item.display_name}}</span>
                                 </div>
@@ -586,7 +586,7 @@ export default {
         const client = window.mxMatrixClientPeg.matrixClient;
         const rootDep = await Department.GetRoot();
         rootDep.type = 'dep';
-        rootDep.display_name = '组织';   
+        rootDep.display_name = '组织';
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
         contactUsers.forEach(c => {
@@ -857,10 +857,13 @@ export default {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-        /* width: 80px; */
+        height: 20px;
         font-size: 14px;
-        height: 16px;
-        line-height: 16px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        line-height: 20px;
+        letter-spacing: 1px;
     }
     .room-join {
         height: 24px;
