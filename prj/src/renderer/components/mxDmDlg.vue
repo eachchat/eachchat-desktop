@@ -586,7 +586,7 @@ export default {
         const client = window.mxMatrixClientPeg.matrixClient;
         const rootDep = await Department.GetRoot();
         rootDep.type = 'dep';
-        
+        rootDep.display_name = '组织';   
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
         contactUsers.forEach(c => {

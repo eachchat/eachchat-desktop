@@ -371,7 +371,7 @@ export default {
         const rootDep = await Department.GetRoot();
         console.log('---rootDep---', rootDep);
         rootDep.type = 'dep';
-        
+        rootDep.display_name = '组织';        
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
         contactUsers.forEach(c => {
