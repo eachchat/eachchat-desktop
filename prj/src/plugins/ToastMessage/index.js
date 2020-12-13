@@ -20,10 +20,13 @@ let toastMessage = (options) => {
   if (typeof options === 'string') {
     instance.message = options
   } else if (typeof options === 'object') {
-    let {message, time, type} = options
+    let {message, time, type, showWidth, showHeight} = options
+    console.log("get showheight is", showHeight);
     instance.message = message
     instance.time = time || 3000
     instance.type = type
+    instance.showWidth = showWidth != undefined ? showWidth : ''
+    instance.showHeight = showHeight != undefined ? showHeight : ''
   } else {
     return
   }

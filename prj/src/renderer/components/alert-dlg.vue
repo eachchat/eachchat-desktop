@@ -3,10 +3,11 @@
         <div class="AlertDlg" id="AlertDlgId">
             <div class="AlertContent">
                 <div class="AlertContentAbstract">
-                    <img class="AlertContentAbstraceIco" src="../../../static/Img/Setup/Alert@2x.png">
+                    <img class="AlertContentAbstraceIco" v-if="iconType=='alert'" src="../../../static/Img/Setup/Alert@2x.png">
+                    <img class="AlertContentAbstraceIco" v-else src="../../../static/Img/Setup/Suc.png">
                     <label class="AlertContentAbstraceContent">{{Abstrace}}</label>
                 </div>
-                <div class="AlertContentDetails">
+                <div class="AlertContentDetails" id="AlertContentDetailsId">
                     <label class="AlertContentDetailsContent">{{Details}}</label>
                 </div>
             </div>
@@ -54,6 +55,14 @@ export default {
         alertType: {
             type: String,
             default: ''
+        },
+        contentLeft: {
+            type: Number,
+            default: 42,
+        },
+        iconType: {
+            type: String,
+            default: "alert"
         }
     },//['AlertContnts'],
     data () {
@@ -68,32 +77,6 @@ export default {
         },
         ClearCache: function() {
             this.$emit("clearCache", this.alertType);
-        },
-        calcImgPosition: function() {
-            if(this.AlertDlgElement == null) {
-                this.AlertDlgElement = document.getElementById("AlertDlgId");
-            }
-            this.AlertDlgElement.style.width = this.width.toString() + "px";
-            if(this.AlertLayersElement == null) {
-                this.AlertLayersElement = document.getElementById("AlertLayersId");
-            }
-            var showScreenHeight = this.AlertLayersElement.offsetHeight;
-            var showScreenWidth = this.AlertLayersElement.offsetWidth;
-            console.log("showScreenHeight ", showScreenHeight)
-            console.log("showScreenWidth ", showScreenWidth)
-            console.log("this.width ", this.width)
-            console.log("this.height ", this.height)
-            var left = (showScreenWidth - this.width) / 2;
-            var top = (showScreenHeight - this.height) / 2;
-
-            console.log("left ", left)
-            console.log("top ", top)
-            var ret = {
-                "left": left,
-                "top": top
-            }
-
-            return ret;
         },
     },
     components: {
@@ -124,21 +107,29 @@ export default {
             console.log("Alertcontent is ", this.AlertContnts);
             console.log("Details is ", this.Details);
             console.log("Abstrace is ", this.Abstrace);
-            
-            var showPosition = this.calcImgPosition();
-            console.log("showPositon is ", showPosition)
-            this.AlertDlgElement.style.left = showPosition.left.toString() + "px";
-            this.AlertDlgElement.style.top = showPosition.top.toString() + "px";
         },
         width: function() {
+            if(this.width == 0) return;
             console.log("width is ok ", this.width);
             if(this.AlertDlgElement == null) {
                 this.AlertDlgElement = document.getElementById("AlertDlgId");
             }
-            var showPosition = this.calcImgPosition();
-            console.log("showPositon is ", showPosition)
-            this.AlertDlgElement.style.left = showPosition.left.toString() + "px";
-            this.AlertDlgElement.style.top = showPosition.top.toString() + "px";
+            this.AlertDlgElement.style.width = this.width.toString() + "px";
+        },
+        height:function() {
+            if(this.height == 0) return;
+            console.log("width is ok ", this.height);
+            if(this.AlertDlgElement == null) {
+                this.AlertDlgElement = document.getElementById("AlertDlgId");
+            }
+            this.AlertDlgElement.style.height = this.height.toString() + "px";
+        },
+        contentLeft: function() {
+            if(this.contentLeft == 0) return;
+            var detailContentElement = document.getElementById("AlertContentDetailsId");
+            if(detailContentElement) {
+                detailContentElement.style.marginLeft = this.contentLeft.toString() + "px";
+            }
         }
     }
 }
@@ -151,7 +142,7 @@ export default {
         position: fixed;
         top:0px;
         left:0px;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0);
         z-index: 3;
     }
 
@@ -166,6 +157,7 @@ export default {
         margin: auto;
         display: block;
         background: rgba(255, 255, 255, 1);
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
     }
 
     .AlertContent {
