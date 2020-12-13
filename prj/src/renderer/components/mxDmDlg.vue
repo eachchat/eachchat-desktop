@@ -3,7 +3,11 @@
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">发起聊天</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close('close')">
+                <img 
+                    ondragstart="return false" 
+                    class="mxCreaterClose" 
+                    src="../../../static/Img/Main/xincaca.png"
+                    @click.self.stop="close('close')">
             </div>
             <div class="kuangti">
                 <div class="search-field">
@@ -701,7 +705,7 @@ export default {
         background: #fff;
         top: 50%;
         left: 50%;
-        margin-top: -312px;
+        margin-top: -234px;
         margin-left: -220px;
         border-radius: 4px;
         display: flex;
@@ -720,7 +724,14 @@ export default {
     }
 
     .mxCreaterHeaderTitle {
-        font-size: 14px;
+        width: 72px;
+        height: 22px;
+        font-size: 16px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        line-height: 22px;
+        letter-spacing: 2px;
     }
 
     .mxCreaterClose {
@@ -879,10 +890,15 @@ export default {
         height: 32px;
         background: #24B36B;
         border-radius: 4px;
-        color: #fff;
         display: flex;
         justify-content: center;
         align-items: center;
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #FFFFFF;
+        line-height: 20px;
+        letter-spacing: 1px;
     }
     .cancel-button {
         box-sizing: border-box;
@@ -891,11 +907,16 @@ export default {
         background: #fff;
         border-radius: 4px;
         border: 1px solid #DDDDDD;
-        color: #000;
         margin-right: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        line-height: 20px;
+        letter-spacing: 1px;
     }
     .crumbs {
         display: flex;
