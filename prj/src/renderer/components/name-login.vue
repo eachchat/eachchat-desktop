@@ -17,7 +17,10 @@
         <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage> -->
         <div class="login-panel" v-show="showLoginView">
             <div class="organization-content" v-show="showOrganizationView">
-                <div class="title">
+                <div class="host-title" v-if="showOrganizationViewHost">
+                    服务器设置
+                </div>
+                <div class="title" v-else>
                     <div class="title-ico">
                         <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
                     </div><div class="tltle-content">
@@ -45,8 +48,9 @@
                     <p class="forget-title">{{$t("forgetOrganization")}}</p><p
                     class="finder-title" @click="organizationFinderClicked()">{{$t("retrieveOrganization")}}</p>
                 </div>
-                <div class="login-footer" v-show="false">
-                    <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
+                <div class="login-footer" v-show="showOrganizationViewHost" @click="organizationFinderBackToLoginClicked()">
+                        <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                        <p class="back-title">返回</p>
                 </div>
             </div>
             <div class="account-content" v-show="!showOrganizationView">
@@ -187,9 +191,9 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
-        <div class="server-setting-div" v-show="false">
-            <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView">{{$t("homeServerAddress")}}</div>
-            <i class="el-icon-caret-bottom" v-show="showOrganizationView"></i>
+        <div class="server-setting-div" v-show="showOrganizationView && showOrganizationViewOrganization">
+            <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView && showOrganizationViewOrganization">{{$t("homeServerAddress")}}</div>
+            <i class="el-icon-caret-bottom" v-show="showOrganizationView && showOrganizationViewOrganization"></i>
         </div>
         <div class="domain-dropdown-content" id="domain-dropdown-content-id" v-show="showDomListView">
             <ul class="domain-list">
@@ -432,10 +436,10 @@ export default {
             }
         },
         serverSettingClicked: function() {
-            var distElement = document.getElementById("item-organization-id");
-            if(distElement != undefined) {
-                distElement.style.height = "78px";
-            }
+            // var distElement = document.getElementById("item-organization-id");
+            // if(distElement != undefined) {
+            //     distElement.style.height = "78px";
+            // }
             this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             this.showOrganizationViewHost = true;
             this.showOrganizationViewOrganization = false;
@@ -450,35 +454,97 @@ export default {
             if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
                 host = "https://" + host;
             }
-            global.mxMatrixClientPeg.checkHomeServer(host).then((flows) => {
-                this.supportedIdentity = flows;
-                for (let i = 0; i < flows.length; i++ ) {
-                    this.defaultIdentity = flows[i];
-                    this.resetLoginStateTitle();
-                    
-                    var distElement = document.getElementById("item-organization-id");
-                    if(distElement != undefined) {
-                        distElement.style.height = "58px";
-                    }
-
-                    window.localStorage.setItem("mx_hs_url", host);
-
-                    this.showOrganizationViewHost = false;
-                    this.eachChatEndPoint = '';
-                    this.organizationOrHost = this.$t("joinYourOrganization");
-                    this.organizationAddress = window.localStorage.getItem("Domain");
-                    this.showOrganizationViewOrganization = true;
-                    
-                    return;
+            var serverCheckRet = await this.getServerInfo(host);
+            if(serverCheckRet) {
+                this.resetLoginStateTitle();
+                this.showOrganizationViewHost = false;
+                this.eachChatEndPoint = '';
+                this.organizationOrHost = this.$t("joinYourOrganization");
+                this.organizationAddress = window.localStorage.getItem("Domain") == undefined ? "" : window.localStorage.getItem("Domain");
+                this.showOrganizationViewOrganization = true;
+            }
+        },
+        getHostPortTls(BaseUrl) {
+            if(BaseUrl.endsWith("/")) {
+                BaseUrl = BaseUrl.substring(0, BaseUrl.length - 1);
+            }
+            let IHostTls = 1;
+            let IHost = "";
+            let IHostPort = 443;
+            if(BaseUrl.toLowerCase().indexOf("https://") >= 0) {
+                let IHostTmp = BaseUrl.split("https://")[1];
+                if(IHostTmp.indexOf(":") >= 0) {
+                    IHost = IHostTmp.split(":")[0];
+                    IHostPort = IHostTmp.split(":")[1];
                 }
+                else {
+                    IHost = IHostTmp;
+                    IHostPort = 443;
+                }
+                IHostTls = 1;
+            }
+            else if(BaseUrl.toLowerCase().indexOf("http://") >= 0) {
+                let IHostTmp = BaseUrl.split("http://")[1];
+                if(IHostTmp.indexOf(":") >= 0) {
+                    IHost = IHostTmp.split(":")[0];
+                    IHostPort = IHostTmp.split(":")[1];
+                }
+                else {
+                    IHost = IHostTmp;
+                    IHostPort = 80;
+                }
+                IHostTls = 0;
+            }
+            else {
+                IHost = BaseUrl;
+                IHostPort = 443;
+            }
+            return [IHost, IHostPort, IHostTls];
+        },
+        getServerInfo: async function(host) {
+            var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
+            console.log('appServerInfo is ', appServerInfo);
+            if(appServerInfo.status != 200) {
+                this.$toastMessage({message:"Home Server地址不正确，请重新输入", time: 2000, type:'success', showWidth:'280px', showHeight:"100px"});
+                return false;
+            }
+            if(appServerInfo.data['m.homeserver'] != undefined) {
+                global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
+            }
+            if(appServerInfo.data['m.identty_server'] != undefined) {
+                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identty_server']['base_url']);
+            }
+            if(appServerInfo.data['m.appserver'] != undefined) {
+                var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
                 
-                this.loginState = "服务器连接失败，请检查地址";
-                this.organizationButtonDisabled = false;
-                return;
-            },(err) => {
-                this.loginState = "服务器连接失败，请检查地址";
-                this.organizationButtonDisabled = false;
-            })
+                var appServerHostObj = this.getHostPortTls(appServerHostInfo);
+                var AHost = appServerHostObj[0];
+                var AHostPort = appServerHostObj[1];
+                var AHostTls = appServerHostObj[2];
+                
+                localStorage.setItem("hostname", AHost);
+                localStorage.setItem("apiPort", AHostPort);
+                localStorage.setItem("hostTls", AHostTls);
+                localStorage.setItem("app_server", appServerHostInfo);
+            }
+            if(appServerInfo.data['m.mqttserver'] != undefined) {
+                var mqttHostInfo = appServerInfo.data['m.mqttserver']['base_url'];
+                
+                var mqttHostObj = this.getHostPortTls(mqttHostInfo);
+                var mqttHost = mqttHostObj[0];
+                var mqttHostPort = mqttHostObj[1];
+                var mqttHostTls = mqttHostObj[2];
+                
+                localStorage.setItem("mqttHost", AHost);
+                localStorage.setItem("mqttPort", AHostPort);
+                localStorage.setItem("mqttTls", AHostTls);
+            }
+            if(appServerInfo.data['m.gms'] != undefined) {
+                var gmsHostInfo = appServerInfo.data['m.gms']['base_url'];
+                localStorage.setItem("gms_url", appServerInfo.data['m.gms']['base_url']);
+                localStorage.setItem("gms_tid", appServerInfo.data['m.gms']['tid']);
+            }
+            return true;
         },
         checkHomeServer: async function (domain){            
             var Domain = "";
@@ -499,7 +565,10 @@ export default {
             if(Domain.length == 0) {
                 return false;
             }
-            var gmsRet = await global.services.common.newGmsConfiguration(Domain);
+            var host = global.localStorage.getItem("app_server");
+            if(host == undefined || (host != undefined && host.length == 0)) return false;
+            console.log("host si ", host);
+            var gmsRet = await global.services.common.newGmsConfiguration(Domain, host);
             console.log("gmsRet is ", gmsRet);
             if(!gmsRet){
                 if(domain != undefined){
@@ -935,6 +1004,14 @@ export default {
                     passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
                 }
             }
+            else if(this.showOrganizationViewHost) {
+                this.resetLoginStateTitle();
+                this.showOrganizationViewHost = false;
+                this.eachChatEndPoint = '';
+                this.organizationOrHost = this.$t("joinYourOrganization");
+                this.organizationAddress = window.localStorage.getItem("Domain") == undefined ? "" : window.localStorage.getItem("Domain");
+                this.showOrganizationViewOrganization = true;
+            }
             else {
                 this.resetLoginStateTitle();
                 this.showLoginView = true;
@@ -1112,6 +1189,12 @@ export default {
                 var passwordInputDom = document.getElementById("passwordInputId");
                 passwordInputDom.style.borderColor = "red";
                 return;
+            }
+            if(this.password.startsWith("init")) {
+                global.localStorage.setItem("neetNoticeToChangePwd", true);
+            }
+            else {
+                global.localStorage.setItem("neetNoticeToChangePwd", false);
             }
             this.isLoading = true;
             this.loginButtonDisabled = true;
@@ -2307,6 +2390,20 @@ export default {
 }
 
     .organization-content{
+        .host-title {
+            height: 22px;
+            width: 100%;
+            padding: 0px;
+            margin-bottom: 14px;
+            padding-top: 44px;
+            text-align: center;
+            vertical-align: top;
+            font-size:16px;
+            font-weight:500;
+            color:rgba(39,45,52,1);
+            line-height:22px;
+            font-family: PingFangSC-Medium;
+        }
         .title {
             height: 36px;
             width: 100%;
@@ -2499,7 +2596,7 @@ export default {
             width: 100%;
             height: 20px;
             margin-bottom: 15px;
-            margin-top: 91px;
+            margin-top: 82px;
             cursor: pointer;
             .server-setting{
                 cursor: pointer;
@@ -2512,6 +2609,27 @@ export default {
                 color:rgba(153,153,153,1);
                 line-height:18px;
                 letter-spacing:1px;
+            }
+            .back-image{
+                cursor: pointer;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-left: 24px;
+            }
+            .back-title{
+                cursor: pointer;
+                display: inline-block;
+                
+                height:20px;
+                font-size:14px;
+                margin: 0px;
+                vertical-align: top;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                font-family: PingFangSC-Regular;
             }
         }
     }

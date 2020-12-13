@@ -81,6 +81,7 @@ export default {
             var err = this.onCheckPassword(this.originalPassword, this.newPassword, this.confirmPassword);
             if(err) {
                 this.$toastMessage({message:err, time:2000, type:'success'});
+                this.Close();
             }
             else {
                 this.showChangePasswordAlert = true;
@@ -151,8 +152,9 @@ export default {
     }
 
     .changePasswordHead {
-        width: 100%;
+        width: 94%;
         height: 56px;
+        margin-left: 21px;
     }
 
     .changePasswordTitle {
@@ -180,25 +182,30 @@ export default {
     }
 
     .originalPasswordLabel {
-        width: calc(100% - 28px);
+        width: calc(100% - 40px);
         height: 20px;
         font-size: 14px;
-        font-family: SCPingFangSC-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         color: #333333;
         line-height: 20px;
         letter-spacing: 1px;
         text-align: left;
-        margin: 14px 14px 5px 14px;
+        margin: 14px 14px 5px 20px;
     }
 
     .originalPassword-input {
-        width: calc(100% - 28px);
+        width: calc(100% - 40px);
         height: 32px;
         background: #FFFFFF;
         border-radius: 4px;
         border: 1px solid #DDDDDD;
-        margin: 0px 13px 0px 13px;
+        margin: 0px 13px 0px 20px;
+        padding-left: 10px;
+        font-size: 14px;
+        font-family: SCPingFang-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
     }
 
     .newPassword {
@@ -206,25 +213,30 @@ export default {
     }
 
     .newPasswordLabel {
-        width: calc(100% - 28px);
+        width: calc(100% - 40px);
         height: 20px;
         font-size: 14px;
-        font-family: SCPingFangSC-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         color: #333333;
         line-height: 20px;
         letter-spacing: 1px;
         text-align: left;
-        margin: 14px 14px 5px 14px;
+        margin: 14px 14px 5px 20px;
     }
 
     .newPassword-input {
-        width: calc(100% - 28px);
+        width: calc(100% - 40px);
         height: 32px;
         background: #FFFFFF;
         border-radius: 4px;
         border: 1px solid #DDDDDD;
-        margin: 0px 13px 0px 13px;
+        margin: 0px 13px 0px 20px;
+        padding-left: 10px;
+        font-size: 14px;
+        font-family: SCPingFang-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
     }
 
     .confirmNewPassword {
@@ -233,25 +245,30 @@ export default {
     }
 
     .confirmPasswordLabel {
-        width: calc(100% - 28px);
+        width: calc(100% - 40px);
         height: 20px;
         font-size: 14px;
-        font-family: SCPingFangSC-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         color: #333333;
         line-height: 20px;
         letter-spacing: 1px;
         text-align: left;
-        margin: 14px 14px 0px 14px;
+        margin: 14px 14px 5px 20px;
     }
 
     .confirmPassword-input {
-        width: calc(100% - 28px);
+        width: calc(100% - 40px);
         height: 32px;
         background: #FFFFFF;
         border-radius: 4px;
         border: 1px solid #DDDDDD;
-        margin: 0px 13px 0px 13px;
+        margin: 0px 13px 0px 20px;
+        padding-left: 10px;
+        font-size: 14px;
+        font-family: SCPingFang-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
     }
     
     .ChangePasswordConfirmButton {
