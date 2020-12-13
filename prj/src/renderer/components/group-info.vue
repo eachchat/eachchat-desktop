@@ -1220,10 +1220,10 @@ export default {
 }
 
 .memberItemName {
-    height: 20;
     color: #000000;
     font-size: 14px;
     display: flex;
+    align-items: center;
 }
 
 .memberItemMxId {
