@@ -63,6 +63,10 @@ export default {
         iconType: {
             type: String,
             default: "alert"
+        },
+        haveBG: {
+            type: Boolean,
+            default: false
         }
     },//['AlertContnts'],
     data () {
@@ -99,6 +103,13 @@ export default {
 
             if(this.AlertLayersElement == null) {
                 this.AlertLayersElement = document.getElementById("AlertLayersId");
+            }
+            if(this.haveBG) {
+                console.log("=========hav bg is ", this.haveBG);
+                this.AlertLayersElement.style.backgroundColor = "rgba(0, 0, 0, 0.6)"
+            }
+            else {
+                this.AlertLayersElement.style.backgroundColor = "rgba(0, 0, 0, 0)"
             }
 
             this.Details = this.AlertContnts.Details;
@@ -142,7 +153,6 @@ export default {
         position: fixed;
         top:0px;
         left:0px;
-        background: rgba(0, 0, 0, 0);
         z-index: 3;
     }
 

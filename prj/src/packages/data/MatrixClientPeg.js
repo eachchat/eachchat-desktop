@@ -180,14 +180,22 @@ class _MatrixClientPeg{
       }
     }
 
-    async getAppServerInfo() {
-      let response = null;
+    async getAppServerInfo(host) {
+      var obj = this.getHostPortTls(host);
+      var hostname = obj[0];
+      var port = obj[1];
+      var tls = obj[2];
+      this.commonApi = new net.HTTP(hostname, port, tls);
+      try{
+        var ret = await await this.commonApi.sender.get(
+          "/.well-known/matrix/client");
 
-      response = await this.commonApi.get(
-        "/.well-known/matrix/client");
-
-      var ret = this.parseStatus(response);
-      return ret;
+          return this.parseStatus(ret);
+      }
+      catch(error) {
+        console.log("err ", error.response);
+        return error.response;
+      }
     }
 
     logout() {
@@ -196,9 +204,11 @@ class _MatrixClientPeg{
       }
       var organizationAddress = window.localStorage.getItem("mx_hs_url");
       var domain = window.localStorage.getItem("Domain");
+      var appServer = window.localStorage.getItem("app_server");
       window.localStorage.clear();
       window.localStorage.setItem("mx_hs_url", organizationAddress);
       window.localStorage.setItem("Domain", domain);
+      window.localStorage.setItem("app_server", appServer);
       window.sessionStorage.clear();
       if(this.matrixClient)
         this.matrixClient.clearStores();

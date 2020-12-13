@@ -2065,8 +2065,11 @@ const common = {
     return response;
   },
 
-  async newGmsConfiguration(domain) {
-    var response = await axios.post("https://chat.yunify.com/gms/v1/configuration", 
+  async newGmsConfiguration(domain, host) {
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length - 1);
+    }
+    var response = await axios.post(host + "/gms/v1/configuration", 
       {
         'tenantName': domain
       }

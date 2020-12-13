@@ -32,6 +32,8 @@
         <personalCenter v-show="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
         <userInfoContent :userInfo="userInfo" :originPosition="pagePosition" v-if="showPersonalInfo" :key="userInfoTipKey"  :userType="userType" :isOwn="isOwn"></userInfoContent>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo" :canCancel="upgradeCanCancel"/>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="toChangePassword" :haveBG="true"/>
+        <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
     </el-container>
 </template>
 
@@ -55,7 +57,8 @@ import {UserInfo, Message} from '../../packages/data/sqliteutil.js';
 import { models } from '../../packages/data/models.js';
 import userInfoContent from './user-info';
 import {ComponentUtil} from '../script/component-util.js'
-
+import AlertDlg from './alert-dlg.vue'
+import ChangePassword from './changePassword.vue'
 
 import UpdateAlertDlg from './update-alert-dlg.vue'
 import { setInterval } from 'timers';
@@ -89,6 +92,9 @@ export default {
     },
     data () {
         return {
+            showChangePassword: false,
+            alertContnets: {},
+            showAlertDlg: false,
             displayName: '',
             userInfo: undefined,
             isOwn: true,
@@ -141,6 +147,24 @@ export default {
         }
     },
     methods: {
+        CloseChangePassword: function() {
+            this.showChangePassword = false;
+        },
+        showChangePasswordAlertPage: function() {
+            this.alertContnets = {
+                "Details": "建议您修改登录密码",
+                "Abstrace": "提示"
+            };
+            this.showAlertDlg = true;
+        },
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+            this.alertContnets = {};
+        },
+        toChangePassword: function() {
+            this.closeAlertDlg();
+            this.showChangePassword = true;
+        },
         showPersonalInfoHanlder: async function(value){
             if(value){
                 var leftPosition = 64;
@@ -410,7 +434,9 @@ export default {
         macWindowHeader,
         personalCenter,
         UpdateAlertDlg,
-        userInfoContent
+        userInfoContent,
+        AlertDlg,
+        ChangePassword
     },
     mounted: async function() {
         ipcRenderer.on('setUnreadCount', (e, count) => {
@@ -421,7 +447,7 @@ export default {
             var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
             this.supportedIdentity = flows;
             for (let i = 0; i < flows.length; i++ ) {
-                var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
+                var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
                 global.services.common.setGmsConfiguration(appServerInfo.data);
                 break;
             }
@@ -443,12 +469,11 @@ export default {
                 console.log("the matrix client is ", global.mxMatrixClientPeg)
                 this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
-      let ops = {
-      }
-      ops.pendingEventOrdering = "detached";
-      ops.lazyLoadMembers = true;
+        let ops = {
+        }
+        ops.pendingEventOrdering = "detached";
+        ops.lazyLoadMembers = true;
         await global.mxMatrixClientPeg.matrixClient.startClient(ops);
-        
 
         const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
@@ -474,6 +499,9 @@ export default {
             console.log(config)
         })
 */
+        if(global.localStorage.getItem("neetNoticeToChangePwd")) {
+            this.showChangePasswordAlertPage()
+        }
         await global.services.common.login()
         global.services.common.InitDbData();
         setTimeout(() => {
