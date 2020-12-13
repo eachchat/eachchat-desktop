@@ -12,7 +12,8 @@
             <div class="kuangti">
                 <div class="search-field">
                     <div class="search-logo">
-                        <i class="el-icon-search"></i>
+                        <!-- <i class="el-icon-search"></i> -->
+                        <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                     </div>
                     <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
                 </div>
@@ -933,5 +934,13 @@ export default {
     }
     .crumbsItemActive {
         color: #000;
+    }
+    input::-webkit-input-placeholder{
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 18px;
     }
 </style>
