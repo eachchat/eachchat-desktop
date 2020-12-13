@@ -539,6 +539,7 @@ export default {
                     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                 })
                 rootDep.type = 'dep';
+                rootDep.display_name = '组织';
                 let totalArray = [rootDep, dvd, ...contactUsers];
                 totalArray.forEach(t => t.choosen = false);
                 this.totalList = [...totalArray];
