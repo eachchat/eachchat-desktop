@@ -31,7 +31,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline"  id="organizationInput" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
                     <p class="organization-input-label" v-show="false">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -70,8 +70,8 @@
                         </p>
                         <div class="inputDiv" id="inputDivId">
                             <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
-                            <i class="el-icon-view" @click="toShowPwd" v-show="!showPwd"></i>
-                            <i class="el-icon-moon" @click="toShowPwd" v-show="showPwd"></i>
+                            <img class="el-icon-view" @click="toShowPwd" v-show="!showPwd" src="../../../static/Img/Login/hide-pwd@2x.png">
+                            <img class="el-icon-moon" @click="toShowPwd" v-show="showPwd" src="../../../static/Img/Login/view-pwd@2x.png">
                         </div>
                     </div>
                     <div class="accountLogin-state" v-show="false">
@@ -725,6 +725,8 @@ export default {
             return;
         },
         toDected: function() {
+            var orgInputDom = document.getElementById("organizationInput");
+            orgInputDom.style.borderColor = "rgba(221,221,221,1)";
             this.organizationAddress = this.organizationAddress.trim();
             if(this.organizationAddress.length == 0 || !this.toDetect) {
                 return;
@@ -766,7 +768,7 @@ export default {
             console.log("=============ffff ", this.showDomListView);
         },
         showDomainPage: function() {
-            var domainInputElement = document.getElementById("item-input-id");
+            var domainInputElement = document.getElementById("organizationInput");
             var domainListElement = document.getElementById("domain-dropdown-content-id");
             var top = domainInputElement.offsetTop + domainInputElement.offsetHeight;
             var left = domainInputElement.offsetLeft;
@@ -777,14 +779,14 @@ export default {
             console.log("show=====showDomListView========", this.showDomListView);
         },
         organizationConfirmButtonClicked:async function(){
-            this.isLoading = true;
             this.organizationButtonDisabled = true;
             if(this.organizationAddress == "worklyai-open-dev-tools"){
                 ipcRenderer.send("openDevTools");
                 return;
             }
             if (this.organizationAddress == undefined || this.organizationAddress == ""){
-                this.loginState = this.$t("pleaseInputHSAddress");
+                var orgInputDom = document.getElementById("organizationInput");
+                orgInputDom.style.borderColor = "red";
                 this.organizationButtonDisabled = false;
                 return;
             }
@@ -1881,20 +1883,18 @@ export default {
             .el-icon-view {
                 display: inline-block;
                 float: right;
-                height: 36px;
-                width: 36px;
-                padding: 0 0 0 0;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
                 color: rgb(51, 51, 51);
-                line-height: 36px;
                 text-align: center;
             }
             .el-icon-view:hover {
                 display: inline-block;
                 float: right;
-                height: 36px;
-                width: 36px;
-                line-height: 36px;
-                padding: 0 0 0 0;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
                 color: rgb(51, 51, 51);
                 cursor: pointer;
                 text-align: center;
@@ -1902,20 +1902,18 @@ export default {
             .el-icon-moon {
                 display: inline-block;
                 float: right;
-                height: 36px;
-                width: 36px;
-                line-height: 36px;
-                padding: 0 0 0 0;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
                 color: rgb(51, 51, 51);
                 text-align: center;
             }
             .el-icon-moon:hover {
                 display: inline-block;
                 float: right;
-                height: 36px;
-                width: 36px;
-                line-height: 36px;
-                padding: 0 0 0 0;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
                 color: rgb(51, 51, 51);
                 cursor: pointer;
                 text-align: center;
