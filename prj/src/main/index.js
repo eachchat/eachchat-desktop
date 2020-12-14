@@ -115,6 +115,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 
   let contextMenu = Menu.buildFromTemplate([
     {
+      label: "显示主界面",
+      click: ()=> {
+        showMain();
+      }
+    },
+    {
       label: "退出",
       click: function() {
         app.quit();
