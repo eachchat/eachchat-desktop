@@ -2125,13 +2125,17 @@ const common = {
       mqtt.tls = 0;
 
     var entryObj = this.getHostPortTls(host);
-    this.config.hostname = entryObj.host;
+    var entryHost = entryObj[0];
+    var entryHostPort = entryObj[1];
+    var entryHostTls = entryObj[2];
+    console.log("======= ", entryObj);
+    this.config.hostname = entryHost;
     localStorage.setItem("hostname", this.config.hostname);
 
-    this.config.apiPort = entryObj.port;
+    this.config.apiPort = entryHostPort;
     localStorage.setItem("apiPort", this.config.apiPort);
 
-    this.config.hostTls = entryObj.tls;
+    this.config.hostTls = entryHostTls;
     localStorage.setItem("hostTls", this.config.hostTls);
 
     this.config.mqttHost = mqtt.host;
