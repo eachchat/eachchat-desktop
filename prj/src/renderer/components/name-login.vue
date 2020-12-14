@@ -41,7 +41,7 @@
                 </div>
                 <div class="btn-item">
                     <Button type="success" v-show="showOrganizationViewHost" @click="hostConfirmButtonClicked()">确定</Button>
-                    <Button type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
+                    <Button class="hostCancle" type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
                     <Button class="organizationConfirm" type="success" v-show="showOrganizationViewOrganization" :disabled="organizationButtonDisabled" @click="organizationConfirmButtonClicked()">{{$t("confirm")}}</Button>
                 </div>
                 <div class="organization-finder-tip" v-show="false">
@@ -70,7 +70,8 @@
                         </p>
                         <div class="inputDiv">
                             <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
-                            <i class="el-icon-view" @click="toShowPwd" v-show="isRecetPwd"></i>
+                            <i class="el-icon-view" @click="toShowPwd" v-show="!showPwd"></i>
+                            <i class="el-icon-moon" @click="toShowPwd" v-show="showPwd"></i>
                         </div>
                     </div>
                     <div class="accountLogin-state" v-show="false">
@@ -787,6 +788,10 @@ export default {
                         this.loginPagePwdLabel = "密码";
                         this.loginPagePwdPlaceholder = "请输入密码";
                         this.forgetPasswordContent = "";
+                        this.username = "";
+                        this.password = "";
+                        this.showPwd = true;
+                        this.toShowPwd();
                         this.forgetPwdButtonDisabled = true;
                     }
                     else {
@@ -798,6 +803,10 @@ export default {
                         this.loginPagePwdLabel = "密码";
                         this.loginPagePwdPlaceholder = "请输入密码";
                         this.forgetPasswordContent = "忘记密码";
+                        this.username = "";
+                        this.password = "";
+                        this.showPwd = true;
+                        this.toShowPwd();
                         this.forgetPwdButtonDisabled = false;
                     }
                     this.showLoginView = true;
@@ -1006,6 +1015,8 @@ export default {
                 this.forgetPasswordContent = "忘记密码";
                 this.username = "";
                 this.password = "";
+                this.showPwd = true;
+                this.toShowPwd();
                 this.forgetPwdButtonDisabled = false;
                 this.isRecetPwd = false;
                 this.toVerfyEmail = false;
@@ -1809,18 +1820,43 @@ export default {
                 display: inline-block;
                 float: right;
                 height: 36px;
-                line-height: 36px;
-                padding: 0 10px 0 10px;
+                width: 36px;
+                padding: 0 0 0 0;
                 color: rgb(51, 51, 51);
+                line-height: 36px;
+                text-align: center;
             }
             .el-icon-view:hover {
                 display: inline-block;
                 float: right;
                 height: 36px;
+                width: 36px;
                 line-height: 36px;
-                padding: 0 10px 0 10px;
+                padding: 0 0 0 0;
                 color: rgb(51, 51, 51);
                 cursor: pointer;
+                text-align: center;
+            }
+            .el-icon-moon {
+                display: inline-block;
+                float: right;
+                height: 36px;
+                width: 36px;
+                line-height: 36px;
+                padding: 0 0 0 0;
+                color: rgb(51, 51, 51);
+                text-align: center;
+            }
+            .el-icon-moon:hover {
+                display: inline-block;
+                float: right;
+                height: 36px;
+                width: 36px;
+                line-height: 36px;
+                padding: 0 0 0 0;
+                color: rgb(51, 51, 51);
+                cursor: pointer;
+                text-align: center;
             }
         }
         .accountLogin-state {
@@ -2607,6 +2643,41 @@ export default {
                 opacity: 0.8;
                 outline: none;
             }
+
+            .hostCancle {
+                border: 1px solid rgba(221, 221, 221, 1);
+                background:rgba(255,255,255,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: black;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
+            }
+            hostCancle:hover {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
+            }
+
         }
         .organizationLogin-state {
             width: 100%;
