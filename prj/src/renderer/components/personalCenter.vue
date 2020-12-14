@@ -536,4 +536,8 @@ export default {
     right:50px;   
     margin-top: 13px;
 }
+
+.modifyIcon:hover{
+    border:2px solid #f7f4f4
+}
 </style>
