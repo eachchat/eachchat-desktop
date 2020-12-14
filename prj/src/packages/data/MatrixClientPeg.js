@@ -423,6 +423,14 @@ class _MatrixClientPeg{
           timelineSupport: true,
           unstableClientRelationAggregation: true,
       }
+      try {
+        window.sessionStorage.clear();
+        if(this.matrixClient)
+          this.matrixClient.clearStores();
+      }
+      catch(err) {
+
+      }
       Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
       this.matrixClient = this._CreateMatrixClient(ops);
       
@@ -467,6 +475,14 @@ class _MatrixClientPeg{
     }
   
     async LoginWithPassword(account, password){
+        try {
+          window.sessionStorage.clear();
+          if(this.matrixClient)
+            this.matrixClient.clearStores();
+        }
+        catch(err) {
+          
+        }
         this.checkType = 'm.login.password';
         this.account = account;
         this.password = password;
