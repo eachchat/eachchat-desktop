@@ -119,7 +119,25 @@ export default {
             return "message-template-" + this.msg.event.event_id;
         },
         showUserInfoTip: async function() {
-            return;
+            if(this.userIconElement == undefined) {
+                this.userIconElement = document.getElementById(userIconElementId);
+            }
+            if(this.userIconElement == undefined) {
+                // ToDo exception.
+                return;
+            }
+            var curAbsoluteTop = getElementTop(this.userIconElement);
+            var curAbsoluteLeft = getElementLeft(this.userIconElement);
+            if(this.userInfo == undefined) {
+                await this.msgUserInfo()
+            }
+            var tipInfos = {
+                "userInfo": this.userInfo,
+                "absoluteTop": curAbsoluteTop,
+                "absoluteLeft": curAbsoluteLeft,
+                "isMine": this.MsgIsMine(),
+            }
+            this.$emit("openUserInfoTip", tipInfos);
         },
         msgNameId: function() {
             return this.msg.event.event_id + "-username";
