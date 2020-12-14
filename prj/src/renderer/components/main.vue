@@ -326,7 +326,7 @@ export default {
         showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
-            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             if(avaterUrl != "") {
                 elementImg.setAttribute("src", avaterUrl);
             }

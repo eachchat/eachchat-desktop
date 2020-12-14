@@ -426,7 +426,7 @@ class _MatrixClientPeg{
       try {
         window.sessionStorage.clear();
         if(this.matrixClient)
-          this.matrixClient.clearStores();
+          await this.matrixClient.clearStores();
       }
       catch(err) {
 
@@ -478,7 +478,7 @@ class _MatrixClientPeg{
         try {
           window.sessionStorage.clear();
           if(this.matrixClient)
-            this.matrixClient.clearStores();
+            await this.matrixClient.clearStores();
         }
         catch(err) {
           
