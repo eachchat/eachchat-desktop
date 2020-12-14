@@ -68,7 +68,7 @@
                         <p class="password-title">
                             {{loginPagePwdLabel}}
                         </p>
-                        <div class="inputDiv">
+                        <div class="inputDiv" id="inputDivId">
                             <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
                             <i class="el-icon-view" @click="toShowPwd" v-show="!showPwd"></i>
                             <i class="el-icon-moon" @click="toShowPwd" v-show="showPwd"></i>
@@ -424,7 +424,7 @@ export default {
                     // TODO: Remove `threepid_creds` once servers support proper UIA
                     // See https://github.com/matrix-org/synapse/issues/5665
                     // See https://github.com/matrix-org/matrix-doc/issues/2220
-                    threepid_creds: creds,
+                    // threepid_creds: creds,
                     threepidCreds: creds,
                 }, this.password);
             } catch (err) {
@@ -588,7 +588,15 @@ export default {
             console.log("gmsRet is ", gmsRet);
             if(!gmsRet){
                 if(domain != undefined){
-                    this.loginState = "未找到该组织";
+                    this.$toastMessage({message:"未找到该组织", time: 2000, type:'error', showWidth:'280px'});
+                }
+                this.organizationButtonDisabled = false;
+                return false;
+            }
+            var loginSettingRet = await global.services.common.getLoginConfig();
+            if(!loginSettingRet) {
+                if(domain != undefined){
+                    this.$toastMessage({message:"获取登录配置失败", time: 2000, type:'error', showWidth:'280px'});
                 }
                 this.organizationButtonDisabled = false;
                 return false;
@@ -694,6 +702,8 @@ export default {
             accountInputDom.style.borderColor = "rgba(221,221,221,1)";
             var passwordInputDom = document.getElementById("passwordInputId");
             passwordInputDom.style.borderColor = "rgba(221,221,221,1)";
+            var passwordInputDivDom = document.getElementById("inputDivId");
+            passwordInputDivDom.style.borderColor = "rgba(221,221,221,1)";
             return;
         },
         toDected: function() {
@@ -712,8 +722,9 @@ export default {
             global.services.common.gmsDetector(this.organizationAddress)
                 .then((ret) => {
                     console.log("gmsDetector ret is ", ret);
-                    if(ret.data == undefined || ret.data.results == undefined) {
+                    if(ret.data == undefined || ret.data.results == null) {
                         this.DomainList = [];
+                        this.showDomListView = false;
                     }
                     else {
                         if(searchResult.id == this.searchId) {
@@ -758,6 +769,7 @@ export default {
                 this.organizationButtonDisabled = false;
                 return;
             }
+            this.showDomListView = false;
             
             var domain = this.organizationAddress;// + ".each.chat";
 
@@ -778,15 +790,15 @@ export default {
                     this.isLoading = false;
                     this.organizationButtonDisabled = false;
                     this.resetLoginStateTitle();
-                    this.defaultIdentity = global.localStorage.getItem("defaultIdentity");
-                    if(this.defaultIdentity == "ldap" && false) {
+                    this.defaultIdentity = global.localStorage.getItem("authType");
+                    if(this.defaultIdentity == "three") {
                         this.isLdap = true;
                         this.isMatrixPwd = false;
                         this.loginPageTitle = "组织认证";
                         this.loginPageAccountLabel = "组织ID";
-                        this.loginPageAccountPlaceholder = "请输入您的组织ID";
+                        this.loginPageAccountPlaceholder = global.localStorage.getItem("userNamePlaceHolder");
                         this.loginPagePwdLabel = "密码";
-                        this.loginPagePwdPlaceholder = "请输入密码";
+                        this.loginPagePwdPlaceholder = global.localStorage.getItem("passwordPlaceHolder");
                         this.forgetPasswordContent = "";
                         this.username = "";
                         this.password = "";
@@ -1032,6 +1044,12 @@ export default {
                     passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                     passwordInputDom.type = "password";
                 }
+                var passwordInputDivDom = document.getElementById("inputDivId");
+                if(passwordInputDivDom) {
+                    passwordInputDivDom.disabled = false;
+                    passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                    passwordInputDivDom.type = "password";
+                }
             }
             else if(this.showOrganizationViewHost) {
                 this.resetLoginStateTitle();
@@ -1219,7 +1237,8 @@ export default {
                 passwordInputDom.style.borderColor = "red";
                 return;
             }
-            if(this.password.startsWith("init")) {
+            var reg = new RegExp(global.localStorage.getItem("initPasswordRegex"));
+            if(reg.test(this.password)) {
                 global.localStorage.setItem("neetNoticeToChangePwd", true);
             }
             else {
@@ -1451,6 +1470,11 @@ export default {
                         passwordInputDom.disabled = true;
                         passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
                     }
+                    var passwordInputDivDom = document.getElementById("inputDivId");
+                    if(passwordInputDivDom) {
+                        passwordInputDom.disabled = true;
+                        passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                    }
                 }, (err) => {
                     this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error'});
                 });
@@ -1479,6 +1503,11 @@ export default {
                 }
                 var passwordInputDom = document.getElementById("passwordInputId");
                 if(passwordInputDom) {
+                    passwordInputDom.disabled = false;
+                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                }
+                var passwordInputDivDom = document.getElementById("inputDivId");
+                if(passwordInputDivDom) {
                     passwordInputDom.disabled = false;
                     passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                 }
@@ -1800,7 +1829,7 @@ export default {
                 display: inline-block;
                 position: absolute;
                 margin-top: 4px;
-                width:228px;
+                width:209px;
                 height:36px;
                 font-weight:400;
                 color:rgba(0,0,0,1);

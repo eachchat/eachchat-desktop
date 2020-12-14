@@ -499,7 +499,7 @@ export default {
             console.log(config)
         })
 */
-        if(global.localStorage.getItem("neetNoticeToChangePwd")) {
+        if(global.localStorage.getItem("neetNoticeToChangePwd") == "true") {
             this.showChangePasswordAlertPage()
         }
         await global.services.common.login()

@@ -15,6 +15,9 @@ let toastMessage = (options) => {
     timer = null
     instance.show = false
     instance.message = ''
+    instance.type = ''
+    instance.showWidth = ''
+    instance.showHeight = ''
   }
   instance.time = 3000
   if (typeof options === 'string') {
@@ -36,6 +39,9 @@ let toastMessage = (options) => {
     clearTimeout(timer)
     timer = null
     instance.message = ''
+    instance.type = ''
+    instance.showWidth = ''
+    instance.showHeight = ''
   }, instance.time)
 }
 toastMessage.close = () => {
@@ -44,6 +50,9 @@ toastMessage.close = () => {
     timer = null
     instance.show = false
     instance.message = ''
+    instance.type = ''
+    instance.showWidth = ''
+    instance.showHeight = ''
   }
 }
 toastMessage.install = (Vue) => {

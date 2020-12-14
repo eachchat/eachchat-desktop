@@ -2065,6 +2065,29 @@ const common = {
     return response;
   },
 
+  async getLoginConfig() {
+    var host = global.localStorage.getItem("app_server");
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length - 1);
+    }
+    var response = await axios.get(host + "/api/services/auth/v1/auth/setting");
+    console.log("response is ", response)
+    if (response.status != 200 
+      || response.data == undefined
+      || response.data.obj == undefined) {
+      return false;
+    };
+    var loginSettingObj = response.data.obj;
+    global.localStorage.setItem("authType", loginSettingObj['authType']);
+    global.localStorage.setItem("threeAuthType", loginSettingObj['threeAuthType']);
+    global.localStorage.setItem("userNamePlaceHolder", loginSettingObj['userNamePlaceHolder']);
+    global.localStorage.setItem("passwordPlaceHolder", loginSettingObj['passwordPlaceHolder']);
+    global.localStorage.setItem("matrixEmail", loginSettingObj['matrixEmail']);
+    global.localStorage.setItem("threeEmail", loginSettingObj['threeEmail']);
+    global.localStorage.setItem("initPasswordRegex", loginSettingObj['initPasswordRegex']);
+    return true;
+  },
+
   async newGmsConfiguration(domain, host) {
     if(host.endsWith("/")) {
       host = host.substring(0, host.length - 1);
