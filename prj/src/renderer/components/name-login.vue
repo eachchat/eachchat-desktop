@@ -68,7 +68,10 @@
                         <p class="password-title">
                             {{loginPagePwdLabel}}
                         </p>
-                        <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                        <div class="inputDiv">
+                            <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                            <i class="el-icon-view" @click="toShowPwd" v-show="isRecetPwd"></i>
+                        </div>
                     </div>
                     <div class="accountLogin-state" v-show="false">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
@@ -239,6 +242,7 @@ export default {
     },
     data () {
         return {
+            showPwd: false,
             forgetPwdButtonDisabled: false,
             iconType: "alert",
             LoginBtnText: "登录",
@@ -350,6 +354,17 @@ export default {
         }
     },
     methods: {
+        toShowPwd: function() {
+            console.log("=============")
+            this.showPwd = !this.showPwd;
+            var pwdElement = document.getElementById("passwordInputId");
+            if(this.showPwd) {
+                pwdElement.type = "text";
+            }
+            else {
+                pwdElement.type = "password";
+            }
+        },
         toResetPwd: function() {
             this.loginPageTitle = "重置密码";
             this.loginPageAccountLabel = "邮箱";
@@ -460,7 +475,7 @@ export default {
                 this.showOrganizationViewHost = false;
                 this.eachChatEndPoint = '';
                 this.organizationOrHost = this.$t("joinYourOrganization");
-                this.organizationAddress = window.localStorage.getItem("Domain") == undefined ? "" : window.localStorage.getItem("Domain");
+                this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
                 this.showOrganizationViewOrganization = true;
             }
         },
@@ -511,8 +526,8 @@ export default {
             if(appServerInfo.data['m.homeserver'] != undefined) {
                 global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
             }
-            if(appServerInfo.data['m.identty_server'] != undefined) {
-                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identty_server']['base_url']);
+            if(appServerInfo.data['m.identity_server'] != undefined) {
+                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identity_server']['base_url']);
             }
             if(appServerInfo.data['m.appserver'] != undefined) {
                 var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
@@ -702,7 +717,7 @@ export default {
                     else {
                         if(searchResult.id == this.searchId) {
                             this.DomainList = ret.data.results;
-                            if(this.DomainList.length != 0) {
+                            if(this.DomainList != null && this.DomainList.length != 0) {
                                 this.showDomainPage();
                             }
                         }
@@ -989,6 +1004,8 @@ export default {
                 this.loginPagePwdPlaceholder = "请输入密码";
                 this.isMatrixPwd = true;
                 this.forgetPasswordContent = "忘记密码";
+                this.username = "";
+                this.password = "";
                 this.forgetPwdButtonDisabled = false;
                 this.isRecetPwd = false;
                 this.toVerfyEmail = false;
@@ -996,12 +1013,13 @@ export default {
                 var accountInputDom = document.getElementById("accountInputId");
                 if(accountInputDom) {
                     accountInputDom.disabled = false;
-                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                 }
                 var passwordInputDom = document.getElementById("passwordInputId");
                 if(passwordInputDom) {
                     passwordInputDom.disabled = false;
-                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                    passwordInputDom.type = "password";
                 }
             }
             else if(this.showOrganizationViewHost) {
@@ -1446,12 +1464,12 @@ export default {
                 var accountInputDom = document.getElementById("accountInputId");
                 if(accountInputDom) {
                     accountInputDom.disabled = false;
-                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                 }
                 var passwordInputDom = document.getElementById("passwordInputId");
                 if(passwordInputDom) {
                     passwordInputDom.disabled = false;
-                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                 }
                 this.LoginBtnText = "登录";
                 this.forgetPasswordContent = "忘记密码";
@@ -1523,6 +1541,14 @@ export default {
         // if(window.localStorage) {
         //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         // }
+        var host = window.localStorage.getItem("mx_hs-url");
+        if(host == null) {
+            this.tokenRefreshing = false;
+            this.showLoadingView = false;
+            this.showLoginView = true;
+            return;
+        }
+        this.getServerInfo(host);
         this.checkHomeServer()
             .then((ret) => {
                 console.log("============= check home server ", ret);
@@ -1739,7 +1765,9 @@ export default {
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
             }
-            .item-input {
+            .inputDiv {
+                display: inline-block;
+                position: absolute;
                 margin-top: 4px;
                 width:260px;
                 height:36px;
@@ -1755,6 +1783,44 @@ export default {
                 font-size:14px;
                 outline: none;
                 font-family: PingFangSC-Regular;
+                background-color: rgba(1, 1, 1, 0);
+            }
+            .item-input {
+                display: inline-block;
+                position: absolute;
+                margin-top: 4px;
+                width:228px;
+                height:36px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border:0px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 0px;
+                font-size:14px;
+                outline: none;
+                font-family: PingFangSC-Regular;
+                background-color: rgba(1, 1, 1, 0);
+            }
+            .el-icon-view {
+                display: inline-block;
+                float: right;
+                height: 36px;
+                line-height: 36px;
+                padding: 0 10px 0 10px;
+                color: rgb(51, 51, 51);
+            }
+            .el-icon-view:hover {
+                display: inline-block;
+                float: right;
+                height: 36px;
+                line-height: 36px;
+                padding: 0 10px 0 10px;
+                color: rgb(51, 51, 51);
+                cursor: pointer;
             }
         }
         .accountLogin-state {

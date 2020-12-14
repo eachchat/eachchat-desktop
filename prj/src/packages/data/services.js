@@ -2121,7 +2121,7 @@ const common = {
     
     localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
     localStorage.setItem("mx_hs_url", matrix.homeServer);
-    localStorage.setItem("mx_i_url", matrix.identityServer);
+    // localStorage.setItem("mx_i_url", matrix.identityServer);
 
     return response.data.obj;
   },
