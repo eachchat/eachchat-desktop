@@ -180,6 +180,29 @@ class _MatrixClientPeg{
       }
     }
 
+    async setPassword(sid, client_secret, newPwd) {
+      try{
+        var ret = await this.commonApi.sender.post(
+          "/_matrix/client/r0/account/password",
+          {
+            auth: {
+              type:"m.login.email.identity",
+              threepid_creds: {
+                sid: sid,
+                client_secret: client_secret
+              }
+            },
+            new_password: newPwd
+          });
+
+          return this.parseStatus(ret);
+      }
+      catch(error) {
+        console.log("err ", error.response);
+        return error.response;
+      }
+    }
+
     async getAppServerInfo(host) {
       var obj = this.getHostPortTls(host);
       var hostname = obj[0];

@@ -231,7 +231,7 @@ import {getDefaultHomeServerAddr} from '../../config.js'
 import log from 'electron-log';
 import AlertDlg from './alert-dlg.vue'
 import { windowsStore } from 'process';
-import * as Matrix from 'matrix-js-sdk'
+import * as Matrix from 'matrix-js-sdk';
 export default {
     name: 'login',
     components:{
@@ -385,7 +385,6 @@ export default {
             var homeServerUel = global.localStorage.getItem("mx_hs_url");
             this.pwdResetClient = Matrix.createClient({
                 baseUrl: homeServerUel,
-                idBaseUrl: identityUrl,
             });
             this.clientSecret = this.pwdResetClient.generateClientSecret();
             this.identityServerDomain = identityUrl ? identityUrl.split("://")[1] : null;
@@ -395,7 +394,7 @@ export default {
         },
         resetPassword(emailAddress, newPassword) {
             this.password = newPassword;
-            return this.pwdResetClient.requestPasswordEmailToken(emailAddress, this.clientSecret, 1).then((res) => {
+            return this.pwdResetClient.requestPasswordEmailToken(emailAddress, this.clientSecret, 0).then((res) => {
                 this.sessionId = res.sid;
                 return res;
             }, function(err) {
@@ -409,25 +408,29 @@ export default {
         },
         async checkEmailLinkClicked() {
             const creds = {
-                sid: this.sessionId,
-                client_secret: this.clientSecret,
+                'sid': this.sessionId,
+                'client_secret': this.clientSecret,
             };
             if (await this.doesServerRequireIdServerParam()) {
                 creds.id_server = this.identityServerDomain;
             }
 
             try {
-                await this.pwdResetClient.setPassword({
-                    // Note: Though this sounds like a login type for identity servers only, it
-                    // has a dual purpose of being used for homeservers too.
-                    type: "m.login.email.identity",
-                    // TODO: Remove `threepid_creds` once servers support proper UIA
-                    // See https://github.com/matrix-org/synapse/issues/5665
-                    // See https://github.com/matrix-org/matrix-doc/issues/2220
-                    // threepid_creds: creds,
-                    threepidCreds: creds,
-                }, this.password);
+                var ret = await global.mxMatrixClientPeg.setPassword(this.sessionId, this.clientSecret, this.password)
+                console.log("ret is ", ret);
+                return;
+                // await this.pwdResetClient.setPassword({
+                //     // Note: Though this sounds like a login type for identity servers only, it
+                //     // has a dual purpose of being used for homeservers too.
+                //     type: "m.login.email.identity",
+                //     // TODO: Remove `threepid_creds` once servers support proper UIA
+                //     // See https://github.com/matrix-org/synapse/issues/5665
+                //     // See https://github.com/matrix-org/matrix-doc/issues/2220
+                //     threepid_creds: creds
+                //     // threepidCreds: creds,
+                // }, this.password);
             } catch (err) {
+                console.log("==========err is ", err);
                 if (err.httpStatus === 401) {
                     err.message = "邮箱验证失败：请确保你已点击邮件中的链接";
                 } else if (err.httpStatus === 404) {
@@ -1448,7 +1451,7 @@ export default {
             if(this.isRecetPwd) {
                 this.resetPassword(this.username, this.password).then(() => {
                     this.alertContnets = {
-                        "Details": "邮件已经发送至Ankiliu@cck.com，请查收邮件并点击链接进行密码修改验证",
+                        "Details": "邮件已经发送至" + this.username + "，请查收邮件并点击链接进行密码修改验证",
                         "Abstrace": "发送成功"
                     };
                     this.isRecetPwd = false;
@@ -1472,8 +1475,8 @@ export default {
                     }
                     var passwordInputDivDom = document.getElementById("inputDivId");
                     if(passwordInputDivDom) {
-                        passwordInputDom.disabled = true;
-                        passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                        passwordInputDivDom.disabled = true;
+                        passwordInputDivDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
                     }
                 }, (err) => {
                     this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error'});
@@ -1487,6 +1490,7 @@ export default {
             try {
                 await this.checkEmailLinkClicked();
                 
+                this.$toastMessage({message:"密码重置成功：" + err.message, time: 3000, type:'success', showWidth:'280px', showHeight:"100px"});
                 this.loginPageTitle = "用户名登录";
                 this.loginPageAccountLabel = "用户名";
                 this.loginPageAccountPlaceholder = "请输入用户名";
@@ -1508,9 +1512,11 @@ export default {
                 }
                 var passwordInputDivDom = document.getElementById("inputDivId");
                 if(passwordInputDivDom) {
-                    passwordInputDom.disabled = false;
-                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                    passwordInputDivDom.disabled = false;
+                    passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                 }
+                this.username = "";
+                this.password = "";
                 this.LoginBtnText = "登录";
                 this.forgetPasswordContent = "忘记密码";
                 this.forgetPwdButtonDisabled = false;
