@@ -1,16 +1,20 @@
 <template>
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
-            <div class="personalCenter-iconView" @click="personalCenterIconClicked()">
+            <div class="personalCenter-iconView">
                 <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png">
-                <div class="personalCenter-changeIcon">
-                    <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
-                </div>
             </div>
-            <div class="personalCenter-baseInfo" @click="personalDetailClicked()">
+            <div class="personalCenter-baseInfo">
                 <p class="personalCenter-name" id="personalCenter-namd-id"></p>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
+            <div>
+                <p class = 'modifyInfo'>修改资料</p>          
+                <div class = "modifyIconDiv" >
+                    <img class = 'modifyIcon' src = "../../../static/Img/personalCenter/toModifyInof-20px.png" alt="" @click="personalDetailClicked()">
+                </div>
+            </div>
+              
         </div>
         <!-- <div class="personalCenter-state">
             <img ondragstart="return false" class="personalCenter-stateImg" id="personalCenter-stateImg-id" src="../../../static/Img/personalCenter/online-20px@2x.png"> 
@@ -41,7 +45,6 @@ import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
 import imageCropper from './imageCropper.vue'
-import * as utils from '../../packages/core/Utils.js'
 
 
 export default {
@@ -84,36 +87,7 @@ export default {
         closeCropperDlg(){
             this.showImageCropper = false;
         },
-        personalCenterIconClicked(){
-            const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('open-image-dialog-avatar', 'openFile');
-            ipcRenderer.on('selectedAvatarImageItem', this.nHandleFiles);
-            
-        },
-        nHandleFiles:async function(e, paths) {
-            // Select Same File Failed.
-            var fileList = paths;
-            // console.log("======", fileList)
-            if(fileList.filePaths.length === 0) {
-                alert("请选择一个图片文件");
-            }
-            //this.showImageCropper = true;
-            this.selectImageSource = fileList.filePaths[0];
-            var showfu = new utils.FileUtil(this.selectImageSource);
-            var stream = showfu.ReadfileSync(this.selectImageSource);
-            let uploadFile = showfu.GetUploadfileobj();
-            let matrixClient = global.mxMatrixClientPeg.matrixClient;
-            const httpPromise = matrixClient.uploadContent(uploadFile).then(function(url) {
-                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
-                    let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
-                    if(avaterUrl != '') {
-                        userIconElement.setAttribute("src", avaterUrl);
-                    }
-                    matrixClient.setAvatarUrl(url);
-                    var elementImg = document.getElementById("userHead");
-                    elementImg.setAttribute("src", avaterUrl);
-            });       
-        },
+        
         stateListArrowClicked(){
             if(this.showStateList){
                 this.showStateList = false;
@@ -305,7 +279,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .personalCenter-view {
-    height: 90px;
+    height: 120px;
     width: 300px;
     padding: 0px;
     //border: 1px solid rgb(242, 242, 246);
@@ -337,32 +311,26 @@ export default {
         border-radius: 4px;
         border-radius: 50%;
         display: inline-block;
-        cursor: pointer;
-}
-.personalCenter-changeIcon{
-    display: none;
-    width: 48px;
-    height: 48px;
-    position: absolute;
-    border-radius: 4px;
-    z-index: 3;
-    background-color: rgba(0,0,0,0.4);;
-    .personalCenter-cameraIcon{
-        width: 24px;
-        height: 24px;
-        position: absolute;
-        left: 12px;
-        top: 12px;
+        cursor: pointer;    
     }
-}
-}
-
-.personalCenter-iconView:hover{
     .personalCenter-changeIcon{
-        display: inline-block;
+        display: none;
+        width: 48px;
+        height: 48px;
+        position: absolute;
+        border-radius: 4px;
+        z-index: 3;
+        background-color: rgba(0,0,0,0.4);;
+        .personalCenter-cameraIcon{
+            width: 24px;
+            height: 24px;
+            position: absolute;
+            left: 12px;
+            top: 12px;
+        }
     }
-
 }
+
 .personalCenter-baseInfo {
     display: inline-block;
     height: 48px;
@@ -543,5 +511,29 @@ export default {
     }
 }
 
+.modifyInfo{
+    width: 66px;
+    height: 20px;
+    font-size: 14px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #333333;
+    line-height: 20px;
+    letter-spacing: 1px;
+    display: inline-block;
+}
 
+.modifyIconDiv
+{
+    display: inline-block;
+    height: 48px;
+    width: 180px;
+    vertical-align: middle;
+}
+
+.modifyIcon{
+    position:absolute;
+    right:50px;   
+    margin-top: 13px;
+}
 </style>

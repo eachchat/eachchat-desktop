@@ -2,7 +2,14 @@
 <template>
     <div class="userInfo-view" :style="pagePosition">
         <div class="userInfoBaseInfo-view">
-            <img ondragstart="return false" class="userInfo-icon" src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)">
+            <div class="userInfo-iconDiv">
+                <img ondragstart="return false" class = 'userInfo-icon' src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)">
+                <div class = 'userInfo-changeIcon' @click="personalCenterIconClicked()" v-show = 'showChangeIcon'>
+                    <img ondragstart="return false" class="userInfo-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
+                </div>
+            </div>
+            
+            
             <div class="userInfo-baseInfo">
                 <p class="userInfo-name">{{ GetDisplayName(userInfo.displayName, userInfo.matrix_id) }}</p>
                 <p class="userInfo-title">{{ userInfo.matrix_id }}</p>
@@ -72,7 +79,7 @@ import {ComponentUtil} from '../script/component-util.js'
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import * as Rooms from "../../packages/data/Rooms"
 import * as RoomUtil from '../script/room-util'
-
+import * as utils from '../../packages/core/Utils.js'
 
 export default {
     name: 'user-info',
@@ -84,6 +91,7 @@ export default {
             nameEdit: true,
             services: null,
             data: false,
+            showChangeIcon: false
         }
     },
     props: {
@@ -175,6 +183,42 @@ export default {
         }
     },
     methods: {
+        nHandleFiles:async function(e, paths) {
+            // Select Same File Failed.
+            var fileList = paths;
+            // console.log("======", fileList)
+            if(fileList.filePaths.length === 0) {
+                alert("请选择一个图片文件");
+            }
+            //this.showImageCropper = true;
+            this.selectImageSource = fileList.filePaths[0];
+            var showfu = new utils.FileUtil(this.selectImageSource);
+            var stream = showfu.ReadfileSync(this.selectImageSource);
+            let uploadFile = showfu.GetUploadfileobj();
+            let matrixClient = global.mxMatrixClientPeg.matrixClient;
+            const httpPromise = matrixClient.uploadContent(uploadFile).then((url)=> {
+                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
+                    let userIconElement = document.getElementById(this.getUserInfoIconID(this.userInfo.matrix_id));
+                    if(avaterUrl != '') {
+                        userIconElement.setAttribute("src", avaterUrl);
+                    }
+                    matrixClient.setAvatarUrl(url);
+                    var elementImg = document.getElementById("userHead");
+                    elementImg.setAttribute("src", avaterUrl);
+
+                    elementImg = document.getElementsByClassName('personalCenter-icon')[0];
+                    if(elementImg)
+                        elementImg.setAttribute("src", avaterUrl);
+            });       
+        },
+
+        personalCenterIconClicked(){
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('open-image-dialog-avatar', 'openFile');
+            ipcRenderer.on('selectedAvatarImageItem', this.nHandleFiles);
+            
+        },
+
         async ControlShowElement(){
             let matrix_id = "";
             if(this.userInfo && this.userInfo.matrix_id){
@@ -185,7 +229,7 @@ export default {
                 else
                     this.bShowSaveContact = true;
             }
-                
+            
         },
 
         SaveContact: async function(){
@@ -413,8 +457,9 @@ export default {
         this.pagePosition.left = this.originPosition.left.toString() + "px";
         this.pagePosition.top = topPosition.toString() + "px";
         if(this.userType == 'mainUserInfo'){
-            this.pagePosition.left = "64px";
+            this.pagePosition.left = "364px";
             this.pagePosition.top = "32px";
+            this.showChangeIcon = true;
         }
         this.ControlShowElement();
         this.$nextTick(function(){
@@ -458,14 +503,56 @@ export default {
     height: 128px;
     margin: 0px;
 }
-.userInfo-icon {
+
+.userInfo-iconDiv{
+    padding: 0px;
+    margin: 0px;
+    display: inline-block;
+    //border-radius: 50%;
     width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    height: 48px; 
     margin-top: 20px;
     margin-left: 116px;
     margin-bottom: 0px;
+
+    .userInfo-icon {
+        width: 48px;
+        height: 48px;
+        position: absolute;
+        border-radius: 4px;
+        border-radius: 50%;
+        display: inline-block;
+        cursor: pointer;   
+    }
+    .userInfo-changeIcon{
+        display: none;
+        width: 48px;
+        height: 48px;
+        position: absolute;
+        border-radius: 4px;
+        z-index: 3;
+        background-color: rgba(0,0,0,0.4);;
+        .userInfo-cameraIcon{
+            width: 24px;
+            height: 24px;
+            position: absolute;
+            left: 12px;
+            top: 12px;
+        }
+    }
 }
+
+
+
+.userInfo-iconDiv:hover{
+    .userInfo-changeIcon{
+        display: inline-block;
+    }
+}
+
+
+
+
 .userInfo-baseInfo {
     height: 60px;
     width: 100%;
@@ -631,8 +718,6 @@ input::-webkit-input-placeholder {
     font-weight: 400;
     font-family: PingFangSC-Regular;
 }
-
-
 
 
 </style>

@@ -167,16 +167,12 @@ export default {
         },
         showPersonalInfoHanlder: async function(value){
             if(value){
-                var leftPosition = 64;
-                var topPosition = 32;
-                this.pagePosition.left = 64;
-                this.pagePosition.top = 32;
                 this.personalCenterKey ++;
                 const userId = window.localStorage.getItem("mx_user_id");
 
                 this.userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
                 if(this.userInfo){
-                    this.showPersonalCenter = false;
+                    this.showPersonalCenter = true;
                     this.showPersonalInfo = true;
                     this.userInfo.displayName = this.displayName;
                 }
