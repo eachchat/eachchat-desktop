@@ -406,11 +406,16 @@ export default {
             let userIconElement = document.getElementById(this.getUserInfoIconID(userInfo.matrix_id));
             if(!userIconElement)
                 return;
-            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id);
-            if(!profileInfo.avatar_url)
-                return;
-            let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-            userIconElement.setAttribute("src", validUrl);
+            try{
+                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id);
+                if(!profileInfo.avatar_url)
+                    return;
+                let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                userIconElement.setAttribute("src", validUrl);
+            }catch(e){
+                console.log(e)
+            }
+            
             
         },
         getUserInfoIconID(id){

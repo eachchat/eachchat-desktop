@@ -176,6 +176,9 @@ export default {
                     this.showPersonalInfo = true;
                     this.userInfo.displayName = this.displayName;
                 }
+                else{
+                    alert("数据库没有找到用户信息")
+                }
             }
         },
         getUnReadCount(unReadCount) {
