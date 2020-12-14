@@ -195,7 +195,7 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
-        <div class="server-setting-div" v-show="showOrganizationView && showOrganizationViewOrganization">
+        <div class="server-setting-div" v-show="showOrganizationView && showOrganizationViewOrganization && false">
             <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView && showOrganizationViewOrganization">{{$t("homeServerAddress")}}</div>
             <i class="el-icon-caret-bottom" v-show="showOrganizationView && showOrganizationViewOrganization"></i>
         </div>
@@ -243,6 +243,7 @@ export default {
     },
     data () {
         return {
+            appServerHost: "http://139.198.18.180:8888",//"https://chat.yunify.com",
             showPwd: false,
             forgetPwdButtonDisabled: false,
             iconType: "alert",
@@ -307,6 +308,7 @@ export default {
             showLoginView: false,
             showUsernameLoginView: true,
             defaultIdentity: '',
+            threeAuthType: '',
             supportedIdentity: [],
             showUserphoneLoginView: false,
             showUseremailLoginView: false,
@@ -447,7 +449,7 @@ export default {
                 if(this.organizationAddress.length == 0) {
                     return showContent
                 }
-                if(showContent.indexOf(this.organizationAddress) != -1) {
+                if(showContent.toLowerCase().indexOf(this.organizationAddress) != -1) {
                     let splitValue = showContent.split(this.organizationAddress);
                     let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress + "</span>");
                     return newInnerHtml;
@@ -527,42 +529,42 @@ export default {
                 this.$toastMessage({message:"Home Server地址不正确，请重新输入", time: 2000, type:'success', showWidth:'280px', showHeight:"100px"});
                 return false;
             }
-            if(appServerInfo.data['m.homeserver'] != undefined) {
-                global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
-            }
+            // if(appServerInfo.data['m.homeserver'] != undefined) {
+            //     global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
+            // }
             if(appServerInfo.data['m.identity_server'] != undefined) {
                 global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identity_server']['base_url']);
             }
-            if(appServerInfo.data['m.appserver'] != undefined) {
-                var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
+            // if(appServerInfo.data['m.appserver'] != undefined) {
+            //     var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
                 
-                var appServerHostObj = this.getHostPortTls(appServerHostInfo);
-                var AHost = appServerHostObj[0];
-                var AHostPort = appServerHostObj[1];
-                var AHostTls = appServerHostObj[2];
+            //     var appServerHostObj = this.getHostPortTls(appServerHostInfo);
+            //     var AHost = appServerHostObj[0];
+            //     var AHostPort = appServerHostObj[1];
+            //     var AHostTls = appServerHostObj[2];
                 
-                localStorage.setItem("hostname", AHost);
-                localStorage.setItem("apiPort", AHostPort);
-                localStorage.setItem("hostTls", AHostTls);
-                localStorage.setItem("app_server", appServerHostInfo);
-            }
-            if(appServerInfo.data['m.mqttserver'] != undefined) {
-                var mqttHostInfo = appServerInfo.data['m.mqttserver']['base_url'];
+            //     localStorage.setItem("hostname", AHost);
+            //     localStorage.setItem("apiPort", AHostPort);
+            //     localStorage.setItem("hostTls", AHostTls);
+            //     localStorage.setItem("app_server", appServerHostInfo);
+            // }
+            // if(appServerInfo.data['m.mqttserver'] != undefined) {
+            //     var mqttHostInfo = appServerInfo.data['m.mqttserver']['base_url'];
                 
-                var mqttHostObj = this.getHostPortTls(mqttHostInfo);
-                var mqttHost = mqttHostObj[0];
-                var mqttHostPort = mqttHostObj[1];
-                var mqttHostTls = mqttHostObj[2];
+            //     var mqttHostObj = this.getHostPortTls(mqttHostInfo);
+            //     var mqttHost = mqttHostObj[0];
+            //     var mqttHostPort = mqttHostObj[1];
+            //     var mqttHostTls = mqttHostObj[2];
                 
-                localStorage.setItem("mqttHost", AHost);
-                localStorage.setItem("mqttPort", AHostPort);
-                localStorage.setItem("mqttTls", AHostTls);
-            }
-            if(appServerInfo.data['m.gms'] != undefined) {
-                var gmsHostInfo = appServerInfo.data['m.gms']['base_url'];
-                localStorage.setItem("gms_url", appServerInfo.data['m.gms']['base_url']);
-                localStorage.setItem("gms_tid", appServerInfo.data['m.gms']['tid']);
-            }
+            //     localStorage.setItem("mqttHost", AHost);
+            //     localStorage.setItem("mqttPort", AHostPort);
+            //     localStorage.setItem("mqttTls", AHostTls);
+            // }
+            // if(appServerInfo.data['m.gms'] != undefined) {
+            //     var gmsHostInfo = appServerInfo.data['m.gms']['base_url'];
+            //     localStorage.setItem("gms_url", appServerInfo.data['m.gms']['base_url']);
+            //     localStorage.setItem("gms_tid", appServerInfo.data['m.gms']['tid']);
+            // }
             return true;
         },
         checkHomeServer: async function (domain){            
@@ -584,16 +586,22 @@ export default {
             if(Domain.length == 0) {
                 return false;
             }
-            var host = global.localStorage.getItem("app_server");
-            if(host == undefined || (host != undefined && host.length == 0)) return false;
-            console.log("host si ", host);
-            var gmsRet = await global.services.common.newGmsConfiguration(Domain, host);
+            
+            var gmsRet = await global.services.common.newGmsConfiguration(Domain, this.appServerHost);
             console.log("gmsRet is ", gmsRet);
             if(!gmsRet){
                 if(domain != undefined){
                     this.$toastMessage({message:"未找到该组织", time: 2000, type:'error', showWidth:'280px'});
                 }
                 this.organizationButtonDisabled = false;
+                return false;
+            }
+            var host = window.localStorage.getItem("mx_hs_url");
+            if(host == null) {
+                return false;
+            }
+            var serverCheckRet = await this.getServerInfo(host);
+            if(!serverCheckRet) {
                 return false;
             }
             var loginSettingRet = await global.services.common.getLoginConfig();
@@ -662,16 +670,23 @@ export default {
                 return false;
             })
         },
-        hostCancelButtonClicked: function() {
-            var distElement = document.getElementById("item-organization-id");
-            if(distElement != undefined) {
-                distElement.style.height = "58px";
+        hostCancelButtonClicked: async function() {
+            var host = this.organizationAddress;
+            if(host.endsWith("/")) {
+                host = host.substring(0, host.length - 1);
             }
-            this.showOrganizationViewHost = false;
-            this.showOrganizationViewOrganization = true;
-            this.eachChatEndPoint = '';
-            this.organizationOrHost = this.$t("joinYourOrganization");
-            this.organizationAddress = window.localStorage.getItem("Domain");
+            if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                host = "https://" + host;
+            }
+            var serverCheckRet = await this.getServerInfo(host);
+            if(serverCheckRet) {
+                this.resetLoginStateTitle();
+                this.showOrganizationViewHost = false;
+                this.eachChatEndPoint = '';
+                this.organizationOrHost = this.$t("joinYourOrganization");
+                this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
+                this.showOrganizationViewOrganization = true;
+            }
         },
         handleCommand(command) {
             var languageElement = document.getElementById("login-language-label");
@@ -722,7 +737,7 @@ export default {
                 "searchList": []
             };
             this.searchId = curSearchId;
-            global.services.common.gmsDetector(this.organizationAddress)
+            global.services.common.gmsDetector(this.organizationAddress, this.appServerHost)
                 .then((ret) => {
                     console.log("gmsDetector ret is ", ret);
                     if(ret.data == undefined || ret.data.results == null) {
@@ -732,6 +747,7 @@ export default {
                     else {
                         if(searchResult.id == this.searchId) {
                             this.DomainList = ret.data.results;
+                            console.log("domainlist is ", this.DomainList);
                             if(this.DomainList != null && this.DomainList.length != 0) {
                                 this.showDomainPage();
                             }
@@ -794,7 +810,8 @@ export default {
                     this.organizationButtonDisabled = false;
                     this.resetLoginStateTitle();
                     this.defaultIdentity = global.localStorage.getItem("authType");
-                    if(this.defaultIdentity == "three") {
+                    this.threeAuthType = global.localStorage.getItem("threeAuthType");
+                    if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
                         this.isLdap = true;
                         this.isMatrixPwd = false;
                         this.loginPageTitle = "组织认证";
@@ -1019,7 +1036,7 @@ export default {
                 }
             }
         },
-        organizationFinderBackToLoginClicked(){
+        async organizationFinderBackToLoginClicked(){
             if(this.isRecetPwd || this.toVerfyEmail) {
                 this.loginPageTitle = "用户名登录";
                 this.loginPageAccountLabel = "用户名";
@@ -1055,12 +1072,22 @@ export default {
                 }
             }
             else if(this.showOrganizationViewHost) {
-                this.resetLoginStateTitle();
-                this.showOrganizationViewHost = false;
-                this.eachChatEndPoint = '';
-                this.organizationOrHost = this.$t("joinYourOrganization");
-                this.organizationAddress = window.localStorage.getItem("Domain") == undefined ? "" : window.localStorage.getItem("Domain");
-                this.showOrganizationViewOrganization = true;
+                var host = this.organizationAddress;
+                if(host.endsWith("/")) {
+                    host = host.substring(0, host.length - 1);
+                }
+                if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                    host = "https://" + host;
+                }
+                var serverCheckRet = await this.getServerInfo(host);
+                if(serverCheckRet) {
+                    this.resetLoginStateTitle();
+                    this.showOrganizationViewHost = false;
+                    this.eachChatEndPoint = '';
+                    this.organizationOrHost = this.$t("joinYourOrganization");
+                    this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
+                    this.showOrganizationViewOrganization = true;
+                }
             }
             else {
                 this.resetLoginStateTitle();
@@ -1587,14 +1614,14 @@ export default {
         // if(window.localStorage) {
         //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         // }
-        var host = window.localStorage.getItem("mx_hs-url");
+        var host = window.localStorage.getItem("mx_hs_url");
         if(host == null) {
             this.tokenRefreshing = false;
             this.showLoadingView = false;
             this.showLoginView = true;
             return;
         }
-        this.getServerInfo(host);
+        // this.getServerInfo(host);
         this.checkHomeServer()
             .then((ret) => {
                 console.log("============= check home server ", ret);

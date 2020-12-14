@@ -2056,7 +2056,7 @@ const common = {
     if(host.endsWith("/")) {
       host = host.substring(0, host.length-1)
     }
-    var response = await axios.post("https://chat.yunify.com/gms/v1/tenant/names", 
+    var response = await axios.post(host + "/gms/v1/tenant/names", 
       {
         'tenantName': tenant
       }
@@ -2124,13 +2124,14 @@ const common = {
     else
       mqtt.tls = 0;
 
-    this.config.hostname = entry.host;
+    var entryObj = this.getHostPortTls(host);
+    this.config.hostname = entryObj.host;
     localStorage.setItem("hostname", this.config.hostname);
 
-    this.config.apiPort = entry.port;
+    this.config.apiPort = entryObj.port;
     localStorage.setItem("apiPort", this.config.apiPort);
 
-    this.config.hostTls = entry.tls;
+    this.config.hostTls = entryObj.tls;
     localStorage.setItem("hostTls", this.config.hostTls);
 
     this.config.mqttHost = mqtt.host;
@@ -2142,7 +2143,7 @@ const common = {
     this.config.mqttTls = mqtt.tls;
     localStorage.setItem("mqttTls", this.config.mqttTls);
     
-    localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
+    // localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
     localStorage.setItem("mx_hs_url", matrix.homeServer);
     // localStorage.setItem("mx_i_url", matrix.identityServer);
 
