@@ -2065,8 +2065,8 @@ const common = {
     return response;
   },
 
-  async getLoginConfig() {
-    var host = global.localStorage.getItem("app_server");
+  async getLoginConfig(host) {
+    // var host = global.localStorage.getItem("app_server");
     if(host.endsWith("/")) {
       host = host.substring(0, host.length - 1);
     }

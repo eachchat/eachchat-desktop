@@ -604,7 +604,7 @@ export default {
             if(!serverCheckRet) {
                 return false;
             }
-            var loginSettingRet = await global.services.common.getLoginConfig();
+            var loginSettingRet = await global.services.common.getLoginConfig(this.appServerHost);
             if(!loginSettingRet) {
                 if(domain != undefined){
                     this.$toastMessage({message:"获取登录配置失败", time: 2000, type:'error', showWidth:'280px'});
