@@ -136,8 +136,15 @@ export default {
         ClearCache: async function(){
             this.showAlertDlg = false;
             let ret = await this.services.DeleteContact(this.deleteContact.matrix_id)
-            if(ret)
-                this.contactList = await Contact.GetAllContact();
+            if(ret){
+                for(let index in this.contactList){
+                    if(this.contactList[index].matrix_id == this.deleteContact.matrix_id){
+                        this.contactList.splice(index, 1);
+                        return;
+                    }
+
+                }
+            }
         },
 
         OnMouseLeave: function(){
@@ -151,7 +158,7 @@ export default {
         DeleteContact: async function(contact){
             this.deleteContact = contact;
             this.showAlertDlg = true;
-            this. alertContents = {
+            this.alertContents = {
                 "Details": this.$t("DeleteContactAlertTitle") + ' ' + contact.display_name + ' ?',
                 "Abstrace": this.$t("DeleteContactAlertDetail")
             }
