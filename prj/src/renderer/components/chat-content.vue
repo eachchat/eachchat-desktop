@@ -72,7 +72,7 @@
             </ul>
    
             <!-- <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link> -->
-            <div class = "grid-content">聊天列表</div>
+            <div class = "grid-content">聊天</div>
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
               <li class = 'group'
