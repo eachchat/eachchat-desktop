@@ -215,16 +215,23 @@ export default {
 
         getUserImg: async function(userinfo) {
             var elementImg = document.getElementById(userinfo.matrix_id + 'contactList');
-            if(!elementImg)
+            if(!elementImg){
                 return;
-            if(userinfo.matrix_id[0] != "@")
+            }
+            if(userinfo.matrix_id[0] != "@"){
+                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
                 return;
+            }
             var profileInfo = await this.matrixClient.getProfileInfo(userinfo.matrix_id);
-            if(!profileInfo.avatar_url)
+            if(!profileInfo.avatar_url){
+                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
                 return;
+            }
             let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url); 
             if(validUrl)
-                elementImg.setAttribute("src", validUrl);          
+                elementImg.setAttribute("src", validUrl);
+            else
+                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
         },
         compare(property){
             return function(a,b){
