@@ -531,7 +531,7 @@ export default {
       if(item2.timeline.length != 0){
         let msg2 = this.GetLastShowMessage(item2);
         if(msg2 && msg2.event){
-          timeline2 = msg2.origin_server_ts;
+          timeline2 = msg2.event.origin_server_ts;
         }
         else{
           timeline2 = 0;
@@ -1711,9 +1711,16 @@ export default {
     GetLastShowMessage(chatGroupItem){
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
-        if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
+        if(['m.room.message', 'm.room.encrypted', 'm.room.name', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
           return timeLineTmp;
         }
+/*
+        else
+        {
+          console.log('----------')
+          console.log(timeLineTmp.getType()) 
+        }
+*/
       }
     },
 
