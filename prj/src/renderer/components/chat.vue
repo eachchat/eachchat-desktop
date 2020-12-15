@@ -563,13 +563,15 @@ export default {
                         this.menuQuote(msgItem)
                     }
                 }));
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
+                    /*
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
                             this.transMit(msgItem)
                         }
                     }));
+                    */
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {

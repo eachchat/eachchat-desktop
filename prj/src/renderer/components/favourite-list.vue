@@ -358,7 +358,8 @@ export default {
         deleteMessageCollectionClicked:async function(message) {
             await global.services.common.DeleteCollectionMessage(message.collection_id);
             var messageCollectionModel = await global.services.common.ListMessageCollections();
-            this.favourites = this.getObjectFromCollectionModel(messageCollectionModel);
+            this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
+            console.log(this.favourites)
             /*
             if(this.showSearchView){
                 await this.updateSearchCollectionResult(this.searchKey);
@@ -370,7 +371,7 @@ export default {
         deleteImageCollectionClicked: async function(image) {
             await global.services.common.DeleteCollectionMessage(image.collection_id);
             var imageCollectionModel = await global.services.common.ListPictureCollections();
-            this.favourites = this.getObjectFromCollectionModel(imageCollectionModel);
+            this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
             this.$nextTick(function(){
                 for(var i = 0; i < this.favourites.length; i ++){
                     this.getImageCollectionContent(this.favourites[i]);
@@ -386,7 +387,7 @@ export default {
         deleteFileCollectionClicked: async function(file) {
             await global.services.common.DeleteCollectionMessage(file.collection_id);
             var fileCollectionModel = await global.services.common.ListFileCollections();
-            this.favourites = this.getObjectFromCollectionModel(fileCollectionModel);
+            this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
             /*
             if(this.showSearchView){
                 await this.updateSearchCollectionResult(this.searchKey);
