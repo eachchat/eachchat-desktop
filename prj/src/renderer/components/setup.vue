@@ -73,7 +73,7 @@
                 <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
-            <div class="setup-security-title">账号安全与隐私设置</div>
+            <div class="setup-security-title">安全与隐私</div>
             <div class="setup-security-export-keys">
                 <label class="setup-security-export-keys-label">导出密钥</label>
                 <label class="setup-security-export-keys-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
@@ -84,9 +84,14 @@
                 <label class="setup-security-import-keys-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
-            <div class="setup-security-account-manager" v-show="false">
-                <label class="setup-setup-security-account-manager-label">邮箱绑定</label>
-                <label class="setup-general-clear-cache-label2" id="setup-general-clear-cache-label2-id">{{curEmail}}</label>
+            <div class="setup-security-devict-list">
+                <label class="setup-security-devict-list-label">会话管理</label>
+                <label class="setup-security-devict-list-label2" id="setup-security-devict-list-label2-id">查看</label>
+                <img class="setup-security-devict-list-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showDeviceList">
+            </div>
+            <div class="setup-security-account-manager">
+                <label class="setup-setup-security-account-manager-label">账号管理</label>
+                <label class="setup-security-account-manager-label2" id="setup-security-account-manager-label2-id"></label>
                 <img class="setup-setup-security-account-manager-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
             </div>
             <div class="setup-update-title" v-show="false">软件升级</div>
@@ -144,7 +149,7 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services, environment} from '../../packages/data/index.js'
-import winHeaderBar from './win-header.vue'
+import winHeaderBar from './win-header-login.vue'
 import {ipcRenderer, remote} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 // import listItem from './list-item.vue'
@@ -234,12 +239,15 @@ export default {
     bindEmail: function() {
       this.showAccountMgr = true;
     },
-    accountManager: function() {
+    accountManager: async function() {
       console.log("=============")
       this.showAccountMgr = true;
     },
     importSecurityKey: async function() {
       this.showImportE2EKeyPage = true;
+    },
+    showDeviceList: async function() {
+
     },
     exportSecurityKey: async function() {
       this.needLogout = false;
@@ -1079,7 +1087,7 @@ export default {
   }
 
   .setup-setup-security-account-manager-label {
-    width:calc(100% - 110px);
+    width:calc(100% - 180px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1091,10 +1099,27 @@ export default {
     vertical-align: top;
   }
 
+  .setup-security-account-manager-label2 {
+    width:140px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
   .setup-setup-security-account-manager-ico {
     width: 20px;
     height: 20px;
-    margin-left: 5px;
+    margin-left: 0px;
     margin-top: 14px;
     margin-right: 0px;
     margin-bottom: 14px;
@@ -1200,6 +1225,60 @@ export default {
   }
 
   .setup-security-import-keys-ico {
+    width: 20px;
+    height: 20px;
+    margin-left: 0px;
+    margin-top: 14px;
+    margin-right: 0px;
+    margin-bottom: 14px;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .setup-security-devict-list{
+    width:100%;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-devict-list-label {
+    width:calc(100% - 180px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-devict-list-label2 {
+    width:140px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
+  .setup-security-devict-list-ico {
     width: 20px;
     height: 20px;
     margin-left: 0px;
