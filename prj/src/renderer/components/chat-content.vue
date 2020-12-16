@@ -1885,6 +1885,18 @@ export default {
                 this.JoinRoom(roomId);
               }, 500)
           })
+          .catch((error) => {
+              console.log("========join failed and err is ", error.error);
+              if(error.httpStatus == 403) {
+                  this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
+              }
+              else if(error.httpStatus == 429) {
+                  this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
+              }
+              else if(error.httpStatus == 404) {
+                  this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+              }
+          })
       }
       catch(e){
         console.log(e)

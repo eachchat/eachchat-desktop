@@ -1611,6 +1611,9 @@ export default {
     //     this.checkHomeServer();
     // },
     mounted: async function() {
+        if(window.localStorage) {
+            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
+        }
         this.organizationOrHost = this.$t("joinYourOrganization");
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
@@ -1665,11 +1668,6 @@ export default {
             console.log("wo cao shou dao le ");
         });
     },
-    created: function() {
-        if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
-        }
-    }
 }
 </script>
 

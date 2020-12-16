@@ -4,15 +4,15 @@
         <div class="setup-list">
           <div class="setup-list-item" @click="jumpToGeneralSetup">
             <img class="setupGeneralImage" src="../../../static/Img/Setup/general-20px@2x.png">
-            <label class="setupGeneralLabel">通用设置</label>
+            <label class="setupGeneralLabel">通用</label>
           </div>
           <div class="setup-list-item" @click="jumpToNoticeSetup">
             <img class="setupNoticeImage" src="../../../static/Img/Setup/notice-20px@2x.png">
-            <label class="setupNoticeLabel">通知设置</label>
+            <label class="setupNoticeLabel">通知</label>
           </div>
-          <div class="setup-list-item" @click="jumpToSecurity" v-show="false">
+          <div class="setup-list-item" @click="jumpToSecurity">
             <img class="setupSecurityImage" src="../../../static/Img/Setup/security-nor-20px@2x.png">
-            <label class="setupSecurityLabel" >账号安全与隐私设置</label>
+            <label class="setupSecurityLabel" >安全</label>
           </div>
           <div class="setup-list-item" @click="jumpToUpdateSetup" v-show="false">
             <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px@2x.png">
@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="setup-details" id="setup-details-id">
-            <label class="setup-general-title">通用设置</label>
+            <label class="setup-general-title">通用</label>
             <!-- <div class="setup-language" v-show="false">
                 <label class="setup-language-label"></label>
                 <el-dropdown>
@@ -62,7 +62,7 @@
                 <label class="setup-general-clear-cache-label2" id="setup-general-clear-cache-label2-id">--M</label>
                 <img class="setup-general-clear-cache-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAlert">
             </div>
-            <div class="setup-notice-title">通知设置</div>
+            <div class="setup-notice-title">通知</div>
             <div class="setup-notice-message-notice">
                 <label class="setup-notice-message-notice-label">消息提示音</label>
                 <el-switch class="setup-notice-message-notice-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)" :active-color="'#24B36B'">
@@ -73,7 +73,7 @@
                 <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
-            <div class="setup-security-title">安全与隐私</div>
+            <div class="setup-security-title">安全</div>
             <div class="setup-security-export-keys" v-show="false">
                 <label class="setup-security-export-keys-label">导出密钥</label>
                 <label class="setup-security-export-keys-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
@@ -356,29 +356,28 @@ export default {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
-        
-        this.ulDiv.scrollTop = 0;
+        this.ulDiv.scrollTo({ top:0, behavior: 'smooth' })
     },
     jumpToNoticeSetup: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
         
-        this.ulDiv.scrollTop = this.ulDiv.scrollHeight;
+        this.ulDiv.scrollTo({ top:this.ulDiv.scrollHeight, behavior: 'smooth' })
     },
     jumpToUpdateSetup: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
         
-        this.ulDiv.scrollTop = this.ulDiv.scrollHeight;
+        this.ulDiv.scrollTo({ top:this.ulDiv.scrollHeight, behavior: 'smooth' })
     },
     jumpToSecurity: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
         
-        this.ulDiv.scrollTop = this.ulDiv.scrollHeight;
+        this.ulDiv.scrollTo({ top:this.ulDiv.scrollHeight, behavior: 'smooth' })
     },
     jumpToAboutSetup: function() {
         if(this.ulDiv == undefined) {

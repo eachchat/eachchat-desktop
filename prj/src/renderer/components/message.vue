@@ -24,7 +24,7 @@
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
                         <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
-                            <p class="file-size">{{this.voiceLenth}} s</p>
+                            <p class="file-size" v-show="false">{{this.voiceLenth}} s</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-mine-transmit"
@@ -178,7 +178,7 @@ export default {
                                 clearInterval(this.flashingInterval);
                                 this.flashingIndex = 0;
                                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                             })
                         }
                         else {
@@ -189,7 +189,7 @@ export default {
                                     clearInterval(this.flashingInterval);
                                     this.flashingIndex = 0;
                                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                                 })
                             })
                         }
@@ -301,7 +301,7 @@ export default {
                                 clearInterval(this.flashingInterval);
                                 this.flashingIndex = 0;
                                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                             })
                         }
                         else {
@@ -314,7 +314,7 @@ export default {
                                     clearInterval(this.flashingInterval);
                                     this.flashingIndex = 0;
                                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                                 })
                             })
                         }
@@ -377,7 +377,7 @@ export default {
                             clearInterval(this.flashingInterval);
                             this.flashingIndex = 0;
                             var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                            fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                            fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                         })
                     }
                     else {
@@ -388,7 +388,7 @@ export default {
                                 clearInterval(this.flashingInterval);
                                 this.flashingIndex = 0;
                                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                             })
                         })
                     }
@@ -413,19 +413,19 @@ export default {
                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 if(this.flashingIndex == 0) {
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin0-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin0-20px@2x.png");
                     this.flashingIndex = 1;
                 }
                 else if(this.flashingIndex == 1){
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin1-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin1-20px@2x.png");
                     this.flashingIndex = 2;
                 }
                 else if(this.flashingIndex == 2){
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
                     this.flashingIndex = 0;
                 }
                 else {
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
                     this.flashingIndex = 0;
                 }
             }, 330);
@@ -705,7 +705,7 @@ export default {
                     }
                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
                     // console.log("fileMsgImgElement ia ", fileMsgImgElement);
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                     fileMsgImgElement.setAttribute("height", 12);
                 }
             }
@@ -738,7 +738,7 @@ export default {
                 else if(chatGroupMsgContent.msgtype == 'm.audio'){
                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
                     // console.log("fileMsgImgElement ia ", fileMsgImgElement);
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                     fileMsgImgElement.setAttribute("height", 12);
                 }
                 else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
@@ -770,7 +770,7 @@ export default {
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 this.voiceLenth = chatGroupMsgContent.length;
                 this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                 fileMsgImgElement.setAttribute("height", 12);
             }
             else if(chatGroupMsgType === 106)//转发
@@ -958,7 +958,7 @@ export default {
                             clearInterval(this.flashingInterval);
                             this.flashingIndex = 0;
                             var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                            fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                            fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                         })
                         this.playingAudioId = '';
                     })

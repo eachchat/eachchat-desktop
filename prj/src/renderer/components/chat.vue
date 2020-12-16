@@ -300,23 +300,6 @@ export default {
         mxSelectMember() {
 
         },
-        DMCheck(curRoomItem) {
-            const client = window.mxMatrixClientPeg.matrixClient;
-            const mDirectEvent = client.getAccountData('m.direct');
-            let dmRoomMap = {};
-            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-            let currentRoom = curRoomItem;
-            let dmRoomIdArr = [];
-            const roomId = currentRoom.roomId;
-            const userId = client.getUserId();
-            Object.keys(dmRoomMap).forEach(k=>{
-                let arr = dmRoomMap[k];
-                arr.forEach(a=>dmRoomIdArr.push(a))
-            })
-            if (dmRoomIdArr.includes(roomId)) {
-                return true;
-            } else {return false;}
-        },
         createAnother() {
             console.log('this.chat', this.chat)
             const client = window.mxMatrixClientPeg.matrixClient;
@@ -388,6 +371,18 @@ export default {
                                 }, 100)
                             })
                     }, 500)
+                })
+                .catch((error) => {
+                    console.log("========join failed and err is ", error.error);
+                    if(error.httpStatus == 403) {
+                        this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 429) {
+                        this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 404) {
+                        this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+                    }
                 })
         },
         rejectRoom: function() {
@@ -1334,7 +1329,7 @@ export default {
             console.log("=================distUrl ", this.distUrl);
             if(!this.distUrl || this.distUrl == '') {
                 let defaultGroupIcon;
-                if(this.DMCheck(this.chat))
+                if(global.mxMatrixClientPeg.DMCheck(this.chat))
                     this.distUrl = "./static/Img/User/user-40px@2x.png";
                 else
                     this.distUrl = "./static/Img/User/group-40px@2x.png";
