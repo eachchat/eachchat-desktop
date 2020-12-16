@@ -408,6 +408,8 @@ class _MatrixClientPeg{
       }
 
       this.accountPassword = password;
+      
+      localStorage.setItem("loginAccount", username);
       console.log("===== r", response);
       var ret = this.parseStatus(response);
       return ret;
