@@ -372,6 +372,9 @@ export default {
                     }
                   }
                   this.inviteGroupsList.unshift(newRoom);
+                  this.$nextTick(() => {
+                    this.UpdateGroupImage(newRoom);
+                  })
                 }
                 else if(member.membership == "join"){
                   console.log('JoinRoom!!!')
@@ -1910,7 +1913,8 @@ export default {
       }
 
       this.dealShowGroupList.unshift(newRoom);
-      this.$nextTick(() => {
+      this.$nextTick(async () => {
+        await newRoom.loadMembersIfNeeded();
         this.showGroupIcon(newRoom);
         this.showChat(newRoom, 0);
       })
