@@ -34,24 +34,47 @@ class _MatrixClientPeg{
     }
 
     getRoomAvatar(theRoom) {
-      var explicitRoomAvatar = theRoom.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
-      if(explicitRoomAvatar) {
-        return explicitRoomAvatar;
+      if(this.DMCheck(theRoom)) {
+        var targetPath = "";
+        var otherMember = null;
+        var otherUserId = DMRoomMap.shared().getUserIdForRoomId(theRoom.roomId);
+        if(otherUserId) {
+          otherMember = theRoom.getMember(otherUserId);
+        }
+        else {
+          otherMember = theRoom.getAvatarFallbackMember();
+        }
+        if(otherMember) {
+          targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
+          return targetPath;
+        }
+        return undefined;
       }
-      // var targetPath = "";
-      // var otherMember = null;
-      // var otherUserId = DMRoomMap.shared().getUserIdForRoomId(theRoom.roomId);
-      // if(otherUserId) {
-      //   otherMember = theRoom.getMember(otherUserId);
-      // }
-      // else {
-      //   otherMember = theRoom.getAvatarFallbackMember();
-      // }
-      // if(otherMember) {
-      //   targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
-      //   return targetPath;
-      // }
-      return undefined;
+      else {
+        var explicitRoomAvatar = theRoom.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+        if(explicitRoomAvatar) {
+          return explicitRoomAvatar;
+        }
+        return undefined;
+      }
+    }
+
+    DMCheck(curRoomItem) {
+      const client = this.matrixClient;
+      const mDirectEvent = client.getAccountData('m.direct');
+      let dmRoomMap = {};
+      if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+      let currentRoom = curRoomItem;
+      let dmRoomIdArr = [];
+      const roomId = currentRoom.roomId;
+      const userId = client.getUserId();
+      Object.keys(dmRoomMap).forEach(k=>{
+          let arr = dmRoomMap[k];
+          arr.forEach(a=>dmRoomIdArr.push(a))
+      })
+      if (dmRoomIdArr.includes(roomId)) {
+          return true;
+      } else {return false;}
     }
 
     getInviteMember(chatGroupItem) {
