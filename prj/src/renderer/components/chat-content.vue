@@ -1910,7 +1910,8 @@ export default {
       }
 
       this.dealShowGroupList.unshift(newRoom);
-      this.$nextTick(() => {
+      this.$nextTick(async () => {
+        await newRoom.loadMembersIfNeeded();
         this.showGroupIcon(newRoom);
         this.showChat(newRoom, 0);
       })
