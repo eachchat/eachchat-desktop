@@ -983,7 +983,7 @@ export default {
     UpdateGroupImage: function(distGroup){
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
-        if(!this.distUrl || this.distUrl == '') {
+        if(!distUrl || distUrl == '') {
             let defaultGroupIcon;
             if(this.DMCheck(distGroup))
                 defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
