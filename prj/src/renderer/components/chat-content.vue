@@ -372,6 +372,9 @@ export default {
                     }
                   }
                   this.inviteGroupsList.unshift(newRoom);
+                  this.$nextTick(() => {
+                    this.UpdateGroupImage(newRoom);
+                  })
                 }
                 else if(member.membership == "join"){
                   console.log('JoinRoom!!!')
