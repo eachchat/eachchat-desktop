@@ -14,7 +14,8 @@
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
             <!-- <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link> -->
             <div class = "grid-content">邀请</div>
-            <ul class="group-list" name="group-list">
+            <transition-group class="group-list" name="group-list" tag="ul">
+            <!-- <ul class="group-list" name="group-list"> -->
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showInviteGroupList"
                   @contextmenu="rightClick($event, chatGroupItem)"
@@ -38,11 +39,13 @@
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
-            </ul>
+            </transition-group>
+            <!-- </ul> -->
             <!-- <ul class="group-list"> -->
             <!-- <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'><span class = "grid-content" >置顶</span></el-link> -->
             <div class = "grid-content">置顶</div>
-            <ul class="group-list" name="group-list">
+            <transition-group class="group-list" name="group-list" tag="ul">
+            <!-- <ul class="group-list" name="group-list"> -->
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showFavouriteRooms"
                   @click="showChat(chatGroupItem, index)"
@@ -69,12 +72,12 @@
                   </div>
                 </div>
               </li>
-            </ul>
-   
+            <!-- </ul> -->
+            </transition-group>
             <!-- <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link> -->
             <div class = "grid-content">聊天</div>
-            <ul class="group-list" name="group-list">
-            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
+            <!-- <ul class="group-list" name="group-list"> -->
+            <transition-group class="group-list" name="group-list" tag="ul">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showDealGroupList"
                   @click="showChat(chatGroupItem, index)"
@@ -101,8 +104,8 @@
                   </div>
                 </div>
               </li>
-            </ul>
-            <!-- </transition-group> -->
+            <!-- </ul> -->
+            </transition-group>
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
             <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
@@ -1871,13 +1874,19 @@ export default {
       }
     },
     ToJoinRoom: function(roomId) {
-      global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
+      try{
+          global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
           .then(() => {
               // this.isRefreshing = true;
               setTimeout(() => {
                 this.JoinRoom(roomId);
               }, 500)
           })
+      }
+      catch(e){
+        console.log(e)
+      }
+      
     },
     RejectRoom: function(roomId) {
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
