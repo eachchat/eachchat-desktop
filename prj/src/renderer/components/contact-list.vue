@@ -11,10 +11,10 @@
                 <img class="dropdown-item-img" src="../../../static/Img/Chat/search-20px@2x.png">
                 <span class="dropdown-item-label">添加联系人</span>
             </el-dropdown-item>
-            <el-dropdown-item class="dropdown-item" @click.native="InputContact()"> 
+            <!-- <el-dropdown-item class="dropdown-item" @click.native="InputContact()"> 
                 <img class="dropdown-item-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
-                <span class="dropdown-item-label">创建联系人</span> <!--发起密聊-->
-            </el-dropdown-item>
+                <span class="dropdown-item-label">创建联系人</span>
+            </el-dropdown-item> -->
             <el-image slot="reference"  src="../../../static/Img/Organization/Image/addContact-24px.png"></el-image>
             </el-popover>
             
