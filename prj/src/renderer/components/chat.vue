@@ -2343,6 +2343,10 @@ s        },
             if(ev.getType() === 'm.room.member' && ev.getSender() === this.userID){
                 if(ev.event && ev.event.content){
                     let content = ev.event.content;
+                    if(content.is_direct)
+                        return;
+                    if(content.membership != 'join')
+                        return;
                     let url = content.avatar_url;
                     var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url, 40, 40);
                     var elementImg = document.getElementById("userHead");
