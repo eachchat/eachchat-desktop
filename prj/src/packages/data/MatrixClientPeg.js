@@ -38,19 +38,19 @@ class _MatrixClientPeg{
       if(explicitRoomAvatar) {
         return explicitRoomAvatar;
       }
-      var targetPath = "";
-      var otherMember = null;
-      var otherUserId = DMRoomMap.shared().getUserIdForRoomId(theRoom.roomId);
-      if(otherUserId) {
-        otherMember = theRoom.getMember(otherUserId);
-      }
-      else {
-        otherMember = theRoom.getAvatarFallbackMember();
-      }
-      if(otherMember) {
-        targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
-        return targetPath;
-      }
+      // var targetPath = "";
+      // var otherMember = null;
+      // var otherUserId = DMRoomMap.shared().getUserIdForRoomId(theRoom.roomId);
+      // if(otherUserId) {
+      //   otherMember = theRoom.getMember(otherUserId);
+      // }
+      // else {
+      //   otherMember = theRoom.getAvatarFallbackMember();
+      // }
+      // if(otherMember) {
+      //   targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
+      //   return targetPath;
+      // }
       return undefined;
     }
 
