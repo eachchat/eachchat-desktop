@@ -454,6 +454,9 @@ export default {
                     let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress + "</span>");
                     return newInnerHtml;
                 }
+                else {
+                    return showContent;
+                }
             }
         },
         serverSettingClicked: function() {

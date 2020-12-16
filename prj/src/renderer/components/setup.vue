@@ -141,6 +141,7 @@
       <!-- <generalSecureBackUpPage  v-show="showGeneralPage"></generalSecureBackUpPage> -->
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
       <AccountManager v-show="showAccountMgr" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
+      <DeviceManager v-show="showDeviceMgr" @deviceMgrDlgClose="deviceMgrDlgClose"></DeviceManager>
     </div>
 </template>
 
@@ -164,6 +165,7 @@ import AccountManager from "./accountManager.vue";
 import generalSecureBackUpPage from './generalRecoveryCode.vue';
 import ExportE2EKeyPage from './expore-e2e-key.vue';
 import ImportE2EKeypage from './importE2E.vue';
+import DeviceManager from './deviceManager.vue';
 
 export default {
   components: {
@@ -175,7 +177,8 @@ export default {
     AccountManager,
     generalSecureBackUpPage,
     ExportE2EKeyPage,
-    ImportE2EKeypage
+    ImportE2EKeypage,
+    DeviceManager
     // listItem
   },
   props: [],
@@ -186,6 +189,7 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      showDeviceMgr: false,
       needLogout: false,
       toUpdateExport: false,
       showExportE2EKeyPage: false,
@@ -223,6 +227,9 @@ export default {
     generalCheck: function() {
       this.showGeneralPage = true;
     },
+    deviceMgrDlgClose: function() {
+      this.showDeviceMgr = false;
+    },
     accountMgrDlgClose: function() {
       this.showAccountMgr = false;
     },
@@ -247,7 +254,7 @@ export default {
       this.showImportE2EKeyPage = true;
     },
     showDeviceList: async function() {
-
+      this.showDeviceMgr = true;
     },
     exportSecurityKey: async function() {
       this.needLogout = false;
