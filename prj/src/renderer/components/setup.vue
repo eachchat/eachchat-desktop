@@ -74,15 +74,20 @@
                 </el-switch>
             </div>
             <div class="setup-security-title">安全与隐私</div>
-            <div class="setup-security-export-keys">
+            <div class="setup-security-export-keys" v-show="false">
                 <label class="setup-security-export-keys-label">导出密钥</label>
                 <label class="setup-security-export-keys-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
                 <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
             </div>
-            <div class="setup-security-import-keys">
+            <div class="setup-security-import-keys" v-show="false">
                 <label class="setup-security-import-keys-label">导入密钥</label>
                 <label class="setup-security-import-keys-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
+            </div>
+            <div class="setup-security-change-password">
+                <label class="setup-security-change-password-label">修改密码</label>
+                <label class="setup-security-change-password-label2" id="setup-security-change-password-label2-id"></label>
+                <img class="setup-security-change-password-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
             </div>
             <div class="setup-security-devict-list">
                 <label class="setup-security-devict-list-label">会话管理</label>
@@ -90,9 +95,9 @@
                 <img class="setup-security-devict-list-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showDeviceList">
             </div>
             <div class="setup-security-account-manager">
-                <label class="setup-setup-security-account-manager-label">账号管理</label>
+                <label class="setup-security-account-manager-label">账号管理</label>
                 <label class="setup-security-account-manager-label2" id="setup-security-account-manager-label2-id"></label>
-                <img class="setup-setup-security-account-manager-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
+                <img class="setup-security-account-manager-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
             </div>
             <div class="setup-update-title" v-show="false">软件升级</div>
             <div class="setup-update-cur-version" v-show="false">
@@ -402,21 +407,12 @@ export default {
       }
     },
     logout: async function() {
-      // services.common.closemqtt();
-      // services.common.logout();
-
-      // await this._checkKeyBackupStatus();
-      // if(this.backupInfo) {
-      //   await global.mxMatrixClientPeg.logout();
-      //   await global.services.common.logout();
-      //   ipcRenderer.send("showLoginPageWindow");
-      // }
-      // else {
-      //   this.showGeneralRecoveryKeyPage = true;
-      // }
-      this.toUpdateExport = !this.toUpdateExport;
-      this.needLogout = true;
-      this.showExportE2EKeyPage = true;
+      await global.mxMatrixClientPeg.logout();
+      await global.services.common.logout();
+      ipcRenderer.send("showLoginPageWindow");
+      // this.toUpdateExport = !this.toUpdateExport;
+      // this.needLogout = true;
+      // this.showExportE2EKeyPage = true;
     },
     async _checkKeyBackupStatus() {
         try {
@@ -1080,7 +1076,7 @@ export default {
     font-size: 16px;
   }
 
-  .setup-setup-security-account-manager {
+  .setup-security-account-manager {
     width:100%;
     height:48px;
     line-height: 48px;
@@ -1093,7 +1089,7 @@ export default {
     vertical-align: top;
   }
 
-  .setup-setup-security-account-manager-label {
+  .setup-security-account-manager-label {
     width:calc(100% - 180px);
     height:48px;
     line-height: 48px;
@@ -1123,7 +1119,61 @@ export default {
     text-align:right;
   }
 
-  .setup-setup-security-account-manager-ico {
+  .setup-security-account-manager-ico {
+    width: 20px;
+    height: 20px;
+    margin-left: 0px;
+    margin-top: 14px;
+    margin-right: 0px;
+    margin-bottom: 14px;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .setup-security-change-password {
+    width:100%;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-change-password-label {
+    width:calc(100% - 180px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-security-change-password-label2 {
+    width:140px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
+  .setup-security-change-password-ico {
     width: 20px;
     height: 20px;
     margin-left: 0px;
