@@ -84,7 +84,7 @@
                         <div class="multiSelectTransmit" @click="multiTransMit"></div>
                         <div class="multiSelectTransmitText">逐条转发</div>
                     </div>
-                    <div class="multiSelectTransmitTogetherDiv">
+                    <div class="multiSelectTransmitTogetherDiv" v-show="false">
                         <div class="multiSelectTransmitTogether" @click="multTtransMitTogether"></div>
                         <div class="multiSelectTransmitTogetherText">合并转发</div>
                     </div>
@@ -102,7 +102,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -559,14 +559,12 @@ export default {
                     }
                 }));
                 if(!this.isSecret) {
-                    /*
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
                             this.transMit(msgItem)
                         }
                     }));
-                    */
                     this.menu.append(new MenuItem({
                         label: "收藏",
                         click: () => {
@@ -582,7 +580,7 @@ export default {
                         }
                     }));
                 }
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -608,7 +606,13 @@ export default {
                         }
                     }));
                 }
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -623,54 +627,12 @@ export default {
                     }
                 }));
             }
-            else if(msgItem.message_type == 105) {
-                if(!this.isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                }
+            else if(content.msgtype == "m.audio") {
                 if(showRedact) {
                     this.menu.append(new MenuItem({
                         label: "删除",
                         click: () => {
                             this.menuDelete(msgItem)
-                        }
-                    }));
-                }
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
-                        }
-                    }));
-                }
-            }
-            else if(msgItem.message_type == 106) {
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                }
-                if(showRedact) {
-                    this.menu.append(new MenuItem({
-                        label: "删除",
-                        click: () => {
-                            this.menuDelete(msgItem)
-                        }
-                    }));
-                }
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
                         }
                     }));
                 }
@@ -718,7 +680,6 @@ export default {
             this.transMit(transmitInfo);
         },
         async transMit(msg) {
-            this.recentGroups = await Group.GetGroupByTime();
             this.transmitKey ++;
             this.showTransmitDlg = true;
             this.selectedMsgs.push(msg);
@@ -1567,6 +1528,7 @@ export default {
                                 url: url,
                                 info:{
                                     size: fileinfo.size,
+                                    mimetype: fileinfo.type
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
@@ -1621,6 +1583,7 @@ export default {
                                             size: fileinfo.size,
                                             w: img.width,
                                             h: img.height,
+                                            mimetype: fileinfo.type,
                                             thumbnail_url: encryptInfo.url,
                                             thumbnail_file: encryptInfo,
                                         }

@@ -45,7 +45,7 @@ class _MatrixClientPeg{
           otherMember = theRoom.getAvatarFallbackMember();
         }
         if(otherMember) {
-          targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
+          targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
           return targetPath;
         }
         return undefined;
@@ -76,6 +76,15 @@ class _MatrixClientPeg{
           return true;
       } else {return false;}
     }
+
+    SendEvent(roomId, event) {
+      const cli = this.matrixClient;
+      return cli.sendEvent(roomId, event.getType(), event.getContent()).then(() => {
+          return true;
+      }, (err) => {
+          return false;
+      });
+  }
 
     getInviteMember(chatGroupItem) {
       if (!chatGroupItem) {
