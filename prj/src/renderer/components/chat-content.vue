@@ -1814,6 +1814,21 @@ export default {
       }
     },
 
+    SetRoomReader(room){
+      if(!room.timeline)
+        return;
+      let lasttimeLine = room.timeline[room.timeline.length - 1];
+      if(!lasttimeLine && !lasttimeLine.event)
+        return;
+      let eventId = lasttimeLine.event.event_id;
+      //return lasttimeLine;
+      global.mxMatrixClientPeg.matrixClient.setRoomReadMarkers(room.roomId, eventId, lasttimeLine, {hidden: false}).catch((e) => {
+        console.log(e)
+      });
+      room.setUnreadNotificationCount('total', 0);
+      room.setUnreadNotificationCount('highlight', 0);
+    },
+
     showChat: function(chatGroup, index) {
       this.isMsgSearch = false;
       let groupItemElementID = this.ChatGroupId(chatGroup);
@@ -1838,12 +1853,7 @@ export default {
       }
 
       if(this.curChat != undefined && this.curChat.un_read_count != undefined) {
-        this.unreadCount = this.unreadCount - this.curChat.un_read_count;
-        // console.log("showchat this.unreadCount ", this.unreadCount)
-        if(this.unreadCount < 0) {
-          this.unreadCount = 0;
-        }
-        ipcRenderer.send("updateUnreadCount", this.unreadCount);
+        this.SetRoomReader(chatGroup);
         this.curChat.setUnreadNotificationCount("total", 0);
         this.curChat.un_read_count = 0;
         //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
