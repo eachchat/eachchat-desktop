@@ -141,7 +141,7 @@ export default {
             return !this.isEmpty(this.userInfo.workDescription);
         },
         showPhone: function() {
-            if(this.userType == 'contact' || this.userType == 'mainUserInfo')
+            if(this.userType == 'contact')
                 return true;
             if (this.userInfo.phone == undefined){
                 return false;
@@ -149,7 +149,7 @@ export default {
             return !this.isEmpty(this.userInfo.phone.mobile);
         },
         showTelephone: function (){
-            if(this.userType == 'contact' || this.userType == 'mainUserInfo')
+            if(this.userType == 'contact')
                 return true;
             if (this.userInfo.phone == undefined){
                 return false;
