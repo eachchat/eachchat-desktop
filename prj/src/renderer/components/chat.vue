@@ -783,30 +783,26 @@ export default {
         async multiFav() {
             var toFavMsgIds = [];
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                toFavMsgIds.push(this.selectedMsgs[i].time_line_id);
+                if(!this.selectedMsgs[i].event || !this.selectedMsgs[i].event.event_id)
+                    return;
+                toFavMsgIds.push(this.selectedMsgs[i]);
+                let event_id = this.selectedMsgs[i].event.event_id;
+                let content = this.selectedMsgs[i].event.content;
+                if(this.selectedMsgs[i].sender && this.selectedMsgs[i].sender.userId)
+                    content.fromMatrixId = this.selectedMsgs[i].sender.userId;
+                if(this.selectedMsgs[i].event.origin_server_ts)
+                    content.fromTimestamp = this.selectedMsgs[i].event.origin_server_ts;
+                global.services.common.CollectMessage(event_id, content);
             }
-            // console.log("fav msg is ", msg);
-            // console.log("cointent is ", strMsgContentToJson(msg.message_content));
-            var ret = await services.common.CollectMessage(toFavMsgIds);
-            if(ret) {
-                //
-            }
-            else {
-                //
-            }
+            this.$toastMessage({message:'收藏成功', time:1500, type:'success'});
             this.multiToolsClose();
         },
         multiDel() {
             console.log("this.selectedMsgs is ", this.selectedMsgs);
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                Message.DeleteMessage(this.selectedMsgs[i].message_id);
-                for(let j=0;j<this.messageList.length;j++) {
-                    if(this.messageList[j].sequence_id == this.selectedMsgs[i].sequence_id) {
-                        this.messageList.splice(j, 1);
-                        break;
-                    }
-                }
+                global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, this.selectedMsgs[i].event.event_id);
             }
+            this.$toastMessage({message:'删除成功', time:1500, type:'success'});
             this.multiToolsClose();
         },
         multiToolsClose() {
@@ -862,7 +858,7 @@ export default {
             }
             var hasSelected = false;
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                if(this.selectedMsgs[i].event.event_id == curMsg.event.event_id) {
                     this.selectedMsgs.splice(i, 1);
                     hasSelected = true;
                     break;
@@ -1714,8 +1710,11 @@ export default {
                         break;
                 }
             }
+            else{
+                showNotice = false;
+            }
             return showNotice;
-s        },
+        },
         // Notice show difference with message.
         showMessageOrNot: function(curMsg) {  
             return !curMsg.isState();
@@ -3246,6 +3245,7 @@ s        },
     .multiSelectToolsDiv {
         margin: 0 auto;
         width: 540px;
+        text-align: center;
     }
 
     .chat-input {
