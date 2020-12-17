@@ -334,7 +334,7 @@ export default {
 .personalCenter-baseInfo {
     display: inline-block;
     height: 48px;
-    width: 100px;
+    width: 190px;
     vertical-align: top;
     margin-left: 12px;
 
@@ -342,7 +342,7 @@ export default {
         height: 18px;
         margin: 0px;
 
-        width: 140%;
+        width: 100%;
         text-align: left;
         font-size: 12px;
         font-weight:400;
@@ -533,7 +533,7 @@ export default {
 
 .modifyIcon{
     position:absolute;
-    right:50px;   
+    right:20px;   
     margin-top: 13px;
 }
 
