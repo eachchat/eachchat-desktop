@@ -1207,8 +1207,6 @@ export default {
     .chat-msg-content-others-img {
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        min-width: 104px;
-        min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
         text-align: left;
@@ -1436,8 +1434,6 @@ export default {
     .chat-msg-content-mine-img {
         float: right;
         background-color: rgba(1,1,1,0);
-        min-width: 104px;
-        min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
         text-align: left;

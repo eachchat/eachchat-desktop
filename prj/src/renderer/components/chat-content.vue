@@ -1909,6 +1909,7 @@ export default {
     RejectRoom: function(roomId) {
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       setTimeout(() => {
+          this.unreadCount = this.unreadCount - 1;
           this.DeleteGroup(roomId);
       }, 0)
     },
