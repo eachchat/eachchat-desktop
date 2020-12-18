@@ -1350,13 +1350,9 @@ export default {
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
-      if(chatGroupItem.timeline.length == 0) {
-        // console.log("getMsgLastMsgTime ", chatGroupItem.currentState)
-        // var distTimeLine = chatGroupItem.currentState._modified;
-        return;
-      }
-      else {
-        var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      var distTimeLine = this.GetLastShowMessage(chatGroupItem);
+      if(distTimeLine == undefined) {
+        return ;
       }
       
       let event = distTimeLine.event;
