@@ -934,6 +934,15 @@ export default {
         
         this.menu.popup(remote.getCurrentWindow());
     },
+    SetRoomLowpriority(groupItem){
+      let metaData = {};
+      global.mxMatrixClientPeg.matrixClient.setRoomTag(groupItem.roomId, "m.lowpriority", metaData);
+    },
+
+    DelRoomLowpriority(groupItem){
+	  global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.lowpriority");
+    },
+
     deleteGroup(groupItem) {
       this.leaveGroup(groupItem.roomId);
     },
