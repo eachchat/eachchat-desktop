@@ -879,8 +879,14 @@ export default {
           isSecret = true;
         }
         this.menu = new Menu();
-
+        this.menu.append(new MenuItem({
+            label: "标记已读",
+            click: () => {
+                this.SetRoomReader(groupItem)
+            }
+        }));   
         if(!isSecret) {
+          /*
           if(this.groupIsSlience(groupItem)) {
             this.menu.append(new MenuItem({
                 label: "允许消息通知",
@@ -900,6 +906,7 @@ export default {
               }));  
             }
           }
+          */
           if(this.groupIsInFavourite(groupItem)) {
             this.menu.append(new MenuItem({
                 label: "取消置顶",
@@ -961,10 +968,6 @@ export default {
               ipcRenderer.send("updateUnreadCount", this.unreadCount);
               console.log("slienceStateChange ", ret);
           })
-    },
-    clesrUnread(groupItem) {
-      let room = global.mxMatrixClientPeg.matrixClient.getRoom(groupItem.roomId);
-      room.setUnreadNotificationCount("total", 0);
     },
     
     getUidFromUids(groupInfo) {
