@@ -87,7 +87,7 @@ export default {
         width: 173px;
         padding: 0;
         margin: 0px;
-        height: 30px;
+        height: 31px;
         outline:none;
         border: 0px;
         font-family:PingFangSC-Regular;
@@ -98,6 +98,7 @@ export default {
         color: rgb(102, 102, 102);
         background-color: rgba(1, 1, 1, 0);
     }
+
     .echat-search-input::placeholder {
         height: 18px;
         font-size: 12px;
