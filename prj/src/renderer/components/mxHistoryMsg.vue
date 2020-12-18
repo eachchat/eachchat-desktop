@@ -261,7 +261,7 @@ export default {
                 var sender = global.mxMatrixClientPeg.matrixClient.getUser(curItem.event.sender);
                 // console.log("============ sender ", sender)
                 
-                var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, 40, 40);;
+                var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, null, null);
                 var distUserName = sender.displayName;
                 distUserNameElement.innerHTML = distUserName;
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
