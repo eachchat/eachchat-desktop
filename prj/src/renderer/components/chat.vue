@@ -2220,7 +2220,7 @@ export default {
             // console.log("this.chat.group_name is ", this.chat.group_name);
             this.showGroupInfoTips = true; //todo tips
             this.cleanCache = false;
-            console.log("more more more ", this.groupInfoObj)
+            console.log("more more more ", this.groupInfo)
         },
         compareMsg: function(){
             return function(a, b)
@@ -2305,7 +2305,7 @@ export default {
                     if(content.membership != 'join')
                         return;
                     let url = content.avatar_url;
-                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url, 40, 40);
+                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url, null, null);
                     var elementImg = document.getElementById("userHead");
                     if(elementImg){
                         if(avaterUrl == ''){
@@ -2827,7 +2827,10 @@ export default {
             if(this.editor == undefined) {
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
-            this.editor.setSelection(this.editor.selection.savedRange.index);
+            var content = this.$store.getters.getDraft(this.chat.roomId);
+            this.editor.setContents(content);
+            this.editor.setSelection(this.content.length + 1);
+
         },
         toBottom: function() {
             if(this.toBottom == true) {

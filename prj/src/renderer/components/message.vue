@@ -810,7 +810,7 @@ export default {
                 userNameElement.innerHTML = fromUserName;
             }
                 
-            var userUrl = await this.msg.sender.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), 40, 40, undefined, false, false);
+            var userUrl = await this.msg.sender.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), null, null, undefined, false, false);
             
             if(this.userIconElement == undefined) {
                 return;

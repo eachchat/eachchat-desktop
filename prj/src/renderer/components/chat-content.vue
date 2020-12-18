@@ -1086,6 +1086,7 @@ export default {
         this.showFavouriteRooms = this.favouriteRooms;
         this.showDealGroupList = this.dealShowGroupList;
       }
+      this.showGroupIcon();
     },
     showSearchResultIcon: async function() {
       console.log("=======================showGroupIcon")
@@ -1877,14 +1878,6 @@ export default {
       this.curChat.setUnreadNotificationCount("total", 0);
       //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
       this.curChat.un_read_count = 0;
-      
-      if(this.curChat != undefined && this.curChat.roomId != undefined) {
-        var charRef = this.$refs.chatPageRef;
-        var editor = charRef.editor;
-        var content = this.$store.getters.getDraft(this.curChat.roomId);
-        console.log("get content is ", content);
-        editor.setContents(content);
-      }
     },
     ToJoinRoom: function(roomId) {
       try{

@@ -33,7 +33,7 @@ export default {
             }
             this.inviterInfoElement.innerHTML = this.inviter.name + '(' + this.inviter.userId + ')';
             
-            var userUrl = await this.inviter.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), 40, 40, undefined, false, false);
+            var userUrl = await this.inviter.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), null, null, undefined, false, false);
             console.log("=========this.inviter url is ", userUrl);
             if(userUrl != '' && userUrl != null && userUrl != undefined) {
                 this.imgElement.setAttribute("src", userUrl);

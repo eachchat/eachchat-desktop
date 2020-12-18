@@ -230,19 +230,33 @@ export default {
             this.$emit("closeTransmitDlg", "");
             
         },
+        searchRoom(searchKey) {
+            var searchResult = [];
+            // console.log("search key is ", searchKey);
+            for(var i=0;i<this.recentGroups.length;i++) {
+                // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
+                if(this.recentGroups[i].name.indexOf(searchKey) >= 0) {
+                // console.log("inininin put ");
+                    searchResult.push(this.recentGroups[i]);
+                }
+            }
+            return searchResult;
+        },
         search:async function () {
             if(this.searchKey == ''){
                 this.showSearchView = false;
                 return;
             }
             this.showSearchView = true;
-            this.searchGroup = await Group.SearchByNameKey(this.searchKey);
+            this.searchGroup = this.searchRoom(this.searchKey);
 
-            this.$nextTick(function(){
-                for(var i = 0; i < this.searchGroup.length; i ++){
-                    this.getGroupAvatarContent(this.searchGroup[i], 'search');
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.searchGroup.length; i ++){
+                        this.getGroupAvatarContent(this.searchGroup[i], 'search');
+                    }
+                });
+            }, 0)
         },
         searchDeleteClicked(){
             this.searchKey = '';
