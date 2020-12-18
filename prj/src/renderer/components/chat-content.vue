@@ -665,7 +665,7 @@ export default {
       }
       this.unreadCount += 1;
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.room_id);
-      var notificateContent = this.getNotificationContent(newMsg);
+      var notificateContent = this.getShowMsgContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
       if(groupInfo != undefined) {
         fromUserName = fromName;
@@ -1718,7 +1718,7 @@ export default {
     GetLastShowMessage(chatGroupItem){
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
-        if(['m.room.message', 'm.room.encrypted', 'm.room.name', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
+        if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
           return timeLineTmp;
         }
 /*
@@ -1741,7 +1741,7 @@ export default {
       // console.log("cur chat group is ", chatGroupItem);
       var distTimeLine = this.GetLastShowMessage(chatGroupItem);
       if(distTimeLine == undefined) {
-        return "收到一条短消息";
+        return "";
       }
       var ret = this.NoticeContent(distTimeLine);
       // console.log("ret is ===== ", ret == '');
@@ -1785,7 +1785,7 @@ export default {
           }
       }
 
-      return "收到一条短消息";
+      return "";
     },
 
     SetGroupItemGround(id){
