@@ -356,7 +356,7 @@ export default {
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
-            console.log('chat-content membership')
+            console.log('chat-content membership member is ', member);
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
             setTimeout(()=>{
               if (member.userId == currentUserId) {
@@ -383,6 +383,9 @@ export default {
                 else{
                   this.leaveGroup(member.roomId);
                 }
+              }
+              else {
+                this.UpdateRoomListPassive(member);
               }
             },320)
         })
@@ -1724,6 +1727,7 @@ export default {
     },
 
     GetLastShowMessage(chatGroupItem){
+      if(!chatGroupItem.timeline) return undefined;
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
         if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
@@ -1740,7 +1744,7 @@ export default {
     },
 
     getShowMsgContent(chatGroupItem) {
-      if(chatGroupItem.timeline.length == 0){
+      if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
           var inviteMemer = this._getInviteMember(chatGroupItem);
           return "[邀请]：" + inviteMemer.rawDisplayName;
@@ -1920,6 +1924,28 @@ export default {
           this.unreadCount = this.unreadCount - 1;
           this.DeleteGroup(roomId);
       }, 0)
+    },
+    UpdateRoomListPassive: function(member) {
+      //join leave invite
+      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+      if(member.membership == "join"){
+        for(let i in this.inviteGroupsList){
+          if(this.inviteGroupsList[i].roomId == member.roomId) {
+            this.inviteGroupsList.splice(i, 1);
+            break;
+          } 
+        }
+        for(let i in this.dealShowGroupList){
+          if(this.dealShowGroupList[i].roomId == member.roomId) {
+            return;
+          } 
+        }
+        this.dealShowGroupList.unshift(newRoom);
+        this.$nextTick(async () => {
+          await newRoom.loadMembersIfNeeded();
+          this.showGroupIcon(newRoom);
+        })
+      }
     },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
