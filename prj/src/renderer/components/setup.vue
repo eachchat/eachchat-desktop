@@ -511,6 +511,7 @@ export default {
     padding-top: 10px;
     flex-direction: column;
     border-right: 1px solid rgb(242, 242, 246);
+    background-color: rgba(255,255,255,1);
   }
 
   .list-content {
@@ -645,10 +646,9 @@ export default {
     height: 99%;
     background-color: white;
     position: relative;
-    margin-left: 16px;
-    margin-bottom: 10px;
-    padding-left: 0px;
-    margin-top: 10px;
+    padding: 16px;
+    padding-bottom: 10px;
+    padding-top: 10px;
     padding-right: 20px;
     overflow-y: scroll;
     overflow-x: hidden;

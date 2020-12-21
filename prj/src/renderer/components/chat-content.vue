@@ -2106,6 +2106,7 @@ export default {
     border-right: 1px solid rgb(238, 238, 238);
     -webkit-app-region: drag;
     -webkit-user-select:none;
+    background-color: rgba(255, 255, 255, 1);
   }
 
   .list-header {
@@ -2358,6 +2359,7 @@ export default {
     margin-bottom: 0px;
     font-size: 0px;
     box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 1);
   }
 
   .group-div-top {
