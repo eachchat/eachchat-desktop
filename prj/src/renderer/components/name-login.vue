@@ -627,7 +627,10 @@ export default {
                 this.organizationButtonDisabled = false;
                 return false;
             }
-            window.localStorage.setItem("Domain", domain);
+            if(domain != undefined) {
+                console.log("***Set item Domain is ", domain);
+                window.localStorage.setItem("Domain", domain);
+            }
             var host = "";
             // if(address == undefined || address == null) {
             host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
@@ -938,6 +941,8 @@ export default {
                     }
                     this.showLoginView = true;
                     this.showOrganizationView = false;
+                    var userNameInput = document.getElementById("accountInputId");
+                    userNameInput.focus();
                 })
             
         },
@@ -1720,7 +1725,7 @@ export default {
             return;
         }
         // this.getServerInfo(host);
-        var domain = window.localStorage.getItem("mx_hs_url");
+        var domain = window.localStorage.getItem("Domain");
         console.log("***name-login domain from localstorage is ", domain);
         this.checkHomeServer()
             .then((ret) => {
