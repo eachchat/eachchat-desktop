@@ -27,7 +27,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -58,7 +58,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -90,7 +90,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -493,6 +493,19 @@ export default {
     showImportE2EKey() {
         this.showImportE2EKeyPage = true;
     },
+    checkUnreadCount: function() {
+      this.unreadCount = 0;
+      this.showGroupList.forEach((item)=>{
+        if(item.getMyMembership() == "invite") {
+          this.unreadCount += 1;
+        }
+        else{
+          const notificationCount = item.getUnreadNotificationCount();
+          this.unreadCount += notificationCount;
+        }
+      })
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
+    },
     ShowAllGroup: function(){
       this.unreadCount = 0;
       this.inviteGroupsList.length = 0;
@@ -500,7 +513,6 @@ export default {
       this.dealShowGroupList.length = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          item.un_read_count = 1;
           this.unreadCount += 1;
           this.inviteGroupsList.push(item);
         }
@@ -666,7 +678,12 @@ export default {
       if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
       }
-      this.unreadCount += 1;
+      console.log("*** newMsg is ", newMsg);
+      if(newMsg.event.room_id == this.curChat.roomId) {
+        this.SetRoomReader(this.curChat);
+        return;
+      }
+      this.checkUnreadCount();
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.room_id);
       var notificateContent = this.getShowMsgContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
@@ -1276,24 +1293,16 @@ export default {
       }
     },
     getUnReadCount(chatItem) {
-      // const roomNotifState = this.getRoomNotifsState(chatItem.roomId);
-      const highlight = chatItem.getUnreadNotificationCount('highlight');// > 0;
       const notificationCount = chatItem.getUnreadNotificationCount();
 
-      const notifBadges = notificationCount;// > 0 && shouldShowNotifBadge(roomNotifState);
-      const mentionBadges = highlight;// && shouldShowMentionBadge(roomNotifState);
-      if(notifBadges == undefined){
-        if(chatItem.getMyMembership() == "invite") {
-          chatItem.un_read_count = 1;
-        }
-      }
-      else {
-        chatItem.un_read_count = notifBadges == 0 ? '' : notifBadges;// || mentionBadges;
-      }
-      return chatItem.un_read_count;
+      return notificationCount == 0 ? '' : notificationCount;
     },
-    getShowUnReadCount(unreadCount) {
-      if(unreadCount == undefined || (undefined != undefined && unreadCount == 0)) return '';
+    getShowUnReadCount(roomItem) {
+      var unreadCount = roomItem.getUnreadNotificationCount();
+
+      console.log(" *** unreadcount of " + roomItem.name + " unreadCount is " + unreadCount);
+      
+      if(unreadCount == undefined || (unreadCount != undefined && unreadCount == 0)) return '';
       return unreadCount;
     },
     findOverrideMuteRule(roomId) {
@@ -1835,11 +1844,13 @@ export default {
         return;
       let eventId = lasttimeLine.event.event_id;
       //return lasttimeLine;
+      var oriRoomUnreadCount = room.getUnreadNotificationCount();
       global.mxMatrixClientPeg.matrixClient.setRoomReadMarkers(room.roomId, eventId, lasttimeLine, {hidden: false}).catch((e) => {
         console.log(e)
       });
       room.setUnreadNotificationCount('total', 0);
       room.setUnreadNotificationCount('highlight', 0);
+      this.checkUnreadCount();
     },
 
     showChat: function(chatGroup, index) {
@@ -1852,10 +1863,7 @@ export default {
       let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
       this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
 
-      // this.cleanSearchKey = !this.cleanSearchKey;
       this.isEmpty = false;
-      // console.log("this.unreadcount is ", this.unreadCount);
-      // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
       var isSecret = false;
 
       if(this.curChat != undefined && this.curChat.roomId != undefined) {
@@ -1865,31 +1873,21 @@ export default {
         this.$store.commit("setDraft", [this.curChat.roomId, content]);
       }
 
-      if(this.curChat != undefined && this.curChat.un_read_count != undefined) {
-        this.SetRoomReader(chatGroup);
-        this.curChat.setUnreadNotificationCount("total", 0);
-        this.curChat.un_read_count = 0;
-        //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
+      if(this.curChat != undefined && this.curChat.timeline.length != 0) {
+        this.SetRoomReader(this.curChat);
       }
+
+      this.SetRoomReader(chatGroup);
+      
       this.curChat = chatGroup;
 
-      if(this.curChat.un_read_count != undefined && this.curChat.un_read_count != 0) {
-        ipcRenderer.send("stopFlash");
-      }
+      ipcRenderer.send("stopFlash");
+
       this.curindex = index;
-      this.unreadCount = this.unreadCount - chatGroup.un_read_count;
-      // console.log("showchat this.unreadCount ", this.unreadCount)
-      if(this.unreadCount < 0) {
-        this.unreadCount = 0;
-      }
-      ipcRenderer.send("updateUnreadCount", this.unreadCount);
       isSecret = false;
       if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
         isSecret = true;
       }
-      this.curChat.setUnreadNotificationCount("total", 0);
-      //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
-      this.curChat.un_read_count = 0;
     },
     ToJoinRoom: function(roomId) {
       try{
@@ -1921,8 +1919,8 @@ export default {
     RejectRoom: function(roomId) {
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       setTimeout(() => {
-          this.unreadCount = this.unreadCount - 1;
           this.DeleteGroup(roomId);
+          this.checkUnreadCount();
       }, 0)
     },
     UpdateRoomListPassive: function(member) {

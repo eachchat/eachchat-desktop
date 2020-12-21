@@ -194,6 +194,7 @@ export default {
                 else {
                     return "nav-readall" + endPoint;
                 }
+                return "nav-readall";
             }
             else {
                 if(remote.process.platform == 'darwin') {
@@ -212,7 +213,6 @@ export default {
                         return "nav-unread-no-focuse";
                     }
                 }
-                return "nav-unread";
             }
         },
         closeUpgradeAlertDlg: function() {
