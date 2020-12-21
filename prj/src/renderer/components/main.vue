@@ -170,10 +170,11 @@ export default {
                 this.personalCenterKey ++;
                 const userId = window.localStorage.getItem("mx_user_id");
 
-                this.userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
-                if(this.userInfo){
+                let userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
+                if(userInfo){
                     this.showPersonalCenter = true;
                     this.showPersonalInfo = true;
+                    this.userInfo = userInfo;
                     this.userInfo.displayName = this.displayName;
                 }
                 else{
