@@ -2,7 +2,7 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">发起聊天</div>
+                <div class="mxCreaterHeaderTitle">邀请成员</div>
                 <img 
                     ondragstart="return false" 
                     class="mxCreaterClose" 
@@ -10,73 +10,103 @@
                     @click.self.stop="close('close')">
             </div>
             <div class="kuangti">
-                <div class="search-field">
-                    <div class="search-logo">
-                        <!-- <i class="el-icon-search"></i> -->
-                        <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
-                    </div>
-                    <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
-                </div>
-                <div class="crumbs" v-show="crumbs.length > 1 && !isSearch">
-                    <div 
-                        :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
-                        v-for="(item, idx) in crumbs"
-                        :key="item.department_id"
-                        @click.stop="changeLayerByCrumb(item)"
-                    >
-                        <span v-show="idx!==0" style="margin-left:4px; margin-right:4px;">/</span>
-                        <span>{{item.name}}</span>
-                    </div>
-                </div>
-                <div class="room-list" v-if="!isSearch">
-                    <div 
-                        v-for="(item, idx) in totalList" 
-                        :key="idx"
-                    >   
-                        <div 
-                            v-if="item.type === 'dep'"
-                            class="room-item room-item-dep"
-                            @click.stop="changeLayer(item)"
-                        >   
-                            <div style="display:flex; align-items:center;">
-                                <img class="room-img" style="margin-right:2px;" src="../../../static/Img/Main/xinzuzhi.png"/> <!-- src="../../../static/Img/Main/yjt.png" -->
-                                <div class="user-info">
-                                    <span class="room-info">{{item.display_name}}</span>
-                                </div>
-                            </div>
-                            <img style="height:20px; width:20px;" src="../../../static/Img/Main/yjt.png">
+                <div class="kuangtiZuo">
+                    <div class="search-field">
+                        <div class="search-logo">
+                            <!-- <i class="el-icon-search"></i> -->
+                            <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                         </div>
-                        <div v-else-if="item.dvd" class="dvd">{{item.txt}}</div>
-                        <div 
-                            class="room-item"
-                            @click.stop="chooseT(item, idx)"
-                            :style="{'background': item.choosen ? '#A7E0C4':'#fff'}" 
-                            v-else
+                        <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
+                    </div>
+                    <div class="crumbsxie" v-show="crumbs.length > 1">
+                        <span
+                            v-for="(ele, idx) in crumbs" 
+                            :key="idx"
+                            class="crumbsxieItem"
+                            :style="{color:(idx === crumbs.length-1 ? '#000000' : '#24B36B')}"
+                            @click.stop="caonima2(ele)"
+                        >{{idx === crumbs.length-1 ? ele.name : ele.name + ' /'}}</span>
+                    </div>
+                    <div class="totalListXieItem" v-if="crumbs.length > 1">
+                        <img
+                            v-if="totalChoosen"
+                            style="height:20px; width:20px; margin-right:8px;"
+                            src="../../../static/Img/Main/lg.png"
+                            @click.stop="quanxuan(false)"
                         >
-                            <img class="room-img" :src="item.avatar_url"/>
-                            <div class="user-info">
-                                <span class="room-info">{{item.display_name}}</span>
-                                <span class="room-info" style="font-size:12px; color:#999999">{{item.matrix_id || item.user_id}}</span>
-                            </div>
+                        <img
+                            v-else
+                            style="height:20px; width:20px; margin-right:8px;"
+                            src="../../../static/Img/Main/ljh.png"
+                            @click.stop="quanxuan(true)"
+                        >
+                        <div class="itemF">全选</div>
+                        <div 
+                            class="youjiantouField"
+                        >
+                            {{'已选'+tn}}
                         </div>
                     </div>
-                </div>
-                <div class="room-list" v-else>
-                    <div 
-                        v-for="(item, idx) in searchedMembers" 
-                        :key="idx"
-                    >   
-                        <div v-if="item.dvd" class="dvd">{{item.txt}}</div>
+                    <div class="totalListXie">
                         <div 
-                            class="room-item"
-                            @click.stop="choose(item, idx)"
-                            :style="{'background': item.choosen ? '#A7E0C4':'#fff'}" 
-                            v-else
+                            v-for="(ele, idx) in totalList" 
+                            :key="ele.id"
+                            class="totalListXieItem"
                         >
-                            <img class="room-img" :src="item.avatar_url"/>
-                            <div class="user-info">
-                                <span class="room-info">{{item.display_name}}</span>
-                                <span class="room-info" style="font-size:12px; color:#999999">{{item.matrix_id || item.user_id}}</span>
+                            <!-- <span @click.stop="caonima2(ele)">{{ele.name}}</span> -->
+                            <img 
+                                v-if="crumbs.length === 1" 
+                                style="height:32px; width:32px; margin-right:4px;" 
+                                src="../../../static/Img/Main/xinzuzhi.png"
+                            >
+                            <img
+                                v-else-if="ele.choosen"
+                                style="height:20px; width:20px; margin-right:8px;"
+                                src="../../../static/Img/Main/lg.png"
+                                @click.stop="caonima1(ele, false)"
+                            >
+                            <img
+                                v-else
+                                style="height:20px; width:20px; margin-right:8px;"
+                                src="../../../static/Img/Main/tmk.png"
+                                @click.stop="caonima1(ele, true)"
+                            >
+                            <div class="itemF" @click.stop="caonima2(ele)">{{ele.name}}</div>
+                            <div 
+                                class="youjiantouField"
+                                @click.stop="caonima2(ele)"
+                                v-if="ele.type === 'dep'"
+                            >
+                                <img 
+                                    src="../../../static/Img/Main/yjt.png" 
+                                    style="height:20px; width:20px;"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kuangtiYou">
+                    <div class="yxField">
+                        <span style="margin-right:8px;">已选:</span>
+                        <span>{{tn}}</span>
+                    </div>
+                    <div class="xuanzhonglie">
+                        <div 
+                            class="totalListXieItem"
+                            v-for="(ele, idx) in choosenMembers"
+                            :key="ele.name+idx"
+                        >
+                            <img class="shun1">
+                            <div class="shun2">
+                                <div class="shun3">{{ele.name}}</div>
+                                <div class="shun4">{{ele.id}}</div>
+                            </div>
+                            <div class="shun5">
+                                <img 
+                                    class="shun6" 
+                                    src="../../../static/Img/Chat/delete-20px@2x.png"
+                                    @click.stop="caonima1(ele, false)"
+                                >
                             </div>
                         </div>
                     </div>
@@ -86,18 +116,18 @@
                 <div class="cancel-button" @click.stop="close('close')">取消</div>
                 <!-- <div class="submit-button" 
                     :style="{'background': (loading || !choosenMembers || !choosenMembers.length) ? '#A7E0C4' : '#24B36B'}" 
-                    @click.stop="createDm">确认</div> -->
+                    @click.stop="createDm">创建</div> -->
                 <div 
                     class="submit-button"
                     style="background:#A7E0C4"
                     v-if="loading || !choosenMembers || !choosenMembers.length"
-                >确认</div>
+                >创建</div>
                 <div 
                     class="submit-button" 
                     style="background:#24B36B"
                     @click.stop="createDm"
                     v-else
-                >确认</div>
+                >创建</div>
             </div>
         </div>
     </div>
@@ -111,12 +141,13 @@ import { mapState, mapActions } from 'vuex';
 import * as Rooms from "../../packages/data/Rooms";
 import * as RoomUtil from '../script/room-util';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
-
+let gtn = 0;
+let gChoosenMembers = [];
 const OPTS = {
     limit: 200,
 };
 export default {
-    name: 'mxDmDlg',
+    name: 'mxXxr',
     props: {
         erpDm: {
             type: Boolean,
@@ -139,11 +170,162 @@ export default {
             choosenMembers: [],
             crumbs: [],
             totalList: [],
-            isSearch: false
+            isSearch: false,
+            mxTree: undefined,
+            tn: 0,
         }
     },
     timer: null,
     methods: {
+        mxTreeWalk(obj) {
+            // console.log('-----mxTreeWalk----', obj)
+            if (obj.type === 'user' && obj.choosen) {
+                // console.log('加了没有')
+                // if (obj.choosen) { gtn += 1; this.choosenMembers = [...this.choosenMembers, obj];}
+                // if (!obj.choosen) { this.choosenMembers = this.choosenMembers.filter(c => c.id !== obj.id)}
+                gtn += 1;
+                gChoosenMembers.push(obj);
+            }
+            if (obj.czs) {
+                obj.czs.forEach(o => {
+                    this.mxTreeWalk(o);
+                })
+            }
+        },
+        suansuoyou() {
+            gtn = 0;
+            gChoosenMembers = [];
+            this.tn = gtn;
+            // console.log('suansuoyou', this.mxTree);
+            this.choosenMembers = [...gChoosenMembers];
+            this.mxTreeWalk(this.mxTree);
+            // console.log('gtn', gtn);
+            this.tn = gtn;
+            this.choosenMembers = [...gChoosenMembers];
+            return this.tn;
+        },
+        async caonima4(ele) { //向下迭代状态  只针对dep类型
+            let xie = ele.choosen;
+            if (ele.czs && ele.czs.length) {
+                let len = ele.czs.length;
+                for(let i = 0; i <len; i++) {
+                    ele.czs[i].choosen = xie;
+                    if (ele.czs[i].type === 'dep') await this.caonima4(ele.czs[i]);
+                }
+            } else {
+                let subDeps = await Department.GetSubDepartment(ele.id);
+                let subUsers = await UserInfo.GetSubUserinfo(ele.id);
+                subDeps = subDeps.map(s => {
+                    let o = {
+                        id: s.department_id, 
+                        type: 'dep', 
+                        data: s, 
+                        parent: ele, 
+                        czs:[],
+                        choosen: xie,
+                        name: s.display_name
+                    }
+                    return o;
+                })
+                subUsers = subUsers.map(s => {
+                    let o = {
+                        id: s.matrix_id, 
+                        type: 'user', 
+                        data: s, 
+                        parent: ele,
+                        choosen: xie,
+                        name: s.display_name || s.user_name
+                    }
+                    return o;
+                })
+                ele.czs = [...subDeps, ...subUsers];
+                let len = ele.czs.length;
+                for(let i = 0; i <len; i++) {
+                    ele.czs[i].choosen = xie;
+                    if (ele.czs[i].type === 'dep') await this.caonima4(ele.czs[i]);
+                }
+            }
+        },
+        async caonima3(ele) { //向上迭代状态
+            if (ele.parent) {
+                let xie = true;
+                ele.parent.czs.forEach(c => {
+                    if (!c.choosen) xie = false;
+                })
+                ele.parent.choosen = xie;
+                await this.caonima3(ele.parent);
+            }
+        },
+        async caonima1(ele, choosen) {  //用于勾选
+            ele.choosen = choosen;
+            // if (ele.type === 'user') {
+            //     if (ele.choosen) {
+            //         this.tn += 1;
+            //         this.choosenMembers.push(ele);
+            //     }
+            //     if (!ele.choosen) {
+            //         this.tn -= 1;
+            //         this.choosenMembers = this.choosenMembers.filter(c => c.id !== ele.id);
+            //     }
+            // }
+            if (ele.type === 'dep') { //选中或反选 部门
+                await this.caonima3(ele)
+                await this.caonima4(ele)
+            } else { //选中或反选 成员
+                await this.caonima3(ele)
+            }
+            // this.choosenMembers = this.choosenMembers.filter(c => c.id !== ele.id);
+            this.mxTree = {...this.mxTree}
+        },
+        async caonima2(ele) { //用于列表中dep点击转换层级 以及 crumbs点击层级转换 只针对dep类型
+            if (ele.czs && ele.czs.length) {
+                let crumbs = this.crumbs;
+                const len = crumbs.length;
+                let newCrumbs = [];
+                for(let i=0; i<len; i++) {
+                    newCrumbs.push(crumbs[i]);
+                    if (crumbs[i].id === ele.id) {
+                        break;
+                    }
+                    if (i === len-1) {
+                        newCrumbs.push(ele);
+                    }
+                }
+                this.crumbs = [...newCrumbs];
+                this.totalList = [...ele.czs];
+                return;
+            }
+            let subDeps = await Department.GetSubDepartment(ele.id);
+            let subUsers = await UserInfo.GetSubUserinfo(ele.id);
+            subDeps = subDeps.map(s => {
+                let o = {
+                    id: s.department_id, 
+                    type: 'dep', 
+                    data: s, 
+                    parent: ele, 
+                    czs:[],
+                    choosen: false,
+                    name: s.display_name
+                }
+                return o;
+            })
+            subUsers = subUsers.map(s => {
+                let o = {
+                    id: s.matrix_id, 
+                    type: 'user', 
+                    data: s, 
+                    parent: ele,
+                    choosen: false,
+                    name: s.display_name || s.user_name
+                }
+                return o;
+            })
+            this.crumbs.push(ele);
+            ele.czs = [...subDeps, ...subUsers];
+            this.totalList = [...ele.czs];
+            this.mxTree = {...this.mxTree}
+            console.log('caonima2', this.mxTree)
+        },
         createDm: function() {
             if (this.loading) return;
             if (!this.choosenMembers || !this.choosenMembers.length) return;
@@ -349,7 +531,7 @@ export default {
                 console.log('----searchContacts----', searchContacts);
                 console.log('----res----', res);
                 let sus = [];
-                sus.push({dvd:true, txt:'组织人员'})
+                // sus.push({dvd:true, txt:'组织人员'})
                 searchUsers.forEach(c => {
                     //avatar_url
                     //display_name
@@ -362,7 +544,7 @@ export default {
                     sus.push(u);
                 })
                 let scs = [];
-                scs.push({dvd:true, txt:'我的联系人'})
+                // scs.push({dvd:true, txt:'我的联系人'})
                 searchContacts.forEach(c => {
                     let u = {}
                     u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
@@ -372,7 +554,7 @@ export default {
                     scs.push(u);
                 })
                 let mxs = [];
-                mxs.push({dvd:true, txt:'其他联系人'})
+                // mxs.push({dvd:true, txt:'其他联系人'})
                 let results = res.results || [];
                 results.forEach(c => {
                     c.choosen = false; 
@@ -398,6 +580,34 @@ export default {
                 //     console.error('异常', e);
                 // })
             },320)
+        },
+        chooseXin(item) {
+            let choosenMembers = this.choosenMembers;
+            let totalList = this.totalList;
+            let searchedMembers = this.searchedMembers;
+            if (item.checked) {
+                choosenMembers.push(item);
+                searchedMembers.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = true;
+                })
+                totalList.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = true;
+                })
+            } else {
+                choosenMembers = choosenMembers.filter(c => c.user_id != item.user_id)
+                searchedMembers.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = false;
+                })
+                totalList.forEach(s => {
+                    if (s.user_id == item.user_id) s.checked = false;
+                })
+            }
+            this.choosenMembers = [...choosenMembers];
+            this.totalList = [...totalList];
+            this.searchedMembers = [...searchedMembers];
+        },
+        removeMember(item) {
+
         },
         close: function(room) {
             let obj = 'close';
@@ -554,7 +764,8 @@ export default {
             let department_id = obj.department_id;
             let crumbs = this.crumbs;
             const len = crumbs.length;
-            let newCrumbs = []
+            let mxTree = this.mxTree; 
+            let newCrumbs = [];
             for(let i=0; i<len; i++) {
                 newCrumbs.push(crumbs[i]);
                 if (crumbs[i].department_id === department_id) {
@@ -567,12 +778,10 @@ export default {
             }
             newCrumbs[newCrumbs.length-1].choosen = true;
             console.log('>>>>>', newCrumbs)
-            newCrumbs[1].name = '组织';
+            newCrumbs[0].name = '组织';
             this.crumbs = [...newCrumbs];
             const subDep = await Department.GetSubDepartment(department_id);
             const subUsers = await UserInfo.GetSubUserinfo(department_id);
-            console.log('-----subDep-----', subDep)
-            console.log('-----subUsers-----', subUsers)
             subDep.forEach(s=>s.type = 'dep')
             subUsers.forEach(c=>{
                 c.display_name = c.user_display_name || c.user_name;
@@ -583,6 +792,19 @@ export default {
             totalArray.forEach(t => t.choose = false)
             this.totalList = [...totalArray];   
         },
+        quanxie(obj) {
+            if (obj.choosen) this.tn += 1;
+            if (obj.czs) {
+                obj.czs.forEach(o => {
+                    this.quanxie(o);
+                })
+            }
+        },
+        async quanxuan(choosen) {
+            let len = this.crumbs.length;
+            let ele = this.crumbs[len-1];
+            await this.caonima1(ele, choosen)
+        }
     },
     components: {
     },
@@ -591,26 +813,45 @@ export default {
         const rootDep = await Department.GetRoot();
         rootDep.type = 'dep';
         rootDep.display_name = '组织';
-        const contactUsers = await Contact.GetAllContact();
-        console.log('contactUsers', contactUsers);
-        contactUsers.forEach(c => {
-            c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+        let root = {
+            id: rootDep.department_id, 
+            type: 'dep', 
+            data: rootDep, 
+            parent: null, 
+            czs:[],
+            choosen: false,
+            name: rootDep.display_name
+
+        }
+        let subDeps = await Department.GetSubDepartment(root.id);
+        let subUsers = await UserInfo.GetSubUserinfo(root.id);
+        subDeps = subDeps.map(s => {
+            let o = {
+                id: s.department_id,
+                type: 'dep', 
+                data: s, 
+                parent: root, 
+                czs:[],
+                choosen: false,
+                name: s.display_name
+            }
+            return o;
         })
-        const dvd = {dvd:true, txt:'我的联系人'};
-        const layer = {name:'联系人', department_id:'lxr', choosen: true}
-        let totalArray = [rootDep, dvd, ...contactUsers];
-        totalArray.forEach(t => t.choosen = false)
-        this.totalList = [...totalArray];
-        this.crumbs = [layer];
-
-
-
-        console.log('rootDep', rootDep);
-        console.log('contactUsers', contactUsers);
-        const subDep = await Department.GetSubDepartment("0a59d5bd13cb476698fee9d58599e37e");
-        const subUsers = await UserInfo.GetSubUserinfo("0a59d5bd13cb476698fee9d58599e37e");
-        console.log('subDep', subDep);
-        console.log('subUsers', subUsers);
+        subUsers = subUsers.map(s => {
+            let o = {
+                id: s.matrix_id, 
+                type: 'user', 
+                data: s, 
+                parent: root,
+                choosen: false,
+                name: s.display_name || s.user_name
+            }
+            return o;
+        })
+        root.czs = [...subDeps, ...subUsers];
+        this.crumbs = [root];
+        this.mxTree = {...root};
+        this.totalList = [...subDeps, ...subUsers];
     },
     
     mounted() {
@@ -631,12 +872,26 @@ export default {
                 }
             },
             immediate: true
+        },
+        mxTree: {
+            handler: function(val) {
+                const vtx = this;
+                console.log('jtccc')
+                this.suansuoyou()
+            }
         }
     },
     computed: {
         ...mapState({
             matrixSync: state => state.common.matrixSync
         }),
+        totalChoosen() {
+            let xie = true;
+            this.totalList.forEach(t => {
+                if (!t.choosen) xie = false;
+            })
+            return xie;
+        }
     }
 }
 </script>
@@ -649,14 +904,126 @@ export default {
     input:focus{
         outline:none;
     }
+    .youjiantouField {
+        flex: 1;
+        display: flex;
+        flex-direction: row-reverse;
+    }
+    .totalListXie {
+        margin-top: 12px;
+        margin-bottom: 12px;
+        flex: 1;
+        overflow-y: scroll;
+    }
+    .totalListXieItem {
+        height: 48px;
+        display: flex;
+        align-items: center;
+    }
+    .shun1 {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+    .shun2 {
+        width: 70%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .shun3 {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        // line-height: 20px;
+        letter-spacing: 1px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .shun4 {
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 18px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .shun5 {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        flex-direction: row-reverse;
+    }
+    .shun6 {
+        height: 20px;
+        width: 20px;
+    }
+    .itemF {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        // line-height: 20px;
+        letter-spacing: 1px;
+    }
+    .crumbsxie {
+        margin-top:12px;
+        margin-bottom:12px;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .crumbsxieItem {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #24B36B;
+        // line-height: 20px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        margin-right: 4px;
+    }
+    .yxField {
+        height: 24px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        letter-spacing: 1px;
+    }
     .kuangti {
         border: 1px solid #DDDDDD;
         border-radius: 4px;
-        margin:32px;
-        margin-top: 0;
+        margin-left: 32px;
+        margin-right: 32px;
         background-color: #fff;
+        display: flex;
+        height: 340px;
+    }
+    .kuangtiZuo {
+        width: 50%;
+        box-sizing: border-box;
+        border-right: 1px solid #DDDDDD;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+    }
+    .kuangtiYou {
+        width: 50%;
+        box-sizing: border-box;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+    }
+    .xuanzhonglie {
         flex: 1;
-        margin-bottom: 0;
         overflow-y: scroll;
     }
     .room-list {
@@ -684,9 +1051,9 @@ export default {
     .search-field {
         display: flex;
         height: 32px;
-        padding: 4px 8px;
+        padding-left: 12px;
+        padding-right: 12px;
         background-color: #fff;
-        margin: 12px 16px;
         border-radius: 2px;
         border: 1px solid #DDDDDD;
         margin-bottom: 0;
@@ -703,14 +1070,14 @@ export default {
 
     .mx-create-room-dialog {
         position: absolute;
-        width: 440px;
+        width: 624px;
         height: 468px;
         display: block;
         background: #fff;
         top: 50%;
         left: 50%;
         margin-top: -234px;
-        margin-left: -220px;
+        margin-left: -312px;
         border-radius: 4px;
         display: flex;
         flex-direction: column;
@@ -886,10 +1253,10 @@ export default {
         flex-direction: column;
     }
     .submit-field {
-        height: 72px;
         display: flex;
         justify-content: center;
         align-items: center;
+        flex: 1;
     }
     .submit-button {
         box-sizing: border-box;

@@ -197,12 +197,18 @@
             @close="closeEncryWarn"
             :room="currentRoom"
         />
-         <mxMemberSelectDlg 
+        <!-- <mxMemberSelectDlg 
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
             :roomId="showGroupInfo.groupId"
         >
-        </mxMemberSelectDlg>
+        </mxMemberSelectDlg> -->
+        <mxXxr 
+            v-if="mxSelectMemberOpen" 
+            @close="mxSelectMember"
+            :roomId="showGroupInfo.groupId"
+        >
+        </mxXxr>
     </div>
 </template>
 <script>
@@ -220,7 +226,7 @@ import AlertDlg from './alert-dlg.vue'
 import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
-
+import mxXxr from './mxXxr.vue'
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 // export const ALL_MESSAGES = 'all_messages';
@@ -280,7 +286,8 @@ export default {
         imageCropper,
         AlertDlg,
         encryWarn,
-        mxMemberSelectDlg
+        mxMemberSelectDlg,
+        mxXxr
     },
     props: {
         "showGroupInfoTips": {
