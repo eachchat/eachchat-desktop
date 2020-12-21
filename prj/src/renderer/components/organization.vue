@@ -10,9 +10,9 @@
                 <ul class="managers-list">
                     <div class='grid-content'>组织</div>
                     <li class="manager"
-                        v-for="(department, index) in searchDeparements"
+                        v-for="department in searchDeparements"
                         @click="searchDeparmentItemClicked(department.department_id)" 
-                        :key="index">
+                        :key="department.department_id">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/organization-40px@2x.png">
                         <div class="manager-info">
                         <p v-html="msgContentHightLight(department.display_name)" class="contact-list-name">{{ department.display_name }}</p>
@@ -21,9 +21,9 @@
                     </li>
                     <div class='grid-content'>成员</div>
                     <li class="manager"
-                        v-for="(manager, index) in searchUsers"
+                        v-for="manager in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
-                        :key="index">
+                        :key="manager.user_id">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(manager.user_display_name)" class="contact-list-name">{{ manager.user_display_name }}</p>
@@ -32,9 +32,9 @@
                     </li>
                     <div class='grid-content'>联系人</div>
                     <li class="manager"
-                        v-for="(contact, index) in searchContacts"
+                        v-for="contact in searchContacts"
                         @click="SearchContactItemClicked(contact.matrix_id)" 
-                        :key="index">
+                        :key="contact.matrix_id">
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
@@ -209,11 +209,11 @@ export default {
         },
 
         GetUserinfo: async function(id, userType){
-            if (this.showSearchUserInfoTips&&(this.searchUserInfo.id == id)){
+            if (this.showSearchUserInfoTips && (this.searchUserInfo.matrix_id == id)){
                     this.showSearchUserInfoTips = false;
                     return;
             }
-            this.contactType = userType;
+            
             var iconElement = document.getElementById(this.getSearchUserIconId(id));
             this.searchUserInfoPosition.left = iconElement.getBoundingClientRect().left;
             this.searchUserInfoPosition.top = iconElement.getBoundingClientRect().top;
@@ -234,7 +234,7 @@ export default {
                 if(userInfo)
                     department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
                 tempUserInfo.department = department;
-                tempUserInfo.id = id;
+                tempUserInfo.matrix_id = id;
                 tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, id);
                 tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
                 tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);
@@ -251,7 +251,7 @@ export default {
             else
             {
                 user = await UserInfo.GetUserInfo(id);
-                tempUserInfo.id = user.user_id;
+                tempUserInfo.matrix_id = user.matrix_id;
                 tempUserInfo.avatarTUrl = user.avatar_t_url;
                 tempUserInfo.displayName = user.user_display_name;
                 tempUserInfo.title = user.user_title;
@@ -285,14 +285,15 @@ export default {
             this.searchUserInfo = tempUserInfo;
             this.searchUserInfoKey ++;
             this.showSearchUserInfoTips = true;
+            this.contactType = userType;
         },
 
         SearchContactItemClicked: async function(id){
-            this.GetUserinfo(id, 'contact')
+            await this.GetUserinfo(id, 'contact')
         },
 
         searchUserMenuItemClicked:async function(id) {
-            this.GetUserinfo(id, 'organise');
+            await this.GetUserinfo(id, 'organise');
         },
         getOrganizationBaseData:async function() {
             var departments = [];

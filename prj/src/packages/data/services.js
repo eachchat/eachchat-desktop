@@ -2422,6 +2422,14 @@ const common = {
     let contactInfo = await Contact.GetContactInfo(matrixID);
     if(!contactInfo)
         return;
+    if(contactInfo.display_name == remarkName &&
+      contactInfo.email == email &&
+      contactInfo.mobile == mobile &&
+      contactInfo.telephone == telephone &&
+      contactInfo.company == company &&
+      contactInfo.title == title)
+      return true;
+    
     let result = await this.api.UpdateContact(this.data.login.access_token,
                                               matrixID,
                                               contactInfo.contact_id,
