@@ -71,7 +71,15 @@
                                 src="../../../static/Img/Main/tmk.png"
                                 @click.stop="caonima1(ele, true)"
                             >
-                            <div class="itemF" @click.stop="caonima2(ele)">{{ele.name}}</div>
+                            <div v-if="crumbs.length === 1" class="itemF" @click.stop="caonima2(ele)">{{ele.name}}</div>
+                            <div v-else-if="ele.type === 'dep'" class="itemF" @click.stop="caonima1(ele, !ele.choosen)">{{ele.name}}</div>
+                            <div v-else @click.stop="caonima1(ele, !ele.choosen)" style="display:flex; align-items:center; user-select:none;">
+                                <img class="shun1">
+                                <div class="shun2">
+                                    <div class="shun3">{{ele.name}}</div>
+                                    <div class="shun4">{{ele.id}}</div>
+                                </div>
+                            </div>
                             <div 
                                 class="youjiantouField"
                                 @click.stop="caonima2(ele)"
