@@ -98,6 +98,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.setSize(960, 600);
   mainWindow.center();
   // mainWindow.webContents.on('did-finish-load', function(){
+  mainWindow.maximize();
   mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);

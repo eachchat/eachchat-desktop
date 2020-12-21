@@ -1321,7 +1321,7 @@ export default {
 
     .chat-msg-content-mine-txt-div {
         float:right;
-        background-color: rgba(120,231,175,100);
+        background-color: rgba(82, 172, 68, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -1340,7 +1340,7 @@ export default {
 
     .chat-msg-content-mine-txt-div:hover{
         float:right;
-        background-color: RGB(90,231,160);
+        background-color: RGB(92,193,76);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -1411,6 +1411,7 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing:1px;
+        color: rgba(255, 255, 255, 1);
     }
 
     .chat-msg-content-mine-txt:hover {
@@ -1429,6 +1430,7 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing:1px;
+        color: rgba(255, 255, 255, 1);
     }
 
     .chat-msg-content-mine-img {
