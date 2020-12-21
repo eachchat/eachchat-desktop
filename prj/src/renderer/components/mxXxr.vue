@@ -133,7 +133,7 @@
                 <div 
                     class="submit-button" 
                     style="background:#24B36B"
-                    @click.stop="createDm"
+                    @click.stop="createXie"
                     v-else
                 >创建</div>
             </div>
@@ -160,7 +160,15 @@ export default {
         erpDm: {
             type: Boolean,
             default: false
-        }, 
+        },
+        roomInfo: {
+            type: Object,
+            default: undefined
+        },
+        commu: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {
@@ -185,6 +193,9 @@ export default {
     },
     timer: null,
     methods: {
+        createXie() {
+
+        },
         mxTreeWalk(obj) {
             // console.log('-----mxTreeWalk----', obj)
             if (obj.type === 'user' && obj.choosen) {
@@ -332,7 +343,6 @@ export default {
             ele.czs = [...subDeps, ...subUsers];
             this.totalList = [...ele.czs];
             this.mxTree = {...this.mxTree}
-            console.log('caonima2', this.mxTree)
         },
         createDm: function() {
             if (this.loading) return;
