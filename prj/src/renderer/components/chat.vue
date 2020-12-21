@@ -2789,6 +2789,8 @@ export default {
             this.isInvite = false;
             this.isJumpPage = false;
             this.curGroupId = this.chat.roomId;
+            this.CloseSearchPage();
+            this.CloseFileListPage()
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
             
