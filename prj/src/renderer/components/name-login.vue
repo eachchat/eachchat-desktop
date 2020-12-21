@@ -16,7 +16,7 @@
         <!-- <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
         <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage> -->
         <div class="login-panel" v-show="showLoginView">
-            <div class="organization-content" v-show="showOrganizationView">
+            <div class="organization-content" v-show="showOrganizationView" @keydown="keyHandle($event)">
                 <div class="host-title" v-if="showOrganizationViewHost">
                     服务器设置
                 </div>
@@ -31,7 +31,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline"  id="organizationInput" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline"  id="organizationInput" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()"/>
                     <p class="organization-input-label" v-show="false">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -200,7 +200,7 @@
             <i class="el-icon-caret-bottom" v-show="showOrganizationView && showOrganizationViewOrganization"></i>
         </div>
         <div class="domain-dropdown-content" id="domain-dropdown-content-id" v-show="showDomListView">
-            <ul class="domain-list">
+            <ul class="domain-list" id="domain-list-id">
                 <li class="domain-item" v-for="domainItem in DomainList" @click="selectDomain(domainItem)" v-html="msgContentHeightLight(domainItem)">
                 </li>
             </ul>
@@ -243,6 +243,8 @@ export default {
     },
     data () {
         return {
+            ulElement: undefined,
+            curSelectedIndex: 0,
             appServerHost: "http://139.198.18.180:8888",//"https://chat.yunify.com",
             showPwd: false,
             forgetPwdButtonDisabled: false,
@@ -449,12 +451,22 @@ export default {
                 if(this.organizationAddress.length == 0) {
                     return showContent
                 }
-                if(showContent.toLowerCase().indexOf(this.organizationAddress) != -1) {
+                if(showContent.indexOf(this.organizationAddress) != -1) {
                     let splitValue = showContent.split(this.organizationAddress);
                     let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress + "</span>");
                     return newInnerHtml;
                 }
-                else {
+                else if(showContent.indexOf(this.organizationAddress.toLowerCase()) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress.toLowerCase() + "</span>");
+                    return newInnerHtml;
+                }
+                else if(showContent.indexOf(this.organizationAddress.toUpperCase()) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress.toUpperCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress.toUpperCase() + "</span>");
+                    return newInnerHtml;
+                }
+                else{
                     return showContent;
                 }
             }
@@ -727,11 +739,89 @@ export default {
             passwordInputDivDom.style.borderColor = "rgba(221,221,221,1)";
             return;
         },
+        keyHandle(event) {
+            if(event.code == "ArrowDown" || event.code == "ArrowUp") {
+                if(!this.showDomListView) {
+                    return;
+                }
+                
+                event.preventDefault();
+                if(this.ulElement == undefined) {
+                    this.ulElement = document.getElementById("domain-list-id");
+                }
+                switch(event.keyCode) {
+                    case 38: {
+                        console.log("=======up ", this.curSelectedIndex);
+                        if(this.curSelectedIndex == 0) {
+                            this.curSelectedIndex = this.ulElement.children.length - 1;
+                            this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                        }
+                        else if(this.curSelectedIndex > 0 && this.curSelectedIndex < this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        else if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[0].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        break;
+                    }
+                    case 40: {
+                        console.log("=======down", this.curSelectedIndex);
+                        if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
+                            this.ulElement.children[0].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.curSelectedIndex = 0;
+                        }
+                        else if(this.curSelectedIndex < this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            if(this.ulElement.children[this.curSelectedIndex-1]){
+                                this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            }
+                            this.curSelectedIndex++;
+                        }
+                        break;
+                    }
+                }
+            }
+            else if(event.code == "Enter" && !event.ctrlKey) {
+                if(this.showDomListView && this.showOrganizationView) {
+                    if(this.ulElement == undefined) {
+                        this.ulElement = document.getElementById("domain-list-id");
+                    }
+                    var selectedIndex = -1;
+                    for(var i=0;i<this.ulElement.children.length;i++) {
+                        if(this.ulElement.children[i].style.backgroundColor == "rgba(221, 221, 221, 1)" || this.ulElement.children[i].style.backgroundColor == "rgb(221, 221, 221)") {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+                    console.log("*** selectedIndex is ", selectedIndex);
+                    if(selectedIndex != -1) {
+                        var domainInfo = this.DomainList[i];
+                        this.DomainList = [];
+                        this.showDomListView = false;
+                        this.selectDomain(domainInfo);
+                    }
+                }
+                else if(!this.showDomListView && this.showOrganizationView) {
+                    this.organizationConfirmButtonClicked();
+                }
+            }
+        },
         toDected: function() {
             var orgInputDom = document.getElementById("organizationInput");
             orgInputDom.style.borderColor = "rgba(221,221,221,1)";
             this.organizationAddress = this.organizationAddress.trim();
             if(this.organizationAddress.length == 0 || !this.toDetect) {
+                this.DomainList = [];
+                this.showDomListView = false;
                 return;
             }
             
@@ -1630,6 +1720,8 @@ export default {
             return;
         }
         // this.getServerInfo(host);
+        var domain = window.localStorage.getItem("mx_hs_url");
+        console.log("***name-login domain from localstorage is ", domain);
         this.checkHomeServer()
             .then((ret) => {
                 console.log("============= check home server ", ret);
