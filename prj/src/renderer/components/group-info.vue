@@ -17,7 +17,7 @@
                 <img 
                     id="groupInfoImageId" 
                     class="groupInfoImage" 
-                    :src="dmMember && dmMember.user ? dmMember.user.avatarUrl : ''">
+                    :src="dmMember.avatar || ''">
             </div>
             <div class="groupInfoNoticeAndName" v-if="!isDm">
                 <div class="groupInfoName">
@@ -43,7 +43,7 @@
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
                     <div class="chat-name">{{dmMember.rawDisplayName || dmMember.name}}</div>
                 </div>
-                <div class="chat-desc">{{dmMember && dmMember.user ? dmMember.user.userId : ''}}</div>
+                <div class="chat-desc">{{dmMember.userId || ''}}</div>
             </div>
         </div>
         <div class="secretGroupDiv" v-show="!isGroup && isSecret" @click="showSecretType()">
@@ -277,7 +277,7 @@ export default {
             mxEncryption: false,
             encryptionWarning: false,
             currentRoom: undefined,
-            dmMember: undefined,
+            dmMember: {},
             mxSelectMemberOpen: false,
             memberFilter: '',
         }
@@ -939,13 +939,11 @@ export default {
                     console.log( 'dmMember', dmMember)
                     console.log( 'dmMember.user', dmMember.user)
                     if (!dmMember.user) dmMember.user = {};
-                    dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
-                    
-
+                    dmMember.avatar = global.mxMatrixClientPeg.getRoomAvatar(room);
                     let xieUser = client.getUser(dmMember.userId)
                     console.log( '----xie user----', xieUser)
                     
-                    this.dmMember = dmMember;
+                    this.dmMember = {...dmMember};
                 }
             })
         } else {this.isDm = false;}
