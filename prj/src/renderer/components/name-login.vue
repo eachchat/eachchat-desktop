@@ -734,8 +734,11 @@ export default {
         },
         resetLoginStateTitle(){
             this.loginState = "";
-            var accountInputDom = document.getElementById("accountInputId");
-            accountInputDom.style.borderColor = "rgba(221,221,221,1)";
+            this.$nextTick(() => {
+                var accountInputDom = document.getElementById("accountInputId");
+                accountInputDom.style.borderColor = "rgba(221,221,221,1)";
+                accountInputDom.focus();
+            })
             var passwordInputDom = document.getElementById("passwordInputId");
             passwordInputDom.style.borderColor = "rgba(221,221,221,1)";
             var passwordInputDivDom = document.getElementById("inputDivId");
@@ -941,8 +944,10 @@ export default {
                     }
                     this.showLoginView = true;
                     this.showOrganizationView = false;
-                    var userNameInput = document.getElementById("accountInputId");
-                    userNameInput.focus();
+                    this.$nextTick(() => {
+                        var userNameInput = document.getElementById("accountInputId");
+                        userNameInput.focus();
+                    })
                 })
             
         },
@@ -1157,6 +1162,7 @@ export default {
                 if(accountInputDom) {
                     accountInputDom.disabled = false;
                     accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                    accountInputDom.focus();
                 }
                 var passwordInputDom = document.getElementById("passwordInputId");
                 if(passwordInputDom) {
