@@ -24,14 +24,14 @@
                         <ul class="searchGroupList">
                             <li class="searchGroup" v-for="(group, index) in searchGroup" :key="index">
                                 <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                <img ondragstart="return false" class="group-icon" :id="'search' + group.group_id" src="../../../static/Img/User/user-40px@2x.png">
+                                <img ondragstart="return false" class="group-icon" :id="'search' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
-                                    <p class="group-name">{{ group.group_name }}</p>
+                                    <p class="group-name">{{ group.name }}</p>
                                 </div>
                             </li>
                         </ul>
                     </div>
-                    <div class="NewChatView" v-show="!showSearchView">
+                    <div class="NewChatView" v-show="!showSearchView && false">
                         <img ondragstart="return false" class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
                         <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
                         <p class="createNewChatTitle">创建新聊天</p>
@@ -44,9 +44,9 @@
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in showRecentChat" :key="index">
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                    <img ondragstart="return false" class="group-icon" :id="group.group_id" src="../../../static/Img/User/user-40px@2x.png">
+                                    <img ondragstart="return false" class="group-icon" :id="'transmit' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="group-info">
-                                        <p class="group-name">{{ group.group_name }}</p>
+                                        <p class="group-name">{{ group.name }}</p>
                                     </div>
                                 </li>
                             </ul>
@@ -59,9 +59,9 @@
                     <div class="selectedContentView">
                         <ul class="selectedGroupList">
                             <li class="selectedGroup" v-for="(group,index) in selectedGroups" :key="index">
-                                <img ondragstart="return false" class="group-icon" :id="'selected' + group.group_id" src="../../../static/Img/User/user-40px@2x.png">
+                                <img ondragstart="return false" class="group-icon" :id="'selected' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
-                                    <p class="group-name">{{ group.group_name }}</p>
+                                    <p class="group-name">{{ group.name }}</p>
                                 </div>
                                 <img ondragstart="return false" class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
                             </li>
@@ -107,12 +107,6 @@ export default {
                 return {};
             }
         },
-        recentGroups: {
-            type: Array,
-            default: function () { 
-                return [];
-            }
-        },
         transmitCollection:{
             type: Boolean,
             default: false
@@ -134,17 +128,6 @@ export default {
             }
         },
 
-    },
-    watch: {
-        recentGroups: function() {
-            for(var i = 0; i < this.recentGroups.length; i ++){
-                if(this.recentGroups[i].key_id != undefined && this.recentGroups[i].key_id.length != 0) {
-                    continue;
-                }
-                this.showRecentChat.push(this.recentGroups[i]);
-                this.getGroupAvatarContent(this.recentGroups[i]);
-            }
-        }
     },
     computed: {
         groupChecked() {
@@ -168,6 +151,7 @@ export default {
     },
     data () {
         return {
+            recentGroups: [],
             showRecentChat: [],
             showCreateNewChat: false,
             TransmitDlgElement: null,
@@ -190,6 +174,37 @@ export default {
         }
     },
     methods: {
+        GetLastShowMessage(chatGroupItem){
+            for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
+                var timeLineTmp = chatGroupItem.timeline[i];
+                if(['m.room.message', 'm.room.encrypted', 'm.room.name', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
+                return timeLineTmp;
+                }
+            }
+        },
+        SortGroupByTimeLine(item1, item2){
+            let timeline1 = 0;
+            let timeline2 = 0;
+            if(item1.timeline.length != 0){
+                let msg1 = this.GetLastShowMessage(item1);
+                if(msg1 && msg1.event){
+                timeline1 = msg1.event.origin_server_ts;
+                }
+                else{
+                timeline1 = 0;
+                }
+            }
+            if(item2.timeline.length != 0){
+                let msg2 = this.GetLastShowMessage(item2);
+                if(msg2 && msg2.event){
+                timeline2 = msg2.event.origin_server_ts;
+                }
+                else{
+                timeline2 = 0;
+                }
+            }
+            return timeline2 - timeline1;
+        },
         updateGroupImg(e, arg) {
             var state = arg[0];
             var stateInfo = arg[1];
@@ -215,19 +230,33 @@ export default {
             this.$emit("closeTransmitDlg", "");
             
         },
+        searchRoom(searchKey) {
+            var searchResult = [];
+            // console.log("search key is ", searchKey);
+            for(var i=0;i<this.recentGroups.length;i++) {
+                // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
+                if(this.recentGroups[i].name.indexOf(searchKey) >= 0) {
+                // console.log("inininin put ");
+                    searchResult.push(this.recentGroups[i]);
+                }
+            }
+            return searchResult;
+        },
         search:async function () {
             if(this.searchKey == ''){
                 this.showSearchView = false;
                 return;
             }
             this.showSearchView = true;
-            this.searchGroup = await Group.SearchByNameKey(this.searchKey);
+            this.searchGroup = this.searchRoom(this.searchKey);
 
-            this.$nextTick(function(){
-                for(var i = 0; i < this.searchGroup.length; i ++){
-                    this.getGroupAvatarContent(this.searchGroup[i], 'search');
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.searchGroup.length; i ++){
+                        this.getGroupAvatarContent(this.searchGroup[i], 'search');
+                    }
+                });
+            }, 0)
         },
         searchDeleteClicked(){
             this.searchKey = '';
@@ -265,7 +294,6 @@ export default {
             var temp = rootDepartmentModels;
             this.rootDepartments =  temp.sort(this.compare("show_order"));
             this.showCreateNewChat = true;
-            
         },
         compare(property){
             return function(a,b){
@@ -277,8 +305,8 @@ export default {
         indexOfGroupInSelected(group){
             var index = -1;
             for(var i = 0; i < this.selectedGroups.length; i ++){
-                var id = group.group_id;
-                if(id == this.selectedGroups[i].group_id){
+                var id = group.roomId;
+                if(id == this.selectedGroups[i].roomId){
                     index = i;
                     break;
                 }
@@ -300,27 +328,25 @@ export default {
         //         })
         // },
         getGroupAvatarContent:async function(group, key='') {
-            var targetDir = confservice.getUserThumbHeadPath();
-            var targetPath = path.join(targetDir, group.group_id + '.png');
-            var groupAvatarElement = document.getElementById(key + group.group_id);
-            if(groupAvatarElement == null) {
-                return;
+            var groupAvatarElement = document.getElementById(key + group.roomId);
+            console.log("gtoup name is ", group.name);
+            var distUrl = global.mxMatrixClientPeg.getRoomAvatar(group);
+            console.log("disturl is ", distUrl);
+            if(!distUrl || distUrl == '') {
+                let defaultGroupIcon;
+                if(global.mxMatrixClientPeg.DMCheck(group))
+                    defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+                else
+                    defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
+                groupAvatarElement.setAttribute("src", defaultGroupIcon); 
             }
-            if(fs.existsSync(targetPath)) {
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    groupAvatarElement.setAttribute("src", reader.result);
-                }
+            if(groupAvatarElement != undefined && distUrl) {
+                console.log("to set src", groupAvatarElement);
+                groupAvatarElement.setAttribute("src", distUrl);
             }
-            else{
-                console.log("download group avatar", group);
-                services.common.downloadGroupAvatar(group.group_avarar, group.group_id);
-                //await this.getGroupAvatarContent(group);
+            else {
+                console.log("groupAvatarElement is kng");
             }
-
         },
         calcImgPosition: function() {
 
@@ -351,8 +377,7 @@ export default {
                 return;
             }
             //
-            this.curUserInfo = await services.common.GetSelfUserModel();
-            if(this.transmitCollection){
+            if(this.transmitCollection && false){
                 var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                 this.$emit("closeTransmitDlg", "");
                 if(suc == false) {
@@ -662,82 +687,37 @@ export default {
                 }
         },
         sendSingleMsg: async function(distGroups, msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
             for(var i=0;i<distGroups.length;i++){
                 for(var j=0;j<msgs.length;j++) {
                     var curMsg = msgs[j];
                     console.log("curMsg is ", curMsg);
-                    if(curMsg.message_type == 105) {
+                    var content = curMsg.getContent();
+                    if(content.msgtype == "m.audio") {
                         continue;
                     }
-                    var curMsgContent = strMsgContentToJson(curMsg.message_content);
-                    console.log("curMsgCintent is ", curMsgContent);
-
-                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
-                    let curTimeSeconds = new Date().getTime();
-                    
-                    let sendingMsgContentType = curMsg.message_type;
-                    let willSendMsgContent = curMsgContent;
-                    let guid = generalGuid();
-
-                    if(curMsg.message_type == 103) {
-                        var filePath = await services.common.GetFilePath(curMsg.message_id);
-                        if(!fs.existsSync(filePath)) {
-                            var fileDir = confservice.getFilePath(curMsg.message_timestamp);
-                            var filePath = path.join(fileDir, strMsgContentToJson(curMsg.message_content)['fileName']);
+                    if(curMsg.event.content.info != undefined) {
+                        if(curMsg.event.content.info.h != undefined)
+                        try{
+                            curMsg.event.content.info.h = parseInt(curMsg.event.content.info.h);
                         }
-                        if(fs.existsSync(filePath)) {
-                            var nameTmp = path.basename(filePath);
-                            var dirTmp = confservice.getFilePath(curTimeSeconds);
-                            var pathTmp = path.join(dirTmp, nameTmp);
-                            var finalPath = await makeFlieNameForConflict(pathTmp);
-                            try{
-                                console.log("copy file from ", filePath, " to ", filePath);
-                                fs.copyFileSync(filePath, finalPath);
-                                services.common.SetFilePath(guid, finalPath);
-                            }
-                            catch(error) {
-                                console.log("copyFile except ", error);
-                            }
+                        catch(err) {
+                            console.log("parse float to int failed");
+                        }
+                        if(curMsg.event.content.info.w != undefined)
+                        try{
+                            curMsg.event.content.info.w = parseInt(curMsg.event.content.info.w);
+                        }
+                        catch(err) {
+                            console.log("parse float to int failed");
                         }
                     }
-                    else if(curMsg.message_type == 102) {
-                        var fileName = strMsgContentToJson(curMsg.message_content)['fileName'];
-                        var ext = path.extname(fileName);
-                        var fileDir = confservice.getThumbImagePath(curMsg.message_timestamp);
-                        var filePath = path.join(fileDir, curMsg.message_id + ext);
-                        if(fs.existsSync(filePath)) {
-                            var dirTmp = confservice.getThumbImagePath(curTimeSeconds);
-                            var pathTmp = path.join(dirTmp, guid + ext);
-                            var finalPath = await makeFlieNameForConflict(pathTmp);
-                            try{
-                                console.log("copy file from ", filePath, " to ", finalPath);
-                                fs.copyFileSync(filePath, finalPath);
-                                services.common.SetFilePath(guid, finalPath);
-                            }
-                            catch(error) {
-                                console.log("copyFile except ", error);
-                            }
-                        }
-                    }
-                    services.common.sendNewMessage(
-                            guid, 
-                            sendingMsgContentType, 
-                            this.curUserInfo.id, 
-                            groupId, 
-                            uid, 
-                            curTimeSeconds, 
-                            willSendMsgContent)
-                        .then(async (ret) => {
-                            console.log("sendNewMessage ret is ", ret);
-                            if(ret == undefined) {
-                                return false;
+                    global.mxMatrixClientPeg.SendEvent(distGroups[i].roomId, curMsg)
+                        .then((ret) => {
+                            if(ret) {
+                                this.$emit('updateChatList', ret);
                             }
                             else {
-                                this.$emit('updateChatList', ret);
+                                console.log("========= transmit msg failed ", curMsg.getContent());
                             }
                         })
                 }
@@ -863,23 +843,34 @@ export default {
     created() {
             //this.curUserInfo = await services.common.GetSelfUserModel();
             //console.log("this.curuser info is ", this.curUserInfo);
-            var showPosition = this.calcImgPosition();
-            console.log(showPosition);
-            this.dlgPosition.left = showPosition.left.toString() + "px";
-            this.dlgPosition.top = showPosition.top.toString() + "px";
-            console.log(this.recentGroups);
+            // var showPosition = this.calcImgPosition();
+            // console.log(showPosition);
+            // this.dlgPosition.left = showPosition.left.toString() + "px";
+            // this.dlgPosition.top = showPosition.top.toString() + "px";
     },
     mounted: function() {
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);
+        var favGroups = [];
+        var norGroups = [];
+        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+            if(r.getMyMembership() != "leave" && r.getMyMembership() != "invite") {
+                let tags = r.tags;
+                if(tags && tags['m.favourite']){
+                    favGroups.push(r);
+                }
+                else{
+                    norGroups.push(r);
+                }
+            }
+        });
+        favGroups.sort(this.SortGroupByTimeLine);
+        norGroups.sort(this.SortGroupByTimeLine);
+        this.recentGroups = favGroups.concat(norGroups);
+        this.showRecentChat = this.recentGroups;
         setTimeout(() => {
             this.$nextTick(function(){
-                console.log(this.recentGroups.length)
-                for(var i = 0; i < this.recentGroups.length; i ++){
-                    if(this.recentGroups[i].key_id != undefined && this.recentGroups[i].key_id.length != 0) {
-                        continue;
-                    }
-                    this.showRecentChat.push(this.recentGroups[i]);
-                    this.getGroupAvatarContent(this.recentGroups[i]);
+                for(var i = 0; i < this.showRecentChat.length; i ++){
+                    this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
                 }
             });
         }, 0)
@@ -900,14 +891,22 @@ display: none;
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
-        z-index: 3;
+        z-index:3;
     }
 
     .TransmitDlg {
         position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        padding: 0px 20px 20px 20px;
         width: 624px;
         height: 468px;
-        display: block;
+        text-align: center;
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
+        border-radius: 4px;
         background: rgba(255, 255, 255, 1);
     }
 
@@ -997,7 +996,7 @@ display: none;
                 font-family: PingFangSC-Regular;
             }
             .RecentChatView {
-                height: 214px;
+                height: 264px;
                 overflow: scroll;
                 .recentChatList{
                     list-style: none;
@@ -1021,8 +1020,7 @@ display: none;
                             width: 32px;
                             height: 32px;
                             display: inline-block;
-                            border-radius: 4px;
-
+                            border-radius: 50px;
                         }
                         .group-info{
                             display: inline-block;
@@ -1074,8 +1072,7 @@ display: none;
                             width: 32px;
                             height: 32px;
                             display: inline-block;
-                            border-radius: 4px;
-
+                            border-radius: 50px;
                         }
                         .group-info{
                             display: inline-block;
@@ -1120,6 +1117,7 @@ display: none;
                 line-height:20px;
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
+                text-align: left;
             }
             .selectedContentView {
                 height: 292px;
@@ -1139,7 +1137,7 @@ display: none;
                             width: 32px;
                             height: 32px;
                             display: inline-block;
-                            border-radius: 4px;
+                            border-radius: 50px;
                             margin-top: 8px;
                             margin-bottom: 8px;
                         }

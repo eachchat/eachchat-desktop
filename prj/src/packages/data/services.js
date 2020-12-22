@@ -2056,13 +2056,36 @@ const common = {
     if(host.endsWith("/")) {
       host = host.substring(0, host.length-1)
     }
-    var response = await axios.post("https://chat.yunify.com/gms/v1/tenant/names", 
+    var response = await axios.post(host + "/gms/v1/tenant/names", 
       {
         'tenantName': tenant
       }
     );
     console.log("============== response is ", response);
     return response;
+  },
+
+  async getLoginConfig(host) {
+    // var host = global.localStorage.getItem("app_server");
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length - 1);
+    }
+    var response = await axios.get(host + "/api/services/auth/v1/auth/setting");
+    console.log("response is ", response)
+    if (response.status != 200 
+      || response.data == undefined
+      || response.data.obj == undefined) {
+      return false;
+    };
+    var loginSettingObj = response.data.obj;
+    global.localStorage.setItem("authType", loginSettingObj['authType']);
+    global.localStorage.setItem("threeAuthType", loginSettingObj['threeAuthType']);
+    global.localStorage.setItem("userNamePlaceHolder", loginSettingObj['userNamePlaceHolder']);
+    global.localStorage.setItem("passwordPlaceHolder", loginSettingObj['passwordPlaceHolder']);
+    global.localStorage.setItem("matrixEmail", loginSettingObj['matrixEmail']);
+    global.localStorage.setItem("threeEmail", loginSettingObj['threeEmail']);
+    global.localStorage.setItem("initPasswordRegex", loginSettingObj['initPasswordRegex']);
+    return true;
   },
 
   async newGmsConfiguration(domain, host) {
@@ -2101,13 +2124,18 @@ const common = {
     else
       mqtt.tls = 0;
 
-    this.config.hostname = entry.host;
+    var entryObj = this.getHostPortTls(host);
+    var entryHost = entryObj[0];
+    var entryHostPort = entryObj[1];
+    var entryHostTls = entryObj[2];
+    console.log("======= ", entryObj);
+    this.config.hostname = entryHost;
     localStorage.setItem("hostname", this.config.hostname);
 
-    this.config.apiPort = entry.port;
+    this.config.apiPort = entryHostPort;
     localStorage.setItem("apiPort", this.config.apiPort);
 
-    this.config.hostTls = entry.tls;
+    this.config.hostTls = entryHostTls;
     localStorage.setItem("hostTls", this.config.hostTls);
 
     this.config.mqttHost = mqtt.host;
@@ -2119,9 +2147,9 @@ const common = {
     this.config.mqttTls = mqtt.tls;
     localStorage.setItem("mqttTls", this.config.mqttTls);
     
-    localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
+    // localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
     localStorage.setItem("mx_hs_url", matrix.homeServer);
-    localStorage.setItem("mx_i_url", matrix.identityServer);
+    // localStorage.setItem("mx_i_url", matrix.identityServer);
 
     return response.data.obj;
   },
@@ -2370,7 +2398,7 @@ const common = {
       }
       if(!result.data.hasNext)
         return;
-      updateTime = result.data.obj;
+      updateTime = result.data.obj.updateTime;
     }
   },
 
@@ -2394,6 +2422,14 @@ const common = {
     let contactInfo = await Contact.GetContactInfo(matrixID);
     if(!contactInfo)
         return;
+    if(contactInfo.display_name == remarkName &&
+      contactInfo.email == email &&
+      contactInfo.mobile == mobile &&
+      contactInfo.telephone == telephone &&
+      contactInfo.company == company &&
+      contactInfo.title == title)
+      return true;
+    
     let result = await this.api.UpdateContact(this.data.login.access_token,
                                               matrixID,
                                               contactInfo.contact_id,

@@ -14,7 +14,8 @@
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
             <!-- <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link> -->
             <div class = "grid-content">邀请</div>
-            <ul class="group-list" name="group-list">
+            <transition-group class="group-list" name="group-list" tag="ul">
+            <!-- <ul class="group-list" name="group-list"> -->
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showInviteGroupList"
                   @contextmenu="rightClick($event, chatGroupItem)"
@@ -26,7 +27,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -38,11 +39,13 @@
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
-            </ul>
+            </transition-group>
+            <!-- </ul> -->
             <!-- <ul class="group-list"> -->
             <!-- <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'><span class = "grid-content" >置顶</span></el-link> -->
             <div class = "grid-content">置顶</div>
-            <ul class="group-list" name="group-list">
+            <transition-group class="group-list" name="group-list" tag="ul">
+            <!-- <ul class="group-list" name="group-list"> -->
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showFavouriteRooms"
                   @click="showChat(chatGroupItem, index)"
@@ -55,7 +58,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -69,12 +72,12 @@
                   </div>
                 </div>
               </li>
-            </ul>
-   
+            <!-- </ul> -->
+            </transition-group>
             <!-- <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link> -->
-            <div class = "grid-content">聊天列表</div>
-            <ul class="group-list" name="group-list">
-            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
+            <div class = "grid-content">聊天</div>
+            <!-- <ul class="group-list" name="group-list"> -->
+            <transition-group class="group-list" name="group-list" tag="ul">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showDealGroupList"
                   @click="showChat(chatGroupItem, index)"
@@ -87,7 +90,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem.un_read_count)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -101,8 +104,8 @@
                   </div>
                 </div>
               </li>
-            </ul>
-            <!-- </transition-group> -->
+            <!-- </ul> -->
+            </transition-group>
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
             <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
@@ -353,7 +356,7 @@ export default {
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
-            console.log('chat-content membership')
+            console.log('chat-content membership member is ', member);
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
             setTimeout(()=>{
               if (member.userId == currentUserId) {
@@ -369,6 +372,9 @@ export default {
                     }
                   }
                   this.inviteGroupsList.unshift(newRoom);
+                  this.$nextTick(() => {
+                    this.UpdateGroupImage(newRoom);
+                  })
                 }
                 else if(member.membership == "join"){
                   console.log('JoinRoom!!!')
@@ -377,6 +383,9 @@ export default {
                 else{
                   this.leaveGroup(member.roomId);
                 }
+              }
+              else {
+                this.UpdateRoomListPassive(member);
               }
             },320)
         })
@@ -484,6 +493,19 @@ export default {
     showImportE2EKey() {
         this.showImportE2EKeyPage = true;
     },
+    checkUnreadCount: function() {
+      this.unreadCount = 0;
+      this.showGroupList.forEach((item)=>{
+        if(item.getMyMembership() == "invite") {
+          this.unreadCount += 1;
+        }
+        else{
+          const notificationCount = item.getUnreadNotificationCount();
+          this.unreadCount += notificationCount;
+        }
+      })
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
+    },
     ShowAllGroup: function(){
       this.unreadCount = 0;
       this.inviteGroupsList.length = 0;
@@ -491,7 +513,6 @@ export default {
       this.dealShowGroupList.length = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          item.un_read_count = 1;
           this.unreadCount += 1;
           this.inviteGroupsList.push(item);
         }
@@ -531,7 +552,7 @@ export default {
       if(item2.timeline.length != 0){
         let msg2 = this.GetLastShowMessage(item2);
         if(msg2 && msg2.event){
-          timeline2 = msg2.origin_server_ts;
+          timeline2 = msg2.event.origin_server_ts;
         }
         else{
           timeline2 = 0;
@@ -657,9 +678,14 @@ export default {
       if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
       }
-      this.unreadCount += 1;
+      console.log("*** newMsg is ", newMsg);
+      if(newMsg.event.room_id == this.curChat.roomId) {
+        this.SetRoomReader(this.curChat);
+        return;
+      }
+      this.checkUnreadCount();
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.room_id);
-      var notificateContent = this.getNotificationContent(newMsg);
+      var notificateContent = this.getShowMsgContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
       if(groupInfo != undefined) {
         fromUserName = fromName;
@@ -873,8 +899,14 @@ export default {
           isSecret = true;
         }
         this.menu = new Menu();
-
+        this.menu.append(new MenuItem({
+            label: "标记已读",
+            click: () => {
+                this.SetRoomReader(groupItem)
+            }
+        }));   
         if(!isSecret) {
+          /*
           if(this.groupIsSlience(groupItem)) {
             this.menu.append(new MenuItem({
                 label: "允许消息通知",
@@ -894,6 +926,7 @@ export default {
               }));  
             }
           }
+          */
           if(this.groupIsInFavourite(groupItem)) {
             this.menu.append(new MenuItem({
                 label: "取消置顶",
@@ -921,6 +954,15 @@ export default {
         
         this.menu.popup(remote.getCurrentWindow());
     },
+    SetRoomLowpriority(groupItem){
+      let metaData = {};
+      global.mxMatrixClientPeg.matrixClient.setRoomTag(groupItem.roomId, "m.lowpriority", metaData);
+    },
+
+    DelRoomLowpriority(groupItem){
+	  global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.lowpriority");
+    },
+
     deleteGroup(groupItem) {
       this.leaveGroup(groupItem.roomId);
     },
@@ -956,10 +998,6 @@ export default {
               console.log("slienceStateChange ", ret);
           })
     },
-    clesrUnread(groupItem) {
-      let room = global.mxMatrixClientPeg.matrixClient.getRoom(groupItem.roomId);
-      room.setUnreadNotificationCount("total", 0);
-    },
     
     getUidFromUids(groupInfo) {
       var containUids = groupInfo.contain_user_ids;
@@ -980,7 +1018,7 @@ export default {
     UpdateGroupImage: function(distGroup){
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
-        if(!this.distUrl || this.distUrl == '') {
+        if(!distUrl || distUrl == '') {
             let defaultGroupIcon;
             if(this.DMCheck(distGroup))
                 defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
@@ -1080,6 +1118,7 @@ export default {
         this.showFavouriteRooms = this.favouriteRooms;
         this.showDealGroupList = this.dealShowGroupList;
       }
+      this.showGroupIcon();
     },
     showSearchResultIcon: async function() {
       console.log("=======================showGroupIcon")
@@ -1254,24 +1293,16 @@ export default {
       }
     },
     getUnReadCount(chatItem) {
-      // const roomNotifState = this.getRoomNotifsState(chatItem.roomId);
-      const highlight = chatItem.getUnreadNotificationCount('highlight');// > 0;
       const notificationCount = chatItem.getUnreadNotificationCount();
 
-      const notifBadges = notificationCount;// > 0 && shouldShowNotifBadge(roomNotifState);
-      const mentionBadges = highlight;// && shouldShowMentionBadge(roomNotifState);
-      if(notifBadges == undefined){
-        if(chatItem.getMyMembership() == "invite") {
-          chatItem.un_read_count = 1;
-        }
-      }
-      else {
-        chatItem.un_read_count = notifBadges == 0 ? '' : notifBadges;// || mentionBadges;
-      }
-      return chatItem.un_read_count;
+      return notificationCount == 0 ? '' : notificationCount;
     },
-    getShowUnReadCount(unreadCount) {
-      if(unreadCount == undefined || (undefined != undefined && unreadCount == 0)) return '';
+    getShowUnReadCount(roomItem) {
+      var unreadCount = roomItem.getUnreadNotificationCount();
+
+      console.log(" *** unreadcount of " + roomItem.name + " unreadCount is " + unreadCount);
+      
+      if(unreadCount == undefined || (unreadCount != undefined && unreadCount == 0)) return '';
       return unreadCount;
     },
     findOverrideMuteRule(roomId) {
@@ -1343,13 +1374,9 @@ export default {
       }
     },
     getMsgLastMsgTime(chatGroupItem) {
-      if(chatGroupItem.timeline.length == 0) {
-        // console.log("getMsgLastMsgTime ", chatGroupItem.currentState)
-        // var distTimeLine = chatGroupItem.currentState._modified;
-        return;
-      }
-      else {
-        var distTimeLine = chatGroupItem.timeline[chatGroupItem.timeline.length-1];
+      var distTimeLine = this.GetLastShowMessage(chatGroupItem);
+      if(distTimeLine == undefined) {
+        return ;
       }
       
       let event = distTimeLine.event;
@@ -1709,16 +1736,24 @@ export default {
     },
 
     GetLastShowMessage(chatGroupItem){
+      if(!chatGroupItem.timeline) return undefined;
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
         if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
           return timeLineTmp;
         }
+/*
+        else
+        {
+          console.log('----------')
+          console.log(timeLineTmp.getType()) 
+        }
+*/
       }
     },
 
     getShowMsgContent(chatGroupItem) {
-      if(chatGroupItem.timeline.length == 0){
+      if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
           var inviteMemer = this._getInviteMember(chatGroupItem);
           return "[邀请]：" + inviteMemer.rawDisplayName;
@@ -1727,7 +1762,7 @@ export default {
       // console.log("cur chat group is ", chatGroupItem);
       var distTimeLine = this.GetLastShowMessage(chatGroupItem);
       if(distTimeLine == undefined) {
-        return "收到一条短消息";
+        return "";
       }
       var ret = this.NoticeContent(distTimeLine);
       // console.log("ret is ===== ", ret == '');
@@ -1771,7 +1806,7 @@ export default {
           }
       }
 
-      return "收到一条短消息";
+      return "";
     },
 
     SetGroupItemGround(id){
@@ -1801,6 +1836,23 @@ export default {
       }
     },
 
+    SetRoomReader(room){
+      if(!room.timeline)
+        return;
+      let lasttimeLine = room.timeline[room.timeline.length - 1];
+      if(!lasttimeLine && !lasttimeLine.event)
+        return;
+      let eventId = lasttimeLine.event.event_id;
+      //return lasttimeLine;
+      var oriRoomUnreadCount = room.getUnreadNotificationCount();
+      global.mxMatrixClientPeg.matrixClient.setRoomReadMarkers(room.roomId, eventId, lasttimeLine, {hidden: false}).catch((e) => {
+        console.log(e)
+      });
+      room.setUnreadNotificationCount('total', 0);
+      room.setUnreadNotificationCount('highlight', 0);
+      this.checkUnreadCount();
+    },
+
     showChat: function(chatGroup, index) {
       this.isMsgSearch = false;
       let groupItemElementID = this.ChatGroupId(chatGroup);
@@ -1811,10 +1863,7 @@ export default {
       let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
       this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
 
-      // this.cleanSearchKey = !this.cleanSearchKey;
       this.isEmpty = false;
-      // console.log("this.unreadcount is ", this.unreadCount);
-      // console.log("this.curChat.un_read_count is ", chatGroup.un_read_count);
       var isSecret = false;
 
       if(this.curChat != undefined && this.curChat.roomId != undefined) {
@@ -1824,59 +1873,77 @@ export default {
         this.$store.commit("setDraft", [this.curChat.roomId, content]);
       }
 
-      if(this.curChat != undefined && this.curChat.un_read_count != undefined) {
-        this.unreadCount = this.unreadCount - this.curChat.un_read_count;
-        // console.log("showchat this.unreadCount ", this.unreadCount)
-        if(this.unreadCount < 0) {
-          this.unreadCount = 0;
-        }
-        ipcRenderer.send("updateUnreadCount", this.unreadCount);
-        this.curChat.setUnreadNotificationCount("total", 0);
-        this.curChat.un_read_count = 0;
-        //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
+      if(this.curChat != undefined && this.curChat.timeline.length != 0) {
+        this.SetRoomReader(this.curChat);
       }
+
+      this.SetRoomReader(chatGroup);
+      
       this.curChat = chatGroup;
 
-      if(this.curChat.un_read_count != undefined && this.curChat.un_read_count != 0) {
-        ipcRenderer.send("stopFlash");
-      }
+      ipcRenderer.send("stopFlash");
+
       this.curindex = index;
-      this.unreadCount = this.unreadCount - chatGroup.un_read_count;
-      // console.log("showchat this.unreadCount ", this.unreadCount)
-      if(this.unreadCount < 0) {
-        this.unreadCount = 0;
-      }
-      ipcRenderer.send("updateUnreadCount", this.unreadCount);
       isSecret = false;
       if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
         isSecret = true;
       }
-      this.curChat.setUnreadNotificationCount("total", 0);
-      //services.common.MessageRead(this.curChat.group_id, this.curChat.sequence_id, isSecret);
-      this.curChat.un_read_count = 0;
-      
-      if(this.curChat != undefined && this.curChat.roomId != undefined) {
-        var charRef = this.$refs.chatPageRef;
-        var editor = charRef.editor;
-        var content = this.$store.getters.getDraft(this.curChat.roomId);
-        console.log("get content is ", content);
-        editor.setContents(content);
-      }
     },
     ToJoinRoom: function(roomId) {
-      global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
+      try{
+          global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
           .then(() => {
               // this.isRefreshing = true;
               setTimeout(() => {
                 this.JoinRoom(roomId);
               }, 500)
           })
+          .catch((error) => {
+              console.log("========join failed and err is ", error.error);
+              if(error.httpStatus == 403) {
+                  this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
+              }
+              else if(error.httpStatus == 429) {
+                  this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
+              }
+              else if(error.httpStatus == 404) {
+                  this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+              }
+          })
+      }
+      catch(e){
+        console.log(e)
+      }
+      
     },
     RejectRoom: function(roomId) {
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       setTimeout(() => {
           this.DeleteGroup(roomId);
+          this.checkUnreadCount();
       }, 0)
+    },
+    UpdateRoomListPassive: function(member) {
+      //join leave invite
+      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+      if(member.membership == "join"){
+        for(let i in this.inviteGroupsList){
+          if(this.inviteGroupsList[i].roomId == member.roomId) {
+            this.inviteGroupsList.splice(i, 1);
+            break;
+          } 
+        }
+        for(let i in this.dealShowGroupList){
+          if(this.dealShowGroupList[i].roomId == member.roomId) {
+            return;
+          } 
+        }
+        this.dealShowGroupList.unshift(newRoom);
+        this.$nextTick(async () => {
+          await newRoom.loadMembersIfNeeded();
+          this.showGroupIcon(newRoom);
+        })
+      }
     },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
@@ -1894,7 +1961,8 @@ export default {
       }
 
       this.dealShowGroupList.unshift(newRoom);
-      this.$nextTick(() => {
+      this.$nextTick(async () => {
+        await newRoom.loadMembersIfNeeded();
         this.showGroupIcon(newRoom);
         this.showChat(newRoom, 0);
       })
@@ -2038,6 +2106,7 @@ export default {
     border-right: 1px solid rgb(238, 238, 238);
     -webkit-app-region: drag;
     -webkit-user-select:none;
+    background-color: rgba(255, 255, 255, 1);
   }
 
   .list-header {
@@ -2290,6 +2359,7 @@ export default {
     margin-bottom: 0px;
     font-size: 0px;
     box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 1);
   }
 
   .group-div-top {

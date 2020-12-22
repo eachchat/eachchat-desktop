@@ -11,10 +11,10 @@
                 <img class="dropdown-item-img" src="../../../static/Img/Chat/search-20px@2x.png">
                 <span class="dropdown-item-label">添加联系人</span>
             </el-dropdown-item>
-            <el-dropdown-item class="dropdown-item" @click.native="InputContact()"> 
+            <!-- <el-dropdown-item class="dropdown-item" @click.native="InputContact()"> 
                 <img class="dropdown-item-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
-                <span class="dropdown-item-label">创建联系人</span> <!--发起密聊-->
-            </el-dropdown-item>
+                <span class="dropdown-item-label">创建联系人</span>
+            </el-dropdown-item> -->
             <el-image slot="reference"  src="../../../static/Img/Organization/Image/addContact-24px.png"></el-image>
             </el-popover>
             
@@ -136,8 +136,15 @@ export default {
         ClearCache: async function(){
             this.showAlertDlg = false;
             let ret = await this.services.DeleteContact(this.deleteContact.matrix_id)
-            if(ret)
-                this.contactList = await Contact.GetAllContact();
+            if(ret){
+                for(let index in this.contactList){
+                    if(this.contactList[index].matrix_id == this.deleteContact.matrix_id){
+                        this.contactList.splice(index, 1);
+                        return;
+                    }
+
+                }
+            }
         },
 
         OnMouseLeave: function(){
@@ -151,7 +158,7 @@ export default {
         DeleteContact: async function(contact){
             this.deleteContact = contact;
             this.showAlertDlg = true;
-            this. alertContents = {
+            this.alertContents = {
                 "Details": this.$t("DeleteContactAlertTitle") + ' ' + contact.display_name + ' ?',
                 "Abstrace": this.$t("DeleteContactAlertDetail")
             }
@@ -208,16 +215,23 @@ export default {
 
         getUserImg: async function(userinfo) {
             var elementImg = document.getElementById(userinfo.matrix_id + 'contactList');
-            if(!elementImg)
+            if(!elementImg){
                 return;
-            if(userinfo.matrix_id[0] != "@")
+            }
+            if(userinfo.matrix_id[0] != "@"){
+                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
                 return;
+            }
             var profileInfo = await this.matrixClient.getProfileInfo(userinfo.matrix_id);
-            if(!profileInfo.avatar_url)
+            if(!profileInfo.avatar_url){
+                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
                 return;
+            }
             let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url); 
             if(validUrl)
-                elementImg.setAttribute("src", validUrl);          
+                elementImg.setAttribute("src", validUrl);
+            else
+                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
         },
         compare(property){
             return function(a,b){

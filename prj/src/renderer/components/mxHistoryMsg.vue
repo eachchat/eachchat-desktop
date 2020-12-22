@@ -261,7 +261,7 @@ export default {
                 var sender = global.mxMatrixClientPeg.matrixClient.getUser(curItem.event.sender);
                 // console.log("============ sender ", sender)
                 
-                var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, 40, 40);;
+                var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, null, null);
                 var distUserName = sender.displayName;
                 distUserNameElement.innerHTML = distUserName;
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
@@ -305,7 +305,7 @@ export default {
             // console.log("this.searchKeylneth ", this.searchKey.length);
             if(this.searchKey.length == 0) {
                 this.ret = []
-                // console.log("this.messagelsitshow is ", this.messageListShow)
+                console.log("this.messagelsitshow is ", this.messageListShow)
                 this.showGroupInfo();
                 this.showEmpty = true;
                 return
@@ -452,6 +452,7 @@ export default {
         distRoomId: async function() {
             if(this.distRoomId == "") {
                 this.searchKey = "";
+                this.ret.results = [];
                 return;
             }
             this.groupId = this.distRoomId;

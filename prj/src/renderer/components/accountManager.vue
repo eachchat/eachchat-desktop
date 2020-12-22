@@ -3,20 +3,24 @@
         <div class="accountManagerDlg">
             <div class="accountManagerHeader">
                 <p class="accountManagerTitle">{{cutTitle}}</p>
-                <i class="el-icon-close" v-show="isMainPage" @click="Close()"></i>
+                <i class="el-icon-close" @click="Close()"></i>
             </div>
-            <div class="accountManagerContentPage" v-show="isMainPage">
-                <div class="phoneBind">
-                    <img class="phoneBindImg" src="../../../static/Img/Chat/pkg@2x.png">
+            <ul class="accountManagerContentPage" v-show="isMainPage">
+                <li class="phoneBind">
+                    <img class="phoneBindImg" src="../../../static/Img/Setup/Phone@2x.png">
                     <label class="phoneBindLabel">手机号</label>
-                    <label class="phoneBindBtn" @click="toBindPhone">绑定</label>
-                </div>
-                <div class="emailBind">
-                    <img class="emailBindImg" src="../../../static/Img/Chat/pkg@2x.png">
+                    <label class="phoneBindBtn" @click="toBindPhone" v-show="phoneNum.length == 0">绑定</label>
+                    <img class="phoneBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="phoneNum.length != 0" @click="unBindPhone">
+                    <label class="phoneBinded" v-show="phoneNum.length != 0">{{phoneNum}}</label>
+                </li>
+                <li class="emailBind">
+                    <img class="emailBindImg" src="../../../static/Img/Setup/mail@2x.png">
                     <label class="emailBindLabel">邮箱</label>
-                    <label class="emailBindBtn" @click="toBindEmail">绑定</label>
-                </div>
-            </div>
+                    <label class="emailBindBtn" @click="toBindEmail" v-show="emailAddress.length == 0">绑定</label>
+                    <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="emailAddress.length != 0" @click="unBindEmail">
+                    <label class="emailBinded" v-show="emailAddress.length != 0">{{emailAddress}}</label>
+                </li>
+            </ul>
             <div class="accountManagerContentPageBind" v-show="isBindPhoneSetNumPage">
                 <label class="toSetAddressLabel">{{toSetAddressLabel}}</label>
                 <input v-model="accountAddress" :placeholder="accountAddressPlaceHolder" class="toSetAddressInput"/>
@@ -33,7 +37,6 @@
             <div class="accountManagerContentPageBind" v-show="isBindEmailSetAddressPage">
                 <label class="toSetAddressLabel">{{toSetAddressLabel}}</label>
                 <input v-model="accountAddress" :placeholder="accountAddressPlaceHolder" class="toSetAddressInput"/>
-                <label class="toSetAddressLabelState">{{toSetAddressLabelState}}</label>
             </div>
             <div class="accountManagerContentPageBind" v-show="isBindEmailCheckPage">
                 <label class="toSetAddressLabel">{{toSetAddressLabel}}</label>
@@ -43,17 +46,31 @@
                 <button class="accountManagerConfirmButton" :disabled="disableConfirm" @click="Confirm()" v-show="!isMainPage">{{confirmText}}</button>
             </div>
         </div>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="AlertConfirm" :width="alertWidth" :height="alertHeight" :contentLeft="alertContentLeft" :iconType="iconType"/>
     </div>
 </template>
 
 <script>
+import AlertDlg from './alert-dlg.vue'
 const EMAIL_ADDRESS_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export default {
     name: 'AccountManager',
     props: {
     },
+    components: {
+        AlertDlg
+    },
     data () {
         return {
+            isUnbindEmail: false,
+            isUnbindPhone: false,
+            iconType: "alert",
+            alertWidth: 0,
+            alertHeight: 0,
+            alertContentLeft: 0,
+            showAlertDlg: false,
+            alertContnets: {},
+            session: '',
             cutTitle: "账号管理",
             confirmText: "下一步",
             reSend: "",
@@ -61,9 +78,9 @@ export default {
             phoneNum: "",
             emailAddress: "",
             toSetAddressLabelState: "",
-            toSetAddressLabel: "",
+            toSetAddressLabel: "请添加用于登录的邮箱",
             accountAddress: "",
-            accountAddressPlaceHolder: "",
+            accountAddressPlaceHolder: "请输入邮箱",
             sessionId: "",
             submitUrl: "",
             isMainPage: true,
@@ -73,10 +90,49 @@ export default {
             isBindEmailSetAddressPage: false,
             isBindEmailCheckPage: false,
             disableConfirm: false,
+            clientSecret: '',
             contentElement: undefined,
         }
     },
     methods: {
+        AlertConfirm: function() {
+            if(this.isUnbindEmail) {
+                global.mxMatrixClientPeg.matrixClient.deleteThreePid('email', this.emailAddress).then(() => {
+                    this.$toastMessage({message:"解除对" + this.emailAddress + "的绑定", time: 2000, type:'sucess'});
+                    this.emailAddress = "";
+                    this.unBindEmail = false;
+                }).catch((err) => {
+                    this.$toastMessage({message:(err && err.message) ? err.message : "操作失败", time: 2000, type:'error'});
+                });
+            }
+            else if(this.isUnbindPhone) {
+                global.mxMatrixClientPeg.matrixClient.deleteThreePid('msisdn', this.phoneNum).then(() => {
+                    this.$toastMessage({message:"解除对" + this.phoneNum + "的绑定", time: 2000, type:'sucess'});
+                    this.phoneNum = "";
+                    this.unBindPhone = false;
+                }).catch((err) => {
+                    this.$toastMessage({message:(err && err.message) ? err.message : "操作失败", time: 2000, type:'error'});
+                });
+            }
+        },
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+            this.alertContnets = {};
+        },
+        unBindEmail: function() {
+            this.alertContnets = {
+                "Details": "是否确定删除邮箱" + this.emailAddress + "?",
+                "Abstrace": "提示"
+            };
+            this.unBindEmail = true;
+        },
+        unBindPhone: function() {
+            this.alertContnets = {
+                "Details": "是否确定删除手机号" + this.phoneNum + "?",
+                "Abstrace": "提示"
+            };
+            this.unBindPhone = true;
+        },
         Close: function() {
             this.isMainPage = true;
             this.isBindInputPasswordPage = false;
@@ -110,9 +166,9 @@ export default {
                     }
                 }).catch((err) => {
                     if (err.errcode === 'M_THREEPID_IN_USE') {
-                        err.message = 'This phone number is already in use';
+                        this.$toastMessage({message:"该号码已经被使用。", time: 2000, type:'error'});
                     } else if (err.httpStatus) {
-                        err.message = err.message + ` (Status ${err.httpStatus})`;
+                        this.$toastMessage({message:err.message + ` (Status ${err.httpStatus})`, time: 2000, type:'error', showWidth:'380px'});
                     }
                 })
             }
@@ -131,53 +187,94 @@ export default {
                     this.toSetAddressLabelState = "邮箱格式不正确"
                     return;
                 }
+                this.clientSecret = global.mxMatrixClientPeg.matrixClient.generateClientSecret();
                 global.mxMatrixClientPeg.matrixClient.requestAdd3pidEmailToken(
-                    this.accountAddress, global.mxMatrixClientPeg.matrixClient.generateClientSecret(), 1
+                    this.accountAddress, this.clientSecret, 1
                 ).then((ret) => {
-                    this.sessionId = res.sid;
+                    this.sessionId = ret.sid;
                     this.isBindEmailSetAddressPage = false;
                     this.isBindEmailCheckPage = true;
                     this.emailAddress = this.accountAddress;
                     this.accountAddress = "";
                     this.cutTitle = "验证邮箱";
-                    this.toSetAddressLabel = "已向您的邮箱" + this.accountAddress + "发送雁阵右键，请检查您的电子邮箱并点击里面包含的链接，完成时请点击下一步。";
+                    this.toSetAddressLabel = "已向您的邮箱" + this.emailAddress + "发送验证邮件，请检查您的电子邮箱并点击里面包含的链接，完成时请点击下一步。";
                     if(this.time <= 0) {
                         this.time = 61;
                         this.timer();
                     }
                 }).catch((err) => {
                     if (err.errcode === 'M_THREEPID_IN_USE') {
-                        err.message = 'This email is already in use';
-                        this.toSetAddressLabelState = "该邮箱已经被使用。";
+                        this.$toastMessage({message:"该邮箱已经被使用。", time: 2000, type:'error'});
                     } else if (err.httpStatus) {
-                        err.message = err.message + ` (Status ${err.httpStatus})`;
-                        this.toSetAddressLabelState = err.message;
+                        this.$toastMessage({message:err.message + ` (Status ${err.httpStatus})`, time: 2000, type:'error'});
                     }
                 })
             }
             else if(this.isBindEmailCheckPage) {
-                if(await global.mxMatrixClientPeg.matrixClient.doesServerSupportSeparateAddAndBind()) {
+                // if(await global.mxMatrixClientPeg.matrixClient.doesServerSupportSeparateAddAndBind()) {
 
+                // }
+                // else {
+                // }
+                try{
+                    var firstRet = await this._makeAddThreepidOnlyRequest(undefined);
+                    console.log("====== first ret is ", firstRet);
+                    if(e.httpStatus !== 401 || !e.data || !e.data.flows) {
+                        this.toSetAddressLabelState = "auto认证异常";
+                        return;
+                    }
+                    this.session = firstRet.data.session;
                 }
-                else {
-                    await global.mxMatrixClientPeg.matrixClient.addThreePid({
-                        sid: this.sessionId,
-                        client_secret: global.mxMatrixClientPeg.matrixClient.generateClientSecret()
-                    }, true)
+                catch(e) {
+                    if(e.httpStatus !== 401 || !e.data || !e.data.flows) {
+                        this.toSetAddressLabelState = "auto认证异常";
+                        return;
+                    }
+                    this.session = e.data.session;
                 }
                 this.isBindEmailCheckPage = false;
                 this.isBindInputPasswordPage = true;
                 this.accountAddress = "";
                 this.cutTitle = "身份认证";
                 this.accountAddressPlaceHolder = "请输入验登录密码";
-                this.toSetAddressLabel = "添加手机号操作需要额外的身份认证，请输入您的登录密码";
+                this.toSetAddressLabel = "添加邮箱需要额外的身份认证，请输入您的登录密码";
             }
             else if(this.isBindInputPasswordPage) {
                 // toDo Check login pwd
+                console.log("ret is ", ret);
+                var auth = {
+                    // identifier: {
+                    //     type: 'm.id.user',
+                    //     user: global.mxMatrixClientPeg.matrixClient.getUserId()
+                    // },
+                    session: this.session,
+                    password: this.accountAddress,
+                    type: "m.login.password",
+                    user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                }
+                try{
+                    var ret = await this._makeAddThreepidOnlyRequest(auth);
+                    console.log("=========== ret ", ret);
+                    this.$toastMessage({message:"该邮箱已经被使用。", time: 2000, type:'error'});
+                }
+                catch(e) {
+                    if (e.httpStatus !== 401 || !e.data || !e.data.flows) {
+                        // doesn't look like an interactive-auth failure
+                        this.$toastMessage({message:"邮箱绑定失败", time: 2000, type:'error'});
+                        return;
+                    }
+                }
                 this.isBindInputPasswordPage = false;
                 this.isMainPage = true;
                 this.cutTitle = "账号管理";
             }
+        },
+        _makeAddThreepidOnlyRequest: function(auth) {
+            return global.mxMatrixClientPeg.matrixClient.addThreePidOnly({
+                sid: this.sessionId,
+                client_secret: this.clientSecret,
+                auth,
+            });
         },
         toBindEmail: function() {
             if(this.contentElement == undefined) {
@@ -209,6 +306,23 @@ export default {
             }
         },
     },
+    mounted: async function() {
+      try{
+          global.mxMatrixClientPeg.matrixClient.getThreePids()
+            .then((ret) => {
+              console.log("threepdis is ", ret);
+              var threePids = ret.threepids;
+              var emainObj = threePids.filter((a) => a.medium === 'email');
+              var phoneObj = threePids.filter((a) => a.medium === 'msisdn');
+              console.log("e,ainmlson ", emainObj)
+              this.emailAddress = emainObj.length == 0 ? "" : emainObj[0].address;
+              this.phoneNum = phoneObj.length == 0 ? "" : phoneObj[0].address;
+            })
+      }
+      catch(error) {
+          console.log("get threed pids exception ", error)
+      }
+    }
 }
 </script>
 
@@ -230,9 +344,9 @@ export default {
         left: 0;
         right: 0;
         margin: auto;
-        padding: 0px 20px 20px 20px;
+        padding: 0px 32px 20px 32px;
         width: 440px;
-        height: 260px;
+        height: 200px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
@@ -247,6 +361,7 @@ export default {
         display: inline-block;
         width: 142px;
         height: 22px;
+        font-family: SCPingFang-Medium;
         font-size: 16px;
         font-weight: 500;
         color: #000000;
@@ -254,7 +369,6 @@ export default {
         letter-spacing: 2px;
         float: left;
         margin: 18px 0px 18px 0px;
-        font-family: PingFangSC-Medium;
     }
 
     .el-icon-close {
@@ -264,108 +378,179 @@ export default {
     }
 
     .accountManagerContentPage {
-        width: 440px;
-        height: 204px;
+        width: 420px;
+        height: 104px;
         background: #FFFFFF;
-        border: 1px solid rgba(221,221,221,1);
+        border: 0px solid rgba(221,221,221,1);
         border-radius: 4px;
+        list-style: none;
+        margin-left: 12px;
+        padding-left: 0px;
     }
 
     .accountManagerContentPageBind {
-        width: 440px;
-        height: 150px;
+        width: 420px;
+        height: 104px;
         background: #FFFFFF;
-        border: 1px solid rgba(221,221,221,1);
+        border: 0px solid rgba(221,221,221,1);
         border-radius: 4px;
-        margin-bottom: 20px;
+        list-style: none;
+        margin-left: 12px;
+        padding-left: 0px;
     }
 
     .phoneBind {
         width: 100%;
-        height: 90px;
+        height: 52px;
     }
 
     .phoneBindImg {
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         float: left;
-        padding: 25px 0 25px 0;
+        padding: 15px 15px 15px 4px;
     }
 
     .phoneBindLabel {
         width: 100px;
         height: 20px;
         font-size:14px;
+        font-family: SCPingFang-Regular;
         font-weight:400;
-        color:rgba(0,0,0,1);
+        color:rgba(51, 51, 51, 1);
         line-height:20px;
         letter-spacing:1px;
         float: left;
-        padding: 35px 0 35px 0;
-        font-family: PingFangSC-Regular;
+        padding: 15px 15px 15px 4px;
     }
 
     .phoneBindBtn {
-        width: 100px;
         height: 20px;
         font-size:14px;
         font-weight:400;
-        color:aqua;
+        color: rgba(36, 179, 107, 1);
         line-height:20px;
         letter-spacing:1px;
         float: right;
-        padding: 35px 0 35px 0;
-        font-family: PingFangSC-Regular;
+        padding: 15px 15px 15px 15px;
+    }
+
+    .phoneBindBtn:hover {
+        height: 20px;
+        font-size:14px;
+        font-weight:400;
+        color: rgba(36, 179, 107, 1);
+        line-height:20px;
+        letter-spacing:1px;
+        float: right;
+        padding: 15px 15px 15px 15px;
+        cursor: pointer;
+    }
+
+    .phoneBinded {
+        height: 20px;
+        font-size:14px;
+        font-family: SCPingFang-Regular;
+        font-weight:400;
+        color:rgba(153, 153, 153, 1);
+        line-height:20px;
+        letter-spacing:1px;
+        float: right;
+        padding: 15px 15px 15px 4px;
+    }
+
+    .phoneBindedDel {
+        width: 20px;
+        height: 20px;
+        float: right;
+        padding: 15px 15px 15px 4px;
     }
 
     .emailBind {
         width: 100%;
-        height: 90px;
+        height: 52px;
     }
-    
-    .emailBindImg {
+
+    .el-icon-message {
         width: 40px;
         height: 40px;
         float: left;
-        padding: 25px 0 25px 0;
+        padding: 0;
+    }
+    
+    .emailBindImg {
+        width: 20px;
+        height: 20px;
+        float: left;
+        padding: 15px 15px 15px 4px;
     }
 
     .emailBindLabel {
-        width: 100px;
+        width: 36px;
         height: 20px;
         font-size:14px;
+        font-family: SCPingFang-Regular;
         font-weight:400;
-        color:rgba(0,0,0,1);
+        color:rgba(51, 51, 51, 1);
         line-height:20px;
         letter-spacing:1px;
         float: left;
-        padding: 35px 0 35px 0;
-        font-family: PingFangSC-Regular;
+        padding: 15px 15px 15px 4px;
     }
 
     .emailBindBtn {
-        width: 100px;
         height: 20px;
         font-size:14px;
         font-weight:400;
-        color:aqua;
+        color: rgba(36, 179, 107, 1);
         line-height:20px;
         letter-spacing:1px;
         float: right;
-        padding: 35px 0 35px 0;
-        font-family: PingFangSC-Regular;
+        padding: 15px 15px 15px 15px;
+    }
+
+    .emailBindBtn:hover {
+        height: 20px;
+        font-size:14px;
+        font-weight:400;
+        color: rgba(36, 179, 107, 1);
+        line-height:20px;
+        letter-spacing:1px;
+        float: right;
+        padding: 15px 15px 15px 15px;
+        cursor: pointer;
+    }
+
+    .emailBinded {
+        height: 20px;
+        font-size:14px;
+        font-family: SCPingFang-Regular;
+        font-weight:400;
+        color:rgba(153, 153, 153, 1);
+        line-height:20px;
+        letter-spacing:1px;
+        float: right;
+        padding: 15px 15px 15px 4px;
+    }
+
+    .emailBindedDel {
+        width: 20px;
+        height: 20px;
+        float: right;
+        padding: 15px 15px 15px 4px;
     }
 
     .toSetAddressLabel {
-        width: calc(100% - 28px);
+        width: 92%;
         height: 20px;
         font-size: 14px;
         font-weight: 400;
+        font-family: SCPingFang-Regular;
         color: #333333;
         line-height: 20px;
         letter-spacing: 1px;
         float: left;
-        margin: 14px 14px 5px 14px;
+        margin: 10px 14px 4px 14px;
     }
 
     .toSetAddressLabelState {
@@ -381,12 +566,14 @@ export default {
     }
 
     .toSetAddressInput {
-        width: calc(100% - 28px);
+        width: 360px;
         height: 32px;
         background: #FFFFFF;
+        color: rgba(153, 153, 153, 1);
         border-radius: 4px;
         border: 1px solid #DDDDDD;
-        margin: 0px 13px 0px 13px;
+        margin: 5px 13px 0px 13px;
+        padding-left: 8px;
     }
 
     .reSendBtn {
@@ -396,7 +583,6 @@ export default {
         background: white;
         border:0px;
         color: rgba(36, 179, 107, 1);
-        font-family: PingFangSC-Regular;
     }
 
     .reSendBtn:disabled {
@@ -406,7 +592,6 @@ export default {
         background: white;
         border:0px;
         color: #DDDDDD;
-        font-family: PingFangSC-Regular;
     }
 
     .accountManagerFotter {
@@ -425,7 +610,6 @@ export default {
         border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
-        font-family: PingFangSC-Regular;
     }
  
     .accountManagerConfirmButton:hover {
@@ -437,7 +621,6 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(36, 179, 107, 1);
-        font-family: PingFangSC-Regular;
     }
 
     .accountManagerConfirmButton:disabled {
@@ -449,7 +632,6 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(167, 224, 196, 1);
-        font-family: PingFangSC-Regular;
     }
 
     .accountManagerCancleButton {
@@ -461,6 +643,5 @@ export default {
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
-        font-family: PingFangSC-Regular;
     }
 </style>

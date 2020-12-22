@@ -30,7 +30,7 @@ let isLogin = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
-    iconPath = "../../static/Img/Main/macMenuIcon.png";
+    iconPath = "../../static/Img/Main/IconTemplate@2x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "../../static/Img/Main/icon.png";
@@ -42,7 +42,7 @@ if (process.env.NODE_ENV === "development") {
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
-    iconPath = "/static/Img/Main/macMenuIcon.png";
+    iconPath = "/static/Img/Main/IconTemplate@2x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "/static/Img/Main/icon.png";
@@ -98,6 +98,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.setSize(960, 600);
   mainWindow.center();
   // mainWindow.webContents.on('did-finish-load', function(){
+  mainWindow.maximize();
   mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);
@@ -114,6 +115,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   });
 
   let contextMenu = Menu.buildFromTemplate([
+    {
+      label: "显示主界面",
+      click: ()=> {
+        showMain();
+      }
+    },
     {
       label: "退出",
       click: function() {
@@ -157,6 +164,9 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   isLogin = false;
   Menu.setApplicationMenu(null)
   mainWindow.hide();
+  if(mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  }
   mainWindow.resizable = true;
   mainWindow.setSize(360, 420)
   mainWindow.loadURL(winURL);

@@ -84,7 +84,7 @@
                         <div class="multiSelectTransmit" @click="multiTransMit"></div>
                         <div class="multiSelectTransmitText">逐条转发</div>
                     </div>
-                    <div class="multiSelectTransmitTogetherDiv">
+                    <div class="multiSelectTransmitTogetherDiv" v-show="false">
                         <div class="multiSelectTransmitTogether" @click="multTtransMitTogether"></div>
                         <div class="multiSelectTransmitTogetherText">合并转发</div>
                     </div>
@@ -102,7 +102,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :recentGroups="recentGroups" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -300,23 +300,6 @@ export default {
         mxSelectMember() {
 
         },
-        DMCheck(curRoomItem) {
-            const client = window.mxMatrixClientPeg.matrixClient;
-            const mDirectEvent = client.getAccountData('m.direct');
-            let dmRoomMap = {};
-            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-            let currentRoom = curRoomItem;
-            let dmRoomIdArr = [];
-            const roomId = currentRoom.roomId;
-            const userId = client.getUserId();
-            Object.keys(dmRoomMap).forEach(k=>{
-                let arr = dmRoomMap[k];
-                arr.forEach(a=>dmRoomIdArr.push(a))
-            })
-            if (dmRoomIdArr.includes(roomId)) {
-                return true;
-            } else {return false;}
-        },
         createAnother() {
             console.log('this.chat', this.chat)
             const client = window.mxMatrixClientPeg.matrixClient;
@@ -388,6 +371,18 @@ export default {
                                 }, 100)
                             })
                     }, 500)
+                })
+                .catch((error) => {
+                    console.log("========join failed and err is ", error.error);
+                    if(error.httpStatus == 403) {
+                        this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 429) {
+                        this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 404) {
+                        this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+                    }
                 })
         },
         rejectRoom: function() {
@@ -563,7 +558,7 @@ export default {
                         this.menuQuote(msgItem)
                     }
                 }));
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "转发",
                         click: () => {
@@ -585,7 +580,7 @@ export default {
                         }
                     }));
                 }
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -611,7 +606,13 @@ export default {
                         }
                     }));
                 }
-                if(!this.isSecret && false) {
+                if(!this.isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -626,54 +627,12 @@ export default {
                     }
                 }));
             }
-            else if(msgItem.message_type == 105) {
-                if(!this.isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                }
+            else if(content.msgtype == "m.audio") {
                 if(showRedact) {
                     this.menu.append(new MenuItem({
                         label: "删除",
                         click: () => {
                             this.menuDelete(msgItem)
-                        }
-                    }));
-                }
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
-                        }
-                    }));
-                }
-            }
-            else if(msgItem.message_type == 106) {
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                }
-                if(showRedact) {
-                    this.menu.append(new MenuItem({
-                        label: "删除",
-                        click: () => {
-                            this.menuDelete(msgItem)
-                        }
-                    }));
-                }
-                if(!this.isSecret && false) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
                         }
                     }));
                 }
@@ -721,7 +680,6 @@ export default {
             this.transMit(transmitInfo);
         },
         async transMit(msg) {
-            this.recentGroups = await Group.GetGroupByTime();
             this.transmitKey ++;
             this.showTransmitDlg = true;
             this.selectedMsgs.push(msg);
@@ -825,30 +783,26 @@ export default {
         async multiFav() {
             var toFavMsgIds = [];
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                toFavMsgIds.push(this.selectedMsgs[i].time_line_id);
+                if(!this.selectedMsgs[i].event || !this.selectedMsgs[i].event.event_id)
+                    return;
+                toFavMsgIds.push(this.selectedMsgs[i]);
+                let event_id = this.selectedMsgs[i].event.event_id;
+                let content = this.selectedMsgs[i].event.content;
+                if(this.selectedMsgs[i].sender && this.selectedMsgs[i].sender.userId)
+                    content.fromMatrixId = this.selectedMsgs[i].sender.userId;
+                if(this.selectedMsgs[i].event.origin_server_ts)
+                    content.fromTimestamp = this.selectedMsgs[i].event.origin_server_ts;
+                global.services.common.CollectMessage(event_id, content);
             }
-            // console.log("fav msg is ", msg);
-            // console.log("cointent is ", strMsgContentToJson(msg.message_content));
-            var ret = await services.common.CollectMessage(toFavMsgIds);
-            if(ret) {
-                //
-            }
-            else {
-                //
-            }
+            this.$toastMessage({message:'收藏成功', time:1500, type:'success'});
             this.multiToolsClose();
         },
         multiDel() {
             console.log("this.selectedMsgs is ", this.selectedMsgs);
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                Message.DeleteMessage(this.selectedMsgs[i].message_id);
-                for(let j=0;j<this.messageList.length;j++) {
-                    if(this.messageList[j].sequence_id == this.selectedMsgs[i].sequence_id) {
-                        this.messageList.splice(j, 1);
-                        break;
-                    }
-                }
+                global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, this.selectedMsgs[i].event.event_id);
             }
+            this.$toastMessage({message:'删除成功', time:1500, type:'success'});
             this.multiToolsClose();
         },
         multiToolsClose() {
@@ -904,7 +858,7 @@ export default {
             }
             var hasSelected = false;
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                if(this.selectedMsgs[i].message_id == curMsg.message_id) {
+                if(this.selectedMsgs[i].event.event_id == curMsg.event.event_id) {
                     this.selectedMsgs.splice(i, 1);
                     hasSelected = true;
                     break;
@@ -1332,7 +1286,7 @@ export default {
             console.log("=================distUrl ", this.distUrl);
             if(!this.distUrl || this.distUrl == '') {
                 let defaultGroupIcon;
-                if(this.DMCheck(this.chat))
+                if(global.mxMatrixClientPeg.DMCheck(this.chat))
                     this.distUrl = "./static/Img/User/user-40px@2x.png";
                 else
                     this.distUrl = "./static/Img/User/group-40px@2x.png";
@@ -1570,6 +1524,7 @@ export default {
                                 url: url,
                                 info:{
                                     size: fileinfo.size,
+                                    mimetype: fileinfo.type
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
@@ -1624,6 +1579,7 @@ export default {
                                             size: fileinfo.size,
                                             w: img.width,
                                             h: img.height,
+                                            mimetype: fileinfo.type,
                                             thumbnail_url: encryptInfo.url,
                                             thumbnail_file: encryptInfo,
                                         }
@@ -1754,8 +1710,11 @@ export default {
                         break;
                 }
             }
+            else{
+                showNotice = false;
+            }
             return showNotice;
-s        },
+        },
         // Notice show difference with message.
         showMessageOrNot: function(curMsg) {  
             return !curMsg.isState();
@@ -2261,7 +2220,7 @@ s        },
             // console.log("this.chat.group_name is ", this.chat.group_name);
             this.showGroupInfoTips = true; //todo tips
             this.cleanCache = false;
-            console.log("more more more ", this.groupInfoObj)
+            console.log("more more more ", this.groupInfo)
         },
         compareMsg: function(){
             return function(a, b)
@@ -2341,8 +2300,12 @@ s        },
             if(ev.getType() === 'm.room.member' && ev.getSender() === this.userID){
                 if(ev.event && ev.event.content){
                     let content = ev.event.content;
+                    if(content.is_direct)
+                        return;
+                    if(content.membership != 'join')
+                        return;
                     let url = content.avatar_url;
-                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url, 40, 40);
+                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url, null, null);
                     var elementImg = document.getElementById("userHead");
                     if(elementImg){
                         if(avaterUrl == ''){
@@ -2826,6 +2789,8 @@ s        },
             this.isInvite = false;
             this.isJumpPage = false;
             this.curGroupId = this.chat.roomId;
+            this.CloseSearchPage();
+            this.CloseFileListPage()
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
             
@@ -2864,7 +2829,10 @@ s        },
             if(this.editor == undefined) {
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
-            this.editor.setSelection(this.editor.selection.savedRange.index);
+            var content = this.$store.getters.getDraft(this.chat.roomId);
+            this.editor.setContents(content);
+            this.editor.setSelection(this.content.length + 1);
+
         },
         toBottom: function() {
             if(this.toBottom == true) {
@@ -3282,6 +3250,7 @@ s        },
     .multiSelectToolsDiv {
         margin: 0 auto;
         width: 540px;
+        text-align: center;
     }
 
     .chat-input {

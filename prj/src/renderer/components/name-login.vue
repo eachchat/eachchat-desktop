@@ -16,7 +16,7 @@
         <!-- <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
         <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage> -->
         <div class="login-panel" v-show="showLoginView">
-            <div class="organization-content" v-show="showOrganizationView">
+            <div class="organization-content" v-show="showOrganizationView" @keydown="keyHandle($event)">
                 <div class="host-title" v-if="showOrganizationViewHost">
                     服务器设置
                 </div>
@@ -31,7 +31,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline"  id="item-input-id" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
+                    <input prefix="ios-contact-outline"  id="organizationInput" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()"/>
                     <p class="organization-input-label" v-show="false">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -41,7 +41,7 @@
                 </div>
                 <div class="btn-item">
                     <Button type="success" v-show="showOrganizationViewHost" @click="hostConfirmButtonClicked()">确定</Button>
-                    <Button type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
+                    <Button class="hostCancle" type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
                     <Button class="organizationConfirm" type="success" v-show="showOrganizationViewOrganization" :disabled="organizationButtonDisabled" @click="organizationConfirmButtonClicked()">{{$t("confirm")}}</Button>
                 </div>
                 <div class="organization-finder-tip" v-show="false">
@@ -68,7 +68,11 @@
                         <p class="password-title">
                             {{loginPagePwdLabel}}
                         </p>
-                        <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                        <div class="inputDiv" id="inputDivId">
+                            <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                            <img class="el-icon-view" @click="toShowPwd" v-show="!showPwd" src="../../../static/Img/Login/hide-pwd@2x.png">
+                            <img class="el-icon-moon" @click="toShowPwd" v-show="showPwd" src="../../../static/Img/Login/view-pwd@2x.png">
+                        </div>
                     </div>
                     <div class="accountLogin-state" v-show="false">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
@@ -191,12 +195,12 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
-        <div class="server-setting-div" v-show="showOrganizationView && showOrganizationViewOrganization">
+        <div class="server-setting-div" v-show="showOrganizationView && showOrganizationViewOrganization && false">
             <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView && showOrganizationViewOrganization">{{$t("homeServerAddress")}}</div>
             <i class="el-icon-caret-bottom" v-show="showOrganizationView && showOrganizationViewOrganization"></i>
         </div>
         <div class="domain-dropdown-content" id="domain-dropdown-content-id" v-show="showDomListView">
-            <ul class="domain-list">
+            <ul class="domain-list" id="domain-list-id">
                 <li class="domain-item" v-for="domainItem in DomainList" @click="selectDomain(domainItem)" v-html="msgContentHeightLight(domainItem)">
                 </li>
             </ul>
@@ -227,7 +231,7 @@ import {getDefaultHomeServerAddr} from '../../config.js'
 import log from 'electron-log';
 import AlertDlg from './alert-dlg.vue'
 import { windowsStore } from 'process';
-import * as Matrix from 'matrix-js-sdk'
+import * as Matrix from 'matrix-js-sdk';
 export default {
     name: 'login',
     components:{
@@ -239,6 +243,10 @@ export default {
     },
     data () {
         return {
+            ulElement: undefined,
+            curSelectedIndex: 0,
+            appServerHost: "http://139.198.18.180:8888",//"https://chat.yunify.com",
+            showPwd: false,
             forgetPwdButtonDisabled: false,
             iconType: "alert",
             LoginBtnText: "登录",
@@ -302,6 +310,7 @@ export default {
             showLoginView: false,
             showUsernameLoginView: true,
             defaultIdentity: '',
+            threeAuthType: '',
             supportedIdentity: [],
             showUserphoneLoginView: false,
             showUseremailLoginView: false,
@@ -350,6 +359,17 @@ export default {
         }
     },
     methods: {
+        toShowPwd: function() {
+            console.log("=============")
+            this.showPwd = !this.showPwd;
+            var pwdElement = document.getElementById("passwordInputId");
+            if(this.showPwd) {
+                pwdElement.type = "text";
+            }
+            else {
+                pwdElement.type = "password";
+            }
+        },
         toResetPwd: function() {
             this.loginPageTitle = "重置密码";
             this.loginPageAccountLabel = "邮箱";
@@ -369,7 +389,6 @@ export default {
             var homeServerUel = global.localStorage.getItem("mx_hs_url");
             this.pwdResetClient = Matrix.createClient({
                 baseUrl: homeServerUel,
-                idBaseUrl: identityUrl,
             });
             this.clientSecret = this.pwdResetClient.generateClientSecret();
             this.identityServerDomain = identityUrl ? identityUrl.split("://")[1] : null;
@@ -379,7 +398,7 @@ export default {
         },
         resetPassword(emailAddress, newPassword) {
             this.password = newPassword;
-            return this.pwdResetClient.requestPasswordEmailToken(emailAddress, this.clientSecret, 1).then((res) => {
+            return this.pwdResetClient.requestPasswordEmailToken(emailAddress, this.clientSecret, 0).then((res) => {
                 this.sessionId = res.sid;
                 return res;
             }, function(err) {
@@ -393,25 +412,29 @@ export default {
         },
         async checkEmailLinkClicked() {
             const creds = {
-                sid: this.sessionId,
-                client_secret: this.clientSecret,
+                'sid': this.sessionId,
+                'client_secret': this.clientSecret,
             };
             if (await this.doesServerRequireIdServerParam()) {
                 creds.id_server = this.identityServerDomain;
             }
 
             try {
-                await this.pwdResetClient.setPassword({
-                    // Note: Though this sounds like a login type for identity servers only, it
-                    // has a dual purpose of being used for homeservers too.
-                    type: "m.login.email.identity",
-                    // TODO: Remove `threepid_creds` once servers support proper UIA
-                    // See https://github.com/matrix-org/synapse/issues/5665
-                    // See https://github.com/matrix-org/matrix-doc/issues/2220
-                    threepid_creds: creds,
-                    threepidCreds: creds,
-                }, this.password);
+                var ret = await global.mxMatrixClientPeg.setPassword(this.sessionId, this.clientSecret, this.password)
+                console.log("ret is ", ret);
+                return;
+                // await this.pwdResetClient.setPassword({
+                //     // Note: Though this sounds like a login type for identity servers only, it
+                //     // has a dual purpose of being used for homeservers too.
+                //     type: "m.login.email.identity",
+                //     // TODO: Remove `threepid_creds` once servers support proper UIA
+                //     // See https://github.com/matrix-org/synapse/issues/5665
+                //     // See https://github.com/matrix-org/matrix-doc/issues/2220
+                //     threepid_creds: creds
+                //     // threepidCreds: creds,
+                // }, this.password);
             } catch (err) {
+                console.log("==========err is ", err);
                 if (err.httpStatus === 401) {
                     err.message = "邮箱验证失败：请确保你已点击邮件中的链接";
                 } else if (err.httpStatus === 404) {
@@ -432,6 +455,19 @@ export default {
                     let splitValue = showContent.split(this.organizationAddress);
                     let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress + "</span>");
                     return newInnerHtml;
+                }
+                else if(showContent.indexOf(this.organizationAddress.toLowerCase()) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress.toLowerCase() + "</span>");
+                    return newInnerHtml;
+                }
+                else if(showContent.indexOf(this.organizationAddress.toUpperCase()) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress.toUpperCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress.toUpperCase() + "</span>");
+                    return newInnerHtml;
+                }
+                else{
+                    return showContent;
                 }
             }
         },
@@ -460,7 +496,7 @@ export default {
                 this.showOrganizationViewHost = false;
                 this.eachChatEndPoint = '';
                 this.organizationOrHost = this.$t("joinYourOrganization");
-                this.organizationAddress = window.localStorage.getItem("Domain") == undefined ? "" : window.localStorage.getItem("Domain");
+                this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
                 this.showOrganizationViewOrganization = true;
             }
         },
@@ -508,42 +544,42 @@ export default {
                 this.$toastMessage({message:"Home Server地址不正确，请重新输入", time: 2000, type:'success', showWidth:'280px', showHeight:"100px"});
                 return false;
             }
-            if(appServerInfo.data['m.homeserver'] != undefined) {
-                global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
+            // if(appServerInfo.data['m.homeserver'] != undefined) {
+            //     global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
+            // }
+            if(appServerInfo.data['m.identity_server'] != undefined) {
+                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identity_server']['base_url']);
             }
-            if(appServerInfo.data['m.identty_server'] != undefined) {
-                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identty_server']['base_url']);
-            }
-            if(appServerInfo.data['m.appserver'] != undefined) {
-                var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
+            // if(appServerInfo.data['m.appserver'] != undefined) {
+            //     var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
                 
-                var appServerHostObj = this.getHostPortTls(appServerHostInfo);
-                var AHost = appServerHostObj[0];
-                var AHostPort = appServerHostObj[1];
-                var AHostTls = appServerHostObj[2];
+            //     var appServerHostObj = this.getHostPortTls(appServerHostInfo);
+            //     var AHost = appServerHostObj[0];
+            //     var AHostPort = appServerHostObj[1];
+            //     var AHostTls = appServerHostObj[2];
                 
-                localStorage.setItem("hostname", AHost);
-                localStorage.setItem("apiPort", AHostPort);
-                localStorage.setItem("hostTls", AHostTls);
-                localStorage.setItem("app_server", appServerHostInfo);
-            }
-            if(appServerInfo.data['m.mqttserver'] != undefined) {
-                var mqttHostInfo = appServerInfo.data['m.mqttserver']['base_url'];
+            //     localStorage.setItem("hostname", AHost);
+            //     localStorage.setItem("apiPort", AHostPort);
+            //     localStorage.setItem("hostTls", AHostTls);
+            //     localStorage.setItem("app_server", appServerHostInfo);
+            // }
+            // if(appServerInfo.data['m.mqttserver'] != undefined) {
+            //     var mqttHostInfo = appServerInfo.data['m.mqttserver']['base_url'];
                 
-                var mqttHostObj = this.getHostPortTls(mqttHostInfo);
-                var mqttHost = mqttHostObj[0];
-                var mqttHostPort = mqttHostObj[1];
-                var mqttHostTls = mqttHostObj[2];
+            //     var mqttHostObj = this.getHostPortTls(mqttHostInfo);
+            //     var mqttHost = mqttHostObj[0];
+            //     var mqttHostPort = mqttHostObj[1];
+            //     var mqttHostTls = mqttHostObj[2];
                 
-                localStorage.setItem("mqttHost", AHost);
-                localStorage.setItem("mqttPort", AHostPort);
-                localStorage.setItem("mqttTls", AHostTls);
-            }
-            if(appServerInfo.data['m.gms'] != undefined) {
-                var gmsHostInfo = appServerInfo.data['m.gms']['base_url'];
-                localStorage.setItem("gms_url", appServerInfo.data['m.gms']['base_url']);
-                localStorage.setItem("gms_tid", appServerInfo.data['m.gms']['tid']);
-            }
+            //     localStorage.setItem("mqttHost", AHost);
+            //     localStorage.setItem("mqttPort", AHostPort);
+            //     localStorage.setItem("mqttTls", AHostTls);
+            // }
+            // if(appServerInfo.data['m.gms'] != undefined) {
+            //     var gmsHostInfo = appServerInfo.data['m.gms']['base_url'];
+            //     localStorage.setItem("gms_url", appServerInfo.data['m.gms']['base_url']);
+            //     localStorage.setItem("gms_tid", appServerInfo.data['m.gms']['tid']);
+            // }
             return true;
         },
         checkHomeServer: async function (domain){            
@@ -565,19 +601,36 @@ export default {
             if(Domain.length == 0) {
                 return false;
             }
-            var host = global.localStorage.getItem("app_server");
-            if(host == undefined || (host != undefined && host.length == 0)) return false;
-            console.log("host si ", host);
-            var gmsRet = await global.services.common.newGmsConfiguration(Domain, host);
+            
+            var gmsRet = await global.services.common.newGmsConfiguration(Domain, this.appServerHost);
             console.log("gmsRet is ", gmsRet);
             if(!gmsRet){
                 if(domain != undefined){
-                    this.loginState = "未找到该组织";
+                    this.$toastMessage({message:"未找到该组织", time: 2000, type:'error', showWidth:'280px'});
                 }
                 this.organizationButtonDisabled = false;
                 return false;
             }
-            window.localStorage.setItem("Domain", domain);
+            var host = window.localStorage.getItem("mx_hs_url");
+            if(host == null) {
+                return false;
+            }
+            var serverCheckRet = await this.getServerInfo(host);
+            if(!serverCheckRet) {
+                return false;
+            }
+            var loginSettingRet = await global.services.common.getLoginConfig(this.appServerHost);
+            if(!loginSettingRet) {
+                if(domain != undefined){
+                    this.$toastMessage({message:"获取登录配置失败", time: 2000, type:'error', showWidth:'280px'});
+                }
+                this.organizationButtonDisabled = false;
+                return false;
+            }
+            if(domain != undefined) {
+                console.log("***Set item Domain is ", domain);
+                window.localStorage.setItem("Domain", domain);
+            }
             var host = "";
             // if(address == undefined || address == null) {
             host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
@@ -635,16 +688,23 @@ export default {
                 return false;
             })
         },
-        hostCancelButtonClicked: function() {
-            var distElement = document.getElementById("item-organization-id");
-            if(distElement != undefined) {
-                distElement.style.height = "58px";
+        hostCancelButtonClicked: async function() {
+            var host = this.organizationAddress;
+            if(host.endsWith("/")) {
+                host = host.substring(0, host.length - 1);
             }
-            this.showOrganizationViewHost = false;
-            this.showOrganizationViewOrganization = true;
-            this.eachChatEndPoint = '';
-            this.organizationOrHost = this.$t("joinYourOrganization");
-            this.organizationAddress = window.localStorage.getItem("Domain");
+            if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                host = "https://" + host;
+            }
+            var serverCheckRet = await this.getServerInfo(host);
+            if(serverCheckRet) {
+                this.resetLoginStateTitle();
+                this.showOrganizationViewHost = false;
+                this.eachChatEndPoint = '';
+                this.organizationOrHost = this.$t("joinYourOrganization");
+                this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
+                this.showOrganizationViewOrganization = true;
+            }
         },
         handleCommand(command) {
             var languageElement = document.getElementById("login-language-label");
@@ -678,11 +738,93 @@ export default {
             accountInputDom.style.borderColor = "rgba(221,221,221,1)";
             var passwordInputDom = document.getElementById("passwordInputId");
             passwordInputDom.style.borderColor = "rgba(221,221,221,1)";
+            var passwordInputDivDom = document.getElementById("inputDivId");
+            passwordInputDivDom.style.borderColor = "rgba(221,221,221,1)";
             return;
         },
+        keyHandle(event) {
+            if(event.code == "ArrowDown" || event.code == "ArrowUp") {
+                if(!this.showDomListView) {
+                    return;
+                }
+                
+                event.preventDefault();
+                if(this.ulElement == undefined) {
+                    this.ulElement = document.getElementById("domain-list-id");
+                }
+                switch(event.keyCode) {
+                    case 38: {
+                        console.log("=======up ", this.curSelectedIndex);
+                        if(this.curSelectedIndex == 0) {
+                            this.curSelectedIndex = this.ulElement.children.length - 1;
+                            this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                        }
+                        else if(this.curSelectedIndex > 0 && this.curSelectedIndex < this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        else if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[0].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        break;
+                    }
+                    case 40: {
+                        console.log("=======down", this.curSelectedIndex);
+                        if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
+                            this.ulElement.children[0].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.curSelectedIndex = 0;
+                        }
+                        else if(this.curSelectedIndex < this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            if(this.ulElement.children[this.curSelectedIndex-1]){
+                                this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            }
+                            this.curSelectedIndex++;
+                        }
+                        break;
+                    }
+                }
+            }
+            else if(event.code == "Enter" && !event.ctrlKey) {
+                if(this.showDomListView && this.showOrganizationView) {
+                    if(this.ulElement == undefined) {
+                        this.ulElement = document.getElementById("domain-list-id");
+                    }
+                    var selectedIndex = -1;
+                    for(var i=0;i<this.ulElement.children.length;i++) {
+                        if(this.ulElement.children[i].style.backgroundColor == "rgba(221, 221, 221, 1)" || this.ulElement.children[i].style.backgroundColor == "rgb(221, 221, 221)") {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+                    console.log("*** selectedIndex is ", selectedIndex);
+                    if(selectedIndex != -1) {
+                        var domainInfo = this.DomainList[i];
+                        this.DomainList = [];
+                        this.showDomListView = false;
+                        this.selectDomain(domainInfo);
+                    }
+                }
+                else if(!this.showDomListView && this.showOrganizationView) {
+                    this.organizationConfirmButtonClicked();
+                }
+            }
+        },
         toDected: function() {
+            var orgInputDom = document.getElementById("organizationInput");
+            orgInputDom.style.borderColor = "rgba(221,221,221,1)";
             this.organizationAddress = this.organizationAddress.trim();
             if(this.organizationAddress.length == 0 || !this.toDetect) {
+                this.DomainList = [];
+                this.showDomListView = false;
                 return;
             }
             
@@ -693,16 +835,18 @@ export default {
                 "searchList": []
             };
             this.searchId = curSearchId;
-            global.services.common.gmsDetector(this.organizationAddress)
+            global.services.common.gmsDetector(this.organizationAddress, this.appServerHost)
                 .then((ret) => {
                     console.log("gmsDetector ret is ", ret);
-                    if(ret.data == undefined || ret.data.results == undefined) {
+                    if(ret.data == undefined || ret.data.results == null) {
                         this.DomainList = [];
+                        this.showDomListView = false;
                     }
                     else {
                         if(searchResult.id == this.searchId) {
                             this.DomainList = ret.data.results;
-                            if(this.DomainList.length != 0) {
+                            console.log("domainlist is ", this.DomainList);
+                            if(this.DomainList != null && this.DomainList.length != 0) {
                                 this.showDomainPage();
                             }
                         }
@@ -720,7 +864,7 @@ export default {
             console.log("=============ffff ", this.showDomListView);
         },
         showDomainPage: function() {
-            var domainInputElement = document.getElementById("item-input-id");
+            var domainInputElement = document.getElementById("organizationInput");
             var domainListElement = document.getElementById("domain-dropdown-content-id");
             var top = domainInputElement.offsetTop + domainInputElement.offsetHeight;
             var left = domainInputElement.offsetLeft;
@@ -731,17 +875,18 @@ export default {
             console.log("show=====showDomListView========", this.showDomListView);
         },
         organizationConfirmButtonClicked:async function(){
-            this.isLoading = true;
             this.organizationButtonDisabled = true;
             if(this.organizationAddress == "worklyai-open-dev-tools"){
                 ipcRenderer.send("openDevTools");
                 return;
             }
             if (this.organizationAddress == undefined || this.organizationAddress == ""){
-                this.loginState = this.$t("pleaseInputHSAddress");
+                var orgInputDom = document.getElementById("organizationInput");
+                orgInputDom.style.borderColor = "red";
                 this.organizationButtonDisabled = false;
                 return;
             }
+            this.showDomListView = false;
             
             var domain = this.organizationAddress;// + ".each.chat";
 
@@ -762,16 +907,21 @@ export default {
                     this.isLoading = false;
                     this.organizationButtonDisabled = false;
                     this.resetLoginStateTitle();
-                    this.defaultIdentity = global.localStorage.getItem("defaultIdentity");
-                    if(this.defaultIdentity == "ldap" && false) {
+                    this.defaultIdentity = global.localStorage.getItem("authType");
+                    this.threeAuthType = global.localStorage.getItem("threeAuthType");
+                    if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
                         this.isLdap = true;
                         this.isMatrixPwd = false;
                         this.loginPageTitle = "组织认证";
                         this.loginPageAccountLabel = "组织ID";
-                        this.loginPageAccountPlaceholder = "请输入您的组织ID";
+                        this.loginPageAccountPlaceholder = global.localStorage.getItem("userNamePlaceHolder");
                         this.loginPagePwdLabel = "密码";
-                        this.loginPagePwdPlaceholder = "请输入密码";
+                        this.loginPagePwdPlaceholder = global.localStorage.getItem("passwordPlaceHolder");
                         this.forgetPasswordContent = "";
+                        this.username = "";
+                        this.password = "";
+                        this.showPwd = true;
+                        this.toShowPwd();
                         this.forgetPwdButtonDisabled = true;
                     }
                     else {
@@ -783,10 +933,18 @@ export default {
                         this.loginPagePwdLabel = "密码";
                         this.loginPagePwdPlaceholder = "请输入密码";
                         this.forgetPasswordContent = "忘记密码";
+                        this.username = "";
+                        this.password = "";
+                        this.showPwd = true;
+                        this.toShowPwd();
                         this.forgetPwdButtonDisabled = false;
                     }
                     this.showLoginView = true;
                     this.showOrganizationView = false;
+                    this.$nextTick(() => {
+                        var userNameInput = document.getElementById("accountInputId");
+                        userNameInput.focus();
+                    })
                 })
             
         },
@@ -980,7 +1138,7 @@ export default {
                 }
             }
         },
-        organizationFinderBackToLoginClicked(){
+        async organizationFinderBackToLoginClicked(){
             if(this.isRecetPwd || this.toVerfyEmail) {
                 this.loginPageTitle = "用户名登录";
                 this.loginPageAccountLabel = "用户名";
@@ -989,6 +1147,10 @@ export default {
                 this.loginPagePwdPlaceholder = "请输入密码";
                 this.isMatrixPwd = true;
                 this.forgetPasswordContent = "忘记密码";
+                this.username = "";
+                this.password = "";
+                this.showPwd = true;
+                this.toShowPwd();
                 this.forgetPwdButtonDisabled = false;
                 this.isRecetPwd = false;
                 this.toVerfyEmail = false;
@@ -996,21 +1158,39 @@ export default {
                 var accountInputDom = document.getElementById("accountInputId");
                 if(accountInputDom) {
                     accountInputDom.disabled = false;
-                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                    accountInputDom.focus();
                 }
                 var passwordInputDom = document.getElementById("passwordInputId");
                 if(passwordInputDom) {
                     passwordInputDom.disabled = false;
-                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                    passwordInputDom.type = "password";
+                }
+                var passwordInputDivDom = document.getElementById("inputDivId");
+                if(passwordInputDivDom) {
+                    passwordInputDivDom.disabled = false;
+                    passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                    passwordInputDivDom.type = "password";
                 }
             }
             else if(this.showOrganizationViewHost) {
-                this.resetLoginStateTitle();
-                this.showOrganizationViewHost = false;
-                this.eachChatEndPoint = '';
-                this.organizationOrHost = this.$t("joinYourOrganization");
-                this.organizationAddress = window.localStorage.getItem("Domain") == undefined ? "" : window.localStorage.getItem("Domain");
-                this.showOrganizationViewOrganization = true;
+                var host = this.organizationAddress;
+                if(host.endsWith("/")) {
+                    host = host.substring(0, host.length - 1);
+                }
+                if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                    host = "https://" + host;
+                }
+                var serverCheckRet = await this.getServerInfo(host);
+                if(serverCheckRet) {
+                    this.resetLoginStateTitle();
+                    this.showOrganizationViewHost = false;
+                    this.eachChatEndPoint = '';
+                    this.organizationOrHost = this.$t("joinYourOrganization");
+                    this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
+                    this.showOrganizationViewOrganization = true;
+                }
             }
             else {
                 this.resetLoginStateTitle();
@@ -1190,7 +1370,8 @@ export default {
                 passwordInputDom.style.borderColor = "red";
                 return;
             }
-            if(this.password.startsWith("init")) {
+            var reg = new RegExp(global.localStorage.getItem("initPasswordRegex"));
+            if(reg.test(this.password)) {
                 global.localStorage.setItem("neetNoticeToChangePwd", true);
             }
             else {
@@ -1400,7 +1581,7 @@ export default {
             if(this.isRecetPwd) {
                 this.resetPassword(this.username, this.password).then(() => {
                     this.alertContnets = {
-                        "Details": "邮件已经发送至Ankiliu@cck.com，请查收邮件并点击链接进行密码修改验证",
+                        "Details": "邮件已经发送至" + this.username + "，请查收邮件并点击链接进行密码修改验证",
                         "Abstrace": "发送成功"
                     };
                     this.isRecetPwd = false;
@@ -1422,6 +1603,11 @@ export default {
                         passwordInputDom.disabled = true;
                         passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
                     }
+                    var passwordInputDivDom = document.getElementById("inputDivId");
+                    if(passwordInputDivDom) {
+                        passwordInputDivDom.disabled = true;
+                        passwordInputDivDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                    }
                 }, (err) => {
                     this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error'});
                 });
@@ -1434,6 +1620,7 @@ export default {
             try {
                 await this.checkEmailLinkClicked();
                 
+                this.$toastMessage({message:"密码重置成功：" + err.message, time: 3000, type:'success', showWidth:'280px', showHeight:"100px"});
                 this.loginPageTitle = "用户名登录";
                 this.loginPageAccountLabel = "用户名";
                 this.loginPageAccountPlaceholder = "请输入用户名";
@@ -1446,13 +1633,20 @@ export default {
                 var accountInputDom = document.getElementById("accountInputId");
                 if(accountInputDom) {
                     accountInputDom.disabled = false;
-                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                 }
                 var passwordInputDom = document.getElementById("passwordInputId");
                 if(passwordInputDom) {
                     passwordInputDom.disabled = false;
-                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
                 }
+                var passwordInputDivDom = document.getElementById("inputDivId");
+                if(passwordInputDivDom) {
+                    passwordInputDivDom.disabled = false;
+                    passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                }
+                this.username = "";
+                this.password = "";
                 this.LoginBtnText = "登录";
                 this.forgetPasswordContent = "忘记密码";
                 this.forgetPwdButtonDisabled = false;
@@ -1515,6 +1709,9 @@ export default {
     //     this.checkHomeServer();
     // },
     mounted: async function() {
+        if(window.localStorage) {
+            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
+        }
         this.organizationOrHost = this.$t("joinYourOrganization");
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
@@ -1523,6 +1720,16 @@ export default {
         // if(window.localStorage) {
         //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         // }
+        var host = window.localStorage.getItem("mx_hs_url");
+        if(host == null) {
+            this.tokenRefreshing = false;
+            this.showLoadingView = false;
+            this.showLoginView = true;
+            return;
+        }
+        // this.getServerInfo(host);
+        var domain = window.localStorage.getItem("Domain");
+        console.log("***name-login domain from localstorage is ", domain);
         this.checkHomeServer()
             .then((ret) => {
                 console.log("============= check home server ", ret);
@@ -1561,11 +1768,6 @@ export default {
             console.log("wo cao shou dao le ");
         });
     },
-    created: function() {
-        if(window.localStorage) {
-            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
-        }
-    }
 }
 </script>
 
@@ -1739,7 +1941,9 @@ export default {
                 letter-spacing:1px;
                 font-family: PingFangSC-Regular;
             }
-            .item-input {
+            .inputDiv {
+                display: inline-block;
+                position: absolute;
                 margin-top: 4px;
                 width:260px;
                 height:36px;
@@ -1755,6 +1959,65 @@ export default {
                 font-size:14px;
                 outline: none;
                 font-family: PingFangSC-Regular;
+                background-color: rgba(1, 1, 1, 0);
+            }
+            .item-input {
+                display: inline-block;
+                position: absolute;
+                margin-top: 4px;
+                width:209px;
+                height:36px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing:1px;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border:0px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 0px;
+                font-size:14px;
+                outline: none;
+                font-family: PingFangSC-Regular;
+                background-color: rgba(1, 1, 1, 0);
+            }
+            .el-icon-view {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                text-align: center;
+            }
+            .el-icon-view:hover {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                cursor: pointer;
+                text-align: center;
+            }
+            .el-icon-moon {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                text-align: center;
+            }
+            .el-icon-moon:hover {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                cursor: pointer;
+                text-align: center;
             }
         }
         .accountLogin-state {
@@ -2541,6 +2804,41 @@ export default {
                 opacity: 0.8;
                 outline: none;
             }
+
+            .hostCancle {
+                border: 1px solid rgba(221, 221, 221, 1);
+                background:rgba(255,255,255,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: black;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
+            }
+            hostCancle:hover {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing:1px;
+                opacity: 0.8;
+                outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
+            }
+
         }
         .organizationLogin-state {
             width: 100%;

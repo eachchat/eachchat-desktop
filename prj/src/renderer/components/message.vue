@@ -24,7 +24,7 @@
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
                         <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
-                            <p class="file-size">{{this.voiceLenth}} s</p>
+                            <p class="file-size" v-show="false">{{this.voiceLenth}} s</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-mine-transmit"
@@ -119,7 +119,25 @@ export default {
             return "message-template-" + this.msg.event.event_id;
         },
         showUserInfoTip: async function() {
-            return;
+            if(this.userIconElement == undefined) {
+                this.userIconElement = document.getElementById(userIconElementId);
+            }
+            if(this.userIconElement == undefined) {
+                // ToDo exception.
+                return;
+            }
+            var curAbsoluteTop = getElementTop(this.userIconElement);
+            var curAbsoluteLeft = getElementLeft(this.userIconElement);
+            if(this.userInfo == undefined) {
+                await this.msgUserInfo()
+            }
+            var tipInfos = {
+                "userInfo": this.userInfo,
+                "absoluteTop": curAbsoluteTop,
+                "absoluteLeft": curAbsoluteLeft,
+                "isMine": this.MsgIsMine(),
+            }
+            this.$emit("openUserInfoTip", tipInfos);
         },
         msgNameId: function() {
             return this.msg.event.event_id + "-username";
@@ -160,7 +178,7 @@ export default {
                                 clearInterval(this.flashingInterval);
                                 this.flashingIndex = 0;
                                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                             })
                         }
                         else {
@@ -171,7 +189,7 @@ export default {
                                     clearInterval(this.flashingInterval);
                                     this.flashingIndex = 0;
                                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                                 })
                             })
                         }
@@ -283,7 +301,7 @@ export default {
                                 clearInterval(this.flashingInterval);
                                 this.flashingIndex = 0;
                                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                             })
                         }
                         else {
@@ -296,7 +314,7 @@ export default {
                                     clearInterval(this.flashingInterval);
                                     this.flashingIndex = 0;
                                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                                 })
                             })
                         }
@@ -359,7 +377,7 @@ export default {
                             clearInterval(this.flashingInterval);
                             this.flashingIndex = 0;
                             var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                            fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                            fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                         })
                     }
                     else {
@@ -370,7 +388,7 @@ export default {
                                 clearInterval(this.flashingInterval);
                                 this.flashingIndex = 0;
                                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                             })
                         })
                     }
@@ -395,19 +413,19 @@ export default {
                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 if(this.flashingIndex == 0) {
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin0-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin0-20px@2x.png");
                     this.flashingIndex = 1;
                 }
                 else if(this.flashingIndex == 1){
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin1-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin1-20px@2x.png");
                     this.flashingIndex = 2;
                 }
                 else if(this.flashingIndex == 2){
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
                     this.flashingIndex = 0;
                 }
                 else {
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
                     this.flashingIndex = 0;
                 }
             }, 330);
@@ -687,7 +705,7 @@ export default {
                     }
                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
                     // console.log("fileMsgImgElement ia ", fileMsgImgElement);
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                     fileMsgImgElement.setAttribute("height", 12);
                 }
             }
@@ -720,7 +738,7 @@ export default {
                 else if(chatGroupMsgContent.msgtype == 'm.audio'){
                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
                     // console.log("fileMsgImgElement ia ", fileMsgImgElement);
-                    fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                     fileMsgImgElement.setAttribute("height", 12);
                 }
                 else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
@@ -752,7 +770,7 @@ export default {
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 this.voiceLenth = chatGroupMsgContent.length;
                 this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                 fileMsgImgElement.setAttribute("height", 12);
             }
             else if(chatGroupMsgType === 106)//转发
@@ -792,7 +810,7 @@ export default {
                 userNameElement.innerHTML = fromUserName;
             }
                 
-            var userUrl = await this.msg.sender.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), 40, 40, undefined, false, false);
+            var userUrl = await this.msg.sender.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), null, null, undefined, false, false);
             
             if(this.userIconElement == undefined) {
                 return;
@@ -940,7 +958,7 @@ export default {
                             clearInterval(this.flashingInterval);
                             this.flashingIndex = 0;
                             var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                            fileMsgImgElement.setAttribute("src", "../../../static/Img/Chat/msg-voice@2x.png");
+                            fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
                         })
                         this.playingAudioId = '';
                     })
@@ -1189,8 +1207,6 @@ export default {
     .chat-msg-content-others-img {
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        min-width: 104px;
-        min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
         text-align: left;
@@ -1305,7 +1321,7 @@ export default {
 
     .chat-msg-content-mine-txt-div {
         float:right;
-        background-color: rgba(120,231,175,100);
+        background-color: rgba(82, 172, 68, 1);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -1324,7 +1340,7 @@ export default {
 
     .chat-msg-content-mine-txt-div:hover{
         float:right;
-        background-color: RGB(90,231,160);
+        background-color: RGB(92,193,76);
         max-width: 260px;
         min-width: 20px;
         min-height: 20px;
@@ -1395,6 +1411,7 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing:1px;
+        color: rgba(255, 255, 255, 1);
     }
 
     .chat-msg-content-mine-txt:hover {
@@ -1413,13 +1430,12 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing:1px;
+        color: rgba(255, 255, 255, 1);
     }
 
     .chat-msg-content-mine-img {
         float: right;
         background-color: rgba(1,1,1,0);
-        min-width: 104px;
-        min-height: 100px;
         border-radius: 5px;
         font-size: 14px;
         text-align: left;

@@ -34,25 +34,57 @@ class _MatrixClientPeg{
     }
 
     getRoomAvatar(theRoom) {
-      var explicitRoomAvatar = theRoom.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
-      if(explicitRoomAvatar) {
-        return explicitRoomAvatar;
-      }
-      var targetPath = "";
-      var otherMember = null;
-      var otherUserId = DMRoomMap.shared().getUserIdForRoomId(theRoom.roomId);
-      if(otherUserId) {
-        otherMember = theRoom.getMember(otherUserId);
+      if(this.DMCheck(theRoom)) {
+        var targetPath = "";
+        var otherMember = null;
+        var otherUserId = DMRoomMap.shared().getUserIdForRoomId(theRoom.roomId);
+        if(otherUserId) {
+          otherMember = theRoom.getMember(otherUserId);
+        }
+        else {
+          otherMember = theRoom.getAvatarFallbackMember();
+        }
+        if(otherMember) {
+          targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+          return targetPath;
+        }
+        return undefined;
       }
       else {
-        otherMember = theRoom.getAvatarFallbackMember();
+        var explicitRoomAvatar = theRoom.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+        if(explicitRoomAvatar) {
+          return explicitRoomAvatar;
+        }
+        return undefined;
       }
-      if(otherMember) {
-        targetPath = otherMember.getAvatarUrl(this.matrixClient.getHomeserverUrl(), 40, 40, undefined, false);
-        return targetPath;
-      }
-      return undefined;
     }
+
+    DMCheck(curRoomItem) {
+      const client = this.matrixClient;
+      const mDirectEvent = client.getAccountData('m.direct');
+      let dmRoomMap = {};
+      if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+      let currentRoom = curRoomItem;
+      let dmRoomIdArr = [];
+      const roomId = currentRoom.roomId;
+      const userId = client.getUserId();
+      Object.keys(dmRoomMap).forEach(k=>{
+          let arr = dmRoomMap[k];
+          arr.forEach(a=>dmRoomIdArr.push(a))
+      })
+      if (dmRoomIdArr.includes(roomId)) {
+          return true;
+      } else {return false;}
+    }
+
+    SendEvent(roomId, event) {
+      const cli = this.matrixClient;
+      return cli.sendEvent(roomId, event.getType(), event.getContent()).then(() => {
+          return true;
+      }, (err) => {
+          return false;
+      });
+  }
 
     getInviteMember(chatGroupItem) {
       if (!chatGroupItem) {
@@ -177,6 +209,29 @@ class _MatrixClientPeg{
       catch(e) {
         console.log("Chaek Home Server Exception ", e.message);
         return false;
+      }
+    }
+
+    async setPassword(sid, client_secret, newPwd) {
+      try{
+        var ret = await this.commonApi.sender.post(
+          "/_matrix/client/r0/account/password",
+          {
+            auth: {
+              type:"m.login.email.identity",
+              threepid_creds: {
+                sid: sid,
+                client_secret: client_secret
+              }
+            },
+            new_password: newPwd
+          });
+
+          return this.parseStatus(ret);
+      }
+      catch(error) {
+        console.log("err ", error.response);
+        return error.response;
       }
     }
 
@@ -385,6 +440,8 @@ class _MatrixClientPeg{
       }
 
       this.accountPassword = password;
+      
+      localStorage.setItem("loginAccount", username);
       console.log("===== r", response);
       var ret = this.parseStatus(response);
       return ret;
@@ -399,6 +456,14 @@ class _MatrixClientPeg{
           cryptoCallbacks: {},
           timelineSupport: true,
           unstableClientRelationAggregation: true,
+      }
+      try {
+        window.sessionStorage.clear();
+        if(this.matrixClient)
+          await this.matrixClient.clearStores();
+      }
+      catch(err) {
+
       }
       Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
       this.matrixClient = this._CreateMatrixClient(ops);
@@ -444,6 +509,14 @@ class _MatrixClientPeg{
     }
   
     async LoginWithPassword(account, password){
+        try {
+          window.sessionStorage.clear();
+          if(this.matrixClient)
+            await this.matrixClient.clearStores();
+        }
+        catch(err) {
+          
+        }
         this.checkType = 'm.login.password';
         this.account = account;
         this.password = password;

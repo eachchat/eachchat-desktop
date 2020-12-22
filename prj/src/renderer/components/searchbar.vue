@@ -1,7 +1,7 @@
 <template>
     <div class="search">
+        <img class="echat-search-ico" @click="search" src="../../../static/Img/Main/search@2x.png">
         <input class="echat-search-input" placeholder="搜索..." @keyup.enter="search" v-model="searchKey" @input="inputChange">
-        <i class="el-icon-search" @click="search"></i>
     </div>
 </template>
 
@@ -72,15 +72,22 @@ export default {
         margin: 0 10px 0 10px;
         color: rgb(255,204,102);
     }
+
+    .echat-search-ico {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 6px 6px 6px 6px;
+        color: rgb(51, 51, 51);
+    }
     
     .echat-search-input {
         display: inline-block;
         position: absolute;
-        text-indent: 10px;
         width: 173px;
         padding: 0;
         margin: 0px;
-        height: 32px;
+        height: 31px;
         outline:none;
         border: 0px;
         font-family:PingFangSC-Regular;
@@ -90,5 +97,14 @@ export default {
         font-size: 12px;
         color: rgb(102, 102, 102);
         background-color: rgba(1, 1, 1, 0);
+    }
+
+    .echat-search-input::placeholder {
+        height: 18px;
+        font-size: 12px;
+        font-family: SCPingFangSC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 18px;
     }
 </style>

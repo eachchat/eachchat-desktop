@@ -167,18 +167,18 @@ export default {
         },
         showPersonalInfoHanlder: async function(value){
             if(value){
-                var leftPosition = 64;
-                var topPosition = 32;
-                this.pagePosition.left = 64;
-                this.pagePosition.top = 32;
                 this.personalCenterKey ++;
                 const userId = window.localStorage.getItem("mx_user_id");
 
-                this.userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
-                if(this.userInfo){
-                    this.showPersonalCenter = false;
+                let userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
+                if(userInfo){
+                    this.showPersonalCenter = true;
                     this.showPersonalInfo = true;
+                    this.userInfo = userInfo;
                     this.userInfo.displayName = this.displayName;
+                }
+                else{
+                    alert("数据库没有找到用户信息")
                 }
             }
         },
@@ -195,6 +195,7 @@ export default {
                 else {
                     return "nav-readall" + endPoint;
                 }
+                return "nav-readall";
             }
             else {
                 if(remote.process.platform == 'darwin') {
@@ -213,7 +214,6 @@ export default {
                         return "nav-unread-no-focuse";
                     }
                 }
-                return "nav-unread";
             }
         },
         closeUpgradeAlertDlg: function() {
@@ -327,7 +327,7 @@ export default {
         showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
-            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url, 40, 40);
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             if(avaterUrl != "") {
                 elementImg.setAttribute("src", avaterUrl);
             }
@@ -499,7 +499,7 @@ export default {
             console.log(config)
         })
 */
-        if(global.localStorage.getItem("neetNoticeToChangePwd")) {
+        if(global.localStorage.getItem("neetNoticeToChangePwd") == "true") {
             this.showChangePasswordAlertPage()
         }
         await global.services.common.login()

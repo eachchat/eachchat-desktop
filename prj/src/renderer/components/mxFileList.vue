@@ -455,6 +455,8 @@ export default {
             this.fileListInfo = [];
             if(this.distRoomId == "") {
                 this.searchKey = "";
+                this.fileListShow = [];
+                this.originalFileList = [];
                 return;
             }
             this.groupId = this.distRoomId;
