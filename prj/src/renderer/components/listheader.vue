@@ -15,13 +15,13 @@
                 <img class="normal-chat-img" src="../../../static/Img/Main/jql.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
-            <div class="normal-chat" @click.stop="mxDmDlgChangeErp()"> <!--showCreateGroup-->
+            <!-- <div class="normal-chat" @click.stop="mxDmDlgChangeErp()"> 
                 <img class="normal-chat-img" src="../../../static/Img/Main/cjml.png">
                 <span class="normal-chat-label">发起密聊</span>
-            </div>
+            </div> -->
             <div class="secret-chat" @click.stop="mxSquare()"> <!--@click="showCreateEncryptGroup(true)"-->
                 <img class="secret-chat-img" src="../../../static/Img/Main/jgc.png">
-                <span class="secret-chat-label">加入群聊</span> <!--发起密聊-->
+                <span class="secret-chat-label">公共群聊</span> <!--发起密聊-->
             </div>
         </div>
         <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
@@ -431,8 +431,7 @@ export default {
         position: absolute;
         background-color: rgba(255, 255, 255, 1);
         width: 128px;
-        height: 160px;
-        border-radius: 4px;
+        height: 120px;
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
         border-radius: 4px;

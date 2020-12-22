@@ -41,7 +41,7 @@
                     >
                     </el-switch>
                 </div> -->
-                <div class="setting-field" >
+                <div class="setting-field" v-show="isPublic == 'y'">
                     <div class="field-left">
                         <div class="setting-title">群聊广场</div>
                         <div class="setting-tip">将群聊发布到群聊广场中</div>
@@ -53,7 +53,7 @@
                     >
                     </el-switch>
                 </div>
-                <div class="setting-field" >
+                <!-- <div class="setting-field" >
                     <div class="field-left">
                         <div class="setting-title">端到端加密</div>
                         <div class="setting-tip">一旦开启端到端加密，将无法撤销</div>
@@ -64,7 +64,7 @@
                         :active-color="'#24B36B'"
                     >
                     </el-switch>
-                </div>
+                </div> -->
             </div>
             <div class="mxTransmitFotter">
                 <button class="mxTransmitConfirmButton" @click.self.stop="confirm">下一步</button>
@@ -359,12 +359,12 @@ export default {
     .mx-create-room-dialog {
         position: absolute;
         width: 440px;  
-        height: 426px;
+        height: 366px;
         display: block;
         background: #FFFFFF;
         top: 50%;
         left: 50%;
-        margin-top: -213px;
+        margin-top: -183px;
         margin-left: -220px;
         border-radius: 4px;
     }
