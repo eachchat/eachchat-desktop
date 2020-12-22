@@ -439,6 +439,10 @@ function clearFlashIconTimer() {
 
 const downloadingList = [];
 
+ipcMain.on("updateContact", function(event, args){
+  event.sender.send("updateContact")
+})
+
 ipcMain.on("export_key", function(event, args) {
   console.log("========================= ", args);
   var theKey = args[0];

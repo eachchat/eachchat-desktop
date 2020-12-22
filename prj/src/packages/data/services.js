@@ -2449,6 +2449,7 @@ const common = {
                                 telephone,
                                 company,
                                 title);
+    ipcRenderer.send("updateContact")
     return true;
   }
 
