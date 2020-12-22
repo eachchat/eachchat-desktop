@@ -74,7 +74,7 @@
                             <div v-if="crumbs.length === 1" class="itemF" @click.stop="caonima2(ele)">{{ele.name}}</div>
                             <div v-else-if="ele.type === 'dep'" class="itemF" @click.stop="caonima1(ele, !ele.choosen)">{{ele.name}}</div>
                             <div v-else @click.stop="caonima1(ele, !ele.choosen)" style="display:flex; align-items:center; user-select:none;">
-                                <img class="shun1">
+                                <img class="shun1" :src="ele.avatar">
                                 <div class="shun2">
                                     <div class="shun3">{{ele.name}}</div>
                                     <div class="shun4">{{ele.id}}</div>
@@ -104,7 +104,7 @@
                             v-for="(ele, idx) in choosenMembers"
                             :key="ele.name+idx"
                         >
-                            <img class="shun1">
+                            <img class="shun1" :src="ele.avatar">
                             <div class="shun2">
                                 <div class="shun3">{{ele.name}}</div>
                                 <div class="shun4">{{ele.id}}</div>
@@ -250,6 +250,7 @@ export default {
             return this.tn;
         },
         async caonima4(ele) { //向下迭代状态  只针对dep类型
+            const client = window.mxMatrixClientPeg.matrixClient;
             let xie = ele.choosen;
             if (ele.czs && ele.czs.length) {
                 let len = ele.czs.length;
@@ -273,13 +274,15 @@ export default {
                     return o;
                 })
                 subUsers = subUsers.map(s => {
+                    s.avatar_url = (client.getUser(s.matrix_id) ? client.mxcUrlToHttp(client.getUser(s.matrix_id).avatarUrl || client.getUser(s.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                     let o = {
                         id: s.matrix_id, 
                         type: 'user', 
                         data: s, 
                         parent: ele,
                         choosen: xie,
-                        name: s.display_name || s.user_name
+                        name: s.display_name || s.user_name,
+                        avatar: s.avatar_url
                     }
                     return o;
                 })
@@ -323,6 +326,7 @@ export default {
             this.mxTree = {...this.mxTree}
         },
         async caonima2(ele) { //用于列表中dep点击转换层级 以及 crumbs点击层级转换 只针对dep类型
+            const client = window.mxMatrixClientPeg.matrixClient;
             if (ele.czs && ele.czs.length) {
                 let crumbs = this.crumbs;
                 const len = crumbs.length;
@@ -350,18 +354,21 @@ export default {
                     parent: ele, 
                     czs:[],
                     choosen: false,
-                    name: s.display_name
+                    name: s.display_name,
                 }
                 return o;
             })
             subUsers = subUsers.map(s => {
+                console.log('-----kankan-----', client.getUser(s.matrix_id))
+                s.avatar_url = (client.getUser(s.matrix_id) ? client.mxcUrlToHttp(client.getUser(s.matrix_id).avatarUrl || client.getUser(s.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                 let o = {
                     id: s.matrix_id, 
                     type: 'user', 
                     data: s, 
                     parent: ele,
                     choosen: false,
-                    name: s.display_name || s.user_name
+                    name: s.display_name || s.user_name,
+                    avatar: s.avatar_url
                 }
                 return o;
             })
@@ -882,13 +889,15 @@ export default {
             return o;
         })
         subUsers = subUsers.map(s => {
+            s.avatar_url = (client.getUser(s.matrix_id) ? client.mxcUrlToHttp(client.getUser(s.matrix_id).avatarUrl || client.getUser(s.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
             let o = {
                 id: s.matrix_id, 
                 type: 'user', 
                 data: s, 
                 parent: root,
                 choosen: false,
-                name: s.display_name || s.user_name
+                name: s.display_name || s.user_name,
+                avatar: s.avatar_url
             }
             return o;
         })
@@ -981,21 +990,24 @@ export default {
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #000000;
-        // line-height: 20px;
         letter-spacing: 1px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        height: 20px;
+        line-height: 20px;
     }
     .shun4 {
         font-size: 12px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #999999;
-        line-height: 18px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        height: 18px;
+        line-height: 18px;
+
     }
     .shun5 {
         flex: 1;

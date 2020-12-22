@@ -21,13 +21,13 @@
                     <img class="imgGouxuan" v-if="isPublic == 'y'" src="../../../static/Img/Main/xgg.png">
                     <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="sgk">
                     <input class="gkrdo" type="radio" id="gongkai" value="y" v-model="isPublic">
-                    <label class="qllxZi" for="gongkai">公共-任何人可以加入</label>
+                    <label class="qllxZi" for="gongkai">公共 - 任何人可以加入</label>
                 </div>
                 <div class="qllxXuanxiang">
                     <img class="imgGouxuan" v-if="isPublic == 'n'" src="../../../static/Img/Main/xgg.png">
                     <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="ssr">
                     <input class="gkrdo" type="radio" id="siren" value="n" v-model="isPublic">
-                    <label class="qllxZi" for="siren">私人-需要邀请加入</label>
+                    <label class="qllxZi" for="siren">私人 - 需要邀请加入</label>
                 </div>
                 <!-- <div class="setting-field">
                     <div class="field-left">
@@ -510,6 +510,7 @@ export default {
         color: #333333;
         line-height: 20px;
         letter-spacing: 1px;
+        flex: 1
     }
 
     .gkrdo {
