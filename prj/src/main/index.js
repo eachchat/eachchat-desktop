@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut, systemPreferences} from 'electron'
+import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
@@ -20,8 +20,7 @@ let favouriteDetailWindow
 let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
-let iconPath
-let biconPath
+let iconPath 
 let soundPath
 let notificationIco
 let notification = null
@@ -30,9 +29,8 @@ let emptyIconPath;
 let isLogin = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
-  if(process.platform == 'darwin'){   
-    biconPath = "../../static/Img/Main/IconTemplate@2x.png";
-    iconPath = "../../static/Img/Main/IconTemplateb@2x.png";
+  if(process.platform == 'darwin'){
+    iconPath = "../../static/Img/Main/IconTemplate@2x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "../../static/Img/Main/icon.png";
@@ -44,8 +42,7 @@ if (process.env.NODE_ENV === "development") {
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
-    biconPath = "../../static/Img/Main/IconTemplate@2x.png";
-    iconPath = "../../static/Img/Main/IconTemplateb@2x.png";
+    iconPath = "/static/Img/Main/IconTemplate@2x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "/static/Img/Main/icon.png";
@@ -106,17 +103,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   // });
   openDevToolsInDevelopment(mainWindow);
   // 托盘
-  if(process.platform == 'darwin') {
-    if(systemPreferences.isDarkMode()) {
-      appIcon = new Tray(path.join(__dirname, biconPath));
-    }
-    else {
-      appIcon = new Tray(path.join(__dirname, iconPath));
-    }
-  }
-  else {
-    appIcon = new Tray(path.join(__dirname, iconPath));
-  }
+  appIcon = new Tray(path.join(__dirname, iconPath));
 
   appIcon.on('mouse-move', function(event, position){
     console.log("trayIcon Mouse MoveIN")
@@ -393,12 +380,6 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
     }
   }, 500);
   if(process.platform == 'darwin'){
-    if(systemPreferences.isDarkMode()) {
-      appIcon.setImage(path.join(__dirname, biconPath))
-    }
-    else{
-      appIcon.setImage(path.join(__dirname, iconPath))
-    }
     if(!mainWindow.isFocused()) {
       if(notification != null) {
         notification.close();
