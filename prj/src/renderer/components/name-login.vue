@@ -734,11 +734,8 @@ export default {
         },
         resetLoginStateTitle(){
             this.loginState = "";
-            this.$nextTick(() => {
-                var accountInputDom = document.getElementById("accountInputId");
-                accountInputDom.style.borderColor = "rgba(221,221,221,1)";
-                accountInputDom.focus();
-            })
+            var accountInputDom = document.getElementById("accountInputId");
+            accountInputDom.style.borderColor = "rgba(221,221,221,1)";
             var passwordInputDom = document.getElementById("passwordInputId");
             passwordInputDom.style.borderColor = "rgba(221,221,221,1)";
             var passwordInputDivDom = document.getElementById("inputDivId");
