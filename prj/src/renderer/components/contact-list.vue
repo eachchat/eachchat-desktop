@@ -65,7 +65,7 @@ import InputContactInfo from './input-contact-info';
 import AlertDlg from './alert-dlg.vue'
 import "../style/contact-list.css"
 import {ComponentUtil} from '../script/component-util.js'
-
+import {ipcRenderer} from 'electron';
 
 
 export default {
@@ -256,6 +256,9 @@ export default {
             {
                 that.showUserInfoTips = true;
             }            
+        });
+        ipcRenderer.on('updateContact', async () => {
+            this.contactList = await Contact.GetAllContact();
         });
         return;
     }
