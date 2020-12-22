@@ -940,6 +940,11 @@ export default {
                     console.log( 'dmMember.user', dmMember.user)
                     if (!dmMember.user) dmMember.user = {};
                     dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
+                    
+
+                    let xieUser = client.getUser(dmMember.userId)
+                    console.log( '----xie user----', xieUser)
+                    
                     this.dmMember = dmMember;
                 }
             })
