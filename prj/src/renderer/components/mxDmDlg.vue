@@ -575,6 +575,7 @@ export default {
             console.log('-----subUsers-----', subUsers)
             subDep.forEach(s=>s.type = 'dep')
             subUsers.forEach(c=>{
+                console.log('----kanha----', client.getUser(c.matrix_id));
                 c.display_name = c.user_display_name || c.user_name;
                 c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                 
@@ -594,6 +595,7 @@ export default {
         const contactUsers = await Contact.GetAllContact();
         console.log('contactUsers', contactUsers);
         contactUsers.forEach(c => {
+            console.log('----kanha----', client.getUser(c.matrix_id));
             c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
         })
         const dvd = {dvd:true, txt:'我的联系人'};
