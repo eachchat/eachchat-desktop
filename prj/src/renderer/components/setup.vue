@@ -441,11 +441,21 @@ export default {
       ipcRenderer.send("setAutoRun", true);
       global.localStorage.setItem("autoStart", true);
     }
-    if(message_sound == null) {
+    if(message_sound == null || message_sound == "true") {
       global.localStorage.setItem("message_sound", true);
+      this.soundNotice = true;
     }
-    if(message_notice == null) {
+    else {
+      global.localStorage.setItem("message_sound", false);
+      this.soundNotice = false;
+    }
+    if(message_notice == null || message_notice == "true") {
       global.localStorage.setItem("message_notice", true);
+      this.flashNotice = true;
+    }
+    else {
+      global.localStorage.setItem("message_notice", false);
+      this.flashNotice = false;
     }
   },
   activated: async function() {
