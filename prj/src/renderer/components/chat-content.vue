@@ -403,6 +403,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      isFirstLogin: true,
       showImportE2EKeyPage: false,
       toBottom: false,  //聊天页面是否滚动到最底部
       showSearchAllChat: false,   //复合搜索中是否显示  显示所有聊天相关
@@ -679,7 +680,7 @@ export default {
         return;
       }
       console.log("*** newMsg is ", newMsg);
-      if(newMsg.event.room_id == this.curChat.roomId) {
+      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
         this.SetRoomReader(this.curChat);
         return;
       }
@@ -1854,6 +1855,7 @@ export default {
     },
 
     showChat: function(chatGroup, index) {
+      this.isFirstLogin = false;
       this.isMsgSearch = false;
       let groupItemElementID = this.ChatGroupId(chatGroup);
       let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
