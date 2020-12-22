@@ -111,6 +111,8 @@ import { mapState, mapActions } from 'vuex';
 import * as Rooms from "../../packages/data/Rooms";
 import * as RoomUtil from '../script/room-util';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
+import {getAddressType} from "../../utils/UserAddress";
+
 
 const OPTS = {
     limit: 200,
@@ -122,6 +124,10 @@ export default {
             type: Boolean,
             default: false
         }, 
+        roomId: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {
@@ -144,7 +150,70 @@ export default {
     },
     timer: null,
     methods: {
+        inviteConduct: async function(roomId, addr, ignoreProfile) {
+            console.log('---get addr----', addr);
+            const addrType = getAddressType(addr);
+            const client = window.mxMatrixClientPeg.matrixClient;
+            if (addrType === 'email') {
+                return client.inviteByEmail(roomId, addr);
+            } else if (addrType === 'mx-user-id') {
+                const room = client.getRoom(roomId);
+                if (!room) throw new Error("Room not found");
+
+                const member = room.getMember(addr);
+                if (member && ['join', 'invite'].includes(member.membership)) {
+                    throw {errcode: "RIOT.ALREADY_IN_ROOM", error: "Member already invited"};
+                }
+
+
+                //todo  更精确的权限控制
+                // if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
+                //     try {
+                //         const profile = await MatrixClientPeg.get().getProfileInfo(addr);
+                //         if (!profile) {
+                //             // noinspection ExceptionCaughtLocallyJS
+                //             throw new Error("User has no profile");
+                //         }
+                //     } catch (e) {
+                //         throw {
+                //             errcode: "RIOT.USER_NOT_FOUND",
+                //             error: "User does not have a profile or does not exist."
+                //         };
+                //     }
+                // }  
+
+                return client.invite(roomId, addr);
+            } else {
+                throw new Error('Unsupported address');
+            }
+
+        },
+        invite() {
+            if (this.loading) return;
+            this.loading = true;
+            const targetIds = this.choosenMembers.map(t => t.matrix_id || t.user_id);
+            const vtx = this;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const roomId = this.roomId;
+            // const room = client.getRoom(this.roomId);
+            // if (!room) {
+            //     console.error('no room')
+            //     return alert('无此房间');
+            // }
+            let promises = [];
+            targetIds.forEach(id => {
+                promises.push(vtx.inviteConduct(roomId, id));
+            })
+            Promise.all(promises).then(() => {
+                vtx.loading = false;
+                // const obj = {};
+                // obj.data = {room_id: roomId};
+                // obj.handler = 'viewRoom';
+                vtx.close({room_id: roomId});
+            });
+        },
         createDm: function() {
+            if (this.roomId) return this.invite();
             if (this.loading) return;
             if (!this.choosenMembers || !this.choosenMembers.length) return;
             this.loading = true;

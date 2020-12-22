@@ -136,6 +136,7 @@
                     class="groupMemberAddDivImage" 
                     src="../../../static/Img/Chat/add-20px@2x.png" 
                     @click="mxAddMember"
+                    v-if="showGroupInfo.isOwner"
                 > <!--@click="showAddMembers"-->
             </div>
         </div>
@@ -203,12 +204,18 @@
             :roomId="showGroupInfo.groupId"
         >
         </mxMemberSelectDlg> -->
-        <mxXxr 
+        <!-- <mxXxr 
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
             :roomId="showGroupInfo.groupId"
         >
-        </mxXxr>
+        </mxXxr> -->
+        <mxDmDlg
+            v-if="mxSelectMemberOpen" 
+            @close="mxSelectMember"
+            :roomId="showGroupInfo.groupId"
+        >
+        </mxDmDlg>
     </div>
 </template>
 <script>
@@ -227,6 +234,7 @@ import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxXxr from './mxXxr.vue'
+import mxDmDlg from './mxDmDlg.vue'
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 // export const ALL_MESSAGES = 'all_messages';
@@ -287,7 +295,8 @@ export default {
         AlertDlg,
         encryWarn,
         mxMemberSelectDlg,
-        mxXxr
+        mxXxr,
+        mxDmDlg
     },
     props: {
         "showGroupInfoTips": {
