@@ -2,7 +2,7 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">查看公共群聊</div>
+                <div class="mxCreaterHeaderTitle">公共群聊</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close('close')">
             </div>
             <div class="search-field">
@@ -16,8 +16,8 @@
                     <img class="room-img" :src="item.distUrl"/>
                     <div class="room-info">{{item.name}}</div>
                     <div class="room-info">人数：{{item.num_joined_members}}</div>
-                    <div class="room-join" @click.self.stop="joinRoom(item)" v-if="!item.joined">加入</div>
-                    <div class="room-join" v-else style="background-color:grey">已加入</div>
+                    <div class="room-join" @click.stop="joinRoom(item)" v-if="!item.joined">加入</div>
+                    <div class="room-join" @click.stop="checkRoom(item)" v-else >查看</div>
                 </div>
             </div>
         </div>
@@ -51,6 +51,9 @@ export default {
     },
     timer: null,
     methods: {
+        checkRoom(room) {
+            this.close(room);
+        }, 
         joinRoom: function(room) {
             const client = window.mxMatrixClientPeg.matrixClient;
             let publicRooms = this.publicRooms;
@@ -62,8 +65,8 @@ export default {
                     }
                     return p;
                 })
-                this.close(room);
                 this.publicRooms = [...publicRooms];
+                this.close('close');
             })
         },
         getMoreRooms: function(obj, cover) {
@@ -568,6 +571,7 @@ export default {
         height: 40px;
         width: 40px;
         margin-right: 12px;
+        border-radius: 50%;
     }
     .room-info {
         margin-right: 24px;
@@ -577,8 +581,9 @@ export default {
         width: 80px;
     }
     .room-join {
-        height: 24px;
-        width: 60px;
+        width: 72px;
+        height: 28px;
+        background: #00A971;
         border-radius: 4px;
         display: flex;
         justify-content: center;
@@ -586,6 +591,11 @@ export default {
         color: #fff;
         background-color: #24B36B;   
         margin-left: 160px;
-        font-size: 12px;
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #FFFFFF;
+        // line-height: 20px;
+        letter-spacing: 1px;
     }
 </style>
