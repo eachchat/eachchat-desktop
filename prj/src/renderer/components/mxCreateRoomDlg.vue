@@ -232,16 +232,22 @@ export default {
             }
 
             console.log('---createOpts---', createOpts);
-            const commu = this.commu
-            return client.createRoom(createOpts).then((res) => {
-                console.log('create success!!', res);
-                client.setRoomDirectoryVisibility(
-                    res.room_id,
-                    commu ? 'public' : 'private',
-                ).then(()=>{
-                    this.$emit('nextStep', res);
-                })
-            })
+            const commu = this.commu;
+            let roomInfo = {
+                createOpts: createOpts,
+                commu: commu
+            }
+            // return client.createRoom(createOpts).then((res) => {
+            //     console.log('create success!!', res);
+            //     client.setRoomDirectoryVisibility(
+            //         res.room_id,
+            //         commu ? 'public' : 'private',
+            //     ).then(()=>{
+            //         this.$emit('nextStep', res);
+            //     })
+            // })
+            console.log('----roomInfo----', roomInfo);
+            this.$emit('nextStep', roomInfo);
 
             // let modal;
             // if (opts.spinner) modal = Modal.createDialog(Loader, null, 'mx_Dialog_spinner');

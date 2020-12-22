@@ -59,6 +59,12 @@
             @close="mxDmDlgChange"
         >
         </mxDmDlg>
+        <mxXxr 
+            v-if="mxXxrOpen" 
+            @close="closeMxXxr"
+            :roomInfo="roomInfo"
+        >
+        </mxXxr>
     </div>
 </template>
 
@@ -76,6 +82,8 @@ import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxSquareDlg from './mxSquareDlg.vue'
 import mxDmDlg from './mxDmDlg.vue'
+import mxXxr from './mxXxr.vue'
+
 
 
 export default {
@@ -105,10 +113,17 @@ export default {
             newRoomId: '',
             mxSquareOpen: false,
             mxDmDlgOpen: false,
-            erpDm: false
+            erpDm: false,
+            roomInfo: undefined,
+            mxXxrOpen: false
         }
     },
     methods: {
+        closeMxXxr() {
+            this.mxXxrOpen = false;
+            this.showCreateNewChat = false;
+            console.log('-----closeMxXxr----', this.mxXxrOpen)
+        },
         mxDmDlgChangeErp: function(close) {
             console.log('mxDmDlgErp???', close)
             if (close) {
@@ -145,9 +160,11 @@ export default {
         },
         mxCreateRoomNextStep: function(res) {
             console.log('--mxCreateRoomNextStep--', res);
-            this.newRoomId = res.room_id;
+            // this.newRoomId = res.room_id;
             this.mxCreateRoomOpen = false;
-            this.mxSelectMemberOpen = true;
+            // this.mxSelectMemberOpen = true;
+            this.roomInfo = res;
+            this.mxXxrOpen = true;
         },
         mxCreateRoom: function(close) {
             console.log('???', close)
@@ -368,7 +385,8 @@ export default {
         mxCreateRoomDlg,
         mxMemberSelectDlg,
         mxSquareDlg,
-        mxDmDlg
+        mxDmDlg,
+        mxXxr
     },
     created: async function () {
         // this.loginInfo = await services.common.GetLoginModel();

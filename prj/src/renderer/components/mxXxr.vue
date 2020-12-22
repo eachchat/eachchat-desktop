@@ -165,10 +165,6 @@ export default {
             type: Object,
             default: undefined
         },
-        commu: {
-            type: String,
-            default: ''
-        }
     },
     data() {
         return {
@@ -194,7 +190,37 @@ export default {
     timer: null,
     methods: {
         createXie() {
+            if (this.loading) return;
+            if (this.roomInfo) { //走创建
+                let {createOpts, commu} = this.roomInfo;
+                if (!createOpts.name) {
+                    let name = '';
+                    for(let i = 0; i<3 || i<this.choosenMembers.length; i++) {
+                        let end = (i === 3 || i === this.choosenMembers.length - 1) ? '' : ','
+                        name = name + this.choosenMembers[i].name + end;
+                    }
+                    createOpts.name = name;
+                }
+                createOpts.invite = this.choosenMembers.map(c => {
+                    return c.id;
+                })
+                console.log('----post createOpts----', createOpts)
+                const client = window.mxMatrixClientPeg.matrixClient;
+                return client.createRoom(createOpts).then((res) => {
+                    console.log('create success!!', res);
+                    client.setRoomDirectoryVisibility(
+                        res.room_id,
+                        commu ? 'public' : 'private',
+                    ).then(()=>{
+                        this.loading = false;
+                        this.$emit('close');
+                        console.log('广场设置完成');
+                    })
+                })
 
+            } else { //走添加
+                //暂无此模版添加需求
+            }
         },
         mxTreeWalk(obj) {
             // console.log('-----mxTreeWalk----', obj)
