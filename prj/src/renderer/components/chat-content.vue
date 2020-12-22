@@ -621,23 +621,25 @@ export default {
     },
     getNotificationContent(msg) {
       let event = msg.event;
-      if(event.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+      if(event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
       }
+      let senderInfo = global.mxMatrixClientPeg.matrixClient.getUser(event.sender)
+      console.log("*** senderInfo ", senderInfo);
       let chatGroupMsgType = event.type;
       var chatGroupMsgContent = msg.getContent();
+      var sender = senderInfo.displayName;
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return "[文件]:" + chatGroupMsgContent.body;
+            return sender + ":[文件]:" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
-            var sender = event.sender.name;
             var content = chatGroupMsgContent.body;
             return sender + ":" + content;
           }
           else if(chatGroupMsgContent.msgtype == 'm.image'){
-            return "[图片]";
+            return sender + ":[图片]";
           } 
       }
       else if(chatGroupMsgType === "m.room.encrypted") {
@@ -685,21 +687,24 @@ export default {
         return;
       }
       this.checkUnreadCount();
-      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.room_id);
-      var notificateContent = this.getShowMsgContent(newMsg);
+      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
+      var notificateContent = this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
       if(groupInfo != undefined) {
-        fromUserName = fromName;
+        // fromUserName = newMsg.sender.name;
         fromName = groupInfo.name;
-        if(fromUserName.length == 0) {
-          notificateContent = notificateContent;
-        }
-        else{
-          notificateContent = fromUserName + ":" + notificateContent;
-        }
+        // if(fromUserName.length == 0) {
+        //   notificateContent = notificateContent;
+        // }
+        // else{
+        //   notificateContent = fromUserName + ":" + notificateContent;
+        // }
+
       }
+      console.log("*** title is ", notificateContent)
+      console.log("*** fromName is ", fromName)
       if(this.isWindows()) {
-        if(global.localStorage.getItem("message_notice")) {
+        if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice")) {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
         try{
@@ -712,7 +717,7 @@ export default {
         }
       }
       else {
-        if(global.localStorage.getItem("message_notice")) {
+        if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice")) {
           ipcRenderer.send("showNotice", fromName, notificateContent);
         }
       }
