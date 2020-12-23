@@ -704,7 +704,7 @@ export default {
       console.log("*** title is ", notificateContent)
       console.log("*** fromName is ", fromName)
       if(this.isWindows()) {
-        if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice")) {
+        if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice") == "true") {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
         try{
@@ -717,7 +717,7 @@ export default {
         }
       }
       else {
-        if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice")) {
+        if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice") == "true") {
           ipcRenderer.send("showNotice", fromName, notificateContent);
         }
       }
@@ -1306,7 +1306,7 @@ export default {
     getShowUnReadCount(roomItem) {
       var unreadCount = roomItem.getUnreadNotificationCount();
 
-      console.log(" *** unreadcount of " + roomItem.name + " unreadCount is " + unreadCount);
+      // console.log(" *** unreadcount of " + roomItem.name + " unreadCount is " + unreadCount);
       
       if(unreadCount == undefined || (unreadCount != undefined && unreadCount == 0)) return '';
       return unreadCount;
@@ -1932,25 +1932,40 @@ export default {
     },
     UpdateRoomListPassive: function(member) {
       //join leave invite
-      let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
-      if(member.membership == "join"){
-        for(let i in this.inviteGroupsList){
-          if(this.inviteGroupsList[i].roomId == member.roomId) {
-            this.inviteGroupsList.splice(i, 1);
-            break;
-          } 
+      this.unreadCount = 0;
+      this.showGroupList.forEach((item)=>{
+        if(item.getMyMembership() == "invite") {
+          if(this.inviteGroupsList.indexOf(item) < 0) {
+            this.unreadCount += 1;
+            this.inviteGroupsList.push(item);
+          }
         }
-        for(let i in this.dealShowGroupList){
-          if(this.dealShowGroupList[i].roomId == member.roomId) {
-            return;
-          } 
+        else{
+          if(this.inviteGroupsList.indexOf(item) >= 0) {
+            this.inviteGroupsList.splice(this.inviteGroupsList.indexOf(item), 1);
+          }
+          const notificationCount = item.getUnreadNotificationCount();
+          this.unreadCount += notificationCount;
+          let tags = item.tags;
+          if(tags && tags['m.favourite']){
+            if(this.favouriteRooms.indexOf(item) < 0) {
+              this.favouriteRooms.push(item)
+            }
+          }
+          else{
+            if(this.dealShowGroupList.indexOf(item) < 0) {
+              this.dealShowGroupList.push(item);
+            }
+          }
         }
-        this.dealShowGroupList.unshift(newRoom);
-        this.$nextTick(async () => {
-          await newRoom.loadMembersIfNeeded();
-          this.showGroupIcon(newRoom);
-        })
+      })
+      if(this.favouriteRooms.length !=0){
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
       }
+      if(this.dealShowGroupList.length != 0)
+        this.dealShowGroupList.sort(this.SortGroupByTimeLine);
+      
+      ipcRenderer.send("updateUnreadCount", this.unreadCount);
     },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
