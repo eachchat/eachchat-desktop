@@ -238,7 +238,7 @@
         :userInfo="userInfo" 
         :isOwn="isOwn" 
         :originPosition="userInfoPosition" 
-        v-show="showUserInfoTips" 
+        v-if="showUserInfoTips" 
         @getCreateGroupInfo="getCreateGroupInfo" 
         :key="userInfoTipKey"
         @close="closeUserInfoTip"
