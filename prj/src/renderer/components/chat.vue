@@ -572,14 +572,12 @@ export default {
                         }
                     }));
                 }
-                if(showRedact) {
-                    this.menu.append(new MenuItem({
-                        label: "删除",
-                        click: () => {
-                            this.menuDelete(msgItem)
-                        }
-                    }));
-                }
+                this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.menuDelete(msgItem)
+                    }
+                }));
                 if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "多选",
