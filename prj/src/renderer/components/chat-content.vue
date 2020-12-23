@@ -106,6 +106,35 @@
               </li>
             <!-- </ul> -->
             </transition-group>
+            <transition-group class="group-list" name="group-list" tag="ul">
+              <li class = 'group'
+                  v-for="(chatGroupItem, index) in showLowPriorityGroupList"
+                  @click="showChat(chatGroupItem, index)"
+                  @contextmenu="rightClick($event, chatGroupItem)"
+                  v-bind:key="ChatGroupId(chatGroupItem)"
+                  :id="ChatGroupId(chatGroupItem)"
+                  v-show='bRooms'>
+                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
+                  <!-- <listItem @groupInfo="chatGroupItem"/> -->
+                  <div class="group-img">
+                    <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
+                  </div>
+                  <div class="group-info">
+                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
+                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                  </div>
+                  <div class="group-notice">
+                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                  </div>
+                </div>
+              </li>
+            <!-- </ul> -->
+            </transition-group>
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
             <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
@@ -291,6 +320,11 @@ export default {
         this.showFavouriteRooms = this.favouriteRooms;
     },
 
+    lowPriorityGroupList: function(){
+      if(this.searchKey == '')
+        this.showLowPriorityGroupList = this.lowPriorityGroupList;
+    },
+
     distUserId: async function() {
       console.log("in chat content distuserid is ", this.distUserId);
       if(this.distUserId.length != 0) {
@@ -463,6 +497,8 @@ export default {
       showInviteGroupList:[],
       dealShowGroupList:[],//聊天列表
       showDealGroupList:[],
+      lowPriorityGroupList: [],
+      showLowPriorityGroupList:[],
       oldElementGroupItem: null,
       oldElementGroupDiv: null
     };
@@ -512,6 +548,7 @@ export default {
       this.inviteGroupsList.length = 0;
       this.favouriteRooms.length = 0;
       this.dealShowGroupList.length = 0;
+      this.lowPriorityGroupList.length = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           this.unreadCount += 1;
@@ -524,6 +561,9 @@ export default {
           if(tags && tags['m.favourite']){
             this.favouriteRooms.push(item)
           }
+          else if(tags && tags['m.lowpriority']){
+            this.lowPriorityGroupList.push(item)
+          }
           else{
             this.dealShowGroupList.push(item);
           }
@@ -534,6 +574,8 @@ export default {
       }
       if(this.dealShowGroupList.length != 0)
         this.dealShowGroupList.sort(this.SortGroupByTimeLine);
+      if(this.lowPriorityGroupList.length != 0)
+        this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
       
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
     },
@@ -568,13 +610,23 @@ export default {
       console.log("roomtag", room.tags)
       if(room.tags['m.favourite']){
         this.DeleteFromGroups(this.dealShowGroupList, room.roomId);
+        this.DeleteFromGroups(this.lowPriorityGroupList, room.roomId);
         if(this.favouriteRooms.every(item=>{
           return item.roomId != room.roomId
         }))
         this.favouriteRooms.unshift(room);    
       }
+      else if(room.tags['m.lowpriority']){
+        this.DeleteFromGroups(this.dealShowGroupList, room.roomId);
+        this.DeleteFromGroups(this.favouriteRooms, room.roomId);
+        if(this.lowPriorityGroupList.every(item=>{
+          return item.roomId != room.roomId
+        }))
+        this.lowPriorityGroupList.unshift(room); 
+      }
       else{
         this.DeleteFromGroups(this.favouriteRooms, room.roomId);
+        this.DeleteFromGroups(this.lowPriorityGroupList, room.roomId);
         if(this.dealShowGroupList.every(item=>{
           return item.roomId != room.roomId
         })){
@@ -670,6 +722,9 @@ export default {
       
       if(this.dealShowGroupList.length != 0)
         this.dealShowGroupList.sort(this.SortGroupByTimeLine);
+
+      if(this.lowPriorityGroupList.length != 0)
+        this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
     },
 
     async updateChatList(newMsg) {
@@ -910,7 +965,8 @@ export default {
             click: () => {
                 this.SetRoomReader(groupItem)
             }
-        }));   
+        })); 
+
         if(!isSecret) {
           /*
           if(this.groupIsSlience(groupItem)) {
@@ -941,12 +997,29 @@ export default {
                 }
             }));
           }
-          else if(this.groupIsInGroups(groupItem)){
+          else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
             this.menu.append(new MenuItem({
                 label: "置顶",
                 click: () => {
                     this.favouriteIt(groupItem)
                 }
+            }));
+          }
+
+          if(this.groupIsInLowPriority(groupItem)){
+            this.menu.append(new MenuItem({
+              label: "取消置底",
+              click: () => {
+                  this.DelRoomLowpriority(groupItem)
+              }
+            }));
+          }
+          else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+            this.menu.append(new MenuItem({
+              label: "置底",
+              click: () => {
+                  this.SetRoomLowpriority(groupItem)
+              }
             }));
           }
         }
@@ -963,10 +1036,11 @@ export default {
     SetRoomLowpriority(groupItem){
       let metaData = {};
       global.mxMatrixClientPeg.matrixClient.setRoomTag(groupItem.roomId, "m.lowpriority", metaData);
+      this.unFavouriteIt(groupItem);
     },
 
     DelRoomLowpriority(groupItem){
-	  global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.lowpriority");
+	    global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.lowpriority");
     },
 
     deleteGroup(groupItem) {
@@ -975,6 +1049,7 @@ export default {
     favouriteIt: function(groupItem){
       let metaData = {};
       global.mxMatrixClientPeg.matrixClient.setRoomTag(groupItem.roomId, "m.favourite", metaData);
+      this.DelRoomLowpriority(groupItem);
     },
     unFavouriteIt: function(groupItem){
       global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.favourite");
@@ -1052,8 +1127,17 @@ export default {
           this.UpdateGroupsImage(this.showFavouriteRooms);
           this.UpdateGroupsImage(this.showInviteGroupList);
           this.UpdateGroupsImage(this.showDealGroupList);
+          this.UpdateGroupsImage(this.showLowPriorityGroupList)
       }
     },
+
+    groupIsInLowPriority(groupInfo){
+      if(this.lowPriorityGroupList.indexOf(groupInfo) == -1) {
+        return false;
+      }
+      return true;
+    },
+
     groupIsInFavourite(groupInfo) {
       if(this.favouriteRooms.indexOf(groupInfo) == -1) {
         return false;
@@ -1118,11 +1202,13 @@ export default {
         this.showInviteGroupList = this.searchRoom(this.inviteGroupsList, searchKey);
         this.showFavouriteRooms = this.searchRoom(this.favouriteRooms, searchKey);
         this.showDealGroupList = this.searchRoom(this.dealShowGroupList, searchKey);
+        this.showLowPriorityGroupList = this.searchRoom(this.lowPriorityGroupList, searchKey);
       }
       else{
         this.showInviteGroupList = this.inviteGroupsList;
         this.showFavouriteRooms = this.favouriteRooms;
         this.showDealGroupList = this.dealShowGroupList;
+        this.showLowPriorityGroupList = this.lowPriorityGroupList;
       }
       this.showGroupIcon();
     },
@@ -2006,6 +2092,7 @@ export default {
       this.DeleteFromGroups(this.inviteGroupsList, distGroupId);
       this.DeleteFromGroups(this.dealShowGroupList, distGroupId);
       this.DeleteFromGroups(this.favouriteRooms, distGroupId);
+      this.DeleteFromGroups(this.lowPriorityGroupList, distGroupId);
     },
 
     compare: function() {
