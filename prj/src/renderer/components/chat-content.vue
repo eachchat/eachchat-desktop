@@ -31,8 +31,8 @@
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
-                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
@@ -62,8 +62,8 @@
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
-                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
@@ -94,8 +94,8 @@
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
-                    <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
+                    <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
@@ -262,7 +262,7 @@ import searchChatSelecterDlg from './searchChatSelecter.vue'
 import searchSenderSelecterDlg from './searchSenderSelect.vue'
 // import listItem from './list-item.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
-import { Group, UserInfo, Department, Message } from '../../packages/data/sqliteutil'
+import { Group, UserInfo, Department, Message, Contact  } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
 // import avatarBlock from './avatar.vue';
@@ -274,7 +274,7 @@ const {Menu, MenuItem, clipboard, nativeImage} = remote;
 import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
-
+import {ComponentUtil} from '../script/component-util.js'
 export default {
   components: {
     ChatPage,
@@ -357,7 +357,7 @@ export default {
     },
     updateImg: async function() {
       // console.log("in chat content updateImg ");
-      this.showGroupIcon();
+      this.showGroupIconName();
       if(this.distGroupId.length != 0) {
         var distInfo = await Group.FindItemFromGroupByGroupID(this.distGroupId);
         if(distInfo != undefined) {
@@ -375,9 +375,9 @@ export default {
       if (this.matrixSync) {
         this.showGroupList.length = 0;
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
-          console.log("this is ", r);
-          console.log("r.getMyMembership() ", r.getMyMembership());
-          console.log("roomname ", r.name)
+          // console.log("this is ", r);
+          // console.log("r.getMyMembership() ", r.getMyMembership());
+          // console.log("roomname ", r.name)
           if(r.getMyMembership() != "leave") {
             this.showGroupList.push(r);
           }
@@ -386,7 +386,7 @@ export default {
         if(this.showGroupList.length != 0)
           this.curChat = this.showGroupList[0];
         this.$nextTick(() => {
-          this.showGroupIcon();
+          this.showGroupIconName();
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
@@ -1101,7 +1101,7 @@ export default {
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
         if(!distUrl || distUrl == '') {
             let defaultGroupIcon;
-            if(this.DMCheck(distGroup))
+            if(global.mxMatrixClientPeg.DMCheck(distGroup))
                 defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
             else
                 defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
@@ -1112,22 +1112,37 @@ export default {
         }
     },
 
-    UpdateGroupsImage: function(groups){
-      for(let item of groups){
-        this.UpdateGroupImage(item);
+    updageGroupName: async function(distGroup) {
+      var elementGroupName = document.getElementById(this.getChatGroupNameElementId(distGroup.roomId));
+      if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
+        var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+        if(!distUserId) {
+          elementGroupName.innerHTML = distGroup.name;
+          return;
+        }
+        var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+        elementGroupName.innerHTML = displayName;
       }
     },
 
-    showGroupIcon: async function(distGroup=undefined) {
+    UpdateGroupsImageAndName: function(groups){
+      for(let item of groups){
+        this.UpdateGroupImage(item);
+        this.updageGroupName(item);
+      }
+    },
+
+    showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
         this.UpdateGroupImage(distGroup);
       }
       else{
-          this.UpdateGroupsImage(this.showFavouriteRooms);
-          this.UpdateGroupsImage(this.showInviteGroupList);
-          this.UpdateGroupsImage(this.showDealGroupList);
-          this.UpdateGroupsImage(this.showLowPriorityGroupList)
+
+          this.UpdateGroupsImageAndName(this.showFavouriteRooms);
+          this.UpdateGroupsImageAndName(this.showInviteGroupList);
+          this.UpdateGroupsImageAndName(this.showDealGroupList);
+          this.UpdateGroupsImageAndName(this.showLowPriorityGroupList)
       }
     },
 
@@ -1210,7 +1225,7 @@ export default {
         this.showDealGroupList = this.dealShowGroupList;
         this.showLowPriorityGroupList = this.lowPriorityGroupList;
       }
-      this.showGroupIcon();
+      this.showGroupIconName();
     },
     showSearchResultIcon: async function() {
       console.log("=======================showGroupIcon")
@@ -1342,7 +1357,7 @@ export default {
           console.log("top")
           this.showGroupList = groupListTmp;
           this.$nextTick(() => {
-            this.showGroupIcon()
+            this.showGroupIconName()
           })
         }
       }
@@ -1517,7 +1532,9 @@ export default {
       }
     },
     getShowGroupName(chatGroupItem) {
-      return chatGroupItem.name;
+      if(!global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+        return chatGroupItem.name;
+      }
     },
     _getInviteMember: function(chatGroupItem) {
         if (!chatGroupItem) {
@@ -2071,7 +2088,7 @@ export default {
       this.dealShowGroupList.unshift(newRoom);
       this.$nextTick(async () => {
         await newRoom.loadMembersIfNeeded();
-        this.showGroupIcon(newRoom);
+        this.showGroupIconName(newRoom);
         this.showChat(newRoom, 0);
       })
     },

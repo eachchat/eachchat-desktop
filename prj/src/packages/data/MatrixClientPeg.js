@@ -33,6 +33,43 @@ class _MatrixClientPeg{
       this.recoveryKey = recoveryKey;
     }
 
+    mxGetMembers(theRoom) {
+      const roomId = theRoom.roomId;
+      const cli = this.matrixClient;
+      const xie1 = cli.getRoom(roomId);
+      const xie2 = cli.getRoomPushRule("global", roomId);
+      const mxMembers = [];
+      for(let key in xie1.currentState.members) {
+          // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+          let obj = {...xie1.currentState.members[key], choosen:false}
+          if (obj.membership != 'leave') mxMembers.push(obj);
+      }
+      console.log('mxMembers', mxMembers);
+      if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
+      console.log('----mxMembers[userId]----', userId)
+      return mxMembers;
+    }
+
+    getDMMemberId(theRoom) {
+      var distUserId = undefined;
+      var selfUserId = this.matrixClient.getUserId();
+      if(this.DMCheck(theRoom)) {
+        var otherUserId = DMRoomMap.shared().getUserIdForRoomId(theRoom.roomId);
+        if(!otherUserId) {
+          var roomMembers = this.mxGetMembers(theRoom);
+          roomMembers = roomMembers.map(m => {
+              if (m.userId != selfUserId) {
+                otherUserId = m.userId;
+              }
+          });
+        }
+        else {
+          distUserId = otherUserId;
+        }
+      }
+      return distUserId;
+    }
+
     getRoomAvatar(theRoom) {
       if(this.DMCheck(theRoom)) {
         var targetPath = "";

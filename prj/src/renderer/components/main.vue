@@ -442,6 +442,8 @@ export default {
         ipcRenderer.on('setUnreadCount', (e, count) => {
             this.unReadCount = count;
         })
+        await global.services.common.login()
+        global.services.common.InitDbData();
         if(global.mxMatrixClientPeg.homeserve == '') {
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
@@ -502,8 +504,6 @@ export default {
         if(global.localStorage.getItem("neetNoticeToChangePwd") == "true") {
             this.showChangePasswordAlertPage()
         }
-        await global.services.common.login()
-        global.services.common.InitDbData();
         setTimeout(() => {
             this.showCurUserIcon();
         }, 1000)
