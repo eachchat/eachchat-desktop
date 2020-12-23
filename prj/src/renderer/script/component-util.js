@@ -115,6 +115,8 @@ const ComponentUtil = {
             matrix_id : userinfo.matrix_id,
             display_name: userinfo.user_display_name,
         }
+        if(!userinfo.user_id)
+            return contactInfo;
         let email = await UserInfo.GetUserEmailByUserID(userinfo.user_id);
         if(email.length != 0)
             contactInfo.email = email[0].email_value;

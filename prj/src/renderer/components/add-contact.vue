@@ -98,6 +98,25 @@ export default {
             })
         },
 
+        GetUsersFromOrgAndMatrixHS(orgUsers, hsUsers){
+            if(hsUsers.length == 0)
+                return orgUsers;
+            let tmpUsers = []; 
+            hsUsers.forEach(hsItem => {
+                if(orgUsers.every(orgItem => {
+                    return hsItem.user_id != orgItem.matrix_id
+                }))
+                {
+                    let user = {};
+                    user.user_display_name = hsItem.display_name;
+                    user.matrix_id = hsItem.user_id;
+                    user.avatar_url = hsItem.avatar_url;
+                    tmpUsers.push(user);
+                }                    
+            });
+            return orgUsers.concat(tmpUsers);
+        },
+
         search:async function () {
             if(this.searchKey == ''){
                 return;
@@ -106,29 +125,25 @@ export default {
             this.showOrganizationView = false;
 
             this.searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
-            this.$nextTick(function(){
-                    for(var i = 0; i < this.searchUsers.length; i ++){
-                        this.getUserImg(this.searchUsers[i], 'addContact');
-                    }
-                });
-            /*
-            let searchContacts = await Contact.SearchByNameKey(this.searchKey);
+            
+            //let searchContacts = await Contact.SearchByNameKey(this.searchKey);
 
             let ops = {};
             ops.term = this.searchKey;
             ops.number = 10;
             this.matrixClient.searchUserDirectory(ops).then((res)=>{
-                this.searchUsers = res.results;
-                if(this.searchUsers.length == 0)
+                let searchUsers = res.results;
+                if(searchUsers.length == 0)
                     return;
+                this.searchUsers = this.GetUsersFromOrgAndMatrixHS(this.searchUsers, searchUsers);
                 this.bShowSearchRes = true;
-                this.$nextTick(function(){
+                this.$nextTick(async function(){
                     for(var i = 0; i < this.searchUsers.length; i ++){
-                        this.getUserImg(this.searchUsers[i], 'addContact');
+                        await this.getUserImg(this.searchUsers[i], 'addContact');
                     }
                 });
             });
-            */
+            
            
         },
         searchDeleteClicked(){
@@ -184,11 +199,16 @@ export default {
             if(!userIconElement){
                 return;
             }
-            if(userAvatarUrl)
+            
+            if(!userAvatarUrl)
             {
-                let validUrl = this.matrixClient.mxcUrlToHttp(userAvatarUrl);
-                userIconElement.setAttribute("src", validUrl);
+                let info = await this.matrixClient.getProfileInfo(userInfo.matrix_id);
+                userAvatarUrl = info.avatar_url;
             }
+            if(!userAvatarUrl)
+                return;
+            let validUrl = this.matrixClient.mxcUrlToHttp(userAvatarUrl);
+            userIconElement.setAttribute("src", validUrl);
         },
 
         
