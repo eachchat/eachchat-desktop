@@ -158,6 +158,7 @@ display: none;
         margin: 0px;
         margin-top: 12px;
         margin-bottom: 12px;
+        border-radius: 50%;
     }
     .userInfo{
         display: inline-block;

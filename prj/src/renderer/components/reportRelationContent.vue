@@ -100,6 +100,7 @@ export default {
                 width: 56px;
                 height: 56px;
                 border-radius: 4px;
+                border-radius: 50%;
             }
             .reportName{
                 text-align: center;
