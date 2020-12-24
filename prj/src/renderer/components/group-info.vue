@@ -152,7 +152,7 @@
                         <img src="../../../static/Img/User/user-40px@2x.png" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
                         <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
                             <div class="memberItemName">
-                                <span>{{item.name}}</span>
+                                <span>{{item.dspName}}</span>
                                 <span v-if="item.powerLevel==100" class="adminBadge">管理者</span>
                                 <span v-if="item.powerLevel==50" class="adminBadge">主持人</span>
                             </div>
@@ -458,7 +458,7 @@ export default {
         openSetting: function() {
             this.$emit('openSetting')
         },
-        mxGetMembers: function(userId) {
+        async mxGetMembers(userId) {
             const roomId = this.showGroupInfo.groupId;
             const cli = window.mxMatrixClientPeg.matrixClient;
             const xie1 = cli.getRoom(roomId);
@@ -466,7 +466,9 @@ export default {
             const mxMembers = [];
             for(let key in xie1.currentState.members) {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
-                let obj = {...xie1.currentState.members[key], choosen:false}
+                let o = xie1.currentState.members[key];
+                o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
+                let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
             console.log('mxMembers', mxMembers);
