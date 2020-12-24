@@ -194,6 +194,8 @@ export default {
             this.loading = true;
             if (this.roomInfo) { //走创建
                 let {createOpts, commu} = this.roomInfo;
+                const client = window.mxMatrixClientPeg.matrixClient;
+                const selfId = client.getUserId();
                 if (!createOpts.name) {
                     let name = '';
                     for(let i = 0; i<3 || i<this.choosenMembers.length; i++) {
@@ -202,11 +204,12 @@ export default {
                     }
                     createOpts.name = name;
                 }
-                createOpts.invite = this.choosenMembers.map(c => {
-                    return c.id;
+                let invite = [];
+                this.choosenMembers.map(c => {
+                    if (c.id && c.id !== selfId) invite.push(c.id);
                 })
+                createOpts.invite = invite;
                 console.log('----post createOpts----', createOpts)
-                const client = window.mxMatrixClientPeg.matrixClient;
                 return client.createRoom(createOpts).then((res) => {
                     console.log('create success!!', res);
                     client.setRoomDirectoryVisibility(
