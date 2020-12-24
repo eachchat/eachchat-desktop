@@ -51,7 +51,10 @@ export default {
     name: 'user-info',
     data() {
         return {
-            pagePosition: {},
+            pagePosition: {
+                left: "64px",
+                top: "32px"
+            },
             stateInput:'',
             workDescriptionInput:'',
             stateList:[],
@@ -239,15 +242,11 @@ export default {
         },
     },
     created () {
-        var leftPosition = 64;
-        var topPosition = 32;
         if(!global.mxMatrixClientPeg.matrixClient)
             return;
         this.userId = global.mxMatrixClientPeg.matrixClient.getUserId();
         this.userInfo = global.mxMatrixClientPeg.matrixClient.getUser(this.userId);
         console.log("this.userinfo is ", this.userInfo);
-        this.pagePosition.left = leftPosition.toString() + "px";
-        this.pagePosition.top = topPosition.toString() + "px";
         this.stateInput = this.userInfo.presence;        
         this.workDescriptionInput = this.userInfo._unstable_statusMessage;
         var stateArray = ['online', 'offline'];
