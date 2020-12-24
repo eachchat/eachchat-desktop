@@ -191,6 +191,7 @@ export default {
     methods: {
         createXie() {
             if (this.loading) return;
+            this.loading = true;
             if (this.roomInfo) { //走创建
                 let {createOpts, commu} = this.roomInfo;
                 if (!createOpts.name) {
@@ -216,10 +217,10 @@ export default {
                         this.$emit('close');
                         console.log('广场设置完成');
                     })
-                })
-
+                }).catch((e)=>{this.loading = false;})
             } else { //走添加
                 //暂无此模版添加需求
+                this.loading = false;
             }
         },
         mxTreeWalk(obj) {

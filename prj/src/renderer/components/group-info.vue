@@ -41,7 +41,7 @@
             <div class="groupInfoNoticeAndName" v-else>
                 <div class="groupInfoName">
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
-                    <div class="chat-name">{{dmMember.rawDisplayName || dmMember.name}}</div>
+                    <div class="chat-name">{{dmMember.dspName || dmMember.name}}</div>
                 </div>
                 <div class="chat-desc">{{dmMember.userId || ''}}</div>
             </div>
@@ -235,6 +235,7 @@ import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../.
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxXxr from './mxXxr.vue'
 import mxDmDlg from './mxDmDlg.vue'
+import {ComponentUtil} from '../script/component-util'
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 // export const ALL_MESSAGES = 'all_messages';
@@ -915,7 +916,7 @@ export default {
     destroyed() {
         
     },
-    mounted() {
+    async mounted() {
         const roomId = this.showGroupInfo.groupId;
         const client = window.mxMatrixClientPeg.matrixClient;
         const userId = client.getUserId();
@@ -942,19 +943,23 @@ export default {
             this.isDm = true;
             console.log('这是一个单聊', currentRoom);
             console.log('room===', room);
+            let dmMember
             Object.keys(currentRoom.currentState.members).forEach(id => {
                 if (id != userId) {
-                    let dmMember = currentRoom.currentState.members[id];
+                    dmMember = currentRoom.currentState.members[id];
                     console.log( 'dmMember', dmMember)
                     console.log( 'dmMember.user', dmMember.user)
-                    if (!dmMember.user) dmMember.user = {};
-                    dmMember.avatar = global.mxMatrixClientPeg.getRoomAvatar(room);
-                    let xieUser = client.getUser(dmMember.userId)
-                    console.log( '----xie user----', xieUser)
-                    
-                    this.dmMember = {...dmMember};
                 }
             })
+            if (dmMember) {
+                if (!dmMember.user) dmMember.user = {};
+                dmMember.avatar = global.mxMatrixClientPeg.getRoomAvatar(room);
+                dmMember.dspName = await ComponentUtil.GetDisplayNameByMatrixID(dmMember.userId);
+                let xieUser = client.getUser(dmMember.userId)
+                console.log( '----xie user----', xieUser)
+                
+                this.dmMember = {...dmMember};
+            }
         } else {this.isDm = false;}
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
