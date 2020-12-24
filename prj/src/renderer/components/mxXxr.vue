@@ -285,7 +285,7 @@ export default {
                         data: s, 
                         parent: ele,
                         choosen: xie,
-                        name: s.display_name || s.user_name,
+                        name: s.user_display_name || s.display_name || s.user_name,
                         avatar: s.avatar_url
                     }
                     return o;
@@ -371,7 +371,7 @@ export default {
                     data: s, 
                     parent: ele,
                     choosen: false,
-                    name: s.display_name || s.user_name,
+                    name: s.user_display_name || s.display_name || s.user_name,
                     avatar: s.avatar_url
                 }
                 return o;
@@ -900,7 +900,7 @@ export default {
                 data: s, 
                 parent: root,
                 choosen: false,
-                name: s.display_name || s.user_name,
+                name: s.user_display_name || s.display_name || s.user_name,
                 avatar: s.avatar_url
             }
             return o;
