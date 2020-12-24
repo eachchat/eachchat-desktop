@@ -106,6 +106,7 @@ import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
 import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
 import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
+import {ComponentUtil} from '../script/component-util.js'
 
 export default {
     components: {
@@ -804,13 +805,15 @@ export default {
             var userNameElement = document.getElementById(userNameElementId);
 
             // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
-            var fromUserName = this.msg.sender.name;
+            
+            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(this.msg.sender.userId);
 
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;
             }
                 
-            var userUrl = await this.msg.sender.getAvatarUrl(global.mxMatrixClientPeg.matrixClient.getHomeserverUrl(), null, null, undefined, false, false);
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.msg.sender.userId);
+            var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             
             if(this.userIconElement == undefined) {
                 return;
