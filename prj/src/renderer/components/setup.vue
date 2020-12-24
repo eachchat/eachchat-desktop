@@ -330,7 +330,12 @@ export default {
       this.showAlertDlg = false;
     },
     openLocalStorageDir: function() {
-      shell.openItem(this.localStorePath);
+      try{
+        shell.openItem(this.localStorePath);
+      }
+      catch(error) {
+        shell.openPath(this.localStorePath);
+      }
     },
     timeDeal(timeOriginal) {
       var timeFormate = timeOriginal.replace("-", "/");
