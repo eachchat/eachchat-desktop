@@ -1202,7 +1202,7 @@ export default {
         //     this.showUserInfoTips = true;
         // },
         closeInfoTip(e){
-            console.log('ccccccccccc')
+            // console.log('ccccccccccc')
             var userInfoTipElement = document.getElementById("userInfoTipId");
             if(userInfoTipElement != null && !userInfoTipElement.contains(e.target) && e.target.className != "msg-info-user-img" && e.target.className != "groupMemberInfoImage" && e.target.className != "groupMemberInfoLabel"){
                 this.showUserInfoTips = false;
@@ -1235,7 +1235,7 @@ export default {
                 secretOptionMenuElement.style.display = "none";
             }
 
-            console.log("e.target.classname ", e.target.className)
+            // console.log("e.target.classname ", e.target.className)
             if(e.target.className.indexOf('userInfo') == -1){
                 this.showUserInfoTips = false;
             }
