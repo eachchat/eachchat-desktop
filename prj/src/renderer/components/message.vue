@@ -818,9 +818,11 @@ export default {
             if(this.userIconElement == undefined) {
                 return;
             }
-            if(userUrl != undefined) {
-                this.userIconElement.setAttribute("src", userUrl);
+            if(userUrl == "") {
+                return;
             }
+            console.log("userUrl is ", userUrl);
+            this.userIconElement.setAttribute("src", userUrl);
         },
         msgUserInfo: async function() {
             this.userInfo = {};
