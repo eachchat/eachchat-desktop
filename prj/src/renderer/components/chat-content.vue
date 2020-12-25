@@ -1194,15 +1194,27 @@ export default {
         return false;
       }
     },
-    
-    searchRoom(groups, searchKey) {
+    async searchRoom(groups, searchKey) {
       var searchResult = [];
       // console.log("search key is ", searchKey);
       for(var i=0;i<groups.length;i++) {
         // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
-        if(groups[i].name.indexOf(searchKey) >= 0) {
-          // console.log("inininin put ");
-          searchResult.push(groups[i]);
+        if(global.mxMatrixClientPeg.DMCheck(groups[i])) {
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(groups[i]);
+          if(!distUserId) {
+            continue;
+          }
+          var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          if(displayName.indexOf(searchKey) >= 0) {
+            // console.log("inininin put ");
+            searchResult.push(groups[i]);
+          }
+        }
+        else{
+          if(groups[i].name.indexOf(searchKey) >= 0) {
+            // console.log("inininin put ");
+            searchResult.push(groups[i]);
+          }
         }
       }
       return searchResult;
@@ -1214,10 +1226,10 @@ export default {
       console.log("searchkey is ", this.searchKey);
 
       if(this.searchKey.length != 0) {
-        this.showInviteGroupList = this.searchRoom(this.inviteGroupsList, searchKey);
-        this.showFavouriteRooms = this.searchRoom(this.favouriteRooms, searchKey);
-        this.showDealGroupList = this.searchRoom(this.dealShowGroupList, searchKey);
-        this.showLowPriorityGroupList = this.searchRoom(this.lowPriorityGroupList, searchKey);
+        this.showInviteGroupList = await this.searchRoom(this.inviteGroupsList, searchKey);
+        this.showFavouriteRooms = await this.searchRoom(this.favouriteRooms, searchKey);
+        this.showDealGroupList = await this.searchRoom(this.dealShowGroupList, searchKey);
+        this.showLowPriorityGroupList = await this.searchRoom(this.lowPriorityGroupList, searchKey);
       }
       else{
         this.showInviteGroupList = this.inviteGroupsList;
