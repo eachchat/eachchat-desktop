@@ -2397,12 +2397,12 @@ export default {
                             .then((ret) => {
                                 console.log("b scroll ret is ", ret);
                                 this.messageList = this._getEvents();
+                                this.isRefreshing = false;
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
-                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 32;
                                     this.isScroll = false;
                                 })
-                                this.isRefreshing = false;
                             })
                     }
                 }
