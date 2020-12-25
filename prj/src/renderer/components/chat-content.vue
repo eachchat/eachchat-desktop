@@ -736,7 +736,7 @@ export default {
       if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
       }
-      console.log("*** newMsg is ", newMsg);
+      // console.log("*** newMsg is ", newMsg);
       if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
         this.SetRoomReader(this.curChat);
         return;
@@ -2030,6 +2030,7 @@ export default {
               }
               else if(error.httpStatus == 404) {
                   this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+                  this.rejectRoom(roomId);
               }
           })
       }
