@@ -143,7 +143,6 @@
 
             </chatCreaterDlg> -->
             <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :recentGroups="recentGroups" :collectionInfo="transmitCollectionInfo" :transmitCollection="true" :key="transmitKey">
-
             </transmitDlg>
         </el-container>
     </el-container>
@@ -405,7 +404,6 @@ export default {
         },
 
         transmitMessageCollectionClicked:async function(message) {
-			return;
             this.showTransmitDlg = true;
             this.transmitKey ++;
             this.transmitCollectionInfo = message;
