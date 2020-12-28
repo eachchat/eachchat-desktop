@@ -646,12 +646,13 @@ export default {
                     }
                     global.mxMatrixClientPeg.SendEvent(distGroups[i].roomId, curMsg)
                         .then((ret) => {
-                            if(ret) {
-                                this.$emit('updateChatList', ret);
-                            }
-                            else {
-                                console.log("========= transmit msg failed ", curMsg.getContent());
-                            }
+                            console.log("sendSingleMsg is ", ret);
+                            // if(ret) {
+                            //     this.$emit('updateChatList', ret);
+                            // }
+                            // else {
+                            //     console.log("========= transmit msg failed ", curMsg.getContent());
+                            // }
                         })
                 }
             }

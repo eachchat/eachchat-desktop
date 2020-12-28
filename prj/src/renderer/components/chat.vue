@@ -102,7 +102,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -641,7 +641,12 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id);
+            try{
+                global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id)
+            }
+            catch(error) {
+                console.log("Delete exception");
+            }
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
