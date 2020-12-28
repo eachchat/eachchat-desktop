@@ -78,14 +78,17 @@
                             <li class="message"
                                 v-for="(message, index) in searchResults.message" 
                                 :key="index">
-                                <p class="message-text" v-html="msgContentHightLight(message.collection_content.text)" @click="messageListClicked(message)">{{ message.collection_content.text }}</p>
-                                <p class="message-sender" v-html="msgContentHightLight(message.collection_content.fromUserName)">{{ message.collection_content.fromUserName }}</p>
+                                <p class="message-text" v-html="msgContentHightLight(message.collection_content.body)" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
+                                <p class="message-sender" v-html="msgContentHightLight(message.user_name)">{{ message.user_name }}</p>
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                                     <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
                                     <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
                                     <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
+                                <div>
+                                    <hr align=center width=100% color=#DDDDDD SIZE=1>
                                 </div>
                             </li>
                         </ul>
@@ -95,11 +98,14 @@
                             <li class="image"
                                 v-for="(image, index) in searchResults.image" :key="index">
                                 <img ondragstart="return false" class="image-content" :id="image.collection_id" @click="imageListClicked(image)" src="../../../static/Img/Login/loading.gif" alt= "图片">
-                                <p class="image-sender" v-html="msgContentHightLight(image.collection_content.fromUserName)">{{ image.collection_content.fromUserName }}</p>
+                                <p class="image-sender" v-html="msgContentHightLight(image.user_name)">{{ image.user_name }}</p>
                                 <p class="image-time" align="right">{{ formatTimeFilter(image.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                                     <img ondragstart="return false" class="delete-img" @click="deleteImageCollectionClicked(image)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
+                                </div>
+                                <div>
+                                    <hr align=center width=100% color=#DDDDDD SIZE=1>
                                 </div>
                             </li>
                         </ul>
@@ -117,13 +123,15 @@
                                     </div>
                                     <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                                 </div>
-                                <p class="file-sender" v-html="msgContentHightLight(file.collection_content.fromUserName)">{{ file.collection_content.fromUserName }}</p>
+                                <p class="file-sender" v-html="msgContentHightLight(file.user_name)">{{ file.user_name }}</p>
                                 <p class="file-time" align="right">{{ formatTimeFilter(file.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
                                     <img ondragstart="return false" class="delete-img" @click="deleteFileCollectionClicked(file)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                                 </div>
-
+                                <div>
+                                    <hr align=center width=100% color=#DDDDDD SIZE=1>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -552,7 +560,7 @@ export default {
                 return newInnerHtml;
             }
         },
-        getObjectFromServerCollectionModel(collectionModels) {
+        async getObjectFromServerCollectionModel(collectionModels) {
             var favourites = [];
             for(var i = 0; i < collectionModels.length; i ++){
                 var model = collectionModels[i];
@@ -564,7 +572,10 @@ export default {
                 tempFavourite.sequence_id = model.sequenceId;
                 tempFavourite.timeline_id = model.timelineId;
                 tempFavourite.timestamp = model.timestamp;
-                
+                if(103 == tempFavourite.collection_type){
+                    tempFavourite.localPath = await this.getFileExist(tempFavourite);
+                }
+                tempFavourite.user_name = await ComponentUtil.GetDisplayNameByMatrixID(tempFavourite.collection_content.fromMatrixId);
                 favourites.push(tempFavourite);
             }
             return favourites;
@@ -580,7 +591,7 @@ export default {
             temp.message = messageSearch;
             temp.image = imageSearch;
             temp.file = fileSearch;
-            temp.group = groupSearch;
+            //temp.group = groupSearch;
             return temp;
             console.log(temp);
 
@@ -592,14 +603,14 @@ export default {
             var temp = {};
             
             if(tempResult.message){
-                temp.message = this.getObjectFromServerCollectionModel(tempResult.message);
+                temp.message = await this.getObjectFromServerCollectionModel(tempResult.message);
 
             }
             if(tempResult.image){
-                temp.image = this.getObjectFromServerCollectionModel(tempResult.image);
+                temp.image = await this.getObjectFromServerCollectionModel(tempResult.image);
             }
             if(tempResult.file){
-                temp.file = this.getObjectFromServerCollectionModel(tempResult.file);
+                temp.file = await this.getObjectFromServerCollectionModel(tempResult.file);
                 var tempFiles = [];
                 for(var i = 0; i < temp.file.length; i ++){
                     var file = temp.file[i];
@@ -609,17 +620,21 @@ export default {
                 }
                 temp.file = tempFiles;
             }
+            /*
             if(tempResult.group) {
                 temp.group = this.getObjectFromServerCollectionModel(tempResult.group);
             }
+            */
             this.searchResults = temp;
             this.$nextTick(function(){
                 for(var i = 0; i < this.searchResults.image.length; i ++){
                     this.getImageCollectionContent(this.searchResults.image[i]);
                 }
+                /*
                 for(var i = 0; i < this.searchResults.group.length; i ++){
                     this.getGroupAvatarContent(this.searchResults.group[i]);
                 }
+                */
             });
             return;
         },
@@ -794,7 +809,7 @@ display: none;
         display: none;
         font-size: 0px;
         vertical-align: top;
-        padding-top: 10px;
+        padding-top: 18px;
         padding-right: 0px;
         width: 78px;
         height: 20px;
