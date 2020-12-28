@@ -620,20 +620,6 @@ export default {
                 console.log('----totalArray----', totalArray);
                 this.isSearch = true;
                 this.searchedMembers = [...totalArray];
-                // client.searchUserDirectory({term}).then(r => {
-                //     console.log('searchUserDirectory', r)
-                //     if (r.results) {
-                //         const results = r.results.map(res => {
-                //             res.choosen = false; 
-                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
-                //             return res
-                //         })
-                //         this.searchedMembers = [...results];
-                //     }
-                // }).catch(e => {
-                //     alert('服务异常');
-                //     console.error('异常', e);
-                // })
             },320)
         },
         chooseXin(item) {
