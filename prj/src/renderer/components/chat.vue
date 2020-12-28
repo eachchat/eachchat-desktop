@@ -92,7 +92,7 @@
                         <div class="multiSelectFav" @click="multiFav"></div>
                         <div class="multiSelectFavText">收藏</div>
                     </div>
-                    <div class="multiSelectDelDiv">
+                    <div class="multiSelectDelDiv" id="multiSelectDelDivId">
                         <div class="multiSelectDel" @click="multiDel"></div>
                         <div class="multiSelectDelText">删除</div>
                     </div>
@@ -641,12 +641,12 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            try{
-                global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id)
-            }
-            catch(error) {
-                console.log("Delete exception");
-            }
+            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id)
+            .catch((error) => {
+                console.log("menuDelete ", error);
+                this.$toastMessage({message:'删除成功', time:1500, type:'success'});
+                this.multiToolsClose();
+            })
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
@@ -871,6 +871,19 @@ export default {
             }
             if(!hasSelected) {
                 this.selectedMsgs.push(curMsg);
+            }
+            var canShowDelete = true;
+            this.selectedMsgs.forEach(k => {
+                if(!this.canRedact(k)) {
+                    canShowDelete = false;
+                }
+            })
+            var deleteElement = document.getElementById("multiSelectDelDivId");
+            if(!canShowDelete) {
+                deleteElement.style.display = 'None';
+            }
+            else {
+                deleteElement.style.display = 'inline-block';
             }
         },
         closeTransmitDlg() {
@@ -2829,7 +2842,8 @@ export default {
             this.isJumpPage = false;
             this.curGroupId = this.chat.roomId;
             this.CloseSearchPage();
-            this.CloseFileListPage()
+            this.CloseFileListPage();
+            this.multiToolsClose();
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
             
