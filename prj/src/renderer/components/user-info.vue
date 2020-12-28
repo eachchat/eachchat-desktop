@@ -18,7 +18,7 @@
         <div class="userInfoAction-view" v-show="!isOwn">
             <!-- <img ondragstart="return false" class="userAudioIcon" src="../../../static/Image/userInfoAudio_icon@2x.png">
             <img ondragstart="return false" class="userVideoIcon" src="../../../static/Image/userInfoVideo_icon@2x.png"> -->
-            <img 
+            <img v-show = "bShowChatIcon"
                 ondragstart="return false"
                 src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" 
                 @click="createDm" 
@@ -85,6 +85,7 @@ export default {
     name: 'user-info',
     data() {
         return {
+            bShowChatIcon: true,
             bShowSaveContact: false,
             pagePosition: {},
             inputEdit: true,
@@ -221,8 +222,14 @@ export default {
 
         async ControlShowElement(){
             let matrix_id = "";
+            let userID = localStorage.getItem("mx_user_id");
             if(this.userInfo && this.userInfo.matrix_id){
                 matrix_id = this.userInfo.matrix_id;
+                if(matrix_id == userID)
+                    this.bShowChatIcon = false;
+                else
+                    this.bShowChatIcon = true;
+
                 let conctacts = await Contact.GetContactInfo(matrix_id);
                 if(conctacts)
                     this.bShowSaveContact = false;
