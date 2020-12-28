@@ -559,7 +559,7 @@ export default {
         width: 40%;
     }
     .room-item {
-        height: 72px;
+        height: 76px;
         display: flex;
         align-items: center;
         padding: 0 12px;
