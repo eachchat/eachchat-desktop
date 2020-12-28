@@ -45,8 +45,8 @@ class _MatrixClientPeg{
           if (obj.membership != 'leave') mxMembers.push(obj);
       }
       console.log('mxMembers', mxMembers);
-      if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
-      console.log('----mxMembers[userId]----', userId)
+      if (xie1.currentState.members[cli.getUserId()]) this.currentUser = xie1.currentState.members[cli.getUserId()];
+      console.log('----mxMembers[userId]----', cli.getUserId())
       return mxMembers;
     }
 
