@@ -27,7 +27,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p>
+                    <!-- <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p> -->
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -534,11 +534,13 @@ export default {
       this.unreadCount = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          this.unreadCount += 1;
+          // this.unreadCount += 1;
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();
-          this.unreadCount += notificationCount;
+          if(notificationCount) {
+            this.unreadCount += notificationCount;
+          }
         }
       })
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
@@ -551,12 +553,14 @@ export default {
       this.lowPriorityGroupList.length = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          this.unreadCount += 1;
+          // this.unreadCount += 1;
           this.inviteGroupsList.push(item);
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();
-          this.unreadCount += notificationCount;
+          if(notificationCount) {
+            this.unreadCount += notificationCount;
+          }
           let tags = item.tags;
           if(tags && tags['m.favourite']){
             this.favouriteRooms.push(item)
@@ -2046,13 +2050,16 @@ export default {
           this.checkUnreadCount();
       }, 0)
     },
+    reCountUnreadCount: function() {
+      this.checkUnreadCount();
+    },
     UpdateRoomListPassive: function(member) {
       //join leave invite
       this.unreadCount = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           if(this.inviteGroupsList.indexOf(item) < 0) {
-            this.unreadCount += 1;
+            // this.unreadCount += 1;
             this.inviteGroupsList.push(item);
           }
         }
@@ -2061,7 +2068,10 @@ export default {
             this.inviteGroupsList.splice(this.inviteGroupsList.indexOf(item), 1);
           }
           const notificationCount = item.getUnreadNotificationCount();
-          this.unreadCount += notificationCount;
+          console.log("notification is ", notificationCount);
+          if(notificationCount) {
+            this.unreadCount += notificationCount;
+          }
           let tags = item.tags;
           if(tags && tags['m.favourite']){
             if(this.favouriteRooms.indexOf(item) < 0) {
@@ -2081,7 +2091,15 @@ export default {
       if(this.dealShowGroupList.length != 0)
         this.dealShowGroupList.sort(this.SortGroupByTimeLine);
       
-      ipcRenderer.send("updateUnreadCount", this.unreadCount);
+      // console.log("this.unreadCount is ", this.unreadCount);
+      if(isNaN(this.unreadCount)) {
+        this.$nextTick(() => {
+          this.checkUnreadCount();
+        })
+      }
+      else {
+        ipcRenderer.send("updateUnreadCount", this.unreadCount);
+      }
     },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
