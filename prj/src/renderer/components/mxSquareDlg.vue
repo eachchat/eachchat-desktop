@@ -3,7 +3,7 @@
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">公共群聊</div>
-                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click.self.stop="close('close')">
+                <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close('close')">
             </div>
             <div class="search-field">
                 <div class="search-logo">
@@ -14,10 +14,21 @@
             <div class="room-list">
                 <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
                     <img class="room-img" :src="item.distUrl"/>
-                    <div class="room-info">{{item.name}}</div>
-                    <div class="room-info">人数：{{item.num_joined_members}}</div>
-                    <div class="room-join" @click.stop="joinRoom(item)" v-if="!item.joined">加入</div>
-                    <div class="room-join" @click.stop="checkRoom(item)" v-else >查看</div>
+                    <div class="room-xie">
+                        <div class="room-xie1" v-if="item.name">{{item.name}}</div>
+                        <div style="width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:block;" class="room-xie2" v-if="item.topic">{{item.topic}}</div>
+                        <div class="room-xie2">
+                            <img style="height:16px; width:16px; margin-left: -4px;" v-if="item.num_joined_members" src="../../../static/Img/Main/ren.png">
+                            <span v-if="item.num_joined_members" style="margin-right:12px;">{{item.num_joined_members}}</span>
+                            <span v-if="item.canonical_alias">{{item.canonical_alias}}</span>
+                        </div>
+                    </div>
+                    <div class="room-xie4" v-if="!item.joined">
+                        <div class="room-join" @click.stop="joinRoom(item)">加入</div>
+                    </div>
+                    <div class="room-xie4" v-else>
+                        <div class="room-join" @click.stop="checkRoom(item)">查看</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -121,6 +132,7 @@ export default {
                 })
                 if (cover) return this.publicRooms = [...chunk];
                 this.publicRooms.push(...chunk);
+                console.log('---查看数据---', this.publicRooms)
                 // this.setState((s) => {
                 //     s.publicRooms.push(...(data.chunk || []));
                 //     s.loading = false;
@@ -449,8 +461,8 @@ export default {
         background: #fff;
         top: 50%;
         left: 50%;
-        margin-top: -312px;
-        margin-left: -234px;
+        margin-top: -234px;
+        margin-left: -312px;
         border-radius: 8px;
         display: flex;
         flex-direction: column;
@@ -559,7 +571,7 @@ export default {
         width: 40%;
     }
     .room-item {
-        height: 72px;
+        height: 76px;
         display: flex;
         align-items: center;
         padding: 0 12px;
@@ -579,6 +591,31 @@ export default {
         white-space: nowrap;
         overflow: hidden;
         width: 80px;
+    }
+    .room-xie1 {
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        line-height: 20px;
+        letter-spacing: 1px;
+    }
+    .room-xie2 {
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 18px;
+        display: flex;
+        align-items: center;
+    }
+    .room-xie4 {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        flex-direction: row-reverse;
     }
     .room-join {
         width: 72px;
