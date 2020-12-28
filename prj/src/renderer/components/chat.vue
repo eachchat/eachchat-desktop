@@ -2316,10 +2316,10 @@ export default {
         flashDistMessage: function() {
             if(this.distEventId.length != 0) {
                 var distMsgDiv = document.getElementById(this.chatMsgDivId(this.distEventId));
-                distMsgDiv.style.backgroundColor = 'rgba(151, 151, 151, 0.6';
+                distMsgDiv.style.backgroundColor = 'rgba(235, 235, 235, 1)';
                 setTimeout(() => {
                     this.resumeDistMessage();
-                }, 1000)
+                }, 2000)
             }
         },
         resumeDistMessage: function() {

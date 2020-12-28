@@ -2030,7 +2030,7 @@ export default {
               }
               else if(error.httpStatus == 404) {
                   this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
-                  this.rejectRoom(roomId);
+                  this.RejectRoom(roomId);
               }
           })
       }
