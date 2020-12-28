@@ -821,7 +821,7 @@ export default {
             if(userUrl == "") {
                 return;
             }
-            console.log("userUrl is ", userUrl);
+            // console.log("userUrl is ", userUrl);
             this.userIconElement.setAttribute("src", userUrl);
         },
         msgUserInfo: async function() {

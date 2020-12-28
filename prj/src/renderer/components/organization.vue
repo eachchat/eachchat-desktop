@@ -1,6 +1,6 @@
 <template>
     <el-container>
-        <el-aside width="292px">
+        <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
                     <el-input size='mini' clearable prefix-icon="el-icon-search" class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." ></el-input>
@@ -555,9 +555,9 @@ display: none;
 }
 
     .search {
-        margin: 12px 14px 0px 12px;
+        margin: 12px 16px 12px 16px;
         text-align: left;
-        width: 100%;
+        width: calc(100% - 32px);
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
@@ -613,8 +613,7 @@ display: none;
     .search-input {
         display: inline-block;
         position: absolute;
-        text-indent: 10px;
-        width: 245px;
+        width: 248px;
         padding: 0;
         margin: 0px;
         height: 32px;

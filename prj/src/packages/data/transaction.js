@@ -869,7 +869,7 @@ class APITransaction {
     var response = await this.commonApi.post(
       "/api/apps/fav/v1/collection/search",
       {
-        "collectionType":type,
+        "collectionTypes":type,
         "sequenceId":sequenceID,
         "perPage":perPageNum,
         "sortOrder":sortOrder,

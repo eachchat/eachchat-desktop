@@ -27,7 +27,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p>
+                    <!-- <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p> -->
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -534,11 +534,13 @@ export default {
       this.unreadCount = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          this.unreadCount += 1;
+          // this.unreadCount += 1;
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();
-          this.unreadCount += notificationCount;
+          if(notificationCount) {
+            this.unreadCount += notificationCount;
+          }
         }
       })
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
@@ -551,12 +553,14 @@ export default {
       this.lowPriorityGroupList.length = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          this.unreadCount += 1;
+          // this.unreadCount += 1;
           this.inviteGroupsList.push(item);
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();
-          this.unreadCount += notificationCount;
+          if(notificationCount) {
+            this.unreadCount += notificationCount;
+          }
           let tags = item.tags;
           if(tags && tags['m.favourite']){
             this.favouriteRooms.push(item)
@@ -736,7 +740,7 @@ export default {
       if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
       }
-      console.log("*** newMsg is ", newMsg);
+      // console.log("*** newMsg is ", newMsg);
       if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
         this.SetRoomReader(this.curChat);
         return;
@@ -1194,15 +1198,27 @@ export default {
         return false;
       }
     },
-    
-    searchRoom(groups, searchKey) {
+    async searchRoom(groups, searchKey) {
       var searchResult = [];
       // console.log("search key is ", searchKey);
       for(var i=0;i<groups.length;i++) {
         // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
-        if(groups[i].name.indexOf(searchKey) >= 0) {
-          // console.log("inininin put ");
-          searchResult.push(groups[i]);
+        if(global.mxMatrixClientPeg.DMCheck(groups[i])) {
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(groups[i]);
+          if(!distUserId) {
+            continue;
+          }
+          var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          if(displayName.indexOf(searchKey) >= 0) {
+            // console.log("inininin put ");
+            searchResult.push(groups[i]);
+          }
+        }
+        else{
+          if(groups[i].name.indexOf(searchKey) >= 0) {
+            // console.log("inininin put ");
+            searchResult.push(groups[i]);
+          }
         }
       }
       return searchResult;
@@ -1214,10 +1230,10 @@ export default {
       console.log("searchkey is ", this.searchKey);
 
       if(this.searchKey.length != 0) {
-        this.showInviteGroupList = this.searchRoom(this.inviteGroupsList, searchKey);
-        this.showFavouriteRooms = this.searchRoom(this.favouriteRooms, searchKey);
-        this.showDealGroupList = this.searchRoom(this.dealShowGroupList, searchKey);
-        this.showLowPriorityGroupList = this.searchRoom(this.lowPriorityGroupList, searchKey);
+        this.showInviteGroupList = await this.searchRoom(this.inviteGroupsList, searchKey);
+        this.showFavouriteRooms = await this.searchRoom(this.favouriteRooms, searchKey);
+        this.showDealGroupList = await this.searchRoom(this.dealShowGroupList, searchKey);
+        this.showLowPriorityGroupList = await this.searchRoom(this.lowPriorityGroupList, searchKey);
       }
       else{
         this.showInviteGroupList = this.inviteGroupsList;
@@ -2018,6 +2034,7 @@ export default {
               }
               else if(error.httpStatus == 404) {
                   this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+                  this.RejectRoom(roomId);
               }
           })
       }
@@ -2033,13 +2050,16 @@ export default {
           this.checkUnreadCount();
       }, 0)
     },
+    reCountUnreadCount: function() {
+      this.checkUnreadCount();
+    },
     UpdateRoomListPassive: function(member) {
       //join leave invite
       this.unreadCount = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           if(this.inviteGroupsList.indexOf(item) < 0) {
-            this.unreadCount += 1;
+            // this.unreadCount += 1;
             this.inviteGroupsList.push(item);
           }
         }
@@ -2048,7 +2068,10 @@ export default {
             this.inviteGroupsList.splice(this.inviteGroupsList.indexOf(item), 1);
           }
           const notificationCount = item.getUnreadNotificationCount();
-          this.unreadCount += notificationCount;
+          console.log("notification is ", notificationCount);
+          if(notificationCount) {
+            this.unreadCount += notificationCount;
+          }
           let tags = item.tags;
           if(tags && tags['m.favourite']){
             if(this.favouriteRooms.indexOf(item) < 0) {
@@ -2068,7 +2091,15 @@ export default {
       if(this.dealShowGroupList.length != 0)
         this.dealShowGroupList.sort(this.SortGroupByTimeLine);
       
-      ipcRenderer.send("updateUnreadCount", this.unreadCount);
+      // console.log("this.unreadCount is ", this.unreadCount);
+      if(isNaN(this.unreadCount)) {
+        this.$nextTick(() => {
+          this.checkUnreadCount();
+        })
+      }
+      else {
+        ipcRenderer.send("updateUnreadCount", this.unreadCount);
+      }
     },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);

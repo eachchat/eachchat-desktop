@@ -102,7 +102,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -641,7 +641,12 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id);
+            try{
+                global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id)
+            }
+            catch(error) {
+                console.log("Delete exception");
+            }
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
@@ -1615,7 +1620,8 @@ export default {
                                 info:{
                                     size: fileinfo.size,
                                     w: img.width,
-                                    h: img.height
+                                    h: img.height,
+                                    mimetype: fileinfo.type,
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
@@ -2270,7 +2276,7 @@ export default {
         },
         _getEvents() {
             var events = this._timelineWindow.getEvents();
-            console.log("========== getEvent ", events);
+            // console.log("========== getEvent ", events);
             return events;
         },
         jumpToEvent: function(eventId) {
@@ -2303,11 +2309,32 @@ export default {
                 console.log("ths uldiv scrollHeight is ", ulDiv.scrollHeight);
                 console.log("ths distMsgDiv offsetTop is ", distMsgDiv.offsetTop);
                 // ulDiv.scrollTop = distMsgDiv.offsetTop - 80;
-                ulDiv.scrollTo({top: distMsgDiv.offsetTop - 80, behavior: 'smooth'})
-                console.log("ths uldiv scrollTop is ", ulDiv.scrollTop);
+                if(ulDiv.scrollTop > distMsgDiv.offsetTop) {
+                    console.log("***scroll")
+                    ulDiv.scrollTo({top: distMsgDiv.offsetTop - 40, behavior: 'smooth'})
+                }
+                else {
+                    ulDiv.scrollTo({top: ulDiv.scrollTop - 40, behavior: 'smooth'})
+                }
+                this.flashDistMessage();
             }
         },
-
+        flashDistMessage: function() {
+            if(this.distEventId.length != 0) {
+                var distMsgDiv = document.getElementById(this.chatMsgDivId(this.distEventId));
+                distMsgDiv.style.backgroundColor = 'rgba(235, 235, 235, 1)';
+                setTimeout(() => {
+                    this.resumeDistMessage();
+                }, 2000)
+            }
+        },
+        resumeDistMessage: function() {
+            if(this.distEventId.length != 0) {
+                var distMsgDiv = document.getElementById(this.chatMsgDivId(this.distEventId));
+                distMsgDiv.style.backgroundColor = 'rgba(255, 255, 255, 0';
+                this.distEventId = "";
+            }
+        },
         UpdateUserAvater(ev){
             if(ev.getType() === 'm.room.member' && ev.getSender() === this.userID){
                 if(ev.event && ev.event.content){
@@ -2347,7 +2374,7 @@ export default {
                     this.$nextTick(() => {
                         var div = document.getElementById("message-show-list");
                         if(div) {
-                                console.log("div scrolltop is ", div.scrollHeight)
+                                // console.log("div scrolltop is ", div.scrollHeight)
                                 // div.scrollTop = div.scrollHeight;
                                 div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
                             }
@@ -2397,12 +2424,12 @@ export default {
                             .then((ret) => {
                                 console.log("b scroll ret is ", ret);
                                 this.messageList = this._getEvents();
+                                this.isRefreshing = false;
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
-                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 32;
                                     this.isScroll = false;
                                 })
-                                this.isRefreshing = false;
                             })
                     }
                 }

@@ -1842,27 +1842,27 @@ const common = {
   },
 
   async SearchMessageCollection(key){
-    return await this.SearchCollection(101, key);
+    return await this.SearchCollection([101], key);
   },
 
   async SearchPictureCollecion(key){
-    return await this.SearchCollection(102, key);
+    return await this.SearchCollection([102], key);
   },
 
   async SearchFileCollecion(key){
-    return await this.SearchCollection(103, key);
+    return await this.SearchCollection([103], key);
   },
 
   async SearchGroupCollecion(key){
-    return await this.SearchCollection(104, key);
+    return await this.SearchCollection([104], key);
   },
 
   async SearchVoiceCollecion(key){
-    return await this.SearchCollection(105, key);
+    return await this.SearchCollection([105], key);
   },
 
   async SearchPostCollecion(key){
-    return await this.SearchCollection(106, key);
+    return await this.SearchCollection([106], key);
   },
 
   async SearchCollection(type, keyword){

@@ -2,9 +2,9 @@
     <el-container>
         <el-aside width="280px">
             <div class="list-header">
-                <!-- <div class="search">
-                    <el-input size='mini' class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." clearable></el-input>
-                </div> -->
+                <div class="search">
+                    <el-input size='mini' class="search-input" prefix-icon="el-icon-search" v-model="searchKey" @input="search" placeholder="搜索..." clearable></el-input>
+                </div>
             </div>
             <div class="list-content">
                 <div class="organization-view">
@@ -266,9 +266,9 @@ display: none;
     }
 }
     .search {
-        margin: 12px 0px 0px 16px;
+        margin: 12px 16px 12px 16px;
         text-align: left;
-        width: calc(100% - 86px);
+        width: calc(100% - 32px);
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
@@ -324,8 +324,7 @@ display: none;
     .search-input {
         display: inline-block;
         position: absolute;
-        text-indent: 10px;
-        width: 194px;
+        width: 248px;
         padding: 0;
         margin: 0px;
         height: 32px;
