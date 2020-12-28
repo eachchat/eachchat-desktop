@@ -1615,7 +1615,8 @@ export default {
                                 info:{
                                     size: fileinfo.size,
                                     w: img.width,
-                                    h: img.height
+                                    h: img.height,
+                                    mimetype: fileinfo.type,
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);

@@ -329,9 +329,9 @@ export default {
         // },
         getGroupAvatarContent:async function(group, key='') {
             var groupAvatarElement = document.getElementById(key + group.roomId);
-            console.log("gtoup name is ", group.name);
+            // console.log("gtoup name is ", group.name);
             var distUrl = global.mxMatrixClientPeg.getRoomAvatar(group);
-            console.log("disturl is ", distUrl);
+            // console.log("disturl is ", distUrl);
             if(!distUrl || distUrl == '') {
                 let defaultGroupIcon;
                 if(global.mxMatrixClientPeg.DMCheck(group))
@@ -377,7 +377,7 @@ export default {
                 return;
             }
             //
-            if(this.transmitCollection && false){
+            if(this.transmitCollection){
                 var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                 this.$emit("closeTransmitDlg", "");
                 if(suc == false) {
@@ -573,118 +573,51 @@ export default {
             }
         },
         sendSingleCollectionMsg: async function(distGroups, collection) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
+            console.log("sendSingleCollectionMsg ", collection);
+            if(collection.collection_content == undefined) {
+                alert("转发失败。")
+                return;
             }
+            let varcontent = collection.collection_content;
             for(var i=0;i<distGroups.length;i++){
-
-                    var curMsg = collection;
-                    console.log("curMsg is ", curMsg);
-                    if(curMsg.collection_type == 105) {
-                        continue;
-                    }
-                    var isOk = true;
-                    var curMsgContent = {};
-                    let curTimeSeconds = new Date().getTime();
-                    if(curMsg.collection_type == 101) {
-                        if(curMsg.collection_content["text"] == undefined){
-                            isOk = false;
-                        }
-                        else{
-                            curMsgContent["text"] = curMsg.collection_content["text"];
-                        }
-                    }
-                    else if(curMsg.collection_type == 102) {
-                        curMsgContent["ext"] = curMsg.collection_content["ext"];
-                        curMsgContent["fileName"] = curMsg.collection_content["fileName"];
-                        curMsgContent["url"] = curMsg.collection_content["url"];
-                        curMsgContent["middleImage"] = curMsg.collection_content["middleImage"];
-                        curMsgContent["thumbnailImage"] = curMsg.collection_content["thumbnailImage"];
-                        curMsgContent["imgWidth"] = curMsg.collection_content["imgWidth"];
-                        curMsgContent["imgHeight"] = curMsg.collection_content["imgHeight"];
-                        curMsgContent["fileSize"] = curMsg.collection_content["fileSize"];
-                    }
-                    else if(curMsg.collection_type == 103) {
-                        curMsgContent["ext"] = curMsg.collection_content["ext"];
-                        curMsgContent["fileName"] = curMsg.collection_content["fileName"];
-                        curMsgContent["url"] = curMsg.collection_content["url"];
-                        curMsgContent["fileSize"] = curMsg.collection_content["fileSize"];
-                    }
-                    for(var key in curMsgContent) {
-                        if(curMsgContent[key] == undefined) {
-                            isOk = false;
-                        }
-                    }
-                    if(!isOk) {
-                        return false;
-                    }
-                    console.log("curMsgCintent is ", curMsgContent);
-
-                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
-                    
-                    let sendingMsgContentType = curMsg.collection_type;
-                    let willSendMsgContent = curMsgContent;
-                    let guid = generalGuid();
-                    
-                    services.common.sendNewMessage(
-                            guid, 
-                            sendingMsgContentType, 
-                            this.curUserInfo.id, 
-                            groupId, 
-                            uid, 
-                            curTimeSeconds, 
-                            willSendMsgContent)
-                        .then(async (ret) => {
-                            console.log("send sendNewMessage message ret ", ret)
-                            if(ret == undefined) {
-                                return false;
-                            }
-                            else {
-                                if(curMsg.collection_type == 103) {
-                                    var fileDir = confservice.getFilePath(curMsg.timestamp);
-                                    var filePath = path.join(fileDir, curMsg.collection_content.fileName);
-                                    if(fs.existsSync(filePath)) {
-                                        var nameTmp = strMsgContentToJson(ret.message_content)["fileName"];
-                                        var dirTmp = confservice.getFilePath(ret.message_timestamp);
-                                        var pathTmp = path.join(dirTmp, nameTmp);
-                                        var finalPath = await makeFlieNameForConflict(pathTmp);
-                                        try{
-                                            console.log("copy file from ", filePath, " to ", finalPath);
-                                            fs.copyFileSync(filePath, finalPath);
-                                            services.common.SetFilePath(ret.message_id, finalPath);
-                                        }
-                                        catch(error) {
-                                            console.log("copyFile except ", error);
-                                        }
-
-                                    }
-                                }
-                                else if(curMsg.collection_type == 102) {
-                                    var fileDir = confservice.getThumbImagePath(curMsg.timestamp);
-                                    var filePath = path.join(fileDir, curMsg.collection_content.fileName);
-                                    console.log("the img path is ", filePath);
-                                    if(fs.existsSync(filePath)) {
-                                        var nameTmp = strMsgContentToJson(ret.message_content)["fileName"];
-                                        var dirTmp = confservice.getThumbImagePath(ret.message_timestamp);
-                                        var pathTmp = path.join(dirTmp, nameTmp);
-                                        var finalPath = await makeFlieNameForConflict(pathTmp);
-                                        try{
-                                            console.log("copy file from ", filePath, " to ", finalPath);
-                                            fs.copyFileSync(filePath, finalPath);
-                                            services.common.SetFilePath(ret.message_id, finalPath);
-                                            ret.file_local_path = finalPath;
-                                        }
-                                        catch(error) {
-                                            console.log("copyFile except ", error);
-                                        }
-
-                                    }
-                                }
-                                this.$emit('updateChatList', ret);
-                            }
-                        })
+                if(varcontent == null || varcontent.length == 0) {
+                    // toDo To Deal The \n
+                    alert("不能发送空白信息。")
+                    return;
                 }
+                if(varcontent.msgtype == "m.text") {
+                    let sendText = varcontent.body;
+                    
+                    let sendBody = {
+                        msgtype: "m.text",
+                        body: sendText
+                    }
+                    if(sendText.length != 0)
+                    {
+                        sendBody.body = sendText;
+                        global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, sendBody);
+                    }
+                }
+                else if(varcontent.msgtype == "m.image") {
+                    var content = {
+                                msgtype: 'm.image',
+                                body: varcontent.body,
+                                url: varcontent.url,
+                                info:varcontent.info,
+                            };
+                    global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                }
+                else if(varcontent.msgtype == "m.file") {
+                    var content = {
+                        msgtype: 'm.file',
+                        body: varcontent.body,
+                        url: varcontent.url,
+                        info: varcontent.info,
+                    };
+                    global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                }
+                // console.log("varcontent is ", varcontent);
+            }
         },
         sendSingleMsg: async function(distGroups, msgs) {
             for(var i=0;i<distGroups.length;i++){
