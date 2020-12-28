@@ -1121,11 +1121,11 @@ export default {
       if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
         if(!distUserId) {
-          elementGroupName.innerHTML = distGroup.name;
+          // elementGroupName.innerHTML = distGroup.name;
           return;
         }
         var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-        elementGroupName.innerHTML = displayName;
+        distGroup.name = displayName;
       }
     },
 
@@ -1163,6 +1163,7 @@ export default {
       // setTimeout(async () => {
       if(distGroup){
         this.UpdateGroupImage(distGroup);
+        this.updageGroupName(distGroup);
       }
       else{
 
@@ -1575,9 +1576,9 @@ export default {
       }
     },
     getShowGroupName(chatGroupItem) {
-      if(!global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+      // if(!global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
         return chatGroupItem.name;
-      }
+      // }
     },
     _getInviteMember: function(chatGroupItem) {
         if (!chatGroupItem) {
