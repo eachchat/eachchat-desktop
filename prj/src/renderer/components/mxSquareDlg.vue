@@ -449,8 +449,8 @@ export default {
         background: #fff;
         top: 50%;
         left: 50%;
-        margin-top: -312px;
-        margin-left: -234px;
+        margin-top: -234px;
+        margin-left: -312px;
         border-radius: 8px;
         display: flex;
         flex-direction: column;
