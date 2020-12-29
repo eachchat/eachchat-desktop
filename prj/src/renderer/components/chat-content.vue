@@ -64,7 +64,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
                     <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
@@ -96,7 +96,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
                     <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
@@ -393,7 +393,7 @@ export default {
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             console.log('chat-content membership member is ', member);
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-            setTimeout(()=>{
+            setTimeout(async ()=>{
               if (member.userId == currentUserId) {
                 console.log("event is ", event);
                 console.log("member is ", member);
@@ -408,8 +408,17 @@ export default {
                   }
                   this.inviteGroupsList.unshift(newRoom);
                   this.$nextTick(() => {
-                    this.UpdateGroupImage(newRoom);
+                    this.showGroupIconName();
                   })
+                  var fromName = await this.getShowGroupName(newRoom);
+                  const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+                  const inviteEvent = newRoom.currentState.getMember(myUserId);
+                  if (!inviteEvent) {
+                      return;
+                  }
+                  const inviterUserId = inviteEvent.events.member.getSender();
+                  var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
+                  this.showNotice(fromName, inviterName + "邀请你加入群聊");
                 }
                 else if(member.membership == "join"){
                   console.log('JoinRoom!!!')
@@ -681,7 +690,7 @@ export default {
     ChatGroupDivId(item){
       return 'chat-group-div-' + item.roomId;
     },
-    getNotificationContent(msg) {
+    async getNotificationContent(msg) {
       let event = msg.event;
       if(event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
@@ -690,7 +699,7 @@ export default {
       console.log("*** senderInfo ", senderInfo);
       let chatGroupMsgType = event.type;
       var chatGroupMsgContent = msg.getContent();
-      var sender = senderInfo.displayName;
+      var sender = await ComponentUtil.GetDisplayNameByMatrixID(senderInfo.userId);
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -737,6 +746,21 @@ export default {
         this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
     },
 
+    async getShowGroupName(groupInfo) {
+      if(groupInfo != undefined) {
+        if(global.mxMatrixClientPeg.DMCheck(groupInfo)) {
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(groupInfo);
+          if(!distUserId) {
+            return groupInfo.name;
+          }
+          else {
+            var fromName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            return fromName
+          }
+        }
+      }
+    },
+
     async updateChatList(newMsg) {
       this.sortGroup();
       var fromName = "";
@@ -752,25 +776,18 @@ export default {
         return;
       }
       this.checkUnreadCount();
-      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
-      var notificateContent = this.getNotificationContent(newMsg);
-      // console.log("fromUserInfo ", fromUserInfo);
-      if(groupInfo != undefined) {
-        // fromUserName = newMsg.sender.name;
-        fromName = groupInfo.name;
-        // if(fromUserName.length == 0) {
-        //   notificateContent = notificateContent;
-        // }
-        // else{
-        //   notificateContent = fromUserName + ":" + notificateContent;
-        // }
-
-      }
       if(newMsg.isState()) {
         return;
       }
+      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
+      var notificateContent = await this.getNotificationContent(newMsg);
+      // console.log("fromUserInfo ", fromUserInfo);
+      fromName = await this.getShowGroupName(groupInfo);
       console.log("*** title is ", notificateContent)
       console.log("*** fromName is ", fromName)
+      this.showNotice(fromName, notificateContent);
+    },
+    showNotice(fromName, notificateContent) {
       if(this.isWindows()) {
         if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice") == "true") {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
@@ -1169,6 +1186,40 @@ export default {
       }
     },
 
+    updateGroupMsgContent: async function(groups) {
+      for(let item of groups) {
+        var distElement = document.getElementById(this.getChatContentElementId(item.roomId));
+        if(distElement) {
+          var distTimeLine = this.GetLastShowMessage(item);
+          if(distTimeLine == undefined) {
+            return distElement.innerHTML = "";
+          }
+
+          let event = distTimeLine.event;
+          let chatGroupMsgType = event.type;
+          var chatGroupMsgContent = distTimeLine.getContent();
+
+          if(chatGroupMsgType === "m.room.message")
+          {
+              var sender = distTimeLine.sender;
+              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+              if(chatGroupMsgContent.msgtype == 'm.file'){
+                distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.text'){
+                distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.image'){
+                distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+              } 
+          }
+          else if(chatGroupMsgType === "m.room.encrypted") {
+              distElement.innerHTML = "收到一条加密消息";
+          }
+        }
+      }
+    },
+
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
@@ -1176,12 +1227,14 @@ export default {
         this.updageGroupName(distGroup);
       }
       else{
-
           this.UpdateGroupsImageAndName(this.showFavouriteRooms);
+          this.updateGroupMsgContent(this.showFavouriteRooms);
           this.UpdateGroupsImageAndName(this.showInviteGroupList);
           this.updateInviteChatContent(this.showInviteGroupList);
           this.UpdateGroupsImageAndName(this.showDealGroupList);
-          this.UpdateGroupsImageAndName(this.showLowPriorityGroupList)
+          this.updateGroupMsgContent(this.showDealGroupList);
+          this.UpdateGroupsImageAndName(this.showLowPriorityGroupList);
+          this.updateGroupMsgContent(this.showLowPriorityGroupList);
       }
     },
 
@@ -1568,6 +1621,9 @@ export default {
     },
     getInviteChatContentElementId: function(roomId) {
       return "inviteList-" + roomId;
+    },
+    getChatContentElementId: function(roomId) {
+      return "chatList-" + roomId;
     },
     getChatGroupNameElementId: function(groupId, uid) {
       if(groupId != undefined && uid != undefined) {
@@ -2724,7 +2780,7 @@ export default {
   }
 
   .group-content {
-    width: 100%;
+    width: 125%;
     font-size: 13px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);
