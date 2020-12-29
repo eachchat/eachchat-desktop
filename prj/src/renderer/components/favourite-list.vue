@@ -335,7 +335,7 @@ export default {
                 return;
             }
             let folder = path.dirname(filepath);
-            shell.openExternal(folder);
+            shell.openPath(folder);
         },
 
         fileListClicked:async function(file) {

@@ -71,7 +71,7 @@ export default {
         position: absolute;
         right: 0px;
         top: 0px;
-        background-color:rgba(245, 246, 249, 1);
+        background-color:rgba(241, 241, 241, 1);
         z-index: 2;
     }
 
@@ -82,7 +82,7 @@ export default {
         height: 20px;
         line-height: 20px;
         margin: 0px 6px 0px 6px;
-        background-color:rgba(245, 246, 249, 1);
+        background-color:rgba(241, 241, 241, 1);
         border: 0px;
         z-index: 2;
     }
@@ -107,7 +107,7 @@ export default {
         height: 20px;
         line-height: 20px;
         margin: 0px 6px 0px 6px;
-        background-color:rgba(245, 246, 249, 1);
+        background-color:rgba(241, 241, 241, 1);
         border: 0px;
         z-index: 2;
     }
@@ -132,7 +132,7 @@ export default {
         height: 20px;
         line-height: 20px;
         margin: 0px 6px 0px 6px;
-        background-color:rgba(245, 246, 249, 1);
+        background-color:rgba(241, 241, 241, 1);
         border: 0px;
         z-index: 2;
     }

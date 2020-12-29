@@ -966,7 +966,7 @@ function createWindow () {
     height: 420,
     width: 360,
     frame: false,
-    resizable: resizableValue,
+    resizable: true,
     /**
      * Across Domains Problem
      */

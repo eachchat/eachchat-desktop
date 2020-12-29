@@ -64,7 +64,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
                     <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
@@ -96,7 +96,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <div class="group-notice">
                     <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
@@ -274,7 +274,8 @@ const {Menu, MenuItem, clipboard, nativeImage} = remote;
 import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
-import {ComponentUtil} from '../script/component-util.js'
+import {ComponentUtil} from '../script/component-util.js';
+import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 export default {
   components: {
     ChatPage,
@@ -392,7 +393,7 @@ export default {
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             console.log('chat-content membership member is ', member);
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-            setTimeout(()=>{
+            setTimeout(async ()=>{
               if (member.userId == currentUserId) {
                 console.log("event is ", event);
                 console.log("member is ", member);
@@ -407,8 +408,17 @@ export default {
                   }
                   this.inviteGroupsList.unshift(newRoom);
                   this.$nextTick(() => {
-                    this.UpdateGroupImage(newRoom);
+                    this.showGroupIconName();
                   })
+                  var fromName = await this.getShowGroupName(newRoom);
+                  const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+                  const inviteEvent = newRoom.currentState.getMember(myUserId);
+                  if (!inviteEvent) {
+                      return;
+                  }
+                  const inviterUserId = inviteEvent.events.member.getSender();
+                  var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
+                  this.showNotice(fromName, inviterName + "邀请你加入群聊");
                 }
                 else if(member.membership == "join"){
                   console.log('JoinRoom!!!')
@@ -637,6 +647,11 @@ export default {
           this.dealShowGroupList.unshift(room);
         }
       }
+      setTimeout(() => {
+        this.$nextTick(() => {
+          this.showGroupIconName();
+        })
+      }, 0)
     },
 
     InvitesClick(){
@@ -659,6 +674,7 @@ export default {
         console.log('xie2--', room);
         if (newRooms[i].roomId === room.room_id || newRooms[i].roomId === room.roomId) {
           console.log('---to show---');
+          this.scrollToDistPosition(room);
           return this.showChat(newRooms[i], i);
         }
       }
@@ -675,7 +691,7 @@ export default {
     ChatGroupDivId(item){
       return 'chat-group-div-' + item.roomId;
     },
-    getNotificationContent(msg) {
+    async getNotificationContent(msg) {
       let event = msg.event;
       if(event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
@@ -684,7 +700,7 @@ export default {
       console.log("*** senderInfo ", senderInfo);
       let chatGroupMsgType = event.type;
       var chatGroupMsgContent = msg.getContent();
-      var sender = senderInfo.displayName;
+      var sender = await ComponentUtil.GetDisplayNameByMatrixID(senderInfo.userId);
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -731,37 +747,54 @@ export default {
         this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
     },
 
+    async getShowGroupName(groupInfo) {
+      if(groupInfo != undefined) {
+        if(global.mxMatrixClientPeg.DMCheck(groupInfo)) {
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(groupInfo);
+          if(!distUserId) {
+            return groupInfo.name;
+          }
+          else {
+            var fromName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            return fromName
+          }
+        }
+      }
+    },
+
     async updateChatList(newMsg) {
       this.sortGroup();
+      if(newMsg.isState()) {
+        return;
+      }
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender.name;
       if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+        setTimeout(() => {
+          this.scrollToDistPosition(this.curChat);
+        }, 1000)
         return;
       }
       // console.log("*** newMsg is ", newMsg);
       if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
         this.SetRoomReader(this.curChat);
+        setTimeout(() => {
+          this.scrollToDistPosition(this.curChat);
+        }, 1000)
         return;
       }
       this.checkUnreadCount();
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
-      var notificateContent = this.getNotificationContent(newMsg);
+      var notificateContent = await this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
-      if(groupInfo != undefined) {
-        // fromUserName = newMsg.sender.name;
-        fromName = groupInfo.name;
-        // if(fromUserName.length == 0) {
-        //   notificateContent = notificateContent;
-        // }
-        // else{
-        //   notificateContent = fromUserName + ":" + notificateContent;
-        // }
-
-      }
+      fromName = await this.getShowGroupName(groupInfo);
       console.log("*** title is ", notificateContent)
       console.log("*** fromName is ", fromName)
+      this.showNotice(fromName, notificateContent);
+    },
+    showNotice(fromName, notificateContent) {
       if(this.isWindows()) {
         if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice") == "true") {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
@@ -928,12 +961,16 @@ export default {
     Max: function() {
       ipcRenderer.send("win-max");
     },
-    scrollToDistPosition(index) {
+    scrollToDistPosition(distGroup) {
+      var distGroupItem = document.getElementById(this.getChatGroupNameElementId(distGroup.roomId));
+      console.log("*** dist room element client top is ", distGroupItem.offsetTop);
       if(this.groupListElement == null) {
         this.groupListElement = document.getElementById("list-content-id");
       }
-      this.groupListElement.scrollTop = index == undefined ? this.curindex*60 : index*60;
-      this.needScroll = false;
+      if(this.groupListElement && distGroupItem) {
+        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'smooth'})
+      }
+      // this.needScroll = false;
     },
     showScrollBar: function(e) {
       if(this.groupListElement == null) {
@@ -964,13 +1001,14 @@ export default {
           isSecret = true;
         }
         this.menu = new Menu();
+        /*
         this.menu.append(new MenuItem({
             label: "标记已读",
             click: () => {
                 this.SetRoomReader(groupItem)
             }
         })); 
-
+        */
         if(!isSecret) {
           /*
           if(this.groupIsSlience(groupItem)) {
@@ -1027,14 +1065,14 @@ export default {
             }));
           }
         }
-       
+       /*
         this.menu.append(new MenuItem({
             label: "退出",
             click: () => {
                 this.deleteGroup(groupItem)
             }
         }));   
-        
+        */
         this.menu.popup(remote.getCurrentWindow());
     },
     SetRoomLowpriority(groupItem){
@@ -1159,6 +1197,40 @@ export default {
       }
     },
 
+    updateGroupMsgContent: async function(groups) {
+      for(let item of groups) {
+        var distElement = document.getElementById(this.getChatContentElementId(item.roomId));
+        if(distElement) {
+          var distTimeLine = this.GetLastShowMessage(item);
+          if(distTimeLine == undefined) {
+            return distElement.innerHTML = "";
+          }
+
+          let event = distTimeLine.event;
+          let chatGroupMsgType = event.type;
+          var chatGroupMsgContent = distTimeLine.getContent();
+
+          if(chatGroupMsgType === "m.room.message")
+          {
+              var sender = distTimeLine.sender;
+              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+              if(chatGroupMsgContent.msgtype == 'm.file'){
+                distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.text'){
+                distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.image'){
+                distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+              } 
+          }
+          else if(chatGroupMsgType === "m.room.encrypted") {
+              distElement.innerHTML = "收到一条加密消息";
+          }
+        }
+      }
+    },
+
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
@@ -1166,12 +1238,14 @@ export default {
         this.updageGroupName(distGroup);
       }
       else{
-
           this.UpdateGroupsImageAndName(this.showFavouriteRooms);
+          this.updateGroupMsgContent(this.showFavouriteRooms);
           this.UpdateGroupsImageAndName(this.showInviteGroupList);
           this.updateInviteChatContent(this.showInviteGroupList);
           this.UpdateGroupsImageAndName(this.showDealGroupList);
-          this.UpdateGroupsImageAndName(this.showLowPriorityGroupList)
+          this.updateGroupMsgContent(this.showDealGroupList);
+          this.UpdateGroupsImageAndName(this.showLowPriorityGroupList);
+          this.updateGroupMsgContent(this.showLowPriorityGroupList);
       }
     },
 
@@ -1195,16 +1269,11 @@ export default {
     },
 
     groupIsSlience(groupInfo) {
-      if(groupInfo.status == undefined) {
-        return false;
-      }
-      if(groupInfo.status == 0) {
-        return false;
+      const state = getRoomNotifsState(groupInfo.roomId);
+      if(state == MUTE) {
+        return true;
       }
       else {
-        if(groupInfo.status.substr(7, 1) == "1") {
-            return true;
-        }
         return false;
       }
     },
@@ -1351,14 +1420,14 @@ export default {
         for(var i=0;i<this.showGroupList.length;i++) {
           if(this.showGroupList[i].roomId == groupInfo.roomId) {
             // console.log("this.originalgorulliset is ", this.showGroupList[i]);
-            groupIndex = i;
-            this.scrollToDistPosition(groupIndex);
+            this.scrollToDistPosition(this.showGroupList[i]);
             break;
           }
         }
         
         setTimeout(() => {
           this.$nextTick(() => {
+            this.scrollToDistPosition(this.showGroupList[groupIndex]);
             this.showChat(this.showGroupList[groupIndex], groupIndex);
           })
         }, 500)
@@ -1563,6 +1632,9 @@ export default {
     },
     getInviteChatContentElementId: function(roomId) {
       return "inviteList-" + roomId;
+    },
+    getChatContentElementId: function(roomId) {
+      return "chatList-" + roomId;
     },
     getChatGroupNameElementId: function(groupId, uid) {
       if(groupId != undefined && uid != undefined) {
@@ -2141,6 +2213,7 @@ export default {
       for(let i in this.dealShowGroupList){
         if(this.dealShowGroupList[i].roomId == roomID) {
           this.showChat(newRoom, i);
+          this.scrollToDistPosition(newRoom);
           return;
         } 
       }
@@ -2150,6 +2223,9 @@ export default {
         await newRoom.loadMembersIfNeeded();
         this.showGroupIconName(newRoom);
         this.showChat(newRoom, 0);
+        setTimeout(() => {
+          this.scrollToDistPosition(newRoom);
+        }, 1000)
       })
     },
   
@@ -2271,7 +2347,7 @@ export default {
 
   .chat {
     width:100%;
-    background-color: rgba(245, 246, 249, 1);
+    background-color: rgba(241, 241, 241, 1);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -2719,7 +2795,7 @@ export default {
   }
 
   .group-content {
-    width: 100%;
+    width: 125%;
     font-size: 13px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);

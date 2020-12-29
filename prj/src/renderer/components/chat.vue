@@ -484,7 +484,7 @@ export default {
         },
         CloseSearchPage: function() {
             var chatElement = document.getElementById("chat-page-id");
-            chatElement.style.backgroundColor = "rgba(245, 246, 249, 1)";
+            chatElement.style.backgroundColor = "rgba(241, 241, 241, 1)";
             this.$emit("isSearching", false);
             this.isSerach = false;
             this.HistorySearchRoomId = "";
@@ -500,7 +500,7 @@ export default {
         },
         CloseFileListPage: function() {
             var chatElement = document.getElementById("chat-page-id");
-            chatElement.style.backgroundColor = "rgba(245, 246, 249, 1)";
+            chatElement.style.backgroundColor = "rgba(241, 241, 241, 1)";
             this.$emit("isSearching", false);
             this.isFileList = false;
             this.isScroll = false;
@@ -1330,7 +1330,7 @@ export default {
             var range = this.editor.getSelection();
             var curIndex = range==null ? 0 : range.index;
             this.editor.insertText(curIndex, uncodeUtf16(item));
-            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
+            this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
         handleFiles: function() {
@@ -2303,7 +2303,7 @@ export default {
             this.existingMsgId = [];
             this.distEventId = eventId;
             var chatElement = document.getElementById("chat-page-id");
-            chatElement.style.backgroundColor = "rgba(245, 246, 249, 1)";
+            chatElement.style.backgroundColor = "rgba(241, 241, 241, 1)";
             this.$emit("isSearching", false);
             this.isSerach = false;
             this.isJumpPage = true;
@@ -2949,14 +2949,14 @@ export default {
     .chat-page {
         width: 100%;
         height: 100%;
-        background: rgba(245, 246, 249, 1);
+        background: rgba(241, 241, 241, 1);
     }
 
     .chat-title {
         display: float;
         width: 100%;
         height: 32px;
-        background: rgba(245, 246, 249, 1);
+        background: rgba(241, 241, 241, 1);
         border-bottom: 0px solid rgba(221, 221, 221, 1);
         margin-bottom: 9px;
         -webkit-app-region: drag;
@@ -3170,7 +3170,7 @@ export default {
     
     .msg-list {
         min-height: 99%;
-        background: rgba(245, 246, 249, 1);
+        background: rgba(241, 241, 241, 1);
         list-style: none;
         margin: 0;
         padding: 0;
@@ -3485,7 +3485,7 @@ export default {
 
     .chat-input-tool {
         display: inline-block;
-        background: rgba(245, 246, 249, 1);
+        background: rgba(241, 241, 241, 1);
         width: calc(100%-50px);
         height: 40px;
     }

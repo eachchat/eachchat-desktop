@@ -112,7 +112,7 @@ export default {
                         })
                 }
                 else {
-                    shell.openExternal(existLocalFile);
+                    shell.openPath(existLocalFile);
                 }
             }
             else if(chatGroupMsgContent.msgtype == "m.audio") {

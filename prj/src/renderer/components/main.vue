@@ -492,9 +492,9 @@ export default {
           }
         })
         global.mxMatrixClientPeg.matrixClient.on("Session.logged_out", this.softLogout)
-        await global.mxMatrixClientPeg.matrixClient.bootstrapCrossSigning({
-            authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
-        });
+        //await global.mxMatrixClientPeg.matrixClient.bootstrapCrossSigning({
+        //    authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
+        //});
         // await global.mxMatrixClientPeg.matrixClient.downloadKeys([global.mxMatrixClientPeg.matrixClient.getUserId()]);
 
 /*     global.mxMatrixClientPeg.matrixClient.getMediaConfig().then((config)=>{
