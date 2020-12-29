@@ -638,6 +638,11 @@ export default {
           this.dealShowGroupList.unshift(room);
         }
       }
+      setTimeout(() => {
+        this.$nextTick(() => {
+          this.showGroupIconName();
+        })
+      }, 0)
     },
 
     InvitesClick(){
@@ -760,6 +765,9 @@ export default {
         //   notificateContent = fromUserName + ":" + notificateContent;
         // }
 
+      }
+      if(newMsg.isState()) {
+        return;
       }
       console.log("*** title is ", notificateContent)
       console.log("*** fromName is ", fromName)
