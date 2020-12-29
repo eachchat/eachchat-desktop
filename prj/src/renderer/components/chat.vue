@@ -2183,9 +2183,14 @@ export default {
             const myUserId = this.chat.myUserId;
             const members = this.chat.currentState.members;
             // var isOwner = (this.chat.owner == this.curUserInfo.id);
+            console.log('aaaa', myUserId);
+            console.log('bbbb', members);
             const isOwner = members[myUserId].powerLevel === 100; //owner`s powerLevel is 100?
             let ownerId;
             for(let key in members) {
+                console.log('1111', key);
+                console.log('2222', members);
+                console.log('3333', members[key]);
                 if (members[key].powerLevel === 100) ownerId = key;
             }
             console.log("this.chat ", this.chat);
