@@ -33,7 +33,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
                   </div>
                   <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
@@ -1121,11 +1121,11 @@ export default {
       if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
         if(!distUserId) {
-          elementGroupName.innerHTML = distGroup.name;
+          // elementGroupName.innerHTML = distGroup.name;
           return;
         }
         var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-        elementGroupName.innerHTML = displayName;
+        distGroup.name = displayName;
       }
     },
 
@@ -1136,15 +1136,40 @@ export default {
       }
     },
 
+    updateInviteChatContent: async function(groups) {
+      for(let item of groups) {
+        var distElement = document.getElementById(this.getInviteChatContentElementId(item.roomId));
+        if(distElement) {
+          if(item.timeline && item.timeline.length == 0){
+            if(item.getMyMembership() == "invite") {
+              if (!item) {
+                  return;
+              }
+              const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+              const inviteEvent = item.currentState.getMember(myUserId);
+              if (!inviteEvent) {
+                  return;
+              }
+              const inviterUserId = inviteEvent.events.member.getSender();
+              var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
+              distElement.innerHTML = "[邀请]:" + inviterName;
+            }
+          };
+        }
+      }
+    },
+
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
         this.UpdateGroupImage(distGroup);
+        this.updageGroupName(distGroup);
       }
       else{
 
           this.UpdateGroupsImageAndName(this.showFavouriteRooms);
           this.UpdateGroupsImageAndName(this.showInviteGroupList);
+          this.updateInviteChatContent(this.showInviteGroupList);
           this.UpdateGroupsImageAndName(this.showDealGroupList);
           this.UpdateGroupsImageAndName(this.showLowPriorityGroupList)
       }
@@ -1536,6 +1561,9 @@ export default {
         return "chat-groupList-" + groupId;
       }
     },
+    getInviteChatContentElementId: function(roomId) {
+      return "inviteList-" + roomId;
+    },
     getChatGroupNameElementId: function(groupId, uid) {
       if(groupId != undefined && uid != undefined) {
         return "chat-groupList-name-" + groupId + "-" + uid;
@@ -1548,9 +1576,9 @@ export default {
       }
     },
     getShowGroupName(chatGroupItem) {
-      if(!global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+      // if(!global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
         return chatGroupItem.name;
-      }
+      // }
     },
     _getInviteMember: function(chatGroupItem) {
         if (!chatGroupItem) {
@@ -1562,6 +1590,7 @@ export default {
             return;
         }
         const inviterUserId = inviteEvent.events.member.getSender();
+        // var inviterName = ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
         return chatGroupItem.currentState.getMember(inviterUserId);
     },
     _getMyMember(chatItem) {
@@ -1906,7 +1935,7 @@ export default {
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var sender = distTimeLine.sender.name;
             var content = chatGroupMsgContent.body;
-            return sender + ":" + content;
+            return content;
           }
           else if(chatGroupMsgContent.msgtype == 'm.image'){
             return "[图片]";
@@ -1921,7 +1950,7 @@ export default {
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var sender = distTimeLine.sender.name;
             var content = chatGroupMsgContent.body;
-            return sender + ":" + content;
+            return content;
           } 
           else if(chatGroupMsgContent.msgtype == 'm.image'){
             return "[图片]";

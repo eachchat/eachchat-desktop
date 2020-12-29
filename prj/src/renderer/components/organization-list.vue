@@ -153,7 +153,7 @@ export default {
             this.userInfoTipKey ++;
             this.showUserInfoTips = true;
         },
-        getUserImg: async function (userInfo){
+        getUserImg: function (userInfo){
             if(userInfo.user_id == undefined || userInfo == null) {
                 return "";
             }
@@ -162,12 +162,16 @@ export default {
             let userIconElement = document.getElementById(userInfo.user_id);
             if(!userIconElement)
                 return;
-            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id);
-            console.log(profileInfo)
-            if(!profileInfo.avatar_url)
-                return;
-            let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-            userIconElement.setAttribute("src", validUrl);
+            console.log(userInfo.matrix_id)
+            global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id).then((profileInfo) => {
+                console.log(profileInfo)
+                if(!profileInfo.avatar_url)
+                    return;
+                let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                userIconElement.setAttribute("src", validUrl);
+            }).catch((e) => {
+                console.log(e);
+            });
         },
         getAppBaseData:async function() {
             var rootDepartment = await Department.GetRoot();

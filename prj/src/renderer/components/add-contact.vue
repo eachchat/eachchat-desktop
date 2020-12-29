@@ -137,9 +137,9 @@ export default {
                     return;
                 this.searchUsers = this.GetUsersFromOrgAndMatrixHS(this.searchUsers, searchUsers);
                 this.bShowSearchRes = true;
-                this.$nextTick(async function(){
+                this.$nextTick(function(){
                     for(var i = 0; i < this.searchUsers.length; i ++){
-                        await this.getUserImg(this.searchUsers[i], 'addContact');
+                        this.getUserImg(this.searchUsers[i], 'addContact');
                     }
                 });
             });
@@ -190,7 +190,7 @@ export default {
             return userID + 'addContact';
         },
 
-        getUserImg: async function (userInfo, key='type'){
+        getUserImg: function (userInfo, key='type'){
             if(!userInfo || !userInfo.matrix_id)
                 return;
             
@@ -202,13 +202,16 @@ export default {
             
             if(!userAvatarUrl)
             {
-                let info = await this.matrixClient.getProfileInfo(userInfo.matrix_id);
-                userAvatarUrl = info.avatar_url;
-            }
-            if(!userAvatarUrl)
-                return;
-            let validUrl = this.matrixClient.mxcUrlToHttp(userAvatarUrl);
-            userIconElement.setAttribute("src", validUrl);
+                this.matrixClient.getProfileInfo(userInfo.matrix_id).then((info) => {
+                    userAvatarUrl = info.avatar_url;
+                    return userAvatarUrl;
+                }).then((avaurl) => {
+                    if(!avaurl)
+                        return;
+                    let validUrl = this.matrixClient.mxcUrlToHttp(avaurl);
+                    userIconElement.setAttribute("src", validUrl);
+                });
+            }    
         },
 
         
