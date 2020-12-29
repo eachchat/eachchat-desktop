@@ -739,8 +739,8 @@ export default {
         margin-top: 0;
     }
     .search-logo {
-        height: 32px;
-        width: 32px;
+        height: 20px;
+        width: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -748,7 +748,7 @@ export default {
     }
     .search-input {
         flex: 1;
-        height: 32px;
+        height: 30px;
         box-sizing: border-box;
         border: none;
     }
@@ -761,6 +761,8 @@ export default {
         border-radius: 2px;
         border: 1px solid #DDDDDD;
         margin-bottom: 0;
+        box-sizing: border-box;
+        align-items: center;
     }
     .wrap-layer {
         height: 100%;
