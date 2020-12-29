@@ -964,13 +964,14 @@ export default {
           isSecret = true;
         }
         this.menu = new Menu();
+        /*
         this.menu.append(new MenuItem({
             label: "标记已读",
             click: () => {
                 this.SetRoomReader(groupItem)
             }
         })); 
-
+        */
         if(!isSecret) {
           /*
           if(this.groupIsSlience(groupItem)) {
@@ -1027,14 +1028,14 @@ export default {
             }));
           }
         }
-       
+       /*
         this.menu.append(new MenuItem({
             label: "退出",
             click: () => {
                 this.deleteGroup(groupItem)
             }
         }));   
-        
+        */
         this.menu.popup(remote.getCurrentWindow());
     },
     SetRoomLowpriority(groupItem){
