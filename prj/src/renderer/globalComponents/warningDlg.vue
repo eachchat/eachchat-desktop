@@ -1,12 +1,14 @@
 <template>
-    <div class="mx-setting-dialog" id="tip_alertModal">
-        <div class="inner-wrap">
-            <div class="title">{{title}}</div>
-            <div class="close" @click.stop="close">x</div>
-            <div>{{content}}</div>
-             <div class="submit-field">
-                <div class="button" @click.stop="confirm">确定</div>
-                <div class="button" @click.stop="cancel">取消</div>
+    <div id="tip_alertModal" class="wrap-layer">
+        <div class="mx-setting-dialog">
+            <div class="inner-wrap">
+                <div class="title">{{title}}</div>
+                <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png">
+                <div>{{content}}</div>
+                <div class="submit-field">
+                    <div class="button buttonConfirm" @click.stop="confirm">确定</div>
+                    <div class="button buttonCancel" @click.stop="cancel">取消</div>
+                </div>
             </div>
         </div>
     </div>
@@ -70,17 +72,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .wrap-layer {
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        top:0px;
+        left:0px;
+        background: rgba(0, 0, 0, 0.6);
+        z-index:3;
+    }
     .mx-setting-dialog {
         position: fixed;
         left: 50%;
-        top: 20px;
+        top: 50%;
+        margin-top: -80px;
         margin-left: -200px;
-        background-color: #f2f2f2;
+        background-color: #fff;
         padding: 24px;
         border-radius: 4px;
         width: 400px;
         height: 160px;
-        z-index: 99999;
+        z-index: 9998;
         .inner-wrap {
             height: 100%;
             overflow-y: scroll;
@@ -93,8 +105,9 @@ export default {
                 position: absolute;
                 top: 24px;
                 right: 24px;
-                font-size: 20px;
                 cursor: pointer;
+                height: 20px;
+                widows: 20px;
             }
             .setting-field {
                 margin-bottom: 20px;
@@ -121,24 +134,33 @@ export default {
             }
             .submit-field {
                 display: flex;
-                flex-direction: row-reverse;
+                justify-content: center;
                 align-items: center;
-                position: absolute;
-                bottom: 44px;
-                right: 24px;
+                flex-direction: row-reverse;
+                margin-top: 60px;
                 .button {
-                    width: 100px;
-                    height: 28px;
                     box-sizing: border-box;
-                    border: .5px solid #000;
-                    background-color: #fff;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14px;
-                    margin-left: 28px;
+                    width: 100px;
+                    height: 32px;
                     border-radius: 4px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 14px;
+                    font-family: PingFangSC-Medium, PingFang SC;
+                    font-weight: 500;
+                    line-height: 20px;
+                    letter-spacing: 1px;
                     cursor: pointer;
+                }
+                .buttonCancel {
+                    background: #fff;
+                    border: 1px solid #DDDDDD;
+                }
+                .buttonConfirm {
+                    margin-left: 28px;
+                    background: #24B36B;
+                    color: #FFFFFF;
                 }
             }
         }
