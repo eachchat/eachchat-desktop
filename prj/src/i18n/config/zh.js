@@ -4,7 +4,7 @@ const zh = {
         "zh": "简体中文",
         "en": "英文",
     },
-    joinYourOrganization: "输入组织名称",
+    joinYourOrganization: "组织名称",
     homeServerAddress: "服务器设置",
     invalidServerAddress: "Home Server地址不正确",
     invalidPassword: "账号密码错误",

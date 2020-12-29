@@ -2272,7 +2272,7 @@ export default {
 
   .chat {
     width:100%;
-    background-color: rgba(245, 246, 249, 1);
+    background-color: rgba(241, 241, 241, 1);
     display: flex;
     flex-direction: column;
     position: relative;
