@@ -274,7 +274,8 @@ const {Menu, MenuItem, clipboard, nativeImage} = remote;
 import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
-import {ComponentUtil} from '../script/component-util.js'
+import {ComponentUtil} from '../script/component-util.js';
+import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 export default {
   components: {
     ChatPage,
@@ -1196,16 +1197,11 @@ export default {
     },
 
     groupIsSlience(groupInfo) {
-      if(groupInfo.status == undefined) {
-        return false;
-      }
-      if(groupInfo.status == 0) {
-        return false;
+      const state = getRoomNotifsState(groupInfo.roomId);
+      if(state == MUTE) {
+        return true;
       }
       else {
-        if(groupInfo.status.substr(7, 1) == "1") {
-            return true;
-        }
         return false;
       }
     },

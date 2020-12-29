@@ -1163,6 +1163,7 @@ export default {
     box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
     top: 0;
     right: 0;
+    z-index: 3;
 }
 
 .groupInfoTitleDiv {
