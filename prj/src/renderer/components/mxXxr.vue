@@ -129,13 +129,13 @@
                     class="submit-button"
                     style="background:#A7E0C4"
                     v-if="loading || !choosenMembers || !choosenMembers.length"
-                >创建</div>
+                >确认</div>
                 <div 
                     class="submit-button" 
                     style="background:#24B36B"
                     @click.stop="createXie"
                     v-else
-                >创建</div>
+                >确认</div>
             </div>
         </div>
     </div>
