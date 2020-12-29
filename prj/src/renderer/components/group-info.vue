@@ -56,7 +56,7 @@
                 <span class="secretTypeAutoLabel">自动</span>
             </div>
         </div>
-        <div v-if="!isDm && showGroupInfo.userLevel>=100" class="groupSettingSilenceDiv" style="display:flex; align-items:center; justify-content:space-between;" @click.stop="openSetting()">
+        <div v-if="!isDm && showGroupInfo.userLevel>=100" class="groupSettingSilenceDiv qsz" @click.stop="openSetting()">
             <label style="font-size:14px">群聊设置</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
@@ -1137,6 +1137,13 @@ export default {
     background-color: #A8A8A8;
     border-radius: 5px;
   }
+
+.qsz {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    cursor: pointer;
+}  
 
 .adminBadge {
     width: 46px;

@@ -62,8 +62,8 @@
                     <label for="histcheck2">只有群成员（从此选项被选中的那一时刻)</label>
                 </div>
             </div>
-            <div class="setting-field">
-                <div class="filed-title">谁可以加入群聊</div> <!--@change="setGuestAccess"-->
+            <!-- <div class="setting-field">
+                <div class="filed-title">谁可以加入群聊</div>
                 <div class="xiaomiaoshu">
                     <img class="imgGouxuan" v-if="guestAccess == 'forbidden'" src="../../../static/Img/Main/xgg.png">
                     <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setGuestAccess1('forbidden')">
@@ -76,7 +76,7 @@
                     <input style="display:none;" type="radio" id="whocanjoin1" value="can_join" v-model="guestAccess">
                     <label for="whocanjoin1">任何知道群聊链接的人，包括所在域外的用户</label>
                 </div>
-            </div>
+            </div> -->
             <div class="mxTransmitFotter">
                 <button :class="{mxTransmitConfirmButton:!busy, mxTransmitConfirmButtonLoading:busy}" @click.stop="confirm">确认</button>
                 <button class="mxTransmitCancleButton" @click.stop="close">取消</button>
@@ -133,7 +133,7 @@ export default {
             const address = '#' + this.serverAddress + ':matrix.each.chat';
             const joinRule = this.joinRule;
             const history = this.history;
-            const guestAccess = this.guestAccess;
+            // const guestAccess = this.guestAccess;
             let promises = [];
             let p1 = window.mxMatrixClientPeg.matrixClient.createAlias(address, roomId).then(()=>{
                 console.log('success!!@')
@@ -143,13 +143,13 @@ export default {
             let p2 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.join_rules", {join_rule: joinRule}, "").catch((e) => {
                 console.error(e);
             });
-            let p3 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.guest_access", {guest_access: guestAccess}, "").catch((e) => {
-                console.error(e);
-            });
+            // let p3 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.guest_access", {guest_access: guestAccess}, "").catch((e) => {
+            //     console.error(e);
+            // });
             let p4 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.history_visibility", {history_visibility: history}, "").catch((e) => {
                 console.error(e);
             });
-            promises = [p1,p2,p3,p4];
+            promises = [p1,p2,p4];
             Promise.all(promises).then(()=>{
                 this.busy = false;
                 this.close();
