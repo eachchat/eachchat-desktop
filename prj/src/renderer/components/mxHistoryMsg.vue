@@ -11,7 +11,7 @@
                 <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId" v-show="false"></label>
             </div>
             <div class="Mxsearch">
-                <input class="MxHistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <input class="MxHistoryMsgDlgSearchInput" id="MxHistoryMsgDlgSearchInputId" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="MxHistoryMsg-list" id="MxHistoryMsg-list-Id">
@@ -43,6 +43,9 @@
                 <img class="MxHistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
                 <div class="MxHistoryMsgEmptyText">搜索会话中的消息</div>
             </div>
+            <div class="MxHistorySearchEmpty" v-show="searchEmpty">
+                <div class="MxHistorySearchEmptyText">暂无结果</div>
+            </div>
         </div>
     </div>
 </template>
@@ -56,6 +59,7 @@ import {ipcRenderer} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 import { Group } from '../../packages/data/sqliteutil'
 import eventSearch, {searchPagination} from '../../packages/data/Searching.js';
+import {ComponentUtil} from '../script/component-util'
 export default {
     name: 'HistoryMsgDlg',
     data () {
@@ -64,6 +68,7 @@ export default {
             GroupInfo: null,
             groupId: '',
             showEmpty: true,
+            searchEmpty: false,
             ret: {},
         }
     },  
@@ -170,8 +175,8 @@ export default {
                 let obj = {...xie1.currentState.members[key], choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
-            console.log('mxMembers', mxMembers);
-            console.log('----mxMembers[userId]----', userId)
+            // console.log('mxMembers', mxMembers);
+            // console.log('----mxMembers[userId]----', userId)
             
             return mxMembers.length;
         },
@@ -262,7 +267,7 @@ export default {
                 // console.log("============ sender ", sender)
                 
                 var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, null, null);
-                var distUserName = sender.displayName;
+                var distUserName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);;
                 distUserNameElement.innerHTML = distUserName;
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
                     distUserImgElement.setAttribute("src", userUrl);
@@ -308,6 +313,7 @@ export default {
                 console.log("this.messagelsitshow is ", this.messageListShow)
                 this.showGroupInfo();
                 this.showEmpty = true;
+                this.searchEmpty = false;
                 return
             }
             var curSearchId = new Date().getTime();
@@ -325,11 +331,19 @@ export default {
                         // console.log("this.messagelsitshow is ", this.messageListShow)
                         this.showGroupInfo();
                         this.showEmpty = true;
+                        this.searchEmpty = false;
                     }
                     else {
                         this.showEmpty = false;
                         if(searchResult.id == this.searchId) {
                             this.ret = ret;
+                            console.log("***ret is ", ret);
+                            if(this.ret.results.length == 0) {
+                                this.searchEmpty = true;
+                            }
+                            else {
+                                this.searchEmpty = false;
+                            }
                             setTimeout(() => {
                                 this.$nextTick(() => {
                                     this.showGroupInfo();
@@ -399,6 +413,14 @@ export default {
                     return newInnerHtml;
                 }
             }
+            else if(showContent.name != undefined) {
+                var textContent = showContent.name;
+                if(textContent.indexOf(this.searchKey) != -1) {
+                    let splitValue = textContent.split(this.searchKey);
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                    return newInnerHtml;
+                }
+            }
         },
         MsgContent: function(curMsg) {
             var tmpContent = curMsg.content;
@@ -416,6 +438,7 @@ export default {
             
             if(this.searchKey.length == 0) {
                 this.showEmpty = true;
+                this.searchEmpty = false;
             }
             else{
                 this.showEmpty = false;
@@ -457,6 +480,10 @@ export default {
             }
             this.groupId = this.distRoomId;
             await this.getAppBaseData();
+            this.$nextTick(() => {
+                var searchInput = document.getElementById("MxHistoryMsgDlgSearchInputId");
+                searchInput.focus();
+            })
         }
     },
     mounted: function() {
@@ -633,7 +660,7 @@ export default {
 
     .MxHistoryMsgEmpty {
         width:100%;
-        height: 100%;
+        height: 390px;
         background-color: white;
         display: flex;
         flex-flow: column;
@@ -658,9 +685,31 @@ export default {
         letter-spacing:1px;
     }
 
+    .MxHistorySearchEmpty {
+        width:100%;
+        height: 390px;
+        background-color: white;
+        display: flex;
+        flex-flow: column;
+        justify-content: center;
+        align-items: center;  
+    }
+
+    .MxHistorySearchEmptyText {
+        width:104px;
+        height:18px;
+        font-size:12px;
+        font-family: PingFangSC-Regular;
+        font-weight:400;
+        color:rgba(153,153,153,1);
+        line-height:18px;
+        text-align: center;
+        letter-spacing:1px;
+    }
+
     .MxHistoryMsg-list {
         width: 100%;
-        height: calc(100% - 30px);
+        max-height: calc(100% - 135px);
         margin: 0;
         padding: 0;
         list-style: none;

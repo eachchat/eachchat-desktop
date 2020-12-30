@@ -11,7 +11,7 @@
                 <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId"></label>
             </div>
             <div class="Mxsearch">
-                <input class="MxFileListDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <input class="MxFileListDlgSearchInput" id="MxFileListDlgSearchInputId" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="Mxfile-list" id="Mxfile-list-id" v-viewer="options">
@@ -19,10 +19,13 @@
                     <img :class="MxgetClassName(item)" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
                     <div class="MxfileInfoDiv" @click="openFile(item)">
                         <label class="MxfileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
-                        <label class="MxfileInfoDetailLabel">{{getFileInfo(item)}}</label>
+                        <label class="MxfileInfoDetailLabel" :id="getFileLabelId(item)"></label>
                     </div>
                 </li>
             </ul>
+            <div class="MxFileListEmpty" v-show="searchEmpty">
+                <div class="MxFileListEmptyText">暂无结果</div>
+            </div>
         </div>
     </div>
 </template>
@@ -40,6 +43,7 @@ import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
 import { Message } from '../../packages/data/sqliteutil.js'
 import BenzAMRRecorder from 'benz-amr-recorder'
+import {ComponentUtil} from '../script/component-util'
 export default {
     name: 'MxFileListDlg',
     data () {
@@ -67,6 +71,7 @@ export default {
             needDownload: false,
             originalFileList: [],
             lastSequenceId: 0,
+            searchEmpty: false,
         }
     }, 
     methods: {
@@ -178,7 +183,7 @@ export default {
             this.updatePage();
             this.$emit("fileListClose");
         },
-        MsgBelongUserName: function(curItem) {
+        MsgBelongUserName: async function(curItem) {
             if(curItem === null) {
                 return '';
             }
@@ -187,7 +192,8 @@ export default {
                 if(sender == null) {
                     return '';
                 }
-                return sender.name;
+                var distUserName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);;
+                return distUserName;
             }
         },
         // Get formate message time
@@ -215,12 +221,13 @@ export default {
         },
         showGroupInfo: async function() {
             this.$nextTick(() => {
-                setTimeout(() => {
+                setTimeout(async () => {
                     for(var i=0;i<this.fileListShow.length;i++) {
-                        var elementIdTmp = this.getFileIconId(this.fileListShow[i]);
-                        var elementTmp = document.getElementById(elementIdTmp);
-                        if(elementTmp != undefined) {
-                            elementTmp.setAttribute("src", this.getIcon(this.fileListShow[i]));
+                        var elementLabelId = this.getFileLabelId(this.fileListShow[i]);
+                        var elementLabel = document.getElementById(elementLabelId);
+                        if(elementLabel != undefined) {
+                            var showInfo = await this.getFileInfo(this.fileListShow[i]);
+                            elementLabel.innerHTML = showInfo;
                         }
                     }
                 }, 0)
@@ -243,7 +250,7 @@ export default {
         search: function() {
             if(this.searchKey.length == 0) {
                 this.fileListShow = this.originalFileList;
-                // this.showGroupInfo();
+                this.showGroupInfo();
             }
             var curSearchId = new Date().getTime();
             console.log("searchkey is ", this.searchKey);
@@ -261,11 +268,7 @@ export default {
 
             if(searchResult.id == this.searchId) {
                 this.fileListShow = searchResult.searchList;
-                // this.$nextTick(() => {
-                //     setTimeout(() => {
-                //         this.showGroupInfo();
-                //     }, 0)
-                // })
+                this.showGroupInfo();
             }
         },
         getFileName: function(curItem) {
@@ -273,11 +276,11 @@ export default {
             var fileName = showContent.body;
             return fileName;
         },
-        getFileInfo: function(curItem) {
+        getFileInfo: async function(curItem) {
             var MsgContent = curItem.getContent().info;
             var fileSize = getFileSizeByNumber(MsgContent.size);
             var fileDate = this.MsgTime(curItem);
-            var fileFromUserName = this.MsgBelongUserName(curItem);
+            var fileFromUserName = await this.MsgBelongUserName(curItem);
             return fileSize + " " + fileFromUserName + " " + fileDate;
         },
         getIcon: function(curItem) {
@@ -301,6 +304,9 @@ export default {
         getFileIconId: function(curItem) {
             return "MxfileListItem-" + curItem.event.event_id;
         },
+        getFileLabelId: function(curItem) {
+            return "MxfileLabel-" + curItem.event.event_id;
+        },
         getFileList: function() {
             this.fileListShow = [];
             this.originalFileList = [];
@@ -312,7 +318,7 @@ export default {
         updatePage: function() {
             console.log("filelist group info is ", this.fileListInfo);
             this.getFileList();
-            // this.showGroupInfo(this.GroupInfo);
+            this.showGroupInfo(this.GroupInfo);
         },
         getAppBaseData:async function() {
             // Set accessToken in services
@@ -326,6 +332,12 @@ export default {
             this._loadTimeline(undefined, undefined, undefined)
                 .then((ret) => {
                     this.fileListInfo = this._timelineWindow.getEvents();
+                    if(this.fileListInfo.length == 0) {
+                        this.searchEmpty = true;
+                    }
+                    else {
+                        this.searchEmpty = false;
+                    }
                     this.updatePage();
                     setTimeout(() => {
                         this.$nextTick(() => {
@@ -461,6 +473,10 @@ export default {
             }
             this.groupId = this.distRoomId;
             await this.getAppBaseData();
+            this.$nextTick(() => {
+                var searchInput = document.getElementById("MxFileListDlgSearchInputId");
+                searchInput.focus();
+            })
         }
     },
     mounted: function() {
@@ -636,9 +652,31 @@ export default {
         background-color: rgba(1, 1, 1, 0);
     }
 
+    .MxFileListEmpty {
+        width:100%;
+        height: 390px;
+        background-color: white;
+        display: flex;
+        flex-flow: column;
+        justify-content: center;
+        align-items: center;  
+    }
+
+    .MxFileListEmptyText {
+        width:104px;
+        height:18px;
+        font-size:12px;
+        font-family: PingFangSC-Regular;
+        font-weight:400;
+        color:rgba(153,153,153,1);
+        line-height:18px;
+        text-align: center;
+        letter-spacing:1px;
+    }
+
     .Mxfile-list {
         width: 100%;
-        height: calc(100% - 30px);
+        max-height: calc(100% - 135px);
         margin: 0;
         padding: 0;
         list-style: none;
