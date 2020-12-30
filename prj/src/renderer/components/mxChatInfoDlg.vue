@@ -155,6 +155,8 @@ export default {
             margin-bottom: 20px;
             margin-top: 8px;
             padding-left: 10px;
+            font-family: PingFangSC-Medium, PingFang SC;
+
         }
         .desc-text {
             box-sizing: border-box;
@@ -169,6 +171,7 @@ export default {
             margin-bottom: 30px;
             resize: none;
             padding-left: 10px;
+            font-family: PingFangSC-Medium, PingFang SC;
         }
         .input-tip {
             color:rgb(118, 118, 118);
