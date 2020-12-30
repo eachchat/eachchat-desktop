@@ -697,7 +697,7 @@ export default {
         return;
       }
       let senderInfo = global.mxMatrixClientPeg.matrixClient.getUser(event.sender)
-      console.log("*** senderInfo ", senderInfo);
+      // console.log("*** senderInfo ", senderInfo);
       let chatGroupMsgType = event.type;
       var chatGroupMsgContent = msg.getContent();
       var sender = await ComponentUtil.GetDisplayNameByMatrixID(senderInfo.userId);
@@ -767,6 +767,8 @@ export default {
       if(newMsg.isState()) {
         return;
       }
+      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
+      this.updateGroupMsgContent([groupInfo]);
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -779,6 +781,7 @@ export default {
       }
       // console.log("*** newMsg is ", newMsg);
       if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
+        console.log("*** updateChatList SetRoomReader");
         this.SetRoomReader(this.curChat);
         setTimeout(() => {
           this.scrollToDistPosition(this.curChat);
@@ -786,12 +789,11 @@ export default {
         return;
       }
       this.checkUnreadCount();
-      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
       var notificateContent = await this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
       fromName = await this.getShowGroupName(groupInfo);
-      console.log("*** title is ", notificateContent)
-      console.log("*** fromName is ", fromName)
+      // console.log("*** title is ", notificateContent)
+      // console.log("*** fromName is ", fromName)
       this.showNotice(fromName, notificateContent);
     },
     showNotice(fromName, notificateContent) {
@@ -2101,9 +2103,11 @@ export default {
       }
 
       if(this.curChat != undefined && this.curChat.timeline.length != 0) {
+        console.log("*** showChat SetRoomReader");
         this.SetRoomReader(this.curChat);
       }
 
+      console.log("*** showChat SetRoomReader");
       this.SetRoomReader(chatGroup);
       
       this.curChat = chatGroup;
