@@ -1457,6 +1457,7 @@ export default {
     background-size: auto 100%;
     background-image: url("../../../static/Img/Chat/edit-20px@2x.png");
     background-repeat: no-repeat;
+    cursor: pointer;
 }
 
 // .groupInfoNameEdit:hover {
