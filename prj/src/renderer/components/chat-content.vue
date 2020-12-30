@@ -773,14 +773,8 @@ export default {
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender.name;
-      if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
-        setTimeout(() => {
-          this.scrollToDistPosition(this.curChat);
-        }, 1000)
-        return;
-      }
       // console.log("*** newMsg is ", newMsg);
-      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
+      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin && this.checkNeedScroll()) {
         console.log("*** updateChatList SetRoomReader");
         this.SetRoomReader(this.curChat);
         setTimeout(() => {
@@ -795,6 +789,29 @@ export default {
       // console.log("*** title is ", notificateContent)
       // console.log("*** fromName is ", fromName)
       this.showNotice(fromName, notificateContent);
+    },
+    checkNeedScroll() {
+      if(this.isFirstLogin) {
+        return false;
+      }
+      var distGroupItem = document.getElementById(this.getChatGroupNameElementId(this.curChat.roomId));
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      if(this.groupListElement && distGroupItem) {
+        if(this.groupListElement.scrollTop > distGroupItem.offsetTop || (this.groupListElement.scrollTop + this.groupListElement.clientHeight < distGroupItem.offsetTop)) {
+          console.log("*** need Scroll");
+          return true;
+        }
+        else {
+          console.log("*** do not need Scroll");
+          return false;
+        }
+        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'smooth'});
+      }
+      else {
+        return false;
+      }
     },
     showNotice(fromName, notificateContent) {
       if(this.isWindows()) {
