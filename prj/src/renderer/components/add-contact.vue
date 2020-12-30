@@ -19,7 +19,8 @@
                                 <p class="contact-list-name">{{ contact.user_display_name }}</p>
                                 <p class="contact-list-titile">{{ contact.matrix_id }}</p>
                             </div>
-                            <button class="contact-list-button" @click="HandleSave(index, contact)" :disabled='DisableSave(contact)'>保存</button>
+                            <button v-if = 'DisableSave(contact)' class="contact-list-disable-button" @click="HandleSave(index, contact)" :disabled='true'>已添加</button>
+                            <button v-else class="contact-list-button" @click="HandleSave(index, contact)" >添加</button>
                         </li>
                     </ul>
                 </el-main>
