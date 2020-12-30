@@ -8,7 +8,7 @@
             <el-container class="ChatCreaterContent">
                 <el-main class="selectedView">
                     <div class="search">
-                        <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." size='mini' clearable></el-input>
+                        <el-input class="search-input" prefix-icon="el-icon-search" v-model="searchKey" @input="search" placeholder="搜索..." size='mini' clearable></el-input>
                     </div>
                     <ul class = 'contact-list'>
                         <li class="contact-list-item"
@@ -280,7 +280,8 @@ display: none;
         line-height: 56px;
         display: inline-block;
         margin-left: 32px;
-        vertical-align: top;
+        vertical-align: top;    
+        font-size: 16px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
         letter-spacing: 2px;

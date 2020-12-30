@@ -36,7 +36,7 @@ const zh = {
     organizeMenuName: "组织",
     contactMenuName: "我的联系人",
     addContactButton: "添加",
-    addContactDlgName: '创建联系人',
+    addContactDlgName: '添加联系人',
     contactLabel:"使用昵称、用户名或Matrix ID搜索联系人",
     inputContactDlgName: '添加Matrix ID',
     DeleteContactAlertTitle: "确认删除联系人",
