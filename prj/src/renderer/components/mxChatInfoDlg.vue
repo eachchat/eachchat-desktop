@@ -3,30 +3,24 @@
         <div class="mx-setting-dialog">
             <div class="inner-wrap">
                 <div class="title">
-                    <span>编辑群资料</span>
+                    <span class="titlespan">编辑群资料</span>
                     <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png">
                 </div>
-                <div class="setting-field">
-                    <div class="filed-title">群名称</div>
-                    <input 
-                        type="text" 
-                        placeholder="请输入群名称" 
-                        class="title-input"
-                        maxlength="24"
-                        v-model="roomName"
-                    />
-                    <div class="input-tip">*限制24个字符</div>
-                </div>
-                <div class="setting-field">
-                    <div class="filed-title">群名称</div>
-                    <textarea 
-                        placeholder="请输入群描述" 
-                        class="desc-text"
-                        maxlength="100"
-                        v-model="roomTopic"
-                    ></textarea>
-                    <div class="input-tip">*限制100个字符</div>
-                </div>
+                <div class="filed-title">群名称</div>
+                <input 
+                    type="text" 
+                    placeholder="请输入群名称" 
+                    class="title-input"
+                    maxlength="24"
+                    v-model="roomName"
+                />
+                <div class="filed-title">群名称</div>
+                <textarea 
+                    placeholder="请输入群描述" 
+                    class="desc-text"
+                    maxlength="100"
+                    v-model="roomTopic"
+                ></textarea>
                 <div class="submit-field">
                     <div class="button button-close" @click.stop="close">取消</div>
                     <div :class="{button:true, buttonConfirm:!loading, buttonConfirmLoading:loading}" @click.stop="updateInfo">确定</div>
@@ -109,90 +103,112 @@ export default {
     .mx-setting-dialog {
         position: absolute;
         left: 50%;
-        top: 20px;
+        top: 50%;
         margin-left: -200px;
+        margin-top: -171px;
         background-color: #fff;
-        padding: 24px;
-        border-radius: 4px;
-        width: 400px;
-        height: 400px;
         z-index: 99999;
-        .inner-wrap {
-            height: 100%;
-            overflow-y: scroll;
-            .title {
-                font-size: 16px;
-                font-weight: bolder;
-                margin-bottom: 20px;
+        width: 440px;
+        height: 342px;
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
+        border-radius: 4px;
+        .title {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-left: 32px;
+            padding-right: 20px;
+        }
+        .titlespan {
+            height: 22px;
+            font-size: 16px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: #000000;
+            line-height: 22px;
+            letter-spacing: 2px;
+        }
+        .close {
+            height: 20px;
+            width: 20px;
+        }
+        .filed-title {
+            height: 20px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #333333;
+            line-height: 20px;
+            letter-spacing: 1px;
+            margin-left: 40px;
+        }
+        .title-input {
+            height: 32px;
+            width: 360px;
+            box-sizing: border-box;
+            border: 1px solid #DDDDDD;
+            outline: none;
+            border-radius: 4px;
+            margin-left: 40px;
+            margin-bottom: 20px;
+            margin-top: 8px;
+            padding-left: 10px;
+        }
+        .desc-text {
+            box-sizing: border-box;
+            outline: none;
+            width: 360px;
+            height: 80px;
+            background: #FFFFFF;
+            border-radius: 4px;
+            border: 1px solid #DDDDDD;
+            margin-left: 40px;
+            margin-top: 8px;
+            margin-bottom: 30px;
+            resize: none;
+            padding-left: 10px;
+        }
+        .input-tip {
+            color:rgb(118, 118, 118);
+            font-size: 14px;
+        }
+        .submit-field {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .button {
+                width: 100px;
+                height: 32px;
+                box-sizing: border-box;
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
-            }
-            .close {
-                height: 20px;
-                width: 20px;
-            }
-            .setting-field {
-                margin-bottom: 20px;
-                font-size: 12px;
-                .filed-title {
-                    font-size: 16px;
-                    margin-bottom: 12px;
-                }
-                .title-input {
-                    height: 40px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    border: 1px solid #DDDDDD;
-                    outline: none;
-                    border-radius: 4px;
-                }
-                .desc-text {
-                    height: 120px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    resize: none;
-                    border: 1px solid #DDDDDD;
-                    outline: none;
-                    border-radius: 4px;
-                }
-                .input-tip {
-                    color:rgb(118, 118, 118);
-                    font-size: 14px;
-                }
-            }
-            .submit-field {
-                display: flex;
                 justify-content: center;
-                align-items: center;
-                .button {
-                    width: 100px;
-                    height: 32px;
-                    box-sizing: border-box;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14px;
-                    border-radius: 4px;
-                }
-                .button-close {
-                    border: 1px solid #DDD;
-                    background-color: #fff;
-                    color: #000;
-                }
-                .buttonConfirmLoading {
-                    margin-left: 20px;
-                    border: 1px solid #A7E0C4;
-                    background-color: #A7E0C4;
-                    color: #fff;
-                }
-                .buttonConfirm {
-                    margin-left: 20px;
-                    border: 1px solid #24B36B;
-                    background-color: #24B36B;
-                    color: #fff;
-                }
+                font-size: 14px;
+                border-radius: 4px;
+                font-family: PingFangSC-Medium, PingFang SC;
+                font-weight: 500;
+                line-height: 20px;
+            }
+            .button-close {
+                border: 1px solid #DDD;
+                background-color: #fff;
+                color: #000;
+            }
+            .buttonConfirmLoading {
+                margin-left: 20px;
+                border: 1px solid #A7E0C4;
+                background-color: #A7E0C4;
+                color: #fff;
+            }
+            .buttonConfirm {
+                margin-left: 20px;
+                border: 1px solid #24B36B;
+                background-color: #24B36B;
+                color: #fff;
             }
         }
+
     }
 </style>
