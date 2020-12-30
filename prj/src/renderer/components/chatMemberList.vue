@@ -4,8 +4,8 @@
             <ul class="atList" id="atListId">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @click="atMember(item)">
                     <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" src="../../../static/Img/User/user-40px@2x.png">
-                        <label class="groupMemberInfoLabel">{{item.name}}</label>
+                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" src="../../../static/Img/User/user-40px@2x.png">
+                        <label class="groupMemberInfoLabel" :id="getNameIdThroughMemberUid(item.userId)">{{item.name}}</label>
                     </div>
                 </li>
             </ul>
@@ -21,6 +21,7 @@ import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { nextTick } from 'process'
+import {ComponentUtil} from '../script/component-util'
 export default {
     name: 'atDlg',
     data() {
@@ -59,6 +60,9 @@ export default {
         getIdThroughMemberUid: function(memberUid) {
             return "member-img-id-" + memberUid;
         },
+        getNameIdThroughMemberUid: function(memberUid) {
+            return "member-name-id-" + memberUid;
+        },
         getDeleteIdThroughMemberUid: function(memberUid) {
             return "delete-member-id-" + memberUid;
         },
@@ -66,19 +70,32 @@ export default {
             var uid = elementId.slice("member-img-div-id-".length, elementId.length);
             return uid;
         },
-        getMemberImage: async function() {
-            return;
-            for(var i=0; i < this.memberListShow.length; i++) {
-                var distUserInfo = this.memberListShow[i];
-                if(!distUserInfo.user.avatarUrl)
-                    continue;
-                // console.log("distuserinfo.uid ", distUserInfo.user_id);
-                var targetPath = '';
-                let avatarUrl = window.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distUserInfo.user.avatarUrl)
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(targetPath, distUserInfo.userId))){
-                    var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.userId));
-                    distElement.setAttribute("src", targetPath);
+        getMemberInfo: async function() {
+            this.memberListShow.forEach(async (item)=>{
+                var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(item.userId);
+
+                var distNameElement = document.getElementById(this.getNameIdThroughMemberUid(item.userId));
+                if(distNameElement) {
+                    distNameElement.innerHTML = fromUserName;
                 }
+
+                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(item.userId);
+                if(!item)
+                    return;
+                var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                if(avaterUrl == '')
+                    return;
+                var distElement = document.getElementById(this.getIdThroughMemberUid(item.userId));
+                if(!distElement)
+                    return;
+                distElement.setAttribute("src", avaterUrl);
+            })
+        },
+        getMemberName: async function() {
+            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(this.msg.sender.userId);
+
+            if(userNameElement != undefined) {
+                userNameElement.innerHTML = fromUserName;
             }
         },
         updateUserImage: function(e, args) {
@@ -92,21 +109,13 @@ export default {
             distElement.setAttribute("src", localPath);
         },
     },
-    async created () {
-        const userId = window.localStorage.getItem("mx_user_id");
-        //await services.common.InitConfServer("1111111")
-        // this.loginInfo = await services.common.GetLoginModel();
-        // console.log("userinfo-tip login info is ", this.loginInfo);
-        // this.curUserInfo = await services.common.GetSelfUserModel();
-    },
-    mounted() {
-    },
     watch: {
         GroupInfo: async function() {
 
             if(!this.GroupInfo.currentState)
                 return;
-            this.memberListShow = this.GroupInfo.currentState.getMembers()
+            this.memberListShow = this.GroupInfo.currentState.getMembers();
+            console.log("*** this.memberListShow ", this.memberListShow);
             this.memberListShowOriginal = this.memberListShow;
 
             // console.log("GroupInfo is ", this.GroupInfo);
@@ -115,7 +124,7 @@ export default {
             }
 
             this.$nextTick(() => {
-                this.getMemberImage();
+                this.getMemberInfo();
             })
 
             if(this.showPosition.length != 0) {
@@ -162,7 +171,7 @@ export default {
                         }
                     }
                     
-                    this.getMemberImage();
+                    this.getMemberInfo();
                     
                     if(this.showPosition.length != 0) {
                         setTimeout(() => {
@@ -196,7 +205,7 @@ export default {
                 console.log("searchResult ", searchResult);
                 if(searchResult.id == this.searchId) {
                     this.memberListShow = searchResult.searchList;
-                    this.getMemberImage();
+                    this.getMemberInfo();
                 }
 
                 if(this.showPosition.length != 0) {

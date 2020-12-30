@@ -1178,7 +1178,7 @@ export default {
             this.deleteDistContent();
             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
             complexSpan.id = generalGuid();
-            complexSpan.innerHTML = "@" + atMemberInfo.name + ":";
+            complexSpan.innerHTML = "@" + atMemberInfo.name;// + ":";
             var distStyle = this.atConstStyle
             // 'display:inline-block;outline:none;border: 0px;font-size:14px;',
             // console.log("diststyle is ", distStyle);
@@ -1684,7 +1684,8 @@ export default {
                     var fileType = msgInfo.type;
                     if(fileType == "at") {
                         sendText += msgInfo.atName;
-                        sendText += ":"
+                        sendText = "@" + sendText;
+                        // sendText += ":"
                         sendBody.format = "org.matrix.custom.html";
                     }
                 }
