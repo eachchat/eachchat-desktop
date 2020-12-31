@@ -2401,7 +2401,7 @@ const common = {
       }
       if(!result.data.hasNext)
         return;
-      updateTime = result.data.obj.updateTime;
+      //updateTime = result.data.obj.updateTime;
     }
   },
 
