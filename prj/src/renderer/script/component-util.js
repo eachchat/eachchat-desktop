@@ -44,10 +44,14 @@ const ComponentUtil = {
         if(userInfo)
         {
             department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
+            if(!department)
+                department = {display_name:""};
             tempUserInfo.id = userInfo.user_id
         }
         else
+        {
             department.display_name = user.company
+        }
         tempUserInfo.avatar_url = user.avatar_url;
         tempUserInfo.department = department;
         tempUserInfo.matrix_id = matrix_id;
