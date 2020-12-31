@@ -1,6 +1,6 @@
 <template>
     <div class="TransmitLayers" id="TransmitLayersId" >
-        <div :style="dlgPosition" class="TransmitDlg" id="TransmitDlgId" v-if="matrixSync">
+        <div :style="dlgPosition" class="TransmitDlg" id="TransmitDlgId">
             <div class="TransmitHeader">
                 <div class="TransmitHeaderTitle">{{ dialogTitle }}</div>
                 <img ondragstart="return false" class="TransmitClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
@@ -95,7 +95,6 @@ import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
 import conf_service from '../../packages/data/conf_service'
-import { mapState } from 'vuex';
 export default {
     name: 'TransmitDlg',
     components:{
@@ -775,11 +774,6 @@ export default {
             }
         },
     },
-    computed: {
-        ...mapState({
-            matrixSync: state => state.common.matrixSync
-        }),
-    },
     created() {
             //this.curUserInfo = await services.common.GetSelfUserModel();
             //console.log("this.curuser info is ", this.curUserInfo);
@@ -788,10 +782,11 @@ export default {
             // this.dlgPosition.left = showPosition.left.toString() + "px";
             // this.dlgPosition.top = showPosition.top.toString() + "px";
     },
-    watch: {
-        matrixSync: function(){
-            var favGroups = [];
-            var norGroups = [];
+    mounted: function() {
+        ipcRenderer.on('updateGroupImg', this.updateGroupImg);
+        var favGroups = [];
+        var norGroups = [];
+        if(global.mxMatrixClientPeg.matrixClient) {
             global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
                 if(r.getMyMembership() != "leave" && r.getMyMembership() != "invite") {
                     let tags = r.tags;
@@ -815,9 +810,6 @@ export default {
                 });
             }, 0)
         }
-    },
-    mounted: function() {
-        ipcRenderer.on('updateGroupImg', this.updateGroupImg);
     },
     
 }
