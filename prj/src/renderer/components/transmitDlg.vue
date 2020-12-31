@@ -1,6 +1,6 @@
 <template>
     <div class="TransmitLayers" id="TransmitLayersId" >
-        <div :style="dlgPosition" class="TransmitDlg" id="TransmitDlgId">
+        <div :style="dlgPosition" class="TransmitDlg" id="TransmitDlgId" v-if="matrixSync">
             <div class="TransmitHeader">
                 <div class="TransmitHeaderTitle">{{ dialogTitle }}</div>
                 <img ondragstart="return false" class="TransmitClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
@@ -95,6 +95,7 @@ import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
 import conf_service from '../../packages/data/conf_service'
+import { mapState } from 'vuex';
 export default {
     name: 'TransmitDlg',
     components:{
@@ -774,6 +775,11 @@ export default {
             }
         },
     },
+    computed: {
+        ...mapState({
+            matrixSync: state => state.common.matrixSync
+        }),
+    },
     created() {
             //this.curUserInfo = await services.common.GetSelfUserModel();
             //console.log("this.curuser info is ", this.curUserInfo);
@@ -782,32 +788,36 @@ export default {
             // this.dlgPosition.left = showPosition.left.toString() + "px";
             // this.dlgPosition.top = showPosition.top.toString() + "px";
     },
-    mounted: function() {
-        ipcRenderer.on('updateGroupImg', this.updateGroupImg);
-        var favGroups = [];
-        var norGroups = [];
-        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
-            if(r.getMyMembership() != "leave" && r.getMyMembership() != "invite") {
-                let tags = r.tags;
-                if(tags && tags['m.favourite']){
-                    favGroups.push(r);
-                }
-                else{
-                    norGroups.push(r);
-                }
-            }
-        });
-        favGroups.sort(this.SortGroupByTimeLine);
-        norGroups.sort(this.SortGroupByTimeLine);
-        this.recentGroups = favGroups.concat(norGroups);
-        this.showRecentChat = this.recentGroups;
-        setTimeout(() => {
-            this.$nextTick(function(){
-                for(var i = 0; i < this.showRecentChat.length; i ++){
-                    this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
+    watch: {
+        matrixSync: function(){
+            var favGroups = [];
+            var norGroups = [];
+            global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+                if(r.getMyMembership() != "leave" && r.getMyMembership() != "invite") {
+                    let tags = r.tags;
+                    if(tags && tags['m.favourite']){
+                        favGroups.push(r);
+                    }
+                    else{
+                        norGroups.push(r);
+                    }
                 }
             });
-        }, 0)
+            favGroups.sort(this.SortGroupByTimeLine);
+            norGroups.sort(this.SortGroupByTimeLine);
+            this.recentGroups = favGroups.concat(norGroups);
+            this.showRecentChat = this.recentGroups;
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.showRecentChat.length; i ++){
+                        this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
+                    }
+                });
+            }, 0)
+        }
+    },
+    mounted: function() {
+        ipcRenderer.on('updateGroupImg', this.updateGroupImg);
     },
     
 }
