@@ -2388,7 +2388,7 @@ const common = {
       for(let item of result.data.results){
         sequenceID++;
         if(item.del == 1)
-          continue;
+          await Contact.DeleteContact(item.contactMatrixId);
         contactModel = await servicemodels.ContactModel(item);
         existModel = await Contact.GetContactInfo(contactModel.matrix_id);
         if(existModel && existModel.avatar_url){
