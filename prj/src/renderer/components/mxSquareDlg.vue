@@ -2,7 +2,7 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">公共群聊</div>
+                <div class="mxCreaterHeaderTitle">加入群聊</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close('close')">
             </div>
             <div class="search-field">

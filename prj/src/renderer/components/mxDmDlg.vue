@@ -112,6 +112,7 @@ import * as Rooms from "../../packages/data/Rooms";
 import * as RoomUtil from '../script/room-util';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import {getAddressType} from "../../utils/UserAddress";
+import {ComponentUtil} from '../script/component-util';
 
 
 const OPTS = {
@@ -188,28 +189,41 @@ export default {
             }
 
         },
-        invite() {
+        invite() { //TODO
             if (this.loading) return;
             this.loading = true;
             const targetIds = this.choosenMembers.map(t => t.matrix_id || t.user_id);
             const vtx = this;
             const client = window.mxMatrixClientPeg.matrixClient;
             const roomId = this.roomId;
-            // const room = client.getRoom(this.roomId);
+            const room = client.getRoom(roomId);
+            console.log('---hendiaoibi---', room);
+            const membersMap = room.currentState.members;
+            for (let id in membersMap) {
+                if (id === targetIds[0] && membersMap[id].membership !== 'leave') {
+                    this.loading = false;
+                    return alert('该用户已存在');
+                }
+            }
             // if (!room) {
             //     console.error('no room')
             //     return alert('无此房间');
             // }
             let promises = [];
             targetIds.forEach(id => {
+
                 promises.push(vtx.inviteConduct(roomId, id));
             })
+
             Promise.all(promises).then(() => {
                 vtx.loading = false;
                 // const obj = {};
                 // obj.data = {room_id: roomId};
                 // obj.handler = 'viewRoom';
-                vtx.close({room_id: roomId});
+                vtx.close({room_id: roomId, xieId: targetIds[0]});
+            }).catch((e)=>{
+                console.log(e)
+
             });
         },
         createDm: function() {
