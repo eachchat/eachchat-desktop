@@ -303,9 +303,19 @@ export default {
       type: Boolean,
       default: false
     },
-
+    scrollToRecentUnread: {
+      type: Boolean,
+      default: false
+    }
   },
   watch: {
+    scrollToRecentUnread: function() {
+      var distItem = this.getDistUnreadItem();
+      console.log("*** scrollToRecentUnread distItem ", distItem);
+      if(this.checkNeedScroll(distItem)) {
+        this.scrollToDistPosition(distItem);
+      }
+    },
     inviteGroupsList: function(){
       if(this.searchKey == '')
         this.showInviteGroupList = this.inviteGroupsList;
@@ -447,6 +457,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      selfUserId: undefined,
       isFirstLogin: true,
       showImportE2EKeyPage: false,
       toBottom: false,  //聊天页面是否滚动到最底部
@@ -510,10 +521,23 @@ export default {
       lowPriorityGroupList: [],
       showLowPriorityGroupList:[],
       oldElementGroupItem: null,
-      oldElementGroupDiv: null
+      oldElementGroupDiv: null,
+      unreadIndex: -1,
+      hasUnreadItems: [],
     };
   },
   methods: {
+    getDistUnreadItem() {
+      console.log("*** getDistUnreadItem unreadIndex ", this.unreadIndex);
+      console.log("*** getDistUnreadItem hasUnreadItems ", this.hasUnreadItems);
+      if(this.unreadIndex >= this.hasUnreadItems.length - 1) {
+        this.unreadIndex = 0;
+      }
+      else {
+        this.unreadIndex += 1;
+      }
+      return this.hasUnreadItems[this.unreadIndex];
+    },
     DMCheck(curRoomItem) {
         const client = window.mxMatrixClientPeg.matrixClient;
         const mDirectEvent = client.getAccountData('m.direct');
@@ -542,6 +566,7 @@ export default {
     },
     checkUnreadCount: function() {
       this.unreadCount = 0;
+      this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           // this.unreadCount += 1;
@@ -549,6 +574,7 @@ export default {
         else{
           const notificationCount = item.getUnreadNotificationCount();
           if(notificationCount) {
+            this.hasUnreadItems.unshift(item);
             this.unreadCount += notificationCount;
           }
         }
@@ -561,6 +587,7 @@ export default {
       this.favouriteRooms.length = 0;
       this.dealShowGroupList.length = 0;
       this.lowPriorityGroupList.length = 0;
+      this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           // this.unreadCount += 1;
@@ -569,6 +596,7 @@ export default {
         else{
           const notificationCount = item.getUnreadNotificationCount();
           if(notificationCount) {
+            this.hasUnreadItems.unshift(item);
             this.unreadCount += notificationCount;
           }
           let tags = item.tags;
@@ -790,11 +818,11 @@ export default {
       // console.log("*** fromName is ", fromName)
       this.showNotice(fromName, notificateContent);
     },
-    checkNeedScroll() {
-      if(this.isFirstLogin) {
+    checkNeedScroll(checkItem) {
+      if(this.isFirstLogin && !checkItem) {
         return false;
       }
-      var distGroupItem = document.getElementById(this.getChatGroupNameElementId(this.curChat.roomId));
+      var distGroupItem = document.getElementById(this.getChatGroupNameElementId(checkItem ? checkItem.roomId : this.curChat.roomId));
       if(this.groupListElement == null) {
         this.groupListElement = document.getElementById("list-content-id");
       }
@@ -1217,6 +1245,9 @@ export default {
     },
 
     updateGroupMsgContent: async function(groups) {
+      if(this.selfUserId == undefined) {
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+      }
       for(let item of groups) {
         var distElement = document.getElementById(this.getChatContentElementId(item.roomId));
         if(distElement) {
@@ -1232,16 +1263,29 @@ export default {
           if(chatGroupMsgType === "m.room.message")
           {
               var sender = distTimeLine.sender;
-              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
-              if(chatGroupMsgContent.msgtype == 'm.file'){
-                distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+              if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
+                var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                  distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.text'){
+                  distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.image'){
+                  distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+                } 
               }
-              else if(chatGroupMsgContent.msgtype == 'm.text'){
-                distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+              else {
+                if(chatGroupMsgContent.msgtype == 'm.file'){
+                  distElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.text'){
+                  distElement.innerHTML = chatGroupMsgContent.body;
+                }
+                else if(chatGroupMsgContent.msgtype == 'm.image'){
+                  distElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
+                } 
               }
-              else if(chatGroupMsgContent.msgtype == 'm.image'){
-                distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
-              } 
           }
           else if(chatGroupMsgType === "m.room.encrypted") {
               distElement.innerHTML = "收到一条加密消息";
@@ -2178,6 +2222,7 @@ export default {
     UpdateRoomListPassive: function(member) {
       //join leave invite
       this.unreadCount = 0;
+      this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           if(this.inviteGroupsList.indexOf(item) < 0) {
@@ -2192,6 +2237,7 @@ export default {
           const notificationCount = item.getUnreadNotificationCount();
           console.log("notification is ", notificationCount);
           if(notificationCount) {
+            this.hasUnreadItems.unshift(item);
             this.unreadCount += notificationCount;
           }
           let tags = item.tags;

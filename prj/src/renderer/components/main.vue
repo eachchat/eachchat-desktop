@@ -26,7 +26,7 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg"/>
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread"/>
             </keep-alive>
         </el-main>
         <personalCenter v-show="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
@@ -92,6 +92,7 @@ export default {
     },
     data () {
         return {
+            scrollToRecentUnread: false,
             showChangePassword: false,
             alertContnets: {},
             showAlertDlg: false,
@@ -250,13 +251,24 @@ export default {
             console.log(cur_name);
             console.log(cur_link);
             if(cur_name == "chat") {
-                this.$router.push("/main/ChatContent")
+                if(this.$route.name != "ChatContent") {
+                    this.$router.push("/main/ChatContent")
+                }
+                else {
+                    if(this.unReadCount > 0) {
+                        this.scrollToRecentUnread = !this.scrollToRecentUnread;
+                    }
+                }
             }
             else if(cur_name == "contact list") {
-                this.$router.push("/main/organization")
+                if(this.$route.name != "organization") {
+                    this.$router.push("/main/organization")
+                }
             }
             else if(cur_name == "favourite") {
-                this.$router.push("/main/favourite")
+                if(this.$route.name != "favourite") {
+                    this.$router.push("/main/favourite")
+                }
             }
         },
         getCurNavIcon (cur_index) {
