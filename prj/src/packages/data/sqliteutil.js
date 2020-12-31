@@ -196,6 +196,29 @@ const Department = {
                 return departments[index];
         }        
     },
+
+    async GetBelongDepartmentsByDepartmentID(departmentID){
+        if(!departmentID)
+            return;
+        let departments = [];
+        let department = await this.GetDepartmentInfoByDepartmentID(departmentID);
+        if(department)
+            departments.unshift(department);
+        if(department.parent_id == '')
+            return departments;
+        let sub = await this.GetBelongDepartmentsByDepartmentID(department.parent_id);
+        if(!sub)
+            return;
+        return sub.concat(departments);
+    },
+
+    async GetBelongDepartmentsByMatrixID(matrixID){
+        let department = await this.GetDepartmentInfoByMatrixID(matrixID);
+        console.log(department)
+        if(department)
+            return await this.GetBelongDepartmentsByDepartmentID(department.department_id);
+    },
+
     async GetMaxDeparmentUpdateTime(){
         let departments = await (await models.Department).find({
             $order: {
@@ -235,6 +258,12 @@ const Department = {
 
     async GetDepartmentInfoByUserID(userID){
         let userinfo = await UserInfo.GetUserInfo(userID);
+        if(userinfo != undefined)
+            return await this.GetDepartmentInfoByDepartmentID(userinfo.belong_to_department_id);
+    },
+
+    async GetDepartmentInfoByMatrixID(matrixID){
+        let userinfo = await UserInfo.GetUserInfoByMatrixID(matrixID);
         if(userinfo != undefined)
             return await this.GetDepartmentInfoByDepartmentID(userinfo.belong_to_department_id);
     },

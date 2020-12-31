@@ -697,7 +697,7 @@ export default {
         return;
       }
       let senderInfo = global.mxMatrixClientPeg.matrixClient.getUser(event.sender)
-      console.log("*** senderInfo ", senderInfo);
+      // console.log("*** senderInfo ", senderInfo);
       let chatGroupMsgType = event.type;
       var chatGroupMsgContent = msg.getContent();
       var sender = await ComponentUtil.GetDisplayNameByMatrixID(senderInfo.userId);
@@ -767,18 +767,15 @@ export default {
       if(newMsg.isState()) {
         return;
       }
+      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
+      this.updateGroupMsgContent([groupInfo]);
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender.name;
-      if(newMsg.sender.userId == global.mxMatrixClientPeg.matrixClient.getUserId()) {
-        setTimeout(() => {
-          this.scrollToDistPosition(this.curChat);
-        }, 1000)
-        return;
-      }
       // console.log("*** newMsg is ", newMsg);
-      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
+      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin && this.checkNeedScroll()) {
+        console.log("*** updateChatList SetRoomReader");
         this.SetRoomReader(this.curChat);
         setTimeout(() => {
           this.scrollToDistPosition(this.curChat);
@@ -786,13 +783,35 @@ export default {
         return;
       }
       this.checkUnreadCount();
-      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
       var notificateContent = await this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
       fromName = await this.getShowGroupName(groupInfo);
-      console.log("*** title is ", notificateContent)
-      console.log("*** fromName is ", fromName)
+      // console.log("*** title is ", notificateContent)
+      // console.log("*** fromName is ", fromName)
       this.showNotice(fromName, notificateContent);
+    },
+    checkNeedScroll() {
+      if(this.isFirstLogin) {
+        return false;
+      }
+      var distGroupItem = document.getElementById(this.getChatGroupNameElementId(this.curChat.roomId));
+      if(this.groupListElement == null) {
+        this.groupListElement = document.getElementById("list-content-id");
+      }
+      if(this.groupListElement && distGroupItem) {
+        if(this.groupListElement.scrollTop > distGroupItem.offsetTop || (this.groupListElement.scrollTop + this.groupListElement.clientHeight < distGroupItem.offsetTop)) {
+          console.log("*** need Scroll");
+          return true;
+        }
+        else {
+          console.log("*** do not need Scroll");
+          return false;
+        }
+        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'smooth'});
+      }
+      else {
+        return false;
+      }
     },
     showNotice(fromName, notificateContent) {
       if(this.isWindows()) {
@@ -2101,9 +2120,11 @@ export default {
       }
 
       if(this.curChat != undefined && this.curChat.timeline.length != 0) {
+        console.log("*** showChat SetRoomReader");
         this.SetRoomReader(this.curChat);
       }
 
+      console.log("*** showChat SetRoomReader");
       this.SetRoomReader(chatGroup);
       
       this.curChat = chatGroup;

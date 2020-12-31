@@ -8,8 +8,7 @@
                 <p class="personalCenter-name" id="personalCenter-namd-id"></p>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
-            <div>
-                <p class = 'modifyInfo'>修改资料</p>          
+            <div>        
                 <div class = "modifyIconDiv" >
                     <img class = 'modifyIcon' src = "../../../static/Img/personalCenter/toModifyInof-20px.png" alt="" @click="personalDetailClicked()">
                 </div>
@@ -44,6 +43,7 @@ import * as fs from 'fs-extra'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
+import {Department} from '../../packages/data/sqliteutil.js'
 import imageCropper from './imageCropper.vue'
 
 
@@ -216,7 +216,14 @@ export default {
 
             var userIdElement = document.getElementById("personalCenter-userId-id");
             if(userIdElement != undefined) {
-                userIdElement.innerHTML = uId;
+                let departments = await Department.GetBelongDepartmentsByMatrixID(uId);
+                console.log(departments)
+                if(departments.length == 0)
+                    return '';
+                else if(departments.length == 1)
+                    userIdElement.innerHTML = departments[0].display_name;
+                else
+                    userIdElement.innerHTML = departments[1].display_name;
             }
             
         },

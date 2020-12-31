@@ -15,7 +15,7 @@
                 <img class="dropdown-item-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
                 <span class="dropdown-item-label">创建联系人</span>
             </el-dropdown-item> -->
-            <el-image slot="reference"  src="../../../static/Img/Organization/Image/addContact-24px.png"></el-image>
+            <el-image slot="reference"  src="./static/Img/Organization/Image/addContact-24px.png"></el-image>
             </el-popover>
             
             </div>
@@ -219,19 +219,19 @@ export default {
                 return;
             }
             if(userinfo.matrix_id[0] != "@"){
-                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
+                elementImg.setAttribute("src", './static/Img/User/user-40px@2x.png');
                 return;
             }
             var profileInfo = await this.matrixClient.getProfileInfo(userinfo.matrix_id);
             if(!profileInfo.avatar_url){
-                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
+                elementImg.setAttribute("src", './static/Img/User/user-40px@2x.png');
                 return;
             }
             let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url); 
             if(validUrl)
                 elementImg.setAttribute("src", validUrl);
             else
-                elementImg.setAttribute("src", '../../../static/Img/User/user-40px@2x.png');
+                elementImg.setAttribute("src", './static/Img/User/user-40px@2x.png');
         },
         compare(property){
             return function(a,b){

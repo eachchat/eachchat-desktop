@@ -835,7 +835,7 @@ display: none;
         left: 0;
         right: 0;
         margin: auto;
-        padding: 0px 20px 20px 20px;
+        padding: 0px;
         width: 624px;
         height: 468px;
         text-align: center;
@@ -845,9 +845,10 @@ display: none;
     }
 
     .TransmitHeader {
-        width: 100%;
         height: 56px;
         background: rgba(255, 255, 255, 1);
+        margin-left: 10px;
+        border-radius: 4px;
     }
 
     .TransmitHeaderTitle {
@@ -855,11 +856,11 @@ display: none;
         height: 56px;
         line-height: 56px;
         display: inline-block;
-        margin-left: 32px;
         vertical-align: top;
         font-family: PingFangSC-Medium;
         font-weight: 500;
         letter-spacing: 2px;
+        text-align: left;
     }
 
     .TransmitClose {

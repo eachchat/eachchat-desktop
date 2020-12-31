@@ -1178,7 +1178,7 @@ export default {
             this.deleteDistContent();
             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
             complexSpan.id = generalGuid();
-            complexSpan.innerHTML = "@" + atMemberInfo.name + ":";
+            complexSpan.innerHTML = "@" + atMemberInfo.name;// + ":";
             var distStyle = this.atConstStyle
             // 'display:inline-block;outline:none;border: 0px;font-size:14px;',
             // console.log("diststyle is ", distStyle);
@@ -1422,7 +1422,6 @@ export default {
                     paths: [],
                     distGroupInfo: undefined
                 };
-                this.showSendFileDlg = true;
                 var varTmp = [];
                 for(let i=0;i<fileList.length;i++) {
                     let fileinfo = {};
@@ -1431,14 +1430,20 @@ export default {
                     fileinfo.size = fileSize;
                     fileinfo.name = path.basename(fileList[i])
                     if(fileSize > 50 * 1024 * 1024) {
-                        this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
+                        this.$toastMessage({message:"不支持大于50M的文件发送。", time: 3000, type:'success'});
                         continue
                     }
                     varTmp.push(fileinfo);
                 }
-                this.sendFileInfos = {
-                    paths: varTmp,
-                    distGroupInfo: this.chat
+                if(true) {
+                    this.SendFiles(varTmp);
+                }
+                else {
+                    this.showSendFileDlg = true;
+                    this.sendFileInfos = {
+                        paths: varTmp,
+                        distGroupInfo: this.chat
+                    }
                 }
             }
         },
@@ -1684,7 +1689,8 @@ export default {
                     var fileType = msgInfo.type;
                     if(fileType == "at") {
                         sendText += msgInfo.atName;
-                        sendText += ":"
+                        sendText = "@" + sendText;
+                        // sendText += ":"
                         sendBody.format = "org.matrix.custom.html";
                     }
                 }
@@ -2599,7 +2605,7 @@ export default {
                 fileinfo.name = files[i].name;
                 
                 if(files[i].size > 50 * 1024 * 1024) {
-                    this.$toastMessage({message:"不支持大于100M的文件发送。", time: 3000, type:'success'});
+                    this.$toastMessage({message:"不支持大于50M的文件发送。", time: 3000, type:'success'});
                     continue
                 }
                 
@@ -2609,10 +2615,15 @@ export default {
             console.log("files is ", files);
             if(files.length == 0)
                 return;
-            this.showSendFileDlg = true;
-            this.sendFileInfos = {
-                distGroupInfo: this.chat,
-                paths: varTmp
+            if(true) {
+                this.SendFiles(varTmp);
+            }
+            else{
+                this.showSendFileDlg = true;
+                this.sendFileInfos = {
+                    distGroupInfo: this.chat,
+                    paths: varTmp
+                }
             }
         },
         onEventDecrypted(e) {
@@ -2644,11 +2655,16 @@ export default {
                     fileinfo.path = URL.createObjectURL(fileObj);
                     fileinfo.size = blod.size;
                     fileinfo.name = blod.name;
-                    this.showSendFileDlg = true;
                     this.path2File[fileinfo.path] = blod;
-                    this.sendFileInfos = {
-                        distGroupInfo: this.chat,
-                        paths: [fileinfo]
+                    if(true) {
+                        this.SendFiles([fileinfo]);
+                    }
+                    else {
+                        this.showSendFileDlg = true;
+                        this.sendFileInfos = {
+                            distGroupInfo: this.chat,
+                            paths: [fileinfo]
+                        }
                     }
                 }
             }
