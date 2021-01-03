@@ -109,7 +109,7 @@
                 <el-switch class="setup-with-switch-switch" :active-color="'#24B36B'">
                 </el-switch>
             </div>
-            <div class="setup-title">关于</div>
+            <div class="setup-title" id="setup-about-id">关于</div>
             <div class="setup-array" v-show="false">
                 <label class="setup-array-label">功能介绍</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAbout">
@@ -379,7 +379,7 @@ export default {
         }
         var distElement = document.getElementById("setup-details-general-id");
         if(distElement) {
-          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+          this.ulDiv.scrollTo({ top:distElement.offsetTop, behavior: 'smooth' })
         }
     },
     jumpToNoticeSetup: function() {
@@ -389,7 +389,7 @@ export default {
         
         var distElement = document.getElementById("setup-details-notice-id");
         if(distElement) {
-          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+          this.ulDiv.scrollTo({ top:distElement.offsetTop, behavior: 'smooth' })
         }
     },
     jumpToUpdateSetup: function() {
@@ -399,7 +399,7 @@ export default {
         
         var distElement = document.getElementById("setup-update-notice-id");
         if(distElement) {
-          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+          this.ulDiv.scrollTo({ top:distElement.offsetTop, behavior: 'smooth' })
         }
     },
     jumpToSecurity: function() {
@@ -409,15 +409,18 @@ export default {
         
         var distElement = document.getElementById("setup-update-notice-id");
         if(distElement) {
-          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+          this.ulDiv.scrollTo({ top:distElement.offsetTop, behavior: 'smooth' })
         }
     },
     jumpToAboutSetup: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
-        
-        this.ulDiv.scrollTop = this.ulDiv.scrollHeight;
+
+        var distElement = document.getElementById("setup-about-id");
+        if(distElement) {
+          this.ulDiv.scrollTo({ top:distElement.offsetTop, behavior: 'smooth' })
+        }
     },
     updateCacheSize: function(err, size) {
       // console.log("err is ", err);
@@ -511,7 +514,7 @@ export default {
     else {
       this.curLanguage = "English";
     }
-    this.lVersion = "EachChat " + remote.app.getVersion();
+    this.lVersion = remote.app.getVersion();
   }
 };
 </script>

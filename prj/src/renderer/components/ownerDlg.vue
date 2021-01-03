@@ -205,7 +205,7 @@ export default {
         margin: auto;
         padding: 0px 20px 20px 20px;
         width: 440px;
-        height: 566px;
+        height: 490px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
