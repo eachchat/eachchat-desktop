@@ -12,116 +12,115 @@
           </div>
           <div class="setup-list-item" @click="jumpToSecurity">
             <img class="setupSecurityImage" src="../../../static/Img/Setup/security-nor-20px@2x.png">
-            <label class="setupSecurityLabel" >安全</label>
+            <label class="setupSecurityLabel">安全</label>
           </div>
-          <div class="setup-list-item" @click="jumpToUpdateSetup" v-show="false">
+          <div class="setup-list-item" @click="jumpToSecurity">
+            <img class="setupSecurityImage" src="../../../static/Img/Setup/sys-20px@2x.png">
+            <label class="setupSecurityLabel">系统</label>
+          </div>
+          <div class="setup-list-item" @click="jumpToUpdateSetup">
             <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px@2x.png">
-            <label class="setupUpdateLabel" >软件升级</label>
+            <label class="setupUpdateLabel">升级</label>
           </div>
           <div class="setup-list-item" @click="jumpToAboutSetup">
             <img class="setupAboutImage" src="../../../static/Img/Setup/about-20px@2x.png">
-            <label class="setupAboutLabel" @click="generalCheck">关于应用</label>
+            <label class="setupAboutLabel">关于</label>
           </div>
         </div>
         <div class="setup-details" id="setup-details-id">
-            <label class="setup-general-title">通用</label>
-            <!-- <div class="setup-language" v-show="false">
-                <label class="setup-language-label"></label>
-                <el-dropdown>
-                    <span class="el-dropdown-link"></span>
-                </el-dropdown>
-            </div> -->
-            <div class="setup-general-autorun">
-                <label class="setup-general-autorun-label">电脑开机时，自动启动亿洽</label>
-                <el-switch class="setup-general-autorun-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)" :active-color="'#24B36B'">
+            <label class="setup-title" id="setup-details-general-id">通用</label>
+            <div class="setup-array">
+                <label class="setup-array-label">我的信息</label>
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showOwnerInfo">
+            </div>
+            <div class="setup-with-drop-down" v-show="false">
+                <label class="setup-with-drop-down-label">显示语言</label>
+                <div class="setup-with-drop-down-div" @click="showLanguage">
+                  <label class="setup-with-drop-down-div-label" @click="showLanguage">{{curLanguage}}</label>
+                  <div class="setup-with-drop-down-div-ico" @click="showLanguage">
+                      <img class="icon-folder" src="../../../static/Img/Setup/arrowDown-20px@2x.png" @click="showLanguage">
+                  </div>
+                </div>
+            </div>
+            <div class="setup-title" id="setup-details-notice-id">通知</div>
+            <div class="setup-with-switch" v-show="isWindows">
+                <label class="setup-with-switch-label">消息提示音</label>
+                <el-switch class="setup-with-switch-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
-            <label class="setup-general-device-manager-label" v-show="false">设备管理</label>
-            <ul class="setup-general-device-list" v-show="false">
-                <li class="device-info" v-for="(deviceItem, index) in recentDevice">
-                    <label class="device-one-name">{{deviceItem.model}}</label>
-                    <label class="device-one-os">系统：{{deviceItem.desktopType}}</label>
-                    <label class="device-one-last-login-time">时间：{{timeDeal(deviceItem.loginTime)}}</label>
-                </li>
-            </ul>
-            <!-- <div class="setup-general-change-password">
-                <label class="setup-general-change-password-label">修改密码</label>
-                <img class="setup-general-change-password-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
-            </div> -->
-            <div class="setup-general-file-location">
-                <label class="setup-general-file-location-label">文件保存位置</label>
-                <div class="setup-general-file-location-input-div" @click="openLocalStorageDir">
-                  <input class="setup-general-file-location-input" v-model="localStorePath" disabled="disabled" @click="openLocalStorageDir">
-                  <div class="setup-general-file-location-input-folder-ico">
+            <div class="setup-with-switch">
+                <label class="with-switch">消息桌面通知</label>
+                <el-switch class="setup-with-switch-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
+                </el-switch>
+            </div>
+            <div class="setup-title">安全</div>
+            <div class="setup-array-with-label" v-show="false">
+                <label class="setup-array-with-label-label">导出密钥</label>
+                <label class="setup-array-with-label-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
+            </div>
+            <div class="setup-array-with-label" v-show="false">
+                <label class="setup-array-with-label-label">导入密钥</label>
+                <label class="setup-array-with-label-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
+            </div>
+            <div class="setup-array">
+                <label class="setup-array-label">修改密码</label>
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
+            </div>
+            <div class="setup-array-with-label">
+                <label class="setup-array-with-label-label">会话管理</label>
+                <label class="setup-array-with-label-label2" id="setup-security-devict-list-label2-id"></label>
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showDeviceList">
+            </div>
+            <div class="setup-array-with-label">
+                <label class="setup-array-with-label-label">账号管理</label>
+                <label class="setup-array-with-label-label2" id="setup-security-account-manager-label2-id"></label>
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
+            </div>
+            <label class="setup-title" id="setup-details-sys-id">系统</label>
+            <div class="setup-with-switch">
+                <label class="setup-with-switch-label">开机自动启动亿洽</label>
+                <el-switch class="setup-with-switch-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)" :active-color="'#24B36B'">
+                </el-switch>
+            </div>
+            <div class="setup-with-input">
+                <label class="setup-with-input-label">文件保存位置</label>
+                <div class="setup-with-input-input-div" @click="openLocalStorageDir">
+                  <input class="setup-with-input-input" v-model="localStorePath" disabled="disabled" @click="openLocalStorageDir">
+                  <div class="setup-with-input-input-folder-ico">
                       <img class="icon-folder" src="../../../static/Img/Setup/store-folder-20px@2x.png">
                   </div>
                 </div>
             </div>
-            <div class="setup-general-clear-cache">
-                <label class="setup-general-clear-cache-label">清理缓存</label>
-                <label class="setup-general-clear-cache-label2" id="setup-general-clear-cache-label2-id">--M</label>
-                <img class="setup-general-clear-cache-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAlert">
+            <div class="setup-array-with-label">
+                <label class="setup-array-with-label-label">清理缓存</label>
+                <label class="setup-array-with-label-label2" id="setup-general-clear-cache-label2-id">--M</label>
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAlert">
             </div>
-            <div class="setup-notice-title">通知</div>
-            <div class="setup-notice-message-notice">
-                <label class="setup-notice-message-notice-label">消息提示音</label>
-                <el-switch class="setup-notice-message-notice-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)" :active-color="'#24B36B'">
+            <div class="setup-title" id="setup-update-notice-id">升级</div>
+            <div class="setup-array-with-label">
+                <label class="setup-array-with-label-label">当前版本</label>
+                <label class="setup-array-with-label-label2">{{lVersion}}</label>
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
+            </div>
+            <div class="setup-with-switch" v-show="false">
+                <label class="setup-with-switch-label">自动更新</label>
+                <el-switch class="setup-with-switch-switch" :active-color="'#24B36B'">
                 </el-switch>
             </div>
-            <div class="setup-notice-desktop-notice">
-                <label class="setup-notice-desktop-notice-label">消息桌面通知</label>
-                <el-switch class="setup-notice-desktop-notice-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
-                </el-switch>
+            <div class="setup-title">关于</div>
+            <div class="setup-array" v-show="false">
+                <label class="setup-array-label">功能介绍</label>
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAbout">
             </div>
-            <div class="setup-security-title">安全</div>
-            <div class="setup-security-export-keys" v-show="false">
-                <label class="setup-security-export-keys-label">导出密钥</label>
-                <label class="setup-security-export-keys-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
-                <img class="setup-security-export-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="exportSecurityKey">
+            <div class="setup-array">
+                <label class="setup-array-label">软件用户协议</label>
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAgreement">
             </div>
-            <div class="setup-security-import-keys" v-show="false">
-                <label class="setup-security-import-keys-label">导入密钥</label>
-                <label class="setup-security-import-keys-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
-                <img class="setup-security-import-keys-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
-            </div>
-            <div class="setup-security-change-password">
-                <label class="setup-security-change-password-label">修改密码</label>
-                <label class="setup-security-change-password-label2" id="setup-security-change-password-label2-id"></label>
-                <img class="setup-security-change-password-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
-            </div>
-            <div class="setup-security-devict-list">
-                <label class="setup-security-devict-list-label">会话管理</label>
-                <label class="setup-security-devict-list-label2" id="setup-security-devict-list-label2-id">查看</label>
-                <img class="setup-security-devict-list-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showDeviceList">
-            </div>
-            <div class="setup-security-account-manager">
-                <label class="setup-security-account-manager-label">账号管理</label>
-                <label class="setup-security-account-manager-label2" id="setup-security-account-manager-label2-id"></label>
-                <img class="setup-security-account-manager-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
-            </div>
-            <div class="setup-update-title" v-show="false">软件升级</div>
-            <div class="setup-update-cur-version" v-show="false">
-                <label class="setup-update-cur-version-label">当前版本</label>
-                <label class="setup-update-cur-version-label2">--</label>
-                <img class="setup-update-cur-version-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
-            </div>
-            <div class="setup-update-auto-update" v-show="false">
-                <label class="setup-update-auto-update-label">自动更新</label>
-                <el-switch class="setup-update-auto-update-switch" :active-color="'#24B36B'">
-                </el-switch>
-            </div>
-            <div class="setup-about-title">关于应用</div>
-            <div class="setup-about-introduce" v-show="false">
-                <label class="setup-about-introduce-label">功能介绍</label>
-                <img class="setup-about-introduce-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAbout">
-            </div>
-            <div class="setup-about-agreement">
-                <label class="setup-about-agreement-label">软件用户协议</label>
-                <img class="setup-about-agreement-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAgreement">
-            </div>
-            <div class="setup-about-privacy">
-                <label class="setup-about-privacy-label">软件隐私政策</label>
-                <img class="setup-about-privacy-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
+            <div class="setup-array">
+                <label class="setup-array-label">软件隐私政策</label>
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
             </div>
             <div class="setup-logout" @click="logout()">退出登录</div>
         </div>
@@ -147,6 +146,7 @@
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
       <AccountManager v-show="showAccountMgr" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
       <DeviceManager v-show="showDeviceMgr" @deviceMgrDlgClose="deviceMgrDlgClose"></DeviceManager>
+      <OwnerDlg v-show="showOwnerDlg" :updateOwnerInfo="updateOwnerInfo" @CloseownerInfo="CloseownerInfo"></OwnerDlg>
     </div>
 </template>
 
@@ -171,6 +171,7 @@ import generalSecureBackUpPage from './generalRecoveryCode.vue';
 import ExportE2EKeyPage from './expore-e2e-key.vue';
 import ImportE2EKeypage from './importE2E.vue';
 import DeviceManager from './deviceManager.vue';
+import OwnerDlg from './ownerDlg.vue';
 
 export default {
   components: {
@@ -183,7 +184,8 @@ export default {
     generalSecureBackUpPage,
     ExportE2EKeyPage,
     ImportE2EKeypage,
-    DeviceManager
+    DeviceManager,
+    OwnerDlg
     // listItem
   },
   props: [],
@@ -194,6 +196,10 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      updateOwnerInfo: false,
+      showOwnerDlg: false,
+      lVersion: '--',
+      curLanguage: '',
       showDeviceMgr: false,
       needLogout: false,
       toUpdateExport: false,
@@ -223,6 +229,16 @@ export default {
     };
   },
   methods: {
+    CloseownerInfo() {
+      this.showOwnerDlg = false;
+    },
+    showLanguage() {
+
+    },
+    showOwnerInfo() {
+      this.showOwnerDlg = true;
+      this.updateOwnerInfo = !this.updateOwnerInfo;
+    },
     closeE2EExportPage() {
       this.showExportE2EKeyPage = false;
     },
@@ -361,28 +377,40 @@ export default {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
-        this.ulDiv.scrollTo({ top:0, behavior: 'smooth' })
+        var distElement = document.getElementById("setup-details-general-id");
+        if(distElement) {
+          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+        }
     },
     jumpToNoticeSetup: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
         
-        this.ulDiv.scrollTo({ top:this.ulDiv.scrollHeight, behavior: 'smooth' })
+        var distElement = document.getElementById("setup-details-notice-id");
+        if(distElement) {
+          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+        }
     },
     jumpToUpdateSetup: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
         
-        this.ulDiv.scrollTo({ top:this.ulDiv.scrollHeight, behavior: 'smooth' })
+        var distElement = document.getElementById("setup-update-notice-id");
+        if(distElement) {
+          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+        }
     },
     jumpToSecurity: function() {
         if(this.ulDiv == undefined) {
           this.ulDiv = document.getElementById("setup-details-id");
         }
         
-        this.ulDiv.scrollTo({ top:this.ulDiv.scrollHeight, behavior: 'smooth' })
+        var distElement = document.getElementById("setup-update-notice-id");
+        if(distElement) {
+          this.ulDiv.scrollTo({ top:distElement.clientTop, behavior: 'smooth' })
+        }
     },
     jumpToAboutSetup: function() {
         if(this.ulDiv == undefined) {
@@ -438,6 +466,13 @@ export default {
     var message_sound = global.localStorage.getItem("message_sound");
     var message_notice = global.localStorage.getItem("message_notice");
     var autoStart = global.localStorage.getItem("autoStart");
+    var language = global.mxMatrixClientPeg.getStorageLocale();
+    if(language == "zh") {
+      this.curLanguage = "简体中文";
+    }
+    else {
+      this.curLanguage = "English";
+    }
     // var config = await Config.GetValue();
     // var autoStart = await Config.GetAutoStart();
     // console.log("=====get config is ", config)
@@ -469,6 +504,14 @@ export default {
     console.log("this.recentdeivce ", this.recentDevice);
     // console.log("this.localStorePath ", this.localStorePath);
     getdirsize(this.localStorePath, this.updateCacheSize);
+    var language = global.mxMatrixClientPeg.getStorageLocale();
+    if(language == "zh") {
+      this.curLanguage = "简体中文";
+    }
+    else {
+      this.curLanguage = "English";
+    }
+    this.lVersion = "EachChat " + remote.app.getVersion();
   }
 };
 </script>
@@ -669,46 +712,7 @@ export default {
     overflow-x: hidden;
   }
 
-  .setup-general-title {
-    width: 100%;
-    height: 48px;
-    line-height: 48px;
-    background:rgba(255,255,255,1);
-    font-family: PingFangSC-Medium;
-    font-weight: 500;
-    letter-spacing: 2px;
-    font-size: 16px;
-  }
-
-  .setup-language {
-    width:100%;
-    height:48px;
-    background:rgba(255,255,255,1);
-    display: block;
-    line-height: 48px;
-    font-size: 14px;
-  }
-  
-  .setup-language-label {
-    width:100%;
-    height:48px;
-    background:rgba(255,255,255,1);
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    font-size: 14px;
-    display: inline-block;
-  }
-
-  .setup-general-autorun {
-    width:100%;
-    line-height: 48px;
-    height:48px;
-    background:rgba(255,255,255,1);
-    font-size: 14px;
-  }
-
-  .setup-general-autorun-label {
+  .setup-with-switch-label {
     width:calc(100% - 88px);
     height:48px;
     background:rgba(255,255,255,1);
@@ -719,7 +723,7 @@ export default {
     display: inline-block;
   }
 
-  .setup-general-autorun-switch {
+  .setup-with-switch-switch {
     padding-top: 14px;
     padding-bottom: 14px;
     height: 20px;
@@ -729,88 +733,7 @@ export default {
     display: inline-block;
   }
 
-  .setup-general-device-manager-label {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    background:rgba(255,255,255,1);
-    display: block;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    font-size: 14px;
-  }
-
-  .setup-general-device-list {
-    width:100%;
-    height:100px;
-    background:rgba(255,255,255,1);
-    display: block;
-    padding: 0;
-  }
-
-  .device-info {
-    width:180px;
-    height:88px;
-    background:rgba(255,255,255,1);
-    border-radius:4px;
-    border:1px solid rgba(221,221,221,1);
-    display: inline-block;
-    margin-right: 12px;
-  }
-
-  .device-one-name {
-    padding-left: 12px;
-    padding-top: 10px;
-    padding-right: 4px;
-    padding-bottom: 4px;
-    width:164px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 14px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    display: block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-
-  .device-one-os {
-    padding-left: 12px;
-    padding-top: 4px;
-    padding-right: 4px;
-    padding-bottom: 4px;;
-    width:164px;
-    height: 18px;
-    line-height: 18px;
-    font-size: 12px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing:1px;
-    color:rgba(153,153,153,1);
-    letter-spacing:1px;
-    display: block;
-  }
-
-  .device-one-last-login-time {
-    padding-left: 12px;
-    padding-top: 4px;
-    padding-right: 4px;
-    padding-bottom: 4px;;
-    width:164px;
-    height: 18px;
-    line-height: 18px;
-    font-size: 12px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing:1px;
-    color:rgba(153,153,153,1);
-    letter-spacing:1px;
-  }
-  
-  .setup-general-file-location {
+  .setup-with-drop-down {
     width:100%;
     height:48px;
     line-height: 48px;
@@ -819,8 +742,8 @@ export default {
     letter-spacing:1px;
   }
 
-  .setup-general-file-location-label {
-    width:calc(100% - 350px);
+  .setup-with-drop-down-label {
+    width:calc(100% - 221px);
     height:48px;
     line-height: 48px;
     background:rgba(255,255,255,1);
@@ -833,7 +756,106 @@ export default {
     vertical-align: top;
   }
 
-  .setup-general-file-location-input-div {
+  .setup-with-drop-down-div {
+      height: 32px;
+      width: 200px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgb(221, 221, 221);
+      border-radius: 2px;
+      display: inline-block;
+  }
+
+  .setup-with-drop-down-div-label {
+      position: absolute;
+      display: inline-block;
+      height: 32px;
+      line-height: 32px;
+      width: 288px;
+      font-size: 14px;
+      font-family: PingFangSC-Regular;
+      color: rgba(51, 51, 51, 1);
+      font-weight: 400;
+      letter-spacing: 1px;
+      padding: 0px;
+      border: 0px;
+      cursor: pointer;
+      background-color: rgba(1, 1, 1, 0);
+      text-indent: 6px;
+      padding-left: 6px;
+  }
+
+  .setup-with-drop-down-div-label:hover {
+      position: absolute;
+      display: inline-block;
+      height: 32px;
+      line-height: 32px;
+      width: 288px;
+      font-size: 14px;
+      font-family: PingFangSC-Regular;
+      color: rgba(51, 51, 51, 1);
+      font-weight: 400;
+      letter-spacing: 1px;
+      padding: 0px;
+      border: 0px;
+      cursor: pointer;
+      background-color: rgba(1, 1, 1, 0);
+      text-indent: 6px;
+      padding-left: 6px;
+  }
+
+  .setup-with-drop-down-div-ico {
+      display: inline-block;
+      padding-right: 6px;
+      height: 20px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+      width: 20px;
+      line-height: 48px;
+      float: right;
+      font-size: 14px;
+      cursor: pointer;
+      color: rgba(153, 153, 153, 1);
+  }
+
+  .setup-with-drop-down-div-ico:hover {
+      display: inline-block;
+      padding-right: 6px;
+      height: 20px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+      width: 20px;
+      line-height: 48px;
+      float: right;
+      font-size: 14px;
+      cursor: pointer;
+      color: rgba(153, 153, 153, 1);
+  }
+
+  .setup-with-input {
+    width:100%;
+    height:48px;
+    line-height: 48px;
+    background:rgba(255,255,255,1);
+    display: block;
+    letter-spacing:1px;
+  }
+
+  .setup-with-input-label {
+    width:calc(100% - 341px);
+    height:48px;
+    line-height: 48px;
+    background:rgba(255,255,255,1);
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 14px;
+    display: inline-block;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-with-input-input-div {
       height: 32px;
       width: 320px;
       margin-top: 8px;
@@ -843,7 +865,7 @@ export default {
       display: inline-block;
   }
 
-  .setup-general-file-location-input {
+  .setup-with-input-input {
       position: absolute;
       display: inline-block;
       height: 32px;
@@ -860,7 +882,7 @@ export default {
       text-indent: 6px;
   }
 
-  .setup-general-file-location-input:focus {
+  .setup-with-input-input:focus {
       position: absolute;
       display: inline-block;
       height: 24px;
@@ -880,7 +902,7 @@ export default {
       text-indent: 6px;
   }
 
-  .setup-general-file-location-input-folder-ico {
+  .setup-with-input-input-folder-ico {
       display: inline-block;
       padding-right: 6px;
       height: 20px;
@@ -894,7 +916,7 @@ export default {
       color: rgba(153, 153, 153, 1);
   }
 
-  .setup-general-file-location-input-folder-ico:hover {
+  .setup-with-input-input-folder-ico:hover {
       display: inline-block;
       padding-right: 6px;
       height: 20px;
@@ -915,7 +937,7 @@ export default {
       vertical-align: top;
   }
 
-  .setup-general-change-password {
+  .setup-array-with-label {
     width:100%;
     height:48px;
     font-size: 14px;
@@ -925,41 +947,7 @@ export default {
     letter-spacing:1px;
   }
 
-  .setup-general-change-password-label {
-    width:calc(100% - 50px);
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-general-change-password-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 5px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .setup-general-clear-cache {
-    width:100%;
-    height:48px;
-    font-size: 14px;
-    line-height: 48px;
-    background:rgba(255,255,255,1);
-    display: block;
-    letter-spacing:1px;
-  }
-
-  .setup-general-clear-cache-label {
+  .setup-array-with-label-label {
     width:calc(100% - 120px);
     height:48px;
     line-height: 48px;
@@ -972,7 +960,7 @@ export default {
     vertical-align: top;
   }
 
-  .setup-general-clear-cache-label2 {
+  .setup-array-with-label-label2 {
     width:75px;
     height:48px;
     line-height: 48px;
@@ -989,7 +977,7 @@ export default {
     text-align:right;
   }
 
-  .setup-general-clear-cache-ico {
+  .setup-array-with-label-ico {
     width: 20px;
     height: 20px;
     margin-left: 5px;
@@ -1000,18 +988,7 @@ export default {
     cursor: pointer;
   }
 
-  .setup-notice-title {
-    width: 100%;
-    height: 48px;
-    line-height: 48px;
-    background:rgba(255,255,255,1);
-    font-family: PingFangSC-Medium;
-    font-weight: 500;
-    letter-spacing: 2px;
-    font-size: 16px;
-  }
-
-  .setup-notice-message-notice {
+  .setup-with-switch {
     width:100%;
     height:48px;
     line-height: 48px;
@@ -1022,75 +999,7 @@ export default {
     letter-spacing:1px;
   }
 
-  .setup-notice-message-notice-label {
-    width:calc(100% - 68px);
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    background:rgba(255,255,255,1);
-    display: inline-block;
-    letter-spacing:1px;
-  }
-
-  .setup-notice-message-notice-switch {
-    padding-top: 14px;
-    padding-bottom: 14px;
-    height: 20px;
-    width: 40px;
-    float: right;
-    padding-right: 14px;
-    display: inline-block;
-  }
-
-  .setup-notice-desktop-notice {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    font-family: "PingFangSC-Regular";
-    background:rgba(255,255,255,1);
-    display: block;
-    letter-spacing:1px;
-  }
-
-  .setup-notice-desktop-notice-label {
-    width:calc(100% - 68px);
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    background:rgba(255,255,255,1);
-    display: inline-block;
-    letter-spacing:1px;
-  }
-
-  .setup-notice-desktop-notice-switch {
-    padding-top: 14px;
-    padding-bottom: 14px;
-    height: 20px;
-    width: 40px;
-    float: right;
-    padding-right: 14px;
-    display: inline-block;
-  }
-
-  .setup-security-title {
-    width: 100%;
-    height: 48px;
-    line-height: 48px;
-    background:rgba(255,255,255,1);
-    font-family: PingFangSC-Medium;
-    font-weight: 500;
-    letter-spacing: 2px;
-    font-size: 16px;
-  }
-
-  .setup-security-account-manager {
+  .setup-array {
     width:100%;
     height:48px;
     line-height: 48px;
@@ -1103,8 +1012,8 @@ export default {
     vertical-align: top;
   }
 
-  .setup-security-account-manager-label {
-    width:calc(100% - 180px);
+  .setup-array-label {
+    width:calc(100% - 36px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1116,7 +1025,7 @@ export default {
     vertical-align: top;
   }
 
-  .setup-security-account-manager-label2 {
+  .setup-array-label2 {
     width:140px;
     height:48px;
     line-height: 48px;
@@ -1133,7 +1042,7 @@ export default {
     text-align:right;
   }
 
-  .setup-security-account-manager-ico {
+  .setup-array-ico {
     width: 20px;
     height: 20px;
     margin-left: 0px;
@@ -1144,305 +1053,7 @@ export default {
     cursor: pointer;
   }
 
-  .setup-security-change-password {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-change-password-label {
-    width:calc(100% - 180px);
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-change-password-label2 {
-    width:140px;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-    color: rgba(153,153,153,1);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    text-align:right;
-  }
-
-  .setup-security-change-password-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 0px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .setup-security-export-keys {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-export-keys-label {
-    width:calc(100% - 180px);
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-export-keys-label2 {
-    width:140px;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-    color: rgba(153,153,153,1);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    text-align:right;
-  }
-
-  .setup-security-export-keys-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 0px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .setup-security-import-keys {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-import-keys-label {
-    width:calc(100% - 180px);
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-import-keys-label2 {
-    width:140px;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-    color: rgba(153,153,153,1);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    text-align:right;
-  }
-
-  .setup-security-import-keys-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 0px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .setup-security-devict-list{
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-devict-list-label {
-    width:calc(100% - 180px);
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-  }
-
-  .setup-security-devict-list-label2 {
-    width:140px;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-    color: rgba(153,153,153,1);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    text-align:right;
-  }
-
-  .setup-security-devict-list-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 0px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .setup-update-cur-version {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    font-family: "PingFangSC-Regular";
-    background:rgba(255,255,255,1);
-    display: block;
-    letter-spacing:1px;
-  }
-
-  .setup-update-cur-version-label {
-    width:calc(100% - 160px);
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    background:rgba(255,255,255,1);
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .setup-update-cur-version-label2 {
-    width:110px;
-    height:48px;
-    line-height: 48px;
-    font-family: PingFangSC-Regular;
-    font-size: 14px;
-    display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing:1px;
-    vertical-align: top;
-    color: rgba(153,153,153,1);
-  }
-
-  .setup-update-cur-version-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 5px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-  }
-
-  .setup-update-auto-update {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    font-family: "PingFangSC-Regular";
-    background:rgba(255,255,255,1);
-    display: block;
-    letter-spacing:1px;
-  }
-
-  .setup-update-auto-update-label {
-    width:calc(100% - 40px);
-    height:48px;
-    background:rgba(255,255,255,1);
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    font-size: 14px;
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .setup-update-auto-update-switch {
-    padding-top: 14px;
-    padding-bottom: 14px;
-    height: 20px;
-    width: 40px;
-    float: right;
-    padding-right: 14px;
-    display: inline-block;
-  }
-
-  .setup-about-title {
+  .setup-title {
     width: 100%;
     height: 48px;
     line-height: 48px;
@@ -1452,114 +1063,6 @@ export default {
     letter-spacing: 2px;
     font-size: 16px;
     font-weight: bold
-  }
-
-  .setup-about-introduce {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-family: "PingFangSC-Regular";
-    background:rgba(255,255,255,1);
-    display: block;
-  }
-
-  .setup-about-introduce-label {
-    width:calc(100% - 40px);
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    background:rgba(255,255,255,1);
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .setup-about-introduce-label-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 5px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .setup-about-agreement {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-family: "PingFangSC-Regular";
-    background:rgba(255,255,255,1);
-    display: block;
-  }
-
-  .setup-about-agreement-label {
-    width:calc(100% - 40px);
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    background:rgba(255,255,255,1);
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .setup-about-agreement-label-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 5px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .setup-about-privacy {
-    width:100%;
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-family: "PingFangSC-Regular";
-    background:rgba(255,255,255,1);
-    display: block;
-  }
-
-  .setup-about-privacy-label {
-    width:calc(100% - 40px);
-    height:48px;
-    line-height: 48px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-    font-weight: 400;
-    letter-spacing: 1px;
-    background:rgba(255,255,255,1);
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .setup-about-privacy-label-ico {
-    width: 20px;
-    height: 20px;
-    margin-left: 5px;
-    margin-top: 14px;
-    margin-right: 0px;
-    margin-bottom: 14px;
-    display: inline-block;
-    cursor: pointer;
   }
 
   .setup-logout {

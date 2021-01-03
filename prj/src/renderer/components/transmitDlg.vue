@@ -585,6 +585,22 @@ export default {
                     alert("不能发送空白信息。")
                     return;
                 }
+                if(varcontent.info != undefined) {
+                    if(varcontent.info.h != undefined)
+                    try{
+                        varcontent.info.h = parseInt(varcontent.info.h);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                    if(varcontent.info.w != undefined)
+                    try{
+                        varcontent.info.w = parseInt(varcontent.info.w);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                }
                 if(varcontent.msgtype == "m.text") {
                     let sendText = varcontent.body;
                     
@@ -644,6 +660,7 @@ export default {
                             console.log("parse float to int failed");
                         }
                     }
+                    console.log("*** transmit msg is ", curMsg);
                     global.mxMatrixClientPeg.SendEvent(distGroups[i].roomId, curMsg)
                         .then((ret) => {
                             console.log("sendSingleMsg is ", ret);

@@ -1245,7 +1245,7 @@ export default {
     },
 
     updateGroupMsgContent: async function(groups) {
-      if(this.selfUserId == undefined) {
+      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
         this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
       }
       for(let item of groups) {
