@@ -18,7 +18,7 @@
                 <img 
                     id="groupInfoImageId" 
                     class="groupInfoImage" 
-                    :src="dmMember.avatar || ''">
+                    :src="mxAvatar">
             </div>
             <div class="groupInfoNoticeAndName" v-if="!isDm">
                 <div class="groupInfoName">
@@ -1025,7 +1025,7 @@ export default {
         if (avatarUrl) {
             this.mxAvatar = client.mxcUrlToHttp(avatarUrl);
         } else {
-            this.mxAvatar = isDm ? '../../../static/Img/User/user-40px@2x.png' : '../../../static/Img/User/group-40px@2x.png';
+            this.mxAvatar = this.isDm ? '../../../static/Img/User/user-40px@2x.png' : '../../../static/Img/User/group-40px@2x.png';
         }
 
         console.log('----mxRoom----', this.mxRoom);
