@@ -206,6 +206,7 @@ export default {
         },
         
         getAppBaseData:async function() {
+            await this.services.GetAllContact();
             this.contactList = await Contact.GetAllContact();
         },
 

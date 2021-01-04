@@ -61,7 +61,7 @@
         </el-aside>
         <el-container class="right-container">
             <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
-            <contactList  v-if='bContactShow' :parentInfo="currentDepartment" ></contactList>
+            <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
@@ -135,7 +135,8 @@ export default {
             searchUserInfo:{},
             searchUserInfoKey: 0,
             searchUserInfoPosition:{},
-            contactType:"origanise"
+            contactType:"origanise",
+            contactListKey: 0
             //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
@@ -317,6 +318,7 @@ export default {
                 //联系人模板
                 this.bOrganizeShow = false;
                 this.bContactShow = true;
+                this.contactListKey++;
              }
             this.currentDepartment = department;
             this.organizationListTimer = new Date().getTime();

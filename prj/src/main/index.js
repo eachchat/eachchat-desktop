@@ -382,25 +382,24 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
       appIcon.setImage(path.join(__dirname, iconPath));
     }
   }, 500);
-  if(process.platform == 'darwin'){
-    if(!mainWindow.isFocused()) {
-      if(notification != null) {
-        notification.close();
-      }
-      notification = new Notification({
-        title: title,
-        body: contnet,
-        icon: path.join(__dirname, notificationIco),
-        sound: path.join(__dirname, soundPath)
-      })
-      notification.show();
-      setTimeout(() => {
-        notification.close();
-      }, 2000)
-      notification.on("click", () => {
-        mainWindow.show();
-      })
+
+  if(!mainWindow.isFocused()) {
+    if(notification != null) {
+      notification.close();
     }
+    notification = new Notification({
+      title: title,
+      body: contnet,
+      icon: path.join(__dirname, notificationIco),
+      sound: path.join(__dirname, soundPath)
+    })
+    notification.show();
+    setTimeout(() => {
+      notification.close();
+    }, 3000)
+    notification.on("click", () => {
+      mainWindow.show();
+    })
   }
 
 });

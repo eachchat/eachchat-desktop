@@ -1047,7 +1047,7 @@ class APITransaction {
       {
         name: "updateContact",
         updateTime: updateTime,
-        sequenceID: sequenceID
+        sequenceId: sequenceID
       },
       {
         Authorization: "Bearer " + accessToken

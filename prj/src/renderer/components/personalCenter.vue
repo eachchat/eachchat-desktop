@@ -1,18 +1,21 @@
 <template>
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
-            <div class="personalCenter-iconView">
+            <div class="personalCenter-iconView" @click="personalCenterIconClicked()">
                 <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png">
+                <div class="personalCenter-changeIcon">
+                    <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
+                </div>
             </div>
             <div class="personalCenter-baseInfo">
-                <p class="personalCenter-name" id="personalCenter-namd-id"></p>
+                <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" @change="displayNameChange()" placeholder="输入昵称...">
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
-            <div>        
+            <!-- <div>        
                 <div class = "modifyIconDiv" >
                     <img class = 'modifyIcon' src = "../../../static/Img/personalCenter/toModifyInof-20px.png" alt="" @click="personalDetailClicked()">
                 </div>
-            </div>
+            </div> -->
               
         </div>
         <!-- <div class="personalCenter-state">
@@ -45,7 +48,7 @@ import confservice from '../../packages/data/conf_service.js'
 import {services} from '../../packages/data/index.js';
 import {Department} from '../../packages/data/sqliteutil.js'
 import imageCropper from './imageCropper.vue'
-
+import * as utils from '../../packages/core/Utils.js'
 
 export default {
     name: 'user-info',
@@ -62,16 +65,51 @@ export default {
             showImageCropper:false,
             selectImageSource: '',
             curStateImgElement: undefined,
+            displayName: ""
         }
     },
     components:{
         imageCropper,
     },
+
     computed: {
 
     },
 
     methods: {
+        displayNameChange(){
+            global.mxMatrixClientPeg.matrixClient.setDisplayName(this.displayName)
+        },
+        personalCenterIconClicked(){
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('open-image-dialog-avatar', 'openFile');
+            ipcRenderer.on('selectedAvatarImageItem', this.nHandleFiles);
+            
+        },
+        nHandleFiles:async function(e, paths) {
+            // Select Same File Failed.
+            var fileList = paths;
+            // console.log("======", fileList)
+            if(fileList.filePaths.length === 0) {
+                alert("请选择一个图片文件");
+            }
+            //this.showImageCropper = true;
+            this.selectImageSource = fileList.filePaths[0];
+            var showfu = new utils.FileUtil(this.selectImageSource);
+            var stream = showfu.ReadfileSync(this.selectImageSource);
+            let uploadFile = showfu.GetUploadfileobj();
+            let matrixClient = global.mxMatrixClientPeg.matrixClient;
+            const httpPromise = matrixClient.uploadContent(uploadFile).then(function(url) {
+                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
+                    let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
+                    if(avaterUrl != '') {
+                        userIconElement.setAttribute("src", avaterUrl);
+                    }
+                    matrixClient.setAvatarUrl(url);
+                    var elementImg = document.getElementById("userHead");
+                    elementImg.setAttribute("src", avaterUrl);
+            });       
+        },
         personalDetailClicked(){
             this.$emit("showPersonalInfoHanlder", true)
         },
@@ -208,11 +246,7 @@ export default {
             if(avaterUrl != '') {
                 userIconElement.setAttribute("src", avaterUrl);
             }
-
-            var userNameElement = document.getElementById("personalCenter-namd-id");
-            if(userNameElement != undefined) {
-                userNameElement.innerHTML = displayName;
-            }
+            this.displayName = displayName;
 
             var userIdElement = document.getElementById("personalCenter-userId-id");
             if(userIdElement != undefined) {
@@ -326,14 +360,21 @@ export default {
         position: absolute;
         border-radius: 4px;
         z-index: 3;
-        background-color: rgba(0,0,0,0.4);;
+        background-color: rgba(0,0,0,0.4);
+        border-radius: 50%;
         .personalCenter-cameraIcon{
             width: 24px;
             height: 24px;
             position: absolute;
             left: 12px;
-            top: 12px;
+            top: 12px;   
         }
+    }
+}
+
+.personalCenter-iconView:hover{
+    .personalCenter-changeIcon{
+        display: inline-block;
     }
 }
 
@@ -364,7 +405,7 @@ export default {
 .personalCenter-name {
     height: 22px;
     margin: 0px;
-
+    border: 0;
     width: 100%;
     text-align: left;
     font-size: 16px;

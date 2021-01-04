@@ -7,7 +7,7 @@
             </div>
             <div class="MxGroupInfo">
                 <img class="MxGroupInfoImg" id="MxGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
-                <label class="MxGroupInfoName">{{GroupInfo.name}}</label>
+                <label class="MxGroupInfoName">{{GroupInfo ? GroupInfo.name : ''}}</label>
                 <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId"></label>
             </div>
             <div class="Mxsearch">
@@ -480,7 +480,7 @@ export default {
         }
     },
     mounted: function() {
-        ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+        // ipcRenderer.on('updateMsgFile', this.updateMsgFile);
         ipcRenderer.on("distGroupInfo", (event, groupId) => {
             this.groupId = groupId;
             this.lastSequenceId = 0;

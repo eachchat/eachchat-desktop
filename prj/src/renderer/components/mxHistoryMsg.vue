@@ -7,7 +7,7 @@
             </div>
             <div class="MxGroupInfo">
                 <img class="MxGroupInfoImg" id="MxGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
-                <label class="MxGroupInfoName">{{GroupInfo.name}}</label>
+                <label class="MxGroupInfoName">{{GroupInfo ? GroupInfo.name : ''}}</label>
                 <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId" v-show="false"></label>
             </div>
             <div class="Mxsearch">

@@ -2385,7 +2385,7 @@ export default {
             if(!this.isScroll) {
                 this.$emit("updateChatList", ev);
             }
-            this.UpdateUserAvater(ev);
+            // this.UpdateUserAvater(ev);
             
             if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
             

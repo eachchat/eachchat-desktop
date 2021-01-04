@@ -116,10 +116,10 @@
                                 v-for="(file, index) in searchResults.file"
                                 :key="index">
                                 <div class="file-content" >
-                                    <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.ext)" @click="fileListClicked(file)">
+                                    <img ondragstart="return false" class="file-icon" :src="getFileIconThroughExt(file.collection_content.body)" @click="fileListClicked(file)">
                                     <div class="file-info" @click="fileListClicked(file)">
-                                        <p class="file-name" v-html="msgContentHightLight(file.collection_content.fileName)">{{ file.collection_content.fileName }}</p>
-                                        <p class="file-size">{{ file.fileSize }}</p>
+                                        <p class="file-name" v-html="msgContentHightLight(file.collection_content.body)">{{ file.collection_content.body }}</p>
+                                        <p class="file-size">{{ FileSizeByNumber(file.collection_content.info.size) }}</p>
                                     </div>
                                     <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                                 </div>

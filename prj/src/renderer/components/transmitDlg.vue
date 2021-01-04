@@ -585,6 +585,22 @@ export default {
                     alert("不能发送空白信息。")
                     return;
                 }
+                if(varcontent.info != undefined) {
+                    if(varcontent.info.h != undefined)
+                    try{
+                        varcontent.info.h = parseInt(varcontent.info.h);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                    if(varcontent.info.w != undefined)
+                    try{
+                        varcontent.info.w = parseInt(varcontent.info.w);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                }
                 if(varcontent.msgtype == "m.text") {
                     let sendText = varcontent.body;
                     
@@ -644,6 +660,7 @@ export default {
                             console.log("parse float to int failed");
                         }
                     }
+                    console.log("*** transmit msg is ", curMsg);
                     global.mxMatrixClientPeg.SendEvent(distGroups[i].roomId, curMsg)
                         .then((ret) => {
                             console.log("sendSingleMsg is ", ret);
@@ -786,28 +803,30 @@ export default {
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);
         var favGroups = [];
         var norGroups = [];
-        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
-            if(r.getMyMembership() != "leave" && r.getMyMembership() != "invite") {
-                let tags = r.tags;
-                if(tags && tags['m.favourite']){
-                    favGroups.push(r);
-                }
-                else{
-                    norGroups.push(r);
-                }
-            }
-        });
-        favGroups.sort(this.SortGroupByTimeLine);
-        norGroups.sort(this.SortGroupByTimeLine);
-        this.recentGroups = favGroups.concat(norGroups);
-        this.showRecentChat = this.recentGroups;
-        setTimeout(() => {
-            this.$nextTick(function(){
-                for(var i = 0; i < this.showRecentChat.length; i ++){
-                    this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
+        if(global.mxMatrixClientPeg.matrixClient) {
+            global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+                if(r.getMyMembership() != "leave" && r.getMyMembership() != "invite") {
+                    let tags = r.tags;
+                    if(tags && tags['m.favourite']){
+                        favGroups.push(r);
+                    }
+                    else{
+                        norGroups.push(r);
+                    }
                 }
             });
-        }, 0)
+            favGroups.sort(this.SortGroupByTimeLine);
+            norGroups.sort(this.SortGroupByTimeLine);
+            this.recentGroups = favGroups.concat(norGroups);
+            this.showRecentChat = this.recentGroups;
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.showRecentChat.length; i ++){
+                        this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
+                    }
+                });
+            }, 0)
+        }
     },
     
 }
