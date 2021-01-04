@@ -21,7 +21,7 @@
             </div>
             <div class="setting-field">
                 <div class="filed-title">设置群聊地址</div>
-                <div class="xiaomiaoshu tipdesc">任何服务器上的任何人都可以使用发布的群聊地址加入您的聊天室。如果要发布群聊地址，需要先设置为去群聊地址。</div>
+                <!-- <div class="xiaomiaoshu tipdesc">任何服务器上的任何人都可以使用发布的群聊地址加入您的聊天室。如果要发布群聊地址，需要先设置为去群聊地址。</div> -->
                 <div class="xiaomiaoshu serverRow">
                     <div class="serverFrame">
                         <div class="serverFrameStart">#</div>
@@ -42,24 +42,24 @@
             </div>
             <div class="setting-field">
                 <div class="filed-title">谁可以查看聊天历史？</div> <!--@change="setHistory"-->
-                <div class="xiaomiaoshu tipdesc">对谁可以阅读历史记录的更改仅适用于此群聊中将来的消息。现有聊天历史的可见性将保持不变。</div>
+                <!-- <div class="xiaomiaoshu tipdesc">对谁可以阅读历史记录的更改仅适用于此群聊中将来的消息。现有聊天历史的可见性将保持不变。</div> -->
                 <div class="xiaomiaoshu">
                     <img class="imgGouxuan" v-if="history == 'invited'" src="../../../static/Img/Main/xgg.png">
                     <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setHistory1('invited')">
                     <input style="display:none;" type="radio" id="histcheck0" value="invited" v-model="history">
-                    <label for="histcheck0">只有群成员(从群成员被邀请时 )</label>
+                    <label for="histcheck0">从邀请时</label>
                 </div>
                 <div class="xiaomiaoshu">
                     <img class="imgGouxuan" v-if="history == 'joined'" src="../../../static/Img/Main/xgg.png">
                     <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setHistory1('joined')">
                     <input style="display:none;" type="radio" id="histcheck1" value="joined" v-model="history">
-                    <label for="histcheck1">只有群成员(从群成员加入群聊时 )</label>
+                    <label for="histcheck1">从加入时</label>
                 </div>
                 <div class="xiaomiaoshu">
                     <img class="imgGouxuan" v-if="history == 'shared'" src="../../../static/Img/Main/xgg.png">
                     <img class="imgGouxuan" v-else src="../../../static/Img/Main/wxgg.png" @click.stop="setHistory1('shared')">
                     <input style="display:none;" type="radio" id="histcheck2" value="shared" v-model="history">
-                    <label for="histcheck2">只有群成员（从此选项被选中的那一时刻)</label>
+                    <label for="histcheck2">对群组所有参与者可见</label>
                 </div>
             </div>
             <!-- <div class="setting-field">
@@ -305,11 +305,11 @@ export default {
         left: 50%;
         top: 50%;
         margin-top: -305px;
-        margin-left: -220px;
+        margin-left: -217px;
         background-color: #fff;
         border-radius: 4px;
         width: 440px;
-        height: 610px;
+        height: 434px;
         z-index: 99999;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
     }
@@ -352,7 +352,7 @@ export default {
         color: #333333;
         line-height: 20px;
         letter-spacing: 1px;
-
+        margin-bottom: 8px;
     }
     .xiaomiaoshu {
         font-size: 14px;
