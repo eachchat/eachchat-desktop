@@ -198,7 +198,7 @@ export default {
                 const selfId = client.getUserId();
                 if (!createOpts.name) {
                     let name = '';
-                    for(let i = 0; i<3 || i<this.choosenMembers.length; i++) {
+                    for(let i = 0; i<this.choosenMembers.length; i++) {
                         let end = (i === 3 || i === this.choosenMembers.length - 1) ? '...' : ','
                         name = name + this.choosenMembers[i].name + end;
                     }
@@ -1032,6 +1032,7 @@ export default {
         letter-spacing: 1px;
         cursor: pointer;
         margin-right: 4px;
+        height: 18px;
     }
     .yxField {
         height: 24px;
@@ -1347,9 +1348,11 @@ export default {
     }
     .crumbsItem {
         color: #24B36B;
+        height: 18px;
     }
     .crumbsItemActive {
         color: #000;
+        height: 18px;
     }
     input::-webkit-input-placeholder{
         height: 18px;
