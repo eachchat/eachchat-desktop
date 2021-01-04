@@ -6,7 +6,7 @@
         <div class="groupInfo-view">
             <div class="groupInfoImageDiv" v-if="!isDm">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
-                <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user-40px@2x.png">
+                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar">
                 <img 
                     id="groupInfoImageChangeId" 
                     class="groupInfoImageChange" 
@@ -150,7 +150,7 @@
                     </div> -->
                     <!-- <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)"> -->
                     <div class="memberItemLeft">
-                        <img src="../../../static/Img/User/user-40px@2x.png" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
+                        <img :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
                         <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
                             <div class="memberItemName">
                                 <span>{{item.dspName}}</span>
@@ -511,6 +511,7 @@ export default {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let o = xie1.currentState.members[key];
                 o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
+                o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : '../../../static/Img/User/user-40px@2x.png';
                 let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
@@ -519,9 +520,6 @@ export default {
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
             console.log('----mxMembers[userId]----', userId)
             this.mxMembers = [...mxMembers];
-            this.$nextTick(()=>{
-                this.getMemberImage();
-            })
         },
         mxMuteChange: function(mxMute) {
             console.log('---mxMuteChange---', this.mxMute);
@@ -1003,7 +1001,7 @@ export default {
             })
             if (dmMember) {
                 if (!dmMember.user) dmMember.user = {};
-                dmMember.avatar = global.mxMatrixClientPeg.getRoomAvatar(room);
+                // dmMember.avatar = global.mxMatrixClientPeg.getRoomAvatar(room);
                 dmMember.dspName = await ComponentUtil.GetDisplayNameByMatrixID(dmMember.userId);
                 let xieUser = client.getUser(dmMember.userId)
                 console.log( '----xie user----', xieUser)
@@ -1025,11 +1023,11 @@ export default {
         if (avatarUrl) {
             this.mxAvatar = client.mxcUrlToHttp(avatarUrl);
         } else {
-            this.mxAvatar = this.isDm ? '../../../static/Img/User/user-40px@2x.png' : '../../../static/Img/User/group-40px@2x.png';
+            this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? client.mxcUrlToHttp(this.dmMember.user.avatarUrl) : '../../../static/Img/User/user-40px@2x.png') : '../../../static/Img/User/group-40px@2x.png';
         }
 
         console.log('----mxRoom----', this.mxRoom);
-        console.log('----mxAvatar----', this.mxAvatar);
+        console.log('----dmMember----', this.dmMember);
 
         client.on("RoomMember.powerLevel", (event, member) => {
             console.log('ppppwooooooo', member)
@@ -1072,13 +1070,9 @@ export default {
         this.ownerId = this.showGroupInfo.ownerId;
         document.addEventListener('click', this.updateCursorPosition);
 
-        this.$nextTick(()=>{
-            this.getMemberImage();
-            if (!this.isDm) {
-                let elementImg = document.getElementById("groupInfoImageId");
-                elementImg.setAttribute("src", this.groupAvarar);
-            }
-        })
+        // this.$nextTick(()=>{
+        //     this.getMemberImage();
+        // })
         
     },
     watch: {
