@@ -317,44 +317,8 @@ export default {
                     })
             }
             else {
-                this.curUserInfo = await this.services.GetSelfUserModel();
-                console.log("JumpToChat")
-                var groupItem = {};
-                console.log("userInfos is ", this.userInfo);
-                var chatAvater = this.userInfo.avatarTUrl;
-                var chatName = this.userInfo.displayName;
-                var groupCheck = '';
-                // console.log("chat name is ", chatName)
-                try {
-                    groupCheck = await Group.SearchChatByNameKey(chatName);
-                }
-                catch(error) {
-                    console.log("get grou name exception and err is ", error);
-                }
-                var contain_user_ids = [this.curUserInfo.matrix_id, this.userInfo.matrix_id].join(",");
-                console.log("groupCheck is ", groupCheck)
-                if(groupCheck.length == 0) {
-                    groupItem["contain_user_ids"] = contain_user_ids;
-                    groupItem["group_avarar"] = chatAvater;
-                    groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 102;
-                    groupItem["last_message_time"] = 0;
-                    groupItem["message_content"] = null;
-                    groupItem["message_content_type"] = 101;
-                    groupItem["message_from_id"] = this.curUserInfo.matrix_id;
-                    groupItem["message_id"] = '';
-                    groupItem["owner"] = null;
-                    groupItem["sequence_id"] = 0;
-                    groupItem["status"] = "00000000";
-                    groupItem["un_read_count"] = 0;
-                    groupItem["updatetime"] = new Date().getTime();
-                    groupItem["user_id"] = this.userInfo.matrix_id;
-                }
-                else {
-                    groupItem = groupCheck[0];
-                }
-                console.log("userinfotip emit groupitem is ", groupItem);
-                this.$emit('getCreateGroupInfo', groupItem);
+                console.log("*** jump to exist room")
+                this.$emit('JumpToDistRoom', roomId);
             }
             this.dialogVisible = false;
         },

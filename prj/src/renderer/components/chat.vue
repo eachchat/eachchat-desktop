@@ -132,7 +132,7 @@
             :isOwn="isOwn" 
             :originPosition="userInfoPosition" 
             v-if="showUserInfoTips" 
-            @getCreateGroupInfo="getCreateGroupInfo" 
+            @JumpToDistRoom="JumpToDistRoom" 
             :key="userInfoTipKey"
             @close="closeUserInfoTipChat"
         >
@@ -297,6 +297,9 @@ export default {
         mxMemberSelectDlg
     },
     methods: {
+        JumpToDistRoom(roomId) {
+            this.$emit("JoinRoom", roomId);
+        },
         mxSelectMember() {
 
         },
@@ -2906,7 +2909,9 @@ export default {
             var content = this.$store.getters.getDraft(this.chat.roomId);
             this.editor.setContents(content);
             this.editor.setSelection(this.content.length + 1);
-
+            setTimeout(() => {
+                this.showGroupName(this.chat);
+            }, 1000);
         },
         toBottom: function() {
             if(this.toBottom == true) {

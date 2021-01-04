@@ -222,7 +222,7 @@
           <div class="win-header-white" v-show="isMsgSearch">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey"></ChatPage>
+          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -239,7 +239,7 @@
         :isOwn="isOwn" 
         :originPosition="userInfoPosition" 
         v-if="showUserInfoTips" 
-        @getCreateGroupInfo="getCreateGroupInfo" 
+        @JumpToDistRoom="JumpToDistRoom" 
         :key="userInfoTipKey"
         @close="closeUserInfoTip"
       >
@@ -527,6 +527,14 @@ export default {
     };
   },
   methods: {
+    JumpToDistRoom(distUserId) {
+      console.log("in chat content distGroupId is ", this.distGroupId);
+      let room = global.mxMatrixClientPeg.matrixClient.getRoom(distGroupId);
+      if(room) {
+        console.log('------distGroupId------');
+        this.viewRoom(room);
+      }
+    },
     getDistUnreadItem() {
       console.log("*** getDistUnreadItem unreadIndex ", this.unreadIndex);
       console.log("*** getDistUnreadItem hasUnreadItems ", this.hasUnreadItems);
