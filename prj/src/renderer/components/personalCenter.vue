@@ -8,7 +8,10 @@
                 </div>
             </div>
             <div class="personalCenter-baseInfo">
-                <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" @change="displayNameChange()" placeholder="输入昵称...">
+                <span>
+                    <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" @change="displayNameChange()" placeholder="输入昵称...">
+                    <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
+                </span>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
             <!-- <div>        
@@ -319,7 +322,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .personalCenter-view {
-    height: 120px;
+    height: 100px;
     width: 300px;
     padding: 0px;
     //border: 1px solid rgb(242, 242, 246);
@@ -400,13 +403,17 @@ export default {
         text-overflow:ellipsis;
         white-space: nowrap;
     }
+    .ownerInfoEditIcon {
+            width: 20px;
+            height: 20px;
+        }
     
 }
 .personalCenter-name {
     height: 22px;
     margin: 0px;
     border: 0;
-    width: 100%;
+    width: 70%;
     text-align: left;
     font-size: 16px;
     font-weight:500;
