@@ -1032,7 +1032,7 @@ export default {
         letter-spacing: 1px;
         cursor: pointer;
         margin-right: 4px;
-        height: 18px;
+        height: 20px;
     }
     .yxField {
         height: 24px;
@@ -1348,11 +1348,11 @@ export default {
     }
     .crumbsItem {
         color: #24B36B;
-        height: 18px;
+        height: 20px;
     }
     .crumbsItemActive {
         color: #000;
-        height: 18px;
+        height: 20px;
     }
     input::-webkit-input-placeholder{
         height: 18px;
