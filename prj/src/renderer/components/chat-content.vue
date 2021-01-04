@@ -1218,7 +1218,7 @@ export default {
           return;
         }
         var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-        distGroup.name = displayName;
+        elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
       }
     },
 
@@ -1261,7 +1261,9 @@ export default {
         if(distElement) {
           var distTimeLine = this.GetLastShowMessage(item);
           if(distTimeLine == undefined) {
-            return distElement.innerHTML = "";
+            distElement.innerHTML = "";
+            // this.showGroupIconName(item);
+            return;
           }
 
           let event = distTimeLine.event;
@@ -2188,6 +2190,7 @@ export default {
       if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
         isSecret = true;
       }
+      this.showGroupIconName();
     },
     ToJoinRoom: function(roomId) {
       try{

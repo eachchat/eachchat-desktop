@@ -1295,18 +1295,18 @@ export default {
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             var groupNameElement = document.getElementById("chat-group-name");
             console.log("getShowGroupName is ", chatGroupItem)
-            // if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-            //     var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
-            //     if(!distUserId) {
-            //         groupNameElement.innerHTML = chatGroupItem.name;
-            //         return;
-            //     }
-            //     var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-            //     groupNameElement.innerHTML = displayName;
-            // }
-            // else {
-            //     groupNameElement.innerHTML = chatGroupItem.name;
-            // }
+            if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
+                if(!distUserId) {
+                    groupNameElement.innerHTML = chatGroupItem.name;
+                    return;
+                }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                groupNameElement.innerHTML = displayName;
+            }
+            else {
+                groupNameElement.innerHTML = chatGroupItem.name;
+            }
             var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
                 groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
