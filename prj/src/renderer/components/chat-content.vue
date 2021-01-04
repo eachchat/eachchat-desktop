@@ -420,7 +420,7 @@ export default {
                   this.$nextTick(() => {
                     this.showGroupIconName();
                   })
-                  var fromName = await this.getShowGroupName(newRoom);
+                  var fromName = await this.getNoticeShowGroupName(newRoom);
                   const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
                   const inviteEvent = newRoom.currentState.getMember(myUserId);
                   if (!inviteEvent) {
@@ -783,7 +783,7 @@ export default {
         this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
     },
 
-    async getShowGroupName(groupInfo) {
+    async getNoticeShowGroupName(groupInfo) {
       if(groupInfo != undefined) {
         if(global.mxMatrixClientPeg.DMCheck(groupInfo)) {
           var distUserId = global.mxMatrixClientPeg.getDMMemberId(groupInfo);
@@ -821,7 +821,7 @@ export default {
       this.checkUnreadCount();
       var notificateContent = await this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
-      fromName = await this.getShowGroupName(groupInfo);
+      fromName = await this.getNoticeShowGroupName(groupInfo);
       // console.log("*** title is ", notificateContent)
       // console.log("*** fromName is ", fromName)
       this.showNotice(fromName, notificateContent);

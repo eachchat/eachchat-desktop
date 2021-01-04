@@ -511,7 +511,7 @@ export default {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let o = xie1.currentState.members[key];
                 o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
-                o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : '../../../static/Img/User/user-40px@2x.png';
+                o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
                 let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
@@ -1023,7 +1023,7 @@ export default {
         if (avatarUrl) {
             this.mxAvatar = client.mxcUrlToHttp(avatarUrl);
         } else {
-            this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? client.mxcUrlToHttp(this.dmMember.user.avatarUrl) : '../../../static/Img/User/user-40px@2x.png') : '../../../static/Img/User/group-40px@2x.png';
+            this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? client.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@2x.png';
         }
 
         console.log('----mxRoom----', this.mxRoom);
