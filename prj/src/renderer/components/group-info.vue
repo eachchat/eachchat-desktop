@@ -475,6 +475,9 @@ export default {
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
             console.log('----mxMembers[userId]----', userId)
             this.mxMembers = [...mxMembers];
+            this.$nextTick(()=>{
+                this.getMemberImage();
+            })
         },
         mxMuteChange: function(mxMute) {
             console.log('---mxMuteChange---', this.mxMute);
@@ -872,14 +875,14 @@ export default {
             return uid;
         },
         getMemberImage: async function() {
-            this.memberList.forEach(async (item)=>{
-                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(item);
+            this.mxMembers.forEach(async (item)=>{
+                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(item.userId);
                 if(!item)
                     return;
                 var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
                 if(avaterUrl == '')
                     return;
-                var distElement = document.getElementById(this.getIdThroughMemberUid(item));
+                var distElement = document.getElementById(this.getIdThroughMemberUid(item.userId));
                 if(!distElement)
                     return;
                 distElement.setAttribute("src", avaterUrl);
@@ -1009,8 +1012,8 @@ export default {
         this.ownerId = this.showGroupInfo.ownerId;
         document.addEventListener('click', this.updateCursorPosition);
 
-        this.getMemberImage();
         this.$nextTick(()=>{
+            this.getMemberImage();
             if (!this.isDm) {
                 let elementImg = document.getElementById("groupInfoImageId");
                 elementImg.setAttribute("src", this.groupAvarar);
