@@ -199,7 +199,7 @@ export default {
                 if (!createOpts.name) {
                     let name = '';
                     for(let i = 0; i<3 || i<this.choosenMembers.length; i++) {
-                        let end = (i === 3 || i === this.choosenMembers.length - 1) ? '' : ','
+                        let end = (i === 3 || i === this.choosenMembers.length - 1) ? '...' : ','
                         name = name + this.choosenMembers[i].name + end;
                     }
                     createOpts.name = name;
