@@ -372,14 +372,13 @@ export default {
         kickMember(item, idx) {
             const client = window.mxMatrixClientPeg.matrixClient;
             const room = this.showGroupInfo.room;
-            console.log('----setPowerLevel room-----', room)
             const roomId = room.roomId;
             const userId = item.userId;
             client.kick(roomId, userId, undefined).then(()=>{
                 console.log("Kick success");
-                let mxMembers = this.mxMembers;
-                mxMembers.splice(idx, 1);
-                this.mxMembers = [...mxMembers];
+                // let mxMembers = this.mxMembers;
+                // mxMembers.splice(idx, 1);
+                // this.mxMembers = [...mxMembers];
             }).catch(()=>{alert('kick failed')})
         },
         _applyPowerChange(roomId, target, powerLevel, powerLevelEvent, idx) {
@@ -471,6 +470,7 @@ export default {
                 let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
+            console.log('全member', xie1.currentState.members);
             console.log('mxMembers', mxMembers);
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
             console.log('----mxMembers[userId]----', userId)
@@ -971,22 +971,28 @@ export default {
         client.on("RoomMember.powerLevel", (event, member) => {
             console.log('ppppwooooooo', member)
             // this.mxGetMembers(userId);
-            let mxMembers = this.mxMembers;
-            mxMembers = mxMembers.map(m => {
-                if (m.userId == member.userId) {
-                    return member;
-                }
-                return m;
-            })
-            this.mxMembers = [...mxMembers];
+            // let mxMembers = this.mxMembers;
+            // mxMembers = mxMembers.map(m => {
+            //     if (m.userId == member.userId) {
+            //         return member;
+            //     }
+            //     return m;
+            // })
+            // this.mxMembers = [...mxMembers];
+            this.mxGetMembers(userId);
         });
 
-        client.on('RoomState.newMember', (event, state, member) => {
-            console.log('???+++___', event)
-            // this.mxGetMembers(userId);
-            let mxMembers = this.mxMembers;
-            mxMembers.push(member);
-            this.mxMembers = [...mxMembers];
+        // client.on('RoomState.newMember', (event, state, member) => {
+        //     console.log('???+++___', event)
+        //     // this.mxGetMembers(userId);
+        //     let mxMembers = this.mxMembers;
+        //     mxMembers.push(member);
+        //     this.mxMembers = [...mxMembers];
+        // })
+
+        client.on('RoomMember.membership', (event, state, member) => {
+            console.log('???+++___', event);
+            this.mxGetMembers(userId);
         })
 
         this.memberList = this.showGroupInfo.memberList;
