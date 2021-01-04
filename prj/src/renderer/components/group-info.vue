@@ -5,12 +5,13 @@
         </div>
         <div class="groupInfo-view">
             <div class="groupInfoImageDiv" v-if="!isDm">
+                <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
                 <img id="groupInfoImageId" class="groupInfoImage" src="../../../static/Img/User/user-40px@2x.png">
                 <img 
                     id="groupInfoImageChangeId" 
                     class="groupInfoImageChange" 
                     src="../../../static/Img/Chat/updateHeadImg-24px@2x.png" 
-                    @click="updateGroupImg" 
+                    @click="mxUploadAvatar" 
                     v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canAvatar">
             </div>
             <div v-else class="groupInfoImageDiv">
@@ -289,6 +290,8 @@ export default {
             dmMember: {},
             mxSelectMemberOpen: false,
             memberFilter: '',
+            mxAvatar: '',
+            mxRoom: {},
         }
     },
     components: {
@@ -324,6 +327,47 @@ export default {
     computed: {
     },
     methods: {
+        async _onAvatarChanged(e) {
+            console.log('-----_onAvatarChanged-----')
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const room = this.showGroupInfo.room;
+            const roomId = room.roomId;
+            if (!e.target.files || !e.target.files.length) {
+                // this.setState({
+                //     avatarUrl: this.state.originalAvatarUrl,
+                //     avatarFile: null,
+                //     enableProfileSave: false,
+                // });
+                return;
+            }
+            const file = e.target.files[0];
+            // const reader = new FileReader();
+            // reader.onload = async (ev) => {
+            //     // this.setState({
+            //     //     avatarUrl: ev.target.result,
+            //     //     avatarFile: file,
+            //     //     enableProfileSave: true,
+            //     // });
+            //     console.log('---file', file)
+            //     console.log('---file2', ev.target.result)
+            //     const uri = await client.uploadContent(file);
+            //     console.log('----uri----', uri);
+            //     await client.sendStateEvent(roomId, 'm.room.avatar', {url: uri}, '');
+            //     this.mxAvatar = client.mxcUrlToHttp(uri);
+            // };
+            // reader.readAsDataURL(file);
+            console.log('---file', file)
+            const uri = await client.uploadContent(file);
+            console.log('----uri----', uri);
+            await client.sendStateEvent(roomId, 'm.room.avatar', {url: uri}, '');
+            this.mxAvatar = client.mxcUrlToHttp(uri);
+        },
+
+        mxUploadAvatar() {
+            console.log('mxUploadAvatar')
+            let input = document.getElementById("mxavai");
+            input.click();
+        },
         mxSearchMem(mf) {
             //mxMembers
             console.log('---mf---', mf)
@@ -913,15 +957,16 @@ export default {
             this.cursorY = e.clientY;
         }
     },
-    async created () {
+    // created() {
         // this.loginInfo = await services.common.GetLoginModel();
         // console.log("userinfo-tip login info is ", this.loginInfo);
         // this.curUserInfo = await services.common.GetSelfUserModel();
-    },
+
+    // },
     destroyed() {
         
     },
-    async mounted() {
+    async created() {
         const roomId = this.showGroupInfo.groupId;
         const client = window.mxMatrixClientPeg.matrixClient;
         const userId = client.getUserId();
@@ -970,6 +1015,21 @@ export default {
         this.getRoomNotifs(roomId);
         this.getRoomFavo(room);
         this.mxGetMembers(userId); //this.currentUser 是在该方法中赋值的
+
+
+        this.mxRoom = this.showGroupInfo.room;
+        const avatarEvent = this.mxRoom.currentState.getStateEvents("m.room.avatar", "");
+        let avatarUrl = avatarEvent && avatarEvent.getContent() ? avatarEvent.getContent()["url"] : null;
+
+        
+        if (avatarUrl) {
+            this.mxAvatar = client.mxcUrlToHttp(avatarUrl);
+        } else {
+            this.mxAvatar = isDm ? '../../../static/Img/User/user-40px@2x.png' : '../../../static/Img/User/group-40px@2x.png';
+        }
+
+        console.log('----mxRoom----', this.mxRoom);
+        console.log('----mxAvatar----', this.mxAvatar);
 
         client.on("RoomMember.powerLevel", (event, member) => {
             console.log('ppppwooooooo', member)
@@ -1383,6 +1443,7 @@ export default {
     position: absolute;
     bottom: 0px;
     right: 0px;
+    cursor: pointer;
 }
 
 .groupInfoNoticeAndName {
