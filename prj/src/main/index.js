@@ -350,7 +350,7 @@ ipcMain.on("showNotice", (event, title, contnet) => {
       notification.show();
       setTimeout(() => {
         notification.close();
-      }, 2000)
+      }, 4000)
       notification.on("click", () => {
         mainWindow.show();
       })
@@ -396,7 +396,7 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
     notification.show();
     setTimeout(() => {
       notification.close();
-    }, 3000)
+    }, 4000)
     notification.on("click", () => {
       mainWindow.show();
     })
@@ -992,7 +992,7 @@ function createWindow () {
         })
     }
   }
-
+  app.setAppUserModelId('EachChat');
 }
 
 ipcMain.on("openDevTools", function(event) {

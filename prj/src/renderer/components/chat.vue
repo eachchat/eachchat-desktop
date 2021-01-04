@@ -132,7 +132,7 @@
             :isOwn="isOwn" 
             :originPosition="userInfoPosition" 
             v-if="showUserInfoTips" 
-            @getCreateGroupInfo="getCreateGroupInfo" 
+            @JumpToDistRoom="JumpToDistRoom" 
             :key="userInfoTipKey"
             @close="closeUserInfoTipChat"
         >
@@ -297,6 +297,9 @@ export default {
         mxMemberSelectDlg
     },
     methods: {
+        JumpToDistRoom(roomId) {
+            this.$emit("JoinRoom", roomId);
+        },
         mxSelectMember() {
 
         },
@@ -1292,18 +1295,18 @@ export default {
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             var groupNameElement = document.getElementById("chat-group-name");
             console.log("getShowGroupName is ", chatGroupItem)
-            // if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-            //     var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
-            //     if(!distUserId) {
-            //         groupNameElement.innerHTML = chatGroupItem.name;
-            //         return;
-            //     }
-            //     var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-            //     groupNameElement.innerHTML = displayName;
-            // }
-            // else {
-            //     groupNameElement.innerHTML = chatGroupItem.name;
-            // }
+            if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
+                if(!distUserId) {
+                    groupNameElement.innerHTML = chatGroupItem.name;
+                    return;
+                }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                groupNameElement.innerHTML = displayName;
+            }
+            else {
+                groupNameElement.innerHTML = chatGroupItem.name;
+            }
             var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
                 groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
@@ -2906,7 +2909,9 @@ export default {
             var content = this.$store.getters.getDraft(this.chat.roomId);
             this.editor.setContents(content);
             this.editor.setSelection(this.content.length + 1);
-
+            setTimeout(() => {
+                this.showGroupName(this.chat);
+            }, 1000);
         },
         toBottom: function() {
             if(this.toBottom == true) {
