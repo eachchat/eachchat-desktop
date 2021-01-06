@@ -5,7 +5,7 @@
                 <p class="ownerInfoTitle">我的信息</p>
                 <i class="el-icon-close" @click="Close()"></i>
             </div>
-            <div class="ownerInfoTipLabel">基本信息</div>
+            <div class="ownerInfoTipLabel">个人信息</div>
             <div class="ownerInfoBaseBox">
                 <div class="ownerInfoBaseDiv">
                     <label class="ownerInfoBaseLabel">头像</label>
@@ -22,7 +22,7 @@
                     <label class="ownerInfoBaseLabel2" id="ownerInfoAccountId">{{ownerAccount}}</label>
                 </div>
                 <div class="ownerInfoBaseDiv">
-                    <label class="ownerInfoBaseLabel">ID</label>
+                    <label class="ownerInfoBaseLabel">Matrix ID</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOwnerIdId">{{ownerId}}</label>
                 </div>
             </div>
