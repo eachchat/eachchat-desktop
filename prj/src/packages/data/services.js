@@ -569,6 +569,8 @@ const common = {
       {
         index++;
         useritem = result.data.results[item]
+        if(useritem.del == 1)
+          continue;
         usermodel = await servicemodels.UsersModel(useritem)
         if(usermodel == undefined)
         {
