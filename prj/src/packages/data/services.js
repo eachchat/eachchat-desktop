@@ -534,6 +534,12 @@ const common = {
       return undefined;
     }
     await(await globalModels.Login).truncate();
+    await (await models.UserInfo).truncate();
+    await (await models.UserEmail).truncate();
+    await (await models.UserAddress).truncate();
+    await (await models.UserPhone).truncate();
+    await (await models.UserIm).truncate();
+    await (await models.Contact).truncate();
     return await this.api.logout(this.data.login.access_token)
   },
 
