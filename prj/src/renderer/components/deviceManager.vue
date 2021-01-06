@@ -19,8 +19,8 @@
                         <label class="sessionId">{{item.device_id}}</label>
                         <label class="sessionTime">{{DealTime(item.last_seen_ts)}}</label>
                     </div>
-                    <div class="sessionOperate" v-show="item.device_id != ownDeviceId" @click="removeSession(item)">
-                        <label class="sessionRemove">移除会话</label>
+                    <div class="sessionOperate" v-show="item.device_id != ownDeviceId">
+                        <label class="sessionRemove" @click="removeSession(item)">移除会话</label>
                     </div>
                 </li>
             </ul>
@@ -205,6 +205,7 @@ export default {
     ::-webkit-scrollbar {
         width: 7px;
         height: 12px;
+        display: none;
     }
 
     ::-webkit-scrollbar-thumb {
@@ -271,14 +272,14 @@ export default {
     }
 
     .DeviceManagerContentPage {
-        width: 100%;
+        width: calc(100% - 12px);
         height: 298px;
         background: #FFFFFF;
         border: 0px solid rgba(221,221,221,1);
         border-radius: 4px;
         list-style: none;
         margin-left: 12px;
-        margin-top: 20px;
+        margin-top: 0px;
         padding-left: 0px;
         overflow-y: scroll;
         overflow-x: hidden;
@@ -286,7 +287,9 @@ export default {
 
     .sessionItem {
         width: 100%;
-        height: 74px;
+        height: 60px;
+        padding: 7px 0px 7px 0px;
+        border-bottom: 1px solid rgba(238, 238, 238, 1);
     }
 
     .sessionInfo {
@@ -323,7 +326,9 @@ export default {
     .sessionName {
         display: inline-block;
         max-width: 80%;
-        font-size: 14;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
         color: rgba(51, 51, 51, 1);
         font-family: SCPingFang-Regular;
         font-weight: 400;
@@ -332,7 +337,7 @@ export default {
     .sessionName:focus {
         display: inline-block;
         max-width: 80%;
-        font-size: 14;
+        font-size: 14px;
         color: rgba(51, 51, 51, 1);
         font-family: SCPingFang-Regular;
         font-weight: 400;
@@ -359,7 +364,7 @@ export default {
         width: 100%;
         height: 18px;
         color: rgba(153, 153, 153, 1);
-        font-size: 12;
+        font-size: 12px;
         font-family: SCPingFang-Regular;
         font-weight: 400;
         line-height: 18px;
@@ -370,7 +375,7 @@ export default {
         width: 100%;
         height: 18px;
         color: rgba(153, 153, 153, 1);
-        font-size: 12;
+        font-size: 12px;
         font-family: SCPingFang-Regular;
         font-weight: 400;
         line-height: 18px;
@@ -381,7 +386,8 @@ export default {
         width: 20%;
         height: 100%;
         vertical-align: top;
-        padding: 2px 0px 0px 0px;
+        margin: 16px 0 16px 0;
+        text-align: right;
     }
 
     .sessionRemove {
@@ -395,6 +401,7 @@ export default {
         font-weight: 400;
         font-family: SCPingFang-Regular;
         line-height: 28px;
+        letter-spacing: 1px;
         padding: 4px 16px 4px 16px;
     }
 

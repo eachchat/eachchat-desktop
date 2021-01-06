@@ -64,7 +64,7 @@
                 <label class="setup-array-with-label-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
-            <div class="setup-array">
+            <div class="setup-array" v-show="canChangePwd">
                 <label class="setup-array-label">修改密码</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
             </div>
@@ -200,6 +200,7 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      canChangePwd: false,
       updateOwnerInfo: false,
       showOwnerDlg: false,
       lVersion: '--',
@@ -474,6 +475,14 @@ export default {
     var message_notice = global.localStorage.getItem("message_notice");
     var autoStart = global.localStorage.getItem("autoStart");
     var language = global.mxMatrixClientPeg.getStorageLocale();
+    var defaultIdentity = global.localStorage.getItem("authType");
+    var threeAuthType = global.localStorage.getItem("threeAuthType");
+    if(defaultIdentity == "three" && threeAuthType == "ldap") {
+      this.canChangePwd = false;
+    }
+    else {
+      this.canChangePwd = true;
+    }
     if(language == "zh") {
       this.curLanguage = "简体中文";
     }

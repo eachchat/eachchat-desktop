@@ -60,9 +60,8 @@ export default {
         left: 0;
         right: 0;
         margin: auto;
-        padding: 0px 32px 20px 32px;
         width: 440px;
-        height: 200px;
+        height: 236px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
@@ -84,23 +83,23 @@ export default {
         line-height: 22px;
         letter-spacing: 2px;
         float: left;
-        margin: 18px 0px 18px 0px;
+        margin: 18px 0px 18px 32px;
     }
 
     .el-icon-close {
         display: inline-block;
-        padding: 18px 0px 18px 18px;
+        padding: 18px 20px 18px 18px;
         float: right;
     }
 
     .AuthPwdContentPageBind {
-        width: 420px;
-        height: 104px;
+        width: 360px;
+        height: 125px;
         background: #FFFFFF;
         border: 0px solid rgba(221,221,221,1);
         border-radius: 4px;
         list-style: none;
-        margin-left: 12px;
+        margin-left: 40px;
         padding-left: 0px;
     }
 
@@ -114,7 +113,7 @@ export default {
         line-height: 20px;
         letter-spacing: 1px;
         float: left;
-        margin: 0px 14px 4px 14px;
+        margin: 0px 14px 4px 0px;
     }
 
     .toSetAddressLabel2 {
@@ -127,7 +126,7 @@ export default {
         line-height: 20px;
         letter-spacing: 1px;
         float: left;
-        margin: 0px 14px 4px 14px;
+        margin: 0px 14px 4px 0px;
     }
 
     .toSetAddressLabelState {
@@ -149,7 +148,7 @@ export default {
         color: rgba(153, 153, 153, 1);
         border-radius: 4px;
         border: 1px solid #DDDDDD;
-        margin: 5px 13px 0px 13px;
+        margin: 5px 13px 0px 0px;
         padding-left: 8px;
     }
 
