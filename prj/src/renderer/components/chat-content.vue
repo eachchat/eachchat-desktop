@@ -1096,7 +1096,7 @@ export default {
           }
           else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
             this.menu.append(new MenuItem({
-                label: "置顶",
+                label: "置顶聊天",
                 click: () => {
                     this.favouriteIt(groupItem)
                 }
@@ -1113,7 +1113,7 @@ export default {
           }
           else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
             this.menu.append(new MenuItem({
-              label: "置底",
+              label: "置底聊天",
               click: () => {
                   this.SetRoomLowpriority(groupItem)
               }
