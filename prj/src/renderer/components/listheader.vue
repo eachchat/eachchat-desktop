@@ -11,7 +11,7 @@
                 <img class="normal-chat-img" src="../../../static/Img/Main/jdr.png">
                 <span class="normal-chat-label">发起聊天</span>
             </div>
-            <div class="normal-chat" @click.stop="mxCreateRoom()"> <!--showCreateGroup-->
+            <div class="normal-chat" @click.stop="openMxXxr()"> <!--mxCreateRoom showCreateGroup-->
                 <img class="normal-chat-img" src="../../../static/Img/Main/jql.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
@@ -45,8 +45,9 @@
         </mxMemberSelectDlg>
         <mxCreateRoomDlg 
             v-if="mxCreateRoomOpen" 
-            @close="mxCreateRoom" 
-            @nextStep="mxCreateRoomNextStep">
+            @close="mxCreateRoom"
+            :mxInvite="mxInvite"
+        >
         </mxCreateRoomDlg>
         <mxSquareDlg 
             v-if="mxSquareOpen"
@@ -62,7 +63,6 @@
         <mxXxr 
             v-if="mxXxrOpen" 
             @close="closeMxXxr"
-            :roomInfo="roomInfo"
         >
         </mxXxr>
     </div>
@@ -115,14 +115,21 @@ export default {
             mxDmDlgOpen: false,
             erpDm: false,
             roomInfo: undefined,
-            mxXxrOpen: false
+            mxXxrOpen: false,
+            mxInvite: []
         }
     },
     methods: {
-        closeMxXxr() {
+        openMxXxr() {
+            this.mxXxrOpen = true;
+        },
+        closeMxXxr(data) {
             this.mxXxrOpen = false;
             this.showCreateNewChat = false;
-            console.log('-----closeMxXxr----', this.mxXxrOpen)
+            if (data && data.invite) {
+                this.mxInvite = [...data.invite];
+                this.mxCreateRoomOpen = true;
+            }
         },
         mxDmDlgChangeErp: function(close) {
             console.log('mxDmDlgErp???', close)

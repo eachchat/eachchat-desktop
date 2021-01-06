@@ -67,7 +67,7 @@
                 </div> -->
             </div>
             <div class="mxTransmitFotter">
-                <button class="mxTransmitConfirmButton" @click.self.stop="confirm">下一步</button>
+                <button class="mxTransmitConfirmButton" @click.self.stop="confirm">确认</button>
                 <button class="mxTransmitCancleButton" @click.self.stop="close">取消</button>
             </div>
         </div>
@@ -81,11 +81,16 @@ import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
 export default {
     name: 'mxCreateRoomDlg',
-    props: {},
+    props: {
+        mxInvite: {
+            type: Array,
+            default: []
+        },
+    },
     data () {
         return {
             name:'',
-            isPublic: 'y',
+            isPublic: 'n',
             commu: false,
             isEncrypted: false,
             alias: ''
@@ -126,7 +131,17 @@ export default {
         _roomCreateOptions: function() {
             const opts = {};
             const createOpts = opts.createOpts = {};
-            createOpts.name = this.name;
+            // createOpts.name = this.name;
+            if (this.name) {
+                createOpts.name = this.name;
+            } else {
+                let name = '';
+                for(let i = 0; i<this.mxInvite.length; i++) {
+                    let end = (i === 3 || i === this.mxInvite.length - 1) ? '...' : ','
+                    name = name + this.mxInvite[i].name + end;
+                }
+                createOpts.name = name;
+            }
             if (this.isPublic === 'y') {
                 createOpts.visibility = "public";
                 createOpts.preset = "public_chat";
@@ -237,17 +252,17 @@ export default {
                 createOpts: createOpts,
                 commu: commu
             }
-            // return client.createRoom(createOpts).then((res) => {
-            //     console.log('create success!!', res);
-            //     client.setRoomDirectoryVisibility(
-            //         res.room_id,
-            //         commu ? 'public' : 'private',
-            //     ).then(()=>{
-            //         this.$emit('nextStep', res);
-            //     })
-            // })
-            console.log('----roomInfo----', roomInfo);
-            this.$emit('nextStep', roomInfo);
+            return client.createRoom(createOpts).then((res) => {
+                console.log('create success!!', res);
+                client.setRoomDirectoryVisibility(
+                    res.room_id,
+                    commu ? 'public' : 'private',
+                ).then(()=>{
+                    this.close();
+                })
+            })
+            // console.log('----roomInfo----', roomInfo);
+            // this.$emit('nextStep', roomInfo);
 
             // let modal;
             // if (opts.spinner) modal = Modal.createDialog(Loader, null, 'mx_Dialog_spinner');

@@ -190,41 +190,50 @@ export default {
     timer: null,
     methods: {
         createXie() {
-            if (this.loading) return;
-            this.loading = true;
-            if (this.roomInfo) { //走创建
-                let {createOpts, commu} = this.roomInfo;
-                const client = window.mxMatrixClientPeg.matrixClient;
-                const selfId = client.getUserId();
-                if (!createOpts.name) {
-                    let name = '';
-                    for(let i = 0; i<this.choosenMembers.length; i++) {
-                        let end = (i === 3 || i === this.choosenMembers.length - 1) ? '...' : ','
-                        name = name + this.choosenMembers[i].name + end;
-                    }
-                    createOpts.name = name;
-                }
-                let invite = [];
-                this.choosenMembers.map(c => {
-                    if (c.id && c.id !== selfId) invite.push(c.id);
-                })
-                createOpts.invite = invite;
-                console.log('----post createOpts----', createOpts)
-                return client.createRoom(createOpts).then((res) => {
-                    console.log('create success!!', res);
-                    client.setRoomDirectoryVisibility(
-                        res.room_id,
-                        commu ? 'public' : 'private',
-                    ).then(()=>{
-                        this.loading = false;
-                        this.$emit('close');
-                        console.log('广场设置完成');
-                    })
-                }).catch((e)=>{this.loading = false;})
-            } else { //走添加
-                //暂无此模版添加需求
-                this.loading = false;
-            }
+            // if (this.loading) return;
+            // this.loading = true;
+            // if (this.roomInfo) { //走创建
+            //     let {createOpts, commu} = this.roomInfo;
+            //     const client = window.mxMatrixClientPeg.matrixClient;
+            //     const selfId = client.getUserId();
+            //     if (!createOpts.name) {
+            //         let name = '';
+            //         for(let i = 0; i<this.choosenMembers.length; i++) {
+            //             let end = (i === 3 || i === this.choosenMembers.length - 1) ? '...' : ','
+            //             name = name + this.choosenMembers[i].name + end;
+            //         }
+            //         createOpts.name = name;
+            //     }
+            //     let invite = [];
+            //     this.choosenMembers.map(c => {
+            //         if (c.id && c.id !== selfId) invite.push(c.id);
+            //     })
+            //     createOpts.invite = invite;
+            //     console.log('----post createOpts----', createOpts)
+            //     return client.createRoom(createOpts).then((res) => {
+            //         console.log('create success!!', res);
+            //         client.setRoomDirectoryVisibility(
+            //             res.room_id,
+            //             commu ? 'public' : 'private',
+            //         ).then(()=>{
+            //             this.loading = false;
+            //             this.$emit('close');
+            //             console.log('广场设置完成');
+            //         })
+            //     }).catch((e)=>{this.loading = false;})
+            // } else { //走添加
+            //     //暂无此模版添加需求
+            //     this.loading = false;
+            // }
+
+            //////////
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const selfId = client.getUserId();
+            let invite = [];
+            this.choosenMembers.map(c => {
+                if (c.id && c.id !== selfId) invite.push(c.id);
+            })
+            this.$emit('close', {invite});         
         },
         mxTreeWalk(obj) {
             // console.log('-----mxTreeWalk----', obj)
