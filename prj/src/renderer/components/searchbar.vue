@@ -102,7 +102,7 @@ export default {
     .echat-search-input::placeholder {
         height: 18px;
         font-size: 12px;
-        font-family: SCPingFangSC;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         color: #999999;
         line-height: 18px;
