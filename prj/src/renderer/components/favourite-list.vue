@@ -885,7 +885,6 @@ display: none;
             line-height: 18px;
             font-weight:400;
             color:rgba(153,153,153,1);
-            letter-spacing:1px;
             //text-align: right;
             margin-top: 8px;
             font-family: PingFangSC-Regular;
