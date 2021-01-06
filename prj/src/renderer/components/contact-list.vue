@@ -295,7 +295,7 @@ export default {
     vertical-align:middle;
     margin-top: 25px;
     float: right;
-    width: 100px;
+    width: 50px;
     height: 30px;
 }
 
@@ -317,7 +317,7 @@ export default {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: calc(100% - 115px);
+    width: calc(100% - 105px);
 }
 
 .contact-header-title{
