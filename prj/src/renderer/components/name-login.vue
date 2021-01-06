@@ -31,7 +31,7 @@
                     <p class="organizaiton-title">
                         {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline"  id="organizationInput" v-model="organizationAddress" placeholder="组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()"/>
+                    <input prefix="ios-contact-outline"  id="organizationInput" v-model="organizationAddress" placeholder="请输入您的组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()"/>
                     <p class="organization-input-label" v-show="false">{{eachChatEndPoint}}</p>
                     <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
@@ -56,16 +56,17 @@
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="username-content" v-show="showUsernameLoginView">
                     <div class="title">
-                            {{loginPageTitle}}
+                        <label class="titleContent">{{loginPageTitle}}</label>
+                        <label class="titleIllustrate">{{loginPageTitlellustrate}}</label>
                     </div>
                     <div class="item-account">
-                        <p class="account-title">
+                        <p class="account-title" v-show="false">
                             {{loginPageAccountLabel}}
                         </p>
                         <input prefix="ios-contact-outline" id="accountInputId" v-model="username" :placeholder="loginPageAccountPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
                     </div>
                     <div class="item-pwd">
-                        <p class="password-title">
+                        <p class="password-title" v-show="false">
                             {{loginPagePwdLabel}}
                         </p>
                         <div class="inputDiv" id="inputDivId">
@@ -266,6 +267,7 @@ export default {
             isMatrixPwd: false,
             forgetPasswordContent: '',
             loginPageTitle: '',
+            loginPageTitlellustrate: '',
             loginPageAccountLabel: '',
             loginPageAccountPlaceholder: '',
             loginPagePwdLabel: '',
@@ -912,7 +914,8 @@ export default {
                     if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
                         this.isLdap = true;
                         this.isMatrixPwd = false;
-                        this.loginPageTitle = "组织认证";
+                        this.loginPageTitle = "登录亿洽";
+                        this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
                         this.loginPageAccountLabel = "组织ID";
                         this.loginPageAccountPlaceholder = global.localStorage.getItem("userNamePlaceHolder");
                         this.loginPagePwdLabel = "密码";
@@ -928,6 +931,7 @@ export default {
                         this.isLdap = false;
                         this.isMatrixPwd = true;
                         this.loginPageTitle = "用户名登录";
+                        this.loginPageTitlellustrate = "";
                         this.loginPageAccountLabel = "用户名";
                         this.loginPageAccountPlaceholder = "请输入用户名";
                         this.loginPagePwdLabel = "密码";
@@ -1141,6 +1145,7 @@ export default {
         async organizationFinderBackToLoginClicked(){
             if(this.isRecetPwd || this.toVerfyEmail) {
                 this.loginPageTitle = "用户名登录";
+                this.loginPageTitlellustrate = "";
                 this.loginPageAccountLabel = "用户名";
                 this.loginPageAccountPlaceholder = "请输入用户名";
                 this.loginPagePwdLabel = "密码";
@@ -1456,7 +1461,7 @@ export default {
                     }
                 }
                 else if(verCodeRet.status == 429) {
-                    this.$toastMessage({message:verCodeRet.data.error, time: 3000, type:'error', showWidth:'280px'});
+                    this.$toastMessage({message:verCodeRet.data.error, time: 3000, type:'error', showWidth:'260px'});
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     this.loginState = verCodeRet.data.error;
@@ -1872,29 +1877,50 @@ export default {
         color: rgba(153, 153, 153, 1);
     }
 .account-content{
+    width: 100%;
+    height: 384px;
     .username-content{
-            .title {
-                display: inline-block;
-                vertical-align: top;
-                height:22px;
-                font-size:16px;
-                font-weight:600;
-                color:rgba(39,45,52,1);
-                line-height:22px;
-                font-family: PingFangSC-Medium;
-                font-weight: 600;
-                text-align: center;
-                width: 100%;
-                margin-top: 36px;
+        .title {
+            display: block;
+            vertical-align: top;
+            height:40px;
+            width: 100%;
+            margin-top: 36px;
+            margin-left: 50px;
+        }
+
+        .titleContent {
+            display: block;
+            vertical-align: top;
+            height:22px;
+            font-size:16px;
+            color:rgba(0, 0, 0, 1);
+            line-height:22px;
+            font-family: PingFangSC-Medium;
+            font-weight: 500;
+            text-align: left;
+            width: 100%;
+        }
+
+        .titleIllustrate {
+            display: block;
+            vertical-align: top;
+            height:18px;
+            font-size:12px;
+            color:rgba(102, 102, 102, 1);
+            line-height:18px;
+            font-family: PingFangSC-Regular;
+            font-weight: 400;
+            text-align: left;
+            width: 100%;
         }
 
 
-
         .item-account{
-            margin-top: 20px;
+            margin-top: 32px;
             width: 260px;
             margin-left: 50px;
-            height: 58px;
+            height: 37px;
             .account-title{
                 width: 100%;
                 margin: 0px;
@@ -1926,10 +1952,10 @@ export default {
         }
 
         .item-pwd {
-            margin-top: 8px;
+            margin-top: 12px;
             width: 260px;
             margin-left: 50px;
-            height: 58px;
+            height: 37px;
             .password-title{
                 width: 100%;
                 margin: 0px;
@@ -2051,8 +2077,8 @@ export default {
             line-height: 18px;
             letter-spacing: 1px;
             text-align: right;
-            margin-top: 5px;
-            margin-bottom: 12px;
+            margin-top: 2px;
+            margin-bottom: 4px;
             padding-right: 50px;
         }
         .forget-password:hover {
@@ -2065,8 +2091,8 @@ export default {
             line-height: 18px;
             letter-spacing: 1px;
             text-align: right;
-            margin-top: 5px;
-            margin-bottom: 12px;
+            margin-top: 2px;
+            margin-bottom: 4px;
             padding-right: 50px;
             cursor: pointer;
         }
@@ -2155,8 +2181,8 @@ export default {
                 .login-footer{
             width: 100%;
             height: 20px;
-            margin-bottom: 15px;
-            margin-top: 48px;
+            margin-bottom: 20px;
+            margin-top: 53px;
             cursor: pointer;
             .back-image{
                 cursor: pointer;
@@ -2177,7 +2203,7 @@ export default {
                 color:rgba(0,0,0,1);
                 line-height:20px;
                 letter-spacing:1px;
-                font-family: PingFangSC-Regular;
+                font-family: PingFangSC-Medium;
             }
         }
     }
@@ -2679,7 +2705,7 @@ export default {
                 display: inline-block;
                 width: 36px;
                 height: 36px;
-                margin-left: 117px;
+                margin-left: 128px;
                 padding: 0px;
                 .login-logo{
                     width: 36px;
@@ -2701,6 +2727,7 @@ export default {
                 font-family: PingFangSC-Medium;
             }
         }
+
         .item-organization{
             margin-top: 28px;
             width: 260px;
