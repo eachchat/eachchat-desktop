@@ -266,7 +266,28 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+    ::-webkit-scrollbar-track-piece {
+        background-color: #F1F1F1;
+        border-radius: 10px;
+    }
 
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        height: 50px;
+        background-color: #C1C1C1;
+        border-radius: 10px;
+        outline: none;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        height: 50px;
+        background-color: #A8A8A8;
+        border-radius: 10px;
+    }
 
 .chat-tool-invite-div {
     display: inline-block;
