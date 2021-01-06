@@ -404,9 +404,11 @@ export default {
         white-space: nowrap;
     }
     .ownerInfoEditIcon {
-            width: 20px;
-            height: 20px;
-        }
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+        margin-bottom: 3px;
+    }
     
 }
 .personalCenter-name {
@@ -420,7 +422,6 @@ export default {
     color:rgba(0,0,0,1);
     line-height:22px;
     letter-spacing:2px;
-    margin-top: 2px;
     font-family: PingFangSC-Medium;
 }
 
