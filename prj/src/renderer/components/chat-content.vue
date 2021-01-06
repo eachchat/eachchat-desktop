@@ -2702,6 +2702,13 @@ export default {
     background-color: rgba(255, 255, 255, 1);
   }
 
+  .grid-content {
+    font-size: 12px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    color: #999999;
+  }
+
   .group-div-top {
     height: 60px;
     background-color: rgba(243, 244, 247, 1);
