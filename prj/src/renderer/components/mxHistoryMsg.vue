@@ -6,9 +6,9 @@
                 <div class="MxTitleGoBackLabel">返回聊天</div>
             </div>
             <div class="MxGroupInfo">
-                <img class="MxGroupInfoImg" id="MxGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
-                <label class="MxGroupInfoName">{{GroupInfo ? GroupInfo.name : ''}}</label>
-                <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId" v-show="false"></label>
+                <img class="MxGroupInfoImg" id="MxHistoryMsgGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
+                <label class="MxGroupInfoName" id="MxHistoryMsgGroupInfoNameId">{{GroupInfo ? GroupInfo.name : ''}}</label>
+                <label class="MxGroupInfoMemberNum" id="MxHistoryMsgGroupInfoMemberNumId" v-show="false"></label>
             </div>
             <div class="Mxsearch">
                 <input class="MxHistoryMsgDlgSearchInput" id="MxHistoryMsgDlgSearchInputId" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
@@ -189,7 +189,7 @@ export default {
             confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
 
             // this.$store.commit("setUserId", this.curUserInfo.id)
-            
+            this.showGroupInfo();
             this.updatePage();
         },
         // Get formate message time
@@ -243,21 +243,7 @@ export default {
         isWindows() {
             return environment.os.isWindows;
         },
-        showGroupInfo: async function(chatGroupItem) {
-            // console.log("showGroupInfo groupinfo is ", this.GroupInfo)
-            if(this.GroupInfo.roomId == undefined){
-                return "";
-            }
-            var groupContentNumElement = document.getElementById("MxGroupInfoMemberNumId");
-            if(groupContentNumElement) {
-                var totalMemberCount = this.mxGetMembers();
-                if(totalMemberCount > 2) {
-                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
-                }
-                else {
-                    groupContentNumElement.innerHTML = "";
-                }
-            }
+        showResultInfo: async function() {
             for(let i=0;i<this.messageListShow.length;i++) {
                 var curItem = this.messageListShow[i];
                 var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
@@ -306,12 +292,55 @@ export default {
                 }
             }
         },
+        showGroupInfo: async function() {
+            // console.log("showGroupInfo groupinfo is ", this.GroupInfo)
+            if(this.GroupInfo.roomId == undefined){
+                return "";
+            }
+            var groupContentNumElement = document.getElementById("MxHistoryMsgGroupInfoMemberNumId");
+            if(groupContentNumElement) {
+                var totalMemberCount = this.mxGetMembers();
+                if(totalMemberCount > 2) {
+                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+                }
+                else {
+                    groupContentNumElement.innerHTML = "";
+                }
+            }
+            var groupImgElement = document.getElementById("MxHistoryMsgGroupInfoImgId");
+            if(groupImgElement) {
+                var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.GroupInfo);
+                if(!distUrl || distUrl == '') {
+                    if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo))
+                        distUrl = "./static/Img/User/user-40px@2x.png";
+                    else
+                        distUrl = "./static/Img/User/group-40px@2x.png";
+                    groupImgElement.setAttribute("src", distUrl); 
+                }
+                if(distUrl) {
+                    groupImgElement.setAttribute("src", distUrl);
+                }
+            }
+            var groupNameElement = document.getElementById("MxHistoryMsgGroupInfoNameId");
+            if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo)) {
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(this.GroupInfo);
+                if(!distUserId) {
+                    groupNameElement.innerHTML = this.GroupInfo.name;
+                    return;
+                }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                groupNameElement.innerHTML = displayName;
+            }
+            else {
+                groupNameElement.innerHTML = this.GroupInfo.name;
+            }
+        },
         search: function() {
             // console.log("this.searchKeylneth ", this.searchKey.length);
             if(this.searchKey.length == 0) {
                 this.ret = []
                 console.log("this.messagelsitshow is ", this.messageListShow)
-                this.showGroupInfo();
+                this.showResultInfo();
                 this.showEmpty = true;
                 this.searchEmpty = false;
                 return
@@ -329,7 +358,7 @@ export default {
                     if(ret.results == undefined) {
                         this.ret = []
                         // console.log("this.messagelsitshow is ", this.messageListShow)
-                        this.showGroupInfo();
+                        this.showResultInfo();
                         this.showEmpty = true;
                         this.searchEmpty = false;
                     }
@@ -346,7 +375,7 @@ export default {
                             }
                             setTimeout(() => {
                                 this.$nextTick(() => {
-                                    this.showGroupInfo();
+                                    this.showResultInfo();
                                     let div = document.getElementById("MxHistoryMsg-list-Id");
                                     div.addEventListener('scroll', this.handleScroll);
                                 })
@@ -367,7 +396,7 @@ export default {
                                 this.ret = ret;
                                 setTimeout(() => {
                                     this.$nextTick(() => {
-                                        this.showGroupInfo();
+                                        this.showResultInfo();
                                     })
                                 }, 0)
                             })
@@ -443,7 +472,7 @@ export default {
             else{
                 this.showEmpty = false;
             }
-            this.showGroupInfo(this.GroupInfo);
+            this.showResultInfo(this.GroupInfo);
         },
         updateUserImage(e, args) {
             console.log("updateUserImage ", args);

@@ -6,18 +6,18 @@
                 <div class="MxTitleGoBackLabel">返回聊天</div>
             </div>
             <div class="MxGroupInfo">
-                <img class="MxGroupInfoImg" id="MxGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
-                <label class="MxGroupInfoName">{{GroupInfo ? GroupInfo.name : ''}}</label>
-                <label class="MxGroupInfoMemberNum" id="MxGroupInfoMemberNumId"></label>
+                <img class="MxGroupInfoImg" id="MxMsgListGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
+                <label class="MxGroupInfoName" id="MxMsgListGroupInfoNameId">{{GroupInfo ? GroupInfo.name : ''}}</label>
+                <label class="MxGroupInfoMemberNum" id="MxMsgListGroupInfoMemberNumId"></label>
             </div>
             <div class="Mxsearch">
                 <input class="MxFileListDlgSearchInput" id="MxFileListDlgSearchInputId" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="Mxfile-list" id="Mxfile-list-id" v-viewer="options">
-                <li v-for="(item, index) in fileListShow" class="MxfileItem">
-                    <img :class="MxgetClassName(item)" :id="getFileIconId(item)" :src="getIcon(item)" @click="openFile(item)">
-                    <div class="MxfileInfoDiv" @click="openFile(item)">
+                <li v-for="(item, index) in fileListShow" class="MxfileItem" @click="openFile(item)">
+                    <img :class="MxgetClassName(item)" :id="getFileIconId(item)" :src="getIcon(item)">
+                    <div class="MxfileInfoDiv">
                         <label class="MxfileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
                         <label class="MxfileInfoDetailLabel" :id="getFileLabelId(item)"></label>
                     </div>
@@ -95,6 +95,7 @@ export default {
             return '';
         },
         openFile: async function(curItem) {
+            console.log("*** ")
             var chatGroupMsgContent = curItem.getContent();
             if(chatGroupMsgContent.msgtype == 'm.file'){
                 var distPath = confservice.getFilePath(curItem.event.origin_server_ts);
@@ -219,7 +220,7 @@ export default {
             var iconPath = getIconPath(ext);
             return iconPath;
         },
-        showGroupInfo: async function() {
+        showResultInfo: async function() {
             this.$nextTick(() => {
                 setTimeout(async () => {
                     for(var i=0;i<this.fileListShow.length;i++) {
@@ -232,7 +233,66 @@ export default {
                     }
                 }, 0)
             })
-
+        },
+        mxGetMembers: function() {
+            var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            const roomId = this.groupId;
+            const cli = window.mxMatrixClientPeg.matrixClient;
+            const xie1 = cli.getRoom(roomId);
+            const xie2 = cli.getRoomPushRule("global", roomId);
+            const mxMembers = [];
+            for(let key in xie1.currentState.members) {
+                // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+                let obj = {...xie1.currentState.members[key], choosen:false}
+                if (obj.membership != 'leave') mxMembers.push(obj);
+            }
+            // console.log('mxMembers', mxMembers);
+            // console.log('----mxMembers[userId]----', userId)
+            
+            return mxMembers.length;
+        },
+        showGroupInfo: async function() {
+            // console.log("showGroupInfo groupinfo is ", this.GroupInfo)
+            if(this.GroupInfo.roomId == undefined){
+                return "";
+            }
+            var groupContentNumElement = document.getElementById("MxMsgListGroupInfoMemberNumId");
+            if(groupContentNumElement) {
+                var totalMemberCount = this.mxGetMembers();
+                if(totalMemberCount > 2) {
+                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+                }
+                else {
+                    groupContentNumElement.innerHTML = "";
+                }
+            }
+            var groupImgElement = document.getElementById("MxMsgListGroupInfoImgId");
+            if(groupImgElement) {
+                var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.GroupInfo);
+                if(!distUrl || distUrl == '') {
+                    if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo))
+                        distUrl = "./static/Img/User/user-40px@2x.png";
+                    else
+                        distUrl = "./static/Img/User/group-40px@2x.png";
+                    groupImgElement.setAttribute("src", distUrl); 
+                }
+                if(distUrl) {
+                    groupImgElement.setAttribute("src", distUrl);
+                }
+            }
+            var groupNameElement = document.getElementById("MxMsgListGroupInfoNameId");
+            if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo)) {
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(this.GroupInfo);
+                if(!distUserId) {
+                    groupNameElement.innerHTML = this.GroupInfo.name;
+                    return;
+                }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                groupNameElement.innerHTML = displayName;
+            }
+            else {
+                groupNameElement.innerHTML = this.GroupInfo.name;
+            }
         },
         fileNameHeightLight: function(curItem) {
             var showContent = curItem.getContent();
@@ -250,7 +310,7 @@ export default {
         search: function() {
             if(this.searchKey.length == 0) {
                 this.fileListShow = this.originalFileList;
-                this.showGroupInfo();
+                this.showResultInfo();
             }
             var curSearchId = new Date().getTime();
             console.log("searchkey is ", this.searchKey);
@@ -268,7 +328,7 @@ export default {
 
             if(searchResult.id == this.searchId) {
                 this.fileListShow = searchResult.searchList;
-                this.showGroupInfo();
+                this.showResultInfo();
             }
         },
         getFileName: function(curItem) {
@@ -318,7 +378,7 @@ export default {
         updatePage: function() {
             console.log("filelist group info is ", this.fileListInfo);
             this.getFileList();
-            this.showGroupInfo(this.GroupInfo);
+            this.showResultInfo(this.GroupInfo);
         },
         getAppBaseData:async function() {
             // Set accessToken in services
@@ -326,6 +386,7 @@ export default {
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
             console.log("the init user id is ,", this.GroupInfo)
             confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
+            this.showGroupInfo();
             // this.$store.commit("setUserId", this.curUserInfo.id)
             global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
             this.timeLineSet = await this.updateTimelineSet(this.groupId);
@@ -682,6 +743,17 @@ export default {
         list-style: none;
         overflow-y: scroll;
         overflow-x: hidden;
+    }
+
+    .Mxfile-list:hover {
+        width: 100%;
+        max-height: calc(100% - 135px);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        cursor: pointer;
     }
 
     .MxfileItem {
