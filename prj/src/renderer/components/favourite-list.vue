@@ -306,9 +306,11 @@ export default {
         },
 
         messageListClicked(message) {
+            message.title = "消息详情"
             this.OpenFavouriteDetail(message);
         },
         imageListClicked(image) {
+            image.title = "图片详情"
             image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
             this.OpenFavouriteDetail(image);
         },

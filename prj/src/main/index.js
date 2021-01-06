@@ -285,7 +285,7 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
         enableRemoteModule: true
       },
       //frame:false,
-      title:"收藏详情"
+      title: collectionInfo.title
       
   })
   const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
