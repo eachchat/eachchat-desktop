@@ -320,7 +320,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .personalCenter-view {
-    height: 100px;
+    height: 88px;
     width: 260px;
     padding: 0px;
     //border: 1px solid rgb(242, 242, 246);
