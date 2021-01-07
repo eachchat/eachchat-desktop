@@ -624,9 +624,9 @@ export default {
     }
 
     .MxGroupInfoMemberNum {
-        height: 32px;
+        height: 56px;
         max-width: 150px;
-        line-height: 32px;
+        line-height: 56px;
         margin:0px 0px 0px 0px;
         float: left;
         font-size: 14px;

@@ -325,14 +325,14 @@ export default {
                 else if(this.MsgIsLink(this.msg)) {
                     shell.openExternal(chatGroupMsgContent.body);
                 }
-                // if(chatGroupMsgContent.msgtype == 'm.image'){
-                //     var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-                //     var imageInfo = {
-                //         url: distUrl,
-                //         info: chatGroupMsgContent.info
-                //     }
-                //     this.$emit('showImageOfMessage', imageInfo);
-                // }
+                else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    // var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                    // var imageInfo = {
+                    //     url: distUrl,
+                    //     info: chatGroupMsgContent.info
+                    // }
+                    this.$emit('showImageOfMessage', this.msg);
+                }
             }
             if(msgType === 102)
             {

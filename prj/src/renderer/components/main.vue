@@ -642,10 +642,10 @@ export default {
         }, 1000)
         var _this = this;
         document.addEventListener('click',function(e){
-            console.log("e.target.classname is ", e.target.className)
+            // console.log("e.target.classname is ", e.target.className)
             if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
-                    console.log("============")
+                    // console.log("============")
                     _this.showPersonalCenter = false;
                     _this.showPersonalInfo = false;
                 }
