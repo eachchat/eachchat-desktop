@@ -1,11 +1,9 @@
 <template>
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
-            <div class="personalCenter-iconView" @click="personalCenterIconClicked()">
+            <div class="personalCenter-iconView">
                 <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png">
-                <div class="personalCenter-changeIcon">
-                    <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
-                </div>
+                <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar.png" @click="personalCenterIconClicked()">
             </div>
             <div class="personalCenter-baseInfo">
                 <span>
@@ -323,7 +321,7 @@ export default {
 <style lang="scss" scoped>
 .personalCenter-view {
     height: 100px;
-    width: 300px;
+    width: 260px;
     padding: 0px;
     //border: 1px solid rgb(242, 242, 246);
     box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
@@ -356,35 +354,17 @@ export default {
         display: inline-block;
         cursor: pointer;    
     }
-    .personalCenter-changeIcon{
-        display: none;
-        width: 48px;
-        height: 48px;
-        position: absolute;
-        border-radius: 4px;
-        z-index: 3;
-        background-color: rgba(0,0,0,0.4);
-        border-radius: 50%;
-        .personalCenter-cameraIcon{
-            width: 24px;
-            height: 24px;
-            position: absolute;
-            left: 12px;
-            top: 12px;   
-        }
-    }
-}
-
-.personalCenter-iconView:hover{
-    .personalCenter-changeIcon{
-        display: inline-block;
+    .personalCenter-cameraIcon{
+        position: relative;
+        left: 2px;
+        top: 25px;
+        float: right; 
     }
 }
 
 .personalCenter-baseInfo {
     display: inline-block;
     height: 48px;
-    width: 190px;
     vertical-align: top;
     margin-left: 12px;
 
@@ -394,11 +374,10 @@ export default {
 
         width: 100%;
         text-align: left;
-        font-size: 12px;
+        font-size: 13px;
         font-weight:400;
         color:#999999;
-        line-height:18px;
-        margin-top: 2px;
+        line-height:20px;
         font-family: PingFangSC-Regular;
         text-overflow:ellipsis;
         white-space: nowrap;
@@ -412,17 +391,15 @@ export default {
     
 }
 .personalCenter-name {
+    width: 80px;
     height: 22px;
-    margin: 0px;
+    font-size: 15px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: #000000;
+    line-height: 22px;
     border: 0;
-    width: 70%;
-    text-align: left;
-    font-size: 16px;
-    font-weight:500;
-    color:rgba(0,0,0,1);
-    line-height:22px;
-    letter-spacing:2px;
-    font-family: PingFangSC-Medium;
+    text-overflow: ellipsis;
 }
 
 .personalCenter-state{
