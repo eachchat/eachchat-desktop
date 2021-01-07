@@ -631,6 +631,15 @@ const Group = {
 }
 
 const Collection = {
+    async DeleteFavouriteByType(type){
+        let favs = await (await models.Collection).find({
+            collection_type: type
+        });
+        for(let item of favs){
+            await item.destroy();
+        }
+    },
+
     async FindItemByFavouriteID(favouriteID){
         let collections = await (await models.Collection).find({
             favourite_id: favouriteID

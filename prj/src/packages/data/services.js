@@ -1514,18 +1514,22 @@ const common = {
   },
 
   async ListMessageCollections(){
+    await Collection.DeleteFavouriteByType(101);
     return await this.ListCollectionByType([101]);
   },
 
   async ListPictureCollections(){
+    await Collection.DeleteFavouriteByType(102);
     return await this.ListCollectionByType([102]);
   },
   
   async ListFileCollections(){
+    await Collection.DeleteFavouriteByType(103);
     return await this.ListCollectionByType([103]);
   },
 
   async ListGroupCollections(){
+    await Collection.DeleteFavouriteByType(104);
     return await this.ListCollectionByType([104]);
 
   },
