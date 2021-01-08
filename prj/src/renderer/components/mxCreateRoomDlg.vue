@@ -66,9 +66,13 @@
                     </el-switch>
                 </div> -->
             </div>
-            <div class="mxTransmitFotter">
-                <button class="mxTransmitConfirmButton" @click.self.stop="confirm">确认</button>
-                <button class="mxTransmitCancleButton" @click.self.stop="close">取消</button>
+            <div class="mxTransmitFotter" v-if="loading">
+                <div class="mxTransmitConfirmButtonDisable">确认</div>
+                <div class="mxTransmitCancleButton" @click.self.stop="close">取消</div>
+            </div>
+            <div class="mxTransmitFotter" v-else>
+                <div class="mxTransmitConfirmButton" @click.self.stop="confirm">确认</div>
+                <div class="mxTransmitCancleButton" @click.self.stop="close">取消</div>
             </div>
         </div>
     </div>
@@ -79,6 +83,8 @@ const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
+import {ComponentUtil} from '../script/component-util';
+
 export default {
     name: 'mxCreateRoomDlg',
     props: {
@@ -93,7 +99,8 @@ export default {
             isPublic: 'n',
             commu: false,
             isEncrypted: false,
-            alias: ''
+            alias: '',
+            loading: false
         }
     },
     methods: {
@@ -128,17 +135,27 @@ export default {
             }
             return null;
         },
-        _roomCreateOptions: function() {
+        _roomCreateOptions: async function() {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const selfId = client.getUserId();
             const opts = {};
             const createOpts = opts.createOpts = {};
+            const invite = this.mxInvite.map(m => m.id);
+            createOpts.invite = invite;
             // createOpts.name = this.name;
+            const dspName = await ComponentUtil.GetDisplayNameByMatrixID(selfId);
             if (this.name) {
                 createOpts.name = this.name;
             } else {
-                let name = '';
-                for(let i = 0; i<this.mxInvite.length; i++) {
-                    let end = (i === 3 || i === this.mxInvite.length - 1) ? '...' : ','
-                    name = name + this.mxInvite[i].name + end;
+                let name = dspName + ',';
+                for(let i = 0; i<2; i++) {
+                    let end = ', ';
+                    if (this.mxInvite[i].length === 1) {
+                        end = ''
+                    } else if (i === 1){
+                        end = '...'
+                    }
+                    if (this.mxInvite[i]) name = name + this.mxInvite[i].name + end;     
                 }
                 createOpts.name = name;
             }
@@ -177,8 +194,10 @@ export default {
 
             return opts;
         },
-        createRoom: function() {
-            let opts = this._roomCreateOptions();
+        createRoom: async function() {
+            if (this.loading) return;
+            this.loading = true;
+            let opts = await this._roomCreateOptions();
             const vtx = this;
             if (opts.spinner === undefined) opts.spinner = true;
             if (opts.guestAccess === undefined) opts.guestAccess = true;
@@ -258,6 +277,7 @@ export default {
                     res.room_id,
                     commu ? 'public' : 'private',
                 ).then(()=>{
+                    this.loading = false;
                     this.close();
                 })
             })
@@ -325,6 +345,7 @@ export default {
     components: {
     },
     created() {
+        console.log('mxInvite++++', this.mxInvite)
     },
     mounted() {
     },
@@ -448,13 +469,27 @@ export default {
         height: 32px;
         box-sizing: border-box;
         background-color: #24B36B;
-        border:1px solid #24B36B;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 14px;
         color: #fff;
         margin-left: 20px;
+    }
+
+    .mxTransmitConfirmButtonDisable {
+        border-radius:4px;
+        font-family: PingFangSC-Regular;
+        width: 100px;
+        height: 32px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #fff;
+        margin-left: 20px;
+        background-color:#A7E0C4;
     }
 
     .setting-field {

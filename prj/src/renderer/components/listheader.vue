@@ -128,6 +128,7 @@ export default {
             this.showCreateNewChat = false;
             if (data && data.invite) {
                 this.mxInvite = [...data.invite];
+                console.log('check data', data);
                 this.mxCreateRoomOpen = true;
             }
         },

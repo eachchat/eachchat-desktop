@@ -231,9 +231,9 @@ export default {
             const selfId = client.getUserId();
             let invite = [];
             this.choosenMembers.map(c => {
-                if (c.id && c.id !== selfId) invite.push(c.id);
+                if (c.id && c.id !== selfId) invite.push(c);
             })
-            this.$emit('close', {invite});         
+            this.$emit('close', {invite});      
         },
         mxTreeWalk(obj) {
             // console.log('-----mxTreeWalk----', obj)
