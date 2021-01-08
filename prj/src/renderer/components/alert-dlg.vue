@@ -13,7 +13,7 @@
             </div>
             <div class="AlertFotter">
                 <button class="AlertCancleButton" @click="Close()" v-show="canCancel">取消</button>
-                <button class="AlertConfirmButton" @click="ClearCache()">确认</button>
+                <button class="AlertConfirmButton" @click="ClearCache()">确定</button>
             </div>
         </div>
     </div>

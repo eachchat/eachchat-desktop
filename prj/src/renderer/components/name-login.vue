@@ -378,7 +378,7 @@ export default {
             this.loginPageAccountPlaceholder = "请输入您的邮箱";
             this.loginPagePwdLabel = "新密码";
             this.loginPagePwdPlaceholder = "请输入新密码";
-            this.LoginBtnText = "确认";
+            this.LoginBtnText = "确定";
             this.forgetPasswordContent = "";
             this.forgetPwdButtonDisabled = true;
             this.username = "";
@@ -1591,7 +1591,7 @@ export default {
                     };
                     this.isRecetPwd = false;
                     this.toVerfyEmail = true;
-                    this.LoginBtnText = "确认";
+                    this.LoginBtnText = "确定";
                     this.showAlertDlg = true;
                     this.alertWidth = 330;
                     this.alertHeight = 230;
@@ -1664,7 +1664,7 @@ export default {
                 "Details": "更改您的密码将会重置会话上的加密密钥，在重置密码之前，请先备份密钥或从另一个会话中导出聊天室密钥",
                 "Abstrace": "提示"
             };
-            this.LoginBtnText = "确认";
+            this.LoginBtnText = "确定";
             this.showAlertDlg = true;
             this.alertWidth = 330;
             this.alertHeight = 230;

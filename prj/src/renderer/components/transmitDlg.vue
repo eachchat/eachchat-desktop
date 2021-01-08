@@ -72,11 +72,11 @@
             <chatCreaterContent ref="chatCreaterContent" v-if="showCreateNewChat" :rootDepartments="rootDepartments" :disableUsers="chatCreaterDisableUsers"></chatCreaterContent>
             <div class="TransmitFotter" v-show="!showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确认</button>
+                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确定</button>
             </div>
             <div class="TransmitFotter" v-show="showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确认</button>
+                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确定</button>
             </div>
         </div>
     </div>
