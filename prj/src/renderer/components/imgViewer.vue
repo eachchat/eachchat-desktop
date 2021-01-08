@@ -5,7 +5,7 @@
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
         </div>
         <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>
-        <img class="imageViewerStage" id="imageViewerStageId" @contextmenu="rightClick($event)" v-show="this.curImage.imageUrl != undefined">
+        <img class="imageViewerStage" id="imageViewerStageId" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
     </div>
 </template>
 
@@ -20,6 +20,7 @@ import * as Matrix from 'matrix-js-sdk';
 import {ComponentUtil} from '../script/component-util';
 import macWindowHeader from './macWindowHeader.vue';
 import winHeaderBar from './win-header-login.vue';
+import { windowsStore } from 'process'
 
 const {Menu, MenuItem, nativeImage} = remote;
 
@@ -30,6 +31,28 @@ export default {
         winHeaderBar,
     },
     methods: {
+        zoomimg: function(event) {
+            var delta = 0;
+            if (!event) event = window.event;
+            if(event.wheelDelta) {
+                delta = event.wheelDelta / 120;
+            }
+            if(delta > 0) {
+                if(this.curMultiple < this.curMultiple * 2) {
+                    this.curMultiple += 0.1;
+                }
+            }
+            else {
+                if(this.curMultiple > this.curMultiple / 2) {
+                    this.curMultiple -= 0.1;
+                }
+            }
+            let style = "";
+            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+            style += ";"
+            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+            this.stageElement.setAttribute("style", style);
+        },
         Close: function() {
             this.curImage = {};
             ipcRenderer.send("image-win-close");
@@ -44,6 +67,7 @@ export default {
             return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
         },
         showRight() {
+            this.curMultiple = 1;
             if(this.stageElement == undefined) {
                 this.stageElement = document.getElementById("imageViewerStageId");
             }
@@ -68,6 +92,7 @@ export default {
             }
         },
         showLeft() {
+            this.curMultiple = 1;
             if(this.stageElement == undefined) {
                 this.stageElement = document.getElementById("imageViewerStageId");
             }
@@ -169,6 +194,7 @@ export default {
             ImageInfos: [],
             curImage: {},
             stageElement: undefined,
+            curMultiple: 1,
         }
     },
     mounted: function() {
@@ -176,6 +202,7 @@ export default {
         ipcRenderer.on("timelines", (event, imageInfos, distImageInfo) => {
             this.curImage = {};
             this.curImage = distImageInfo;
+            this.curMultiple = 1;
             console.log("mounted cur Image is ", this.curImage);
             this.ImageInfos = imageInfos;
             this.stageElement = document.getElementById("imageViewerStageId");

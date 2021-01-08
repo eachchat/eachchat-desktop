@@ -147,11 +147,11 @@
                       @click="showPeopleInfo($event, searchPeopleItem)"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchPeopleItem.id)" src="../../../static/Img/User/user-40px@2x.png"/>
+                      <img class="search-item-img-ico" :id="getSearchItemPeopleImgElementId(searchPeopleItem.matrix_id)" src="../../../static/Img/User/user-40px@2x.png"/>
                     </div>
                     <div class="search-item-info">
-                      <p class="search-item-name">{{searchPeopleItem.displayName}}</p>
-                      <p class="search-item-position">{{searchPeopleItem.department.name}}</p>
+                      <p class="search-item-name" :id="getSearchItemPeopleNameElementId(searchPeopleItem.matrix_id)">{{searchPeopleItem.user_display_name}}</p>
+                      <p class="search-item-position">{{searchPeopleItem.user_title}}</p>
                     </div>
                   </li>
                 </ul>
@@ -167,11 +167,11 @@
                       @click="showGroup(searchMessageItem)"
                       >
                     <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchMessageItem.groupId)" src="../../../static/Img/User/user-40px@2x.png"/>
+                      <img class="search-item-img-ico" :id="getSearchChatItemImgElementId(searchMessageItem.room_id)" src="../../../static/Img/User/group-40px@2x.png"/>
                     </div>
                     <div class="search-item-info">
-                      <p class="search-item-name">{{searchMessageItem.groupName}}</p>
-                      <p class="search-item-position">包含{{searchMessageItem.count}}条相关聊天记录</p>
+                      <p class="search-item-name" :id="getSearchChatItemNameElementId(searchMessageItem.room_id)"></p>
+                      <p class="search-item-position" :id="getSearchChatItemContentElementId(searchMessageItem.room_id)" v-html="fileNameHeightLight(searchMessageItem)"></p>
                     </div>
                   </li>
                   <li class="search-item" v-show="showSearchAllChat">
@@ -180,13 +180,13 @@
                     </div>
                     <div class="search-item-info-more" @click="showAllSearchMessages">
                       <p class="search-item-name">搜索更多聊天记录</p>
-                      <p class="search-item-position">关于{{searchKey}}的本地聊天记录</p>
+                      <p class="search-item-position" v-html="heightLightSth()"></p>
                     </div>
                   </li>
                 </ul>
               </div>
             </div>
-            <div class="search-list-content-file" id="search-list-content-file-id" v-show="showSearchFile">
+            <div class="search-list-content-file" id="search-list-content-file-id" v-show="showSearchFile && false">
               <div class="search-list-content-label">文件</div>
               <div class="search-list-content-content">
                 <ul class="search-list-content-list">
@@ -528,6 +528,27 @@ export default {
     };
   },
   methods: {
+    heightLightSth() {
+      let splitValue = ["关于 ", " 的更多聊天记录"];
+      let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+      return newInnerHtml;
+    },
+    fileNameHeightLight(searchChatItem) {
+      if(searchChatItem.firstChat.body == undefined) {
+        return "";
+      }
+      
+      var fileName = searchChatItem.firstChat.body;
+      // showContent = showContent + ' ';
+      if(this.searchKey.length == 0) {
+          return ""
+      }
+      if(fileName.indexOf(this.searchKey) != -1) {
+          let splitValue = fileName.split(this.searchKey);
+          let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+          return newInnerHtml;
+      }
+    },
     JumpToDistRoom(distUserId) {
       console.log("in chat content distGroupId is ", this.distGroupId);
       let room = global.mxMatrixClientPeg.matrixClient.getRoom(distGroupId);
@@ -844,7 +865,7 @@ export default {
           console.log("*** do not need Scroll");
           return false;
         }
-        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'smooth'});
+        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'instant'});
       }
       else {
         return false;
@@ -916,8 +937,23 @@ export default {
         this.showSearchSelectedSenderDlg = true;
         this.searchSelectedSenderDialogTitle = "指定发送人";
     },
+    getSearchChatItemImgElementId: function(itemId) {
+      return "all-search-chat-img-" + itemId;
+    },
     getSearchItemElementId: function(itemId) {
       return "all-search-" + itemId;
+    },
+    getSearchItemPeopleImgElementId: function(itemId) {
+      return "all-search-people-img-" + itemId;
+    },
+    getSearchItemPeopleNameElementId: function(itemId) {
+      return "all-search-people-name-"
+    },
+    getSearchChatItemNameElementId: function(itemId) {
+      return "all-search-chat-name-" + itemId;
+    },
+    getSearchChatItemContentElementId: function(itemId) {
+      return "all-search-chat-content-" + itemId;
     },
     getFileNameItemElementId: function(itemId) {
       return "file-name-element-" + itemId;
@@ -1024,7 +1060,7 @@ export default {
         this.groupListElement = document.getElementById("list-content-id");
       }
       if(this.groupListElement && distGroupItem) {
-        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'smooth'})
+        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'instant'})
       }
       // this.needScroll = false;
     },
@@ -1396,39 +1432,138 @@ export default {
       // console.log("searchkey is ", searchKey.trim());
       this.searchKey = searchKey.trim();
       console.log("searchkey is ", this.searchKey);
-
+      
       if(this.searchKey.length != 0) {
-        this.showInviteGroupList = await this.searchRoom(this.inviteGroupsList, searchKey);
-        this.showFavouriteRooms = await this.searchRoom(this.favouriteRooms, searchKey);
-        this.showDealGroupList = await this.searchRoom(this.dealShowGroupList, searchKey);
-        this.showLowPriorityGroupList = await this.searchRoom(this.lowPriorityGroupList, searchKey);
+        var curSearchId = new Date().getTime();
+        var searchResult = {
+            "id": curSearchId,
+            "searchList": []
+        };
+        this.searchId = curSearchId;
+        var searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
+        console.log("*** searchUsers is ", searchUsers);
+        var searchChat = await global.services.common.searchAllChat(searchKey);
+        if(searchResult.id == this.searchId) {
+          if(searchChat.rooms.results.length != 0) {
+            this.searchMessageItems = searchChat.rooms.results;
+            this.showSearchMessage = true;
+            if(searchChat.rooms.more) {
+              this.showSearchAllChat = true;
+            }
+            else {
+              this.showSearchAllChat = false;
+            }
+          }
+          else {
+            this.showSearchMessage = false;
+          }
+          if(false) {
+            this.searchFileItems = searcheRet[i].files.slice(0, 3);
+            if(this.searchFileItems.length == 0) {
+              this.showSearchFile = false;
+            }
+            else {
+              this.showSearchFile = true;
+            }
+            if(searcheRet[i].files.length > 3) {
+              this.showsearchAllFile = true;
+            }
+            else {
+              this.showsearchAllFile = false;
+            }
+          }
+          if(searchUsers.length != 0) {
+            this.searchPeopleItems = searchUsers.slice(0, 3);
+            this.showSearchPeople = true;
+            if(searchUsers.length > 3) {
+              this.showSearchAllMember = true;
+            }
+            else {
+              this.showSearchAllMember = false;
+            }
+          }
+          else {
+              this.showSearchPeople = false;
+          }
+        }
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.showSearchResultIcon();
+          })
+        })
+        if(this.searchKey.length == 0) {
+          this.isSearch = false;
+          console.log("this.issearch = ", this.isSearch)
+        }
+        else {
+          this.isSearch = true;
+          console.log("this.issearch = ", this.isSearch)
+        }
       }
       else{
-        this.showInviteGroupList = this.inviteGroupsList;
-        this.showFavouriteRooms = this.favouriteRooms;
-        this.showDealGroupList = this.dealShowGroupList;
-        this.showLowPriorityGroupList = this.lowPriorityGroupList;
+        this.isSearch = false;
       }
-      this.showGroupIconName();
     },
     showSearchResultIcon: async function() {
-      console.log("=======================showGroupIcon")
+      console.log('*** 0000 this.searchPeopleItems is ', this.searchPeopleItems);
       for(let i=0;i<this.searchPeopleItems.length;i++) {
-        var distId = this.getSearchItemElementId(this.searchPeopleItems[i].id);
-        let elementImg = document.getElementById(distId);
-        // console.log("groupavatar is ", elementImg);
-        var targetPath = "";
-        if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.searchPeopleItems[i].avatarTUrl, this.searchPeopleItems[i].id))){
-            elementImg.setAttribute("src", targetPath);
+        var curSearchPeopleItem = this.searchPeopleItems[i];
+        if(curSearchPeopleItem.matrix_id.length != 0) {
+          var searchPeopleImgId = this.getSearchItemPeopleImgElementId(curSearchPeopleItem.matrix_id);
+          var searchPeopleNameId = this.getSearchItemPeopleNameElementId(curSearchPeopleItem.matrix_id);
+          var searchPeopleImgElement = document.getElementById(searchPeopleImgId);
+          var searchPeopleNameElement = document.getElementById(searchPeopleNameId);
+          var profileInfo = await mxMatrixClientPeg.matrixClient.getProfileInfo(curSearchPeopleItem.matrix_id)
+          var validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+          console.log('*** 1111 ', validUrl);
+          var showName = await ComponentUtil.GetDisplayNameByMatrixID(curSearchPeopleItem.matrix_id);
+          console.log('*** 2222 ', showName);
+          searchPeopleNameElement.innerHTML = showName;
+          if(!validUrl || validUrl == '') {
+            searchPeopleImgElement.setAttribute("src", './static/Img/User/user-40px@2x.png');
+          }
+          else {
+            searchPeopleImgElement.setAttribute("src", validUrl);
+          }
         }
       }
       for(let i=0;i<this.searchMessageItems.length;i++) {
-        var distId = this.getSearchItemElementId(this.searchMessageItems[i].groupId);
-        let elementImg = document.getElementById(distId);
-        // console.log("groupavatar is ", elementImg);
-        var targetPath = "";
-        if(fs.existsSync(targetPath = await services.common.downloadGroupAvatar(this.searchMessageItems[i].groupAvatar, this.searchMessageItems[i].groupId))){
-            elementImg.setAttribute("src", targetPath);
+        var curSearchChatItem = this.searchMessageItems[i];
+        var searchChatImgId = this.getSearchChatItemImgElementId(curSearchChatItem.room_id);
+        var searchChatNameId = this.getSearchChatItemNameElementId(curSearchChatItem.room_id);
+        var searchChatContentId = this.getSearchChatItemContentElementId(curSearchChatItem.room_id);
+        var searchChatImgElement = document.getElementById(searchChatImgId);
+        var searchChatNameElement = document.getElementById(searchChatNameId);
+        var searchChatContentElement = document.getElementById(searchChatContentId);
+        
+        var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
+        if(global.mxMatrixClientPeg.DMCheck(curRoom)) {
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
+          if(!distUserId) {
+            continue;
+          }
+          var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          searchChatNameElement.innerHTML = displayName;
+        }
+        else{
+          searchChatNameElement.innerHTML = curRoom.name;
+        }
+
+        var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
+        if(!distUrl || distUrl == '') {
+            let defaultGroupIcon;
+            if(global.mxMatrixClientPeg.DMCheck(curRoom))
+                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+            else
+                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
+            searchChatImgElement.setAttribute("src", defaultGroupIcon); 
+        }
+        if(searchChatImgElement != undefined && distUrl) {
+          searchChatImgElement.setAttribute("src", distUrl);
+        }
+
+        if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
+          searchChatContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
         }
       }
       for(let i=0;i<this.searchFileItems.length;i++) {
