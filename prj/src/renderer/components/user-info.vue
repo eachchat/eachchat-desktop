@@ -27,8 +27,12 @@
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
+                <li>
+                    <p class="userInfo-key">用户名</p>
+                    <input readonly = true class="userInfo-value" v-model="userInfo.userName">
+                </li>
                 <li v-if="userType == 'contact' || userType == 'mainUserInfo'" >
-                    <p class="userInfo-key">昵称</p>
+                    <p class="userInfo-key">备注</p>
                     <input :readonly = 'nameEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入昵称...">
                 </li>
                 <li v-if="showStatusDescription">
@@ -60,6 +64,10 @@
                     <p class="userInfo-key">部门</p>
                     <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name"  placeholder="输入部门名称...">
                 </li>
+                <li v-if="showCompany">
+                    <p class="userInfo-key">公司</p>
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.company"  placeholder="输入公司名称...">
+                </li>
                 <li>
                     <p class="userInfo-key">职位</p>
                     <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.title" placeholder="输入职位名称...">
@@ -74,7 +82,6 @@ import * as fs from 'fs-extra'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import {Contact} from '../../packages/data/sqliteutil.js'
 import confservice from '../../packages/data/conf_service.js'
-import { functions } from 'electron-log'
 import {ComponentUtil} from '../script/component-util.js'
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import * as Rooms from "../../packages/data/Rooms"
@@ -163,11 +170,11 @@ export default {
             if (this.userInfo.email == undefined){
                 return false;
             }
-            return this.userInfo.email.length > 0;
+            return this.userInfo.email.length > 0 && this.userInfo.email[0].email_value.length != 0;
         },
         showDepartment: function() {
             if(this.userType == 'contact')
-                return true;
+                return false;
             if (this.userInfo == undefined){
                 return false;
             }
@@ -176,6 +183,18 @@ export default {
             }
             return false;
         },
+        showCompany: function(){
+            if(this.userType == 'contact')
+                return true;
+            if (this.userInfo == undefined){
+                return false;
+            }
+            if(this.userInfo.company != undefined && this.userInfo.company){
+                return true;
+            }
+            return false;
+        },
+        
         showRelation: function() {
             if (this.userInfo == undefined || this.userType == "mainUserInfo"){
                 return false;
@@ -646,6 +665,7 @@ input::-webkit-input-placeholder {
     vertical-align: bottom;
     font-weight: 400;
     font-family: PingFangSC-Regular;
+    outline:none;
 }
 .userInfo-report-value {
     display:inline-block;
@@ -663,6 +683,7 @@ input::-webkit-input-placeholder {
     vertical-align: bottom;
     font-weight: 400;
     font-family: PingFangSC-Regular;
+    outline:none;
 }
 .userInfo-email-value {
     -webkit-user-select: text;
@@ -680,6 +701,7 @@ input::-webkit-input-placeholder {
     vertical-align: bottom;
     font-weight: 400;
     font-family: PingFangSC-Regular;
+    outline:none;
 }
 .userInfo-phone-value{
     -webkit-user-select: text;
@@ -693,6 +715,7 @@ input::-webkit-input-placeholder {
     margin-bottom: 5px;
     font-weight: 400;
     font-family: PingFangSC-Regular;
+    outline:none;
 }
 
 

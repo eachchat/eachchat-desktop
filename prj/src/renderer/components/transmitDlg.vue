@@ -72,11 +72,11 @@
             <chatCreaterContent ref="chatCreaterContent" v-if="showCreateNewChat" :rootDepartments="rootDepartments" :disableUsers="chatCreaterDisableUsers"></chatCreaterContent>
             <div class="TransmitFotter" v-show="!showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确认</button>
+                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确定</button>
             </div>
             <div class="TransmitFotter" v-show="showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确认</button>
+                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确定</button>
             </div>
         </div>
     </div>
@@ -111,6 +111,10 @@ export default {
             type: Boolean,
             default: false
         },
+        transmitImageViewer:{
+            type: Boolean,
+            default: false
+        },
         transmitTogether: {
             type: Boolean,
             default: false
@@ -127,7 +131,12 @@ export default {
                 return [];
             }
         },
-
+        imageViewerImageInfo: {
+            type: Object,
+            default: function(){
+                return {};
+            }
+        }
     },
     computed: {
         groupChecked() {
@@ -388,6 +397,17 @@ export default {
                 }
                 return;
             }
+            if(this.transmitImageViewer) {
+                var suc = await this.sendImageViewerMsg(this.selectedGroups, this.imageViewerImageInfo);
+                this.$emit("closeTransmitDlg", "");
+                if(suc == false) {
+                    this.$toastMessage({message:'转发失败', time:1500, type:'success'});
+                }
+                else {
+                    this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+                }
+                return;
+            }
             await this.sendMsg(this.selectedGroups, this.transmitMessages);
             // for(var i=0;i<this.groupList.length;i++) {
             //     this.groupList[i].checkState = false;
@@ -570,6 +590,36 @@ export default {
                                 this.$emit('updateChatList', ret);
                             }
                     })
+            }
+        },
+        sendImageViewerMsg: async function(distGroups, imageViewerImageInfo) {
+            console.log("sendSingleCollectionMsg ", imageViewerImageInfo);
+            
+            for(var i=0;i<distGroups.length;i++){
+                if(imageViewerImageInfo.info != undefined) {
+                    if(imageViewerImageInfo.info.h != undefined)
+                    try{
+                        imageViewerImageInfo.info.h = parseInt(imageViewerImageInfo.info.h);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                    if(imageViewerImageInfo.info.w != undefined)
+                    try{
+                        imageViewerImageInfo.info.w = parseInt(imageViewerImageInfo.info.w);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                }
+                var content = {
+                            msgtype: 'm.image',
+                            body: imageViewerImageInfo.body,
+                            url: imageViewerImageInfo.url,
+                            info:imageViewerImageInfo.info,
+                        };
+                global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                return true;
             }
         },
         sendSingleCollectionMsg: async function(distGroups, collection) {

@@ -263,7 +263,7 @@ export default {
     }
 
     .ownerInfoBaseLabel {
-        width: 50px;
+        width: 60px;
         height: 40px;
         color: rgba(187, 187, 187, 1);
         font-size: 14px;
@@ -272,7 +272,7 @@ export default {
         line-height: 40px;
         text-align: right;
         float: left;
-        margin: 0 22px 0 22px;
+        margin: 0 22px 0 15px;
         vertical-align: top;
         display: inline-block;
     }

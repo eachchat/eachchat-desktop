@@ -24,7 +24,7 @@
             <Invite class="chat-invite" :inviter="inviterInfo" @joinRoom="joinRoom" @rejectRoom="rejectRoom" v-show="isInvite"></Invite>
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
-                <transition-group name="msg-list" v-viewer="options" class="msg-list" id="message-show-list" tag="ul">
+                <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
                     <li class="msg-loading" v-show="isRefreshing" v-bind:key="123">
                         <i class="el-icon-loading"></i>
                     </li>
@@ -102,7 +102,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :transmitCollection="false" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :imageViewerImageInfo="imageViewerImageInfo" :transmitImageViewer="transmitImageViewer" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -788,6 +788,28 @@ export default {
                 content.fromTimestamp = msg.event.origin_server_ts;
             global.services.common.CollectMessage(event_id, content);
         },
+        async imageViewerFav(event, imageInfo) {
+            let event_id = imageInfo.imageEventId;
+            let content = {
+                msgtype: 'm.image',
+                body: imageInfo.body,
+                url: imageInfo.url,
+                info:imageInfo.info,
+            }
+            if(imageInfo.sender)
+                content.fromMatrixId = imageInfo.sender;
+            if(imageInfo.origin_server_ts)
+                content.fromTimestamp = imageInfo.origin_server_ts;
+            global.services.common.CollectMessage(event_id, content);
+        },
+        async imageViewerTransmit(event, imageInfo) {
+            console.log("*** imageViewerTransmit imageInfo is ", imageInfo);
+            this.transmitImageViewer = true;
+            this.imageViewerImageInfo = imageInfo;
+            this.transmitKey ++;
+            this.showTransmitDlg = true;
+            this.transmitTogether = false;
+        },
         async multiFav() {
             var toFavMsgIds = [];
             for(let i=0;i<this.selectedMsgs.length;i++) {
@@ -891,6 +913,7 @@ export default {
         },
         closeTransmitDlg() {
             this.showTransmitDlg = false;
+            this.transmitImageViewer = false;
             this.cleanSelected();
             this.selectedMsgs = [];
             this.multiSelect = false;
@@ -1212,8 +1235,64 @@ export default {
             this.$emit('getCreateGroupInfo', groupInfo);
             this.showUserInfoTips = false;
         },
-        showImageOfMessage(imgSrcInfo) {
-            this.$emit('showImageOfMessage', imgSrcInfo);
+        showImageOfMessage(distEvent) {
+            var showImageInfoList = [];
+            var distImageInfo = {};
+            this.messageList.forEach(curEvent => {
+                let event = curEvent.event;
+                let chatGroupMsgType = event.type;
+                let chatGroupMsgContent = curEvent.getContent();
+                if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
+                    let maxSize = 500;
+                    var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+        
+                    let info = {
+                        w: maxSize,
+                        h: maxSize
+                    };
+                    console.log("*** image info is ", chatGroupMsgContent.info);
+                    if(chatGroupMsgContent.info)
+                        info = chatGroupMsgContent.info
+                    if(!info.h)
+                        info.h = maxSize;
+                    if(!info.w)
+                        info.w = maxSize;
+                    let max = Math.max(info.w, info.h);
+                    if(max > maxSize ){
+                        if(info.w > info.h){
+                            info.h = info.h/(info.w/maxSize);
+                            info.w = maxSize;
+                        }
+                        else{
+                            info.w = info.w/(info.h/maxSize)
+                            info.h = maxSize;
+                        }
+                    }
+
+                    var curImageInfo = {
+                        imageUrl: curUrl,
+                        url: chatGroupMsgContent.url,
+                        imageEventId: event.event_id,
+                        info: info,
+                        body: chatGroupMsgContent.body,
+                        sender: curEvent.sender.userId,
+                        origin_server_ts: curEvent.event.origin_server_ts
+                    }
+                    if(distEvent.event.event_id == event.event_id) {
+                        distImageInfo = {
+                            imageUrl: curUrl,
+                            url: chatGroupMsgContent.url,
+                            imageEventId: event.event_id,
+                            info: info,
+                            body: chatGroupMsgContent.body,
+                            sender: curEvent.sender.userId,
+                            origin_server_ts: curEvent.event.origin_server_ts
+                        }
+                    }
+                    showImageInfoList.unshift(curImageInfo);
+                }
+            });
+            ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
         },
         playAudioOfMessage(audioMsgId) {
             this.playingMsgId = audioMsgId;
@@ -2675,6 +2754,8 @@ export default {
     },
     data() {
         return {
+            imageViewerImageInfo: {},
+            transmitImageViewer: false,
             options: {
                 filter (image) {
                     if(image.className == "msg-image") {
@@ -2822,6 +2903,8 @@ export default {
                 ipcRenderer.on('transmitFromSoloDlg', this.transmitFromSoloDlg);
                 ipcRenderer.on('setFocuse', this.setFocuse);
                 ipcRenderer.on('checkClipBoard', this.checkClipboard);
+                ipcRenderer.on('toFavImageViewer', this.imageViewerFav);
+                ipcRenderer.on('toTransmitImageViewer', this.imageViewerTransmit);
                 this.editor = this.$refs.chatQuillEditor.quill;
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';

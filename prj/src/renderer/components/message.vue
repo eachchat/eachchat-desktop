@@ -325,14 +325,14 @@ export default {
                 else if(this.MsgIsLink(this.msg)) {
                     shell.openExternal(chatGroupMsgContent.body);
                 }
-                // if(chatGroupMsgContent.msgtype == 'm.image'){
-                //     var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-                //     var imageInfo = {
-                //         url: distUrl,
-                //         info: chatGroupMsgContent.info
-                //     }
-                //     this.$emit('showImageOfMessage', imageInfo);
-                // }
+                else if(chatGroupMsgContent.msgtype == 'm.image'){
+                    // var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                    // var imageInfo = {
+                    //     url: distUrl,
+                    //     info: chatGroupMsgContent.info
+                    // }
+                    this.$emit('showImageOfMessage', this.msg);
+                }
             }
             if(msgType === 102)
             {
@@ -1022,13 +1022,13 @@ export default {
     }
 
     .msg-info-mine {
-        width: 60%;
+        width: 70%;
         float: right;
         display: block;
     }
 
     .msg-info-others {
-        width: 60%;
+        width: 70%;
         float: left;
         display: block;
         margin-left: 8px;
@@ -1091,7 +1091,7 @@ export default {
     .about-msg {
         display: inline-block;
         margin: 0px 10px 5px 10px;
-        width: calc(100% - 95px);
+        width: calc(100% - 90px);
         vertical-align: top;
     }
 
@@ -1138,7 +1138,7 @@ export default {
     .chat-msg-content-others-txt-div {
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         min-height: 20px;
         border-radius: 5px;
@@ -1157,7 +1157,7 @@ export default {
     .chat-msg-content-others-txt-div:hover {
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         min-height: 20px;
         border-radius: 5px;
@@ -1176,7 +1176,7 @@ export default {
     .chat-msg-content-others-txt{
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
         padding: 0;
@@ -1194,7 +1194,7 @@ export default {
     .chat-msg-content-others-txt:hover{
         float: left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
         padding: 0;
@@ -1327,8 +1327,7 @@ export default {
     .chat-msg-content-mine-txt-div {
         float:right;
         background-color: rgba(82, 172, 68, 1);
-        max-width: 260px;
-        min-width: 20px;
+        max-width: 100%;
         min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
@@ -1346,7 +1345,7 @@ export default {
     .chat-msg-content-mine-txt-div:hover{
         float:right;
         background-color: RGB(92,193,76);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         min-height: 20px;
         border-radius: 5px;
@@ -1365,7 +1364,7 @@ export default {
     .chat-msg-content-mine-link {
         float:right;
         background-color: rgba(1,1,1,0);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
         padding: 0;
@@ -1384,7 +1383,7 @@ export default {
     .chat-msg-content-mine-link:hover{
         float:right;
         background-color: rgba(1,1,1,0);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
         padding: 0;
@@ -1403,7 +1402,7 @@ export default {
     .chat-msg-content-mine-txt {
         float:right;
         background-color: rgba(1,1,1,0);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
         padding: 0;
@@ -1422,7 +1421,7 @@ export default {
     .chat-msg-content-mine-txt:hover {
         float:right;
         background-color: rgba(1,1,1,0);
-        max-width: 260px;
+        max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
         padding: 0;

@@ -40,25 +40,20 @@ const ComponentUtil = {
         //get userinfo
         var user = await Contact.GetContactInfo(matrix_id);
         let userInfo = await UserInfo.GetUserInfoByMatrixID(user.matrix_id)
-        let department = {display_name:""};
         if(userInfo)
         {
-            department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
-            if(!department)
-                department = {display_name:""};
             tempUserInfo.id = userInfo.user_id
         }
-        else
-        {
-            department.display_name = user.company
-        }
+
         tempUserInfo.avatar_url = user.avatar_url;
-        tempUserInfo.department = department;
+        tempUserInfo.company = user.company;
         tempUserInfo.matrix_id = matrix_id;
         tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, matrix_id);
         tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
         tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);
         tempUserInfo.workDescription = ComponentUtil.ShowInfoContent(user.work_description);
+        tempUserInfo.userName = this.GetDisplayName("", matrix_id);
+
         tempUserInfo.email = [];
         tempUserInfo.email.push({
             email_value: ComponentUtil.ShowInfoContent(user.email)
@@ -73,7 +68,7 @@ const ComponentUtil = {
     async ShowOrgInfoByUserID(user_id){
         var tempUserInfo = {};
         var user = await UserInfo.GetUserInfo(user_id);
-        tempUserInfo.id = user.user_id;
+        tempUserInfo.user_id = user.user_id;
         tempUserInfo.matrix_id = user.matrix_id;
         tempUserInfo.avatarTUrl = user.avatar_t_url;
         tempUserInfo.displayName = user.user_display_name;
@@ -82,6 +77,7 @@ const ComponentUtil = {
         tempUserInfo.workDescription = user.work_description;
         tempUserInfo.managerId = user.manager_id;
         tempUserInfo.departmentId = user.belong_to_department_id;
+        tempUserInfo.userName = this.GetDisplayName("", user.matrix_id);
         
         //get department
         var department = await Department.GetDepartmentInfoByUserID(user_id);
@@ -133,10 +129,15 @@ const ComponentUtil = {
                 contactInfo.telephone = temp.phone_value;
             }
         }
-        let company = await Department.GetDepartmentInfoByUserID(userinfo.user_id);
-        if(company)
-            contactInfo.company = company.display_name
-        contactInfo.title = userinfo.user_title;
+        let company = await Department.GetBelongDepartmentsByMatrixID(userinfo.matrix_id);
+        if(company.length == 0)
+            contactInfo.company = '';
+        else if(company.company == 1)
+            contactInfo.company = company[0].display_name;
+        else
+            contactInfo.company = company[1].display_name;
+
+        contactInfo.title = userinfo.title;
         return contactInfo
         
     },

@@ -20,7 +20,7 @@
             </div>
             <div class="OwnerTransferFotter">
                 <button class="OwnerTransferCancleButton" @click="Close()">取消</button>
-                <button class="OwnerTransferConfirmButton" @click="TransferOwner()" :disabled="selectedUserId.length==0">确认</button>
+                <button class="OwnerTransferConfirmButton" @click="TransferOwner()" :disabled="selectedUserId.length==0">确定</button>
             </div>
         </div>
     </div>

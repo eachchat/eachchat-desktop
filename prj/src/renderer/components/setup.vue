@@ -18,7 +18,7 @@
             <img class="setupSecurityImage" src="../../../static/Img/Setup/sys-20px@2x.png">
             <label class="setupSecurityLabel">系统</label>
           </div>
-          <div class="setup-list-item" @click="jumpToUpdateSetup">
+          <div class="setup-list-item" @click="jumpToUpdateSetup" v-show="false">
             <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px@2x.png">
             <label class="setupUpdateLabel">升级</label>
           </div>
@@ -34,7 +34,7 @@
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showOwnerInfo">
             </div>
             <div class="setup-with-drop-down" v-show="false">
-                <label class="setup-with-drop-down-label">显示语言</label>
+                <label class="setup-with-drop-down-label">多语言</label>
                 <div class="setup-with-drop-down-div" @click="showLanguage">
                   <label class="setup-with-drop-down-div-label" @click="showLanguage">{{curLanguage}}</label>
                   <div class="setup-with-drop-down-div-ico" @click="showLanguage">
@@ -49,7 +49,7 @@
                 </el-switch>
             </div>
             <div class="setup-with-switch">
-                <label class="with-switch">消息桌面通知</label>
+                <label class="with-switch">新消息通知</label>
                 <el-switch class="setup-with-switch-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
@@ -64,7 +64,7 @@
                 <label class="setup-array-with-label-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
-            <div class="setup-array">
+            <div class="setup-array" v-show="canChangePwd">
                 <label class="setup-array-label">修改密码</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
             </div>
@@ -98,8 +98,8 @@
                 <label class="setup-array-with-label-label2" id="setup-general-clear-cache-label2-id">--M</label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAlert">
             </div>
-            <div class="setup-title" id="setup-update-notice-id">升级</div>
-            <div class="setup-array-with-label">
+            <div class="setup-title" id="setup-update-notice-id" v-show="false">升级</div>
+            <div class="setup-array-with-label" v-show="false">
                 <label class="setup-array-with-label-label">当前版本</label>
                 <label class="setup-array-with-label-label2">{{lVersion}}</label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
@@ -110,6 +110,10 @@
                 </el-switch>
             </div>
             <div class="setup-title" id="setup-about-id">关于</div>
+            <div class="setup-array-only-label">
+                <label class="setup-array-only-label-label">当前版本</label>
+                <label class="setup-array-only-label-label2">{{lVersion}}</label>
+            </div>
             <div class="setup-array" v-show="false">
                 <label class="setup-array-label">功能介绍</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAbout">
@@ -196,6 +200,7 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      canChangePwd: false,
       updateOwnerInfo: false,
       showOwnerDlg: false,
       lVersion: '--',
@@ -470,6 +475,14 @@ export default {
     var message_notice = global.localStorage.getItem("message_notice");
     var autoStart = global.localStorage.getItem("autoStart");
     var language = global.mxMatrixClientPeg.getStorageLocale();
+    var defaultIdentity = global.localStorage.getItem("authType");
+    var threeAuthType = global.localStorage.getItem("threeAuthType");
+    if(defaultIdentity == "three" && threeAuthType == "ldap") {
+      this.canChangePwd = false;
+    }
+    else {
+      this.canChangePwd = true;
+    }
     if(language == "zh") {
       this.curLanguage = "简体中文";
     }
@@ -989,6 +1002,46 @@ export default {
     margin-bottom: 14px;
     display: inline-block;
     cursor: pointer;
+  }
+
+  .setup-array-only-label {
+    width:100%;
+    height:48px;
+    font-size: 14px;
+    line-height: 48px;
+    background:rgba(255,255,255,1);
+    display: block;
+    letter-spacing:1px;
+  }
+
+  .setup-array-only-label-label {
+    width:calc(100% - 96px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+  }
+
+  .setup-array-only-label-label2 {
+    width:75px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:1px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
   }
 
   .setup-with-switch {

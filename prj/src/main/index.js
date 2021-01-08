@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
-let mainPageWindow
+let assistWindow
 let soloPage = null
 let favouriteDetailWindow
 let reportRelationWindow
@@ -51,6 +51,10 @@ if (process.env.NODE_ENV === "development") {
   soundPath = "/static/sound.wav";
   notificationIco = "/static/Img/Main/logo@2x.png";
 }
+
+const imgViewPageWinURL = process.env.NODE_ENV === 'development'
+? `http://localhost:9080/#/ImgView`
+: `file://${__dirname}/index.html#ImgView`;
 
 if(process.platform != 'darwin') {
   const singleInstanceLock = app.requestSingleInstanceLock();
@@ -273,6 +277,28 @@ ipcMain.on('AnotherClose', function(event, arg) {
 ipcMain.on('AnotherMin', function(event, arg) {
   soloPage.minimize();
 });
+
+ipcMain.on('imageViewerFav', function(event, toFavEvent) {
+  mainWindow.webContents.send("toFavImageViewer", toFavEvent);
+});
+
+ipcMain.on('imageViewerTransmit', function(event, toTransmitEvent) {
+  mainWindow.webContents.send("toTransmitImageViewer", toTransmitEvent);
+  mainWindow.focus();
+});
+
+ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
+  // assistWindow.webContents.on('did-finish-load', function() {
+  assistWindow.webContents.send("timelines", imageInfos, distImageInfo);
+  // });
+  assistWindow.show();
+})
+
+ipcMain.on('updageAssistWindowSize', function(event, sizeInfo) {
+  console.log("*** updage size is ", sizeInfo);
+  assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 44);
+})
+
 // 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
     favouriteDetailWindow = new BrowserWindow({
@@ -468,7 +494,7 @@ ipcMain.on("export_key", function(event, args) {
 })
 
 ipcMain.on('open-export-dialog', function(event) {
-  dialog.showOpenDialog(mainPageWindow,{
+  dialog.showOpenDialog(mainWindow,{
     title: "导出到",
     properties: ["openDirectory"]
   }).then(files => {
@@ -478,7 +504,7 @@ ipcMain.on('open-export-dialog', function(event) {
 });
 
 ipcMain.on('open-download-recoveryKey-dialog', function(event) {
-  dialog.showOpenDialog(mainPageWindow,{
+  dialog.showOpenDialog(mainWindow,{
     title: "导出到",
     properties: ["openDirectory"]
   }).then(files => {
@@ -931,6 +957,24 @@ ipcMain.on('win-max', function(event, arg) {
     mainWindow.maximize();
   }
 });
+
+ipcMain.on('image-win-close', function(event, arg) {
+  assistWindow.hide();
+});
+
+ipcMain.on('image-win-min', function(event, arg) {
+  assistWindow.minimize();
+});
+
+ipcMain.on('image-win-max', function(event, arg) {
+  if(assistWindow.isMaximized()) {
+    assistWindow.unmaximize();
+  }
+  else {
+    assistWindow.maximize();
+  }
+});
+
 ipcMain.on('login-win-close', function(event, arg) {
   if(process.platform == "darwin") {
     mainWindow.hide();
@@ -993,6 +1037,21 @@ function createWindow () {
     }
   }
   app.setAppUserModelId('EachChat');
+  assistWindow = new BrowserWindow({
+    height: 470,
+    width: 600,
+    frame: false,
+    resizable: true,
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegration: true,
+      enableRemoteModule: true
+    },
+    icon: path.join(__dirname, iconPath),
+    show: false,
+  })
+  assistWindow.loadURL(imgViewPageWinURL);
+  openDevToolsInDevelopment(assistWindow);
 }
 
 ipcMain.on("openDevTools", function(event) {

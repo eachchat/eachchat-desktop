@@ -1,11 +1,16 @@
 <template>
     <div class="AccountManagerBG">
-        <div class="accountManagerDlg">
+        <div class="accountManagerDlg" id="accountManagerDlgId">
             <div class="accountManagerHeader">
                 <p class="accountManagerTitle">{{cutTitle}}</p>
                 <i class="el-icon-close" @click="Close()"></i>
             </div>
             <ul class="accountManagerContentPage" v-show="isMainPage">
+                <li class="accountInfo">
+                    <img class="accountInfoImg" src="../../../static/Img/Setup/account@2x.png">
+                    <label class="accountInfoLabel">用户名</label>
+                    <label class="accountInfoLabel1">{{ownerAccount}}</label>
+                </li>
                 <li class="phoneBind">
                     <img class="phoneBindImg" src="../../../static/Img/Setup/Phone@2x.png">
                     <label class="phoneBindLabel">手机号</label>
@@ -62,6 +67,7 @@ export default {
     },
     data () {
         return {
+            ownerAccount: '',
             isUnbindEmail: false,
             isUnbindPhone: false,
             iconType: "alert",
@@ -92,6 +98,7 @@ export default {
             disableConfirm: false,
             clientSecret: '',
             contentElement: undefined,
+            dlgElement: undefined,
         }
     },
     methods: {
@@ -146,6 +153,9 @@ export default {
             return EMAIL_ADDRESS_REGEX.test(email);
         },
         Confirm: async function() {
+            if(this.dlgElement == undefined) {
+                this.dlgElement = document.getElementById("accountManagerDlgId");
+            }
             if(this.isBindPhoneSetNumPage) {
                 // toDo Check Empty and Send ver code to phone
                 global.mxMatrixClientPeg.matrixClient.requestAdd3pidMsisdnToken(
@@ -264,6 +274,7 @@ export default {
                         return;
                     }
                 }
+                this.dlgElement.style.height = "242px";
                 this.isBindInputPasswordPage = false;
                 this.isMainPage = true;
                 this.cutTitle = "账号管理";
@@ -277,6 +288,10 @@ export default {
             });
         },
         toBindEmail: function() {
+            if(this.dlgElement == undefined) {
+                this.dlgElement = document.getElementById("accountManagerDlgId");
+            }
+            this.dlgElement.style.height = "216px";
             if(this.contentElement == undefined) {
                 this.contentElement = document.getElementById("")
             }
@@ -288,6 +303,10 @@ export default {
             this.isBindEmailSetAddressPage = true;
         },
         toBindPhone: function() {
+            if(this.dlgElement == undefined) {
+                this.dlgElement = document.getElementById("accountManagerDlgId");
+            }
+            this.dlgElement.style.height = "216px";
             this.cutTitle = "添加登录手机号"
             this.toSetAddressLabel = "请添加用于登录的手机号";
             this.accountAddress = "";
@@ -318,6 +337,9 @@ export default {
               this.emailAddress = emainObj.length == 0 ? "" : emainObj[0].address;
               this.phoneNum = phoneObj.length == 0 ? "" : phoneObj[0].address;
             })
+        var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userId);
+        this.ownerAccount = profileInfo.displayname;
       }
       catch(error) {
           console.log("get threed pids exception ", error)
@@ -344,9 +366,8 @@ export default {
         left: 0;
         right: 0;
         margin: auto;
-        padding: 0px 32px 20px 32px;
         width: 440px;
-        height: 200px;
+        height: 242px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
@@ -354,7 +375,7 @@ export default {
     
     .accountManagerHeader {
         width: 100%;
-        height: 56px;
+        height: 42px;
     }
 
     .accountManagerTitle {
@@ -368,34 +389,34 @@ export default {
         line-height: 22px;
         letter-spacing: 2px;
         float: left;
-        margin: 18px 0px 18px 0px;
+        margin: 18px 32px 18px 32px;
     }
 
     .el-icon-close {
         display: inline-block;
-        padding: 18px 0px 18px 18px;
+        padding: 18px 20px 18px 18px;
         float: right;
     }
 
     .accountManagerContentPage {
-        width: 420px;
+        width: 360px;
         height: 104px;
         background: #FFFFFF;
         border: 0px solid rgba(221,221,221,1);
         border-radius: 4px;
         list-style: none;
-        margin-left: 12px;
+        margin-left: 40px;
         padding-left: 0px;
     }
 
     .accountManagerContentPageBind {
-        width: 420px;
+        width: 360px;
         height: 104px;
         background: #FFFFFF;
         border: 0px solid rgba(221,221,221,1);
         border-radius: 4px;
         list-style: none;
-        margin-left: 12px;
+        margin-left: 40px;
         padding-left: 0px;
     }
 
@@ -464,6 +485,43 @@ export default {
         height: 20px;
         float: right;
         padding: 15px 15px 15px 4px;
+    }
+
+    .accountInfo {
+        width: 100%;
+        height: 52px;
+    }
+
+    .accountInfoImg {
+        width: 20px;
+        height: 20px;
+        float: left;
+        padding: 15px 15px 15px 4px;
+    }
+
+    .accountInfoLabel {
+        width: 100px;
+        height: 20px;
+        font-size:14px;
+        font-family: SCPingFang-Regular;
+        font-weight:400;
+        color:rgba(51, 51, 51, 1);
+        line-height:20px;
+        letter-spacing:1px;
+        float: left;
+        padding: 15px 15px 15px 4px;
+    }
+
+    .accountInfoLabel1 {
+        height: 20px;
+        font-size:14px;
+        font-family: SCPingFang-Regular;
+        font-weight:400;
+        color:rgba(153, 153, 153, 1);
+        line-height:20px;
+        letter-spacing:1px;
+        float: right;
+        padding: 15px 15px 15px 15px;
     }
 
     .emailBind {
@@ -550,7 +608,7 @@ export default {
         line-height: 20px;
         letter-spacing: 1px;
         float: left;
-        margin: 10px 14px 4px 14px;
+        margin: 10px 14px 4px 0px;
     }
 
     .toSetAddressLabelState {
@@ -572,7 +630,7 @@ export default {
         color: rgba(153, 153, 153, 1);
         border-radius: 4px;
         border: 1px solid #DDDDDD;
-        margin: 5px 13px 0px 13px;
+        margin: 5px 13px 0px 0px;
         padding-left: 8px;
     }
 

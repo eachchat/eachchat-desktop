@@ -14,8 +14,8 @@
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
             <!-- <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link> -->
             <div class = "grid-content">邀请</div>
-            <transition-group class="group-list" name="group-list" tag="ul">
-            <!-- <ul class="group-list" name="group-list"> -->
+            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
+            <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showInviteGroupList"
                   @contextmenu="rightClick($event, chatGroupItem)"
@@ -39,13 +39,13 @@
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
-            </transition-group>
-            <!-- </ul> -->
+            <!-- </transition-group> -->
+            </ul>
             <!-- <ul class="group-list"> -->
             <!-- <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'><span class = "grid-content" >置顶</span></el-link> -->
             <div class = "grid-content">置顶</div>
-            <transition-group class="group-list" name="group-list" tag="ul">
-            <!-- <ul class="group-list" name="group-list"> -->
+            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
+            <ul class="group-list" name="group-list">
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showFavouriteRooms"
                   @click="showChat(chatGroupItem, index)"
@@ -72,12 +72,12 @@
                   </div>
                 </div>
               </li>
-            <!-- </ul> -->
-            </transition-group>
+            </ul>
+            <!-- </transition-group> -->
             <!-- <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link> -->
             <div class = "grid-content">聊天</div>
-            <!-- <ul class="group-list" name="group-list"> -->
-            <transition-group class="group-list" name="group-list" tag="ul">
+            <ul class="group-list" name="group-list">
+            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showDealGroupList"
                   @click="showChat(chatGroupItem, index)"
@@ -104,9 +104,10 @@
                   </div>
                 </div>
               </li>
-            <!-- </ul> -->
-            </transition-group>
-            <transition-group class="group-list" name="group-list" tag="ul">
+            </ul>
+            <!-- </transition-group> -->
+            <ul class="group-list" name="group-list">
+            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
               <li class = 'group'
                   v-for="(chatGroupItem, index) in showLowPriorityGroupList"
                   @click="showChat(chatGroupItem, index)"
@@ -133,8 +134,8 @@
                   </div>
                 </div>
               </li>
-            <!-- </ul> -->
-            </transition-group>
+            </ul>
+            <!-- </transition-group> -->
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
             <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
@@ -2038,7 +2039,7 @@ export default {
       if(!chatGroupItem.timeline) return undefined;
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
-        if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
+        if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
           return timeLineTmp;
         }
 /*
@@ -2700,6 +2701,13 @@ export default {
     font-size: 0px;
     box-sizing: border-box;
     background-color: rgba(255, 255, 255, 1);
+  }
+
+  .grid-content {
+    font-size: 12px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    color: #999999;
   }
 
   .group-div-top {

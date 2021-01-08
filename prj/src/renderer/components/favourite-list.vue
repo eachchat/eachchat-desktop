@@ -137,6 +137,7 @@
                     </div>
                 </div>
             </el-container>
+            <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="DeleteFavourite"/>
         </el-main>
         <el-container >
             <!-- <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
@@ -160,7 +161,7 @@ import chatCreaterDlg from './chatCreaterDlg.vue';
 import {Group, Department, UserInfo, Message} from '../../packages/data/sqliteutil.js';
 import favouriteDetail from './favourite-detail.vue'
 import { ComponentUtil } from '../script/component-util.js';
-
+import AlertDlg from './alert-dlg.vue'
 
 export default {
     name: 'favourite-list',
@@ -182,16 +183,22 @@ export default {
             chatCreaterDialogRootDepartments:[],
 
             //showFavouriteSearchView: false,
-            searchResults:{}
+            searchResults:{},
+            showAlertDlg: false,
+            deleteFavourite: {},
+            alertContents : {
+                "Details": "",
+                "Abstrace": ""
+            } 
         }
     },
     components: {
         transmitDlg,
         chatCreaterDlg,
-        favouriteDetail
+        favouriteDetail,
+        AlertDlg
     },
     computed: {
-
         showMessageList: function() {
             if (this.showSearchView){
                 if(this.searchResults.message){
@@ -261,6 +268,37 @@ export default {
         },
     },
     methods: {
+        CloseAlertDlg(){
+            this.showAlertDlg = false;
+        },
+
+        async DeleteFavourite(){
+            this.showAlertDlg = false;
+            await global.services.common.DeleteCollectionMessage(this.deleteFavourite.item.collection_id);
+            if(this.deleteFavourite.type == 'message'){
+                var messageCollectionModel = await global.services.common.ListMessageCollections();
+                this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
+            }
+            else if(this.deleteFavourite.type == 'image'){
+                var imageCollectionModel = await global.services.common.ListPictureCollections();
+                this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
+                this.$nextTick(function(){
+                    for(var i = 0; i < this.favourites.length; i ++){
+                        this.getImageCollectionContent(this.favourites[i]);
+                    }
+                });
+            }
+            else if(this.deleteFavourite.type == 'file'){
+                var fileCollectionModel = await global.services.common.ListFileCollections();
+                this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
+            }
+            if(this.showSearchView){
+                await this.updateSearchCollectionResult(this.searchKey);
+                return;
+            }    
+        },
+
+
         FileSizeByNumber(size)
         {
             return getFileSizeByNumber(size);
@@ -362,47 +400,33 @@ export default {
             }else{
                 return require("../../../static/Img/Favorite/File/download@2x.png");
             }
-
         },
         deleteMessageCollectionClicked:async function(message) {
-            await global.services.common.DeleteCollectionMessage(message.collection_id);
-            var messageCollectionModel = await global.services.common.ListMessageCollections();
-            this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
-            console.log(this.favourites)
-            /*
-            if(this.showSearchView){
-                await this.updateSearchCollectionResult(this.searchKey);
-                return;
-            }
-            console.log(this.favourites);
-            */
+            this.alertContents = {
+                "Details": "是否确定删除该收藏内容",
+                "Abstrace": "删除收藏"
+            } 
+            this.deleteFavourite.item = message;
+            this.deleteFavourite.type = "message";
+            this.showAlertDlg = true;
         },
         deleteImageCollectionClicked: async function(image) {
-            await global.services.common.DeleteCollectionMessage(image.collection_id);
-            var imageCollectionModel = await global.services.common.ListPictureCollections();
-            this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
-            this.$nextTick(function(){
-                for(var i = 0; i < this.favourites.length; i ++){
-                    this.getImageCollectionContent(this.favourites[i]);
-                }
-            });
-            /*
-            if(this.showSearchView){
-                await this.updateSearchCollectionResult(this.searchKey);
-                return;
-            }
-            */
+            this.alertContents = {
+                "Details": "是否确定删除该收藏内容",
+                "Abstrace": "删除收藏"
+            } 
+            this.deleteFavourite.item = image;
+            this.deleteFavourite.type = "image";
+            this.showAlertDlg = true;
         },  
         deleteFileCollectionClicked: async function(file) {
-            await global.services.common.DeleteCollectionMessage(file.collection_id);
-            var fileCollectionModel = await global.services.common.ListFileCollections();
-            this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
-            /*
-            if(this.showSearchView){
-                await this.updateSearchCollectionResult(this.searchKey);
-                return;
-            }
-            */
+            this.alertContents = {
+                "Details": "是否确定删除该收藏内容",
+                "Abstrace": "删除收藏"
+            } 
+            this.deleteFavourite.item = file;
+            this.deleteFavourite.type = "file";
+            this.showAlertDlg = true;
         },
 
         transmitMessageCollectionClicked:async function(message) {
