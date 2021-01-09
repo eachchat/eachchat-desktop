@@ -878,7 +878,7 @@ export default {
         }
         try{
           if(global.localStorage.getItem("message_sound")) {
-            this.amr.play();
+            // this.amr.play();
           }
         }
         catch(e) {
@@ -947,7 +947,7 @@ export default {
       return "all-search-people-img-" + itemId;
     },
     getSearchItemPeopleNameElementId: function(itemId) {
-      return "all-search-people-name-"
+      return "all-search-people-name-" + itemId;
     },
     getSearchChatItemNameElementId: function(itemId) {
       return "all-search-chat-name-" + itemId;
@@ -1486,13 +1486,15 @@ export default {
               this.showSearchPeople = false;
           }
         }
-        this.$nextTick(() => {
-          setTimeout(() => {
-            this.showSearchResultIcon();
+        setTimeout(() => {
+          this.$nextTick(() => {
+              this.showSearchResultIcon();
           })
-        })
+        }, 0)
         if(this.searchKey.length == 0) {
           this.isSearch = false;
+          this.searchPeopleItems = [];
+          this.searchMessageItems = [];
           console.log("this.issearch = ", this.isSearch)
         }
         else {
@@ -1502,6 +1504,8 @@ export default {
       }
       else{
         this.isSearch = false;
+        this.searchPeopleItems = [];
+        this.searchMessageItems = [];
       }
     },
     showSearchResultIcon: async function() {
@@ -2492,12 +2496,12 @@ export default {
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);
-    if(this.amr == null){
-        this.amr = new BenzAMRRecorder();
-        // console.log("=========================")
-        // console.log(path.join(__dirname, "../../../static/sound.wav"))
-        this.amr.initWithUrl(path.join(__dirname, "/static/sound.wav"))
-    }
+    // if(this.amr == null){
+    //     this.amr = new BenzAMRRecorder();
+    //     // console.log("=========================")
+    //     // console.log(path.join(__dirname, "../../../static/sound.wav"))
+    //     this.amr.initWithUrl(path.join(__dirname, "/static/sound.wav"))
+    // }
   }
 };
 </script>
