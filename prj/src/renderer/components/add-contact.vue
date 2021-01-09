@@ -82,7 +82,13 @@ export default {
         },
 
         HandleSave: async function(index, row){
-            let info = await ComponentUtil.OrgUserInfoToContact(row);
+            let info = await ComponentUtil.ShowOrgInfoByMatrixID(row.matrix_id)
+            if(info){
+                info = await ComponentUtil.OrgUserInfoToContact(info);
+            }
+            else{
+                info = await ComponentUtil.OrgUserInfoToContact(row);
+            }
             await this.services.AddContact(info);
             await this.services.GetAllContact();
             this.contacts = await Contact.GetAllContact();
@@ -195,24 +201,19 @@ export default {
             if(!userInfo || !userInfo.matrix_id)
                 return;
             
-            var userAvatarUrl = userInfo.avatar_url;
-            let userIconElement = document.getElementById(userInfo.matrix_id + 'addContact');
-            if(!userIconElement){
-                return;
-            }
-            
-            if(!userAvatarUrl)
-            {
-                this.matrixClient.getProfileInfo(userInfo.matrix_id).then((info) => {
-                    userAvatarUrl = info.avatar_url;
-                    return userAvatarUrl;
-                }).then((avaurl) => {
-                    if(!avaurl)
-                        return;
-                    let validUrl = this.matrixClient.mxcUrlToHttp(avaurl);
-                    userIconElement.setAttribute("src", validUrl);
-                });
-            }    
+            this.matrixClient.getProfileInfo(userInfo.matrix_id).then((info) => {
+                info.matrix_id = userInfo.matrix_id;
+                return info;
+            }).then((info) => {
+                if(!info.avatar_url)
+                    return;
+                let validUrl = this.matrixClient.mxcUrlToHttp(info.avatar_url);
+                let userIconElement = document.getElementById(userInfo.matrix_id + 'addContact');
+                if(!userIconElement){
+                    return;
+                }
+                userIconElement.setAttribute("src", validUrl);
+            });
         },
 
         

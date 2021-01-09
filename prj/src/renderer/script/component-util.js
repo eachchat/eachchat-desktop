@@ -136,7 +136,7 @@ const ComponentUtil = {
             contactInfo.company = company[0].display_name;
         else
             contactInfo.company = company[1].display_name;
-
+        contactInfo.display_name = userinfo.displayName;
         contactInfo.title = userinfo.title;
         return contactInfo
         
