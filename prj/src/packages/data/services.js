@@ -2418,6 +2418,7 @@ const common = {
     let item = result.data.obj;
     let contactModelValue = await servicemodels.ContactModel(item);
     await contactModelValue.save();
+    ipcRenderer.send("updateContact")
   },
 
   async GetAllContact(){
