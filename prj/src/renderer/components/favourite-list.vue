@@ -835,6 +835,7 @@ display: none;
         vertical-align: top;
         padding-top: 18px;
         padding-right: 0px;
+        padding-bottom: 7px;
         width: 78px;
         height: 20px;
         .transmit-img {
@@ -900,8 +901,7 @@ display: none;
             font-size: 12px;
             line-height: 18px;
             width: calc(100% - 83px);
-            margin-top: 8px;
-            margin-bottom: 0px;
+            margin-top: 15px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
         }
@@ -912,7 +912,8 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
-            margin-top: 8px;
+            width: 78px;
+            margin-top: 15px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
             
@@ -951,8 +952,7 @@ display: none;
             font-size: 12px;
             line-height: 18px;
             width: calc(100% - 83px);
-            margin-top: 8px;
-            margin-bottom: 0px;
+            margin-top: 15px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
         }
@@ -964,7 +964,8 @@ display: none;
             color:rgba(153,153,153,1);
             letter-spacing:1px;
             //text-align: right;
-            margin-top: 8px;
+            width: 78px;
+            margin-top: 15px;
             font-family: PingFangSC-Regular;
         }
     }
@@ -1060,8 +1061,7 @@ display: none;
             font-size: 12px;
             line-height: 18px;
             width: calc(100% - 83px);
-            margin-top: 8px;
-            margin-bottom: 0px;
+            margin-top: 15px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
         }
@@ -1073,7 +1073,8 @@ display: none;
             color:rgba(153,153,153,1);
             letter-spacing:1px;
             //text-align: right;
-            margin-top: 8px;
+            width: 78px;
+            margin-top: 15px;
             font-family: PingFangSC-Regular;
         }
     }
