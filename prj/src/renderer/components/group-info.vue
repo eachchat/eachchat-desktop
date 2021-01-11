@@ -1499,9 +1499,7 @@ export default {
 }
 
 .chat-name {
-    color: #000000;
     display: inline-block;
-    font-size: 12px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
