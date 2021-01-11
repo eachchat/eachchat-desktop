@@ -576,6 +576,17 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async searchAll(accessToken, body) {
+    var response = await this.commonApi.post(
+      "api/services/search/v1/chats/statistics",
+      body,
+      {
+        Authorization: "Bearer " + accessToken
+      });
+
+    return this.parseStatus(response);
+  }
+
   async CollectMessage(accessToken, eventID, content){
     let type;
     if(content.msgtype == "m.image")

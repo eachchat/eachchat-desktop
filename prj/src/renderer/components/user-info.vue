@@ -122,7 +122,7 @@ export default {
 
         userType:{
             type: String,
-            default: "origanise"
+            default: "organise"
         }
     },
     watch:{
@@ -259,7 +259,7 @@ export default {
         },
 
         SaveContact: async function(){
-            if(this.userType === "origanise"){
+            if(this.userType === "organise"){
                 let contact = await ComponentUtil.OrgUserInfoToContact(this.userInfo);
                 await this.services.AddContact(contact);
             }
@@ -470,7 +470,7 @@ export default {
                                         this.userInfo.email[0].email_value,
                                         this.userInfo.phone.mobile,
                                         this.userInfo.phone.work,
-                                        this.userInfo.department.display_name,
+                                        this.userInfo.company,
                                         this.userInfo.title);
         }
         if(this.userType == 'mainUserInfo')

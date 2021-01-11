@@ -1,6 +1,6 @@
 <template>
     <div class="ownerInfoBG">
-        <div class="ownerInfoDlg">
+        <div class="ownerInfoDlg" id = "ownerDlg">
             <div class="ownerInfoHead">
                 <p class="ownerInfoTitle">我的信息</p>
                 <i class="el-icon-close" @click="Close()"></i>
@@ -9,12 +9,14 @@
             <div class="ownerInfoBaseBox">
                 <div class="ownerInfoBaseDiv">
                     <label class="ownerInfoBaseLabel">头像</label>
-                    <img class="ownerInfoImage" id="ownerInfoImageId" src="../../../static/Img/User/user-40px@2x.png"/>
-                    <label class="ownerInfoImageChange" @click="changeIconClicked">点击上传</label>
+                    <div style="position:relative;">
+                        <img class="ownerInfoImage" id="ownerInfoImageId" src="../../../static/Img/User/user-40px@2x.png"/>
+                        <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar.png" @click="changeIconClicked">
+                    </div>
                 </div>
                 <div class="ownerDisplayInfoBaseDiv">
                     <label class="ownerInfoBaseLabel">昵称</label>
-                    <label class="ownerDisplayInfoBaseLabel2" contenteditable="true" spellcheck="false" id="ownerInfoDisplayNameId" @keydown="changeDisplayName($event)">{{ownerDisplayName}}</label>
+                    <label class="ownerDisplayInfoBaseLabel2" contenteditable="true" spellcheck="false" id="ownerInfoDisplayNameId" @change="changeDisplayName">{{ownerDisplayName}}</label>
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
                 </div>
                 <div class="ownerInfoBaseDiv">
@@ -28,23 +30,23 @@
             </div>
             <div class="ownerInfoTipLabel">工作信息</div>
             <div class="ownerInfoOrgBox">
-                <div class="ownerInfoBaseDiv">
+                <div class="ownerInfoBaseDiv" v-show = "ownerPhone && ownerPhone.length != 0">
                     <label class="ownerInfoBaseLabel">手机</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgPhoneId">{{ownerPhone}}</label>
                 </div>
-                <div class="ownerInfoBaseDiv">
+                <div class="ownerInfoBaseDiv" v-show = "ownerCall && ownerCall.length != 0">
                     <label class="ownerInfoBaseLabel">座机</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgCallId">{{ownerCall}}</label>
                 </div>
-                <div class="ownerInfoBaseDiv">
+                <div class="ownerInfoBaseDiv" v-show = 'ownerMail && ownerMail.length != 0'>
                     <label class="ownerInfoBaseLabel">邮箱</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgMailId">{{ownerMail}}</label>
                 </div>
-                <div class="ownerInfoBaseDiv">
+                <div class="ownerInfoBaseDiv" v-show = 'ownerDepartment && ownerDepartment.length != 0'>
                     <label class="ownerInfoBaseLabel">部门</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgDepartId">{{ownerDepartment}}</label>
                 </div>
-                <div class="ownerInfoBaseDiv">
+                <div class="ownerInfoBaseDiv" v-show = 'ownerPosition && ownerPosition.length != 0'>
                     <label class="ownerInfoBaseLabel">职位</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgPositionId">{{ownerPosition}}</label>
                 </div>
@@ -67,60 +69,49 @@ export default {
     },
     watch: {
         updateOwnerInfo: async function() {
-            console.log("*** updateOwnerInfo ");
-            let ownerInfo = global.mxMatrixClientPeg.matrixClient.getUser(global.mxMatrixClientPeg.matrixClient.getUserId());
-            console.log("*** ownerInfo is ", ownerInfo);
-
-            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(ownerInfo.userId);
-            if(!profileInfo)
-                return;
+            this.ownerId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            let ownerInfo = global.mxMatrixClientPeg.matrixClient.getUser(this.ownerId);
+            this.ownerAccount = await ComponentUtil.GetDisplayName("", ownerInfo.userId);
+            this.ownerDisplayName = ownerInfo.displayName;
             var distImgElement = document.getElementById("ownerInfoImageId");
-            var avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            var avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(ownerInfo.avatarUrl);
             if(distImgElement && avatarTUrl) {
                 distImgElement.src = avatarTUrl;
             }
-            let department = await Department.GetDepartmentInfoByMatrixID(ownerInfo.userId);
-            console.log("*** department ", department);
+            let user = await ComponentUtil.ShowOrgInfoByMatrixID(this.ownerId)
+            this.ownerPhone = user.phone.mobile;
 
-            var email = await UserInfo.GetUserEmailByUserID(ownerInfo.userId);
-            console.log("*** email ", email);
-            if(email && email.length == 0) {
-                try{
-                    global.mxMatrixClientPeg.matrixClient.getThreePids()
-                        .then((ret) => {
-                            console.log("threepdis is ", ret);
-                            var threePids = ret.threepids;
-                            var emainObj = threePids.filter((a) => a.medium === 'email');
-                            var phoneObj = threePids.filter((a) => a.medium === 'msisdn');
-                            console.log("e,ainmlson ", emainObj)
-                            this.ownerMail = emainObj.length == 0 ? '--' : emainObj[0].address;
-                            this.ownerPhone = phoneObj.length == 0 ? "--" : phoneObj[0].address;
-                        })
-                }
-                catch(error) {
-                    console.log("get threed pids exception ", error)
-                }
-            }
-            //get phone
-            var phone = await UserInfo.GetUserPhoneByUserID(ownerInfo.userId);
-            console.log("*** phone ", phone);
+            let height = 290;
+            if(this.ownerPhone && this.ownerPhone.length != 0)  height += 40;
 
-            var user = await UserInfo.GetUserInfoByMatrixID(ownerInfo.userId);
-            this.ownerId = ownerInfo.userId;
-            this.ownerAccount = await ComponentUtil.GetDisplayName("", ownerInfo.userId);
-            this.ownerDisplayName = await ComponentUtil.GetDisplayNameByMatrixID(ownerInfo.userId);
-            this.ownerPosition = user.user_title;
-            this.ownerDepartment = department.display_name;
+            this.ownerCall = user.phone.telephone;
+            if(this.ownerCall && this.ownerCall.length != 0)  height += 40;
+
+            if(user.email && user.email.length != 0)
+                this.ownerMail = user.email[0].email_value;
+            if(this.ownerMail && this.ownerMail.length != 0)  height += 40;
+
+            this.ownerPosition = user.title;
+            if(this.ownerPosition && this.ownerPosition.length != 0)  height += 40;
+
+            this.ownerDepartment = user.department.display_name;
+            if(this.ownerDepartment && this.ownerDepartment.length != 0)  height += 40;
+
+            
+            height += 'px'
+            let windowElement = document.getElementById('ownerDlg');
+            windowElement.style.height = height;
             console.log("*** ownerPosition ", user);
+            
         }
     },
     data() {
         return {
-            ownerPhone: '--',
-            ownerPosition: '--',
-            ownerDepartment: '--',
-            ownerMail: '--',
-            ownerCall: '--',
+            ownerPhone: '',
+            ownerPosition: '',
+            ownerDepartment: '',
+            ownerMail: '',
+            ownerCall: '',
             ownerId: '',
             ownerAccount: '',
             ownerDisplayName: '',
@@ -130,7 +121,13 @@ export default {
         Close () {
             this.$emit("CloseownerInfo");
         },
-        changeDisplayName(e) {
+
+        created(){
+            
+        },
+
+        changeDisplayName(ownerDisplayName) {
+            console.log(ownerDisplayName)
             if(event.keyCode == 13) {
                 var distElement = document.getElementById('ownerInfoDisplayNameId');
                 var newName = distElement.innerHTML;
@@ -205,7 +202,7 @@ export default {
         margin: auto;
         padding: 0px 20px 20px 20px;
         width: 440px;
-        height: 490px;
+        height: 290px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
@@ -283,6 +280,14 @@ export default {
         border-radius: 50px;
         display: inline-block;
         margin: 0 14px 0 20px;
+        z-index: 1;
+        position:absolute; 
+    }
+    .personalCenter-cameraIcon{
+        position: absolute;
+        margin-left: 45px;
+        margin-top: 20px;
+        z-index: 2;
     }
 
     .ownerInfoImageChange {

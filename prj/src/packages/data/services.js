@@ -2064,6 +2064,41 @@ const common = {
     localStorage.setItem("mqttHost", this.config.mqttHost);
   },
 
+  async searchAllChat(search_key) {
+    var filterBody = {
+      field: "body",
+      operator: "co",
+      value: search_key,
+      logic: 0      
+    };
+    var filterType = {
+      field: "type",
+      operator: "co",
+      value: "CHAT",
+      logic: 0      
+    };
+    var body = {
+      limit: 3,
+      groups: [
+        {
+          filters: [
+            filterBody,
+            filterType
+          ],
+          field: 'room_id'
+        }
+      ]
+    }
+    let result = await this.api.searchAll(this.data.login.access_token, body);
+    console.log("*** services.js searchAllChat result ", result);
+    console.log("*** services.js searchAllChat result.ok ", result.ok);
+    console.log("*** services.js searchAllChat result.success ", result.success);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data.obj;
+  },
+
   async gmsDetector(tenant, host='') {
     if(host.endsWith("/")) {
       host = host.substring(0, host.length-1)
@@ -2383,6 +2418,7 @@ const common = {
     let item = result.data.obj;
     let contactModelValue = await servicemodels.ContactModel(item);
     await contactModelValue.save();
+    ipcRenderer.send("updateContact")
   },
 
   async GetAllContact(){

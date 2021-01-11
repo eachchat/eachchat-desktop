@@ -8,28 +8,6 @@
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
-                    <div class='grid-content'>组织</div>
-                    <li class="manager"
-                        v-for="department in searchDeparements"
-                        @click="searchDeparmentItemClicked(department.department_id)" 
-                        :key="department.department_id">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/organization-40px@2x.png">
-                        <div class="manager-info">
-                        <p v-html="msgContentHightLight(department.display_name)" class="contact-list-name">{{ department.display_name }}</p>
-                        <p v-html="msgContentHightLight(department.description)" class="contact-list-titile">{{ department.description }}</p>
-                        </div>
-                    </li>
-                    <div class='grid-content'>成员</div>
-                    <li class="manager"
-                        v-for="manager in searchUsers"
-                        @click="searchUserMenuItemClicked(manager.user_id)" 
-                        :key="manager.user_id">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
-                        <div class="contact-list-info">
-                        <p v-html="msgContentHightLight(manager.user_display_name)" class="contact-list-name">{{ manager.user_display_name }}</p>
-                        <p v-html="msgContentHightLight(manager.user_title)" class="contact-list-titile">{{ manager.user_title }}</p>
-                        </div>
-                    </li>
                     <div class='grid-content'>联系人</div>
                     <li class="manager"
                         v-for="contact in searchContacts"
@@ -41,16 +19,47 @@
                         <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ contact.title }}</p>
                         </div>
                     </li>
+                    <div class='grid-content'>组织</div>
+                    <li class="manager"
+                        v-for="manager in searchUsers"
+                        @click="searchUserMenuItemClicked(manager.user_id)" 
+                        :key="manager.user_id">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <div class="contact-list-info">
+                        <p v-html="msgContentHightLight(manager.user_display_name)" class="contact-list-name">{{ manager.user_display_name }}</p>
+                        <p v-html="msgContentHightLight(manager.user_title)" class="contact-list-titile">{{ manager.user_title }}</p>
+                        </div>
+                    </li>
+                    <div class='grid-content'>部门</div>
+                    <li class="manager"
+                        v-for="department in searchDeparements"
+                        @click="searchDeparmentItemClicked(department.department_id)" 
+                        :key="department.department_id">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/organization-40px@2x.png">
+                        <div class="manager-info">
+                        <p v-html="msgContentHightLight(department.display_name)" class="contact-list-name">{{ department.display_name }}</p>
+                        <p v-html="msgContentHightLight(department.description)" class="contact-list-titile">{{ department.description }}</p>
+                        </div>
+                    </li>
+                    
+                    
                 </ul>
             </div>
-            <div class="organization-view" v-show="!showSearchView">
+            <div v-show="!showSearchView">
                 <ul class="departments-list">
                     <li class="department"
-                        v-for="(department, index) in departments"
-                        @click="departmentMenuItemClicked(department)" 
-                        :key="index">
+                        @click="departmentMenuItemClicked(departmentMenu)">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
-                            <p class="department-name">{{ department.display_name }}</p>
+                            <p class="department-name">{{ departmentMenu.display_name }}</p>
+                        </div>
+                        <div align="center" class="item-arrow">
+                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                        </div>
+                    </li>
+                    <li class="department"
+                        @click="departmentMenuItemClicked(contactMenu)">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organizetion-contact@2x.png"><div class="department-info">
+                            <p class="department-name">{{ contactMenu.display_name }}</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -107,8 +116,8 @@ export default {
             }
         },
         searchKey: function(){
-            if(this.searchKey.length == 0);
-                this.showSearchView = false;
+            if(this.searchKey.length == 0) this.showSearchView = false;
+                
         }
     },
     data() {
@@ -135,8 +144,14 @@ export default {
             searchUserInfo:{},
             searchUserInfoKey: 0,
             searchUserInfoPosition:{},
-            contactType:"origanise",
-            contactListKey: 0
+            contactType:"organise",
+            contactListKey: 0,
+            departmentMenu:{
+                display_name: this.$t("organizeMenuName")
+            },
+            contactMenu:{
+                display_name: this.$t("contactMenuName")
+            }
             //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
@@ -163,38 +178,40 @@ export default {
             this.searchDeparements = await Department.SearchByNameKey(this.searchKey);
             this.searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
             this.searchContacts = await Contact.SearchByNameKey(this.searchKey);
-            if(this.searchDeparements.length!=0 || this.searchUsers.length != 0 || this.searchContacts.length != 0)
-                this.showSearchView = true;
+            //if(this.searchDeparements.length!=0 || this.searchUsers.length != 0 || this.searchContacts.length != 0)
+            this.showSearchView = true;
             this.$nextTick(function(){
-                var users = this.searchUsers;
-                for(var i = 0; i < this.searchUsers.length; i ++){
-                    this.getUserImg(this.searchUsers[i]);
-                }
+                this.searchContacts.forEach(item => {
+                    this.getUserImg(item, 'contact')
+                })
+
+                this.searchUsers.forEach(item => {
+                    this.getUserImg(item, 'organise')
+                })
             });
         },
         getSearchUserIconId(id){
             return 'search' + id;
         },
-        getUserImg: async function (userInfo){
+        getUserImg: async function (userInfo, type){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.user_id == undefined || userInfo == null) {
+            if(userInfo == null || userInfo.matrix_id == undefined) {
                 return "";
             }
-            var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.acatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.user_id));
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }else{
-                global.services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
-            }
+            global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id).then(profileInfo => {
+                if(!profileInfo.avatar_url) return;
+                let userIconElement;
+                if(type == 'contact')
+                    userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.matrix_id));
+                else 
+                    userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.user_id));
+                let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                if(userIconElement)
+                    userIconElement.setAttribute("src", validUrl);
+            }).catch(e => {
+                console.log("error: ",userInfo)
+                console.log(e)
+            });
         },
 
         searchDeparmentItemClicked: async function(id){
@@ -229,59 +246,11 @@ export default {
             var user;
             if(userType == 'contact')
             {
-                user = await Contact.GetContactInfo(id);
-                let userInfo = await UserInfo.GetUserInfoByMatrixID(id)
-                let department = {display_name:""};
-                if(userInfo)
-                    department = await Department.GetDepartmentInfoByUserID(userInfo.user_id);
-                tempUserInfo.department = department;
-                tempUserInfo.matrix_id = id;
-                tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, id);
-                tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
-                tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);
-                tempUserInfo.workDescription = ComponentUtil.ShowInfoContent(user.work_description);
-                tempUserInfo.email = [];
-                tempUserInfo.email.push({
-                    email_value: ComponentUtil.ShowInfoContent(user.email)
-                })
-                tempUserInfo.phone = {
-                    mobile: ComponentUtil.ShowInfoContent(user.telephone),
-                    work: ComponentUtil.ShowInfoContent(user.mobile)
-                };
+                tempUserInfo = await ComponentUtil.ShowContactInfo(id);
             }
             else
             {
-                user = await UserInfo.GetUserInfo(id);
-                tempUserInfo.matrix_id = user.matrix_id;
-                tempUserInfo.avatarTUrl = user.avatar_t_url;
-                tempUserInfo.displayName = user.user_display_name;
-                tempUserInfo.title = user.user_title;
-                tempUserInfo.statusDescription = user.status_description;
-                tempUserInfo.workDescription = user.work_description;
-                tempUserInfo.managerId = user.manager_id;
-                tempUserInfo.departmentId = user.belong_to_department_id;
-                
-                //get department
-                var department = await Department.GetDepartmentInfoByUserID(id);
-                tempUserInfo.department = department;
-                //get email
-                var email = await UserInfo.GetUserEmailByUserID(id);
-                tempUserInfo.email = email;
-                //get phone
-                var phone = await UserInfo.GetUserPhoneByUserID(id);
-                var tempPhone = {};
-                for (var i = 0; i < phone.length; i ++){
-                    var temp = phone[i];
-                    if(temp.phone_type == 'mobile'){
-                        tempPhone.mobile = temp.phone_value;
-                    }else{
-                        tempPhone.work = temp.phone_value;
-                    }
-                }
-                tempUserInfo.phone = tempPhone;
-
-                var leaders = await UserInfo.GetLeaders(id);
-                tempUserInfo.leaders = leaders;
+                tempUserInfo = await ComponentUtil.ShowOrgInfoByUserID(id);
             }
             this.searchUserInfo = tempUserInfo;
             this.searchUserInfoKey ++;
@@ -414,8 +383,8 @@ display: none;
 }
 .list-header {
     width: 100%;
-    //height: 56px;
-    line-height: 56px;
+    height: 56px;
+    //line-height: 56px;
     background-color: rgb(255, 255, 255);
     border: 0px;
     margin: 0px 0px 0px 0px;
@@ -425,9 +394,7 @@ display: none;
 * {
     -webkit-app-region: no-drag;
 }
-.organization-view{
-    margin-top: -13px;
-}
+
 .departments-list {
     width: 100%;
     height: 100%;
@@ -492,7 +459,7 @@ display: none;
 }
 .search-view{
     width: 100%;
-    height: 100%;
+    height: 90%;
     padding: 0;
     margin: 0;
     overflow: scroll;
