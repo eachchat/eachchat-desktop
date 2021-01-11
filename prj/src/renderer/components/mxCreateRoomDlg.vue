@@ -68,11 +68,11 @@
             </div>
             <div class="mxTransmitFotter" v-if="loading">
                 <div class="mxTransmitConfirmButtonDisable">确认</div>
-                <div class="mxTransmitCancleButton" @click.self.stop="close">取消</div>
+                <div class="mxTransmitCancleButton" @click.self.stop="preStep">上一步</div>
             </div>
             <div class="mxTransmitFotter" v-else>
                 <div class="mxTransmitConfirmButton" @click.self.stop="confirm">确认</div>
-                <div class="mxTransmitCancleButton" @click.self.stop="close">取消</div>
+                <div class="mxTransmitCancleButton" @click.self.stop="preStep">上一步</div>
             </div>
         </div>
     </div>
@@ -104,6 +104,9 @@ export default {
         }
     },
     methods: {
+        preStep() {
+            this.$emit('preStep');
+        },
         ssr() {
             this.isPublic = 'n';
         },

@@ -47,6 +47,7 @@
             v-if="mxCreateRoomOpen" 
             @close="mxCreateRoom"
             :mxInvite="mxInvite"
+            @preStep="preStep"
         >
         </mxCreateRoomDlg>
         <mxSquareDlg 
@@ -120,6 +121,10 @@ export default {
         }
     },
     methods: {
+        preStep() {
+            this.mxCreateRoomOpen = false;
+            this.mxXxrOpen = true;
+        },
         openMxXxr() {
             this.mxXxrOpen = true;
         },
