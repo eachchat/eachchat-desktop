@@ -1724,8 +1724,10 @@ export default {
     height: 48px;
     padding-top: 0px;
     padding-bottom: 0px;
-    padding-left: 16px;
-    padding-right: 16px;
+    margin-left: 16px;
+    margin-right: 16px;
+    border-bottom: 1px solid #EEEEEE;
+    box-sizing: border-box;
 }
 
 .groupSettingSlienceLabel {
@@ -1780,8 +1782,10 @@ export default {
     height: 48px;
     padding-top: 0px;
     padding-bottom: 0px;
-    padding-left: 16px;
-    padding-right: 16px;
+    margin-left: 16px;
+    margin-right: 16px;
+    border-bottom: 1px solid #EEEEEE;
+    box-sizing: border-box;
 }
 
 .groupSettingFavouriteLabel {
