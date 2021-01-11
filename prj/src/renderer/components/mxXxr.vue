@@ -149,6 +149,7 @@ import { mapState, mapActions } from 'vuex';
 import * as Rooms from "../../packages/data/Rooms";
 import * as RoomUtil from '../script/room-util';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
+import {ComponentUtil} from '../script/component-util';
 let gtn = 0;
 let gChoosenMembers = [];
 const OPTS = {
@@ -165,6 +166,10 @@ export default {
             type: Object,
             default: undefined
         },
+        creDir: {
+            type: Boolean,
+            default: false 
+        }
     },
     data() {
         return {
@@ -189,7 +194,7 @@ export default {
     },
     timer: null,
     methods: {
-        createXie() {
+        async createXie() {
             // if (this.loading) return;
             // this.loading = true;
             // if (this.roomInfo) { //走创建
@@ -230,10 +235,37 @@ export default {
             const client = window.mxMatrixClientPeg.matrixClient;
             const selfId = client.getUserId();
             let invite = [];
+            if (this.loading) return;
+            this.loading = true;
             this.choosenMembers.map(c => {
                 if (c.id && c.id !== selfId) invite.push(c);
             })
-            this.$emit('close', {invite});      
+            if (this.creDir) {
+                let createOpts = {};
+                createOpts.invite = invite.map(m => m.id);
+                const dspName = await ComponentUtil.GetDisplayNameByMatrixID(selfId);
+                let name = dspName + ',';
+                for(let i = 0; i<2; i++) {
+                    let end = ', ';
+                    if (invite.length === 1) {
+                        end = ''
+                    } else if (i === 1){
+                        end = '...'
+                    }
+                    if (invite[i]) name = name + invite[i].name + end;
+                }
+                createOpts.name = name;
+                console.log('----post createOpts----', createOpts)
+                return client.createRoom(createOpts).then((res) => {
+                    this.$emit('close', 'closeRight');
+                    this.loading = false;
+                }).catch((e)=>{
+                    console.log('???', e)
+                    this.loading = false;
+                })
+            } else {
+                return this.$emit('close', {invite});     
+            }     
         },
         mxTreeWalk(obj) {
             // console.log('-----mxTreeWalk----', obj)

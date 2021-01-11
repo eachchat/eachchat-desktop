@@ -57,8 +57,12 @@
                 <span class="secretTypeAutoLabel">自动</span>
             </div>
         </div>
+        <div v-if="isDm" class="groupSettingSilenceDiv qsz" @click.stop="changeMxXxr()">
+            <label class="groupSettingFavouriteLabelA">创建群聊</label>
+            <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
+        </div>
         <div v-if="!isDm && showGroupInfo.userLevel>=100" class="groupSettingSilenceDiv qsz" @click.stop="openSetting()">
-            <label style="font-size:14px">群聊设置</label>
+            <label class="groupSettingFavouriteLabelA">群聊设置</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
         <!-- <div class="groupSettingSilenceDiv" v-if="isDm && showGroupInfo.userLevel >= showGroupInfo.totalLevels.canEncryption">
@@ -205,12 +209,12 @@
             :roomId="showGroupInfo.groupId"
         >
         </mxMemberSelectDlg> -->
-        <!-- <mxXxr 
-            v-if="mxSelectMemberOpen" 
-            @close="mxSelectMember"
-            :roomId="showGroupInfo.groupId"
+        <mxXxr 
+            v-if="mxXxrOpen" 
+            @close="changeMxXxr"
+            :creDir="isDm"
         >
-        </mxXxr> -->
+        </mxXxr>
         <mxDmDlg
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
@@ -292,6 +296,7 @@ export default {
             memberFilter: '',
             mxAvatar: '',
             mxRoom: {},
+            mxXxrOpen: false
         }
     },
     components: {
@@ -401,6 +406,10 @@ export default {
         },
         mxAddMember() {
             this.mxSelectMemberOpen = true;
+        },
+        changeMxXxr(closeRight) {
+            this.mxXxrOpen = !this.mxXxrOpen;   
+            if (closeRight) this.$emit('closeGroupInfo');         
         },
         closeEncryWarn(mxEncryption) {
             this.encryptionWarning = false;
@@ -1779,6 +1788,17 @@ export default {
     height: 48px;
     line-height: 48px;
     width: calc(100% - 68px);
+    font-size: 14px;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: rgba(51, 51, 51, 1);
+}
+
+.groupSettingFavouriteLabelA {
+    height: 48px;
+    line-height: 48px;
+    // width: calc(100% - 68px);
     font-size: 14px;
     font-family: PingFangSC-Regular;
     font-weight: 400;

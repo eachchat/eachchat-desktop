@@ -153,7 +153,7 @@ export default {
                 let name = dspName + ',';
                 for(let i = 0; i<2; i++) {
                     let end = ', ';
-                    if (this.mxInvite[i].length === 1) {
+                    if (this.mxInvite.length === 1) {
                         end = ''
                     } else if (i === 1){
                         end = '...'
