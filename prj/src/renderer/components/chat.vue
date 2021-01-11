@@ -2288,7 +2288,7 @@ export default {
             idsList = Object.keys(this.chat.currentState.members);
             console.log('isOwner!!!!!!', isOwner);
             const topicEvent = this.chat.currentState.getStateEvents("m.room.topic", "");
-            const topic = topicEvent && topicEvent.getContent() ? topicEvent.getContent()['topic'] : '暂无描述';
+            const topic = topicEvent && topicEvent.getContent() ? topicEvent.getContent()['topic'] : '';
 
             const nameEvent = this.chat.currentState.getStateEvents('m.room.name', '');
             const name = nameEvent && nameEvent.getContent() ? nameEvent.getContent()['name'] : '';
