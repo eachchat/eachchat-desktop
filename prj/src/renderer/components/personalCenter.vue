@@ -7,7 +7,7 @@
             </div>
             <div class="personalCenter-baseInfo">
                 <span>
-                    <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" @change="displayNameChange()" placeholder="请输入昵称">
+                    <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" required maxLength = 32 @change="displayNameChange()" placeholder="请输入昵称">
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
                 </span>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>

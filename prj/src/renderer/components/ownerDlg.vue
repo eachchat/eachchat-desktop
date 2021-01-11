@@ -16,7 +16,8 @@
                 </div>
                 <div class="ownerDisplayInfoBaseDiv">
                     <label class="ownerInfoBaseLabel">昵称</label>
-                    <input required type = 'text' class="ownerDisplayInfoBaseLabel2" id="ownerInfoDisplayNameId" v-model = "ownerDisplayName" maxLength = 16 placeholder="请输入昵称" @change="displayNameChange()">
+                    <input required type = 'text' class="ownerDisplayInfoBaseLabel2" id="ownerInfoDisplayNameId" v-model = "ownerDisplayName" maxLength = 32
+                    placeholder="请输入昵称" @change="displayNameChange()">
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
                 </div>
                 <div class="ownerInfoBaseDiv">
