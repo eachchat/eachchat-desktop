@@ -1,6 +1,6 @@
 <template>
     <div class="wrap-layer" @click.self.stop="close">
-        <div class="mx-create-room-dialog" v-if="matrixSync">
+        <div :class="{mxCreateRoomDialog:(isPublic == 'y'), mxCreateRoomDialog2:(isPublic != 'y')}" v-if="matrixSync">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">发起群聊</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close">
@@ -395,7 +395,7 @@ export default {
         z-index:3;
     }
 
-    .mx-create-room-dialog {
+    .mxCreateRoomDialog {
         position: absolute;
         width: 440px;  
         height: 366px;
@@ -404,6 +404,19 @@ export default {
         top: 50%;
         left: 50%;
         margin-top: -183px;
+        margin-left: -220px;
+        border-radius: 4px;
+    }
+
+    .mxCreateRoomDialog2 {
+        position: absolute;
+        width: 440px;   
+        height: 294px;
+        display: block;
+        background: #FFFFFF;
+        top: 50%;
+        left: 50%;
+        margin-top: -147px;
         margin-left: -220px;
         border-radius: 4px;
     }
