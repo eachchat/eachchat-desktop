@@ -1499,12 +1499,19 @@ export default {
 }
 
 .chat-name {
+    color: #000000;
     display: inline-block;
-    width: 100px;
     font-size: 12px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    width: 132px;
+    height: 22px;
+    font-size: 15px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: #000000;
+    line-height: 22px;
 }
 
 .chat-desc {
@@ -1512,6 +1519,12 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    height: 18px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #999999;
+    line-height: 18px;
 }
 
 .groupInfoNameEdit {
