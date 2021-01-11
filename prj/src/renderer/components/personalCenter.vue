@@ -7,7 +7,7 @@
             </div>
             <div class="personalCenter-baseInfo">
                 <span>
-                    <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" @change="displayNameChange()" placeholder="输入昵称...">
+                    <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" @change="displayNameChange()" placeholder="请输入昵称">
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
                 </span>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
@@ -79,6 +79,7 @@ export default {
 
     methods: {
         displayNameChange(){
+            if(this.displayName.length == 0) return;
             global.mxMatrixClientPeg.matrixClient.setDisplayName(this.displayName)
         },
         personalCenterIconClicked(){
@@ -391,7 +392,7 @@ export default {
     
 }
 .personalCenter-name {
-    width: 80px;
+    width: 100px;
     height: 22px;
     font-size: 15px;
     font-family: PingFangSC-Medium, PingFang SC;

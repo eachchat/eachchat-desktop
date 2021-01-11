@@ -16,7 +16,7 @@
                 </div>
                 <div class="ownerDisplayInfoBaseDiv">
                     <label class="ownerInfoBaseLabel">昵称</label>
-                    <label class="ownerDisplayInfoBaseLabel2" contenteditable="true" spellcheck="false" id="ownerInfoDisplayNameId" @change="changeDisplayName">{{ownerDisplayName}}</label>
+                    <input required type = 'text' class="ownerDisplayInfoBaseLabel2" id="ownerInfoDisplayNameId" v-model = "ownerDisplayName" maxLength = 16 placeholder="请输入昵称" @change="displayNameChange()">
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
                 </div>
                 <div class="ownerInfoBaseDiv">
@@ -102,7 +102,6 @@ export default {
             let windowElement = document.getElementById('ownerDlg');
             windowElement.style.height = height;
             console.log("*** ownerPosition ", user);
-            
         }
     },
     data() {
@@ -118,16 +117,25 @@ export default {
         }
     },
     methods: {
+        autoSetInputWidth(){
+            let inputElement = document.getElementById('ownerInfoDisplayNameId');
+            inputElement.style.width = height;
+            console.log("*** ownerPosition ", user);
+
+            console.log(this.ownerDisplayName)
+        },
+
+        displayNameChange(){
+            if(this.ownerDisplayName.length == 0) return;
+            global.mxMatrixClientPeg.matrixClient.setDisplayName(this.ownerDisplayName);
+        },
+
         Close () {
             this.$emit("CloseownerInfo");
         },
 
-        created(){
-            
-        },
-
-        changeDisplayName(ownerDisplayName) {
-            console.log(ownerDisplayName)
+        changeDisplayName(event) {
+            console.log(event)
             if(event.keyCode == 13) {
                 var distElement = document.getElementById('ownerInfoDisplayNameId');
                 var newName = distElement.innerHTML;
@@ -319,51 +327,24 @@ export default {
         height: 40px;
 
         .ownerDisplayInfoBaseLabel2 {
-            width: 60px;
-            height: 40px;
+            width: 100px;
+            height: 20px;
             color: rgba(0, 0, 0, 1);
             font-size: 14px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
-            line-height: 40px;
+            line-height: 20px;
             vertical-align: top;
             white-space: nowrap;
             text-overflow: ellipsis;
-            margin: 0 0 0 20px;
+            margin: 10px 0 0 20px;
+            border: 0;
         }
 
         .ownerInfoEditIcon {
             width: 20px;
             height: 20px;
             margin: 10px 0 10px 0;
-            display: none;
-        }
-    }
-
-    .ownerDisplayInfoBaseDiv:hover {
-        width: 100%;
-        height: 40px;
-
-        .ownerDisplayInfoBaseLabel2 {
-            width: 60px;
-            height: 40px;
-            color: rgba(0, 0, 0, 1);
-            font-size: 14px;
-            font-family: PingFangSC-Regular;
-            font-weight: 400;
-            line-height: 40px;
-            vertical-align: top;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            margin: 0 0 0 20px;
-            border: 0px solid rgba(153, 153, 153, 1);
-        }
-
-        .ownerInfoEditIcon {
-            width: 20px;
-            height: 20px;
-            margin: 10px 0 10px 0;
-            display: inline-block;
         }
     }
 
