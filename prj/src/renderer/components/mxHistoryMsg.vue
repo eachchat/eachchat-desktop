@@ -30,7 +30,7 @@
                             <img class="mx-file-image" :id="getMxImgId(item)" style="vertical-align:middle" :src="getMsgFileIcon(item)">
                             <div class="mx-file-info">
                                 <p class="mx-file-name" v-html="msgContentHeightLight(item)"></p>
-                                <p class="mx-file-size">{{getFileNumber(item.getContent().info.size)}}</p>
+                                <p class="mx-file-size">{{getFileNumber(item.content.info.size)}}</p>
                             </div>
                         </div>
                         <div class="MxmessageVoice" v-else-if="MsgIsVoice(item)">
@@ -69,20 +69,37 @@ export default {
             groupId: '',
             showEmpty: true,
             searchEmpty: false,
-            ret: {},
+            ret: [],
+            total: 0,
+            sequenceId: 0,
+            isMatrixSearch: false,
+            canBackPaginate: true,
+            isRefreshing: false,
+            lastRefreshTime: 0
         }
     },  
     computed: {
         messageListShow: {
             get: function() {
                 var searchResult = [];
-                if(this.ret.results == undefined) {
+                if(this.ret == undefined) {
+                    console.log("*** return []");
                     return searchResult;
                 }
-                for(let i=0;i<this.ret.results.length;i++) {
-                    var timeLine = this.ret.results[i].context.getTimeline()[this.ret.results[i].context.getOurEventIndex()];
+                if(this.isMatrixSearch) {
+                    for(let i=0;i<this.ret.results.length;i++) {
+                        var timeLine = this.ret.results[i].context.getTimeline()[this.ret.results[i].context.getOurEventIndex()];
 
-                    searchResult.push(timeLine);
+                        searchResult.push(timeLine);
+                    }
+                }
+                else {
+                    console.log("*** this.ret.length ", this.ret.length);
+                    for(let i=0;i<this.ret.length;i++) {
+                        var timeLine = this.ret[i].event;
+
+                        searchResult.push(timeLine);
+                    }
                 }
                 return searchResult;
             }
@@ -96,7 +113,7 @@ export default {
             return getFileSizeByNumber(nSize);
         },
         getMsgFileIcon: function(item) {
-            var content = item.getContent();
+            var content = item.content;
             if(content.body != undefined) {
                 let ext = path.extname(content.body);
                 // console.log("getmsgfileicon ext is ", ext);
@@ -112,7 +129,8 @@ export default {
             return iconPath;
         },
         MsgIsImage: function(curItem) {
-            let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
+            // let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
+            let chatGroupMsgType = curItem.content.msgtype;
             if(chatGroupMsgType == 'm.image'){
                 return true;
             }
@@ -124,7 +142,8 @@ export default {
             }
         },
         MsgIsFile: function(curItem) {
-            let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
+            // let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
+            let chatGroupMsgType = curItem.content.msgtype;
             if(chatGroupMsgType == 'm.file'){
                 return true;
             }
@@ -136,7 +155,8 @@ export default {
             }
         },
         MsgIsVoice: function(curItem) {
-            let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
+            // let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
+            let chatGroupMsgType = curItem.content.msgtype;
             if(chatGroupMsgType == 'm.audio'){
                 return true;
             }
@@ -147,14 +167,17 @@ export default {
                 return false;
             }
         },
-        getMxImgId: function(curItem) {
-            return "MxHistoryImg-" + curItem.event.event_id;
+        getMxImgId: function(curTimeline) {
+            var distId = curTimeline.event ? curTimeline.event.event_id : curTimeline.event_id;
+            return "MxHistoryImg-" + distId;
         },
         getUserNameId: function(curTimeline) {
-            return "MxHistoryMsgListName-" + curTimeline.event.event_id;
+            var distId = curTimeline.event ? curTimeline.event.event_id : curTimeline.event_id;
+            return "MxHistoryMsgListName-" + distId;
         },
         getUserHeadImageId: function(curTimeline) {
-            return "MxHistoryMsgListImg-" + curTimeline.event.event_id;
+            var distId = curTimeline.event ? curTimeline.event.event_id : curTimeline.event_id;
+            return "MxHistoryMsgListImg-" + distId;
         },
         checkGetUserHedImageId: function(id) {
             return "MxHistoryMsgListImg-" + id;
@@ -190,14 +213,20 @@ export default {
 
             // this.$store.commit("setUserId", this.curUserInfo.id)
             this.showGroupInfo();
-            this.updatePage();
+            if(this.initSearchKey.length != 0) {
+                this.searchKey = this.initSearchKey;
+                this.search();
+            }
+            else {
+                this.updatePage();
+            }
         },
         // Get formate message time
         MsgTime(curMsg) {
             if(curMsg === null) {
                 return "";
             }
-            var secondsTime = Number(curMsg.event.origin_server_ts);
+            var secondsTime = Number(curMsg.event ? curMsg.event.origin_server_ts : curMsg.origin_server_ts);
             let curDate = new Date();
             let curDateSecond = curDate.getTime();
             let cutTime = curDateSecond - secondsTime;
@@ -244,12 +273,13 @@ export default {
             return environment.os.isWindows;
         },
         showResultInfo: async function() {
+            console.log("*** showresultinfo is ", this.messageListShow.length);
             for(let i=0;i<this.messageListShow.length;i++) {
                 var curItem = this.messageListShow[i];
                 var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
                 var distUserNameElement = document.getElementById(this.getUserNameId(curItem));
 
-                var sender = global.mxMatrixClientPeg.matrixClient.getUser(curItem.event.sender);
+                var sender = global.mxMatrixClientPeg.matrixClient.getUser(curItem.sender);
                 // console.log("============ sender ", sender)
                 
                 var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, null, null);
@@ -258,8 +288,8 @@ export default {
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
                     distUserImgElement.setAttribute("src", userUrl);
                 }
-                if(curItem.getContent().msgtype == "m.image") {
-                    var chatGroupMsgContent = curItem.getContent();
+                if(curItem.content.msgtype == "m.image") {
+                    var chatGroupMsgContent = curItem.content;
                     let maxSize = 260;
                     let info = {
                         w: maxSize,
@@ -335,14 +365,18 @@ export default {
                 groupNameElement.innerHTML = this.GroupInfo.name;
             }
         },
+        matrixSearch: async function() {
+            return eventSearch(this.searchKey, this.GroupInfo.roomId);
+        },
+        appSearch: function() {
+            return global.services.common.searchChatMsg(this.searchKey, this.distRoomId, 15, 1, this.sequenceId)
+        },
         search: function() {
             // console.log("this.searchKeylneth ", this.searchKey.length);
             if(this.searchKey.length == 0) {
-                this.ret = []
                 console.log("this.messagelsitshow is ", this.messageListShow)
+                this.toInit();
                 this.showResultInfo();
-                this.showEmpty = true;
-                this.searchEmpty = false;
                 return
             }
             var curSearchId = new Date().getTime();
@@ -352,27 +386,31 @@ export default {
                 "searchList": []
             };
             this.searchId = curSearchId;
-            eventSearch(this.searchKey, this.GroupInfo.roomId)
+            
+            // eventSearch(this.searchKey, this.GroupInfo.roomId)
+            // this.matrixSearch()
+            this.appSearch()
                 .then((ret) => {
-                    console.log("search ret is ", ret);
                     if(ret.results == undefined) {
-                        this.ret = []
+                        this.toInit();
                         // console.log("this.messagelsitshow is ", this.messageListShow)
                         this.showResultInfo();
-                        this.showEmpty = true;
-                        this.searchEmpty = false;
                     }
                     else {
                         this.showEmpty = false;
                         if(searchResult.id == this.searchId) {
-                            this.ret = ret;
-                            console.log("***ret is ", ret);
-                            if(this.ret.results.length == 0) {
+                            this.ret = ret.results;
+                            console.log("***ret is ", ret.results);
+                            if(this.ret.length == 0) {
                                 this.searchEmpty = true;
                             }
                             else {
                                 this.searchEmpty = false;
                             }
+                            this.total = ret.total;
+                            console.log("*** ret.length ", this.ret.length);
+                            this.sequenceId = this.ret.length;
+                            console.log("*** this.sequenceId ", this.sequenceId);
                             setTimeout(() => {
                                 this.$nextTick(() => {
                                     this.showResultInfo();
@@ -382,30 +420,75 @@ export default {
                             }, 0)
                         }
                     }
+                    
                 })
         },
         handleScroll: function() {
             let uldiv = document.getElementById("MxHistoryMsg-list-Id");
             let client = document.getElementById("MxHistoryMsgDlgContentId");
             if(uldiv) {
-                if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
-                    console.log("=======wo bottom");
-                    if(this.ret.next_batch) {
-                        searchPagination(this.ret)
-                            .then((ret) => {
-                                this.ret = ret;
-                                setTimeout(() => {
-                                    this.$nextTick(() => {
-                                        this.showResultInfo();
+                var curTime = new Date().getTime();
+                if(!this.canBackPaginate) {
+                    this.isRefreshing = false;
+                    return;
+                }
+                if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing) {
+                    if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
+                        console.log("=======wo bottom");
+                        this.isRefreshing = true;
+                        this.lastRefreshTime = new Date().getTime();
+                        if(this.isMatrixSearch) {
+                            if(this.ret.next_batch) {
+                                searchPagination(this.ret)
+                                    .then((ret) => {
+                                        this.ret = ret;
+                                        setTimeout(() => {
+                                            this.$nextTick(() => {
+                                                this.showResultInfo();
+                                            })
+                                        }, 0)
+                                        
+                                        this.isRefreshing = false;
                                     })
-                                }, 0)
-                            })
+                            }
+                        }
+                        else {
+                            this.appSearch()
+                                .then((ret) => {
+                                    console.log("*** ret.length ", ret.results);
+                                    console.log("*** this.messageListShow.length ", this.messageListShow.length);
+                                    this.sequenceId = ret.results.length + this.messageListShow.length;
+                                    console.log("*** this.sequenceId ", this.sequenceId);
+                                    if(this.sequenceId >= ret.total) {
+                                        this.canBackPaginate = false;
+                                    }
+                                    this.ret = this.ret.concat(ret.results);
+                                    setTimeout(() => {
+                                        this.$nextTick(() => {
+                                            this.showResultInfo();
+                                        })
+                                        this.isRefreshing = false;
+                                    }, 0)
+                                })
+                        }
                     }
                 }
             }
         },
+        toInit() {
+            this.searchKey = "";
+            this.ret = [];
+            this.initSearchKey = "";
+            this.isRefreshing = false;
+            this.canBackPaginate = true;
+            this.sequenceId = 0;
+            this.showEmpty = true;
+            this.total = 0;
+            this.searchEmpty = false;
+        },
         msgContentHeightLight: function(curMsg) {
-            var showContent = curMsg.getContent();
+            // var showContent = curMsg.getContent();
+            var showContent = curMsg.content;
             // showContent = showContent + ' ';
             if(this.searchKey.length == 0) {
                 return showContent
@@ -472,7 +555,7 @@ export default {
             else{
                 this.showEmpty = false;
             }
-            this.showResultInfo(this.GroupInfo);
+            this.showResultInfo();
         },
         updateUserImage(e, args) {
             console.log("updateUserImage ", args);
@@ -498,13 +581,16 @@ export default {
         distRoomId: {
             type: String,
             default: ''
+        },
+        initSearchKey: {
+            type: String,
+            default: ''
         }
     },
     watch: {
         distRoomId: async function() {
             if(this.distRoomId == "") {
-                this.searchKey = "";
-                this.ret.results = [];
+                this.toInit();
                 return;
             }
             this.groupId = this.distRoomId;

@@ -2090,13 +2090,52 @@ const common = {
       ]
     }
     let result = await this.api.searchAll(this.data.login.access_token, body);
+    // console.log("*** services.js searchAllChat result ", result);
+    // console.log("*** services.js searchAllChat result.ok ", result.ok);
+    // console.log("*** services.js searchAllChat result.success ", result.success);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data.obj;
+  },
+
+  async searchChatMsg(search_key, room_id, perNum, fOrb, sequenceId) {
+    var filterBody = {
+      field: "body",
+      operator: "co",
+      value: search_key,
+      logic: 0      
+    };
+    var filterRoom = {
+      field: "room_id",
+      operator: "co",
+      value: room_id,
+      logic: 0      
+    };
+    var filterType = {
+      field: "type",
+      operator: "co",
+      value: "CHAT",
+      logic: 0      
+    };
+    var body = {
+      filters: [
+        filterBody,
+        filterType,
+        filterRoom
+      ],
+      perPage: perNum,
+      sortOrder: fOrb,
+      sequenceId: sequenceId
+    }
+    let result = await this.api.searchChat(this.data.login.access_token, body);
     console.log("*** services.js searchAllChat result ", result);
     console.log("*** services.js searchAllChat result.ok ", result.ok);
     console.log("*** services.js searchAllChat result.success ", result.success);
     if (!result.ok || !result.success) {
       return false;
     }
-    return result.data.obj;
+    return result.data;
   },
 
   async gmsDetector(tenant, host='') {
