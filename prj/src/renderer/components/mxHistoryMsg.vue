@@ -107,7 +107,7 @@ export default {
     },
     methods: {
         ShowFile: function(item) {
-            this.$emit('jumpToEvent', item.event.event_id);
+            this.$emit('jumpToEvent', item.event_id);
         },
         getFileNumber: function(nSize) {
             return getFileSizeByNumber(nSize);
@@ -478,7 +478,6 @@ export default {
         toInit() {
             this.searchKey = "";
             this.ret = [];
-            this.initSearchKey = "";
             this.isRefreshing = false;
             this.canBackPaginate = true;
             this.sequenceId = 0;

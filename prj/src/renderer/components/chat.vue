@@ -1,6 +1,6 @@
 <template>
     <div class="chat-page">
-        <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
+        <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" :initSearchKey="initSearchKey" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
         <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="chat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
         <div class="chat-title">
             <div class="chatInfo">
@@ -490,7 +490,11 @@ export default {
             chatElement.style.backgroundColor = "rgba(241, 241, 241, 1)";
             this.$emit("isSearching", false);
             this.isSerach = false;
-            this.HistorySearchRoomId = "";
+            console.log("*** close search page this.messageList ", this.messageListShow);
+            if(this.searchKeyFromList.length != 0) {
+                this.HistorySearchRoomId = "";
+                this.initMessage();
+            }
         },
         showFileList: function() {
             // ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
@@ -2401,6 +2405,10 @@ export default {
                 this.messageList = this._getEvents();
                 setTimeout(() => {
                     this.$nextTick(() => {
+                        let uldiv = document.getElementById("message-show-list");
+                        if(uldiv.clientHeight < uldiv.offsetHeight) {
+                            this.handleScroll();
+                        }
                         this.scrollToDistMsg(eventId);
                         div.addEventListener('scroll', this.handleScroll);
                     })
@@ -2750,6 +2758,55 @@ export default {
                     }
                 }
             }
+        },
+        initMessage: function() {
+            global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
+            global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
+            if(this.chat.getMyMembership() == "invite") {
+                this.isRefreshing = false;
+                this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
+                this.isInvite = true;
+            }
+            else {
+                this._loadTimeline(undefined, undefined, undefined)
+                    .then((ret) => {
+                        this.isRefreshing = false;
+                        this.messageList = this._getEvents();
+                        
+                        console.log("*** ***");
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                this.needToBottom = true;
+
+                                let uldiv = document.getElementById("message-show-list");
+                                if(uldiv.clientHeight < uldiv.offsetHeight) {
+                                    this.handleScroll();
+                                }
+                                
+                                let div = document.getElementById("message-show-list");
+                                if(div) {
+                                    div.scrollTop = div.scrollHeight;
+                                    div.addEventListener('scroll', this.handleScroll);
+                                    this.showScrollBar();
+                                }
+                            })
+                        }, 100)
+                    })
+            }
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
+            this.needScrollTop = true;
+            this.needScrollBottom = true;
+            this.existingMsgId = [];
+            this.showGroupName(this.chat);
+            if(this.editor == undefined) {
+                this.editor = this.$refs.chatQuillEditor.quill;
+            }
+            var content = this.$store.getters.getDraft(this.chat.roomId);
+            this.editor.setContents(content);
+            this.editor.setSelection(this.content.length + 1);
+            setTimeout(() => {
+                this.showGroupName(this.chat);
+            }, 1000);
         }
     },
     data() {
@@ -2890,7 +2947,8 @@ export default {
             mxChat: false,
             services: null,
             mxSelectMemberOpen: false,
-            isDm: false
+            isDm: false,
+            initSearchKey: '',
         }
     },
     mounted: function() {
@@ -2938,63 +2996,50 @@ export default {
             }
         }
     },
-    props: ['chat', 'newMsg', 'toBottom'],
+    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList'],
     watch: {
         chat: function() {
             if(this.chat == null) {
                 return;
             }
-            this.inviterInfo = undefined;
-            this.isInvite = false;
-            this.isJumpPage = false;
-            this.curGroupId = this.chat.roomId;
-            this.CloseSearchPage();
-            this.CloseFileListPage();
-            this.multiToolsClose();
-            console.log("chat ============", this.chat);
-            console.log("this.curGroupId is ", this.curGroupId);
-            
-            global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
-            global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
-            if(this.chat.getMyMembership() == "invite") {
-                this.isRefreshing = false;
-                this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
-                this.isInvite = true;
+            if(this.searchKeyFromList != '') {
+                this.inviterInfo = undefined;
+                this.isInvite = false;
+                this.isJumpPage = false;
+                this.curGroupId = this.chat.roomId;
+                this.CloseSearchPage();
+                this.CloseFileListPage();
+                this.multiToolsClose();
+                this.needScrollTop = true;
+                this.needScrollBottom = true;
+                this.existingMsgId = [];
+                this.showGroupName(this.chat);
+                if(this.editor == undefined) {
+                    this.editor = this.$refs.chatQuillEditor.quill;
+                }
+                var content = this.$store.getters.getDraft(this.chat.roomId);
+                this.editor.setContents(content);
+                this.editor.setSelection(this.content.length + 1);
+                setTimeout(() => {
+                    this.showGroupName(this.chat);
+                }, 1000);
+                this.initSearchKey = this.searchKeyFromList;
+                this.showHistoryMsgList();
             }
             else {
-                this._loadTimeline(undefined, undefined, undefined)
-                    .then((ret) => {
-                        this.isRefreshing = false;
-                        this.messageList = this._getEvents();
-                        
-                        setTimeout(() => {
-                            this.$nextTick(() => {
-                                this.needToBottom = true;
-                                
-                                let div = document.getElementById("message-show-list");
-                                if(div) {
-                                    div.scrollTop = div.scrollHeight;
-                                    div.addEventListener('scroll', this.handleScroll);
-                                    this.showScrollBar();
-                                }
-                            })
-                        }, 100)
-                    })
+                this.initSearchKey = '';
+                this.inviterInfo = undefined;
+                this.isInvite = false;
+                this.isJumpPage = false;
+                this.curGroupId = this.chat.roomId;
+                this.CloseSearchPage();
+                this.CloseFileListPage();
+                this.multiToolsClose();
+                console.log("chat ============", this.chat);
+                console.log("this.curGroupId is ", this.curGroupId);
+                
+                this.initMessage();
             }
-            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
-            this.needScrollTop = true;
-            this.needScrollBottom = true;
-            this.existingMsgId = [];
-            this.showGroupName(this.chat);
-            if(this.editor == undefined) {
-                this.editor = this.$refs.chatQuillEditor.quill;
-            }
-            var content = this.$store.getters.getDraft(this.chat.roomId);
-            this.editor.setContents(content);
-            this.editor.setSelection(this.content.length + 1);
-            setTimeout(() => {
-                this.showGroupName(this.chat);
-            }, 1000);
         },
         toBottom: function() {
             if(this.toBottom == true) {
@@ -3009,7 +3054,7 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
-        }
+        },
     }
 }
 </script>
