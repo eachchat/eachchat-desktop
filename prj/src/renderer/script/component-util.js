@@ -1,6 +1,24 @@
 
 import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
 
+function Appendzero(o_num) {
+    if(o_num < 10) return "0" + "" + o_num;
+    else return o_num;
+}
+
+function getWeekDay(day){
+    let week = {
+        0:"星期日",
+        1:"星期一",
+        2:"星期二",
+        3:"星期三",
+        4:"星期四",
+        5:"星期五",
+        6:"星期六", 
+    };
+    return week[day];
+}
+
 const ComponentUtil = {
     GetDisplayName(displayName, userid){
         if(displayName == '' && userid)
@@ -141,6 +159,46 @@ const ComponentUtil = {
         return contactInfo
         
     },
+
+    formatTimeFilter(secondsTime) {
+        let now = new Date();
+        let curDateSecond = now.getTime();
+        let cutTime = curDateSecond - secondsTime;
+        let curYeat = now.getUTCFullYear();
+        let curMonth = now.getUTCMonth() + 1;
+        let curDate = now.getDate();
+        let curDay = now.getDay();
+  
+        let distdate = new Date(secondsTime);
+        let y = distdate.getUTCFullYear();
+        let mon = distdate.getMonth() + 1;
+        let d = distdate.getDate();
+        let h = distdate.getHours();
+        let m = distdate.getMinutes();
+        let s = distdate.getSeconds();
+        let day = distdate.getDay();
+        // console.log(distdate)
+        // console.log(cutTime)
+        // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
+  
+        if(cutTime < 8 * 24 * 3600 * 1000)
+        {
+            let cutDay = curDate - d;
+            if(cutDay === 0){
+                return Appendzero(h) + ":" + Appendzero(m);
+            }
+            else if(cutDay === 1){
+                return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+            }
+            else if(cutDay > 1 && cutDay < 7){
+                return getWeekDay(day);
+            }
+        }
+        else
+        {
+          return y + "/" + Appendzero(mon) + "/" + Appendzero(d);
+        }
+      },
 }
 
 export{
