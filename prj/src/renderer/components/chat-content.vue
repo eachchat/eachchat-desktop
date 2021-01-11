@@ -223,7 +223,7 @@
           <div class="win-header-white" v-show="isMsgSearch">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
+          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -458,6 +458,7 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      searchKeyFromList: '',
       selfUserId: undefined,
       isFirstLogin: true,
       showImportE2EKeyPage: false,
@@ -986,11 +987,28 @@ export default {
       console.log('chat-content中的userInfo模版', this.showUserInfoTips)
     },
     showGroup: async function(groupInfo) {
-      // console.log("in chat content distGroupId is ", groupInfo);
-      if(groupInfo.groupId.length != 0) {
-        var distInfo = await Group.FindItemFromGroupByGroupID(groupInfo.groupId);
+      console.log("in chat content distGroupId is ", groupInfo);
+      if(groupInfo.room_id.length != 0) {
+        var distInfo = global.mxMatrixClientPeg.matrixClient.getRoom(groupInfo.room_id);
         if(distInfo != undefined) {
-          this.getCreateGroupInfo(distInfo);
+          this.needScroll = true;
+          console.log("Created Info is ", distInfo)
+          var searchKey = this.searchKey;
+          this.cleanSearchKey = !this.cleanSearchKey;
+          this.toSearch("");
+          this.showUserInfoTips = false;
+          
+          setTimeout(() => {
+            this.$nextTick(() => {
+              for(let i in this.dealShowGroupList){
+                if(this.dealShowGroupList[i].roomId == distInfo.roomId) {
+                  this.showChat(distInfo, i, searchKey);
+                  this.scrollToDistPosition(distInfo);
+                  return;
+                } 
+              }
+            })
+          }, 0)
         }
       }
     },
@@ -2175,9 +2193,15 @@ export default {
     },
 
     GetLastShowMessage(chatGroupItem){
+      if(chatGroupItem.name == "berrybai") {
+        console.log("*** cur chat info is ", chatGroupItem)
+      }
       if(!chatGroupItem.timeline) return undefined;
       for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
         var timeLineTmp = chatGroupItem.timeline[i];
+        if(chatGroupItem.name == "berrybai") {
+          console.log("*** ", timeLineTmp.getType());
+        }
         if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
           return timeLineTmp;
         }
@@ -2292,45 +2316,73 @@ export default {
       this.checkUnreadCount();
     },
 
-    showChat: function(chatGroup, index) {
+    showChat: function(chatGroup, index, searchKey="") {
       this.isFirstLogin = false;
-      this.isMsgSearch = false;
-      let groupItemElementID = this.ChatGroupId(chatGroup);
-      let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
-      this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
+      this.isMsgSearch = searchKey.length == 0 ? false : true;
+      if(this.isMsgSearch) {
+        let groupItemElementID = this.ChatGroupId(chatGroup);
+        let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
+        this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
 
-      let groupDivElementID = this.ChatGroupDivId(chatGroup);
-      let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
-      this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
+        let groupDivElementID = this.ChatGroupDivId(chatGroup);
+        let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
+        this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
 
-      this.isEmpty = false;
-      var isSecret = false;
+        this.isEmpty = false;
+        var isSecret = false;
 
-      if(this.curChat != undefined && this.curChat.roomId != undefined) {
-        var charRef = this.$refs.chatPageRef;
-        var editor = charRef.editor;
-        var content = editor.getContents();
-        this.$store.commit("setDraft", [this.curChat.roomId, content]);
+        if(this.curChat != undefined && this.curChat.roomId != undefined) {
+          var charRef = this.$refs.chatPageRef;
+          var editor = charRef.editor;
+          var content = editor.getContents();
+          this.$store.commit("setDraft", [this.curChat.roomId, content]);
+        }
+        console.log("*** ", searchKey, " *** ", index);
+        this.searchKeyFromList = searchKey;
+        this.curChat = chatGroup;
+        this.curindex = index;
+        this.showGroupIconName();
       }
+      else {
+        this.searchKeyFromList = "";
+        let groupItemElementID = this.ChatGroupId(chatGroup);
+        let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
+        this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
 
-      if(this.curChat != undefined && this.curChat.timeline.length != 0) {
+        let groupDivElementID = this.ChatGroupDivId(chatGroup);
+        let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
+        this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
+
+        this.isEmpty = false;
+        var isSecret = false;
+
+        if(this.curChat != undefined && this.curChat.roomId != undefined) {
+          var charRef = this.$refs.chatPageRef;
+          var editor = charRef.editor;
+          var content = editor.getContents();
+          this.$store.commit("setDraft", [this.curChat.roomId, content]);
+        }
+
+        if(this.curChat != undefined && this.curChat.timeline.length != 0) {
+          console.log("*** showChat SetRoomReader");
+          this.SetRoomReader(this.curChat);
+        }
+
         console.log("*** showChat SetRoomReader");
-        this.SetRoomReader(this.curChat);
+        this.SetRoomReader(chatGroup);
+        
+        console.log("*** ", searchKey, " *** ", index);
+        this.curChat = chatGroup;
+
+        ipcRenderer.send("stopFlash");
+
+        this.curindex = index;
+        isSecret = false;
+        if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
+          isSecret = true;
+        }
+        this.showGroupIconName();
       }
-
-      console.log("*** showChat SetRoomReader");
-      this.SetRoomReader(chatGroup);
-      
-      this.curChat = chatGroup;
-
-      ipcRenderer.send("stopFlash");
-
-      this.curindex = index;
-      isSecret = false;
-      if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
-        isSecret = true;
-      }
-      this.showGroupIconName();
     },
     ToJoinRoom: function(roomId) {
       try{
