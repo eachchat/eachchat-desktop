@@ -33,7 +33,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowInviteMsgContent(chatGroupItem)}}</p>
                   </div>
                   <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
@@ -64,10 +64,10 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)"></p>
                   </div>
                   <div class="group-notice">
-                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
                     <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
@@ -96,10 +96,10 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)"></p>
                   </div>
                   <div class="group-notice">
-                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
                     <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
@@ -126,10 +126,10 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content">{{getShowMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content"></p>
                   </div>
                   <div class="group-notice">
-                    <p class="group-time">{{getMsgLastMsgTime(chatGroupItem)}}</p>
+                    <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
                     <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
@@ -271,6 +271,8 @@ import {shell} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import log from 'electron-log';
+import {Filter} from 'matrix-js-sdk';
+import * as Matrix from 'matrix-js-sdk';
 const {Menu, MenuItem, clipboard, nativeImage} = remote;
 import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
@@ -446,7 +448,7 @@ export default {
         })
         
         global.mxMatrixClientPeg.matrixClient.on("Room.tags", this.handleRoomTags)
-
+        global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
       }
     }
   },
@@ -506,7 +508,7 @@ export default {
       clickedGroupList: [],      //没用到
       isEmpty: true,      //没有群组选中时候右侧占位图片
       groupListElement: null,      //dom
-      newMsg: {},      //转发之类的消息信息
+      newMsg: false,      //转发之类的消息信息
       mqttGroupVar: [],      //一些不完整的group的临时存储
       searchId: 0,      //复合搜索,
       matrixClient: undefined,
@@ -820,8 +822,45 @@ export default {
         }
       }
     },
-
+    onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
+      // console.log("*** data ", data);
+      // console.log("*** room ", room);
+      // console.log("*** this.curChat ", this.curChat);
+      // console.log("**********************************");
+      if(data.liveEvent) {
+        if(room.roomId == this.curChat.roomId && !this.isFirstLogin) {
+          this.newMsg = !this.newMsg;
+        }
+        this.updateChatList(ev);
+      }
+      
+        // if(!this.isScroll) {
+        //     console.log("onRoomTimeline ", ev)
+        //     this.$emit("updateChatList", ev);
+        // }
+        // //this.UpdateUserAvater(ev);
+        
+        // if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
+        
+        // // let bottom = this.IsBottom();
+        // // this._timelineWindow.paginate("f", 1, false).then(() => {
+        // //     this.messageList = this._getEvents();
+        // // })
+        // if(!this.isScroll) {
+        //     setTimeout(() => {
+        //         this.$nextTick(() => {
+        //             var div = document.getElementById("message-show-list");
+        //             if(div) {
+        //                     // console.log("div scrolltop is ", div.scrollHeight)
+        //                     // div.scrollTop = div.scrollHeight;
+        //                     div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+        //                 }
+        //         })
+        //     }, 100)
+        // }
+    },
     async updateChatList(newMsg) {
+      console.log("*** updateChatList ", newMsg)
       this.sortGroup();
       if(newMsg.isState()) {
         return;
@@ -831,7 +870,7 @@ export default {
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
-      var fromUserInfo = newMsg.sender.name;
+      var fromUserInfo = newMsg.sender ? newMsg.sender.name : newMsg.event.sender;
       // console.log("*** newMsg is ", newMsg);
       if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin && this.checkNeedScroll()) {
         console.log("*** updateChatList SetRoomReader");
@@ -1279,6 +1318,7 @@ export default {
 
     UpdateGroupsImageAndName: function(groups){
       for(let item of groups){
+        this.updateGroupContent(item);
         this.UpdateGroupImage(item);
         this.updageGroupName(item);
       }
@@ -1306,56 +1346,72 @@ export default {
         }
       }
     },
+    updateGroupContent: async function(item) {
+      var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
+      var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
+      if(distContentElement) {
+        var distTimeLine = this.GetLastShowMessage(item);
+        if(distTimeLine == undefined) {
+          this.toUpdateTimeLine(item);
+          // distElement.innerHTML = "";
+          // this.showGroupIconName(item);
+          // return;
+          return;
+        }
+        item.distTimeLine = distTimeLine;
+        var event = distTimeLine.event;
+        var chatGroupMsgType = event.type;
+        var chatGroupMsgContent = distTimeLine.getContent();
 
+        if(chatGroupMsgType === "m.room.message")
+        {
+            var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
+            if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
+              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+              if(chatGroupMsgContent.msgtype == 'm.file'){
+                distContentElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.text'){
+                distContentElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.image'){
+                distContentElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+              } 
+            }
+            else {
+              if(chatGroupMsgContent.msgtype == 'm.file'){
+                distContentElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.text'){
+                distContentElement.innerHTML = chatGroupMsgContent.body;
+              }
+              else if(chatGroupMsgContent.msgtype == 'm.image'){
+                distContentElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
+              } 
+            }
+        }
+        else if(chatGroupMsgType === "m.room.encrypted") {
+            distContentElement.innerHTML = "收到一条加密消息";
+        }
+      }
+      if(distTimeElement) {
+        var formatTime = ""
+        var timesecond = Number(event.origin_server_ts);
+
+        if(timesecond.length == 0) {
+          return;
+        }
+
+        formatTime = this.formatTimeFilter(timesecond);
+        distTimeElement.innerHTML = formatTime;
+      }
+    },
     updateGroupMsgContent: async function(groups) {
       if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
         this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
       }
       for(let item of groups) {
-        var distElement = document.getElementById(this.getChatContentElementId(item.roomId));
-        if(distElement) {
-          var distTimeLine = this.GetLastShowMessage(item);
-          if(distTimeLine == undefined) {
-            distElement.innerHTML = "";
-            // this.showGroupIconName(item);
-            return;
-          }
-
-          let event = distTimeLine.event;
-          let chatGroupMsgType = event.type;
-          var chatGroupMsgContent = distTimeLine.getContent();
-
-          if(chatGroupMsgType === "m.room.message")
-          {
-              var sender = distTimeLine.sender;
-              if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
-                var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
-                if(chatGroupMsgContent.msgtype == 'm.file'){
-                  distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
-                }
-                else if(chatGroupMsgContent.msgtype == 'm.text'){
-                  distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
-                }
-                else if(chatGroupMsgContent.msgtype == 'm.image'){
-                  distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
-                } 
-              }
-              else {
-                if(chatGroupMsgContent.msgtype == 'm.file'){
-                  distElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
-                }
-                else if(chatGroupMsgContent.msgtype == 'm.text'){
-                  distElement.innerHTML = chatGroupMsgContent.body;
-                }
-                else if(chatGroupMsgContent.msgtype == 'm.image'){
-                  distElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
-                } 
-              }
-          }
-          else if(chatGroupMsgType === "m.room.encrypted") {
-              distElement.innerHTML = "收到一条加密消息";
-          }
-        }
+        this.updateGroupContent(item);
       }
     },
 
@@ -1367,13 +1423,13 @@ export default {
       }
       else{
           this.UpdateGroupsImageAndName(this.showFavouriteRooms);
-          this.updateGroupMsgContent(this.showFavouriteRooms);
+          // this.updateGroupMsgContent(this.showFavouriteRooms);
           this.UpdateGroupsImageAndName(this.showInviteGroupList);
-          this.updateInviteChatContent(this.showInviteGroupList);
+          // this.updateInviteChatContent(this.showInviteGroupList);
           this.UpdateGroupsImageAndName(this.showDealGroupList);
-          this.updateGroupMsgContent(this.showDealGroupList);
+          // this.updateGroupMsgContent(this.showDealGroupList);
           this.UpdateGroupsImageAndName(this.showLowPriorityGroupList);
-          this.updateGroupMsgContent(this.showLowPriorityGroupList);
+          // this.updateGroupMsgContent(this.showLowPriorityGroupList);
       }
     },
 
@@ -1827,6 +1883,9 @@ export default {
     getChatContentElementId: function(roomId) {
       return "chatList-" + roomId;
     },
+    getChatGroupTimeElementId: function(roomId) {
+      return "chatList-Time-" + roomId;
+    },
     getChatGroupNameElementId: function(groupId, uid) {
       if(groupId != undefined && uid != undefined) {
         return "chat-groupList-name-" + groupId + "-" + uid;
@@ -2151,40 +2210,159 @@ export default {
         }
         return "";
     },
-
     GetLastShowMessage(chatGroupItem){
-      if(chatGroupItem.name == "berrybai") {
-        console.log("*** cur chat info is ", chatGroupItem)
+      if(chatGroupItem.timeline) {
+        for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
+          var timeLineTmp = chatGroupItem.timeline[i];
+          if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
+            return timeLineTmp;
+          }
+  /*
+          else
+          {
+            console.log('----------')
+            console.log(timeLineTmp.getType()) 
+          }
+  */
+        }
       }
-      if(!chatGroupItem.timeline) return undefined;
-      for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
-        var timeLineTmp = chatGroupItem.timeline[i];
-        if(chatGroupItem.name == "berrybai") {
-          console.log("*** ", timeLineTmp.getType());
+      else {
+        if(chatGroupItem.distTimeLine) {
+          return chatGroupItem.distTimeLine;
         }
-        if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
-          return timeLineTmp;
+        else {
+          return undefined
         }
-/*
-        else
-        {
-          console.log('----------')
-          console.log(timeLineTmp.getType()) 
-        }
-*/
       }
     },
-
-    getShowMsgContent(chatGroupItem) {
+    getShowInviteMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
           var inviteMemer = this._getInviteMember(chatGroupItem);
           return "[邀请]：" + inviteMemer.rawDisplayName;
         }
       };
+    },
+    async updateTimelineSet(room) {
+        const client = global.mxMatrixClientPeg.matrixClient;
+        
+        if (room) {
+            let timelineSet;
+
+            try {
+                timelineSet = await this.fetchFileEventsServer(room);
+            } catch (error) {
+                console.error("Failed to get or create file panel filter", error);
+            }
+            return timelineSet;
+        } else {
+            console.error("Failed to add filtered timelineSet for FilePanel as no room!");
+        }
+    },
+    async fetchFileEventsServer(room) {
+        const client = global.mxMatrixClientPeg.matrixClient;
+
+        const filter = new Filter(client.credentials.userId);
+        filter.setDefinition(
+            {
+                "room": {
+                    "timeline": {
+                        "types": [
+                            "m.room.message"
+                        ],
+                    },
+                },
+            },
+        );
+
+        const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
+        filter.filterId = filterId;
+        const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
+
+        return timelineSet;
+    },
+    async toUpdateTimeLine(chatGroupItem) {
+      var distElement = document.getElementById(this.getChatContentElementId(chatGroupItem.roomId));
+      var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(chatGroupItem.roomId));
+      var timeLineSet = await this.updateTimelineSet(chatGroupItem);
+      // var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
+      var _timelineWindow = new Matrix.TimelineWindow(
+          global.mxMatrixClientPeg.matrixClient, 
+          timeLineSet,
+          {windowLimit:Number.MAX_VALUE},
+      )
+      await _timelineWindow.load(undefined, 20);
+      var fileListInfo = _timelineWindow.getEvents();
+      if(fileListInfo.length == 0) {
+        await _timelineWindow.paginate("b", 20);
+        fileListInfo = await _timelineWindow.getEvents();
+      }
+      if(fileListInfo.length == 0) {
+        await _timelineWindow.paginate("b", 20);
+        fileListInfo = await _timelineWindow.getEvents();
+      }
+      if(fileListInfo.length == 0) {
+        await _timelineWindow.paginate("b", 20);
+        fileListInfo = await _timelineWindow.getEvents();
+      }
+      if(fileListInfo.length == 0) {
+        return;
+      }
+      var distTimeLine = fileListInfo[fileListInfo.length - 1];
+      chatGroupItem.distTimeLine = distTimeLine;
+      let event = distTimeLine.event;
+      let chatGroupMsgType = event.type;
+      var chatGroupMsgContent = distTimeLine.getContent();
+
+      if(chatGroupMsgType === "m.room.message")
+      {
+          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
+          if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+            var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+            if(chatGroupMsgContent.msgtype == 'm.file'){
+              distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+            }
+            else if(chatGroupMsgContent.msgtype == 'm.text'){
+              distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+            }
+            else if(chatGroupMsgContent.msgtype == 'm.image'){
+              distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+            } 
+          }
+          else {
+            if(chatGroupMsgContent.msgtype == 'm.file'){
+              distElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
+            }
+            else if(chatGroupMsgContent.msgtype == 'm.text'){
+              distElement.innerHTML = chatGroupMsgContent.body;
+            }
+            else if(chatGroupMsgContent.msgtype == 'm.image'){
+              distElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
+            } 
+          }
+      }
+      else if(chatGroupMsgType === "m.room.encrypted") {
+          distElement.innerHTML = "收到一条加密消息";
+      }
+      if(distTimeElement) {
+        var formatTime = ""
+        var timesecond = Number(event.origin_server_ts);
+
+        if(timesecond.length == 0) {
+          return;
+        }
+
+        formatTime = this.formatTimeFilter(timesecond);
+        distTimeElement.innerHTML = formatTime;
+      }
+      this.sortGroup();
+    },
+    getShowMsgContent(chatGroupItem) {
       // console.log("cur chat group is ", chatGroupItem);
       var distTimeLine = this.GetLastShowMessage(chatGroupItem);
+      console.log("*** getShowMsgContent ", distTimeLine);
       if(distTimeLine == undefined) {
+        this.toUpdateTimeLine(chatGroupItem);
         return "";
       }
       var ret = this.NoticeContent(distTimeLine);

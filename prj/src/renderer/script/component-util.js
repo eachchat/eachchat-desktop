@@ -193,6 +193,9 @@ const ComponentUtil = {
             else if(cutDay > 1 && cutDay < 7){
                 return getWeekDay(day);
             }
+            else {
+                return y + "/" + Appendzero(mon) + "/" + Appendzero(d);
+            }
         }
         else
         {
