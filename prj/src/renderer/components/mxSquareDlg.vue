@@ -23,7 +23,10 @@
                             </div>
                         </div>
                         <div class="room-xie4" v-if="!item.joined">
-                            <div class="room-join" @click.stop="joinRoom(item)">加入</div>
+                            <div class="room-join" @click.stop="joinRoom(item)">
+                                <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/>
+                                <span>加入</span>
+                            </div>
                         </div>
                         <div class="room-xie4" v-else>
                             <div class="room-join" @click.stop="checkRoom(item)">查看</div>
@@ -411,6 +414,11 @@ export default {
     input:focus{
         outline:none;
     }
+    .baicaca {
+        height: 20px;
+        width: 20px;
+        margin-right: 4px;
+    }
     .xieFrame {
         height: 380px;
         margin-left: 32px;
@@ -646,7 +654,5 @@ export default {
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
         color: #FFFFFF;
-        // line-height: 20px;
-        letter-spacing: 1px;
     }
 </style>
