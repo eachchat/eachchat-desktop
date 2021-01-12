@@ -558,7 +558,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
-        color: #999999;
+        color: #000;
     }
     .qllx {
         width: 52px;

@@ -525,6 +525,7 @@ export default {
                 let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
+            console.log('check xie1', xie1);
             console.log('全member', xie1.currentState.members);
             console.log('mxMembers', mxMembers);
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
