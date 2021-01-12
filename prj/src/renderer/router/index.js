@@ -12,7 +12,7 @@ import reportRelationContent from '../components/reportRelationContent.vue';
 import SearchFilesListDlg from '../components/searchFileList.vue';
 import SearchMessagesListDlg from '../components/searchMessageList.vue';
 import TransmitMsgListDlg from '../components/transmitTogetherContent.vue';
-import ImgViewDlg from '../components/ImgViewer.vue';
+import ImgViewDlg from '../components/imgViewer.vue';
 
 export default new Router({
   routes: [
