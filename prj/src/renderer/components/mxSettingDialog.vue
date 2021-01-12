@@ -41,7 +41,7 @@
                 </div>
             </div>
             <div class="setting-field">
-                <div class="filed-title">谁可以查看聊天历史？</div> <!--@change="setHistory"-->
+                <div class="filed-title">群聊历史查看能力</div> <!--@change="setHistory"-->
                 <!-- <div class="xiaomiaoshu tipdesc">对谁可以阅读历史记录的更改仅适用于此群聊中将来的消息。现有聊天历史的可见性将保持不变。</div> -->
                 <div class="xiaomiaoshu">
                     <img class="imgGouxuan" v-if="history == 'invited'" src="../../../static/Img/Main/xgg.png">
@@ -291,6 +291,12 @@ export default {
     input:focus{
         outline:none;
     }
+    ::-webkit-input-placeholder {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+    }
     .setting-wrap {
         height: 100%;
         width: 100%;
@@ -333,7 +339,6 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
     }
     .close {
         height: 20px;
@@ -346,12 +351,11 @@ export default {
     }
     .filed-title {
         height: 20px;
-        font-size: 14px;
+        font-size: 13px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
-        color: #333333;
+        color: #666666;
         line-height: 20px;
-        letter-spacing: 1px;
         margin-bottom: 8px;
     }
     .xiaomiaoshu {
@@ -405,6 +409,9 @@ export default {
         border: none;
         margin-left: 8px;
         margin-right: 8px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
     }
     .serverBtn {
         margin-left: 20px;
