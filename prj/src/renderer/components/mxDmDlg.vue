@@ -24,7 +24,7 @@
                         :key="item.department_id"
                         @click.stop="changeLayerByCrumb(item)"
                     >
-                        <span v-show="idx!==0" style="margin-left:4px; margin-right:4px;">/</span>
+                        <span v-show="idx!==0" >/</span>
                         <span>{{item.name}}</span>
                     </div>
                 </div>
@@ -822,7 +822,6 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
     }
 
     .mxCreaterClose {
@@ -1013,18 +1012,33 @@ export default {
         letter-spacing: 1px;
     }
     .crumbs {
+        margin-top:12px;
+        margin-bottom:12px;
         display: flex;
-        margin-left: 16px;
-        font-size: 12px;
         flex-wrap: wrap;
-        margin-top: 8px;
+        margin-left: 16px;
     }
     .crumbsItem {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
         color: #24B36B;
+        line-height: 20px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        margin-right: 4px;
         height: 20px;
     }
     .crumbsItemActive {
         color: #000;
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        margin-right: 4px;
         height: 20px;
     }
     input::-webkit-input-placeholder{
