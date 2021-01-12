@@ -205,13 +205,13 @@ export default {
                 info.matrix_id = userInfo.matrix_id;
                 return info;
             }).then((info) => {
-                if(!info.avatar_url)
-                    return;
-                let validUrl = this.matrixClient.mxcUrlToHttp(info.avatar_url);
                 let userIconElement = document.getElementById(userInfo.matrix_id + 'addContact');
                 if(!userIconElement){
                     return;
                 }
+                let validUrl = "../static/Img/User/user-40px@2x.png"
+                if(info.avatar_url)
+                  validUrl = this.matrixClient.mxcUrlToHttp(info.avatar_url);
                 userIconElement.setAttribute("src", validUrl);
             });
         },
