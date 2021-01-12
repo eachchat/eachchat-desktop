@@ -437,7 +437,7 @@ export default {
             var isMine = tipInfos.isMine;
             // var iconElement = document.getElementById(id);
             this.userInfoPosition.left = tipInfos.absoluteLeft;
-            this.userInfoPosition.top = tipInfos.absoluteLeft;
+            this.userInfoPosition.top = tipInfos.absoluteTop;
             if(isMine) {
                 this.userInfoPosition.left = this.userInfoPosition.left - 280 - 45;
                 console.log("isown is ",this.isOwn);
