@@ -482,8 +482,8 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-left:28px;
-        padding-right:28px;
+        padding-left:32px;
+        padding-right:32px;
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
     }
@@ -591,6 +591,7 @@ export default {
         align-items: center;
         box-sizing: border-box;
         background-color: #fff;
+        border-bottom: 1px solid #EEEEEE;
     }
     .room-img {
         height: 40px;
