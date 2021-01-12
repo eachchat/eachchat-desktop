@@ -182,7 +182,7 @@
         <div class="footer" v-if="!isDm">
             <div class="groupLeave-view"> <!--v-show="isGroup"-->
                 <p class="groupLeaveDiv" @click.stop="mxLeaveRoom()"> <!--@click="leave()"-->
-                    退出群聊
+                    退出
                 </p>
             </div>
             <!-- <div class="groupDismiss-view" v-show="isGroup && isOwner">
