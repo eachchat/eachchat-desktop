@@ -170,14 +170,15 @@ export default {
                     }
                 }
             }
-            // if(chatGroupMsgContent.msgtype == 'm.image'){
-            //     var distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-            //     var imageInfo = {
-            //         url: distUrl,
-            //         info: chatGroupMsgContent.info
-            //     }
-            //     this.$emit('showImageOfMessage', imageInfo);
-            // }
+            if(chatGroupMsgContent.msgtype == 'm.image'){
+                // var distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                // var imageInfo = {
+                //     url: distUrl,
+                //     info: chatGroupMsgContent.info
+                // }
+                // this.$emit('showImageOfMessage', imageInfo);
+                this.$emit('showImageOfMessage', curItem);
+            }
         },
         Close: function() {
             this.fileListInfo = [];
@@ -199,10 +200,10 @@ export default {
         },
         // Get formate message time
         MsgTime(curItem) {
-            if(curMsg === null) {
+            if(curItem === null) {
                 return "";
             }
-            var secondsTime = Number(curMsg.event ? curMsg.event.origin_server_ts : curMsg.origin_server_ts);
+            var secondsTime = Number(curItem.event ? curItem.event.origin_server_ts : curItem.origin_server_ts);
             return ComponentUtil.formatTimeFilter(secondsTime);
         },
         isWindows() {
@@ -759,6 +760,7 @@ export default {
         height: 64px;
         padding: 0;
         background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
     }
     
     .MxfileOperate {
@@ -819,6 +821,20 @@ export default {
         text-overflow: ellipsis;
     }
 
+    .MxfileInfoNameLabel:hover {
+        display: block;
+        width: 100%;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+
     .MxfileInfoDetailLabel {
         display: block;
         width: 100%;
@@ -829,6 +845,19 @@ export default {
         font-weight: 400;
         letter-spacing: 1px;
         color: rgba(153, 153, 153, 1);
+    }
+
+    .MxfileInfoDetailLabel:hover {
+        display: block;
+        width: 100%;
+        height: 18px;
+        line-height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        letter-spacing: 1px;
+        color: rgba(153, 153, 153, 1);
+        cursor: pointer;
     }
 
 </style>

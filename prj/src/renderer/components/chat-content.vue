@@ -860,7 +860,6 @@ export default {
         // }
     },
     async updateChatList(newMsg) {
-      console.log("*** updateChatList ", newMsg)
       this.sortGroup();
       if(newMsg.isState()) {
         return;
@@ -886,7 +885,9 @@ export default {
       fromName = await this.getNoticeShowGroupName(groupInfo);
       // console.log("*** title is ", notificateContent)
       // console.log("*** fromName is ", fromName)
-      this.showNotice(fromName, notificateContent);
+      if(!this.groupIsSlience(groupInfo)) {
+        this.showNotice(fromName, notificateContent);
+      }
     },
     checkNeedScroll(checkItem) {
       if(this.isFirstLogin && !checkItem) {
@@ -3216,7 +3217,7 @@ export default {
   }
 
   .group-content {
-    width: 125%;
+    width: 119%;
     font-size: 13px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);

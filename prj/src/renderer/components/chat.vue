@@ -1247,7 +1247,7 @@ export default {
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
-                    let maxSize = 500;
+                    let maxSize = 366;
                     var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
         
                     let info = {
@@ -2705,8 +2705,6 @@ export default {
                     .then((ret) => {
                         this.isRefreshing = false;
                         this.messageList = this._getEvents();
-                        
-                        console.log("*** ***");
                         setTimeout(() => {
                             this.$nextTick(() => {
                                 this.needToBottom = true;
@@ -2989,7 +2987,10 @@ export default {
             }
         },
         newMsg: function() {
-            this.messageList = this._getEvents();
+            console.log("*** newMsg")
+            this._timelineWindow.paginate("f", 1, false).then(() => {
+                this.messageList = this._getEvents();
+            })
             setTimeout(() => {
                 this.$nextTick(() => {
                     var div = document.getElementById("message-show-list");
