@@ -2,7 +2,7 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">发起聊天</div>
+                <div class="mxCreaterHeaderTitle">选择联系人</div>
                 <img 
                     ondragstart="return false" 
                     class="mxCreaterClose" 
