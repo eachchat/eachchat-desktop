@@ -153,9 +153,9 @@ export default {
                 let name = dspName + '、';
                 for(let i = 0; i<2; i++) {
                     let end = '、';
-                    if (i === 0 && mxInvite.length === 1) end = '';
-                    if (i === 1 && mxInvite.length === 2) end = '';
-                    if (i === 1 && mxInvite.length > 2) end = '...';
+                    if (i === 0 && this.mxInvite.length === 1) end = '';
+                    if (i === 1 && this.mxInvite.length === 2) end = '';
+                    if (i === 1 && this.mxInvite.length > 2) end = '...';
                     if (this.mxInvite[i]) name = name + this.mxInvite[i].name + end;     
                 }
                 createOpts.name = name;
@@ -380,6 +380,12 @@ export default {
         /*隐藏滚轮*/
         display: none;
     }
+    ::-webkit-input-placeholder {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+    }
     input:focus{
         outline:none;
     }
@@ -526,12 +532,13 @@ export default {
     }
 
     .setting-title {
-        font-size: 14px;
+        width: 52px;
+        height: 20px;
+        font-size: 13px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
-        color: #333333;
+        color: #666666;
         line-height: 20px;
-        letter-spacing: 1px;
     }
     .setting-tip {
         height: 20px;
@@ -547,16 +554,20 @@ export default {
         border: 1px solid #ddd;
         height: 32px;
         margin-top: 8px;
-    }
-    .qllx {
-        width: 60px;
-        height: 20px;
+        padding-left: 12px;
         font-size: 14px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
-        color: #333333;
+        color: #999999;
+    }
+    .qllx {
+        width: 52px;
+        height: 20px;
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #666666;
         line-height: 20px;
-        letter-spacing: 1px;
         margin-top: 20px;
         margin-bottom: 8px;
     }
