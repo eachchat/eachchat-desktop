@@ -169,6 +169,10 @@ export default {
         creDir: {
             type: Boolean,
             default: false 
+        },
+        dmMember: {
+            type: Object,
+            default: {}
         }
     },
     data() {
@@ -242,19 +246,27 @@ export default {
             })
             if (this.creDir) {
                 let createOpts = {};
-                createOpts.invite = invite.map(m => m.id);
                 const dspName = await ComponentUtil.GetDisplayNameByMatrixID(selfId);
-                let name = dspName + ',';
+                let name = dspName + '、';
+                let dmUser = {
+                    id: this.dmMember.userId,
+                    name: this.dmMember.dspName || this.dmMember.name
+                };
+                let xie = 0;
+                invite.forEach(inv => {
+                    if (inv.id === this.dmMember.userId) xie = 1;
+                })
+                if (!xie) invite.unshift(dmUser);
                 for(let i = 0; i<2; i++) {
-                    let end = ', ';
-                    if (invite.length === 1) {
-                        end = ''
-                    } else if (i === 1){
-                        end = '...'
-                    }
+                    let end = '、';
+                    if (i === 0 && invite.length === 1) end = '';
+                    if (i === 1 && invite.length === 2) end = '';
+                    if (i === 1 && invite.length > 2) end = '...';
                     if (invite[i]) name = name + invite[i].name + end;
                 }
                 createOpts.name = name;
+                createOpts.invite = invite.map(m => m.id);
+
                 console.log('----post createOpts----', createOpts)
                 return client.createRoom(createOpts).then((res) => {
                     this.$emit('close', 'closeRight');

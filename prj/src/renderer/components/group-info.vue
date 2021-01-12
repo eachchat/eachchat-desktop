@@ -213,6 +213,7 @@
             v-if="mxXxrOpen" 
             @close="changeMxXxr"
             :creDir="isDm"
+            :dmMember="dmMember"
         >
         </mxXxr>
         <mxDmDlg

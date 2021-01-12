@@ -150,14 +150,12 @@ export default {
             if (this.name) {
                 createOpts.name = this.name;
             } else {
-                let name = dspName + ',';
+                let name = dspName + '、';
                 for(let i = 0; i<2; i++) {
-                    let end = ', ';
-                    if (this.mxInvite.length === 1) {
-                        end = ''
-                    } else if (i === 1){
-                        end = '...'
-                    }
+                    let end = '、';
+                    if (i === 0 && mxInvite.length === 1) end = '';
+                    if (i === 1 && mxInvite.length === 2) end = '';
+                    if (i === 1 && mxInvite.length > 2) end = '...';
                     if (this.mxInvite[i]) name = name + this.mxInvite[i].name + end;     
                 }
                 createOpts.name = name;
