@@ -374,8 +374,7 @@ export default {
                 })
                 return;
             }
-            let folder = path.dirname(filepath);
-            shell.openPath(folder);
+            shell.showItemInFolder(filepath);
         },
 
         fileListClicked:async function(file) {
