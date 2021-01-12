@@ -2,7 +2,7 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">邀请成员</div>
+                <div class="mxCreaterHeaderTitle">选择联系人</div>
                 <img 
                     ondragstart="return false" 
                     class="mxCreaterClose" 
@@ -129,13 +129,13 @@
                     class="submit-button"
                     style="background:#A7E0C4"
                     v-if="loading || !choosenMembers || !choosenMembers.length"
-                >确认</div>
+                >确定</div>
                 <div 
                     class="submit-button" 
                     style="background:#24B36B"
                     @click.stop="createXie"
                     v-else
-                >确认</div>
+                >确定</div>
             </div>
         </div>
     </div>
@@ -1195,14 +1195,13 @@ export default {
     }
 
     .mxCreaterHeaderTitle {
-        width: 72px;
+        width: 80px;
         height: 22px;
         font-size: 16px;
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
     }
 
     .mxCreaterClose {
