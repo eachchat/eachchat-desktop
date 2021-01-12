@@ -914,7 +914,7 @@ export default {
                     if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
                         this.isLdap = true;
                         this.isMatrixPwd = false;
-                        this.loginPageTitle = "登录亿洽";
+                        this.loginPageTitle = "登录 亿洽";
                         this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
                         this.loginPageAccountLabel = "组织ID";
                         this.loginPageAccountPlaceholder = global.localStorage.getItem("userNamePlaceHolder");

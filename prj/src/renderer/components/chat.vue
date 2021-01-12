@@ -2431,32 +2431,6 @@ export default {
             }
         },
 
-        onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
-            if(!this.isScroll) {
-                this.$emit("updateChatList", ev);
-            }
-            //this.UpdateUserAvater(ev);
-            
-            if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
-            
-            let bottom = this.IsBottom();
-            this._timelineWindow.paginate("f", 1, false).then(() => {
-                this.messageList = this._getEvents();
-            })
-            if(!this.isScroll) {
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        var div = document.getElementById("message-show-list");
-                        if(div) {
-                                // console.log("div scrolltop is ", div.scrollHeight)
-                                // div.scrollTop = div.scrollHeight;
-                                div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
-                            }
-                    })
-                }, 100)
-            }
-        },
-
         IsBottom: function(){
             let uldiv = document.getElementById("message-show-list");
             let client = document.getElementById("message-show");
@@ -2720,7 +2694,6 @@ export default {
             }
         },
         initMessage: function() {
-            global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
             global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
             if(this.chat.getMyMembership() == "invite") {
                 this.isRefreshing = false;
@@ -3015,6 +2988,17 @@ export default {
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
         },
+        newMsg: function() {
+            this.messageList = this._getEvents();
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    var div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+                    }
+                })
+            }, 100)
+        }
     }
 }
 </script>
