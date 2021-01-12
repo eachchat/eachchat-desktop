@@ -13,7 +13,8 @@
                                     v-for="(department, index) in organizationList[orgIndex].departments"
                                     @click="departmentMenuItemClicked(department, orgIndex)" 
                                     :key="index">
-                                    <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/department-40px@2x.png">
+                                    <img v-if = 'orgIndex == 0' ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/department-40px@2x.png">
+                                    <img v-else ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/department@2x.png">
                                     <div class="department-info">
                                         <p class="department-name">{{ department.display_name }}</p>
                                     </div>
