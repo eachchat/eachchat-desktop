@@ -76,22 +76,22 @@
             >
             </el-switch>
         </div> -->
-        <div class="groupSettingFavouriteDiv" v-show="isGroup">
-            <label class="groupSettingFavouriteLabel">置顶聊天</label>
-            <el-switch 
-                class="groupSettingFavouriteSwitch" 
-                v-model="mxFavo" 
-                @change="mxFavoChange(mxFavo)"
-                :active-color="'#24B36B'"
-            >
-            </el-switch>
-        </div>
         <div class="groupSettingSilenceDiv"> <!--v-show="isGroup"-->
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch 
                 class="groupSettingSlienceSwitch" 
                 v-model="mxMute" 
                 @change="mxMuteChange(mxMute)"
+                :active-color="'#24B36B'"
+            >
+            </el-switch>
+        </div>
+        <div class="groupSettingFavouriteDiv" v-show="isGroup">
+            <label class="groupSettingFavouriteLabel">置顶聊天</label>
+            <el-switch 
+                class="groupSettingFavouriteSwitch" 
+                v-model="mxFavo" 
+                @change="mxFavoChange(mxFavo)"
                 :active-color="'#24B36B'"
             >
             </el-switch>
