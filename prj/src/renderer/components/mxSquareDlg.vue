@@ -16,12 +16,10 @@
                     <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
                         <img class="room-img" :src="item.distUrl"/>
                         <div class="room-xie">
-                            <div class="room-xie1" v-if="item.name">{{item.name}}</div>
+                            <div class="room-xie1" v-if="item.name">{{item.name + '(' + item.num_joined_members + ')'}}</div>
                             <div style="width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:block;" class="room-xie2" v-if="item.topic">{{item.topic}}</div>
-                            <div class="room-xie2">
-                                <img style="height:16px; width:16px; margin-left: -4px;" v-if="item.num_joined_members" src="../../../static/Img/Main/ren.png">
-                                <span v-if="item.num_joined_members" style="margin-right:12px;">{{item.num_joined_members}}</span>
-                                <span v-if="item.canonical_alias">{{item.canonical_alias}}</span>
+                            <div class="room-xie2" v-if="item.canonical_alias">
+                                <span>{{item.canonical_alias}}</span>
                             </div>
                         </div>
                         <div class="room-xie4" v-if="!item.joined">
@@ -616,7 +614,6 @@ export default {
         font-weight: 400;
         color: #000000;
         line-height: 20px;
-        letter-spacing: 1px;
     }
     .room-xie2 {
         height: 18px;
