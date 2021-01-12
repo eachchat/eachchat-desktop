@@ -27,27 +27,27 @@
                             @click.stop="caonima2(ele)"
                         >{{idx === crumbs.length-1 ? ele.name : ele.name + ' /'}}</span>
                     </div>
-                    <div class="totalListXieItem" v-if="crumbs.length > 1">
-                        <img
-                            v-if="totalChoosen"
-                            style="height:20px; width:20px; margin-right:8px;"
-                            src="../../../static/Img/Main/lg.png"
-                            @click.stop="quanxuan(false)"
-                        >
-                        <img
-                            v-else
-                            style="height:20px; width:20px; margin-right:8px;"
-                            src="../../../static/Img/Main/ljh.png"
-                            @click.stop="quanxuan(true)"
-                        >
-                        <div class="itemF">全选</div>
-                        <div 
-                            class="youjiantouField"
-                        >
-                            {{'已选'+tn}}
-                        </div>
-                    </div>
                     <div class="totalListXie">
+                        <div class="totalListXieItem" v-if="crumbs.length > 1">
+                            <img
+                                v-if="totalChoosen"
+                                style="height:20px; width:20px; margin-right:8px;"
+                                src="../../../static/Img/Main/lg.png"
+                                @click.stop="quanxuan(false)"
+                            >
+                            <img
+                                v-else
+                                style="height:20px; width:20px; margin-right:8px;"
+                                src="../../../static/Img/Main/ljh.png"
+                                @click.stop="quanxuan(true)"
+                            >
+                            <div class="itemF">全选</div>
+                            <div 
+                                class="youjiantouField"
+                            >
+                                {{'已选'+tn+'人'}}
+                            </div>
+                        </div>
                         <div 
                             v-for="(ele, idx) in totalList" 
                             :key="ele.id"
@@ -1004,6 +1004,11 @@ export default {
         flex: 1;
         display: flex;
         flex-direction: row-reverse;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        
     }
     .totalListXie {
         margin-top: 12px;
