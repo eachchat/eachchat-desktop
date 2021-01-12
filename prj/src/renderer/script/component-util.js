@@ -194,12 +194,12 @@ const ComponentUtil = {
                 return getWeekDay(day);
             }
             else {
-                return y + "/" + Appendzero(mon) + "/" + Appendzero(d);
+                return y + '-' + Appendzero(mon) + '-' + Appendzero(d);
             }
         }
         else
         {
-          return y + "/" + Appendzero(mon) + "/" + Appendzero(d);
+          return y + '-' + Appendzero(mon) + '-' + Appendzero(d);
         }
       },
 }

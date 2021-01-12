@@ -227,47 +227,7 @@ export default {
                 return "";
             }
             var secondsTime = Number(curMsg.event ? curMsg.event.origin_server_ts : curMsg.origin_server_ts);
-            let curDate = new Date();
-            let curDateSecond = curDate.getTime();
-            let cutTime = curDateSecond - secondsTime;
-            let curYeat = curDate.getFullYear();
-            let curMonth = curDate.getMonth() + 1;
-            let curDay = curDate.getDate();
-
-            let distdate = new Date(secondsTime);
-            let y = distdate.getFullYear();
-            let mon = distdate.getMonth() + 1;
-            let d = distdate.getDate();
-            let h = distdate.getHours();
-            let m = distdate.getMinutes();
-            let s = distdate.getSeconds();
-
-            // console.log(distdate)
-            // console.log(cutTime)
-            // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
-
-            if(cutTime < 24 * 3600 * 1000)
-            {
-                if(curDay - d === 0){
-                    return Appendzero(h) + ":" + Appendzero(m);
-                }
-                else{
-                    return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
-                }
-            }
-            else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000))
-            {
-                if(curDay - d === 1){
-                    return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
-                }
-                else{
-                    return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
-                }
-            }
-            else
-            {
-                return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
-            }
+            return ComponentUtil.formatTimeFilter(secondsTime);
         },
         isWindows() {
             return environment.os.isWindows;

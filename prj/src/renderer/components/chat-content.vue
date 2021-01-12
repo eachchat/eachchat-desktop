@@ -2224,6 +2224,12 @@ export default {
             console.log(timeLineTmp.getType()) 
           }
   */
+          if(chatGroupItem.distTimeLine) {
+            return chatGroupItem.distTimeLine;
+          }
+          else {
+            return undefined
+          }
         }
       }
       else {
@@ -3158,7 +3164,7 @@ export default {
   .group-info {
     display: inline-block;
     height: 100%;
-    width: calc(100% - 130px);
+    width: calc(100% - 135px);
     margin-left: 12px;
   }
 
@@ -3230,7 +3236,7 @@ export default {
     display: inline-block;
     vertical-align: top;
     height: 100%;
-    width: 63px;
+    width: 68px;
     margin-right: 5px;
   }
 
@@ -3243,8 +3249,8 @@ export default {
     margin-right: 0px;
     margin-bottom: 2px;
     font-weight:400;
-    height: 18px;
-    line-height:18px;
+    height: 17px;
+    line-height:17px;
     text-align: right;
   }
 

@@ -199,19 +199,11 @@ export default {
         },
         // Get formate message time
         MsgTime(curItem) {
-            if(curItem === null) {
+            if(curMsg === null) {
                 return "";
             }
-            var secondsTime = curItem.event.origin_server_ts;
-            let distdate = new Date(secondsTime);
-            let y = distdate.getFullYear();
-            let mon = distdate.getMonth() + 1;
-            let d = distdate.getDate();
-            let h = distdate.getHours();
-            let m = distdate.getMinutes();
-            let s = distdate.getSeconds();
-
-            return y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m);
+            var secondsTime = Number(curMsg.event ? curMsg.event.origin_server_ts : curMsg.origin_server_ts);
+            return ComponentUtil.formatTimeFilter(secondsTime);
         },
         isWindows() {
             return environment.os.isWindows;
