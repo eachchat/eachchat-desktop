@@ -199,10 +199,10 @@ export default {
         },
         // Get formate message time
         MsgTime(curItem) {
-            if(curMsg === null) {
+            if(curItem === null) {
                 return "";
             }
-            var secondsTime = Number(curMsg.event ? curMsg.event.origin_server_ts : curMsg.origin_server_ts);
+            var secondsTime = Number(curItem.event ? curItem.event.origin_server_ts : curItem.origin_server_ts);
             return ComponentUtil.formatTimeFilter(secondsTime);
         },
         isWindows() {

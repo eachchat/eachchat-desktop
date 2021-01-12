@@ -1038,8 +1038,8 @@ function createWindow () {
   }
   app.setAppUserModelId('EachChat');
   assistWindow = new BrowserWindow({
-    height: 470,
-    width: 600,
+    height: 506,
+    width: 660,
     frame: false,
     resizable: true,
     webPreferences: {

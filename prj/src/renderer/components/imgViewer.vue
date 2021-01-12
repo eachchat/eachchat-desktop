@@ -6,6 +6,20 @@
         </div>
         <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>
         <img class="imageViewerStage" id="imageViewerStageId" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
+        <div class="viewerToolbar">
+            <div class="viewer-tool-left" @click="showLeft()">
+            </div>
+            <div class="viewer-tool-right" @click="showRight()">
+            </div>
+            <div class="viewer-tool-enlarge" @click="enlarge()">
+            </div>
+            <div class="viewer-tool-reduce" @click="reduce()">
+            </div>
+            <div class="viewer-tool-clock-wise" @click="clockWise()">
+            </div>
+            <div class="viewer-tool-anticlock-wise" @click="antiClockWise()">
+            </div>
+        </div>
     </div>
 </template>
 
@@ -53,6 +67,44 @@ export default {
             style += "height:" + this.curImage.info.h * this.curMultiple + "px";
             this.stageElement.setAttribute("style", style);
         },
+        enlarge: function() {
+            this.curMultiple += 0.1;
+            let style = "";
+            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+            style += ";"
+            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+            this.stageElement.setAttribute("style", style);
+        },
+        reduce: function() {
+            this.curMultiple -= 0.1;
+            let style = "";
+            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+            style += ";"
+            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+            this.stageElement.setAttribute("style", style);
+        },
+        clockWise: function() {
+            this.curMultiple = 1;
+            this.curRotate -= 90;
+            let style = "";
+            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+            style += ";"
+            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+            style += ";"
+            style += "transform:" + "rotate(" + this.curRotate + "deg)";
+            this.stageElement.setAttribute("style", style);
+        },
+        antiClockWise: function() {
+            this.curMultiple = 1;
+            this.curRotate += 90;
+            let style = "";
+            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+            style += ";"
+            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+            style += ";"
+            style += "transform:" + "rotate(" + this.curRotate + "deg)";
+            this.stageElement.setAttribute("style", style);
+        },
         Close: function() {
             this.curImage = {};
             ipcRenderer.send("image-win-close");
@@ -86,7 +138,7 @@ export default {
                 style += "width:" + this.curImage.info.w + "px";
                 style += ";"
                 style += "height:" + this.curImage.info.h + "px";
-                this.updateWindowSize(this.curImage.info);
+                // this.updateWindowSize(this.curImage.info);
                 this.stageElement.setAttribute("style", style);
                 this.stageElement.setAttribute("src", this.curImage.imageUrl);
             }
@@ -111,7 +163,7 @@ export default {
                 style += "width:" + this.curImage.info.w + "px";
                 style += ";"
                 style += "height:" + this.curImage.info.h + "px";
-                this.updateWindowSize(this.curImage.info);
+                // this.updateWindowSize(this.curImage.info);
                 this.stageElement.setAttribute("style", style);
                 this.stageElement.setAttribute("src", this.curImage.imageUrl);
             }
@@ -195,6 +247,7 @@ export default {
             curImage: {},
             stageElement: undefined,
             curMultiple: 1,
+            curRotate: 0,
         }
     },
     mounted: function() {
@@ -210,7 +263,7 @@ export default {
             style += "width:" + this.curImage.info.w + "px";
             style += ";"
             style += "height:" + this.curImage.info.h + "px";
-            this.updateWindowSize(this.curImage.info);
+            // this.updateWindowSize(this.curImage.info);
             this.stageElement.setAttribute("style", style);
             this.stageElement.setAttribute("src", this.curImage.imageUrl);
         });
@@ -275,10 +328,144 @@ export default {
     .imageViewerPage {
         width: 100%;
         height: 100%;
-        background: rgba(241, 241, 241, 1);
+        background: rgba(255, 255, 255, 1);
+        text-align: center;
     }
 
     .imageViewerStage {
-        margin: 8px 8px 8px 8px;
+        position: fixed;
+        top: -20px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 30px;
+        width: 366px;
+        width: 320px;
+        height: 366px;
+    }
+
+    .viewerToolbar {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 30px;
+        width: 366px;
+    }
+
+    .viewer-tool-left {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 0px;
+        background-image: url("../../../static/Img/ImgViewer/left@2x.png");
+        background-size: contain;
+    }
+
+    .viewer-tool-left:hover {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 0px;
+        background-image: url("../../../static/Img/ImgViewer/left@2x.png");
+        background-size: contain;
+        cursor: pointer;
+    }
+
+    .viewer-tool-right {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/right@2x.png");
+        background-size: contain;
+    }
+    
+    .viewer-tool-right:hover {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/right@2x.png");
+        background-size: contain;
+        cursor: pointer;
+    }
+    
+    .viewer-tool-enlarge {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/enlarge@2x.png");
+        background-size: contain;
+    }
+    
+    .viewer-tool-enlarge:hover {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/enlarge@2x.png");
+        background-size: contain;
+        cursor: pointer;
+    }
+    
+    .viewer-tool-reduce {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/reduce@2x.png");
+        background-size: contain;
+    }
+    
+    .viewer-tool-reduce:hover {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/reduce@2x.png");
+        background-size: contain;
+        cursor: pointer;
+    }
+    
+    .viewer-tool-clock-wise {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/clockwise@2x.png");
+        background-size: contain;
+    }
+    
+    .viewer-tool-clock-wise:hover {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/clockwise@2x.png");
+        background-size: contain;
+        cursor: pointer;
+    }
+    
+    .viewer-tool-anticlock-wise {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 0px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/anticlockwise@2x.png");
+        background-size: contain;
+    }
+
+    .viewer-tool-anticlock-wise:hover {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 5px 0px 5px 10px;
+        background-image: url("../../../static/Img/ImgViewer/anticlockwise@2x.png");
+        background-size: contain;
+        cursor: pointer;
     }
 </style>
