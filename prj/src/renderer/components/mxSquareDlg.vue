@@ -2,32 +2,34 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">加入群聊</div>
+                <div class="mxCreaterHeaderTitle">群聊列表</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close('close')">
             </div>
-            <div class="search-field">
-                <div class="search-logo">
-                    <i class="el-icon-search"></i>
+            <div class="xieFrame">
+                <div class="search-field">
+                    <div class="search-logo">
+                        <i class="el-icon-search"></i>
+                    </div>
+                    <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
                 </div>
-                <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="请输入群组名或群组ID">
-            </div>
-            <div class="room-list">
-                <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
-                    <img class="room-img" :src="item.distUrl"/>
-                    <div class="room-xie">
-                        <div class="room-xie1" v-if="item.name">{{item.name}}</div>
-                        <div style="width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:block;" class="room-xie2" v-if="item.topic">{{item.topic}}</div>
-                        <div class="room-xie2">
-                            <img style="height:16px; width:16px; margin-left: -4px;" v-if="item.num_joined_members" src="../../../static/Img/Main/ren.png">
-                            <span v-if="item.num_joined_members" style="margin-right:12px;">{{item.num_joined_members}}</span>
-                            <span v-if="item.canonical_alias">{{item.canonical_alias}}</span>
+                <div class="room-list">
+                    <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
+                        <img class="room-img" :src="item.distUrl"/>
+                        <div class="room-xie">
+                            <div class="room-xie1" v-if="item.name">{{item.name}}</div>
+                            <div style="width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:block;" class="room-xie2" v-if="item.topic">{{item.topic}}</div>
+                            <div class="room-xie2">
+                                <img style="height:16px; width:16px; margin-left: -4px;" v-if="item.num_joined_members" src="../../../static/Img/Main/ren.png">
+                                <span v-if="item.num_joined_members" style="margin-right:12px;">{{item.num_joined_members}}</span>
+                                <span v-if="item.canonical_alias">{{item.canonical_alias}}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="room-xie4" v-if="!item.joined">
-                        <div class="room-join" @click.stop="joinRoom(item)">加入</div>
-                    </div>
-                    <div class="room-xie4" v-else>
-                        <div class="room-join" @click.stop="checkRoom(item)">查看</div>
+                        <div class="room-xie4" v-if="!item.joined">
+                            <div class="room-join" @click.stop="joinRoom(item)">加入</div>
+                        </div>
+                        <div class="room-xie4" v-else>
+                            <div class="room-join" @click.stop="checkRoom(item)">查看</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -411,13 +413,21 @@ export default {
     input:focus{
         outline:none;
     }
+    .xieFrame {
+        height: 380px;
+        margin-left: 32px;
+        margin-right: 32px;
+        border-radius: 4px;
+        border: 1px solid #DDDDDD;
+        display: flex;
+        flex-direction: column;
+    }
     .room-list {
         flex: 1;
-        margin: 28px;
         box-sizing: border-box;
         overflow-y: scroll;
-        border: 1px solid #DDD;
-        border-radius: 2px;
+        margin-left: 16px;
+        margin-right: 16px;
     }
     .search-logo {
         height: 32px;
@@ -438,8 +448,7 @@ export default {
         height: 32px;
         padding: 4px 8px;
         background-color: #fff;
-        margin-left: 28px;
-        margin-right: 28px;
+        margin: 12px 16px;
         border: 1px solid #DDD;
         border-radius: 2px;
     }
@@ -480,7 +489,13 @@ export default {
     }
 
     .mxCreaterHeaderTitle {
-        font-size: 14px;
+        width: 64px;
+        height: 22px;
+        font-size: 16px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        line-height: 22px;
     }
 
     .mxCreaterClose {
@@ -571,13 +586,11 @@ export default {
         width: 40%;
     }
     .room-item {
-        height: 76px;
+        height: 78px;
         display: flex;
         align-items: center;
-        padding: 0 12px;
         box-sizing: border-box;
         background-color: #fff;
-        width: 100%;
     }
     .room-img {
         height: 40px;
