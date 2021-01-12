@@ -1028,7 +1028,7 @@ export default {
         margin-right: 12px;
     }
     .shun2 {
-        width: 70%;
+        width: 85%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
