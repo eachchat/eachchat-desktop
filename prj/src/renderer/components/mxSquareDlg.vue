@@ -8,7 +8,7 @@
             <div class="xieFrame">
                 <div class="search-field">
                     <div class="search-logo">
-                        <i class="el-icon-search"></i>
+                        <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                     </div>
                     <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
                 </div>
@@ -430,8 +430,8 @@ export default {
         margin-right: 16px;
     }
     .search-logo {
-        height: 32px;
-        width: 32px;
+        height: 20px;
+        width: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -439,7 +439,7 @@ export default {
     }
     .search-input {
         flex: 1;
-        height: 32px;
+        height: 30px;
         box-sizing: border-box;
         border: none;
     }
@@ -451,6 +451,9 @@ export default {
         margin: 12px 16px;
         border: 1px solid #DDD;
         border-radius: 2px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
     }
     .wrap-layer {
         height: 100%;
