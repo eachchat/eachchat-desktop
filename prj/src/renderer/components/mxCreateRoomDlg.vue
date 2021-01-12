@@ -67,11 +67,11 @@
                 </div> -->
             </div>
             <div class="mxTransmitFotter" v-if="loading">
-                <div class="mxTransmitConfirmButtonDisable">确认</div>
+                <div class="mxTransmitConfirmButtonDisable">确定</div>
                 <div class="mxTransmitCancleButton" @click.self.stop="preStep">上一步</div>
             </div>
             <div class="mxTransmitFotter" v-else>
-                <div class="mxTransmitConfirmButton" @click.self.stop="confirm">确认</div>
+                <div class="mxTransmitConfirmButton" @click.self.stop="confirm">确定</div>
                 <div class="mxTransmitCancleButton" @click.self.stop="preStep">上一步</div>
             </div>
         </div>
