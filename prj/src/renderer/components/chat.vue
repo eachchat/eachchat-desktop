@@ -2444,76 +2444,102 @@ export default {
             uldiv.scrollTop = uldiv.scrollHeight;
         },
 
+        messageFilter(event){
+            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(event.getType()) >= 0) return true;
+            return false;
+        },
+
+        async getShowMessage(msgFileter, num, type)
+        {
+            let msgList = [];
+            while(this._timelineWindow.canPaginate(type)){
+                //获取历史消息
+                await this._timelineWindow.paginate(type, 20);
+                let tmpList = this._getEvents();
+                let index = 0;
+                msgList.length = 0;
+                tmpList.forEach(item => {
+                    if(msgFileter(item) && item.event.content){
+                        msgList.push(item);
+                        index++;
+                    } 
+                })
+                if(index > num) break;
+            }
+            return msgList;
+        },
+
         handleScroll: function() {
             let uldiv = document.getElementById("message-show-list");
+            if(!uldiv)
+                return;
             let client = document.getElementById("message-show");
             // console.log("=====client.clientHeight is ", client.clientHeight);
             // console.log("=====uldiv.scrollHeight - uldiv.scrollTop is ", uldiv.scrollHeight - uldiv.scrollTop);
             // console.log("=====uldiv.scrollHeight is ", uldiv.scrollHeight);
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
             // console.log("=====isRefreshing is ", this.isRefreshing);
-            if(uldiv) {
-                if(uldiv.scrollTop == 0){
-                    console.log("to update msg")
-                    var curTime = new Date().getTime();
-                    var canBackPaginate = this._timelineWindow.canPaginate("b");
-                    if(!canBackPaginate) {
-                        this.isRefreshing = false;
-                        return;
-                    }
-                    // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
-                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScrollTop){
-                        this.isScroll = true;
-                        this.lastScrollHeight = uldiv.scrollHeight;
-                        this.isRefreshing = true;
-                        this.lastRefreshTime = new Date().getTime();
-                        // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                        this._timelineWindow.paginate("b", 20)
-                            .then((ret) => {
-                                console.log("b scroll ret is ", ret);
-                                this.messageList = this._getEvents();
-                                this.isRefreshing = false;
-                                this.$nextTick(() => {
-                                    console.log("---------update croll top is ", uldiv.scrollHeight);
-                                    uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 32;
-                                    this.isScroll = false;
-                                })
-                            })
-                    }
+        
+            if(uldiv.scrollTop == 0){
+                console.log("to update msg")
+                var curTime = new Date().getTime();
+                var canBackPaginate = this._timelineWindow.canPaginate("b");
+                if(!canBackPaginate) {
+                    this.isRefreshing = false;
+                    return;
                 }
-                else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
-                    console.log("=======wo bottom");
-                    var curTime = new Date().getTime();
-                    var canForwardPaginate = this._timelineWindow.canPaginate("f");
-                    if(!canForwardPaginate) {
-                        this.isRefreshing = false;
-                        return;
-                    }
-                    if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing) {
-                        this.isScroll = true;
-                        this.lastScrollTop = uldiv.scrollTop;
-                        console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
-                        this.lastRefreshTime = new Date().getTime();
-                        // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                        this._timelineWindow.paginate("f", 20)
-                            .then((ret) => {
-                                console.log("f scroll ret is ", ret);
-                                this.messageList = this._getEvents();
-                                this.isRefreshing = false;
-                                setTimeout(() => {
-                                    this.$nextTick(() => {
-                                        // console.log("---------update croll top is ", uldiv.scrollHeight);
-                                        uldiv.scrollTop = this.lastScrollTop;
-                                        this.isScroll = false;
-                                        // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
-                                        // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
-                                    })
-                                }, 100)
-                                this.needToBottom = false;
+                // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
+                if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScrollTop){
+                    this.isScroll = true;
+                    this.lastScrollHeight = uldiv.scrollHeight;
+                    this.isRefreshing = true;
+                    this.lastRefreshTime = new Date().getTime();
+                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+                    this.getShowMessage(this.messageFilter, 10, 'b')
+                        .then((ret) => {
+                            this.messageList = ret;
+                            this.isRefreshing = false;
+                            this.$nextTick(() => {
+                                console.log("---------update croll top is ", uldiv.scrollHeight);
+                                uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 32;
+                                this.isScroll = false;
                             })
+                        })
                     }
+            }
+            else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
+                console.log("=======wo bottom");
+                var curTime = new Date().getTime();
+                var canForwardPaginate = this._timelineWindow.canPaginate("f");
+                if(!canForwardPaginate) {
+                    this.isRefreshing = false;
+                    return;
+                }
+                if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing) {
+                    this.isScroll = true;
+                    this.lastScrollTop = uldiv.scrollTop;
+                    console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
+                    this.lastRefreshTime = new Date().getTime();
+                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+                    this.getShowMessage(this.messageFilter, 10, 'b')
+                        .then((ret) => {
+                            this.messageList = ret
+                            let index = 0;
+                            this.isRefreshing = false;
+                            setTimeout(() => {
+                                this.$nextTick(() => {
+                                    // console.log("---------update croll top is ", uldiv.scrollHeight);
+                                    uldiv.scrollTop = this.lastScrollTop;
+                                    this.isScroll = false;
+                                    // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
+                                    // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                                })
+                            }, 0)
+                            this.needToBottom = false;
+                        })
                 }
             }
+            
         },
         copyDom: function() {
             let distUlElement = document.getElementById("message-show-list");
