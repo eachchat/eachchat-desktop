@@ -674,11 +674,19 @@ export default {
                     global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
                 }
                 else if(varcontent.msgtype == "m.file") {
+                    var body = varcontent.body;
+                    var showfu = new FileUtil(body);
+                    var mimetype = showfu.GetMimename();
+                    showfileObj = showfu.GetUploadfileobj();
+                    stream = showfu.ReadfileSync(fileinfo.path);
                     var content = {
                         msgtype: 'm.file',
                         body: varcontent.body,
                         url: varcontent.url,
-                        info: varcontent.info,
+                        info: {
+                            size: varcontent.info,
+                            mimetype: mimetype
+                        }
                     };
                     global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
                 }
