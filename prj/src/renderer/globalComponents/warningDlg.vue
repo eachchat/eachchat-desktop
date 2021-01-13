@@ -2,9 +2,12 @@
     <div id="tip_alertModal" class="wrap-layer">
         <div class="mx-setting-dialog">
             <div class="inner-wrap">
-                <div class="title">{{title}}</div>
-                <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png">
-                <div>{{content}}</div>
+                <div class="title">
+                    <img class="kobe" src="../../../static/Img/Main/mgs.png"/>
+                    <div class="titleText">退出群聊</div>
+                </div>
+                <!-- <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png"> -->
+                <div class="desc">是否退出群聊？</div>
                 <div class="submit-field">
                     <div class="button buttonConfirm" @click.stop="confirm">确定</div>
                     <div class="button buttonCancel" @click.stop="cancel">取消</div>
@@ -88,7 +91,6 @@ export default {
         margin-top: -80px;
         margin-left: -200px;
         background-color: #fff;
-        padding: 24px;
         border-radius: 4px;
         width: 400px;
         height: 160px;
@@ -97,9 +99,33 @@ export default {
             height: 100%;
             overflow-y: scroll;
             .title {
-                font-size: 16px;
-                font-weight: bolder;
-                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                margin-bottom: 12px;
+                margin-left: 32px;
+                margin-top: 32px;
+                .kobe {
+                    height: 24px;
+                    width: 24px;
+                    margin-right: 16px;
+                }
+                .titleText {
+                    height: 22px;
+                    font-size: 16px;
+                    font-family: PingFangSC-Medium, PingFang SC;
+                    font-weight: 500;
+                    color: #000000;
+                    line-height: 22px;
+                }
+            }
+            .desc {
+                height: 20px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #000000;
+                line-height: 20px;
+                margin-left: 72px;
             }
             .close {
                 position: absolute;
@@ -134,10 +160,9 @@ export default {
             }
             .submit-field {
                 display: flex;
-                justify-content: center;
                 align-items: center;
                 flex-direction: row-reverse;
-                margin-top: 60px;
+                margin-top: 20px;
                 .button {
                     box-sizing: border-box;
                     width: 100px;
@@ -150,17 +175,17 @@ export default {
                     font-family: PingFangSC-Medium, PingFang SC;
                     font-weight: 500;
                     line-height: 20px;
-                    letter-spacing: 1px;
                     cursor: pointer;
                 }
                 .buttonCancel {
                     background: #fff;
                     border: 1px solid #DDDDDD;
+                    margin-right: 20px;
                 }
                 .buttonConfirm {
-                    margin-left: 28px;
                     background: #24B36B;
                     color: #FFFFFF;
+                    margin-right: 20px;
                 }
             }
         }
