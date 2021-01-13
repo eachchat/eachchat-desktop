@@ -260,7 +260,6 @@ export default {
     font-weight:500;
     color:rgba(0,0,0,1);
     line-height:20px;
-    letter-spacing:1px;
     padding-left: 16px;
     margin-top: 18px;
     margin-bottom: 18px;

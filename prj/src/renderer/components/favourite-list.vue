@@ -846,7 +846,6 @@ display: none;
             font-weight:400;
             color:rgba(0,0,0,1);
             line-height:22px;
-            letter-spacing:1px;
             font-size: 14px;
             padding-top: 20px;
             margin-top: 0px;
@@ -997,7 +996,6 @@ display: none;
                     font-weight:500;
                     color:rgba(0,0,0,1);
                     line-height:20px;
-                    letter-spacing:1px;
                     font-family: PingFangSC-Medium;
                     
                 }
@@ -1008,7 +1006,6 @@ display: none;
                     font-weight:400;
                     color:rgba(153,153,153,1);
                     line-height:18px;
-                    letter-spacing:1px;
                     font-family: PingFangSC-Regular;
                 }
             }
@@ -1070,7 +1067,6 @@ display: none;
             font-weight:400;
             color:rgba(0,0,0,1);
             line-height:20px;
-            letter-spacing:1px;
             padding-left: 12px;
             padding-top: 22px;
             padding-bottom: 22px;
