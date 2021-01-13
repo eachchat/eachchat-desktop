@@ -2218,19 +2218,7 @@ export default {
           if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
             return timeLineTmp;
           }
-  /*
-          else
-          {
-            console.log('----------')
-            console.log(timeLineTmp.getType()) 
-          }
-  */
-          if(chatGroupItem.distTimeLine) {
-            return chatGroupItem.distTimeLine;
-          }
-          else {
-            return undefined
-          }
+
         }
       }
       else {
