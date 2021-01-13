@@ -1367,8 +1367,8 @@ export default {
         if(chatGroupMsgType === "m.room.message")
         {
             var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-            if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
-              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+            if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
+              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
               if(chatGroupMsgContent.msgtype == 'm.file'){
                 distContentElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
               }
@@ -2331,8 +2331,8 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-          if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-            var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+          if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+            var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
             if(chatGroupMsgContent.msgtype == 'm.file'){
               distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
             }
