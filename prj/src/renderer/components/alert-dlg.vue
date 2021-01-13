@@ -259,7 +259,7 @@ export default {
         margin-right: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        // margin-left: 110px;
+        margin-left: 180px;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);

@@ -429,7 +429,6 @@ export default {
         font-weight:400;
         color: rgb(153, 153, 153);
         line-height:18px;
-        letter-spacing:1px;
     }
     .personalCenter-stateSelectArrow{
         width: 20px;
@@ -482,7 +481,6 @@ export default {
                 font-weight:400;
                 color:rgba(51,51,51,1);
                 line-height:18px;
-                letter-spacing:1px;
                 display: inline-block;
                 font-family: PingFangSC-Regular;
                 vertical-align: top;
@@ -534,7 +532,6 @@ export default {
             font-weight:400;
             color: rgb(153, 153, 153);
             line-height:18px;
-            letter-spacing:1px;
     }
 }
 .personalCenter-workDescription:hover{
