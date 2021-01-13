@@ -126,7 +126,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content"></p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)"></p>
                   </div>
                   <div class="group-notice">
                     <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
