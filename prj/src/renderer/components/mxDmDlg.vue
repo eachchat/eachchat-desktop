@@ -39,7 +39,9 @@
                             @click.stop="changeLayer(item)"
                         >   
                             <div style="display:flex; align-items:center;">
-                                <img class="room-img" style="margin-right:2px;" src="../../../static/Img/Main/xinzuzhi.png"/> <!-- src="../../../static/Img/Main/yjt.png" -->
+                                <img class="room-img" style="margin-right:2px;" 
+                                    :src="item.department_id === 'contact' ? '../../../static/Img/Main/xincontact.png' : '../../../static/Img/Main/xinzuzhi.png'"
+                                /> <!-- src="../../../static/Img/Main/yjt.png" -->
                                 <div class="user-info">
                                     <span class="room-info">{{item.display_name}}</span>
                                 </div>
@@ -614,20 +616,8 @@ export default {
             console.log('caonimao', this.crumbs)
             const client = window.mxMatrixClientPeg.matrixClient;
             let department_id = obj.department_id;
-            if (department_id === this.crumbs[0].department_id) {
-                const rootDep = await Department.GetRoot();
-                const dvd = {dvd:true, txt:'我的联系人'};
-                const contactUsers = await Contact.GetAllContact();
-                contactUsers.forEach(c => {
-                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-                })
-                rootDep.type = 'dep';
-                rootDep.display_name = '组织';
-                let totalArray = [rootDep, dvd, ...contactUsers];
-                totalArray.forEach(t => t.choosen = false);
-                this.totalList = [...totalArray];
-                this.crumbs[0].choosen = true;
-                this.crumbs = [this.crumbs[0]];
+            if (department_id === 'lxr') {
+                await this.originStatus();
             } else {
                 this.changeLayer(obj);
             }
@@ -650,52 +640,65 @@ export default {
             }
             newCrumbs[newCrumbs.length-1].choosen = true;
             console.log('>>>>>', newCrumbs)
-            newCrumbs[1].name = '组织';
+            if (!this.isSearch) newCrumbs[1].name = '组织';
+            if (obj.department_id === 'contact') newCrumbs[1].name = '我的联系人';
             this.crumbs = [...newCrumbs];
-            const subDep = await Department.GetSubDepartment(department_id);
-            const subUsers = await UserInfo.GetSubUserinfo(department_id);
-            console.log('-----subDep-----', subDep)
-            console.log('-----subUsers-----', subUsers)
-            subDep.forEach(s=>s.type = 'dep')
-            subUsers.forEach(c=>{
-                console.log('----kanha----', client.getUser(c.matrix_id));
-                c.display_name = c.user_display_name || c.user_name;
-                c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-                
-            })
-            let totalArray = [...subDep, ...subUsers];
-            totalArray.forEach(t => t.choose = false)
-            this.totalList = [...totalArray];   
+            if (obj.department_id === 'contact') {
+                const contactUsers = await Contact.GetAllContact();
+                console.log('contactUsers', contactUsers);
+                contactUsers.forEach(c => {
+                    console.log('----kanha----', client.getUser(c.matrix_id));
+                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                })
+                let totalArray = [...contactUsers];
+                totalArray.forEach(t => t.choosen = false)
+                this.totalList = [...totalArray];
+            } else {
+                const subDep = await Department.GetSubDepartment(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                console.log('-----subDep-----', subDep)
+                console.log('-----subUsers-----', subUsers)
+                subDep.forEach(s=>s.type = 'dep')
+                subUsers.forEach(c=>{
+                    console.log('----kanha----', client.getUser(c.matrix_id));
+                    c.display_name = c.user_display_name || c.user_name;
+                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                    
+                })
+                let totalArray = [...subDep, ...subUsers];
+                totalArray.forEach(t => t.choose = false)
+                this.totalList = [...totalArray];   
+
+            }
+        },
+        async originStatus() {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const rootDep = await Department.GetRoot();
+            rootDep.type = 'dep';
+            rootDep.display_name = '组织';
+            // const contactUsers = await Contact.GetAllContact();
+            // console.log('contactUsers', contactUsers);
+            // contactUsers.forEach(c => {
+            //     console.log('----kanha----', client.getUser(c.matrix_id));
+            //     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+            // })
+            const dvd = {dvd:true, txt:'我的联系人'};
+            const layer = {name:'联系人', department_id:'lxr', choosen: true}
+            let myContact = {
+                type: 'dep',
+                display_name: '我的联系人',
+                department_id: 'contact'
+            }
+            let totalArray = [rootDep, myContact];
+            totalArray.forEach(t => t.choosen = false)
+            this.totalList = [...totalArray];
+            this.crumbs = [layer];
         },
     },
     components: {
     },
     async created() {
-        const client = window.mxMatrixClientPeg.matrixClient;
-        const rootDep = await Department.GetRoot();
-        rootDep.type = 'dep';
-        rootDep.display_name = '组织';
-        const contactUsers = await Contact.GetAllContact();
-        console.log('contactUsers', contactUsers);
-        contactUsers.forEach(c => {
-            console.log('----kanha----', client.getUser(c.matrix_id));
-            c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-        })
-        const dvd = {dvd:true, txt:'我的联系人'};
-        const layer = {name:'联系人', department_id:'lxr', choosen: true}
-        let totalArray = [rootDep, dvd, ...contactUsers];
-        totalArray.forEach(t => t.choosen = false)
-        this.totalList = [...totalArray];
-        this.crumbs = [layer];
-
-
-
-        console.log('rootDep', rootDep);
-        console.log('contactUsers', contactUsers);
-        const subDep = await Department.GetSubDepartment("0a59d5bd13cb476698fee9d58599e37e");
-        const subUsers = await UserInfo.GetSubUserinfo("0a59d5bd13cb476698fee9d58599e37e");
-        console.log('subDep', subDep);
-        console.log('subUsers', subUsers);
+        await this.originStatus();
     },
     
     mounted() {
@@ -742,7 +745,9 @@ export default {
         background-color: #fff;
         flex: 1;
         margin-bottom: 0;
-        overflow-y: scroll;
+        overflow-y: hidden;
+        display: flex;
+        flex-direction: column;
     }
     .room-list {
         flex: 1;
@@ -777,6 +782,7 @@ export default {
         margin-bottom: 0;
         box-sizing: border-box;
         align-items: center;
+        margin-bottom: 12px;
     }
     .wrap-layer {
         height: 100%;
