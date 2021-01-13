@@ -815,7 +815,6 @@ export default {
     }
 
     .mxCreaterHeaderTitle {
-        width: 72px;
         height: 22px;
         font-size: 16px;
         font-family: PingFangSC-Medium, PingFang SC;
