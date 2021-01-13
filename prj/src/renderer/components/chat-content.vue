@@ -1397,7 +1397,7 @@ export default {
       }
       if(distTimeElement) {
         var formatTime = ""
-        var timesecond = Number(event.origin_server_ts);
+        var timesecond = Number(event ? event.origin_server_ts : '');
 
         if(timesecond.length == 0) {
           return;
@@ -1847,7 +1847,7 @@ export default {
       let event = distTimeLine.event;
 
       var formatTime = ""
-      var timesecond = Number(event.origin_server_ts);
+      var timesecond = Number(event ? event.origin_server_ts : '');
 
       if(timesecond.length == 0) {
         return formatTime;
@@ -2218,7 +2218,19 @@ export default {
           if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
             return timeLineTmp;
           }
-
+  /*
+          else
+          {
+            console.log('----------')
+            console.log(timeLineTmp.getType()) 
+          }
+  */
+          if(chatGroupItem.distTimeLine) {
+            return chatGroupItem.distTimeLine;
+          }
+          else {
+            return undefined
+          }
         }
       }
       else {
@@ -2263,7 +2275,8 @@ export default {
                 "room": {
                     "timeline": {
                         "types": [
-                            "m.room.message"
+                            "m.room.message",
+                            "m.room.create"
                         ],
                     },
                 },
@@ -2288,15 +2301,7 @@ export default {
       )
       await _timelineWindow.load(undefined, 20);
       var fileListInfo = _timelineWindow.getEvents();
-      if(fileListInfo.length == 0) {
-        await _timelineWindow.paginate("b", 20);
-        fileListInfo = await _timelineWindow.getEvents();
-      }
-      if(fileListInfo.length == 0) {
-        await _timelineWindow.paginate("b", 20);
-        fileListInfo = await _timelineWindow.getEvents();
-      }
-      if(fileListInfo.length == 0) {
+      while(fileListInfo.length == 0 && _timelineWindow.canPaginate('b')) {
         await _timelineWindow.paginate("b", 20);
         fileListInfo = await _timelineWindow.getEvents();
       }
@@ -2341,7 +2346,7 @@ export default {
       }
       if(distTimeElement) {
         var formatTime = ""
-        var timesecond = Number(event.origin_server_ts);
+        var timesecond = Number(event ? event.origin_server_ts : "");
 
         if(timesecond.length == 0) {
           return;
