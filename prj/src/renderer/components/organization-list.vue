@@ -163,9 +163,7 @@ export default {
             let userIconElement = document.getElementById(userInfo.user_id);
             if(!userIconElement)
                 return;
-            console.log(userInfo.matrix_id)
             global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id).then((profileInfo) => {
-                console.log(profileInfo)
                 if(!profileInfo.avatar_url)
                     return;
                 let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);

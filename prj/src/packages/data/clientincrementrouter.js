@@ -49,42 +49,6 @@ class UserIncrement extends BaseIncrement{
                 let findUserInfo = userinfos[0];
                 findUserInfo.values = userInfoModel.values;
                 findUserInfo.save();
-                if(findUserInfo.avatar_t_url != userInfoModel.avatar_t_url){
-                    
-                    var userId = findUserInfo.user_id;
-                    confservice.init(foundUsers[0].user_id);
-                    console.log(findUserInfo.user_display_name + " url is changed");
-                    console.log(findUserInfo.avatar_t_url + " avatar_t_url");
-                    
-                    var groupsTmp = await Group.SearchByNameKey(findUserInfo.user_display_name);
-                    for(var i=0;i<groupsTmp.length;i++) {
-                        if(groupsTmp[i].group_type == 102) {
-                            console.log("get group from name is ", groupsTmp[i]);
-                            var targetDir = confservice.getUserThumbHeadPath();
-                            var targetPath = path.join(targetDir, groupsTmp[i].group_id + '.png');
-                            if(fs.existsSync(targetPath)){
-                                console.log("group target path is ", targetPath);
-                                fs.unlink(targetPath, function(err){
-                                    if(err){
-                                        console.log(err);
-                                    }
-                                });
-                            }
-                            await services.common.downloadGroupAvatar(findUserInfo.avatar_t_url, groupsTmp[i].group_id);
-                            break;
-                        }
-                    }
-                    
-                    var localPath = confservice.getUserThumbHeadLocalPath(userId);
-                    if(fs.existsSync(localPath)){
-                        fs.unlink(localPath, function(err){
-                            if(err){
-                                console.log(err);
-                            }
-                        });
-                    }
-                    await services.common.downloadUserTAvatar(findUserInfo.avatar_t_url, findUserInfo.user_id);
-                }
             }
         }
         else{
