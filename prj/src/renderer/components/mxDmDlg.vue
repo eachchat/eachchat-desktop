@@ -40,7 +40,7 @@
                         >   
                             <div style="display:flex; align-items:center;">
                                 <img class="room-img" style="margin-right:2px;" 
-                                    :src="item.department_id === 'contact' ? '../../../static/Img/Main/xincontact.png' : '../../../static/Img/Main/xinzuzhi.png'"
+                                    :src="item.avatar"
                                 /> <!-- src="../../../static/Img/Main/yjt.png" -->
                                 <div class="user-info">
                                     <span class="room-info">{{item.display_name}}</span>
@@ -148,7 +148,8 @@ export default {
             choosenMembers: [],
             crumbs: [],
             totalList: [],
-            isSearch: false
+            isSearch: false,
+            rootDepId: ''
         }
     },
     timer: null,
@@ -619,7 +620,7 @@ export default {
             if (department_id === 'lxr') {
                 await this.originStatus();
             } else {
-                this.changeLayer(obj);
+                await this.changeLayer(obj);
             }
         },
         async changeLayer(obj) {
@@ -658,7 +659,10 @@ export default {
                 const subUsers = await UserInfo.GetSubUserinfo(department_id);
                 console.log('-----subDep-----', subDep)
                 console.log('-----subUsers-----', subUsers)
-                subDep.forEach(s=>s.type = 'dep')
+                subDep.forEach(s => {
+                    s.type = 'dep';
+                    s.avatar = department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                })
                 subUsers.forEach(c=>{
                     console.log('----kanha----', client.getUser(c.matrix_id));
                     c.display_name = c.user_display_name || c.user_name;
@@ -676,6 +680,7 @@ export default {
             const rootDep = await Department.GetRoot();
             rootDep.type = 'dep';
             rootDep.display_name = '组织';
+            rootDep.avatar = '../../../static/Img/Main/xinzuzhi.png';
             // const contactUsers = await Contact.GetAllContact();
             // console.log('contactUsers', contactUsers);
             // contactUsers.forEach(c => {
@@ -687,8 +692,10 @@ export default {
             let myContact = {
                 type: 'dep',
                 display_name: '我的联系人',
-                department_id: 'contact'
+                department_id: 'contact',
+                avatar: '../../../static/Img/Main/xincontact.png'
             }
+            this.rootDepId = rootDep.department_id;
             let totalArray = [rootDep, myContact];
             totalArray.forEach(t => t.choosen = false)
             this.totalList = [...totalArray];
