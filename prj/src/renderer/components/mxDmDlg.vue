@@ -28,7 +28,7 @@
                         <span>{{item.name}}</span>
                     </div>
                 </div>
-                <div class="room-list" v-if="!isSearch">
+                <div class="room-list">
                     <div 
                         v-for="(item, idx) in totalList" 
                         :key="idx"
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="room-list" v-else>
+                <!-- <div class="room-list" v-else>
                     <div 
                         v-for="(item, idx) in searchedMembers" 
                         :key="idx"
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="submit-field">
                 <div class="cancel-button" @click.stop="close('close')">取消</div>
@@ -418,14 +418,15 @@ export default {
                 // });
             });
         },
-        searchMember: function() {
+        searchMember: async function() {
             const term = this.memText;
             const client = window.mxMatrixClientPeg.matrixClient;
             if (this.timer) clearTimeout(this.timer);
             if (!term) {
                 this.searchedMembers = [];
                 this.isSearch = false;
-                return
+                await this.originStatus();
+                return;
             }
             this.timer = setTimeout(async ()=>{
                 const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
@@ -434,12 +435,15 @@ export default {
                 const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
                 console.log('----searchUsers----', searchUsers);
                 console.log('----searchContacts----', searchContacts);
+                console.log('----searchContacts----', searchContacts);
+                console.log('----searchDeps----', searchDeps);
                 console.log('----res----', res);
                 let sds = [];
                 if (searchDeps.length > 0) sds.push({dvd:true, txt:'部门'});
                 searchDeps.forEach(s => {
                     s.type = 'dep';
-                    s.avatar = department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    s.avatar = s.department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    sds.push(s);
                 })
                 let sus = [];
                 if (searchUsers.length > 0) sus.push({dvd:true, txt:'组织'});
@@ -475,7 +479,9 @@ export default {
                 const totalArray = [...scs, ...sus, ...sds, ...mxs];
                 console.log('----totalArray----', totalArray);
                 this.isSearch = true;
-                this.searchedMembers = [...totalArray];
+                // this.searchedMembers = [...totalArray];
+                this.crumbs = [];
+                this.totalList = [...totalArray];
                 // client.searchUserDirectory({term}).then(r => {
                 //     console.log('searchUserDirectory', r)
                 //     if (r.results) {
@@ -636,15 +642,19 @@ export default {
             let crumbs = this.crumbs;
             const len = crumbs.length;
             let newCrumbs = []
-            for(let i=0; i<len; i++) {
-                newCrumbs.push(crumbs[i]);
-                if (crumbs[i].department_id === department_id) {
-                    break;
+            if (len) {
+                for(let i=0; i<len; i++) {
+                    newCrumbs.push(crumbs[i]);
+                    if (crumbs[i].department_id === department_id) {
+                        break;
+                    }
+                    if (i === len-1) {
+                        let layer = {name:obj.display_name, department_id:obj.department_id}
+                        newCrumbs.push(layer);
+                    }
                 }
-                if (i === len-1) {
-                    let layer = {name:obj.display_name, department_id:obj.department_id}
-                    newCrumbs.push(layer);
-                }
+            } else {
+                newCrumbs.push({name:obj.display_name, department_id:obj.department_id});
             }
             newCrumbs[newCrumbs.length-1].choosen = true;
             console.log('>>>>>', newCrumbs)
