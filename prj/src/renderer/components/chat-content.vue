@@ -126,7 +126,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-show="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-show="!isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, chatGroupItem.user_id)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content"></p>
+                    <p class="group-content" :id="getChatContentElementId(chatGroupItem.roomId)"></p>
                   </div>
                   <div class="group-notice">
                     <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
@@ -1367,8 +1367,8 @@ export default {
         if(chatGroupMsgType === "m.room.message")
         {
             var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-            if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
-              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+            if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
+              var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
               if(chatGroupMsgContent.msgtype == 'm.file'){
                 distContentElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
               }
@@ -1378,6 +1378,9 @@ export default {
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
               } 
+              else if(chatGroupMsgContent.msgtype == "m.audio") {
+                distContentElement.innerHTML = senderName + ":" + "[语音]";
+              }
             }
             else {
               if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -1389,6 +1392,9 @@ export default {
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
               } 
+              else if(chatGroupMsgContent.msgtype == "m.audio") {
+                distContentElement.innerHTML = "[语音]";
+              }
             }
         }
         else if(chatGroupMsgType === "m.room.encrypted") {
@@ -2308,7 +2314,15 @@ export default {
       if(fileListInfo.length == 0) {
         return;
       }
-      var distTimeLine = fileListInfo[fileListInfo.length - 1];
+      var distTimeLine = undefined;
+      for(var i=fileListInfo.length - 1;i>=0;i--) {
+        if(!fileListInfo[i].isRedacted()) {
+          distTimeLine = fileListInfo[i];
+          break;
+        }
+      }
+      if(distTimeLine == undefined) return;
+      // distTimeLine = fileListInfo[fileListInfo.length - 1];
       chatGroupItem.distTimeLine = distTimeLine;
       let event = distTimeLine.event;
       let chatGroupMsgType = event.type;
@@ -2317,8 +2331,8 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-          if(sender.userId != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-            var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
+          if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+            var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
             if(chatGroupMsgContent.msgtype == 'm.file'){
               distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
             }
@@ -2328,6 +2342,9 @@ export default {
             else if(chatGroupMsgContent.msgtype == 'm.image'){
               distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
             } 
+            else if(chatGroupMsgContent.msgtype == "m.audio") {
+              distElement.innerHTML = senderName + ":" + "[语音]";
+            }
           }
           else {
             if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -2339,6 +2356,9 @@ export default {
             else if(chatGroupMsgContent.msgtype == 'm.image'){
               distElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
             } 
+            else if(chatGroupMsgContent.msgtype == "m.audio") {
+              distElement.innerHTML = "[语音]";
+            }
           }
       }
       else if(chatGroupMsgType === "m.room.encrypted") {

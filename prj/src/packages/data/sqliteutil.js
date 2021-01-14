@@ -1,6 +1,7 @@
 import { models, globalModels } from './models.js';
 import { model } from '../core/index.js';
 import { JsonMsgContentToString } from '../core/Utils.js';
+var pinyin = require("pinyin");
 
 const sqliteutil = {
     async GetMaxMsgSequenceID(userid){
@@ -308,6 +309,9 @@ const UserInfo = {
     async GetSubUserinfo(departmentID){
         let userinfos = await(await models.UserInfo).find({
             belong_to_department_id: departmentID
+        })
+        userinfos.sort((item1, item2) => {
+            return pinyin.compare(item1.user_display_name, item2.user_display_name)
         })
         return userinfos;
     },
@@ -801,7 +805,10 @@ const Secret = {
 
 const Contact = {
     async GetAllContact(){
-        return await (await models.Contact).find()
+        let contacts =  await (await models.Contact).find()
+        return contacts.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
+        })
     },
 
     async DeleteAllContact(){

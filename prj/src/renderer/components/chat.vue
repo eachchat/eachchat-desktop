@@ -8,7 +8,7 @@
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
                 <p class="chat-name" id="chat-group-name">{{chat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
-                <p class="chat-name-state" id="chat-group-state"></p>
+                <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="groupIsSlience()"/>
             </div>
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
@@ -198,7 +198,7 @@ import {ComponentUtil} from '../script/component-util';
 import mxHistoryPage from './mxHistoryMsg.vue';
 import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
-
+import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -297,6 +297,18 @@ export default {
         mxMemberSelectDlg
     },
     methods: {
+        groupIsSlience() {
+            if(this.chat.roomId) {
+                console.log("*** this.chat is ", this.chat);
+                const state = getRoomNotifsState(this.chat.roomId);
+                if(state == MUTE) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        },
         JumpToDistRoom(roomId) {
             this.$emit("JoinRoom", roomId);
         },
@@ -1374,7 +1386,7 @@ export default {
                 return "";
             }
             var groupIcoElement = document.getElementById("chat-group-img");
-            var groupStateElement = document.getElementById("chat-group-state");
+            // var groupStateElement = document.getElementById("chat-group-state");
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             var groupNameElement = document.getElementById("chat-group-name");
             console.log("getShowGroupName is ", chatGroupItem)
@@ -2191,17 +2203,6 @@ export default {
             }
             else {
                 if(groupInfo.status.substr(4, 1) == "1") {
-                    return true;
-                }
-                return false;
-            }
-        },
-        groupIsSlience(groupInfo) {
-            if(groupInfo.status == 0) {
-                return false;
-            }
-            else {
-                if(groupInfo.status.substr(7, 1) == "1") {
                     return true;
                 }
                 return false;
@@ -3173,6 +3174,13 @@ export default {
         * {
             -webkit-app-region: no-drag;
         }
+    }
+
+    .chat-state-img {
+        width: 16px;
+        height: 16px;
+        margin: 8px 4px 8px 4px;
+        display: inline-block;
     }
 
     .chat-tools {

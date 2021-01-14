@@ -35,10 +35,9 @@
                         v-for="department in searchDeparements"
                         @click="searchDeparmentItemClicked(department.department_id)" 
                         :key="department.department_id">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/organization-40px@2x.png">
-                        <div class="manager-info">
-                        <p v-html="msgContentHightLight(department.display_name)" class="contact-list-name">{{ department.display_name }}</p>
-                        <p v-html="msgContentHightLight(department.description)" class="contact-list-titile">{{ department.description }}</p>
+                        <img ondragstart="return false" class="department-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/organization-40px@2x.png">
+                        <div class="department-info">
+                        <p v-html="msgContentHightLight(department.display_name)" class="department-name">{{ department.display_name }}</p>
                         </div>
                     </li>
                     
