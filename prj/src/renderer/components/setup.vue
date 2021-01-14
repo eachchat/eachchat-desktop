@@ -126,7 +126,7 @@
                 <label class="setup-array-label">软件隐私政策</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
             </div>
-            <div class="setup-logout" @click="logout()">退出登录</div>
+            <div class="setup-logout" @click="logout()">退出</div>
         </div>
       </div>
       <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>

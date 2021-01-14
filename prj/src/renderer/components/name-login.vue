@@ -1913,6 +1913,7 @@ export default {
             font-weight: 400;
             text-align: left;
             width: 100%;
+            margin: 2px 0 0 0;
         }
 
 

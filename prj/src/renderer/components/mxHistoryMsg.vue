@@ -107,7 +107,7 @@ export default {
     },
     methods: {
         ShowFile: function(item) {
-            this.$emit('jumpToEvent', item.event_id);
+            this.$emit('jumpToEvent', item.event_id, this.GroupInfo);
         },
         getFileNumber: function(nSize) {
             return getFileSizeByNumber(nSize);
@@ -552,6 +552,7 @@ export default {
                 this.toInit();
                 return;
             }
+            this.toInit();
             this.groupId = this.distRoomId;
             await this.getAppBaseData();
             this.$nextTick(() => {

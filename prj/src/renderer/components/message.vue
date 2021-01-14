@@ -1448,6 +1448,10 @@ export default {
         -webkit-user-select:none;
     }
 
+    .msg-image {
+        height: 400px;
+    }
+
     .chat-msg-content-mine-file {
         float:right;
         background:rgba(255, 255, 255, 1);

@@ -1,12 +1,12 @@
 <template>
     <div class="chat-page">
         <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" :initSearchKey="initSearchKey" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
-        <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="chat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
+        <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="curChat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
         <div class="chat-title">
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
-                <p class="chat-name" id="chat-group-name">{{chat.name}}</p>
+                <p class="chat-name" id="chat-group-name">{{curChat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="groupIsSlience()"/>
             </div>
@@ -102,7 +102,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="chat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :imageViewerImageInfo="imageViewerImageInfo" :transmitImageViewer="transmitImageViewer" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="curChat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :imageViewerImageInfo="imageViewerImageInfo" :transmitImageViewer="transmitImageViewer" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -148,8 +148,8 @@
                 <span class="history-file-label">文件</span>
             </div>
         </div>
-        <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="chat.roomId"></mxSettingDialog>
-        <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="chat.roomId"></mxChatInfoDlg>
+        <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId"></mxSettingDialog>
+        <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="curChat.roomId"></mxChatInfoDlg>
         <!-- <mxMemberSelectDlg 
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
@@ -298,9 +298,8 @@ export default {
     },
     methods: {
         groupIsSlience() {
-            if(this.chat.roomId) {
-                console.log("*** this.chat is ", this.chat);
-                const state = getRoomNotifsState(this.chat.roomId);
+            if(this.curChat.roomId) {
+                const state = getRoomNotifsState(this.curChat.roomId);
                 if(state == MUTE) {
                     return true;
                 }
@@ -316,12 +315,12 @@ export default {
 
         },
         createAnother() {
-            console.log('this.chat', this.chat)
+            console.log('this.curChat', this.curChat)
             const client = window.mxMatrixClientPeg.matrixClient;
             const mDirectEvent = client.getAccountData('m.direct');
             let dmRoomMap = {};
             if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-            let currentRoom = this.chat;
+            let currentRoom = this.curChat;
             let dmRoomIdArr = [];
             const roomId = currentRoom.roomId;
             const userId = client.getUserId();
@@ -358,17 +357,17 @@ export default {
             return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction" || (!this.showNoticeOrNot(msgItem) && !this.showMessageOrNot(msgItem));
         },
         joinRoom: function() {
-            global.mxMatrixClientPeg.matrixClient.joinRoom(this.chat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
+            global.mxMatrixClientPeg.matrixClient.joinRoom(this.curChat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
                     this.isInvite = false;
                     // this.isRefreshing = true;
                     setTimeout(() => {
-                        this.$emit('JoinRoom', this.chat.roomId);
+                        this.$emit('JoinRoom', this.curChat.roomId);
                     }, 500)
                     setTimeout(() => {
                         this._loadTimeline(undefined, undefined, undefined)
                             .then((ret) => {
-                                console.log("join room chat is ", this.chat);
+                                console.log("join room chat is ", this.curChat);
                                 this.isRefreshing = false;
                                 this.messageList = this._getEvents();
                                 
@@ -401,9 +400,9 @@ export default {
                 })
         },
         rejectRoom: function() {
-            global.mxMatrixClientPeg.matrixClient.leave(this.chat.roomId);
+            global.mxMatrixClientPeg.matrixClient.leave(this.curChat.roomId);
             setTimeout(() => {
-                this.$emit('DeleteGroup', this.chat.roomId);
+                this.$emit('DeleteGroup', this.curChat.roomId);
             }, 0)
         },
         mxChatInfoDlgSetting: function(close) {
@@ -490,12 +489,12 @@ export default {
             ipcRenderer.send("fileListDlg-min");
         },
         showHistoryMsgList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
+            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
             this.$emit("isSearching", true);
             this.isSerach = true;
-            this.HistorySearchRoomId = this.chat.roomId;
+            this.HistorySearchRoomId = this.searchChat.roomId;
         },
         CloseSearchPage: function() {
             var chatElement = document.getElementById("chat-page-id");
@@ -505,17 +504,17 @@ export default {
             console.log("*** close search page this.messageList ", this.messageListShow);
             if(this.searchKeyFromList.length != 0) {
                 this.HistorySearchRoomId = "";
-                this.initMessage();
+                // this.initMessage();
             }
         },
         showFileList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.chat.roomId, "historyMsgList");
+            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
             this.$emit("isSearching", true);
             this.isFileList = true;
             this.isScroll = true;
-            this.FilelistSearchRoomId = this.chat.roomId;
+            this.FilelistSearchRoomId = this.curChat.roomId;
         },
         CloseFileListPage: function() {
             var chatElement = document.getElementById("chat-page-id");
@@ -552,7 +551,7 @@ export default {
         canRedact: function(curEvent) {
             const cli = global.mxMatrixClientPeg.matrixClient;
 
-            const canRedact = this.chat.currentState.maySendRedactionForEvent(curEvent, cli.credentials.userId);
+            const canRedact = this.curChat.currentState.maySendRedactionForEvent(curEvent, cli.credentials.userId);
 
             return canRedact;
         },
@@ -660,7 +659,7 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, msg.event.event_id)
+            global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
             .catch((error) => {
                 console.log("menuDelete ", error);
                 this.$toastMessage({message:'删除成功', time:1500, type:'success'});
@@ -722,15 +721,15 @@ export default {
             this.transmitTogether = false;
         },
         showAddMembersPrepare: async function() {
-            // var memeberList = this.chat.contain_user_ids.split(",");
+            // var memeberList = this.curChat.contain_user_ids.split(",");
             // this.showAddMembers(memeberList);
             ////////////////////////////////////////////////////
             var self = await services.common.GetSelfUserModel();
             console.log("self is ", self);
             this.chatCreaterDisableUsers.push(self.id);
             console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            if(this.chat.contain_user_ids.length != 0) {
-                var contain_user_ids = this.chat.contain_user_ids.split(",");
+            if(this.curChat.contain_user_ids.length != 0) {
+                var contain_user_ids = this.curChat.contain_user_ids.split(",");
                 for(var i=0;i<contain_user_ids.length;i++) {
                     if(this.chatCreaterDisableUsers.indexOf(contain_user_ids[i]) == -1) {
                         this.chatCreaterDisableUsers.push(contain_user_ids[i]);
@@ -745,7 +744,7 @@ export default {
             this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
             
             this.createNewChat = false;
-            this.addMemberGroupType = this.chat.group_type;
+            this.addMemberGroupType = this.curChat.group_type;
             this.chatCreaterKey ++;
             this.showChatCreaterDlg = true;
             this.chatCreaterDialogTitle = "添加成员";
@@ -770,7 +769,7 @@ export default {
             
             this.chatCreaterKey ++;
             this.createNewChat = false;
-            this.addMemberGroupType = this.chat.group_type;
+            this.addMemberGroupType = this.curChat.group_type;
             this.showChatCreaterDlg = true;
             this.chatCreaterDialogTitle = "添加成员";
         },
@@ -787,7 +786,7 @@ export default {
             for(var i=0;i<this.usersSelected.length;i++) {
                 addUids.push(this.usersSelected[i].id)
             }
-            var ret = await services.common.AddGroupUsers(this.chat.group_id, addUids);
+            var ret = await services.common.AddGroupUsers(this.curChat.group_id, addUids);
             console.log("AddGroupUsers ret is ", ret);
             this.dialogVisible = false;
         },
@@ -846,7 +845,7 @@ export default {
         multiDel() {
             console.log("this.selectedMsgs is ", this.selectedMsgs);
             for(let i=0;i<this.selectedMsgs.length;i++) {
-                global.mxMatrixClientPeg.matrixClient.redactEvent(this.chat.roomId, this.selectedMsgs[i].event.event_id);
+                global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, this.selectedMsgs[i].event.event_id);
             }
             this.$toastMessage({message:'删除成功', time:1500, type:'success'});
             this.multiToolsClose();
@@ -1113,15 +1112,18 @@ export default {
                             this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
                             this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                         }
                         else if(this.curSelectedIndex > 0 && this.curSelectedIndex < this.ulElement.children.length) {
                             this.curSelectedIndex--;
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                             this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
                         }
                         else if(this.curSelectedIndex == this.ulElement.children.length) {
                             this.curSelectedIndex--;
                             this.ulElement.children[0].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
                             this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
                         }
@@ -1133,10 +1135,12 @@ export default {
                             this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
                             this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
                             this.ulElement.children[0].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
                             this.curSelectedIndex = 0;
                         }
                         else if(this.curSelectedIndex < this.ulElement.children.length) {
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
+                            this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                             if(this.ulElement.children[this.curSelectedIndex-1]){
                                 this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
                             }
@@ -1173,7 +1177,7 @@ export default {
                 return true;
             }
             else if(event.code == "Digit2" && event.shiftKey == true) {
-                if(this.chat.group_type == 102) {
+                if(this.curChat.group_type == 102) {
                     return;
                 }
                 //this.chatMemberDlgVisible = false;
@@ -1209,7 +1213,7 @@ export default {
                 }
                 
                 this.chatMemberDlgVisible = true;
-                this.chatMemberDlgchat = this.chat;
+                this.chatMemberDlgchat = this.curChat;
                 canNewLine = false;
             }
         },
@@ -1366,7 +1370,7 @@ export default {
         },
         mxGetMembers: function() {
             var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
-            const roomId = this.chat.roomId;
+            const roomId = this.curChat.roomId;
             const cli = window.mxMatrixClientPeg.matrixClient;
             const xie1 = cli.getRoom(roomId);
             const xie2 = cli.getRoomPushRule("global", roomId);
@@ -1410,11 +1414,11 @@ export default {
                 groupContentNumElement.innerHTML = "";
             }
 
-            this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
+            this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.curChat);
             console.log("=================distUrl ", this.distUrl);
             if(!this.distUrl || this.distUrl == '') {
                 let defaultGroupIcon;
-                if(global.mxMatrixClientPeg.DMCheck(this.chat))
+                if(global.mxMatrixClientPeg.DMCheck(this.curChat))
                     this.distUrl = "./static/Img/User/user-40px@2x.png";
                 else
                     this.distUrl = "./static/Img/User/group-40px@2x.png";
@@ -1511,7 +1515,7 @@ export default {
                 // this.$toastMessage({message:'请选择最少一个文件', time: 2000, type:'success'});
                 return;
             }
-            else if(this.chat.roomId == undefined) {
+            else if(this.curChat.roomId == undefined) {
                     this.$toastMessage({message:'请选择一个群组', time: 2000, type:'success'});
                     return;
                 }
@@ -1540,7 +1544,7 @@ export default {
                     this.showSendFileDlg = true;
                     this.sendFileInfos = {
                         paths: varTmp,
-                        distGroupInfo: this.chat
+                        distGroupInfo: this.curChat
                     }
                 }
             }
@@ -1612,12 +1616,12 @@ export default {
                 this.showUploadProgress = true;
                 this.UploadingName = fileinfo.name;
                 let filename = fileinfo.name;
-                var roomID = this.chat.roomId;
+                var roomID = this.curChat.roomId;
                 if(type == 'm.image'){
                     this.SendImage(showfileObj, fileResult, stream)
                 }
                 else{
-                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId)) {
+                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
                         var prom = this.readFileAsArrayBuffer(showfileObj).then((data) => {
                             return encrypt.encryptAttachment(data);
                         }).then((encryptResult) => {
@@ -1688,9 +1692,9 @@ export default {
                 //let tt1 = fileResult.substring(fileResult.indexOf("\,") + 1)
                 //let tt0 = Buffer.from(tt1, "base64");
                 img.onload = ()=>{
-                    var roomID = this.chat.roomId;
+                    var roomID = this.curChat.roomId;
                     let filename = fileinfo.name;
-                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId)) {
+                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
                         var prom = this.readFileAsArrayBuffer(fileinfo).then((data) => {
                             return encrypt.encryptAttachment(data);
                         }).then((encryptResult) => {
@@ -1749,12 +1753,12 @@ export default {
 
         SendText: function(sendBody, varcontent){
             this.cleanEditor();
-            global.mxMatrixClientPeg.matrixClient.sendMessage(this.chat.roomId, sendBody);
+            global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody);
         },
 
         sendMsg: async function() {
-            // console.log("this.chat is ", this.chat);
-            if(this.chat.roomId == undefined) {
+            // console.log("this.curChat is ", this.curChat);
+            if(this.curChat.roomId == undefined) {
                 alert("请选择一个房间。")
                 return;
             }
@@ -1765,8 +1769,8 @@ export default {
                 return;
             }
             // console.log("varcontent is ", varcontent);
-            var uid = this.chat.user_id;
-            var gorupId = this.chat.group_id == null ? '' : this.chat.group_id;
+            var uid = this.curChat.user_id;
+            var gorupId = this.curChat.group_id == null ? '' : this.curChat.group_id;
             let sendText = '';
             let exsitAt = false;
             let sendBody = {
@@ -2223,19 +2227,19 @@ export default {
             }
         },
         More: async function() {
-            console.log('check chat', this.chat);
+            console.log('check chat', this.curChat);
             this.groupInfo = {};
-            var isGroup = this.chat.group_type == 101 ? true : false;
+            var isGroup = this.curChat.group_type == 101 ? true : false;
             var idsList = []
             // try{
-            //     idsList = this.chat.contain_user_ids.split(",");
+            //     idsList = this.curChat.contain_user_ids.split(",");
             // }
             // catch(error) {
-            //     idsList = this.chat.contain_user_ids;
+            //     idsList = this.curChat.contain_user_ids;
             // }
-            const myUserId = this.chat.myUserId;
-            const members = this.chat.currentState.members;
-            // var isOwner = (this.chat.owner == this.curUserInfo.id);
+            const myUserId = this.curChat.myUserId;
+            const members = this.curChat.currentState.members;
+            // var isOwner = (this.curChat.owner == this.curUserInfo.id);
             console.log('aaaa', myUserId);
             console.log('bbbb', members);
             const isOwner = members[myUserId].powerLevel === 100; //owner`s powerLevel is 100?
@@ -2246,18 +2250,18 @@ export default {
                 console.log('3333', members[key]);
                 if (members[key].powerLevel === 100) ownerId = key;
             }
-            console.log("this.chat ", this.chat);
-            // console.log("this.isTop ", this.groupIsTop(this.chat))
-            // console.log("this.isSlience ", this.groupIsSlience(this.chat))
-            // console.log("this.isFav ", this.groupIsInFavourite(this.chat))
-            idsList = Object.keys(this.chat.currentState.members);
+            console.log("this.curChat ", this.curChat);
+            // console.log("this.isTop ", this.groupIsTop(this.curChat))
+            // console.log("this.isSlience ", this.groupIsSlience(this.curChat))
+            // console.log("this.isFav ", this.groupIsInFavourite(this.curChat))
+            idsList = Object.keys(this.curChat.currentState.members);
             console.log('isOwner!!!!!!', isOwner);
-            const topicEvent = this.chat.currentState.getStateEvents("m.room.topic", "");
+            const topicEvent = this.curChat.currentState.getStateEvents("m.room.topic", "");
             const topic = topicEvent && topicEvent.getContent() ? topicEvent.getContent()['topic'] : '';
 
-            const nameEvent = this.chat.currentState.getStateEvents('m.room.name', '');
+            const nameEvent = this.curChat.currentState.getStateEvents('m.room.name', '');
             const name = nameEvent && nameEvent.getContent() ? nameEvent.getContent()['name'] : '';
-            const currentState = this.chat.currentState.getStateEvents('m.room.power_levels','');
+            const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
             let canInvite = 50;
             let canKick = 50;
             let canAvatar = 50;
@@ -2283,30 +2287,30 @@ export default {
             const userLevel = members[myUserId].powerLevel;
             var groupInfoObj = {
                 "memberList": idsList,
-                "groupName": name, //this.chat.group_name,
+                "groupName": name, //this.curChat.group_name,
                 "groupTopic": topic,
-                "groupAvarar": this.distUrl, //this.chat.group_avarar,
-                "groupNotice": this.chat.group_notice != undefined ? this.chat.group_notice : '',
-                "groupId": this.chat.roomId, //this.chat.group_id,
+                "groupAvarar": this.distUrl, //this.curChat.group_avarar,
+                "groupNotice": this.curChat.group_notice != undefined ? this.curChat.group_notice : '',
+                "groupId": this.curChat.roomId, //this.curChat.group_id,
                 "isGroup": true, //isGroup,
                 "isOwner": isOwner,
-                "isTop": false, //this.groupIsTop(this.chat),
-                "isSlience": false, //this.groupIsSlience(this.chat),
-                "isFav": false, //this.groupIsInFavourite(this.chat),
-                "ownerId": ownerId, //this.chat.owner,
-                "groupType": 100, //this.chat.group_type,
-                "isSecret": false, // (this.chat.group_type == 102 && this.chat.key_id != undefined && this.chat.key_id.length != 0)
-                "room": this.chat,
+                "isTop": false, //this.groupIsTop(this.curChat),
+                "isSlience": false, //this.groupIsSlience(this.curChat),
+                "isFav": false, //this.groupIsInFavourite(this.curChat),
+                "ownerId": ownerId, //this.curChat.owner,
+                "groupType": 100, //this.curChat.group_type,
+                "isSecret": false, // (this.curChat.group_type == 102 && this.curChat.key_id != undefined && this.curChat.key_id.length != 0)
+                "room": this.curChat,
                 "totalLevels": totalLevels,
                 "myUserId": myUserId,
                 "userLevel": userLevel
             }
             console.log('======weihemeiyou', groupInfoObj)
             this.groupInfo = groupInfoObj;
-            // console.log("more more more ", this.chat.contain_user_ids.split(","))
-            // var idsList = this.chat.contain_user_ids.split(",");
+            // console.log("more more more ", this.curChat.contain_user_ids.split(","))
+            // var idsList = this.curChat.contain_user_ids.split(",");
             // this.groupContainUserIds = idsList;
-            // console.log("this.chat.group_name is ", this.chat.group_name);
+            // console.log("this.curChat.group_name is ", this.curChat.group_name);
             this.showGroupInfoTips = true; //todo tips
             this.cleanCache = false;
             console.log("more more more ", this.groupInfo)
@@ -2331,13 +2335,13 @@ export default {
                 }
             }
             if(ret.latestSequenceId.length == 0) {
-                ret.latestSequenceId = this.chat.sequence_id;
+                ret.latestSequenceId = this.curChat.sequence_id;
                 ret.count = this.messageList.length + 20;
             }
             return ret;
         },
-        _loadTimeline: function(eventId, pixelOffset, offsetBase) {
-            this.timeLineSet = this.chat.getUnfilteredTimelineSet();
+        _loadTimeline: function(eventId, pixelOffset, offsetBase, distChat=this.curChat) {
+            this.timeLineSet = distChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
                 this.timeLineSet,
@@ -2350,7 +2354,7 @@ export default {
             // console.log("========== getEvent ", events);
             return events;
         },
-        jumpToEvent: function(eventId) {
+        jumpToEvent: function(eventId, distChat) {
             let div = document.getElementById("message-show-list");
             div.removeEventListener('scroll', this.handleScroll);
             this.existingMsgId = [];
@@ -2361,8 +2365,8 @@ export default {
             this.isSerach = false;
             this.isJumpPage = true;
             this.messageList = [];
-            // this.chat.resetLiveTimeline();
-            this._loadTimeline(eventId, undefined, undefined).then(() => {
+            // this.curChat.resetLiveTimeline();
+            this._loadTimeline(eventId, undefined, undefined, distChat).then(() => {
                 this.messageList = this._getEvents();
                 setTimeout(() => {
                     this.$nextTick(() => {
@@ -2375,6 +2379,20 @@ export default {
                     })
                 }, 500);
             })
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(distChat.roomId);
+            this.needScrollTop = true;
+            this.needScrollBottom = true;
+            this.existingMsgId = [];
+            this.showGroupName(distChat);
+            if(this.editor == undefined) {
+                this.editor = this.$refs.chatQuillEditor.quill;
+            }
+            var content = this.$store.getters.getDraft(distChat.roomId);
+            this.editor.setContents(content);
+            this.editor.setSelection(this.content.length + 1);
+            setTimeout(() => {
+                this.showGroupName(distChat);
+            }, 1000);
         },
         scrollToDistMsg: function(eventId) {
             var ulDiv = document.getElementById("message-show-list");
@@ -2470,7 +2488,7 @@ export default {
             return msgList;
         },
 
-        handleScroll: function() {
+        handleScroll: function(toBottom=false) {
             let uldiv = document.getElementById("message-show-list");
             if(!uldiv)
                 return;
@@ -2500,11 +2518,19 @@ export default {
                         .then((ret) => {
                             this.messageList = ret;
                             this.isRefreshing = false;
-                            this.$nextTick(() => {
-                                console.log("---------update croll top is ", uldiv.scrollHeight);
-                                uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 32;
-                                this.isScroll = false;
-                            })
+                            setTimeout(() => {
+                                this.$nextTick(() => {
+                                    console.log("---------update croll top is ", uldiv.scrollHeight);
+                                    console.log("*** toBottom is ", toBottom)
+                                    if(toBottom === true) {
+                                        uldiv.scrollTop = uldiv.scrollHeight + 52;
+                                    }
+                                    else {
+                                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 32;
+                                    }
+                                    this.isScroll = false;
+                                })
+                            }, 0);
                         })
                     }
             }
@@ -2522,7 +2548,7 @@ export default {
                     console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                     this.lastRefreshTime = new Date().getTime();
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                    this.getShowMessage(this.messageFilter, 10, 'b')
+                    this.getShowMessage(this.messageFilter, 10, 'f')
                         .then((ret) => {
                             this.messageList = ret
                             let index = 0;
@@ -2580,7 +2606,7 @@ export default {
         },
         showOwnerTransferDlg() {
             this.ownerTransferDialogVisible = true;
-            this.ownerTransferchat = this.chat;
+            this.ownerTransferchat = this.curChat;
         },
         closeOwnerTransferDlg() {
             this.ownerTransferDialogVisible = false;
@@ -2594,7 +2620,7 @@ export default {
             var forceUpdate = true;
             ipcRenderer.send("flashIcon");
 
-            if(msg.group_id == this.chat.group_id) {
+            if(msg.group_id == this.curChat.group_id) {
                 if(this.existingMsgId.indexOf(msg.message_id) == -1) {
                     forceUpdate = false;
                     this.messageList.push(msg);
@@ -2637,7 +2663,7 @@ export default {
             if(this.$route.name != "ChatContent") {
                 return;
             }
-            if(this.chat.roomId == undefined) {
+            if(this.curChat.roomId == undefined) {
                 this.$toastMessage({message:'请选择一个房间', time: 2000, type:'success'});
                 return;
             }
@@ -2672,7 +2698,7 @@ export default {
             else{
                 this.showSendFileDlg = true;
                 this.sendFileInfos = {
-                    distGroupInfo: this.chat,
+                    distGroupInfo: this.curChat,
                     paths: varTmp
                 }
             }
@@ -2713,7 +2739,7 @@ export default {
                     else {
                         this.showSendFileDlg = true;
                         this.sendFileInfos = {
-                            distGroupInfo: this.chat,
+                            distGroupInfo: this.curChat,
                             paths: [fileinfo]
                         }
                     }
@@ -2722,9 +2748,9 @@ export default {
         },
         initMessage: function() {
             global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
-            if(this.chat.getMyMembership() == "invite") {
+            if(this.curChat.getMyMembership() == "invite") {
                 this.isRefreshing = false;
-                this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.chat);
+                this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.curChat);
                 this.isInvite = true;
             }
             else {
@@ -2738,12 +2764,12 @@ export default {
 
                                 let uldiv = document.getElementById("message-show-list");
                                 if(uldiv.clientHeight < uldiv.offsetHeight) {
-                                    this.handleScroll();
+                                    this.handleScroll(true);
                                 }
                                 
                                 let div = document.getElementById("message-show-list");
                                 if(div) {
-                                    div.scrollTop = div.scrollHeight;
+                                    div.scrollTop = div.scrollHeight + 52;
                                     div.addEventListener('scroll', this.handleScroll);
                                     this.showScrollBar();
                                 }
@@ -2751,24 +2777,25 @@ export default {
                         }, 100)
                     })
             }
-            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
             this.needScrollTop = true;
             this.needScrollBottom = true;
             this.existingMsgId = [];
-            this.showGroupName(this.chat);
+            this.showGroupName(this.curChat);
             if(this.editor == undefined) {
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
-            var content = this.$store.getters.getDraft(this.chat.roomId);
+            var content = this.$store.getters.getDraft(this.curChat.roomId);
             this.editor.setContents(content);
             this.editor.setSelection(this.content.length + 1);
             setTimeout(() => {
-                this.showGroupName(this.chat);
+                this.showGroupName(this.curChat);
             }, 1000);
         }
     },
     data() {
         return {
+            curChat: {},
             imageViewerImageInfo: {},
             transmitImageViewer: false,
             options: {
@@ -2926,7 +2953,7 @@ export default {
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
-                this.showGroupName(this.chat);
+                this.showGroupName(this.curChat);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
             })
@@ -2954,33 +2981,41 @@ export default {
             }
         }
     },
-    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList'],
+    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat'],
     watch: {
         chat: function() {
             if(this.chat == null) {
                 return;
             }
+            this.curChat = this.chat;
+            this.initSearchKey = '';
+            this.inviterInfo = undefined;
+            this.isInvite = false;
+            this.isJumpPage = false;
+            this.curGroupId = this.chat.roomId;
+            console.log("***1 chat")
+            this.CloseSearchPage();
+            this.CloseFileListPage();
+            this.multiToolsClose();
+            console.log("chat ============", this.chat);
+            console.log("this.curGroupId is ", this.curGroupId);
+            
+            this.initMessage();
+        },
+        searchKeyFromList: function() {
             if(this.searchKeyFromList != '') {
                 this.inviterInfo = undefined;
                 this.isInvite = false;
                 this.isJumpPage = false;
-                this.curGroupId = this.chat.roomId;
+                this.curGroupId = this.curChat.roomId;
+                console.log("***1 searchKeyFromList")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 this.needScrollTop = true;
                 this.needScrollBottom = true;
                 this.existingMsgId = [];
-                this.showGroupName(this.chat);
-                if(this.editor == undefined) {
-                    this.editor = this.$refs.chatQuillEditor.quill;
-                }
-                var content = this.$store.getters.getDraft(this.chat.roomId);
-                this.editor.setContents(content);
-                this.editor.setSelection(this.content.length + 1);
-                setTimeout(() => {
-                    this.showGroupName(this.chat);
-                }, 1000);
+                
                 this.initSearchKey = this.searchKeyFromList;
                 this.showHistoryMsgList();
             }
@@ -2989,11 +3024,45 @@ export default {
                 this.inviterInfo = undefined;
                 this.isInvite = false;
                 this.isJumpPage = false;
-                this.curGroupId = this.chat.roomId;
+                this.curGroupId = this.curChat.roomId;
+                console.log("***2 searchKeyFromList")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
                 this.multiToolsClose();
-                console.log("chat ============", this.chat);
+                console.log("chat ============", this.curChat);
+                console.log("this.curGroupId is ", this.curGroupId);
+                
+                this.initMessage();
+            }
+        },
+        searchChat: function() {
+            if(this.searchKeyFromList != '') {
+                this.inviterInfo = undefined;
+                this.isInvite = false;
+                this.isJumpPage = false;
+                this.curGroupId = this.curChat.roomId;
+                console.log("***1 searchChat")
+                this.CloseSearchPage();
+                this.CloseFileListPage();
+                this.multiToolsClose();
+                this.needScrollTop = true;
+                this.needScrollBottom = true;
+                this.existingMsgId = [];
+                
+                this.initSearchKey = this.searchKeyFromList;
+                this.showHistoryMsgList();
+            }
+            else {
+                this.initSearchKey = '';
+                this.inviterInfo = undefined;
+                this.isInvite = false;
+                this.isJumpPage = false;
+                this.curGroupId = this.curChat.roomId;
+                console.log("***2 searchChat")
+                this.CloseSearchPage();
+                this.CloseFileListPage();
+                this.multiToolsClose();
+                console.log("chat ============", this.curChat);
                 console.log("this.curGroupId is ", this.curGroupId);
                 
                 this.initMessage();

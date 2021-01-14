@@ -2064,7 +2064,7 @@ const common = {
     localStorage.setItem("mqttHost", this.config.mqttHost);
   },
 
-  async searchAllChat(search_key) {
+  async searchAllChat(search_key, limit) {
     var filterBody = {
       field: "body",
       operator: "co",
@@ -2078,7 +2078,7 @@ const common = {
       logic: 0      
     };
     var body = {
-      limit: 3,
+      limit: limit,
       groups: [
         {
           filters: [
