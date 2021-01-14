@@ -6,9 +6,10 @@
                 <img ondragstart="return false" class="ChatCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
             <el-container class="ChatCreaterContent">
+                <div class = 'backgroundDiv'  v-show = 'searchUsers.length == 0'></div>
                 <el-main class="selectedView">
                     <div class="search">
-                        <el-input class="search-input" prefix-icon="el-icon-search" v-model="searchKey" @input="search" placeholder="搜索..." size='mini' clearable></el-input>
+                        <el-input class="search-input" prefix-icon="el-icon-search" v-model="searchKey" @input="search" placeholder="搜索" size='mini' clearable></el-input>
                     </div>
                     <ul class = 'contact-list'>
                         <li class="contact-list-item"
@@ -306,12 +307,24 @@ display: none;
         background:rgba(255,255,255,1);
         }
 
+        .backgroundDiv{
+            width: 374px;
+            height: 370px;
+            padding: 0px;
+            overflow: hidden;
+            background-image: url("../../../static/Img/Organization/Image/addContactBackground.png");
+            background-position:center;
+            background-repeat:no-repeat;
+            position: absolute; 
+        }
 
         .selectedView {
+            z-index:1;
             height: 370px;
             width: 50%;
             padding: 0px;
             overflow: hidden;
+            
             .selectedHeader{
                 width: 100%;
                 height: 34px;
