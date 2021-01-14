@@ -1930,7 +1930,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .item-input {
@@ -1940,7 +1940,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -1965,7 +1965,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .inputDiv {
@@ -1977,7 +1977,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -1997,7 +1997,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:0px solid rgba(221,221,221,1);
@@ -2060,7 +2060,7 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .el-icon-loading{
@@ -2076,7 +2076,7 @@ export default {
             font-weight: 400;
             color: rgba(36, 179, 107, 1);
             line-height: 18px;
-            letter-spacing: 1px;
+            letter-spacing: 0px;
             text-align: right;
             margin-top: 2px;
             margin-bottom: 4px;
@@ -2090,7 +2090,7 @@ export default {
             font-weight: 400;
             color: rgba(36, 179, 107, 1);
             line-height: 18px;
-            letter-spacing: 1px;
+            letter-spacing: 0px;
             text-align: right;
             margin-top: 2px;
             margin-bottom: 4px;
@@ -2112,7 +2112,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
             }
             
@@ -2127,7 +2127,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
@@ -2143,7 +2143,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
@@ -2163,7 +2163,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
             .useremail-login{
@@ -2175,7 +2175,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
         }
@@ -2203,7 +2203,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Medium;
             }
         }
@@ -2244,7 +2244,7 @@ export default {
                 font-size:14px;
                 font-weight:400;
                 color:rgba(0,0,0,1);
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .account-separate{
@@ -2267,7 +2267,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0px;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -2297,7 +2297,7 @@ export default {
                 font-weight:400;
                 color:rgba(36,179,107,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
                 cursor: pointer;
                 text-align: right;
@@ -2312,7 +2312,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -2336,7 +2336,7 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .el-icon-loading{
@@ -2359,7 +2359,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
             }
             
@@ -2374,7 +2374,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
@@ -2390,7 +2390,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
@@ -2410,7 +2410,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
             .useremail-login{
@@ -2422,7 +2422,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
         }
@@ -2450,7 +2450,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
         }
@@ -2489,7 +2489,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0px;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -2519,7 +2519,7 @@ export default {
                 font-weight:400;
                 color:rgba(36,179,107,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
                 cursor: pointer;
                 text-align: right;
@@ -2534,7 +2534,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -2558,7 +2558,7 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .el-icon-loading{
@@ -2581,7 +2581,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
             }
             
@@ -2596,7 +2596,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
@@ -2612,7 +2612,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
@@ -2632,7 +2632,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
             .useremail-login{
@@ -2644,7 +2644,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
         }
@@ -2672,7 +2672,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
         }
@@ -2742,7 +2742,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .item-input {
@@ -2753,7 +2753,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
                 border-radius:4px;
@@ -2793,7 +2793,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
                 margin-bottom: 3px;
                 margin-top: 3px;
@@ -2810,7 +2810,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
                 margin-bottom: 3px;
@@ -2828,7 +2828,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
@@ -2844,7 +2844,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
                 margin-bottom: 3px;
                 margin-top: 3px;
@@ -2860,7 +2860,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
                 margin-bottom: 3px;
@@ -2881,7 +2881,7 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .el-icon-loading{
@@ -2902,7 +2902,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .finder-title{
@@ -2913,7 +2913,7 @@ export default {
                 font-weight:400;
                 color:rgba(36,179,107,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 cursor: pointer;
                 font-family: PingFangSC-Regular;
             }
@@ -2934,7 +2934,7 @@ export default {
                 font-weight:400;
                 color:rgba(153,153,153,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
             }
             .back-image{
                 cursor: pointer;
@@ -2954,7 +2954,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
         }
@@ -2980,7 +2980,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:22px;
-                letter-spacing:2px;
+                letter-spacing: 0px;
                 margin: 0px;
                 font-family: PingFangSC-Medium;
             }
@@ -2992,7 +2992,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0px;
                 margin-top: 12px;
                 font-family: PingFangSC-Regular;
@@ -3014,7 +3014,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
                 }
                 .item-server-input{
@@ -3024,7 +3024,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -3048,7 +3048,7 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .el-icon-loading{
@@ -3073,7 +3073,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
                 }
                 .server-confirm-button:disabled{
@@ -3089,7 +3089,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 }
             }
@@ -3117,7 +3117,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
         }
@@ -3144,7 +3144,7 @@ export default {
                 font-weight:400;
                 color:rgba(153,153,153,1);
                 line-height:18px;
-                letter-spacing:2px;
+                letter-spacing: 0px;
                 margin: 0px;
                 margin-top: 20px;
             }
@@ -3166,7 +3166,7 @@ export default {
             color: rgba(153, 153, 153, 1);
             line-height: 18px;
             height: 18px;
-            letter-spacing: 1px;
+            letter-spacing: 0px;
         }
 
         .el-icon-caret-bottom {
@@ -3207,7 +3207,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
         margin: 0 0 0 0;
         padding-left: 12px;
@@ -3215,7 +3215,7 @@ export default {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
     
     .domain-item:hover {
@@ -3227,7 +3227,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
         margin: 0 0 0 0;
         padding-left: 12px;
@@ -3236,7 +3236,7 @@ export default {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
     
     .domain-item-label {
@@ -3247,13 +3247,13 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
         background-color: rgba(0, 0, 0, 0);
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .domain-item-label:hover {
@@ -3264,14 +3264,14 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
         background-color: rgba(221, 221, 221, 1);
         cursor: pointer;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
 
@@ -3291,7 +3291,7 @@ export default {
             color: rgba(153, 153, 153, 1);
             line-height: 18px;
             height: 18px;
-            letter-spacing: 1px;
+            letter-spacing: 0px;
         }
 
         .el-icon-caret-bottom {

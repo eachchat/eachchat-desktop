@@ -3178,7 +3178,7 @@ export default {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -3221,7 +3221,7 @@ export default {
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
         color: rgba(153, 153, 153, 1);
-        letter-spacing:1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -3238,7 +3238,7 @@ export default {
         font-family: 'PingFangSC-Medium';
         font-weight: 500;
         overflow: hidden;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -3419,7 +3419,7 @@ export default {
         font-family: 'PingFangSC-Regular';
         color: rgba(153, 153, 153, 1);
         margin: 10px 10px 10px 10px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .message-right {
@@ -3498,7 +3498,7 @@ export default {
         height: 170px;
         font-family: 'PingFangSC-Regular';
         color: rgba(153, 153, 153, 1);
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-size: 12px;
     }
 
@@ -3514,7 +3514,7 @@ export default {
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
         font-size: 14px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
 
     .multiSelectTransmitDiv {
@@ -3826,7 +3826,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
         background-color: rgba(0, 0, 0, 0);
     }
@@ -3852,7 +3852,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
         background-color: rgba(0, 0, 0, 0);
     }

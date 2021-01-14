@@ -232,7 +232,7 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         float: left;
         margin: 18px 0px 18px 0px;
     }
@@ -252,7 +252,7 @@ export default {
         font-weight: 400;
         color: #000000;
         line-height: 20px;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         margin: 12px;
         text-align: left;
     }

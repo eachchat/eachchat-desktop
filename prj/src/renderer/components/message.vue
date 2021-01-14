@@ -1151,7 +1151,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .chat-msg-content-others-txt-div:hover {
@@ -1170,7 +1170,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
     
     .chat-msg-content-others-txt{
@@ -1188,7 +1188,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .chat-msg-content-others-txt:hover{
@@ -1206,7 +1206,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .chat-msg-content-others-img {
@@ -1339,7 +1339,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .chat-msg-content-mine-txt-div:hover{
@@ -1358,7 +1358,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .chat-msg-content-mine-link {
@@ -1376,7 +1376,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         color: #3B89CF;
     }
 
@@ -1395,7 +1395,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         color: #3B89CF;
         text-decoration: underline
     }
@@ -1414,7 +1414,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         color: rgba(255, 255, 255, 1);
     }
 
@@ -1433,7 +1433,7 @@ export default {
         word-wrap: break-word;
         line-height: 20px;
         font-weight:400;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         color: rgba(255, 255, 255, 1);
     }
 
@@ -1552,7 +1552,7 @@ export default {
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         line-height: 18px;
         color:rgba(102,102,102,1);
     }

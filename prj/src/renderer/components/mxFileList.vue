@@ -635,7 +635,7 @@ export default {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -652,7 +652,7 @@ export default {
         font-family: 'PingFangSC-Regular';
         font-weight: 500;
         overflow: hidden;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -700,7 +700,7 @@ export default {
         border: 0px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-size: 12px;
         color:rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -725,7 +725,7 @@ export default {
         color:rgba(153,153,153,1);
         line-height:18px;
         text-align: center;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .Mxfile-list {
@@ -816,7 +816,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
     }
@@ -829,7 +829,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
         cursor: pointer;
@@ -843,7 +843,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color: rgba(153, 153, 153, 1);
     }
 
@@ -855,7 +855,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color: rgba(153, 153, 153, 1);
         cursor: pointer;
     }

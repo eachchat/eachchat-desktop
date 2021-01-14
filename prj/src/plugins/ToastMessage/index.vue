@@ -98,7 +98,7 @@ export default {
         font-weight:500;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:2px;
+        letter-spacing: 0px;
         vertical-align: top;
         text-align: left;
         font-family: PingFangSC-Regular;

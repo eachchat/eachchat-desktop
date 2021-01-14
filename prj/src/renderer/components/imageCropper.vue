@@ -214,7 +214,7 @@ export default {
                     font-weight:500;
                     color:rgba(0,0,0,1);
                     line-height:22px;
-                    letter-spacing:2px;
+                    letter-spacing: 0px;
                     font-family: PingFangSC-Medium;
                 }
                 .cropper-close{

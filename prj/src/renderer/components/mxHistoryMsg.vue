@@ -662,7 +662,7 @@ export default {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -679,7 +679,7 @@ export default {
         font-family: 'PingFangSC-Regular';
         font-weight: 500;
         overflow: hidden;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;
@@ -727,7 +727,7 @@ export default {
         border: 0px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-size: 12px;
         color:rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -757,7 +757,7 @@ export default {
         font-weight:400;
         color:rgba(153,153,153,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .MxHistorySearchEmpty {
@@ -779,7 +779,7 @@ export default {
         color:rgba(153,153,153,1);
         line-height:18px;
         text-align: center;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .MxHistoryMsg-list {
@@ -841,7 +841,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: left;
     }
 
@@ -854,7 +854,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: right;
     }
 
@@ -866,7 +866,7 @@ export default {
         font-size: 13px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
 
     .MxmessageImg {

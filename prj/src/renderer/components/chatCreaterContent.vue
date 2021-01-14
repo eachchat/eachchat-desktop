@@ -752,7 +752,7 @@ display: none;
         vertical-align: top;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .ChatCreaterClose {
@@ -823,7 +823,7 @@ display: none;
                                 font-weight:400;
                                 color:rgba(0,0,0,1);
                                 line-height:20px;
-                                letter-spacing:1px;
+                                letter-spacing: 0px;
                                 font-family: PingFangSC-Regular;
                                 }
                                 .subUserTitle{
@@ -835,7 +835,7 @@ display: none;
                                     font-weight:400;
                                     color:rgba(153,153,153,1);
                                     line-height:18px;
-                                    letter-spacing:1px;
+                                    letter-spacing: 0px;
                                     height:18px;
                                     font-size:12px;
                                     font-family: PingFangSC-Regular;
@@ -869,7 +869,7 @@ display: none;
                         padding-left: 0px;
                         font-family: PingFangSC-Regular;
                         font-weight: 400;
-                        letter-spacing: 1px;
+                        letter-spacing: 0px;
                     }
                 }
                 .organizationSelectAllHeader{
@@ -894,7 +894,7 @@ display: none;
                         font-weight:400;
                         color:rgba(0,0,0,1);
                         line-height:20px;
-                        letter-spacing:1px;
+                        letter-spacing: 0px;
                         font-family: PingFangSC-Regular;
                     }
                     .checkBox-label{
@@ -947,7 +947,7 @@ display: none;
                                     font-weight:400;
                                     color:rgba(0,0,0,1);
                                     line-height:20px;
-                                    letter-spacing:1px;
+                                    letter-spacing: 0px;
                                     font-family: PingFangSC-Regular;
                                 }
                             }
@@ -1008,7 +1008,7 @@ display: none;
                                 font-weight:400;
                                 color:rgba(0,0,0,1);
                                 line-height:20px;
-                                letter-spacing:1px;
+                                letter-spacing: 0px;
                                 font-family: PingFangSC-Regular;
                                 }
                                 .subUserTitle{
@@ -1020,7 +1020,7 @@ display: none;
                                     font-weight:400;
                                     color:rgba(153,153,153,1);
                                     line-height:18px;
-                                    letter-spacing:1px;
+                                    letter-spacing: 0px;
                                     height:18px;
                                     font-size:12px;
                                     font-family: PingFangSC-Regular;
@@ -1069,7 +1069,7 @@ display: none;
                     font-weight:400;
                     color:rgba(0,0,0,1);
                     line-height:20px;
-                    letter-spacing:1px;
+                    letter-spacing: 0px;
                     text-overflow: ellipsis;
                     overflow: hidden;
                     padding-left: 12px;
@@ -1108,7 +1108,7 @@ display: none;
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .selectedContentView {
@@ -1146,7 +1146,7 @@ display: none;
                             font-weight:400;
                             color:rgba(0,0,0,1);
                             line-height:20px;
-                            letter-spacing:1px;
+                            letter-spacing: 0px;
                             text-overflow: ellipsis;
                             overflow: hidden;
                             padding-left: 12px;
@@ -1241,7 +1241,7 @@ display: none;
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .TransmitFotter {

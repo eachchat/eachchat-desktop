@@ -244,7 +244,7 @@ export default {
         vertical-align: top;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .OwnerTransferClose {
@@ -301,7 +301,7 @@ export default {
         border: 0px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-size: 12px;
         color: rgb(102, 102, 102);
         background-color: rgba(1, 1, 1, 0);
@@ -413,7 +413,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         padding-left: 8px;
     }
 

@@ -746,7 +746,7 @@ display: none;
         width: calc(100% - 100px);
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     -webkit-app-region: drag;
 }

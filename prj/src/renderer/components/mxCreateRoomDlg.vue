@@ -445,7 +445,7 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .mxCreaterClose {
@@ -479,7 +479,7 @@ export default {
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
         color: #000000;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
 
     .mxTransmitConfirmButton {
@@ -584,7 +584,7 @@ export default {
         font-weight: 400;
         color: #333333;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         flex: 1
     }
 

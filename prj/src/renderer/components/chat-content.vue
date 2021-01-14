@@ -2994,7 +2994,7 @@ export default {
     display: block;
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
   }
 
   .search-list-content-content {
@@ -3035,7 +3035,7 @@ export default {
     display: block;
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
   }
 
   .search-list-chat-content {
@@ -3140,7 +3140,7 @@ export default {
     margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .search-more-item-name {
@@ -3150,7 +3150,7 @@ export default {
     font-size: 12px;
     font-weight: 400;
     font-family:PingFangSC-Regular;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
     color: rgba(91, 106, 145, 1);
     overflow: hidden;
     margin: 0;
@@ -3184,7 +3184,7 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .search-list-content-more-div {
@@ -3199,7 +3199,7 @@ export default {
     display: block;
     cursor: pointer;
     font-family:PingFangSC-Regular;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
     font-weight: 400;
   }
 
@@ -3493,7 +3493,7 @@ export default {
     margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .group-name-secret {
@@ -3511,7 +3511,7 @@ export default {
     margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .group-content {
@@ -3528,7 +3528,7 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .group-notice {

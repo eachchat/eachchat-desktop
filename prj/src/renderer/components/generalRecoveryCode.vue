@@ -570,7 +570,7 @@ export default {
         font-family: PingFangSC-Medium;
         font-weight: 500;
         line-height: 32px;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .generalSecureBackUpTip {
@@ -583,7 +583,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -614,7 +614,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -640,7 +640,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -667,7 +667,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -725,7 +725,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -745,7 +745,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-family: PingFangSC-Regular;
     }
 

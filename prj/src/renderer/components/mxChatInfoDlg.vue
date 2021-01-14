@@ -128,7 +128,7 @@ export default {
             font-weight: 500;
             color: #000000;
             line-height: 22px;
-            letter-spacing: 2px;
+            letter-spacing: 0px;
         }
         .close {
             height: 20px;
@@ -141,7 +141,7 @@ export default {
             font-weight: 400;
             color: #333333;
             line-height: 20px;
-            letter-spacing: 1px;
+            letter-spacing: 0px;
             margin-left: 40px;
         }
         .title-input {

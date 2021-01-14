@@ -112,7 +112,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 text-align: center;
                 font-family: PingFangSC-Medium;
             }
@@ -126,7 +126,7 @@ export default {
                 font-weight:400;
                 color:rgba(153,153,153,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
                 overflow: hidden;
                 text-overflow:ellipsis;

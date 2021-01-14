@@ -952,7 +952,7 @@ export default {
         font-weight: 400;
         color: #000000;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .room-join {
         height: 24px;
@@ -990,7 +990,7 @@ export default {
         font-weight: 500;
         color: #FFFFFF;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .cancel-button {
         box-sizing: border-box;
@@ -1008,7 +1008,7 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .crumbs {
         margin-top:12px;
@@ -1023,7 +1023,7 @@ export default {
         font-weight: 400;
         color: #24B36B;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         cursor: pointer;
         margin-right: 4px;
         height: 20px;
@@ -1035,7 +1035,7 @@ export default {
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         cursor: pointer;
         margin-right: 4px;
         height: 20px;

@@ -365,7 +365,7 @@ export default {
         font-weight: 400;
         color: #333333;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         display: flex;
         align-items: center;
     }
@@ -467,7 +467,7 @@ export default {
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
         color: #000000;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
 
     .mxTransmitConfirmButton {

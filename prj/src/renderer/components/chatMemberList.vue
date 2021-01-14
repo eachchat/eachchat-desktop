@@ -300,7 +300,7 @@ export default {
         font-size: 14px;
         font-family:PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         padding-left: 8px;
     }
 

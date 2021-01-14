@@ -93,7 +93,7 @@ export default {
         font-family:PingFangSC-Regular;
         font-weight:400;
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-size: 12px;
         color: rgb(102, 102, 102);
         background-color: rgba(1, 1, 1, 0);
