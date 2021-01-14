@@ -17,7 +17,7 @@
                     </div>
                     <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
                 </div>
-                <div class="crumbs" v-show="crumbs.length > 1 && !isSearch">
+                <div class="crumbs" v-show="crumbs.length > 1">
                     <div 
                         :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
                         v-for="(item, idx) in crumbs"
@@ -430,12 +430,19 @@ export default {
             this.timer = setTimeout(async ()=>{
                 const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
                 const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
+                const searchDeps = await Department.SearchByNameKey(term).catch(e => console.log('部门搜索异常', e));
                 const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
                 console.log('----searchUsers----', searchUsers);
                 console.log('----searchContacts----', searchContacts);
                 console.log('----res----', res);
+                let sds = [];
+                if (sds.length > 0) sds.push({dvd:true, txt:'部门'});
+                searchDeps.forEach(s => {
+                    s.type = 'dep';
+                    s.avatar = department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                })
                 let sus = [];
-                sus.push({dvd:true, txt:'组织人员'})
+                if (sus.length > 0) sus.push({dvd:true, txt:'组织'});
                 searchUsers.forEach(c => {
                     //avatar_url
                     //display_name
@@ -448,7 +455,7 @@ export default {
                     sus.push(u);
                 })
                 let scs = [];
-                scs.push({dvd:true, txt:'我的联系人'})
+                if (scs.length > 0) scs.push({dvd:true, txt:'我的联系人'});
                 searchContacts.forEach(c => {
                     let u = {}
                     u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
@@ -458,14 +465,14 @@ export default {
                     scs.push(u);
                 })
                 let mxs = [];
-                mxs.push({dvd:true, txt:'其他联系人'})
+                if (mxs.length >0) mxs.push({dvd:true, txt:'其他联系人'});
                 let results = res.results || [];
                 results.forEach(c => {
                     c.choosen = false; 
                     c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
                     mxs.push(c);
                 })
-                const totalArray = [...sus, ...scs, ...mxs];
+                const totalArray = [...scs, ...sus, ...sds, ...mxs];
                 console.log('----totalArray----', totalArray);
                 this.isSearch = true;
                 this.searchedMembers = [...totalArray];
