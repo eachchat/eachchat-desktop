@@ -1,7 +1,7 @@
 <template>
     <div class="search">
         <img class="echat-search-ico" @click="search" src="../../../static/Img/Main/search@2x.png">
-        <input class="echat-search-input" placeholder="搜索..." @keyup.enter="search" v-model="searchKey" @input="inputChange">
+        <input class="echat-search-input" placeholder="搜索" @keyup.enter="search" v-model="searchKey" @input="inputChange">
     </div>
 </template>
 
