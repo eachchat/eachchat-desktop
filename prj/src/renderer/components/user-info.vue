@@ -33,7 +33,19 @@
                 </li>
                 <li v-if="userType == 'contact' || userType == 'mainUserInfo'" >
                     <p class="userInfo-key">备注</p>
-                    <input :readonly = 'nameEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入昵称...">
+                    <input :readonly = 'nameEdit' class="userInfo-value" v-model="userInfo.displayName" placeholder="输入昵称">
+                </li>
+                <li v-if="showPhone">
+                    <p class="userInfo-key">手机</p>
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.mobile" placeholder="输入手机号">
+                </li>
+                <li v-if="showTelephone">
+                    <p class="userInfo-key">座机</p>
+                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.work" placeholder="输入座机号">
+                </li>
+                <li v-if="showEmail">
+                    <p class="userInfo-key">邮箱</p>
+                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.email[0].email_value" placeholder="输入邮箱">
                 </li>
                 <li v-if="showStatusDescription">
                     <p class="userInfo-key">个人状态</p>
@@ -47,30 +59,17 @@
                     <p class="userInfo-key">汇报关系</p>
                     <p class="userInfo-report-value" @click="reportRelationClicked()">查看</p>
                 </li>
- 
-                <li v-if="showPhone">
-                    <p class="userInfo-key">手机</p>
-                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.mobile" placeholder="输入手机号...">
-                </li>
-                <li v-if="showTelephone">
-                    <p class="userInfo-key">座机</p>
-                    <input :readonly = 'inputEdit' class="userInfo-phone-value" v-model="userInfo.phone.work" placeholder="输入座机号...">
-                </li>
-                <li v-if="showEmail">
-                    <p class="userInfo-key">邮箱</p>
-                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.email[0].email_value" placeholder="输入邮箱...">
-                </li>
                <li v-if="showDepartment">
                     <p class="userInfo-key">部门</p>
-                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name"  placeholder="输入部门名称...">
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.department.display_name"  placeholder="输入部门名称">
                 </li>
                 <li v-if="showCompany">
                     <p class="userInfo-key">公司</p>
-                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.company"  placeholder="输入公司名称...">
+                    <input :readonly = 'inputEdit' class="userInfo-value" v-model="userInfo.company"  placeholder="输入公司名称">
                 </li>
                 <li>
                     <p class="userInfo-key">职位</p>
-                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.title" placeholder="输入职位名称...">
+                    <input :readonly = 'inputEdit' class="userInfo-email-value" v-model="userInfo.title" placeholder="输入职位名称">
                 </li>
             </ul>
         </div>
@@ -684,6 +683,7 @@ input::-webkit-input-placeholder {
     font-weight: 400;
     font-family: PingFangSC-Regular;
     outline:none;
+    color: #5B6A91;
 }
 .userInfo-email-value {
     -webkit-user-select: text;
