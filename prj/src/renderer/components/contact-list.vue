@@ -3,20 +3,21 @@
         <el-header height="56px" class="contact-header">
             <p class="contact-header-title">{{$t('contactMenuName')}}</p>
             <div class='chat-tool-invite-div'>
-            <el-popover
+            <!-- <el-popover
              placement="bottom"
             width="100px"
             trigger="click">
             <el-dropdown-item class="dropdown-item" @click.native="AddContact()"> 
                 <img class="dropdown-item-img" src="../../../static/Img/Chat/search-20px@2x.png">
                 <span class="dropdown-item-label">添加联系人</span>
-            </el-dropdown-item>
+            </el-dropdown-item> -->
             <!-- <el-dropdown-item class="dropdown-item" @click.native="InputContact()"> 
                 <img class="dropdown-item-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png">
                 <span class="dropdown-item-label">创建联系人</span>
             </el-dropdown-item> -->
-            <el-image slot="reference"  src="./static/Img/Organization/Image/addContact-24px.png"></el-image>
-            </el-popover>
+            <!-- <el-image slot="reference"  src="./static/Img/Organization/Image/addContact-24px.png"></el-image>
+            </el-popover> -->
+            <el-image src="./static/Img/Organization/Image/addContact-24px.png" @click='AddContact()'></el-image>
             
             </div>
         </el-header>
