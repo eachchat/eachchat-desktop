@@ -3,7 +3,15 @@
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
-                    <el-input size='mini' clearable prefix-icon="el-icon-search" class="search-input" v-model="searchKey" @input="search" placeholder="搜索" ></el-input>
+                    <el-input size='mini' clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
+                    <i slot="prefix" style="display: flex;align-items: center;">
+                        <img
+                            style="width:20px;height:20px;margin-top: 4px;"
+                            src="../../../static/Img/Main/search@2x.png"
+                            alt
+                        />
+                    </i>
+                    </el-input>
                 </div>
             </div>
             <div class="search-view" v-show="showSearchView">
@@ -436,7 +444,6 @@ display: none;
     margin-left: 12px;
     font-size: 14px;
     line-height: 20px;
-    letter-spacing: 1px;
     font-family: PingFangSC-Regular;
     font-weight: 400;
     display: flex;

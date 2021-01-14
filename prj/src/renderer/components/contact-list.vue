@@ -335,7 +335,6 @@ export default {
     margin-bottom: 18px;
     font-family: PingFangSC-Medium;
     font-weight: 500;
-    letter-spacing: 1px;
 }
 .contact-list {
     overflow: scroll;
