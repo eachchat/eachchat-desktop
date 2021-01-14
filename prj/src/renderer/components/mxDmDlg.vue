@@ -17,7 +17,7 @@
                     </div>
                     <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
                 </div>
-                <div class="crumbs" v-show="crumbs.length > 1">
+                <!-- <div class="crumbs" v-show="crumbs.length > 1">
                     <div 
                         :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
                         v-for="(item, idx) in crumbs"
@@ -27,8 +27,19 @@
                         <span v-show="idx!==0" >/</span>
                         <span>{{item.name}}</span>
                     </div>
-                </div>
+                </div> -->
                 <div class="room-list">
+                    <div class="crumbs" v-show="crumbs.length > 1">
+                        <div 
+                            :class="{crumbsItem:(idx !== crumbs.length-1), crumbsItemActive:(idx === crumbs.length-1)}" 
+                            v-for="(item, idx) in crumbs"
+                            :key="item.department_id"
+                            @click.stop="changeLayerByCrumb(item)"
+                        >
+                            <span v-show="idx!==0" >/</span>
+                            <span>{{item.name}}</span>
+                        </div>
+                    </div>
                     <div 
                         v-for="(item, idx) in totalList" 
                         :key="idx"
@@ -1046,6 +1057,7 @@ export default {
         display: flex;
         flex-wrap: wrap;
         margin-left: 16px;
+        margin-right: 16px;
     }
     .crumbsItem {
         font-size: 14px;
