@@ -446,7 +446,6 @@ export default {
                 const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
                 console.log('----searchUsers----', searchUsers);
                 console.log('----searchContacts----', searchContacts);
-                console.log('----searchContacts----', searchContacts);
                 console.log('----searchDeps----', searchDeps);
                 console.log('----res----', res);
                 let sds = [];
