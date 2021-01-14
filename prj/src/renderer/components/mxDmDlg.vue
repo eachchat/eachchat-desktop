@@ -436,13 +436,13 @@ export default {
                 console.log('----searchContacts----', searchContacts);
                 console.log('----res----', res);
                 let sds = [];
-                if (sds.length > 0) sds.push({dvd:true, txt:'部门'});
+                if (searchDeps.length > 0) sds.push({dvd:true, txt:'部门'});
                 searchDeps.forEach(s => {
                     s.type = 'dep';
                     s.avatar = department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
                 })
                 let sus = [];
-                if (sus.length > 0) sus.push({dvd:true, txt:'组织'});
+                if (searchUsers.length > 0) sus.push({dvd:true, txt:'组织'});
                 searchUsers.forEach(c => {
                     //avatar_url
                     //display_name
@@ -455,7 +455,7 @@ export default {
                     sus.push(u);
                 })
                 let scs = [];
-                if (scs.length > 0) scs.push({dvd:true, txt:'我的联系人'});
+                if (searchContacts.length > 0) scs.push({dvd:true, txt:'我的联系人'});
                 searchContacts.forEach(c => {
                     let u = {}
                     u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
@@ -465,8 +465,8 @@ export default {
                     scs.push(u);
                 })
                 let mxs = [];
-                if (mxs.length >0) mxs.push({dvd:true, txt:'其他联系人'});
                 let results = res.results || [];
+                if (results.length >0) mxs.push({dvd:true, txt:'其他联系人'});
                 results.forEach(c => {
                     c.choosen = false; 
                     c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
