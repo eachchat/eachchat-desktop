@@ -3,7 +3,7 @@
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
-                    <el-input size='mini' class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." clearable>
+                    <el-input size='mini' class="search-input" v-model="searchKey" @input="search" placeholder="搜索" clearable>
                         <i slot="prefix" style="display: flex;align-items: center;">
                             <img
                                 style="width:20px;height:20px;margin-top: 4px;"
