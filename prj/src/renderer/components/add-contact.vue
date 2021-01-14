@@ -9,7 +9,15 @@
                 <div class = 'backgroundDiv'  v-show = 'searchUsers.length == 0'></div>
                 <el-main class="selectedView">
                     <div class="search">
-                        <el-input class="search-input" prefix-icon="el-icon-search" v-model="searchKey" @input="search" placeholder="搜索" size='mini' clearable></el-input>
+                        <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" size='mini' clearable>
+                            <i slot="prefix" style="display: flex;align-items: center;">
+                                <img
+                                    style="width:20px;height:20px;margin-top: 4px;"
+                                    src="../../../static/Img/Main/search@2x.png"
+                                    alt
+                                />
+                            </i>
+                        </el-input>
                     </div>
                     <ul class = 'contact-list'>
                         <li class="contact-list-item"

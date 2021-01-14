@@ -3,7 +3,15 @@
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
-                    <el-input size='mini' class="search-input" prefix-icon="el-icon-search" v-model="searchKey" @input="search" placeholder="搜索..." clearable></el-input>
+                    <el-input size='mini' class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." clearable>
+                        <i slot="prefix" style="display: flex;align-items: center;">
+                            <img
+                                style="width:20px;height:20px;margin-top: 4px;"
+                                src="../../../static/Img/Main/search@2x.png"
+                                alt
+                            />
+                        </i>
+                    </el-input>
                 </div>
             </div>
             <div class="list-content">
