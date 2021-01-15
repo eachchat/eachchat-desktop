@@ -328,7 +328,7 @@ export default {
         height: 40px;
 
         .ownerDisplayInfoBaseLabel2 {
-            width: 100px;
+            width: 120px;
             height: 20px;
             color: rgba(0, 0, 0, 1);
             font-size: 14px;

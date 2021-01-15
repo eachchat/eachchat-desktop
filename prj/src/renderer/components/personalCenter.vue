@@ -392,7 +392,7 @@ export default {
     
 }
 .personalCenter-name {
-    width: 100px;
+    width: 120px;
     height: 22px;
     font-size: 15px;
     font-family: PingFangSC-Medium, PingFang SC;
@@ -400,7 +400,6 @@ export default {
     color: #000000;
     line-height: 22px;
     border: 0;
-    text-overflow: ellipsis;
 }
 
 .personalCenter-state{
