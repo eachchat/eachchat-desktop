@@ -97,7 +97,7 @@ export default {
         width: 100%;
         font-family: PingFangSC-Regular;
         text-overflow: ellipsis;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-weight: 400;
         font-size: 13px;
         color: #999999;

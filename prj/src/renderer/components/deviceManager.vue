@@ -260,7 +260,7 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         float: left;
         margin: 18px 0px 18px 0px;
     }
@@ -401,7 +401,7 @@ export default {
         font-weight: 400;
         font-family: SCPingFang-Regular;
         line-height: 28px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         padding: 4px 16px 4px 16px;
     }
 

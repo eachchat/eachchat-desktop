@@ -16,7 +16,7 @@
                             <!-- <i class="el-icon-search"></i> -->
                             <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                         </div>
-                        <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
+                        <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
                     </div>
                     <div class="crumbsxie" v-show="crumbs.length > 1">
                         <span
@@ -1038,7 +1038,7 @@ export default {
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #000000;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1073,7 +1073,7 @@ export default {
         font-weight: 400;
         color: #000000;
         // line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .crumbsxie {
         margin-top:12px;
@@ -1087,7 +1087,7 @@ export default {
         font-weight: 400;
         color: #24B36B;
         // line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         cursor: pointer;
         margin-right: 4px;
         height: 20px;
@@ -1101,7 +1101,7 @@ export default {
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #000000;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .kuangti {
         border: 1px solid #DDDDDD;
@@ -1338,7 +1338,7 @@ export default {
         font-weight: 400;
         color: #000000;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .room-join {
         height: 24px;
@@ -1376,7 +1376,7 @@ export default {
         font-weight: 500;
         color: #FFFFFF;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .cancel-button {
         box-sizing: border-box;
@@ -1394,7 +1394,7 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
     }
     .crumbs {
         display: flex;

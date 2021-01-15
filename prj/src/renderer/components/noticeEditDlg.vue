@@ -147,7 +147,7 @@ export default {
         vertical-align: top;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .NoticeClose {
@@ -176,7 +176,7 @@ export default {
         font-size: 14px;
         color: rgba(153, 153, 153, 1);
         text-indent: 4px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-weight:400;
         font-family: PingFangSC-Regular;
         line-height:20px;
@@ -194,7 +194,7 @@ export default {
         padding: 0px;
         font-size: 14px;
         text-indent: 4px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-weight:400;
         font-family: PingFangSC-Regular;
         line-height:20px;

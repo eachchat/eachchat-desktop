@@ -126,7 +126,7 @@
                 <label class="setup-array-label">软件隐私政策</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
             </div>
-            <div class="setup-logout" @click="logout()">退出登录</div>
+            <div class="setup-logout" @click="logout()">退出</div>
         </div>
       </div>
       <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
@@ -630,7 +630,7 @@ export default {
       font-size: 14px;
       font-family: PingFangSC-Regular;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       vertical-align: top;
   }
 
@@ -650,7 +650,7 @@ export default {
       font-size: 14px;
       font-family: PingFangSC-Regular;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       vertical-align: top;
   }
 
@@ -670,7 +670,7 @@ export default {
       font-size: 14px;
       font-family: PingFangSC-Regular;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       vertical-align: top;
   }
 
@@ -691,7 +691,7 @@ export default {
       font-size: 14px;
       font-family: PingFangSC-Regular;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       vertical-align: top;
   }
 
@@ -711,7 +711,7 @@ export default {
       font-size: 14px;
       font-family: PingFangSC-Regular;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       vertical-align: top;
   }
 
@@ -734,7 +734,7 @@ export default {
     background:rgba(255,255,255,1);
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing:0px;
     font-size: 14px;
     display: inline-block;
   }
@@ -755,7 +755,7 @@ export default {
     line-height: 48px;
     background:rgba(255,255,255,1);
     display: block;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .setup-with-drop-down-label {
@@ -765,10 +765,10 @@ export default {
     background:rgba(255,255,255,1);
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing:0px;
     font-size: 14px;
     display: inline-block;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
   }
 
@@ -792,7 +792,7 @@ export default {
       font-family: PingFangSC-Regular;
       color: rgba(51, 51, 51, 1);
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       padding: 0px;
       border: 0px;
       cursor: pointer;
@@ -811,7 +811,7 @@ export default {
       font-family: PingFangSC-Regular;
       color: rgba(51, 51, 51, 1);
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       padding: 0px;
       border: 0px;
       cursor: pointer;
@@ -854,7 +854,7 @@ export default {
     line-height: 48px;
     background:rgba(255,255,255,1);
     display: block;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .setup-with-input-label {
@@ -864,10 +864,10 @@ export default {
     background:rgba(255,255,255,1);
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing:0px;
     font-size: 14px;
     display: inline-block;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
   }
 
@@ -890,7 +890,7 @@ export default {
       font-size: 12px;
       font-family: PingFangSC-Regular;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       padding: 0px;
       border: 0px;
       cursor: pointer;
@@ -909,7 +909,7 @@ export default {
       font-size: 14px;
       font-family: PingFangSC-Regular;
       font-weight: 400;
-      letter-spacing: 1px;
+      letter-spacing:0px;
       padding: 0px;
       border: 0px;
       outline: none;
@@ -960,7 +960,7 @@ export default {
     line-height: 48px;
     background:rgba(255,255,255,1);
     display: block;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .setup-array-with-label-label {
@@ -972,7 +972,7 @@ export default {
     display: inline-block;
     font-size:14px;
     font-weight:400;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
   }
 
@@ -985,7 +985,7 @@ export default {
     display: inline-block;
     font-size:14px;
     font-weight:400;
-    letter-spacing:1px;
+    letter-spacing:0px;
     vertical-align: top;
     color: rgba(153,153,153,1);
     white-space: nowrap;
@@ -1011,7 +1011,7 @@ export default {
     line-height: 48px;
     background:rgba(255,255,255,1);
     display: block;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .setup-array-only-label-label {
@@ -1023,7 +1023,7 @@ export default {
     display: inline-block;
     font-size:14px;
     font-weight:400;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
   }
 
@@ -1036,7 +1036,7 @@ export default {
     display: inline-block;
     font-size:14px;
     font-weight:400;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
     color: rgba(153,153,153,1);
     white-space: nowrap;
@@ -1052,7 +1052,7 @@ export default {
     font-family: "PingFangSC-Regular";
     background:rgba(255,255,255,1);
     display: block;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .setup-array {
@@ -1064,7 +1064,7 @@ export default {
     display: inline-block;
     font-size:14px;
     font-weight:400;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
   }
 
@@ -1077,7 +1077,7 @@ export default {
     display: inline-block;
     font-size:14px;
     font-weight:400;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
   }
 
@@ -1090,7 +1090,7 @@ export default {
     display: inline-block;
     font-size:14px;
     font-weight:400;
-    letter-spacing:1px;
+    letter-spacing: 0px;
     vertical-align: top;
     color: rgba(153,153,153,1);
     white-space: nowrap;
@@ -1116,7 +1116,7 @@ export default {
     background:rgba(255,255,255,1);
     font-family: PingFangSC-Medium;
     font-weight: 500;
-    letter-spacing: 2px;
+    letter-spacing:0px;
     font-size: 16px;
     font-weight: bold
   }
@@ -1128,7 +1128,7 @@ export default {
     background:rgba(36,179,107,1);
     border-radius:4px;
     font-family: PingFangSC-Medium;
-    letter-spacing: 1px;
+    letter-spacing:0px;
     text-align:center;
     margin: 10px auto;
     color: rgba(255,255,255,1);

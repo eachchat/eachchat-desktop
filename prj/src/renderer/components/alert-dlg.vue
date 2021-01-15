@@ -195,7 +195,7 @@ export default {
         font-size: 16px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         vertical-align: top;
         margin-left: 16px;
     }
@@ -212,7 +212,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
     }
 

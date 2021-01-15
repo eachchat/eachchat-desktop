@@ -7,7 +7,7 @@
         </div>
         <div class="FileListDlgContent">
             <div class="search">
-                <input class="FileListDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <input class="FileListDlgSearchInput" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="file-list">
@@ -420,7 +420,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -471,7 +471,7 @@ export default {
         border: 0px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -538,7 +538,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
     }
@@ -551,7 +551,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color: rgba(153, 153, 153, 1);
     }
 
@@ -580,7 +580,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }
@@ -594,7 +594,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }
@@ -608,7 +608,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }

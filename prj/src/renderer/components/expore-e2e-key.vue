@@ -225,7 +225,7 @@ export default {
         color:rgba(0,0,0,1);
         line-height:36px;
         font-family: PingFangSC-Medium;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         vertical-align:top;
     }
 
@@ -248,7 +248,7 @@ export default {
         font-weight:400;
         color:rgba(102,102,102,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         font-family: PingFangSC-Regular;
     }
 
@@ -295,7 +295,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         box-sizing: border-box;
         border:1px solid rgba(221,221,221,1);
         border-radius:4px;
@@ -342,7 +342,7 @@ export default {
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         box-sizing: border-box;
         border:1px solid rgba(221,221,221,1);
         border-radius:4px;
@@ -361,7 +361,7 @@ export default {
         font-weight:400;
         color:rgba(228,49,43,1);
         line-height:17px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;

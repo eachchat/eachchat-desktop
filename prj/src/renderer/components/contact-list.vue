@@ -441,7 +441,7 @@ export default {
     margin-left: 12px;
     font-size: 14px;
     line-height: 20px;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
     font-family: PingFangSC-Regular;
     font-weight: 400;
 }

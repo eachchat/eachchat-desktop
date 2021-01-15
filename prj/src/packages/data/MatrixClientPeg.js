@@ -96,6 +96,24 @@ class _MatrixClientPeg{
       }
     }
 
+    updageChatUnreadState(chatUnreadStateInfo) {
+      if(window.localStorage) {
+        var jsonData = {};
+        jsonData[chatUnreadStateInfo[0]] = chatUnreadStateInfo[1];
+        var strJsonData = JSON.stringify(jsonData);
+        window.localStorage.setItem('ChatUnreadState', strJsonData);
+      }
+    }
+
+    getChatUnreadState(roomId) {
+      if(window.localStorage) {
+        var getStrJsonData = window.localStorage.getItem("ChatUnreadState");
+        var getJsonData = JSON.parse(getStrJsonData);
+        return getJsonData[roomId] == undefined ? false : getJsonData[roomId];
+      }
+      return false;
+    }
+
     DMCheck(curRoomItem) {
       const client = this.matrixClient;
       const mDirectEvent = client.getAccountData('m.direct');

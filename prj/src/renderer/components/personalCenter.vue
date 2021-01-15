@@ -549,7 +549,7 @@ export default {
     font-weight: 400;
     color: #333333;
     line-height: 20px;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
     display: inline-block;
 }
 

@@ -81,7 +81,7 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         float: left;
         margin: 18px 0px 18px 32px;
     }
@@ -111,7 +111,7 @@ export default {
         font-family: SCPingFang-Regular;
         color: #333333;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: left;
         margin: 0px 14px 4px 0px;
     }
@@ -124,7 +124,7 @@ export default {
         font-family: SCPingFang-Regular;
         color: #333333;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: left;
         margin: 0px 14px 4px 0px;
     }
@@ -136,7 +136,7 @@ export default {
         font-weight: 400;
         color: #333333;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: left;
         margin: 14px 14px 5px 14px;
     }

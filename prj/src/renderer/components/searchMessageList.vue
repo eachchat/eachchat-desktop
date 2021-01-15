@@ -8,7 +8,7 @@
         </div>
         <div class="HistoryMsgDlgContent">
             <div class="search" v-show="!isMsgDetail">
-                <input class="HistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <input class="HistoryMsgDlgSearchInput" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <div class="filter-header" v-show="!isMsgDetail">
@@ -767,7 +767,7 @@ export default {
         border: 0px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -797,7 +797,7 @@ export default {
         font-weight: 400;
         color:rgba(153,153,153,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .filter-header {
@@ -812,7 +812,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color:rgba(102, 102, 102, 1);
     }
 
@@ -853,7 +853,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color:rgba(102, 102, 102, 1);
         margin-left: 6px;
         vertical-align: top;
@@ -895,7 +895,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color:rgba(102, 102, 102, 1);
         margin-left: 6px;
         vertical-align: top;
@@ -937,7 +937,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color:rgba(102, 102, 102, 1);
         margin-left: 6px;
         vertical-align: top;
@@ -951,7 +951,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color:rgba(102, 102, 102, 1);
         margin: 0 3px 0 3px;
         float: right;
@@ -1032,7 +1032,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
         float: left;
@@ -1047,7 +1047,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: right;
     }
 
@@ -1059,7 +1059,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
     }

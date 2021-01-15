@@ -263,7 +263,7 @@ export default {
     margin-bottom: 18px;
     font-family: PingFangSC-Medium;
     font-weight: 500;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
 }
 .organization-list {
     overflow: scroll;
@@ -327,7 +327,7 @@ export default {
     background:rgba(247,248,250,1);
     font-size: 12px;
     line-height: 18px;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
 }
 .users-header {
     width: 100%;
@@ -338,7 +338,7 @@ export default {
     color:rgba(102,102,102,1);
     font-size: 12px;
     line-height: 18px;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
     font-family: PingFangSC-Regular;
     font-weight: 400;
 }

@@ -800,7 +800,7 @@ export default {
         font-weight:400;
         color:rgba(153,153,153,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .HistoryMsg-list {

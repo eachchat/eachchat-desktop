@@ -232,7 +232,7 @@ export default {
         vertical-align: top;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .SendFileClose {
@@ -267,7 +267,7 @@ export default {
         font-family: 'PingFangSC-Regular';
         font-weight: 400;
         color: rgba(153, 153, 153, 1);
-        letter-spacing:1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
         vertical-align: top;
@@ -344,7 +344,7 @@ export default {
         margin-bottom: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .SendFileSize {
@@ -361,7 +361,7 @@ export default {
         white-space: nowrap;
         text-overflow: ellipsis;
         height: 18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .SendFileImage {

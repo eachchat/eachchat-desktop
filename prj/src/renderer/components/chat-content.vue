@@ -58,7 +58,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex)" :id="getShowUnreadCountId(chatGroupItem)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -90,7 +90,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex)" :id="getShowUnreadCountId(chatGroupItem)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -120,7 +120,7 @@
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
                     <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
-                    <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">{{getShowUnReadCount(chatGroupItem)}}</p>
+                    <p :class="getUnreadClass(chatGroupItem, index===curindex)" :id="getShowUnreadCountId(chatGroupItem)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
@@ -138,7 +138,7 @@
             <!-- </transition-group> -->
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
-            <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople">
+            <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople && false">
               <div class="search-list-content-label">联系人</div>
               <div class="search-list-content-content">
                 <ul class="search-list-content-list">
@@ -158,6 +158,37 @@
               </div>
               <div class="search-list-content-more-div" @click="showAllSearchUsers" v-show="showSearchAllMember">查看全部 >></div>
             </div>
+            <div class="search-list-chat-message" id="search-list-chat-message-id" v-show="showSearchAllChat">
+              <div class="search-list-chat-label">群组</div>
+              <div class="search-list-chat-content">
+                <ul class="search-list-chat-list">
+                  <li class="search-item"
+                      v-for="searchChatItem in searchChatItems"
+                      @click="toShowDistChat(searchChatItem)"
+                      >
+                    <div class="search-list-chat-list-div">
+                      <div class="search-item-img-div">
+                        <img class="search-item-img-ico" :id="getSearchChatItemImgElementId(searchChatItem.roomId)" src="../../../static/Img/User/group-40px@2x.png"/>
+                      </div>
+                      <div class="search-item-info">
+                        <p class="search-item-name" :id="getSearchChatItemNameElementId(searchChatItem.roomId)"></p>
+                        <p class="search-item-position"></p>
+                      </div>
+                    </div>
+                  </li>
+                    <li class="search-more-item" v-show="showAllSearchAllChat">
+                      <div class="search-item-img-div" v-show="false">
+                        <img class="search-item-img-ico" src="../../../static/Img/User/user-40px@2x.png"/>
+                      </div>
+                      <div class="search-item-info-more" @click="showAllSearchChats">
+                        <p class="search-more-item-name">更多群组</p>
+                        <img class="search-item-name-more-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAllSearchChats">
+                        <p class="search-item-position" v-html="heightLightSth()" v-show="false"></p>
+                      </div>
+                    </li>
+                </ul>
+              </div>
+            </div>
             <div class="search-list-content-message" id="search-list-content-message-id" v-show="showSearchMessage">
               <div class="search-list-content-label">聊天记录</div>
               <div class="search-list-content-content">
@@ -166,22 +197,25 @@
                       v-for="searchMessageItem in searchMessageItems"
                       @click="showGroup(searchMessageItem)"
                       >
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchChatItemImgElementId(searchMessageItem.room_id)" src="../../../static/Img/User/group-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info">
-                      <p class="search-item-name" :id="getSearchChatItemNameElementId(searchMessageItem.room_id)"></p>
-                      <p class="search-item-position" :id="getSearchChatItemContentElementId(searchMessageItem.room_id)" v-html="fileNameHeightLight(searchMessageItem)"></p>
+                    <div class="search-list-content-list-div">
+                      <div class="search-item-img-div">
+                        <img class="search-item-img-ico" :id="getSearchChatMsgItemImgElementId(searchMessageItem.room_id)" src="../../../static/Img/User/group-40px@2x.png"/>
+                      </div>
+                      <div class="search-item-info">
+                        <p class="search-item-name" :id="getSearchChatMsgItemNameElementId(searchMessageItem.room_id)"></p>
+                        <p class="search-item-position" :id="getSearchChatMsgItemContentElementId(searchMessageItem.room_id)" v-html="fileNameHeightLight(searchMessageItem)"></p>
+                      </div>
                     </div>
                   </li>
-                  <li class="search-item" v-show="showSearchAllChat">
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" src="../../../static/Img/User/user-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info-more" @click="showAllSearchMessages">
-                      <p class="search-item-name">搜索更多聊天记录</p>
-                      <p class="search-item-position" v-html="heightLightSth()"></p>
-                    </div>
+                    <li class="search-more-item" v-show="showSearchAllChatMsg">
+                      <div class="search-item-img-div" v-show="false">
+                        <img class="search-item-img-ico" src="../../../static/Img/User/user-40px@2x.png"/>
+                      </div>
+                      <div class="search-item-info-more" @click="showAllSearchMessages">
+                        <p class="search-more-item-name">更多聊天记录</p>
+                        <img class="search-item-name-more-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAllSearchMessages">
+                        <p class="search-item-position" v-html="heightLightSth()" v-show="false"></p>
+                      </div>
                   </li>
                 </ul>
               </div>
@@ -223,7 +257,7 @@
           <div class="win-header-white" v-show="isMsgSearch">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
+          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -460,12 +494,14 @@ export default {
   data() {
     return {
       //需要展示的用户群组
+      dealingEventIds: [],
+      searchChat: undefined,
       searchKeyFromList: '',
       selfUserId: undefined,
       isFirstLogin: true,
       showImportE2EKeyPage: false,
       toBottom: false,  //聊天页面是否滚动到最底部
-      showSearchAllChat: false,   //复合搜索中是否显示  显示所有聊天相关
+      showAllSearchAllChat: false,   //复合搜索中是否显示  显示所有聊天相关
       showSearchAllMember: false,   //复合搜索中是是否显示  显示所有联系人相关
       showsearchAllFile: false,   //复合搜索中是否是否显示  显示所有文件相关
       showUserInfoTips: false,   //聊天窗口显示用户信息弹窗
@@ -487,11 +523,14 @@ export default {
       showSearchSelectedSenderDlg: false,      //是否显示聊天记录搜索页面发送者过滤界面
       showSearchSelecterDlg: false,      //是否显示聊天记录搜索页面聊天群组过滤界面内容
       showSearchMessage: true,      //复合搜索内容是否包含消息相关
+      showSearchAllChat: true,
+      showSearchAllChatMsg: true,
       showSearchFile: true,      //复合搜索内容是否包含文件相关
       showSearchPeople: true,      //复合搜索内容是否包含人员相关
       searchPeopleItems: [],      //复合搜索人员条目
       searchFileItems: [],      //复合搜索文件条目
       searchMessageItems: [],      //复合搜索聊天条目
+      searchChatItems: [],
       needScroll: false,      //群组是否滚动
       isSearch: false,      //展示是否是复合搜索
       isMsgSearch: false,
@@ -531,6 +570,9 @@ export default {
     };
   },
   methods: {
+    getShowUnreadCountId(chatGroupItem) {
+      return "unread-count-element-id-" + chatGroupItem.roomId;
+    },
     heightLightSth() {
       let splitValue = ["关于 ", " 的更多聊天记录"];
       let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
@@ -605,6 +647,7 @@ export default {
           // this.unreadCount += 1;
         }
         else{
+          this.updateItemUnreadState(item);
           const notificationCount = item.getUnreadNotificationCount();
           if(notificationCount) {
             this.hasUnreadItems.unshift(item);
@@ -613,6 +656,63 @@ export default {
         }
       })
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
+    },
+    updateItemUnreadState(item) {
+      if(item) {
+        if(this.groupIsSlience(item)) {
+          console.log("******")
+          console.log("****** global.mxMatrixClientPeg.getChatUnreadState(item.roomId) ", global.mxMatrixClientPeg.getChatUnreadState(item.roomId));
+          if(global.mxMatrixClientPeg.getChatUnreadState(item.roomId)) {
+            var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
+            console.log("*** unreadCountelement is ", unreadCountelement);
+            if(unreadCountelement) {
+              unreadCountelement.style.display = "block";
+            }
+          }
+          else {
+            var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
+            console.log("*** unreadCountelement is ", unreadCountelement);
+            if(unreadCountelement) {
+              unreadCountelement.style.display = "none";
+            }
+          }
+        }
+        else {
+            var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
+            if(unreadCountelement) {
+              unreadCountelement.style.display = "block";
+            }
+        }
+      }
+      else {
+        this.showGroupList.forEach((item)=>{
+          if(item.getMyMembership() == "invite") {
+            // this.unreadCount += 1;
+          }
+          else{
+            if(this.groupIsSlience(item)) {
+              if(global.mxMatrixClientPeg.getChatUnreadState(item.roomId)) {
+                var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
+                if(unreadCountelement) {
+                  unreadCountelement.style.display = "block";
+                }
+              }
+              else {
+                var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
+                if(unreadCountelement) {
+                  unreadCountelement.style.display = "none";
+                }
+              }
+            }
+            else {
+                var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
+                if(unreadCountelement) {
+                  unreadCountelement.style.display = "block";
+                }
+            }
+          }
+        })
+      }
     },
     ShowAllGroup: function(){
       this.unreadCount = 0;
@@ -651,7 +751,11 @@ export default {
         this.dealShowGroupList.sort(this.SortGroupByTimeLine);
       if(this.lowPriorityGroupList.length != 0)
         this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
-      
+      setTimeout(() => {
+        this.$nextTick(() => {
+          this.updateItemUnreadState();
+        })
+      })
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
     },
     
@@ -735,7 +839,9 @@ export default {
         console.log('xie2--', room);
         if (newRooms[i].roomId === room.room_id || newRooms[i].roomId === room.roomId) {
           console.log('---to show---');
-          this.scrollToDistPosition(room);
+          if(this.checkNeedScroll(room)) {
+            this.scrollToDistPosition(room);
+          }
           return this.showChat(newRooms[i], i);
         }
       }
@@ -754,6 +860,7 @@ export default {
     },
     async getNotificationContent(msg) {
       let event = msg.event;
+      console.log("*** notification event ", event);
       if(event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
         return;
       }
@@ -827,13 +934,31 @@ export default {
       // console.log("*** room ", room);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
+      if(this.isFirstLogin) {
+        var curTime = new Date().getTime();
+        if(curTime - ev.event.origin_server_ts > 1000 * 60) {
+          return;
+        }
+      }
       if(data.liveEvent) {
+        if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
+          return;
+        }
+        else {
+          this.dealingEventIds.push(ev.event.event_id);
+        }
         if(room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = !this.newMsg;
         }
         this.updateChatList(ev);
       }
       
+      for(let i in this.dealingEventIds){
+        if(this.dealingEventIds[i] == ev.event.event_id) {
+          this.dealingEventIds.splice(i, 1);
+          break;
+        } 
+      }
         // if(!this.isScroll) {
         //     console.log("onRoomTimeline ", ev)
         //     this.$emit("updateChatList", ev);
@@ -871,15 +996,19 @@ export default {
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender ? newMsg.sender.name : newMsg.event.sender;
       // console.log("*** newMsg is ", newMsg);
-      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin && this.checkNeedScroll()) {
+      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
         console.log("*** updateChatList SetRoomReader");
         this.SetRoomReader(this.curChat);
         setTimeout(() => {
-          this.scrollToDistPosition(this.curChat);
+          if(this.checkNeedScroll(this.curChat)) {
+            this.scrollToDistPosition(this.curChat);
+          }
         }, 1000)
         return;
       }
-      this.checkUnreadCount();
+      if(newMsg.event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+        return;
+      }
       var notificateContent = await this.getNotificationContent(newMsg);
       // console.log("fromUserInfo ", fromUserInfo);
       fromName = await this.getNoticeShowGroupName(groupInfo);
@@ -888,6 +1017,11 @@ export default {
       if(!this.groupIsSlience(groupInfo)) {
         this.showNotice(fromName, notificateContent);
       }
+      else {
+        var unreadInfo = [groupInfo.roomId, true];
+        global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
+      }
+      this.checkUnreadCount();
     },
     checkNeedScroll(checkItem) {
       if(this.isFirstLogin && !checkItem) {
@@ -981,6 +1115,9 @@ export default {
     getSearchChatItemImgElementId: function(itemId) {
       return "all-search-chat-img-" + itemId;
     },
+    getSearchChatMsgItemImgElementId: function(itemId) {
+      return "all-search-chat-msg-img-" + itemId;
+    },
     getSearchItemElementId: function(itemId) {
       return "all-search-" + itemId;
     },
@@ -993,8 +1130,11 @@ export default {
     getSearchChatItemNameElementId: function(itemId) {
       return "all-search-chat-name-" + itemId;
     },
-    getSearchChatItemContentElementId: function(itemId) {
-      return "all-search-chat-content-" + itemId;
+    getSearchChatMsgItemNameElementId: function(itemId) {
+      return "all-search-chat-msg-name-" + itemId;
+    },
+    getSearchChatMsgItemContentElementId: function(itemId) {
+      return "all-search-chat-msg-content-" + itemId;
     },
     getFileNameItemElementId: function(itemId) {
       return "file-name-element-" + itemId;
@@ -1026,29 +1166,34 @@ export default {
       this.showUserInfoTips = false;
       console.log('chat-content中的userInfo模版', this.showUserInfoTips)
     },
+    toShowDistChat: function(groupInfo) {
+      this.needScroll = true;
+      console.log("Created Info is ", groupInfo)
+      var searchKey = "";
+      this.cleanSearchKey = !this.cleanSearchKey;
+      this.toSearch("");
+      this.showUserInfoTips = false;
+      
+      setTimeout(() => {
+        this.$nextTick(() => {
+          for(let i in this.dealShowGroupList){
+            if(this.dealShowGroupList[i].roomId == groupInfo.roomId) {
+              this.showChat(groupInfo, 0, this.searchKey);
+              if(this.checkNeedScroll(groupInfo)) {
+                this.scrollToDistPosition(groupInfo);
+              }
+              return;
+            } 
+          }
+        })
+      }, 0)
+    },
     showGroup: async function(groupInfo) {
       console.log("in chat content distGroupId is ", groupInfo);
       if(groupInfo.room_id.length != 0) {
         var distInfo = global.mxMatrixClientPeg.matrixClient.getRoom(groupInfo.room_id);
         if(distInfo != undefined) {
-          this.needScroll = true;
-          console.log("Created Info is ", distInfo)
-          var searchKey = this.searchKey;
-          this.cleanSearchKey = !this.cleanSearchKey;
-          this.toSearch("");
-          this.showUserInfoTips = false;
-          
-          setTimeout(() => {
-            this.$nextTick(() => {
-              for(let i in this.dealShowGroupList){
-                if(this.dealShowGroupList[i].roomId == distInfo.roomId) {
-                  this.showChat(distInfo, i, searchKey);
-                  this.scrollToDistPosition(distInfo);
-                  return;
-                } 
-              }
-            })
-          }, 0)
+          this.showChat(distInfo, 0, this.searchKey);
         }
       }
     },
@@ -1367,6 +1512,10 @@ export default {
         if(chatGroupMsgType === "m.room.message")
         {
             var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
+            if(sender.userId) {
+              sender = sender.userId;
+            }
+            // console.log("*** sender ", sender);
             if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
               var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
               if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -1515,6 +1664,16 @@ export default {
       console.log("searchkey is ", this.searchKey);
       
       if(this.searchKey.length != 0) {
+        var showFavouriteRooms = await this.searchRoom(this.favouriteRooms, searchKey);
+        var showDealGroupList = await this.searchRoom(this.dealShowGroupList, searchKey);
+        var showLowPriorityGroupList = await this.searchRoom(this.lowPriorityGroupList, searchKey);
+        var concatSearchChatItems = [].concat(showFavouriteRooms, showDealGroupList, showLowPriorityGroupList);
+        if(concatSearchChatItems.length > 3) {
+          this.showSearchAllChatMsg = true; 
+        }
+        this.searchChatItems = concatSearchChatItems.splice(0, 3);
+        // console.log("*** searchChatItems ", this.searchChatItems);
+        
         var curSearchId = new Date().getTime();
         var searchResult = {
             "id": curSearchId,
@@ -1523,16 +1682,16 @@ export default {
         this.searchId = curSearchId;
         var searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
         console.log("*** searchUsers is ", searchUsers);
-        var searchChat = await global.services.common.searchAllChat(searchKey);
+        var searchChat = await global.services.common.searchAllChat(searchKey, 3);
         if(searchResult.id == this.searchId) {
           if(searchChat.rooms.results.length != 0) {
             this.searchMessageItems = searchChat.rooms.results;
             this.showSearchMessage = true;
             if(searchChat.rooms.more) {
-              this.showSearchAllChat = true;
+              this.showAllSearchAllChat = true;
             }
             else {
-              this.showSearchAllChat = false;
+              this.showAllSearchAllChat = false;
             }
           }
           else {
@@ -1574,6 +1733,8 @@ export default {
         }, 0)
         if(this.searchKey.length == 0) {
           this.isSearch = false;
+          this.showSearchAllChat = true;
+          this.showSearchMessage = true;
           this.searchPeopleItems = [];
           this.searchMessageItems = [];
           console.log("this.issearch = ", this.isSearch)
@@ -1585,12 +1746,13 @@ export default {
       }
       else{
         this.isSearch = false;
+        this.showSearchAllChat = true;
         this.searchPeopleItems = [];
         this.searchMessageItems = [];
       }
     },
     showSearchResultIcon: async function() {
-      console.log('*** 0000 this.searchPeopleItems is ', this.searchPeopleItems);
+      /*
       for(let i=0;i<this.searchPeopleItems.length;i++) {
         var curSearchPeopleItem = this.searchPeopleItems[i];
         if(curSearchPeopleItem.matrix_id.length != 0) {
@@ -1612,16 +1774,16 @@ export default {
           }
         }
       }
-      for(let i=0;i<this.searchMessageItems.length;i++) {
-        var curSearchChatItem = this.searchMessageItems[i];
-        var searchChatImgId = this.getSearchChatItemImgElementId(curSearchChatItem.room_id);
-        var searchChatNameId = this.getSearchChatItemNameElementId(curSearchChatItem.room_id);
-        var searchChatContentId = this.getSearchChatItemContentElementId(curSearchChatItem.room_id);
+      */
+      for(let i=0;i<this.searchChatItems.length;i++) {
+        var curSearchChatItem = this.searchChatItems[i];
+        var searchChatImgId = this.getSearchChatItemImgElementId(curSearchChatItem.roomId);
+        var searchChatNameId = this.getSearchChatItemNameElementId(curSearchChatItem.roomId);
         var searchChatImgElement = document.getElementById(searchChatImgId);
+        // console.log('*** showSearchResultIcon ', searchChatNameId);
         var searchChatNameElement = document.getElementById(searchChatNameId);
-        var searchChatContentElement = document.getElementById(searchChatContentId);
         
-        var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
+        var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.roomId);
         if(global.mxMatrixClientPeg.DMCheck(curRoom)) {
           var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
           if(!distUserId) {
@@ -1646,11 +1808,47 @@ export default {
         if(searchChatImgElement != undefined && distUrl) {
           searchChatImgElement.setAttribute("src", distUrl);
         }
+      }
+      for(let i=0;i<this.searchMessageItems.length;i++) {
+        var curSearchChatItem = this.searchMessageItems[i];
+        var searchChatMsgImgId = this.getSearchChatMsgItemImgElementId(curSearchChatItem.room_id);
+        var searchChatMsgNameId = this.getSearchChatMsgItemNameElementId(curSearchChatItem.room_id);
+        var searchChatMsgContentId = this.getSearchChatMsgItemContentElementId(curSearchChatItem.room_id);
+        var searchChatImgMsgElement = document.getElementById(searchChatMsgImgId);
+        var searchChatMsgNameElement = document.getElementById(searchChatMsgNameId);
+        var searchChatMsgContentElement = document.getElementById(searchChatMsgContentId);
+        
+        var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
+        if(global.mxMatrixClientPeg.DMCheck(curRoom)) {
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
+          if(!distUserId) {
+            continue;
+          }
+          var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          searchChatMsgNameElement.innerHTML = displayName;
+        }
+        else{
+          searchChatMsgNameElement.innerHTML = curRoom.name;
+        }
+
+        var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
+        if(!distUrl || distUrl == '') {
+            let defaultGroupIcon;
+            if(global.mxMatrixClientPeg.DMCheck(curRoom))
+                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+            else
+                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
+            searchChatImgMsgElement.setAttribute("src", defaultGroupIcon); 
+        }
+        if(searchChatImgMsgElement != undefined && distUrl) {
+          searchChatImgMsgElement.setAttribute("src", distUrl);
+        }
 
         if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
-          searchChatContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
+          searchChatMsgContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
         }
       }
+      /*
       for(let i=0;i<this.searchFileItems.length;i++) {
         var distId = this.getSearchItemElementId(this.searchFileItems[i].timelineId);
         let elementImg = document.getElementById(distId);
@@ -1674,6 +1872,7 @@ export default {
         var targetDir = confservice.getFilePath(this.searchFileItems[i].timestamp);
         var targetPath = path.join(targetDir, this.searchFileItems[i].content.fileName);
       }
+      */
     },
     showAllSearchUsers: function() {
         this.$router.push(
@@ -1692,10 +1891,38 @@ export default {
       this.cleanSearchKey = !this.cleanSearchKey;
       this.toSearch("");
     },
-    showAllSearchMessages: function() {
-      ipcRenderer.send("showAnotherWindow", this.searchKey, "searchMessageList");
-      this.cleanSearchKey = !this.cleanSearchKey;
-      this.toSearch("");
+    showAllSearchChats: async function() {
+      this.showSearchAllChat = true;
+      this.showSearchMessage = false;
+      var showFavouriteRooms = await this.searchRoom(this.favouriteRooms, this.searchKey);
+      var showDealGroupList = await this.searchRoom(this.dealShowGroupList, this.searchKey);
+      var showLowPriorityGroupList = await this.searchRoom(this.lowPriorityGroupList, this.searchKey);
+      var concatSearchChatItems = [].concat(showFavouriteRooms, showDealGroupList, showLowPriorityGroupList);
+      this.searchChatItems = concatSearchChatItems;
+      setTimeout(() => {
+        this.$nextTick(() => {
+            this.showSearchResultIcon();
+        })
+      }, 0)
+    },
+    showAllSearchMessages: async function() {
+      this.showSearchAllChat = false;
+      this.showSearchMessage = true;
+      
+      var searchChat = await global.services.common.searchAllChat(this.searchKey, 0);
+      console.log("*** searchChat ", searchChat);
+      if(searchChat.rooms.results.length != 0) {
+        this.searchMessageItems = searchChat.rooms.results;
+        this.showSearchAllChatMsg = false;
+      }
+      setTimeout(() => {
+        this.$nextTick(() => {
+            this.showSearchResultIcon();
+        })
+      }, 0)
+      // ipcRenderer.send("showAnotherWindow", this.searchKey, "searchMessageList");
+      // this.cleanSearchKey = !this.cleanSearchKey;
+      // this.toSearch("");
     },
     getFileIconThroughExt: function(ext) {
         var iconPath = getIconPath(ext);
@@ -1786,17 +2013,17 @@ export default {
         }
       }
     },
-    getUnreadClass(chatItem, selected, status) {
+    getUnreadClass(chatItem, selected) {
       var endPoint = "-unselected";
       if(selected) {
         endPoint = "-selected";
       }
-      if(this.getUnReadCount(chatItem) === '') {
-        return "group-readall" + endPoint;
+      if(this.groupIsSlience(chatItem)) {
+        return "group-unread-slience"
       }
       else {
-        if(status != undefined && status.substr(7, 1) == "1") {
-          return "group-unread-slience"
+        if(this.getUnReadCount(chatItem) === '') {
+          return "group-readall" + endPoint;
         }
         else {
           return "group-unread";
@@ -2331,8 +2558,12 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
+          if(sender.userId) {
+            sender = sender.userId;
+          }
           if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
             var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
+            // console.log("*** sender ", sender);
             if(chatGroupMsgContent.msgtype == 'm.file'){
               distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
             }
@@ -2478,27 +2709,11 @@ export default {
       this.isFirstLogin = false;
       this.isMsgSearch = searchKey.length == 0 ? false : true;
       if(this.isMsgSearch) {
-        let groupItemElementID = this.ChatGroupId(chatGroup);
-        let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
-        this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
-
-        let groupDivElementID = this.ChatGroupDivId(chatGroup);
-        let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
-        this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
-
         this.isEmpty = false;
         var isSecret = false;
-
-        if(this.curChat != undefined && this.curChat.roomId != undefined) {
-          var charRef = this.$refs.chatPageRef;
-          var editor = charRef.editor;
-          var content = editor.getContents();
-          this.$store.commit("setDraft", [this.curChat.roomId, content]);
-        }
-        console.log("*** ", searchKey, " *** ", index);
         this.searchKeyFromList = searchKey;
-        this.curChat = chatGroup;
-        this.curindex = index;
+        this.searchChat = chatGroup;
+        // this.curindex = index;
         this.showGroupIconName();
       }
       else {
@@ -2520,17 +2735,22 @@ export default {
           var content = editor.getContents();
           this.$store.commit("setDraft", [this.curChat.roomId, content]);
         }
-
+        var unreadInfo = [];
         if(this.curChat != undefined && this.curChat.timeline.length != 0) {
           console.log("*** showChat SetRoomReader");
+          unreadInfo = [this.curChat.roomId, false];
+        global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
           this.SetRoomReader(this.curChat);
         }
 
         console.log("*** showChat SetRoomReader");
+        unreadInfo = [chatGroup.roomId, false];
+        global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
         this.SetRoomReader(chatGroup);
         
         console.log("*** ", searchKey, " *** ", index);
         this.curChat = chatGroup;
+        this.searchChat = chatGroup;
 
         ipcRenderer.send("stopFlash");
 
@@ -2641,7 +2861,9 @@ export default {
       for(let i in this.dealShowGroupList){
         if(this.dealShowGroupList[i].roomId == roomID) {
           this.showChat(newRoom, i);
-          this.scrollToDistPosition(newRoom);
+          if(this.checkNeedScroll(newRoom)) {
+            this.scrollToDistPosition(newRoom);
+          }
           return;
         } 
       }
@@ -2652,7 +2874,9 @@ export default {
         this.showGroupIconName(newRoom);
         this.showChat(newRoom, 0);
         setTimeout(() => {
-          this.scrollToDistPosition(newRoom);
+          if(this.checkNeedScroll(newRoom)) {
+            this.scrollToDistPosition(newRoom);
+          }
         }, 1000)
       })
     },
@@ -2775,7 +2999,7 @@ export default {
 
   .chat {
     width:100%;
-    background-color: rgba(241, 241, 241, 1);
+    background-color: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -2786,6 +3010,17 @@ export default {
   * {
       
       -webkit-app-region: no-drag;
+  }
+
+  .search-all-chat {
+    width:100%;
+    background-color: rgba(241, 241, 241, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-top: 20px;
+    -webkit-app-region: drag;
+    z-index: 1;
   }
 
   .chat-list {
@@ -2851,7 +3086,7 @@ export default {
     display: block;
     font-family: PingFangSC-Regular;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
   }
 
   .search-list-content-content {
@@ -2870,23 +3105,75 @@ export default {
     margin: 0;
   }
 
+  .search-list-chat {
+    height: 100%;
+    overflow-y: scroll;
+    scroll-behavior:smooth;
+    
+    ::-webkit-scrollbar-track {
+      border-radius: 10px;
+    }
+  }
+
+  .search-list-chat-label {
+    width: calc(100%-32px);
+    height: 32px;
+    line-height: 32px;
+    color: rgba(102, 102, 102, 1);
+    font-size: 12px;
+    padding-left: 16px;
+    margin: 0;
+    background-color: rgba(247, 248, 250, 1);
+    display: block;
+    font-family: PingFangSC-Regular;
+    font-weight: 400;
+    letter-spacing: 0px;
+  }
+
+  .search-list-chat-content {
+    width: 100%;
+    height: calc(100% - 64px);
+    padding: 0;
+    margin: 0;
+    display: block;
+    overflow: hidden;
+  }
+
+  .search-list-chat-list {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
   .search-item {
-    height: 52px;
+    height: 60px;
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
   
   .search-item:hover {
-    height: 52px;
-    background-color: rgba(221, 221, 221, 1);
+    height: 60px;
+    background-color: #f7f8fa;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .search-more-item {
+    height: 32px;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+  
+  .search-more-item:hover {
+    height: 32px;
+    background-color: #f7f8fa;
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .search-item-img-div {
     position:relative;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     display: inline-block;
-    margin-left: 16px;
+    margin-left: 0px;
     margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 10px;
@@ -2897,12 +3184,13 @@ export default {
     position: absolute;
     right: 0px;
     top: 0px;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     margin-left: 16px;
     margin-top: 0px;
     margin-right: 0px;
     margin-bottom: 0px;
+    border-radius: 50px;
   }
 
   .search-item-info {
@@ -2915,43 +3203,80 @@ export default {
   .search-item-info-more {
     display: inline-block;
     height: 100%;
-    width: calc(100% - 70px);
-    margin-left: 10px;
+    width: calc(100% - 16px);
+    margin-left: 16px;
+    cursor: pointer;
+  }
+
+  .search-item-info-more:hover {
+    display: inline-block;
+    background-color:  #f7f8fa;
+    height: 100%;
+    width: calc(100% - 16px);
+    margin-left: 16px;
     cursor: pointer;
   }
 
   .search-item-name {
-    width: 100%;
+    display: inline-block;
+    max-width: 96%;
     height: 20px;
     font-size: 14px;
-    font-weight: 400;
-    font-family:PingFangSC-Regular;
-    letter-spacing: 1px;
+    font-weight: 500;
+    font-family:PingFangSC-Medium;
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
-    margin-top: 7px;
+    margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
+    letter-spacing: 0px;
+  }
+
+  .search-more-item-name {
+    width: calc(100% - 42px);
+    height: 32px;
+    line-height: 32px;
+    font-size: 12px;
+    font-weight: 400;
+    font-family:PingFangSC-Regular;
+    letter-spacing: 0px;
+    color: rgba(91, 106, 145, 1);
+    overflow: hidden;
+    margin: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+
+  .search-item-name-more-ico {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-top: 6px;
+    margin-right: 12px;
+    margin-bottom: 6px;
+    display: inline-block;
+    cursor: pointer;
   }
 
   .search-item-position {
-    width: 100%;
-    font-size: 12px;
+    width: 119%;
+    font-size: 13px;
+    font-weight:400;
     color: rgba(153, 153, 153, 1);
     overflow: hidden;
+    font-family:PingFangSC-Regular;
     margin-left: 0px;
-    margin-top: 0px;
+    margin-top: 2px;
     margin-right: 0px;
-    margin-bottom: 7px;
+    margin-bottom: 10px;
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
-    font-family:PingFangSC-Regular;
-    letter-spacing: 1px;
-    font-weight: 400;
+    letter-spacing: 0px;
   }
 
   .search-list-content-more-div {
@@ -2966,7 +3291,7 @@ export default {
     display: block;
     cursor: pointer;
     font-family:PingFangSC-Regular;
-    letter-spacing: 1px;
+    letter-spacing: 0px;
     font-weight: 400;
   }
 
@@ -3050,6 +3375,58 @@ export default {
     font-size: 0px;
     box-sizing: border-box;
     background-color: rgba(255, 255, 255, 1);
+  }
+
+  .search-list-chat-list-div {
+    height: 60px;
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .search-list-chat-list-div:hover {
+    height: 60px;
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+    background-color: #f7f8fa;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .search-list-content-list-div {
+    height: 60px;
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+  }
+
+  .search-list-content-list-div:hover {
+    height: 60px;
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+    background-color: #f7f8fa;
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
 
   .grid-content {
@@ -3208,7 +3585,7 @@ export default {
     margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .group-name-secret {
@@ -3226,7 +3603,7 @@ export default {
     margin-bottom: 0px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .group-content {
@@ -3243,7 +3620,7 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
-    letter-spacing:1px;
+    letter-spacing: 0px;
   }
 
   .group-notice {

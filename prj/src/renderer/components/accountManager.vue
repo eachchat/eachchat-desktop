@@ -387,7 +387,7 @@ export default {
         font-weight: 500;
         color: #000000;
         line-height: 22px;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         float: left;
         margin: 18px 32px 18px 32px;
     }
@@ -440,7 +440,7 @@ export default {
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: left;
         padding: 15px 15px 15px 4px;
     }
@@ -451,7 +451,7 @@ export default {
         font-weight:400;
         color: rgba(36, 179, 107, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: right;
         padding: 15px 15px 15px 15px;
     }
@@ -462,7 +462,7 @@ export default {
         font-weight:400;
         color: rgba(36, 179, 107, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: right;
         padding: 15px 15px 15px 15px;
         cursor: pointer;
@@ -475,7 +475,7 @@ export default {
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: right;
         padding: 15px 15px 15px 4px;
     }
@@ -507,7 +507,7 @@ export default {
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: left;
         padding: 15px 15px 15px 4px;
     }
@@ -519,7 +519,7 @@ export default {
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: right;
         padding: 15px 15px 15px 15px;
     }
@@ -551,7 +551,7 @@ export default {
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: left;
         padding: 15px 15px 15px 4px;
     }
@@ -562,7 +562,7 @@ export default {
         font-weight:400;
         color: rgba(36, 179, 107, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: right;
         padding: 15px 15px 15px 15px;
     }
@@ -573,7 +573,7 @@ export default {
         font-weight:400;
         color: rgba(36, 179, 107, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: right;
         padding: 15px 15px 15px 15px;
         cursor: pointer;
@@ -586,7 +586,7 @@ export default {
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
         float: right;
         padding: 15px 15px 15px 4px;
     }
@@ -606,7 +606,7 @@ export default {
         font-family: SCPingFang-Regular;
         color: #333333;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: left;
         margin: 10px 14px 4px 0px;
     }
@@ -618,7 +618,7 @@ export default {
         font-weight: 400;
         color: #333333;
         line-height: 20px;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         float: left;
         margin: 14px 14px 5px 14px;
     }

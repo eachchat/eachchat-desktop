@@ -294,7 +294,7 @@ display: none;
         font-size: 16px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .ChatCreaterClose {
