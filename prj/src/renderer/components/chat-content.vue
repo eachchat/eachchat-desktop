@@ -869,14 +869,14 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return sender + ":[文件]:" + chatGroupMsgContent.body;
+            return sender + "：[文件]" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var content = chatGroupMsgContent.body;
-            return sender + ":" + content;
+            return sender + "：" + content;
           }
           else if(chatGroupMsgContent.msgtype == 'm.image'){
-            return sender + ":[图片]";
+            return sender + "：[图片]";
           } 
       }
       else if(chatGroupMsgType === "m.room.encrypted") {
@@ -1494,6 +1494,9 @@ export default {
       }
     },
     updateGroupContent: async function(item) {
+      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+      }
       var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
       if(distContentElement) {
@@ -1520,13 +1523,13 @@ export default {
             if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
               var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
               if(chatGroupMsgContent.msgtype == 'm.file'){
-                distContentElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML =  senderName + "：" + "[文件]" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
-                distContentElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+                distContentElement.innerHTML = senderName + "：" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
-                distContentElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML = senderName + "：" + "[图片]";// + chatGroupMsgContent.body;
               } 
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = senderName + ":" + "[语音]";
@@ -1534,13 +1537,13 @@ export default {
             }
             else {
               if(chatGroupMsgContent.msgtype == 'm.file'){
-                distContentElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML =  "[文件]" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
                 distContentElement.innerHTML = chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
-                distContentElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;
               } 
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = "[语音]";
@@ -2481,7 +2484,12 @@ export default {
       if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
           var inviteMemer = this._getInviteMember(chatGroupItem);
-          return "[邀请]：" + inviteMemer.rawDisplayName;
+          if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+            return inviteMemer.userId;
+          }
+          else {
+            return "由" + inviteMemer.userId + "邀请";
+          }
         }
       };
     },
@@ -2525,6 +2533,9 @@ export default {
         return timelineSet;
     },
     async toUpdateTimeLine(chatGroupItem) {
+      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+      }
       var distElement = document.getElementById(this.getChatContentElementId(chatGroupItem.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(chatGroupItem.roomId));
       var timeLineSet = await this.updateTimelineSet(chatGroupItem);
@@ -2567,13 +2578,13 @@ export default {
             var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
             // console.log("*** sender ", sender);
             if(chatGroupMsgContent.msgtype == 'm.file'){
-              distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+              distElement.innerHTML =  senderName + "：" + "[文件]" + chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.text'){
               distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.image'){
-              distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+              distElement.innerHTML = senderName + "：" + "[图片]";// + chatGroupMsgContent.body;
             } 
             else if(chatGroupMsgContent.msgtype == "m.audio") {
               distElement.innerHTML = senderName + ":" + "[语音]";
@@ -2581,13 +2592,13 @@ export default {
           }
           else {
             if(chatGroupMsgContent.msgtype == 'm.file'){
-              distElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
+              distElement.innerHTML =  "[文件]" + chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.text'){
               distElement.innerHTML = chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.image'){
-              distElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
+              distElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;
             } 
             else if(chatGroupMsgContent.msgtype == "m.audio") {
               distElement.innerHTML = "[语音]";
@@ -2630,7 +2641,7 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return "[文件]:" + chatGroupMsgContent.body;
+            return "[文件]" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var sender = distTimeLine.sender.name;
@@ -2645,7 +2656,7 @@ export default {
           return "收到一条加密消息";
           // chatGroupMsgContent = this.msg.getContent();
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return "[文件]:" + chatGroupMsgContent.body;
+            return "[文件]" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var sender = distTimeLine.sender.name;
@@ -3637,9 +3648,9 @@ export default {
   .group-time {
     color: rgba(187, 187, 187, 1);
     margin-left: 0px;
-    margin-top: 10px;
+    margin-top: 11px;
     font-family:PingFangSC-Regular;
-    font-size: 11px;
+    font-size: 12px;
     margin-right: 0px;
     margin-bottom: 2px;
     font-weight:400;
@@ -3721,14 +3732,14 @@ export default {
   .group-slience {
     float: right;
     color: rgb(255, 255, 255);
-    height: 20px;
-    width: 20px;
+    height: 16px;
+    width: 16px;
     margin-left: 0px;
-    margin-top: 0px;
+    margin-top: 3px;
     margin-right: 0px;
     margin-bottom: 10px;
     background-color: rgba(228, 49, 43, 0);
-    background-image: url("../../../static/Img/Chat/slience-20px@2x.png");
+    background-image: url("../../../static/Img/Chat/slience@2x.png");
     background-size: contain;
   }
 
@@ -3748,7 +3759,7 @@ export default {
       height: 20px;
       border: solid 0px #009933;
       margin-top: 19px;
-      margin-left: 13px;
+      margin-left: 15px;
       vertical-align: top;
   }
 
@@ -3757,7 +3768,7 @@ export default {
       width: 20px;
       height: 20px;
       border: solid 0px rgba(221, 221, 221, 1);
-      margin-right: 16px;
+      margin-right: 18px;
       margin-top: 19px;
       vertical-align: top;
       float: right;

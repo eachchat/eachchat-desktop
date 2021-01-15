@@ -2850,15 +2850,42 @@ export default {
                 }
             }
         },
+        async toGetShowMessage() {
+            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this.timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            await this._timelineWindow.load(undefined, 20);
+            var fileListInfo = [];
+            var originalFileListInfo = this._timelineWindow.getEvents();
+            originalFileListInfo.forEach(item => {
+                if(this.messageFilter(item) && item.event.content){
+                    fileListInfo.push(item);
+                } 
+            })
+            while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
+                await this._timelineWindow.paginate("b", 20);
+                var fileListInfoTmp = await this._timelineWindow.getEvents();
+                fileListInfoTmp.forEach(item => {
+                    if(this.messageFilter(item) && item.event.content){
+                        fileListInfo.push(item);
+                    }
+                })
+            }
+            return fileListInfo;
+        },
         initMessage: function() {
-            global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
+            // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
             if(this.curChat.getMyMembership() == "invite") {
                 this.isRefreshing = false;
                 this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.curChat);
                 this.isInvite = true;
             }
             else {
-                this._loadTimeline(undefined, undefined, undefined)
+                // this._loadTimeline(undefined, undefined, undefined)
+                this.toGetShowMessage()
                     .then((ret) => {
                         this.isRefreshing = false;
                         this.messageList = this._getEvents();
@@ -2866,17 +2893,18 @@ export default {
                             this.$nextTick(() => {
                                 this.needToBottom = true;
 
-                                let uldiv = document.getElementById("message-show-list");
-                                if(uldiv.clientHeight < uldiv.offsetHeight) {
-                                    this.handleScroll(true);
-                                }
-                                
                                 let div = document.getElementById("message-show-list");
                                 if(div) {
                                     div.scrollTop = div.scrollHeight + 52;
                                     div.addEventListener('scroll', this.handleScroll);
                                     this.showScrollBar();
                                 }
+
+                                let uldiv = document.getElementById("message-show-list");
+                                if(uldiv.clientHeight < uldiv.offsetHeight) {
+                                    this.handleScroll(true);
+                                }
+                                
                             })
                         }, 100)
                     })
