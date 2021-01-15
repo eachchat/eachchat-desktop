@@ -744,8 +744,8 @@ export default {
     }
 
     .MxHistoryMsgEmptyBg {
-        width: 84px;
-        height: 84px;
+        width: 176px;
+        height: 114px;
         background-color: white;
     }
 

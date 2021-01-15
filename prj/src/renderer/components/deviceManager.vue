@@ -20,7 +20,7 @@
                         <label class="sessionTime">{{DealTime(item.last_seen_ts)}}</label>
                     </div>
                     <div class="sessionOperate" v-show="item.device_id != ownDeviceId">
-                        <label class="sessionRemove" @click="removeSession(item)">移除会话</label>
+                        <label class="sessionRemove" @click="removeSession(item)">移除</label>
                     </div>
                 </li>
             </ul>

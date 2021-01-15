@@ -26,7 +26,7 @@
                                 <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
                                 <img ondragstart="return false" class="group-icon" :id="'search' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
-                                    <p class="group-name">{{ group.name }}</p>
+                                    <p class="group-name" :id="getSearchChatNameId(group)">{{ group.name }}</p>
                                 </div>
                             </li>
                         </ul>
@@ -46,7 +46,7 @@
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
                                     <img ondragstart="return false" class="group-icon" :id="'transmit' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="group-info">
-                                        <p class="group-name">{{ group.name }}</p>
+                                        <p class="group-name" :id="getTransmitNameId(group)">{{ group.name }}</p>
                                     </div>
                                 </li>
                             </ul>
@@ -61,7 +61,7 @@
                             <li class="selectedGroup" v-for="(group,index) in selectedGroups" :key="index">
                                 <img ondragstart="return false" class="group-icon" :id="'selected' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
-                                    <p class="group-name">{{ group.name }}</p>
+                                    <p class="group-name" :id="getSelectedChatNameId(group)">{{ group.name }}</p>
                                 </div>
                                 <img ondragstart="return false" class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
                             </li>
@@ -95,6 +95,7 @@ import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
 import conf_service from '../../packages/data/conf_service'
+import {ComponentUtil} from '../script/component-util.js';
 export default {
     name: 'TransmitDlg',
     components:{
@@ -183,6 +184,77 @@ export default {
         }
     },
     methods: {
+        checkIsDisabled(chatItem) {
+            if(this.selectedGroups.length >= 9) {
+                if(this.selectedGroups.indexOf(chatItem) >= 0) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            return false;
+        },
+        async updageTransmitChatNameAndImg() {
+            for(let i=this.showRecentChat.length-1;i>=0;i--) {
+                var distGroup = this.showRecentChat[i];
+                if(!distGroup) continue;
+                var elementGroupName = document.getElementById(this.getTransmitNameId(distGroup));
+                if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
+                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                    if(!distUserId) {
+                    // elementGroupName.innerHTML = distGroup.name;
+                    return;
+                    }
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                }
+                this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
+            }
+        },
+        async updageSelectedChatNameAndImg() {
+            for(let i=this.selectedGroups.length-1;i>=0;i--) {
+                var distGroup = this.selectedGroups[i];
+                if(!distGroup) continue;
+                var elementGroupName = document.getElementById(this.getSelectedChatNameId(distGroup));
+                if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
+                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                    if(!distUserId) {
+                    // elementGroupName.innerHTML = distGroup.name;
+                    return;
+                    }
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                }
+                this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
+            }
+        },
+        async updageSearchChatNameAndImg() {
+            for(let i=this.searchGroup.length-1;i>=0;i--) {
+                var distGroup = this.searchGroup[i];
+                if(!distGroup) continue;
+                var elementGroupName = document.getElementById(this.getSearchChatNameId(distGroup));
+                if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
+                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                    if(!distUserId) {
+                    // elementGroupName.innerHTML = distGroup.name;
+                    return;
+                    }
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                }
+                this.getGroupAvatarContent(this.searchGroup[i], 'search');
+            }
+        },
+        getSelectedChatNameId(chatGroupItem) {
+            return 'selected-group-name-' + (chatGroupItem ? chatGroupItem.roomId : "");
+        },
+        getSearchChatNameId(chatGroupItem) {
+            return 'search-group-name-' + (chatGroupItem ? chatGroupItem.roomId : "");
+        },
+        getTransmitNameId(chatGroupItem) {
+            return 'transmit-group-name-' + (chatGroupItem ? chatGroupItem.roomId : "");
+        },
         GetLastShowMessage(chatGroupItem){
             for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
                 var timeLineTmp = chatGroupItem.timeline[i];
@@ -261,9 +333,7 @@ export default {
 
             setTimeout(() => {
                 this.$nextTick(function(){
-                    for(var i = 0; i < this.searchGroup.length; i ++){
-                        this.getGroupAvatarContent(this.searchGroup[i], 'search');
-                    }
+                    this.updageSearchChatNameAndImg();
                 });
             }, 0)
         },
@@ -275,9 +345,7 @@ export default {
             var index = this.selectedGroups.indexOf(group);
             this.selectedGroups.splice(index, 1);
             this.$nextTick(function(){
-                for(var i = 0; i < this.selectedGroups.length; i ++){
-                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
-                }
+                this.updageSelectedChatNameAndImg();
             });
         },
         groupCheckBoxClicked(group){
@@ -286,12 +354,19 @@ export default {
                 this.selectedGroups.splice(index, 1);
             }
             else{
+                if(this.selectedGroups.length >= 9) {
+                    this.$toastMessage({message:"最多只能选择9个聊天", time: 2000, type:'error', showWidth:'280px'});
+                    this.selectedGroups.push(group);
+                    this.$nextTick(() => {
+                        var index = this.selectedGroups.indexOf(group);
+                        this.selectedGroups.splice(index, 1);
+                    })
+                    return;
+                }
                 this.selectedGroups.push(group);
             }
             this.$nextTick(function(){
-                for(var i = 0; i < this.selectedGroups.length; i ++){
-                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
-                }
+                this.updageSelectedChatNameAndImg();
             });
         },
         createNewChatButtonClicked:async function() {
@@ -337,6 +412,7 @@ export default {
         //         })
         // },
         getGroupAvatarContent:async function(group, key='') {
+            if(!group) return;
             var groupAvatarElement = document.getElementById(key + group.roomId);
             // console.log("gtoup name is ", group.name);
             var distUrl = global.mxMatrixClientPeg.getRoomAvatar(group);
@@ -877,11 +953,10 @@ export default {
             norGroups.sort(this.SortGroupByTimeLine);
             this.recentGroups = favGroups.concat(norGroups);
             this.showRecentChat = this.recentGroups;
+            console.log("*** this.showRecentChat is ", this.showRecentChat);
             setTimeout(() => {
                 this.$nextTick(function(){
-                    for(var i = 0; i < this.showRecentChat.length; i ++){
-                        this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
-                    }
+                    this.updageTransmitChatNameAndImg();
                 });
             }, 0)
         }

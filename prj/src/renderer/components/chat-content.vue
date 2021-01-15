@@ -455,7 +455,7 @@ export default {
                   }
                   this.inviteGroupsList.unshift(newRoom);
                   this.$nextTick(() => {
-                    this.showGroupIconName();
+                    this.showGroupIconName(newRoom);
                   })
                   var fromName = await this.getNoticeShowGroupName(newRoom);
                   const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
@@ -810,7 +810,8 @@ export default {
       }
       setTimeout(() => {
         this.$nextTick(() => {
-          this.showGroupIconName();
+          this.showGroupIconName(room);
+          this.sortGroup();
         })
       }, 0)
     },
@@ -899,7 +900,14 @@ export default {
         return "收到一条短消息";
 
     },
-
+    sortFavourete() {
+      if(this.favouriteRooms.length != 0)
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+    },
+    sortLowPriority() {
+      if(this.lowPriorityGroupList.length != 0)
+        this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
+    },
     sortGroup(){
       if(this.favouriteRooms.length != 0)
         this.favouriteRooms.sort(this.SortGroupByTimeLine);
@@ -978,12 +986,12 @@ export default {
         // }
     },
     async updateChatList(newMsg) {
-      this.sortGroup();
       if(newMsg.isState()) {
         return;
       }
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
       this.updateGroupMsgContent([groupInfo]);
+      this.sortGroup();
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -996,7 +1004,7 @@ export default {
           if(this.checkNeedScroll(this.curChat)) {
             this.scrollToDistPosition(this.curChat);
           }
-        }, 1000)
+        }, 100)
         return;
       }
       if(newMsg.event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
@@ -2735,6 +2743,7 @@ export default {
           unreadInfo = [this.curChat.roomId, false];
           global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
           this.SetRoomReader(this.curChat);
+          this.showGroupIconName(this.curChat);
         }
 
         console.log("*** showChat SetRoomReader");
@@ -2753,7 +2762,7 @@ export default {
         if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
           isSecret = true;
         }
-        this.showGroupIconName();
+        this.showGroupIconName(this.curChat);
       }
     },
     ToJoinRoom: function(roomId) {
@@ -2986,8 +2995,8 @@ export default {
   }
 
   .chat-empty-bg {
-    width: 168px;
-    height: 168px;
+    width: 228px;
+    height: 150px;
     background-color: rgba(255, 255, 255, 1);
   }
 
