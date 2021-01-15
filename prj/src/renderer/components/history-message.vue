@@ -7,7 +7,7 @@
         </div>
         <div class="HistoryMsgDlgContent">
             <div class="search">
-                <input class="HistoryMsgDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <input class="HistoryMsgDlgSearchInput" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="HistoryMsg-list">

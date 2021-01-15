@@ -11,7 +11,7 @@
                 <label class="MxGroupInfoMemberNum" id="MxMsgListGroupInfoMemberNumId"></label>
             </div>
             <div class="Mxsearch">
-                <input class="MxFileListDlgSearchInput" id="MxFileListDlgSearchInputId" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <input class="MxFileListDlgSearchInput" id="MxFileListDlgSearchInputId" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="Mxfile-list" id="Mxfile-list-id" v-viewer="options">

@@ -7,7 +7,7 @@
             </div>
             <div class="OwnerTransferContent">
                 <div class="search">
-                    <input class="ownertransfer-search-input" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                    <input class="ownertransfer-search-input" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                     <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
                 </div>
                 <ul class="groupMember-list">

@@ -2,6 +2,7 @@
     <div class="chat-page">
         <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" :initSearchKey="initSearchKey" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
         <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="curChat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
         <div class="chat-title">
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png"/>
@@ -93,12 +94,12 @@
                         <div class="multiSelectFavText">收藏</div>
                     </div>
                     <div class="multiSelectDelDiv" id="multiSelectDelDivId">
-                        <div class="multiSelectDel" @click="multiDel"></div>
+                        <div class="multiSelectDel" @click="toMultiDel"></div>
                         <div class="multiSelectDelText">删除</div>
                     </div>
-                    <div class="multiSelectToolCloseDiv">
-                        <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px@2x.png" @click="multiToolsClose">
-                    </div>
+                </div>
+                <div class="multiSelectToolCloseDiv">
+                    <img class="multiSelectToolClose" src="../../../static/Img/Chat/toolCancel-24px@2x.png" @click="multiToolsClose">
                 </div>
             </div>
         </div>
@@ -198,6 +199,7 @@ import {ComponentUtil} from '../script/component-util';
 import mxHistoryPage from './mxHistoryMsg.vue';
 import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
+import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 
 const {Menu, MenuItem, nativeImage} = remote;
@@ -275,6 +277,7 @@ Quill.register({ 'formats/imageBlot': FileBlot });
 export default {
     name: 'Chat',
     components: {
+        AlertDlg,
         quillEditor,
         imessage,
         Faces,
@@ -297,6 +300,14 @@ export default {
         mxMemberSelectDlg
     },
     methods: {
+        clearCache: function() {
+            this.multiDel();
+            this.selectedMsgs = [];
+            this.showAlertDlg = false;
+        },
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+        },
         groupIsSlience() {
             if(this.curChat.roomId) {
                 const state = getRoomNotifsState(this.curChat.roomId);
@@ -570,12 +581,6 @@ export default {
                         this.menuCopy(msgItem)
                     }
                 }));
-                this.menu.append(new MenuItem({
-                    label: "引用",
-                    click: () => {
-                        this.menuQuote(msgItem)
-                    }
-                }));
                 if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "转发",
@@ -606,8 +611,22 @@ export default {
                         }
                     }));
                 }
+                this.menu.append(new MenuItem({
+                    label: "引用",
+                    click: () => {
+                        this.menuQuote(msgItem)
+                    }
+                }));
             }
             else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
+                if(!this.isSecret) {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                }
                 if(!this.isSecret) {
                     this.menu.append(new MenuItem({
                         label: "收藏",
@@ -625,12 +644,6 @@ export default {
                     }));
                 }
                 if(!this.isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
                     this.menu.append(new MenuItem({
                         label: "多选",
                         click: () => {
@@ -659,12 +672,18 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
-            global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
-            .catch((error) => {
-                console.log("menuDelete ", error);
-                this.$toastMessage({message:'删除成功', time:1500, type:'success'});
-                this.multiToolsClose();
-            })
+            this.selectedMsgs.push(msg);
+            this.alertContnets = {
+                "Details": "是否删除聊天记录？",
+                "Abstrace": "删除聊天记录"
+            }
+            this.showAlertDlg = true;
+            // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
+            // .catch((error) => {
+            //     console.log("menuDelete ", error);
+            //     this.$toastMessage({message:'删除成功', time:1500, type:'success'});
+            //     this.multiToolsClose();
+            // })
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
@@ -842,12 +861,20 @@ export default {
             this.$toastMessage({message:'收藏成功', time:1500, type:'success'});
             this.multiToolsClose();
         },
+        toMultiDel() {
+            this.selectedMsgs.push(msg);
+            this.alertContnets = {
+                "Details": "是否删除聊天记录？",
+                "Abstrace": "删除聊天记录"
+            }
+            this.showAlertDlg = true;
+        },
         multiDel() {
             console.log("this.selectedMsgs is ", this.selectedMsgs);
             for(let i=0;i<this.selectedMsgs.length;i++) {
                 global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, this.selectedMsgs[i].event.event_id);
             }
-            this.$toastMessage({message:'删除成功', time:1500, type:'success'});
+            // this.$toastMessage({message:'删除成功', time:1500, type:'success'});
             this.multiToolsClose();
         },
         multiToolsClose() {
@@ -2181,6 +2208,13 @@ export default {
         msgCheckBoxId: function(curMsg) {
             return "message-checkbox-" + curMsg.event.event_id;
         },
+        msgCanNotCheck(curMsg) {
+            var content = curMsg.getContent();
+            if(content.msgtype == "m.audio") {
+                return true;
+            }
+            return false;
+        },
         msgSelectOrNotClassName: function(curMsg) {
             //class="msgContent"
             var hasSelected = false;
@@ -2795,6 +2829,9 @@ export default {
     },
     data() {
         return {
+            alertContnets: {},
+            showAlertDlg: false,
+            contentType: '',
             curChat: {},
             imageViewerImageInfo: {},
             transmitImageViewer: false,
@@ -3378,6 +3415,7 @@ export default {
         overflow-y: scroll;
         overflow-x: hidden;
         border-bottom: 1px solid rgba(221, 221, 221, 1);
+        border-top: 1px solid rgba(221, 221, 221, 1);
         li {
             list-style-type: none;
         }
@@ -3474,6 +3512,12 @@ export default {
         outline: none;
     }
 
+    .multiSelectCheckbox:disabled {
+        background-color: rgba(36, 179, 107, 0.5);
+        cursor: pointer;
+        outline: none;
+    }
+
     .multiSelectCheckbox:checked::after {
         content:'';
         top:3px;
@@ -3504,8 +3548,10 @@ export default {
 
     .multiSelectToolsDiv {
         margin: 0 auto;
-        width: 540px;
+        width: 100%;
         text-align: center;
+        display: inline-block;
+
     }
 
     .chat-input {
@@ -3522,8 +3568,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 30px;
-        margin-right: 30px;
+        margin-left: 56px;
+        margin-right: 56px;
         display: inline-block;
     }
 
@@ -3557,8 +3603,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 30px;
-        margin-right: 30px;
+        margin-left: 56px;
+        margin-right: 56px;
         display: inline-block;
     }
 
@@ -3592,8 +3638,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 30px;
-        margin-right: 30px;
+        margin-left: 56px;
+        margin-right: 56px;
         display: inline-block;
     }
 
@@ -3629,8 +3675,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 30px;
-        margin-right: 30px;
+        margin-left: 56px;
+        margin-right: 56px;
         display: inline-block;
     }
 
@@ -3660,13 +3706,15 @@ export default {
     }
 
     .multiSelectToolCloseDiv {
-        width: 44px;
-        height: 44px;
-        margin-top: 60px;
-        margin-bottom: 60px;
-        margin-left: 30px;
-        margin-right: 30px;
+        width: 24px;
+        height: 24px;
+        margin-top: 70px;
+        margin-bottom: 70px;
+        margin-left: 40px;
+        margin-right: 40px;
         display: inline-block;
+        position: fixed;
+        right: 0px;
     }
 
     .multiSelectToolClose {

@@ -3,7 +3,7 @@
             <el-container class="ChatCreaterContent">
                 <el-aside class="ListView" width="280px">
                     <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
                 </div><div class="search-action">
                         
                         <div class="search-delete">

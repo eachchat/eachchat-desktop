@@ -11,7 +11,7 @@
                         <div class="search-logo">
                             <i class="el-icon-search"></i>
                         </div>
-                        <input @input="searchMember" v-model="memberText" class="search-input" type="text" placeholder="搜索...">
+                        <input @input="searchMember" v-model="memberText" class="search-input" type="text" placeholder="搜索">
                     </div> <!--search input-->
                     <div class="crumbs" v-show="crumbs.length > 1 && !isSearch">
                         <div 

@@ -16,7 +16,7 @@
                             <!-- <i class="el-icon-search"></i> -->
                             <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                         </div>
-                        <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索...">
+                        <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
                     </div>
                     <div class="crumbsxie" v-show="crumbs.length > 1">
                         <span
