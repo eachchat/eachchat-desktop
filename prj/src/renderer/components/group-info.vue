@@ -158,8 +158,8 @@
                         <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
                             <div class="memberItemName">
                                 <span>{{item.dspName}}</span>
-                                <span v-if="item.powerLevel==100" class="adminBadge">管理者</span>
-                                <span v-if="item.powerLevel==50" class="adminBadge">主持人</span>
+                                <span v-if="item.powerLevel==100" class="adminBadge">群主</span>
+                                <span v-if="item.powerLevel==50" class="adminBadge">群管理员</span>
                             </div>
                             <div class="memberItemMxId">{{item.userId}}</div>
                         </div>
@@ -171,9 +171,9 @@
                         v-if="currentUser.powerLevel > item.powerLevel"
                     >
                     <div class="memberItemOptions" v-show="item.choosen">
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为管理者</div>
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为主持人</div>
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为普通用户</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群管理员</div>
+                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群成员</div>
                         <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=showGroupInfo.totalLevels.canKick">移除成员</div>
                     </div>
                 </li>
