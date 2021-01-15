@@ -858,13 +858,13 @@ export default {
         height: 24px;
     }
 
-    .NavChatting:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/chathover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavChatting:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/chathover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavChatting.active {
         border: 0px;
@@ -882,13 +882,13 @@ export default {
         height: 24px;
     }
 
-    .NavOrganization:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/orghover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavOrganization:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/orghover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavOrganization.active {
         border: 0px;
@@ -906,13 +906,13 @@ export default {
         height: 24px;
     }
 
-    .NavFavourite:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/favhover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavFavourite:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/favhover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavFavourite.active {
         border: 0px;
@@ -949,7 +949,8 @@ export default {
         height: 20px;
         text-align: center;
         line-height: 20px;
-        background-color: rgba(74, 76, 91, 1);;
+        // background-color: rgba(74, 76, 91, 1);;
+        cursor:pointer;
     }
 
     .NavSetUpImg {
@@ -960,13 +961,13 @@ export default {
         height: 24px;
     }
 
-    .NavSetUpImg:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/setup-hover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavSetUpImg:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/setup-hover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavSetUpImg.active {
         border: 0px;
