@@ -465,6 +465,7 @@ export default {
                     u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                     u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
+                    c.secdis = c.user_title || c.matrix_id;
                     c.choosen = false;
                     sus.push(u);
                 })
@@ -475,6 +476,7 @@ export default {
                     u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                     u.display_name =  c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
+                    c.secdis = c.title || c.matrix_id;
                     c.choosen = false;
                     scs.push(u);
                 })
@@ -677,6 +679,7 @@ export default {
                 contactUsers.forEach(c => {
                     console.log('----kanha----', client.getUser(c.matrix_id));
                     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                    c.secdis = c.title || c.matrix_id;
                 })
                 let totalArray = [...contactUsers];
                 totalArray.forEach(t => t.choosen = false)
@@ -694,7 +697,7 @@ export default {
                     console.log('----kanha----', client.getUser(c.matrix_id));
                     c.display_name = c.user_display_name || c.user_name;
                     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-                    
+                    c.secdis = c.user_title || c.matrix_id;
                 })
                 let totalArray = [...subDep, ...subUsers];
                 totalArray.forEach(t => t.choose = false)
