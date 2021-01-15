@@ -192,6 +192,7 @@ import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import {EventTimeline} from "matrix-js-sdk";
+import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
 import Invite from './invite.vue';
 import encrypt from 'browser-encrypt-attachment';
@@ -1282,10 +1283,79 @@ export default {
             this.$emit('getCreateGroupInfo', groupInfo);
             this.showUserInfoTips = false;
         },
-        showImageOfMessage(distEvent) {
+        async updateImgTimelineSet(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+            
+            if (room) {
+                let timelineSet;
+
+                try {
+                    timelineSet = await this.fetchFileEventsServer(room);
+                } catch (error) {
+                    console.error("Failed to get or create file panel filter", error);
+                }
+                return timelineSet;
+            } else {
+                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
+            }
+        },
+        async fetchFileEventsServer(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+
+            const filter = new Filter(client.credentials.userId);
+            filter.setDefinition(
+                {
+                    "room": {
+                        "timeline": {
+                            "contains_url": true,
+                            "types": [
+                                "m.room.message"
+                            ],
+                        },
+                    },
+                },
+            );
+
+            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
+            filter.filterId = filterId;
+            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
+
+            return timelineSet;
+        },
+        async toGetShowImage(distRoom) {
+            var curTimeLineSetRoomId = this.imgTimeLineSet ? this.imgTimeLineSet.room.roomId : undefined;
+            if(distRoom.roomId == curTimeLineSetRoomId) {
+                var fileListInfo = this._imgTimelineWindow.getEvents();
+                var thresholdNum = fileListInfo.length;
+                while(fileListInfo.length == thresholdNum && this._imgTimelineWindow.canPaginate('b')) {
+                    await this._imgTimelineWindow.paginate("b", 20);
+                    fileListInfo = await this._imgTimelineWindow.getEvents();
+                }
+                return fileListInfo;
+            }
+            else {
+                this.imgTimeLineSet = await this.updateImgTimelineSet(distRoom);
+                console.log("*** imgTimeLineSet ", this.imgTimeLineSet);
+                // var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
+                this._imgTimelineWindow = new Matrix.TimelineWindow(
+                    global.mxMatrixClientPeg.matrixClient, 
+                    this.imgTimeLineSet,
+                    {windowLimit:Number.MAX_VALUE},
+                )
+                await this._imgTimelineWindow.load(undefined, 20);
+                var fileListInfo = this._imgTimelineWindow.getEvents();
+                while(fileListInfo.length == 0 && this._imgTimelineWindow.canPaginate('b')) {
+                    await this._imgTimelineWindow.paginate("b", 20);
+                    fileListInfo = await this._imgTimelineWindow.getEvents();
+                }
+                return fileListInfo;
+            }
+        },
+        async showImageOfMessage(distEvent) {
             var showImageInfoList = [];
             var distImageInfo = {};
-            this.messageList.forEach(curEvent => {
+            var imgMsgList = await this.toGetShowImage(this.curChat);
+            imgMsgList.forEach(curEvent => {
                 let event = curEvent.event;
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
@@ -1322,7 +1392,7 @@ export default {
                         imageEventId: event.event_id,
                         info: info,
                         body: chatGroupMsgContent.body,
-                        sender: curEvent.sender.userId,
+                        sender: curEvent.sender ? curEvent.sender.userId : curEvent.sender,
                         origin_server_ts: curEvent.event.origin_server_ts
                     }
                     if(distEvent.event.event_id == event.event_id) {
@@ -1332,7 +1402,7 @@ export default {
                             imageEventId: event.event_id,
                             info: info,
                             body: chatGroupMsgContent.body,
-                            sender: curEvent.sender.userId,
+                            sender: curEvent.sender ? curEvent.sender.userId : curEvent.sender,
                             origin_server_ts: curEvent.event.origin_server_ts
                         }
                     }
@@ -2829,6 +2899,8 @@ export default {
     },
     data() {
         return {
+            imgTimeLineSet: undefined,
+            _imgTimelineWindow: undefined,
             alertContnets: {},
             showAlertDlg: false,
             contentType: '',
