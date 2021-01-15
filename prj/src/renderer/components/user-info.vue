@@ -359,8 +359,20 @@ export default {
             this.curUserInfo = await this.services.GetSelfUserModel();
             var tempUserinfo = this.userInfo;
             tempUserinfo.curUserInfo = this.curUserInfo;
-            const ipcRender = require('electron').ipcRenderer;
-            ipcRender.send('showReportRelationWindow', this.userInfo);
+            let leaders = this.userInfo.leaders;
+            let proArray = [];
+            for(let item of leaders){
+                let matrixID = item.matrix_id;
+                proArray.push(global.mxMatrixClientPeg.matrixClient.getProfileInfo(matrixID))
+            }
+            Promise.all(proArray).then(urls => {
+                for(let index in leaders){
+                    leaders[index].user_avatar_url = this.matrixClient.mxcUrlToHttp(urls[index].avatar_url);
+                }
+                const ipcRender = require('electron').ipcRenderer;
+                ipcRender.send('showReportRelationWindow', this.userInfo);
+            })
+            
 
         },
         getPageHeight(){

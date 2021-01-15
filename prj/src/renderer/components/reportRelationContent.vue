@@ -29,24 +29,14 @@ export default {
         }
     },
     methods:{
-        getUserImg: async function (user_id){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(user_id == undefined) {
+        getUserImg: function (user){
+            if(user._attr.user_id == undefined) {
                 return "";
             }
-            var userId = user_id;
             
-            confservice.init(this.userInfo.curUserInfo._attr.id);
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(userId);
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
+            let userIconElement = document.getElementById(user._attr.user_id);
+            if(userIconElement && user._attr.user_avatar_url.length != 0){
+                userIconElement.setAttribute("src", user._attr.user_avatar_url);
             }
         },
     },
@@ -55,10 +45,9 @@ export default {
         var _this = this;
         ipcRenderer.on("clickedReportRelationInfo", (event, userInfo) => {
             _this.userInfo = userInfo;
-            console.log(_this.userInfo);
             this.$nextTick(function(){
                 for(var i = 0;i < _this.userInfo.leaders.length; i ++){
-                    this.getUserImg(_this.userInfo.leaders[i]._attr.user_id);
+                    this.getUserImg(_this.userInfo.leaders[i]);
                 }
                 
             });            
