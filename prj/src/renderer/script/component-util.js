@@ -1,11 +1,6 @@
 
 import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
 
-function Appendzero(o_num) {
-    if(o_num < 10) return "0" + "" + o_num;
-    else return o_num;
-}
-
 function getWeekDay(day){
     let week = {
         0:"星期日",
@@ -177,29 +172,26 @@ const ComponentUtil = {
         let m = distdate.getMinutes();
         let s = distdate.getSeconds();
         let day = distdate.getDay();
-        // console.log(distdate)
-        // console.log(cutTime)
-        // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
   
         if(cutTime < 8 * 24 * 3600 * 1000)
         {
             let cutDay = curDate - d;
             if(cutDay === 0){
-                return Appendzero(h) + ":" + Appendzero(m);
+                return h + ":" + m;
             }
             else if(cutDay === 1){
-                return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
+                return "昨天 " + h + ":" + m;
             }
             else if(cutDay > 1 && cutDay < 7){
                 return getWeekDay(day);
             }
             else {
-                return y + '/' + Appendzero(mon) + '/' + Appendzero(d);
+                return y + '/' + mon + '/' + d;
             }
         }
         else
         {
-          return y + '/' + Appendzero(mon) + '/' + Appendzero(d);
+          return y + '/' + mon + '/' + d;
         }
       },
 }
