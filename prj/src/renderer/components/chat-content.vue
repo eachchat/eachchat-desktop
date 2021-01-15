@@ -1567,6 +1567,7 @@ export default {
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
+        this.updateGroupContent(distGroup);
         this.UpdateGroupImage(distGroup);
         this.updageGroupName(distGroup);
       }
@@ -2732,7 +2733,7 @@ export default {
         if(this.curChat != undefined && this.curChat.timeline.length != 0) {
           console.log("*** showChat SetRoomReader");
           unreadInfo = [this.curChat.roomId, false];
-        global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
+          global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
           this.SetRoomReader(this.curChat);
         }
 
@@ -2864,10 +2865,10 @@ export default {
       this.dealShowGroupList.unshift(newRoom);
       this.$nextTick(async () => {
         await newRoom.loadMembersIfNeeded();
-        this.showGroupIconName(newRoom);
         this.showChat(newRoom, 0);
         setTimeout(() => {
           if(this.checkNeedScroll(newRoom)) {
+            this.showGroupIconName(newRoom);
             this.scrollToDistPosition(newRoom);
           }
         }, 1000)
