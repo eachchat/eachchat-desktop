@@ -195,21 +195,23 @@ export default {
                     this.downloadFile()
                 }
             }));
-            this.menu.append(new MenuItem({ 
-                type: 'separator' 
-            }));
-            this.menu.append(new MenuItem({
-                label: "转发",
-                click: () => {
-                    this.transMit()
-                }
-            }));
-            this.menu.append(new MenuItem({
-                label: "收藏",
-                click: () => {
-                    this.menuFav()
-                }
-            }));
+            if(this.curImage.sender) {
+                this.menu.append(new MenuItem({ 
+                    type: 'separator' 
+                }));
+                this.menu.append(new MenuItem({
+                    label: "转发",
+                    click: () => {
+                        this.transMit()
+                    }
+                }));
+                this.menu.append(new MenuItem({
+                    label: "收藏",
+                    click: () => {
+                        this.menuFav()
+                    }
+                }));
+            }
 
             this.menu.popup(remote.getCurrentWindow());
         },

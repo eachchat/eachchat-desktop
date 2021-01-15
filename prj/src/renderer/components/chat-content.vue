@@ -349,9 +349,9 @@ export default {
     scrollToRecentUnread: function() {
       var distItem = this.getDistUnreadItem();
       console.log("*** scrollToRecentUnread distItem ", distItem);
-      if(this.checkNeedScroll(distItem)) {
+      // if(this.checkNeedScroll(distItem)) {
         this.scrollToDistPosition(distItem);
-      }
+      // }
     },
     inviteGroupsList: function(){
       if(this.searchKey == '')
@@ -660,18 +660,14 @@ export default {
     updateItemUnreadState(item) {
       if(item) {
         if(this.groupIsSlience(item)) {
-          console.log("******")
-          console.log("****** global.mxMatrixClientPeg.getChatUnreadState(item.roomId) ", global.mxMatrixClientPeg.getChatUnreadState(item.roomId));
           if(global.mxMatrixClientPeg.getChatUnreadState(item.roomId)) {
             var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
-            console.log("*** unreadCountelement is ", unreadCountelement);
             if(unreadCountelement) {
               unreadCountelement.style.display = "block";
             }
           }
           else {
             var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
-            console.log("*** unreadCountelement is ", unreadCountelement);
             if(unreadCountelement) {
               unreadCountelement.style.display = "none";
             }
@@ -934,6 +930,12 @@ export default {
       // console.log("*** room ", room);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
+      if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
+        return;
+      }
+      else {
+        this.dealingEventIds.push(ev.event.event_id);
+      }
       if(this.isFirstLogin) {
         var curTime = new Date().getTime();
         if(curTime - ev.event.origin_server_ts > 1000 * 60) {
@@ -941,23 +943,14 @@ export default {
         }
       }
       if(data.liveEvent) {
-        if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
-          return;
-        }
-        else {
-          this.dealingEventIds.push(ev.event.event_id);
-        }
         if(room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = !this.newMsg;
         }
         this.updateChatList(ev);
       }
       
-      for(let i in this.dealingEventIds){
-        if(this.dealingEventIds[i] == ev.event.event_id) {
-          this.dealingEventIds.splice(i, 1);
-          break;
-        } 
+      if(this.dealingEventIds.length > 20) {
+          this.dealingEventIds.splice(19, this.dealingEventIds.length - 20);
       }
         // if(!this.isScroll) {
         //     console.log("onRoomTimeline ", ev)
@@ -1263,7 +1256,7 @@ export default {
         this.groupListElement = document.getElementById("list-content-id");
       }
       if(this.groupListElement && distGroupItem) {
-        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'instant'})
+        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 70, behavior: 'instant'})
       }
       // this.needScroll = false;
     },

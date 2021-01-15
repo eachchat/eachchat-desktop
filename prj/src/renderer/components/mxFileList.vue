@@ -14,7 +14,7 @@
                 <input class="MxFileListDlgSearchInput" id="MxFileListDlgSearchInputId" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
-            <ul class="Mxfile-list" id="Mxfile-list-id" v-viewer="options">
+            <ul class="Mxfile-list" id="Mxfile-list-id">
                 <li v-for="(item, index) in fileListShow" class="MxfileItem" @click="openFile(item)">
                     <img :class="MxgetClassName(item)" :id="getFileIconId(item)" :src="getIcon(item)">
                     <div class="MxfileInfoDiv">

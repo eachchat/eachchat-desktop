@@ -347,10 +347,67 @@ export default {
             message.title = "消息详情"
             this.OpenFavouriteDetail(message);
         },
-        imageListClicked(image) {
-            image.title = "图片详情"
-            image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
-            this.OpenFavouriteDetail(image);
+        async imageListClicked(image) {
+            // image.title = "图片详情"
+            // image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
+            // this.OpenFavouriteDetail(image);
+            var imageCollectionModel = await global.services.common.ListPictureCollections();
+            var imgFavourites = await this.getObjectFromCollectionModel(imageCollectionModel);
+            console.log("*** imgFavourites is ", imgFavourites);
+            var showImageInfoList = [];
+            var distImageInfo = {};
+            imgFavourites.forEach(imgFavouriteItem => {
+                let chatGroupMsgContent = imgFavouriteItem.collection_content;
+                
+                let maxSize = 366;
+                var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+    
+                let info = {
+                    w: maxSize,
+                    h: maxSize
+                };
+                console.log("*** image info is ", chatGroupMsgContent.info);
+                if(chatGroupMsgContent.info)
+                    info = chatGroupMsgContent.info
+                if(!info.h)
+                    info.h = maxSize;
+                if(!info.w)
+                    info.w = maxSize;
+                let max = Math.max(info.w, info.h);
+                if(max > maxSize ){
+                    if(info.w > info.h){
+                        info.h = info.h/(info.w/maxSize);
+                        info.w = maxSize;
+                    }
+                    else{
+                        info.w = info.w/(info.h/maxSize)
+                        info.h = maxSize;
+                    }
+                }
+
+                var curImageInfo = {
+                    imageUrl: curUrl,
+                    url: chatGroupMsgContent.url,
+                    imageEventId: imgFavouriteItem.collection_id,
+                    info: info,
+                    body: imgFavouriteItem.body,
+                    sender: undefined,
+                    origin_server_ts: imgFavouriteItem.timestamp
+                }
+                if(image.collection_id == imgFavouriteItem.collection_id) {
+                    distImageInfo = {
+                        imageUrl: curUrl,
+                        url: chatGroupMsgContent.url,
+                        imageEventId: imgFavouriteItem.collection_id,
+                        info: info,
+                        body: imgFavouriteItem.body,
+                        sender: undefined,
+                        origin_server_ts: imgFavouriteItem.timestamp
+                    }
+                }
+                showImageInfoList.unshift(curImageInfo);
+            })
+            ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
         },
 
         DownloadFile: function(file){

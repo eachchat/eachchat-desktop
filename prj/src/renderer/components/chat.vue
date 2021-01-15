@@ -2753,7 +2753,7 @@ export default {
             for(let i=0;i<e.clipboardData.items.length; i++) {
                 var item = e.clipboardData.items[i];
                 if(item.kind == "string") {
-                    console.log("tmd is zifuchuan ");
+                    // console.log("tmd is zifuchuan ");
                 }
                 else {
                     this.sendFileInfos = {
