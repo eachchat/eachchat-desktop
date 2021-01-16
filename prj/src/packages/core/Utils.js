@@ -822,6 +822,9 @@ function getFileBlob(fileInfo, url, proCallback) {
         if(response.ok) {
             const reader = response.body.getReader();
             const contentLength = +response.headers.get('Content-Length');
+            if(contentLength == 0) {
+                contentLength = fileInfo.size;
+            }
             let receivedLength = 0;
             let chunks = [];
             while(true) {
