@@ -218,7 +218,7 @@ export default {
                 if(!userIconElement){
                     return;
                 }
-                let validUrl = "../static/Img/User/user-40px@2x.png"
+                let validUrl = "./static/Img/User/user-40px@2x.png"
                 if(info.avatar_url)
                   validUrl = this.matrixClient.mxcUrlToHttp(info.avatar_url);
                 userIconElement.setAttribute("src", validUrl);
