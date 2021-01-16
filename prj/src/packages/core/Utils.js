@@ -821,7 +821,7 @@ function getFileBlob(fileInfo, url, proCallback) {
     return Promise.resolve(fetch(url)).then(async function(response) {
         if(response.ok) {
             const reader = response.body.getReader();
-            const contentLength = +response.headers.get('Content-Length');
+            var contentLength = +response.headers.get('Content-Length');
             if(contentLength == 0) {
                 contentLength = fileInfo.size;
             }
