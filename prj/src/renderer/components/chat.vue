@@ -2890,6 +2890,7 @@ export default {
             }
             else {
                 // this._loadTimeline(undefined, undefined, undefined)
+                console.log("*** initMessage 。。。。 ");
                 this.toGetShowMessage()
                     .then((ret) => {
                         this.isRefreshing = false;
@@ -3226,8 +3227,9 @@ export default {
         },
         newMsg: function() {
             console.log("*** newMsg")
-            this._timelineWindow.paginate("f", 1, false).then(() => {
+            this._timelineWindow.paginate("f", 10).then(() => {
                 this.messageList = this._getEvents();
+                console.log("*** to get new message ", this.messageList);
             })
             setTimeout(() => {
                 this.$nextTick(() => {
