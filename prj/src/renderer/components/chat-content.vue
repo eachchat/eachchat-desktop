@@ -1487,7 +1487,12 @@ export default {
               }
               const inviterUserId = inviteEvent.events.member.getSender();
               var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
-              distElement.innerHTML = "[邀请]:" + inviterName;
+              if(global.mxMatrixClientPeg.DMCheck(item)) {
+                distElement.innerHTML = inviterName;
+              }
+              else {
+                distElement.innerHTML = "由 " + inviterName + " 邀请";
+              }
             }
           };
         }
@@ -1586,7 +1591,7 @@ export default {
           this.UpdateGroupsImageAndName(this.showFavouriteRooms);
           // this.updateGroupMsgContent(this.showFavouriteRooms);
           this.UpdateGroupsImageAndName(this.showInviteGroupList);
-          // this.updateInviteChatContent(this.showInviteGroupList);
+          this.updateInviteChatContent(this.showInviteGroupList);
           this.UpdateGroupsImageAndName(this.showDealGroupList);
           // this.updateGroupMsgContent(this.showDealGroupList);
           this.UpdateGroupsImageAndName(this.showLowPriorityGroupList);
