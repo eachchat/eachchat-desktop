@@ -50,16 +50,16 @@ export default {
             return environment.os.isOSX;
         },
         Min:function() {
-            // this.$emit("win-min");
-            ipcRenderer.send("win-min");
+            this.$emit("Min");
+            // ipcRenderer.send("win-min");
         },
         Close: function() {
-            // this.$emit("win-close");
-            ipcRenderer.send("win-close");
+            this.$emit("Close");
+            // ipcRenderer.send("win-close");
         },
         Max: function() {
-            // this.$emit("win-max");
-            ipcRenderer.send("win-max");
+            this.$emit("Max");
+            // ipcRenderer.send("win-max");
         }
     },
     components: {
