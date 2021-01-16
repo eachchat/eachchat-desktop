@@ -1492,7 +1492,7 @@ export default {
               const inviterUserId = inviteEvent.events.member.getSender();
               var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
               if(global.mxMatrixClientPeg.DMCheck(item)) {
-                distElement.innerHTML = inviterName;
+                distElement.innerHTML = inviterUserId;
               }
               else {
                 distElement.innerHTML = "由 " + inviterName + " 邀请";

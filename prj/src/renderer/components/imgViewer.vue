@@ -4,8 +4,10 @@
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
         </div>
-        <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>
-        <img class="imageViewerStage" id="imageViewerStageId" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
+        <div class="imageBox" id="imageBoxId" @mousedown="holeDown" @mouseup="holeUp">
+            <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>
+            <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
+        </div>
         <div class="viewerToolbar">
             <div class="viewer-tool-left" @click="showLeft()">
             </div>
@@ -242,6 +244,41 @@ export default {
                     reader.readAsArrayBuffer(blob);
                 })
         },
+        mousePosition(ev) {
+            if(ev.pageX || ev.pageY) {
+                return { x: ev.pageX, y: ev.pageY};
+            }
+            return {
+                x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+                y: ev.clientY + document.body.scrollTop - document.body.clientTop,
+            };
+        },
+        inBoxIsoutbox(id, ev) {
+            let stage = document.getElementById(id);
+            if(
+                this.mousePosition(ev).x > stage.offsetLeft + stage.offsetWidth || 
+                this.mousePosition(ev).x < stage.offsetLeft || 
+                this.mousePosition(ev).y > stage.offsetTop + stage.offsetHeight || 
+                this.mousePosition(ev).y < stage.offsetTop
+            ) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        },
+        holeUp() {
+            this.DownUp = false;
+        },
+        holeDown() {
+            this.DownUp = true;
+        },
+        mouseMove(ev) {
+            if(this.DownUp) {
+                this.imgtop = this.imgtop + ev.movementY;
+                this.imgleft = this.imgleft + ev.movementX;
+            }
+        },
     },
     data() {
         return {
@@ -250,6 +287,10 @@ export default {
             stageElement: undefined,
             curMultiple: 1,
             curRotate: 0,
+            DownUp: false,
+            imgtop: 0,
+            imgleft: 0,
+            imgheight: 100,
         }
     },
     mounted: function() {
@@ -270,6 +311,7 @@ export default {
             this.stageElement.setAttribute("src", this.curImage.imageUrl);
         });
         window.addEventListener('keydown', this.keyHandle);
+        document.onmousemove = this.mouseMove;
     },
 }
 </script>
@@ -341,10 +383,18 @@ export default {
         left: 0;
         right: 0;
         margin: auto;
-        height: 30px;
-        width: 366px;
         width: 320px;
         height: 366px;
+    }
+
+    .imageBox {
+        position: fixed;
+        top: 20px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: calc(100% - 50px);
+        width: 366px;
     }
 
     .viewerToolbar {

@@ -1138,6 +1138,7 @@ export default {
                         if(this.curSelectedIndex == 0) {
                             this.curSelectedIndex = this.ulElement.children.length - 1;
                             this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[0].style.color = "rgb(0, 0, 0)";
                             this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
@@ -1147,6 +1148,7 @@ export default {
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                             this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[this.curSelectedIndex+1].style.color = "rgb(0, 0, 0)";
                         }
                         else if(this.curSelectedIndex == this.ulElement.children.length) {
                             this.curSelectedIndex--;
@@ -1154,6 +1156,7 @@ export default {
                             this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
                             this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[this.curSelectedIndex].style.color = "rgba(0, 0, 0, 1)";
                         }
                         break;
                     }
@@ -1161,6 +1164,7 @@ export default {
                         console.log("=======down", this.curSelectedIndex);
                         if(this.curSelectedIndex == this.ulElement.children.length) {
                             this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
                             this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
                             this.ulElement.children[0].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
@@ -1171,6 +1175,7 @@ export default {
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                             if(this.ulElement.children[this.curSelectedIndex-1]){
                                 this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                                this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
                             }
                             this.curSelectedIndex++;
                         }
