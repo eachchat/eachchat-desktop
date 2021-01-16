@@ -759,10 +759,7 @@ export default {
                         msgtype: 'm.file',
                         body: varcontent.body,
                         url: varcontent.url,
-                        info: {
-                            size: varcontent.info,
-                            mimetype: mimetype
-                        }
+                        info: varcontent.info
                     };
                     global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
                 }
