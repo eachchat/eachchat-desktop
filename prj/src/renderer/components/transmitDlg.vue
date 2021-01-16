@@ -751,10 +751,10 @@ export default {
                 }
                 else if(varcontent.msgtype == "m.file") {
                     var body = varcontent.body;
-                    var showfu = new FileUtil(body);
-                    var mimetype = showfu.GetMimename();
-                    showfileObj = showfu.GetUploadfileobj();
-                    stream = showfu.ReadfileSync(fileinfo.path);
+                    // var showfu = new FileUtil(body);
+                    // var mimetype = showfu.GetMimename();
+                    // showfileObj = showfu.GetUploadfileobj();
+                    // stream = showfu.ReadfileSync(fileinfo.path);
                     var content = {
                         msgtype: 'm.file',
                         body: varcontent.body,

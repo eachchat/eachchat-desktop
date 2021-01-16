@@ -1078,7 +1078,7 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
-            width: 78px;
+            width: 50px;
             margin-top: 15px;
             margin-bottom: 0px;
             font-family: PingFangSC-Regular;
