@@ -452,7 +452,7 @@ export default {
                 if (searchDeps.length > 0) sds.push({dvd:true, txt:'部门'});
                 searchDeps.forEach(s => {
                     s.type = 'dep';
-                    s.avatar = s.department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    s.avatar = s.department_id === this.rootDepId ? './static/Img/Main/primdep.png' : './static/Img/Main/secdep.png';
                     sds.push(s);
                 })
                 let sus = [];
@@ -691,7 +691,7 @@ export default {
                 console.log('-----subUsers-----', subUsers)
                 subDep.forEach(s => {
                     s.type = 'dep';
-                    s.avatar = department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    s.avatar = department_id === this.rootDepId ? './static/Img/Main/primdep.png' : './static/Img/Main/secdep.png';
                 })
                 subUsers.forEach(c=>{
                     console.log('----kanha----', client.getUser(c.matrix_id));
@@ -710,7 +710,7 @@ export default {
             const rootDep = await Department.GetRoot();
             rootDep.type = 'dep';
             rootDep.display_name = '组织';
-            rootDep.avatar = '../../../static/Img/Main/xinzuzhi.png';
+            rootDep.avatar = './static/Img/Main/xinzuzhi.png';
             // const contactUsers = await Contact.GetAllContact();
             // console.log('contactUsers', contactUsers);
             // contactUsers.forEach(c => {
@@ -723,7 +723,7 @@ export default {
                 type: 'dep',
                 display_name: '我的联系人',
                 department_id: 'contact',
-                avatar: '../../../static/Img/Main/xincontact.png'
+                avatar: './static/Img/Main/xincontact.png'
             }
             this.rootDepId = rootDep.department_id;
             let totalArray = [rootDep, myContact];
