@@ -917,6 +917,10 @@ export default {
 
       if(this.lowPriorityGroupList.length != 0)
         this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
+
+      if(this.hasUnreadItems.length != 0) {
+        this.hasUnreadItems.sort(this.SortGroupByTimeLine);
+      }
     },
 
     async getNoticeShowGroupName(groupInfo) {

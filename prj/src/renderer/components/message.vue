@@ -503,9 +503,9 @@ export default {
             let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.text'){
                 var chatGroupMsgContent = this.msg.getContent();
-                if(chatGroupMsgContent.body.indexOf("http://") >= 0 ||
-                    chatGroupMsgContent.body.indexOf("https://") >= 0 || 
-                    chatGroupMsgContent.body.indexOf("www.") >= 0) {
+                if(chatGroupMsgContent.body.indexOf("http://") == 0 ||
+                    chatGroupMsgContent.body.indexOf("https://") == 0 || 
+                    chatGroupMsgContent.body.indexOf("www.") == 0) {
                         return true;
                     }
                 return false;
