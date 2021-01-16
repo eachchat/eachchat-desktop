@@ -848,11 +848,12 @@ display: none;
     .favourite-action {
         display: none;
         font-size: 0px;
-        vertical-align: top;
-        padding-top: 18px;
+        vertical-align: bottom;
+        padding-top: 14px;
         padding-right: 0px;
-        padding-bottom: 7px;
-        width: 78px;
+        padding-bottom: 0px;
+        margin-left: calc(100% - 190px);
+        //width: 78px;
         height: 20px;
         .transmit-img {
             display: inline-block;
@@ -881,10 +882,6 @@ display: none;
     margin: 0px;
     padding: 0px;
     .message:hover{
-        .message-time {
-            display: none;
-            
-        }
         .favourite-action{
             display: inline-block;
         }
@@ -915,8 +912,8 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 83px);
             margin-top: 15px;
+            margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
         }
@@ -927,6 +924,7 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
+            margin-bottom: 0px;
             width: 78px;
             margin-top: 15px;
             font-family: PingFangSC-Regular;
@@ -940,9 +938,6 @@ display: none;
     margin: 0px;
     padding: 0px;
     .image:hover{
-        .image-time {
-            display: none;
-        }
         .favourite-action{
             display: inline-block;
         }
@@ -966,8 +961,9 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 83px);
+
             margin-top: 15px;
+            margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
         }
@@ -980,6 +976,7 @@ display: none;
             //text-align: right;
             width: 78px;
             margin-top: 15px;
+            margin-bottom: 0px;
             font-family: PingFangSC-Regular;
         }
     }
@@ -990,9 +987,6 @@ display: none;
     padding: 0px;
     
     .file:hover{
-        .file-time {
-            display: none;
-        }
         .favourite-action{
             display: inline-block;
         }
@@ -1072,8 +1066,8 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 83px);
             margin-top: 15px;
+            margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
         }
@@ -1086,6 +1080,7 @@ display: none;
             //text-align: right;
             width: 78px;
             margin-top: 15px;
+            margin-bottom: 0px;
             font-family: PingFangSC-Regular;
         }
     }
