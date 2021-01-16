@@ -3227,6 +3227,7 @@ export default {
         },
         newMsg: function() {
             console.log("*** newMsg")
+            this.showGroupName(this.curChat);
             this._timelineWindow.paginate("f", 10).then(() => {
                 this.messageList = this._getEvents();
                 console.log("*** to get new message ", this.messageList);
