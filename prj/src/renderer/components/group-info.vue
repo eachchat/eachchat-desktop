@@ -4,7 +4,7 @@
             <p class="groupInfoTitle">设置</p>
         </div>
         <div class="groupInfo-view">
-            <div class="groupInfoImageDiv" v-if="!isDm">
+            <div v-if="!isDm" class="groupInfoImageDiv" style="margin-right: 8px;">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
                 <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar">
                 <img 
@@ -1423,6 +1423,7 @@ export default {
     height: 48px;
     padding-left: 16px;
     padding-right: 16px;
+    display: flex;
 }
 
 .groupInfoImageDiv {
@@ -1455,13 +1456,12 @@ export default {
     width: calc(100% - 56px);
     height: 48px;
     margin: 0px;
-    display: inline-block;
     vertical-align: top;
 }
 
 .groupInfoName {
     width: 100%;
-    display: inline-block;
+    height: 22px;
 }
 
 .groupInfoNameInput {
