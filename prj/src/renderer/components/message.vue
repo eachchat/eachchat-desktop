@@ -942,7 +942,12 @@ export default {
             if(id != this.msg.event.event_id) {
                 return;
             }
-
+            
+            var chatGroupMsgContent = this.msg.getContent();
+            if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file')
+            {
+                shell.openPath(localPath);
+            }
             this.showProgress = false;
             if(this.downloadingInterval) {
                 clearInterval(this.downloadingInterval);
