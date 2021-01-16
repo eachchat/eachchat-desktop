@@ -852,8 +852,7 @@ display: none;
         padding-top: 14px;
         padding-right: 0px;
         padding-bottom: 0px;
-        margin-left: 313px;
-        //margin-left: calc(100% - 290px);
+        margin-left: calc(100% - 190px);
         //width: 78px;
         height: 20px;
         .transmit-img {
