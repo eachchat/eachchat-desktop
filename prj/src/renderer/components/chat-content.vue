@@ -1291,80 +1291,80 @@ export default {
     rightClick(e, groupItem) {
         console.log("groupItem is ", groupItem)
         console.log("e.target is ", e.target.className)
+        if(this.groupIsInvite(groupItem)) return;
         // let distElement = document.getElementById(msgItem.message_id);
         // console.log("distElement is ", distElement.className);
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
         //     return;
         // }
         var isSecret = false;
-        if(groupItem.key_id != undefined && groupItem.key_id.length != 0 && groupItem.group_type == 102) {
-          isSecret = true;
-        }
+
         this.menu = new Menu();
-        /*
-        this.menu.append(new MenuItem({
+        let unread = groupItem.getUnreadNotificationCount();
+        if(unread != 0){
+          this.menu.append(new MenuItem({
             label: "标记已读",
             click: () => {
                 this.SetRoomReader(groupItem)
             }
-        })); 
-        */
-        if(!isSecret) {
-          /*
-          if(this.groupIsSlience(groupItem)) {
-            this.menu.append(new MenuItem({
-                label: "允许消息通知",
-                click: () => {
-                    this.setUnSlience(groupItem)
-                }
-            }));
-          }
-          else {
-            if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem))
-            {
-              this.menu.append(new MenuItem({
-                  label: "消息免打扰",
-                  click: () => {
-                      this.setSlience(groupItem)
-                  }
-              }));  
-            }
-          }
-          */
-          if(this.groupIsInFavourite(groupItem)) {
-            this.menu.append(new MenuItem({
-                label: "取消置顶",
-                click: () => {
-                    this.unFavouriteIt(groupItem)
-                }
-            }));
-          }
-          else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
-            this.menu.append(new MenuItem({
-                label: "置顶聊天",
-                click: () => {
-                    this.favouriteIt(groupItem)
-                }
-            }));
-          }
-
-          if(this.groupIsInLowPriority(groupItem)){
-            this.menu.append(new MenuItem({
-              label: "取消置底",
+          })); 
+        }
+        
+        /*
+        if(this.groupIsSlience(groupItem)) {
+          this.menu.append(new MenuItem({
+              label: "允许消息通知",
               click: () => {
-                  this.DelRoomLowpriority(groupItem)
+                  this.setUnSlience(groupItem)
               }
-            }));
-          }
-          else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+          }));
+        }
+        else {
+          if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem))
+          {
             this.menu.append(new MenuItem({
-              label: "置底聊天",
-              click: () => {
-                  this.SetRoomLowpriority(groupItem)
-              }
-            }));
+                label: "消息免打扰",
+                click: () => {
+                    this.setSlience(groupItem)
+                }
+            }));  
           }
         }
+        */
+        if(this.groupIsInFavourite(groupItem)) {
+          this.menu.append(new MenuItem({
+              label: "取消置顶",
+              click: () => {
+                  this.unFavouriteIt(groupItem)
+              }
+          }));
+        }
+        else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
+          this.menu.append(new MenuItem({
+              label: "置顶聊天",
+              click: () => {
+                  this.favouriteIt(groupItem)
+              }
+          }));
+        }
+
+        if(this.groupIsInLowPriority(groupItem)){
+          this.menu.append(new MenuItem({
+            label: "取消置底",
+            click: () => {
+                this.DelRoomLowpriority(groupItem)
+            }
+          }));
+        }
+        else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+          this.menu.append(new MenuItem({
+            label: "置底聊天",
+            click: () => {
+                this.SetRoomLowpriority(groupItem)
+            }
+          }));
+        }
+      
        /*
         this.menu.append(new MenuItem({
             label: "退出",
@@ -1601,6 +1601,10 @@ export default {
           this.UpdateGroupsImageAndName(this.showLowPriorityGroupList);
           // this.updateGroupMsgContent(this.showLowPriorityGroupList);
       }
+    },
+
+    groupIsInvite(groupInfo){
+      return this.inviteGroupsList.some(item => item.roomId == groupInfo.roomId)
     },
 
     groupIsInLowPriority(groupInfo){
