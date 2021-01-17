@@ -346,6 +346,19 @@ var models = {
         primaryKey: "key_id"
       });
     })();
+
+    this.room = await (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: "room",
+        fields: {  
+          id:          types.string,
+          room_id:      types.string,
+          updatetime:  types.string
+        },
+        primaryKey: "id"
+      });
+    })();
     return true;
   },
 
@@ -449,6 +462,10 @@ var models = {
 
   get Secret(){
     return this.secret;
+  },
+
+  get FavouriteRoom(){
+    return this.room;
   }
 }
 

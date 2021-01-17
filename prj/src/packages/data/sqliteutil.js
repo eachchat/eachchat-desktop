@@ -287,6 +287,22 @@ const Department = {
 };
 
 const UserInfo = {
+    async DeleteUserByUserID(userID){
+        let userinfos = await(await models.UserInfo).find({
+            user_id: userID
+        })
+        if(userinfos.length != 0)
+            userinfos[0].destroy();
+    },
+
+    async DeleteUserByMatrixID(matrixID){
+        let userinfos = await(await models.UserInfo).find({
+            matrix_id: matrixID
+        })
+        if(userinfos.length != 0)
+            userinfos[0].destroy();
+    },
+
     async GetMaxUpdateTime(){
         let userinfos = await(await models.UserInfo).find({
             $order: {
@@ -882,6 +898,41 @@ const Contact = {
     },
 }
 
+const ContactRoom = {
+    async DeleteByRoomID(roomID){
+        let rooms = await(await models.FavouriteRoom).find({
+            room_id: roomID
+        });
+        if(rooms.length != 0){
+            rooms[0].destroy();
+        }
+    },
+
+    async ExistRoom(roomID){
+        let rooms = await(await models.FavouriteRoom).find({
+            room_id: roomID
+        });
+        return rooms.length != 0;
+    },
+
+    async GetAllRooms(){
+        return await(await models.FavouriteRoom).find();
+    },
+
+    async GetMaxUpdateTime(){
+        let rooms = await (await models.FavouriteRoom).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(rooms.length == 0)
+            return "0";
+        return rooms[0].updatetime
+    }
+}
+
 export{
     sqliteutil,
     Department,
@@ -891,5 +942,6 @@ export{
     Collection,
     Config,
     Secret,
-    Contact
+    Contact,
+    ContactRoom
 }

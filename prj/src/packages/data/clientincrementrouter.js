@@ -25,7 +25,11 @@ class UserIncrement extends BaseIncrement{
     async handler(){
         if(this.type == "updateUser"){
             if(this.item.del == 1)
+            {
+                await UserInfo.DeleteUserByUserID(this.item.id);
                 return;
+            }
+                
             let itemModel = await servicemodels.UsersModel(this.item);
             if(itemModel == undefined)
             {
