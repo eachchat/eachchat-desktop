@@ -1,6 +1,6 @@
 import { models } from './models.js'
 import { servicemodels } from './servicemodels.js'
-import { sqliteutil, Group } from './sqliteutil.js'
+import { sqliteutil, Group, UserInfo } from './sqliteutil.js'
 import * as fs from 'fs-extra'
 //import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
