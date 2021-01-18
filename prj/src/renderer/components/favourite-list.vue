@@ -852,8 +852,9 @@ display: none;
         padding-top: 14px;
         padding-right: 0px;
         padding-bottom: 0px;
-        margin-left: calc(100% - 190px);
+        //margin-left: calc(100% - 218px);
         //width: 78px;
+        float: right;
         height: 20px;
         .transmit-img {
             display: inline-block;
@@ -916,6 +917,7 @@ display: none;
             margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
+            //width: 50px
         }
         .message-time{
             display: inline-block;
@@ -925,7 +927,8 @@ display: none;
             color:rgba(153,153,153,1);
             //text-align: right;
             margin-bottom: 0px;
-            width: 78px;
+            //width: 78px;
+            margin-left: 5px;
             margin-top: 15px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
@@ -961,11 +964,11 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-
             margin-top: 15px;
             margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
+            //width: 50px
         }
         .image-time{
             display: inline-block;
@@ -974,7 +977,8 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
-            width: 78px;
+            //width: 78px;
+            margin-left: 5px;
             margin-top: 15px;
             margin-bottom: 0px;
             font-family: PingFangSC-Regular;
@@ -1070,6 +1074,7 @@ display: none;
             margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
+            //width: 50px
         }
         .file-time{
             display: inline-block;
@@ -1078,7 +1083,8 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
-            width: 50px;
+            //width: 78px;
+            margin-left: 5px;
             margin-top: 15px;
             margin-bottom: 0px;
             font-family: PingFangSC-Regular;
