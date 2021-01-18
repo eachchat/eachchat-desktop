@@ -3025,7 +3025,7 @@ export default {
   }
 
   .chat {
-    width:100%;
+    width:calc(100% - 281px);
     background-color: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
