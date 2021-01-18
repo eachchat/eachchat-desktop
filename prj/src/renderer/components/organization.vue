@@ -43,7 +43,7 @@
                         v-for="department in searchDeparements"
                         @click="searchDeparmentItemClicked(department.department_id)" 
                         :key="department.department_id">
-                        <img ondragstart="return false" class="department-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/organization-40px@2x.png">
+                        <img ondragstart="return false" class="department-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/department@2x.png">
                         <div class="department-info">
                         <p v-html="msgContentHightLight(department.display_name)" class="department-name">{{ department.display_name }}</p>
                         </div>
@@ -158,7 +158,8 @@ export default {
             },
             contactMenu:{
                 display_name: this.$t("contactMenuName")
-            }
+            },
+            rootDepartmentID: ''
             //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
         }
     },
@@ -195,11 +196,23 @@ export default {
                 this.searchUsers.forEach(item => {
                     this.getUserImg(item, 'organise')
                 })
+
+                this.searchDeparements.forEach(item => {
+                    this.getDepartmentImage(item);
+                })
             });
         },
         getSearchUserIconId(id){
             return 'search' + id;
         },
+
+        getDepartmentImage: async function(department){
+            if(department.parent_id != this.rootDepartmentID) return;
+
+            let element = document.getElementById(this.getSearchUserIconId(department.department_id));
+            element.setAttribute('src', './static/Img/Organization/Image/department-40px@2x.png')
+        },
+
         getUserImg: async function (userInfo, type){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(userInfo == null || userInfo.matrix_id == undefined) {
@@ -283,6 +296,8 @@ export default {
             this.departments = departments;
             this.currentDepartment = this.departments[0];
             this.organizationListTimer = new Date().getTime();
+            let root = await Department.GetRoot();
+            this.rootDepartmentID = root.department_id;
         },
         departmentMenuItemClicked(department) {
             if(department.display_name == this.organizeMenuName){
