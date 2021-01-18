@@ -1078,7 +1078,7 @@ function openDevToolsInDevelopment(mainWindow) {
     });
   }
   mainWindow.on('closed', () => {
-    mainWindow = null
+    app.quit();
   })
 }
 
