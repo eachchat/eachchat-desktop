@@ -1,5 +1,6 @@
 
 import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
+import {Appendzero} from '../../packages/core/Utils.js'
 
 function getWeekDay(day){
     let week = {
@@ -177,10 +178,10 @@ const ComponentUtil = {
         {
             let cutDay = curDate - d;
             if(cutDay === 0){
-                return h + ":" + m;
+                return Appendzero(h) + ":" + Appendzero(m);
             }
             else if(cutDay === 1){
-                return "昨天 " + h + ":" + m;
+                return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
             }
             else if(cutDay > 1 && cutDay < 7){
                 return getWeekDay(day);
