@@ -282,6 +282,9 @@ const Department = {
         let departments = await (await models.Department).find({
             display_name: "%"+key
         });
+        departments.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
+        })
         return departments;
     }
 };
@@ -416,6 +419,9 @@ const UserInfo = {
             _user_title:         "%"+key,
             _display_name_py:    "%"+key,
             $size: 20
+        })
+        infos.sort((item1, item2) => {
+            return pinyin.compare(item1.user_display_name, item2.user_display_name)
         })
         return infos;
     },
@@ -893,6 +899,9 @@ const Contact = {
             _matrix_id:          "%"+key,
             _title:         "%"+key,
             $size: 20
+        })
+        contacts.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
         })
         return contacts;
     },
