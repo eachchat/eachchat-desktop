@@ -34,7 +34,7 @@ const zh = {
     invalidRecoveryKey: "无效的回复密钥",
     recoveryKeyLooksGood: "格式正确",
     organizeMenuName: "组织",
-    contactMenuName: "我的联系人",
+    contactMenuName: "联系人",
     addContactButton: "添加",
     addContactDlgName: '添加联系人',
     contactLabel:"使用昵称、用户名或Matrix ID搜索联系人",
