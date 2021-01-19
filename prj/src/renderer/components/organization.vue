@@ -64,6 +64,15 @@
                         </div>
                     </li>
                     <li class="department"
+                        @click="roomItemClick()">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
+                            <p class="department-name">群聊</p>
+                        </div>
+                        <div align="center" class="item-arrow">
+                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                        </div>
+                    </li>
+                    <li class="department"
                         @click="departmentMenuItemClicked(contactMenu)">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organizetion-contact@2x.png"><div class="department-info">
                             <p class="department-name">{{ contactMenu.display_name }}</p>
@@ -78,6 +87,8 @@
         <el-container class="right-container">
             <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
             <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList>
+            <contactRoom v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
+            </contactRoom>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
@@ -94,6 +105,7 @@ import confservice from '../../packages/data/conf_service.js'
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
 import contactList from './contact-list'
+import contactRoom from './contact-room'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header-login.vue';
@@ -133,6 +145,7 @@ export default {
             contactMenuName: '',
             bOrganizeShow: false,
             bContactShow: true,
+            bContactRoomShow: false,
             canSearch: false,
             departments: [],
             isOwn: false,
@@ -242,6 +255,7 @@ export default {
             this.showSearchUserInfoTips = false;
             this.bOrganizeShow = true;
             this.bContactShow = false;
+            this.bContactRoomShow = false;
             this.rootDepartment = this.departments[0];
             this.currentDepartment = department;
         },
@@ -299,16 +313,26 @@ export default {
             let root = await Department.GetRoot();
             this.rootDepartmentID = root.department_id;
         },
+        
+        roomItemClick(){
+            this.bOrganizeShow = false;
+            this.bContactShow = false;
+            this.bContactRoomShow = true;
+            this.contactListKey++;
+        },
+
         departmentMenuItemClicked(department) {
             if(department.display_name == this.organizeMenuName){
                 //组织架构模板
                 this.bOrganizeShow = true;
                 this.bContactShow = false;
+                this.bContactRoomShow = false;
             }
             else if(department.display_name == this.contactMenuName){
                 //联系人模板
                 this.bOrganizeShow = false;
                 this.bContactShow = true;
+                this.bContactRoomShow = false;
                 this.contactListKey++;
              }
             this.currentDepartment = department;
@@ -347,7 +371,8 @@ export default {
         listHeader,
         userInfoContent,
         winHeaderBar,
-        contactList
+        contactList,
+        contactRoom
     },
     created:async function() {
         this.organizeMenuName = this.$t("organizeMenuName"),
