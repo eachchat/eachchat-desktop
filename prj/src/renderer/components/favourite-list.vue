@@ -639,7 +639,6 @@ export default {
         
         updateSearchCollectionResult:async function(key){
             var tempResult = await this.getSearchCollectionResult(key);
-            this.headerTitle = '收藏';
             var temp = {};
             
             if(tempResult.message){
@@ -741,13 +740,13 @@ export default {
             return;
         }
         if (this.favouriteType == 'message'){
-            this.headerTitle = '收藏';
+            this.headerTitle = '消息';
             var messageCollectionModel = await global.services.common.ListMessageCollections();
             this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
             
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
-            this.headerTitle = '收藏';
+            this.headerTitle = '图片';
             var imageCollectionModel = await global.services.common.ListPictureCollections();
             this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
@@ -758,7 +757,7 @@ export default {
             });
   
         }else if(this.favouriteType == 'file') {
-            this.headerTitle = '收藏';
+            this.headerTitle = '文件';
             var fileCollectionModel = await global.services.common.ListFileCollections();
 
             this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
