@@ -34,7 +34,7 @@
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else-if="MsgIsLink()">
-                        <a class="chat-msg-content-mine-link" :id="msg.event.event_id">{{messageContent}}</a>
+                        <div class="chat-msg-content-mine-txt" :id="msg.event.event_id" v-html="getMsgMineLinkContent(messageContent)"></div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
@@ -82,6 +82,10 @@
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
+                    </div>
+                    <div class="chat-msg-content-others-link-div" 
+                        v-on:click="ShowFile()" v-else-if="MsgIsLink()">
+                        <div class="chat-msg-content-others-txt" :id="msg.event.event_id" v-html="getMsgOtherLinkContent(messageContent)"></div>
                     </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
@@ -499,13 +503,153 @@ export default {
                 return false;
             }
         },
+        getMsgOtherLinkContent: function(content) {
+            var dealContent = content;
+            var newInnerHtml = "";
+            var finished = false;
+            while(dealContent.trim().length > 0 && !finished) {
+                if(dealContent.indexOf("https:") >= 0) {
+                    var result = this.getOthersUrlHtml("https:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else if(dealContent.indexOf("http://") >= 0) {
+                    var result = this.getOthersUrlHtml("http:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else {
+                    if(dealContent.trim().length != 0) {
+                        newInnerHtml += '<span style="display:inline-block;">' + dealContent + '</span>';
+                    }
+                    finished = true;
+                }
+            }
+            return newInnerHtml;
+        },
+        getMsgMineLinkContent: function(content) {
+            var dealContent = content;
+            var newInnerHtml = "";
+            var finished = false;
+            while(dealContent.trim().length > 0 && !finished) {
+                if(dealContent.indexOf("https:") >= 0) {
+                    var result = this.getMineUrlHtml("https:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else if(dealContent.indexOf("http://") >= 0) {
+                    var result = this.getMineUrlHtml("http:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else {
+                    if(dealContent.trim().length != 0) {
+                        newInnerHtml += '<span style="display:inline-block;">' + dealContent + '</span>';
+                    }
+                    finished = true;
+                }
+            }
+            return newInnerHtml;
+        },
+        getMineUrlHtml: function(checkKey, content) {
+            var dealContent = content.trim();
+            var startTxt = "";
+            var url = "";
+            var endTxt = "";
+            var newInnerHtml = "";
+            var httpsIndex = dealContent.indexOf(checkKey);
+            if(httpsIndex == 0) {
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(0, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml = '<span style="text-decoration: underline;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+            else {
+                startTxt = dealContent.substring(0, httpsIndex);
+                dealContent = dealContent.substring(httpsIndex - checkKey.length, dealContent.length - 1).trim();
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(httpsIndex, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                var checkStartTxt = startTxt;
+                if(checkStartTxt.trim().length != 0) {
+                    newInnerHtml += '<span style="display:inline-block;">' + startTxt + '</span>';
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml += '<span style="text-decoration: underline;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+        },
+        getOthersUrlHtml: function(checkKey, content) {
+            var dealContent = content.trim();
+            var startTxt = "";
+            var url = "";
+            var endTxt = "";
+            var newInnerHtml = "";
+            var httpsIndex = dealContent.indexOf(checkKey);
+            if(httpsIndex == 0) {
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(0, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml = '<span style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+            else {
+                startTxt = dealContent.substring(0, httpsIndex);
+                dealContent = dealContent.substring(httpsIndex - checkKey.length, dealContent.length - 1).trim();
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(httpsIndex, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                var checkStartTxt = startTxt;
+                if(checkStartTxt.trim().length != 0) {
+                    newInnerHtml += '<span style="display:inline-block;">' + startTxt + '</span>';
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml += '<span style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+        },
         MsgIsLink: function() {
             let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.text'){
                 var chatGroupMsgContent = this.msg.getContent();
-                if(chatGroupMsgContent.body.indexOf("http://") == 0 ||
-                    chatGroupMsgContent.body.indexOf("https://") == 0 || 
-                    chatGroupMsgContent.body.indexOf("www.") == 0) {
+                if(chatGroupMsgContent.body.indexOf("http://") >= 0 ||
+                    chatGroupMsgContent.body.indexOf("https://") >= 0 || 
+                    chatGroupMsgContent.body.indexOf("www.") >= 0) {
                         return true;
                     }
                 return false;
@@ -1159,7 +1303,7 @@ export default {
         letter-spacing: 0px;
     }
 
-    .chat-msg-content-others-txt-div:hover {
+    .chat-msg-content-others-link-div {
         float: left;
         background-color: rgba(255, 255, 255, 1);
         max-width: 100%;
@@ -1177,10 +1321,30 @@ export default {
         font-weight:400;
         letter-spacing: 0px;
     }
+
+    .chat-msg-content-others-txt-div:hover {
+        float: left;
+        background-color: rgba(255, 255, 255, 0.8);
+        max-width: 100%;
+        min-width: 20px;
+        min-height: 20px;
+        border-radius: 5px;
+        padding: 10px 12px 10px 12px;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing: 0px;
+        cursor: text;
+    }
     
     .chat-msg-content-others-txt{
         float: left;
-        background-color: rgba(255, 255, 255, 1);
+        background-color: rgba(255, 255, 255, 0);
         max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
@@ -1198,7 +1362,7 @@ export default {
 
     .chat-msg-content-others-txt:hover{
         float: left;
-        background-color: rgba(255, 255, 255, 1);
+        background-color: rgba(255, 255, 255, 0);
         max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
@@ -1212,6 +1376,7 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing: 0px;
+        cursor: text;
     }
 
     .chat-msg-content-others-img {
@@ -1382,7 +1547,9 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing: 0px;
-        color: #3B89CF;
+        text-decoration: underline;
+        color: white;
+        cursor: text;
     }
 
     .chat-msg-content-mine-link:hover{
@@ -1401,9 +1568,51 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing: 0px;
-        color: #3B89CF;
+        color: white;
         text-decoration: underline
     }
+
+    .chat-msg-content-others-link {
+        float:right;
+        background-color: rgba(1,1,1,0);
+        max-width: 100%;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing: 0px;
+        text-decoration: underline;
+        color: #5B6A91;
+    }
+
+    .chat-msg-content-others-link:hover {
+        float:right;
+        background-color: rgba(1,1,1,0);
+        max-width: 100%;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing: 0px;
+        text-decoration: underline;
+        color: #5B6A91;
+        cursor: pointer;
+    }
+
     .chat-msg-content-mine-txt {
         float:right;
         background-color: rgba(1,1,1,0);
@@ -1440,6 +1649,7 @@ export default {
         font-weight:400;
         letter-spacing: 0px;
         color: rgba(255, 255, 255, 1);
+        cursor: text;
     }
 
     .chat-msg-content-mine-img {
