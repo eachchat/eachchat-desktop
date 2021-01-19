@@ -46,14 +46,14 @@
             <!-- <div class = "grid-content">置顶</div> -->
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
             <ul class="group-list" name="group-list">
-              <li class = 'group'
+              <li :class = 'getGroupClassName(chatGroupItem)("group-fav")'
                   v-for="(chatGroupItem, index) in showFavouriteRooms"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
                   v-show='bCollections'>
-                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
+                <div :class = 'getGroupDivClassName(chatGroupItem)("group-fav-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -78,14 +78,14 @@
             <!-- <div class = "grid-content">聊天</div> -->
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
-              <li class = 'group'
+              <li :class = 'getGroupClassName(chatGroupItem)("group")'
                   v-for="(chatGroupItem, index) in showDealGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
                   v-show='bRooms'>
-                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
+                <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -108,14 +108,14 @@
             <!-- </transition-group> -->
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
-              <li class = 'group'
+              <li :class = 'getGroupClassName(chatGroupItem)("group")'
                   v-for="(chatGroupItem, index) in showLowPriorityGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
                   v-show='bRooms'>
-                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
+                <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -570,6 +570,29 @@ export default {
     };
   },
   methods: {
+    getGroupClassName(groupItem){
+      return (className) =>{
+          if(!this.curChat.roomId){
+          return className
+        }
+        if(groupItem.roomId == this.curChat.roomId){
+          return 'group-clicked'
+        }
+        return className
+      }
+
+    },
+    
+    getGroupDivClassName(groupItem){
+      return (className) => {
+        if(!this.curChat.roomId)
+          return className
+        if(groupItem.roomId == this.curChat.roomId)
+          return 'group-div-clicked'
+        return className
+      }  
+    },
+
     getShowUnreadCountId(chatGroupItem) {
       return "unread-count-element-id-" + chatGroupItem.roomId;
     },
@@ -1442,12 +1465,10 @@ export default {
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
         if(!distUrl || distUrl == '') {
-            let defaultGroupIcon;
             if(global.mxMatrixClientPeg.DMCheck(distGroup))
-                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+                distUrl = "./static/Img/User/user-40px@2x.png";
             else
-                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-            elementImg.setAttribute("src", defaultGroupIcon); 
+                distUrl = "./static/Img/User/group-40px@2x.png";  
         }
         if(elementImg != undefined && distUrl) {
           elementImg.setAttribute("src", distUrl);
@@ -2744,6 +2765,7 @@ export default {
       }
       else {
         this.searchKeyFromList = "";
+        /*
         let groupItemElementID = this.ChatGroupId(chatGroup);
         let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
         this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
@@ -2751,7 +2773,7 @@ export default {
         let groupDivElementID = this.ChatGroupDivId(chatGroup);
         let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
         this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
-
+        */
         this.isEmpty = false;
         var isSecret = false;
 
@@ -3391,6 +3413,19 @@ export default {
     margin: 0;
     scroll-behavior:smooth;
   }
+  
+
+  .group-fav-div {
+    height: 60px;
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+    background-color :rgba(247, 248, 250, 1);
+  }
 
   .group-div {
     height: 60px;
@@ -3522,15 +3557,36 @@ export default {
     font-size: 0px;
     box-sizing: border-box;
   }
+   .group-div-clicked {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+    border-bottom:1px solid rgba(221, 221, 221, 1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
 
   ////////////////////////////////////
   .group {
     height: 60px;
   }
 
+  .group-fav{
+    height: 60px;
+    background-color: rgba(247, 248, 250, 1);
+  }
+
   .group-top {
     height: 60px;
     background-color: rgba(243, 244, 247, 1);
+  }
+
+  .group-clicked{
+    height: 60px;
+    background-color: #dddddd;
   }
 
   .group-top:hover {
