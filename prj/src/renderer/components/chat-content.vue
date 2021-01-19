@@ -3634,7 +3634,7 @@ export default {
   }
 
   .group-content {
-    width: 119%;
+    width: 155%;
     font-size: 13px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);
@@ -3771,7 +3771,7 @@ export default {
       width: 20px;
       height: 20px;
       border: solid 0px #009933;
-      margin-top: 19px;
+      margin-top: 10px;
       margin-left: 15px;
       vertical-align: top;
   }
@@ -3782,7 +3782,7 @@ export default {
       height: 20px;
       border: solid 0px rgba(221, 221, 221, 1);
       margin-right: 18px;
-      margin-top: 19px;
+      margin-top: 10px;
       vertical-align: top;
       float: right;
   }
