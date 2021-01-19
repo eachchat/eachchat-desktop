@@ -48,6 +48,16 @@
                         <p v-html="msgContentHightLight(department.display_name)" class="department-name">{{ department.display_name }}</p>
                         </div>
                     </li>
+                    <div class='grid-content'>群聊</div>
+                    <li class="manager"
+                        v-for="room in searchRooms"
+                        @click="searchRoomItemClicked(room.room_id)" 
+                        :key="room.room_id">
+                        <img ondragstart="return false" class="department-icon" :src="room.avatar_url">
+                        <div class="department-info">
+                        <p v-html="msgContentHightLight(room.name)" class="department-name">{{ room.name }}</p>
+                        </div>
+                    </li>
                     
                     
                 </ul>
@@ -87,8 +97,8 @@
         <el-container class="right-container">
             <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
             <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList>
-            <contactRoom v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
-            </contactRoom>
+            <contactRoomList v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
+            </contactRoomList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
@@ -102,10 +112,10 @@ import * as fs from 'fs-extra'
 import {services, environment} from '../../packages/data/index.js';
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
-import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
+import {Contact, ContactRoom, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
 import contactList from './contact-list'
-import contactRoom from './contact-room'
+import contactRoomList from './contact-room'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header-login.vue';
@@ -159,6 +169,7 @@ export default {
             searchUsers: [],
             searchContacts:[],
             searchDeparements: [],
+            searchRooms: [],
             showSearchView: false,
             showSearchUserInfoTips: false,
             searchUserInfo:{},
@@ -199,6 +210,23 @@ export default {
             this.searchDeparements = await Department.SearchByNameKey(this.searchKey);
             this.searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
             this.searchContacts = await Contact.SearchByNameKey(this.searchKey);
+            let allContactRooms = await ContactRoom.GetAllRooms();
+            this.searchRooms = [];
+            allContactRooms.forEach(item => {
+                let room = this.matrixClient.getRoom(item.room_id);
+                item.name = room.name;
+                if(room.name.indexOf(this.searchKey) == -1)
+                    return;
+                var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+                
+                if(RoomAvatar)
+                    item.avatar_url = RoomAvatar;
+                else
+                    item.avatar_url = './static/Img/User/group-40px@2x.png';
+                this.searchRooms.push(item);
+            })
+            
+
             //if(this.searchDeparements.length!=0 || this.searchUsers.length != 0 || this.searchContacts.length != 0)
             this.showSearchView = true;
             this.$nextTick(function(){
@@ -245,6 +273,16 @@ export default {
                 console.log("error: ",userInfo)
                 console.log(e)
             });
+        },
+
+        searchRoomItemClicked: function(room_id){
+            this.$router.push(
+            {
+                name: 'ChatContent', 
+                params: {
+                    group_id: room_id
+                }
+            })
         },
 
         searchDeparmentItemClicked: async function(id){
@@ -372,9 +410,10 @@ export default {
         userInfoContent,
         winHeaderBar,
         contactList,
-        contactRoom
+        contactRoomList
     },
     created:async function() {
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         this.organizeMenuName = this.$t("organizeMenuName"),
         this.contactMenuName = this.$t("contactMenuName"),
         console.log("to get organization");
