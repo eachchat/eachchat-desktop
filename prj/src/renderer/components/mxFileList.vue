@@ -2,13 +2,13 @@
     <div class="MxFileListDlg" id="MxFileListDlgId">
         <div class="MxFileListDlgContent" id="MxFileListDlgContentId">
             <div class="MxTitle">
-                <img class="MxTitleGoBackImg" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" />
-                <div class="MxTitleGoBackLabel">返回聊天</div>
+                <img class="MxTitleGoBackImg" src="../../../static/Img/MessageHistory/goback@2x.png" @click="Close()" />
+                <div class="MxTitleGoBackLabel">{{curChatName}}</div>
             </div>
             <div class="MxGroupInfo">
-                <img class="MxGroupInfoImg" id="MxMsgListGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
-                <label class="MxGroupInfoName" id="MxMsgListGroupInfoNameId">{{GroupInfo ? GroupInfo.name : ''}}</label>
-                <label class="MxGroupInfoMemberNum" id="MxMsgListGroupInfoMemberNumId"></label>
+                <img class="MxGroupInfoImg" id="MxMsgListGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png" v-show="false">
+                <label class="MxGroupInfoName" id="MxMsgListGroupInfoNameId" v-show="false">{{GroupInfo ? GroupInfo.name : ''}}</label>
+                <label class="MxGroupInfoMemberNum" id="MxMsgListGroupInfoMemberNumId" v-show="false"></label>
             </div>
             <div class="Mxsearch">
                 <input class="MxFileListDlgSearchInput" id="MxFileListDlgSearchInputId" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
@@ -72,6 +72,7 @@ export default {
             originalFileList: [],
             lastSequenceId: 0,
             searchEmpty: false,
+            curChatName: "",
         }
     }, 
     methods: {
@@ -378,6 +379,25 @@ export default {
             console.log("global is ", global.mxMatrixClientPeg)
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
             console.log("the init user id is ,", this.GroupInfo)
+            if(this.$store.getters.getCurChatId() == undefined) {
+                this.curChatName = "返回聊天";
+            }
+            else {
+                var showGroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.$store.getters.getCurChatId());
+                
+                if(global.mxMatrixClientPeg.DMCheck(showGroupInfo)) {
+                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(showGroupInfo);
+                    if(!distUserId) {
+                        this.curChatName = showGroupInfo.name;
+                    }
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    this.curChatName = displayName;
+                }
+                else {
+                    this.curChatName = showGroupInfo.name;
+                }
+            }
+
             confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
             this.showGroupInfo();
             // this.$store.commit("setUserId", this.curUserInfo.id)
@@ -605,7 +625,7 @@ export default {
     }
 
     .MxGroupInfo {
-        height: 60px;
+        height: 20px;
         width: 100%;
         margin: 0;
     }
@@ -730,7 +750,7 @@ export default {
 
     .Mxfile-list {
         width: 100%;
-        max-height: calc(100% - 135px);
+        max-height: calc(100% - 95px);
         margin: 0;
         padding: 0;
         list-style: none;
@@ -740,7 +760,7 @@ export default {
 
     .Mxfile-list:hover {
         width: 100%;
-        max-height: calc(100% - 135px);
+        max-height: calc(100% - 95px);
         margin: 0;
         padding: 0;
         list-style: none;

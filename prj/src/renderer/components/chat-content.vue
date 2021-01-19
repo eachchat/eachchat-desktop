@@ -193,11 +193,11 @@
               <div class="search-list-content-label">聊天记录</div>
               <div class="search-list-content-content">
                 <ul class="search-list-content-list">
-                  <li class="search-item"
+                  <li :class = 'getGroupClassName(searchMessageItem)("search-item")'
                       v-for="searchMessageItem in searchMessageItems"
                       @click="showGroup(searchMessageItem)"
                       >
-                    <div class="search-list-content-list-div">
+                    <div :class = 'getGroupDivClassName(searchMessageItem)("search-list-content-list-div")' >
                       <div class="search-item-img-div">
                         <img class="search-item-img-ico" :id="getSearchChatMsgItemImgElementId(searchMessageItem.room_id)" src="../../../static/Img/User/group-40px@2x.png"/>
                       </div>
@@ -572,24 +572,43 @@ export default {
   methods: {
     getGroupClassName(groupItem){
       return (className) =>{
+        if(!this.isSearch) {
           if(!this.curChat.roomId){
+            return className
+          }
+          if(groupItem.roomId == this.curChat.roomId){
+            return 'group-clicked'
+          }
           return className
         }
-        if(groupItem.roomId == this.curChat.roomId){
-          return 'group-clicked'
+        else {
+          if(!this.searchChat){
+            return className;
+          }
+          if(groupItem.room_id == this.searchChat.roomId){
+            return 'group-clicked'
+          }
+          return className;
         }
-        return className
       }
 
     },
-    
     getGroupDivClassName(groupItem){
       return (className) => {
-        if(!this.curChat.roomId)
+        if(!this.isSearch) {
+          if(!this.curChat.roomId)
+            return className
+          if(groupItem.roomId == this.curChat.roomId)
+            return 'group-div-clicked'
           return className
-        if(groupItem.roomId == this.curChat.roomId)
-          return 'group-div-clicked'
-        return className
+        }
+        else {
+          if(!this.searchChat)
+            return className
+          if(groupItem.room_id == this.searchChat.roomId)
+            return 'group-div-clicked'
+          return className
+        }
       }  
     },
 
@@ -1776,6 +1795,9 @@ export default {
           this.showSearchMessage = true;
           this.searchPeopleItems = [];
           this.searchMessageItems = [];
+          if(this.$store.getters.getCurChatId() == undefined) {
+            this.isEmpty = true;
+          }
           console.log("this.issearch = ", this.isSearch)
         }
         else {
@@ -1788,6 +1810,9 @@ export default {
         this.showSearchAllChat = true;
         this.searchPeopleItems = [];
         this.searchMessageItems = [];
+        if(this.$store.getters.getCurChatId() == undefined) {
+          this.isEmpty = true;
+        }
       }
     },
     showSearchResultIcon: async function() {
@@ -2809,6 +2834,7 @@ export default {
           isSecret = true;
         }
         this.showGroupIconName(this.curChat);
+        this.$store.commit("setCurChatId", this.curChat.roomId);
       }
     },
     ToJoinRoom: function(roomId) {

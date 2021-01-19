@@ -2,12 +2,12 @@
     <div class="MxHistoryMsgDlg" id="MxHistoryMsgDlgId">
         <div class="MxHistoryMsgDlgContent" id="MxHistoryMsgDlgContentId">
             <div class="MxTitle">
-                <img class="MxTitleGoBackImg" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" />
-                <div class="MxTitleGoBackLabel">返回聊天</div>
+                <img class="MxTitleGoBackImg" src="../../../static/Img/MessageHistory/goback@2x.png" @click="Close()" />
+                <div class="MxTitleGoBackLabel">{{curChatName}}</div>
             </div>
             <div class="MxGroupInfo">
-                <img class="MxGroupInfoImg" id="MxHistoryMsgGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
-                <label class="MxGroupInfoName" id="MxHistoryMsgGroupInfoNameId">{{GroupInfo ? GroupInfo.name : ''}}</label>
+                <img class="MxGroupInfoImg" id="MxHistoryMsgGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png" v-show="false">
+                <label class="MxGroupInfoName" id="MxHistoryMsgGroupInfoNameId" v-show="false">{{GroupInfo ? GroupInfo.name : ''}}</label>
                 <label class="MxGroupInfoMemberNum" id="MxHistoryMsgGroupInfoMemberNumId" v-show="false"></label>
             </div>
             <div class="Mxsearch">
@@ -75,7 +75,8 @@ export default {
             isMatrixSearch: false,
             canBackPaginate: true,
             isRefreshing: false,
-            lastRefreshTime: 0
+            lastRefreshTime: 0,
+            curChatName: "",
         }
     },  
     computed: {
@@ -208,6 +209,26 @@ export default {
             // Set accessToken in services
             // console.log("global is ", global.mxMatrixClientPeg)
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
+            console.log("*** this.$store.getters.getCurChatId() ", this.$store.getters.getCurChatId());
+            if(this.$store.getters.getCurChatId() == undefined) {
+                this.curChatName = "返回聊天";
+            }
+            else {
+                var showGroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.$store.getters.getCurChatId());
+                
+                if(global.mxMatrixClientPeg.DMCheck(showGroupInfo)) {
+                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(showGroupInfo);
+                    if(!distUserId) {
+                        this.curChatName = showGroupInfo.name;
+                    }
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    this.curChatName = displayName;
+                }
+                else {
+                    this.curChatName = showGroupInfo.name;
+                }
+            }
+
             // console.log("the init user id is ,", this.GroupInfo)
             confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
 
@@ -620,6 +641,14 @@ export default {
         height: 20px;
     }
 
+    .MxTitleGoBackImg:hover {
+        display: inline-block;
+        margin: 0px 6px 16px 0px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
     .MxTitleGoBackLabel {
         display: inline-block;
         height: 20px;
@@ -632,7 +661,7 @@ export default {
     }
 
     .MxGroupInfo {
-        height: 60px;
+        height: 20px;
         width: 100%;
         margin: 0;
     }
@@ -784,7 +813,7 @@ export default {
 
     .MxHistoryMsg-list {
         width: 100%;
-        max-height: calc(100% - 135px);
+        max-height: calc(100% - 95px);
         margin: 0;
         padding: 0;
         list-style: none;
@@ -796,6 +825,7 @@ export default {
         width: 100%;
         min-height: 64px;
         padding: 0;    
+        border-bottom:1px solid rgba(238,238,238,1);
     }
 
     .MxmessageItem:hover {
@@ -807,17 +837,16 @@ export default {
     
     .MxmessageOwnerImage {
         display: inline-block;
-        margin: 0 0 0 4px;
-        padding: 16px 0px 16px 0px;
+        margin: 17px 0px 15px 0px;
         width: 32px;
         height: 32px;
-        border-radius:4px;
+        border-radius:50px;
     }
-
+    
     .MxmessageInfoDiv {
         display: inline-block;
-        padding: 12px 0px 12px 4px;
-        width: calc(100% - 52px);
+        padding: 14px 0px 10px 4px;
+        width: calc(100% - 42px);
         min-height: 40px;
         vertical-align: top;
     }
@@ -830,6 +859,7 @@ export default {
         font-size: 14px;
         font-family:PingFangSC-Regular;
         font-weight: 590;
+        text-align: right;
     }
 
     .MxmessageInfoOwnerNameLabel {
@@ -843,6 +873,7 @@ export default {
         font-weight: 400;
         letter-spacing: 0px;
         float: left;
+        text-align: left;
     }
 
     .MxmessageInfoTimeLabel {
