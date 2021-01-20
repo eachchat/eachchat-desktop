@@ -233,7 +233,7 @@ export default {
                         }
                     }
                     else {
-                        if(unreadCount > 99) {
+                        if(unReadCount > 99) {
                             return "nav-unread-no-focuse-99";
                         }
                         else {
