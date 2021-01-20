@@ -110,12 +110,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon = new Tray(path.join(__dirname, iconPath));
 
   appIcon.on('mouse-move', function(event, position){
-    console.log("trayIcon Mouse MoveIN")
-    // if(isLeave) {
-    //   console.log("****************************************")
-    //   isLeave = false;
-    //   checkTrayLeave();
-    // }
+    
   });
 
   let contextMenu = Menu.buildFromTemplate([
@@ -301,29 +296,37 @@ ipcMain.on('updageAssistWindowSize', function(event, sizeInfo) {
 
 // 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
-    favouriteDetailWindow = new BrowserWindow({
-      height: 468,
-      resizable: resizableValue,
-      width:600,
-      webPreferences: {
-        webSecurity:false,
-        nodeIntegration:true,
-        enableRemoteModule: true
-      },
-      //frame:false,
-      title: collectionInfo.title
-      
-  })
-  const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + 'favouriteDetail'
-  : `file://${__dirname}/index.html#` + 'favouriteDetail';
-  favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
-  //openDevToolsInDevelopment(favouriteDetailWindow);
-  favouriteDetailWindow.webContents.on('did-finish-load', function() {
-    favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
-  });
+    if(!favouriteDetailWindow){
+      favouriteDetailWindow = new BrowserWindow({
+        height: 468,
+        resizable: resizableValue,
+        width:600,
+        webPreferences: {
+          webSecurity:false,
+          nodeIntegration:true,
+          enableRemoteModule: true
+        },
+        //frame:false,
+        title: collectionInfo.title  
+      })
+    const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/#/` + 'favouriteDetail'
+    : `file://${__dirname}/index.html#` + 'favouriteDetail';
+    favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
+    //openDevToolsInDevelopment(favouriteDetailWindow);
+    favouriteDetailWindow.on('close', (event) => {
+      event.preventDefault();
+      favouriteDetailWindow.hide();
+    })
+    
+    favouriteDetailWindow.webContents.on('did-finish-load', function() {
+      favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
+    });
+  }
+    
+  favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
   favouriteDetailWindow.show();
-  openDevToolsInDevelopment(favouriteDetailWindow);
+
 });
 
 ipcMain.on('favouriteDetailClose', function(event, arg) {
@@ -335,28 +338,34 @@ ipcMain.on('favouriteDetailMin', function(event, arg) {
 });
 // 汇报关系窗口
 ipcMain.on('showReportRelationWindow', function(event, leaders) {
-  reportRelationWindow = new BrowserWindow({
-    height: 340,
-    resizable: resizableValue,
-    width: 520,
-    webPreferences: {
-      webSecurity:false,
-      nodeIntegration:true,
-      enableRemoteModule: true
-    },
-    //frame:false,
-    title:"汇报关系"
-  })
-  const reportRelationWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + 'reportRelationContent'
-  : `file://${__dirname}/index.html#` + 'reportRelationContent';
-  reportRelationWindow.loadURL(reportRelationWinURL);
-  //openDevToolsInDevelopment(reportRelationWindow);
-  reportRelationWindow.webContents.on('did-finish-load', function() {
-    reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
-  });
+  if(!reportRelationWindow){
+    reportRelationWindow = new BrowserWindow({
+      height: 340,
+      resizable: resizableValue,
+      width: 520,
+      webPreferences: {
+        webSecurity:false,
+        nodeIntegration:true,
+        enableRemoteModule: true
+      },
+      //frame:false,
+      title:"汇报关系"
+    })
+    const reportRelationWinURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/#/` + 'reportRelationContent'
+    : `file://${__dirname}/index.html#` + 'reportRelationContent';
+    reportRelationWindow.loadURL(reportRelationWinURL);
+    reportRelationWindow.webContents.on('did-finish-load', function() {
+      reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
+    });
+    reportRelationWindow.on("close", (event) => {
+      event.preventDefault();
+      reportRelationWindow.hide();
+    })
+  }
+  reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
   reportRelationWindow.show();
-  openDevToolsInDevelopment(reportRelationWindow);
+  //openDevToolsInDevelopment(reportRelationWindow);
 });
 
 ipcMain.on("showNotice", (event, title, contnet) => {
@@ -1077,8 +1086,9 @@ function openDevToolsInDevelopment(mainWindow) {
     mainWindow.webContents.openDevTools();
     });
   }
-  mainWindow.on('closed', () => {
-    app.quit();
+  mainWindow.on('close', (event) => {
+    event.preventDefault();
+    mainWindow.hide();
   })
 }
 
