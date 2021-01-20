@@ -40,7 +40,8 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-mine-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
-                    <div class="chat-msg-content-mine-txt-div-angle"></div>
+                    <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
+                    <div class="chat-msg-content-mine-txt-div-angle" v-else></div>
                     <div class="msgStageDiv" :key="updateStatus">
                         <div class="msgState" v-if="MsgIsSending()">
                             <i class="el-icon-loading"></i>
@@ -1521,6 +1522,19 @@ export default {
         margin-left: 100%;
     }
 
+    .chat-msg-content-mine-file-div-angle {
+        top: 9px;
+        right: 0;
+        border-width: 5px;
+        border-style: solid;
+        width: 0px;
+        height: 0px;
+        border-color: transparent;
+        border-left-color: rgba(255, 255, 255, 1);
+        position: relative;
+        margin-left: 100%;
+    }
+
     .chat-msg-content-mine-txt-div {
         float:right;
         background-color: rgba(82, 172, 68, 1);
@@ -1724,7 +1738,7 @@ export default {
     
     .chat-msg-content-mine-voice {
         float:right;
-        background-color: rgba(255, 255, 255, 1);
+        background-color: rgba(82, 172, 68, 1);
         width: 90px;
         min-height: 12px;
         border-radius: 5px;
