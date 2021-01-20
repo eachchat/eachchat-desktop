@@ -41,7 +41,7 @@
                         <p class="chat-msg-content-mine-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
-                    <div class="chat-msg-content-mine-txt-div-angle" v-else></div>
+                    <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
                     <div class="msgStageDiv" :key="updateStatus">
                         <div class="msgState" v-if="MsgIsSending()">
                             <i class="el-icon-loading"></i>
@@ -93,7 +93,7 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-others-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
-                    <div class="chat-msg-content-others-txt-div-angle"></div>
+                    <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
                 <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
