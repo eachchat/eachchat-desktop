@@ -194,7 +194,19 @@ const ComponentUtil = {
         {
           return y + '/' + mon + '/' + d;
         }
-      },
+    },
+    
+    msgContentShowPhoneAndHightLight: function(curMsg, color){
+        let phoneHight = curMsg.replace(/\d{11}/g, function(num){
+            return '<span style="color:' + color + ';">' + num + "</span>"
+        })
+
+        let linkHight = phoneHight.replace(/(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/g, function(link){
+            return '<span style="color:' + color + ';">' + link + "</span>"
+        })
+        return linkHight;
+    },
+
 }
 
 export{

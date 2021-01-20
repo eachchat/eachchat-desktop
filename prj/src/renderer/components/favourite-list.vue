@@ -13,7 +13,7 @@
                             <li class="message"
                                 v-for="(message, index) in favourites" 
                                 :key="index">
-                                <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
+                                <p class="message-text" @click="messageListClicked(message)" v-html = 'msgContentShowPhoneAndHightLight(message.collection_content.body)'>{{ message.collection_content.body }}</p>
                                 <p class="message-sender">{{ message.user_name }}</p>
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
@@ -584,6 +584,11 @@ export default {
         formatTimeFilter(secondsTime) {
             return ComponentUtil.formatTimeFilter(secondsTime);
         },
+
+        msgContentShowPhoneAndHightLight: function(curMsg){
+            return ComponentUtil.msgContentShowPhoneAndHightLight(curMsg, 'rgba(91, 106, 145, 1)');
+        },
+
         msgContentHightLight: function(curMsg) {
             var showContent = curMsg;
             // showContent = showContent + ' ';
