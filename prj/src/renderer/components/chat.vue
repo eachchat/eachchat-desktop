@@ -569,6 +569,7 @@ export default {
         },
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
+            console.log("*** e.target.className ", e.target.className);
             var showRedact = this.canRedact(msgItem);
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
@@ -2994,7 +2995,7 @@ export default {
             fileListGroupInfo: {},
             showFileListInfo: false,
             messageListElement: null,
-            checkClassName: ["msg-link-url", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
+            checkClassName: ["msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
             updateUser:[],

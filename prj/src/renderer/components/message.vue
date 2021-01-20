@@ -619,7 +619,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -637,11 +637,11 @@ export default {
                 }
                 var checkStartTxt = startTxt;
                 if(checkStartTxt.trim().length != 0) {
-                    newInnerHtml += '<span style="display:inline-block;">' + startTxt + '</span>';
+                    newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + startTxt + '</span>';
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -1487,7 +1487,7 @@ export default {
         font-family: 'PingFangSC-Medium';
         color: rgb(51, 51, 51);
         overflow: hidden;
-        margin-left: 5px;
+        margin-left: 0px;
         margin-top: 0px;
         margin-right: 0px;
         margin-bottom: 3px;
@@ -1501,7 +1501,7 @@ export default {
         font-family: 'PingFangSC-Regular';
         color: rgb(153, 153, 153);
         overflow: hidden;
-        margin-left: 5px;
+        margin-left: 0px;
         margin-top: 5px;
         margin-right: 0px;
         margin-bottom: 4px;
