@@ -185,7 +185,7 @@ export default {
         },
         getUnReadCount(unReadCount) {
             if(unReadCount === 0) return "";
-            else return unReadCount > 99 ? "···" : unReadCount;
+            else return unReadCount > 99 ? "..." : unReadCount;
         },
         getUnreadClass(unReadCount) {
             var endPoint = "-unselected";
@@ -201,18 +201,38 @@ export default {
             else {
                 if(remote.process.platform == 'darwin') {
                     if(this.curindex == 0) {
-                        return "mac-nav-unread";
+                        if(unReadCount > 99) {
+                            return "mac-nav-unread-99";
+                        }
+                        else {
+                            return "mac-nav-unread";
+                        }
                     }
                     else {
-                        return "mac-nav-unread-no-focuse";
+                        if(unReadCount > 99) {
+                            return "mac-nav-unread-no-focuse-99";
+                        }
+                        else {
+                            return "mac-nav-unread-no-focuse";
+                        }
                     }
                 }
                 else {
                     if(this.curindex == 0) {
-                        return "nav-unread";
+                        if(unReadCount > 99) {
+                            return "nav-unread-99";
+                        }
+                        else {
+                            return "nav-unread";
+                        }
                     }
                     else {
-                        return "nav-unread-no-focuse";
+                        if(unreadCount > 99) {
+                            return "nav-unread-no-focuse-99";
+                        }
+                        else {
+                            return "nav-unread-no-focuse";
+                        }
                     }
                 }
             }
@@ -742,6 +762,24 @@ export default {
         // z-index:-1;
     }
 
+    .nav-unread-99 {
+        position: absolute;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+        // z-index:-1;
+    }
+
     .nav-unread-no-focuse {
         position: absolute;
         top: 124px;
@@ -755,6 +793,23 @@ export default {
         height: 14px;
         width: 14px;
         line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
+    .nav-unread-no-focuse-99 {
+        position: absolute;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
         border-radius: 20px;
         background-color: rgba(228, 49, 43, 0.7);
     }
@@ -777,6 +832,24 @@ export default {
         // z-index:-1;
     }
 
+    .mac-nav-unread-99 {
+        position: absolute;
+        top: 136px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+        // z-index:-1;
+    }
+
     .mac-nav-unread-no-focuse {
         position: absolute;
         top: 136px;
@@ -790,6 +863,23 @@ export default {
         height: 14px;
         width: 14px;
         line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
+    .mac-nav-unread-no-focuse-99 {
+        position: absolute;
+        top: 136px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
         border-radius: 20px;
         background-color: rgba(228, 49, 43, 0.7);
     }

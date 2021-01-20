@@ -33,7 +33,7 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowInviteMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content-invite" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowInviteMsgContent(chatGroupItem)}}</p>
                   </div>
                   <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
@@ -2090,14 +2090,19 @@ export default {
           return "group-readall" + endPoint;
         }
         else {
-          return "group-unread";
+          if(this.getUnReadCount(chatItem) > 99) {
+            return "group-unread-99";
+          }
+          else {
+            return "group-unread";
+          }
         }
       }
     },
     getUnReadCount(chatItem) {
       const notificationCount = chatItem.getUnreadNotificationCount();
-
-      return notificationCount == 0 ? '' : notificationCount;
+      if(notificationCount == undefined || (notificationCount != undefined && notificationCount == 0)) return '';
+      return notificationCount;
     },
     getShowUnReadCount(roomItem) {
       var unreadCount = roomItem.getUnreadNotificationCount();
@@ -2105,6 +2110,7 @@ export default {
       // console.log(" *** unreadcount of " + roomItem.name + " unreadCount is " + unreadCount);
       
       if(unreadCount == undefined || (unreadCount != undefined && unreadCount == 0)) return '';
+      if(unreadCount > 99) return "...";
       return unreadCount;
     },
     findOverrideMuteRule(roomId) {
@@ -3716,6 +3722,23 @@ export default {
   }
 
   .group-content {
+    width: 147%;
+    font-size: 13px;
+    font-weight:400;
+    color: rgba(153, 153, 153, 1);
+    overflow: hidden;
+    font-family:PingFangSC-Regular;
+    margin-left: 0px;
+    margin-top: 2px;
+    margin-right: 0px;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    height: 18px;
+    letter-spacing: 0px;
+  }
+
+  .group-content-invite {
     width: 155%;
     font-size: 13px;
     font-weight:400;
@@ -3790,6 +3813,24 @@ export default {
     // z-index:-1;
   }
 
+  .group-unread-99 {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    font-size: 10px;
+    font-family: PingFangSC-Medium;
+    float: right;
+    color: rgb(255, 255, 255);
+    margin: 0px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 9px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+    // z-index:-1;
+  }
+
   .group-readall-selected {
     position: absolute;
     top: 7px;
@@ -3833,7 +3874,7 @@ export default {
     margin-top: 3px;
     margin-right: 0px;
     margin-bottom: 10px;
-    background-color: rgba(228, 49, 43, 0);
+    background-color: rgba(255, 255, 255, 0);
     background-image: url("../../../static/Img/Chat/slience@2x.png");
     background-size: contain;
   }
