@@ -1,8 +1,8 @@
 <template>
     <div class="imageViewerPage">
         <div class="windowHeader">
-            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
-            <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></mac-window-header>
+            <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
         </div>
         <div class="imageBox" id="imageBoxId" @mousedown="holeDown" @mouseup="holeUp">
             <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>

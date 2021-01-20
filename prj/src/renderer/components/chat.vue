@@ -298,15 +298,25 @@ export default {
         Invite,
         mxHistoryPage,
         mxFilePage,
-        mxMemberSelectDlg
+        mxMemberSelectDlg,
     },
     methods: {
         clearCache: function() {
-            this.multiDel();
-            this.selectedMsgs = [];
-            this.showAlertDlg = false;
+            if(this.curOperate == "Trans") {
+                this.transmitNeedAlert = false;
+                this.curOperate == "";
+                this.showAlertDlg = false;
+                this.multiTransMit();
+            }
+            else if(this.curOperate == "Del") {
+                this.curOperate == "";
+                this.showAlertDlg = false;
+                this.multiDel();
+                this.selectedMsgs = [];
+            }
         },
         closeAlertDlg: function() {
+            this.curOperate = "";
             this.showAlertDlg = false;
         },
         groupIsSlience() {
@@ -736,10 +746,21 @@ export default {
             this.transmitTogether = true;
         },
         async multiTransMit() {
-            this.recentGroups = await Group.GetGroupByTime();
-            this.transmitKey ++;
-            this.showTransmitDlg = true;
-            this.transmitTogether = false;
+            this.curOperate = "Trans";
+            if(this.transmitNeedAlert) {
+                this.alertContnets = {
+                    "Details": "你选择的消息中包含语音不能转发，是否继续？",
+                    "Abstrace": "提示"
+                }
+                this.showAlertDlg = true;
+            }
+            else{
+                this.curOperate = "";
+                this.recentGroups = await Group.GetGroupByTime();
+                this.transmitKey ++;
+                this.showTransmitDlg = true;
+                this.transmitTogether = false;
+            }
         },
         showAddMembersPrepare: async function() {
             // var memeberList = this.curChat.contain_user_ids.split(",");
@@ -864,6 +885,7 @@ export default {
             this.multiToolsClose();
         },
         toMultiDel() {
+            this.curOperate = "Del";
             this.selectedMsgs.push(msg);
             this.alertContnets = {
                 "Details": "是否删除聊天记录？",
@@ -946,6 +968,9 @@ export default {
                 if(!this.canRedact(k)) {
                     canShowDelete = false;
                 }
+                if(this.MsgIsVoice(k)) {
+                    this.transmitNeedAlert = true;
+                }
             })
             var deleteElement = document.getElementById("multiSelectDelDivId");
             if(!canShowDelete) {
@@ -953,6 +978,18 @@ export default {
             }
             else {
                 deleteElement.style.display = 'inline-block';
+            }
+        },
+        MsgIsVoice: function(msg) {
+            let chatGroupMsgType = msg.event.content.msgtype == undefined ? msg.getContent().msgtype : msg.event.content.msgtype;
+            if(chatGroupMsgType == 'm.audio'){
+                return true;
+            }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
+            else{
+                return false;
             }
         },
         closeTransmitDlg() {
@@ -2934,6 +2971,8 @@ export default {
     },
     data() {
         return {
+            transmitNeedAlert: false,
+            curOperate: "",
             imgTimeLineSet: undefined,
             _imgTimelineWindow: undefined,
             alertContnets: {},
