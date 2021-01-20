@@ -40,6 +40,7 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-mine-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
+                    <div class="chat-msg-content-mine-txt-div-angle"></div>
                     <div class="msgStageDiv" :key="updateStatus">
                         <div class="msgState" v-if="MsgIsSending()">
                             <i class="el-icon-loading"></i>
@@ -91,6 +92,7 @@
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-others-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
+                    <div class="chat-msg-content-others-txt-div-angle"></div>
                 </div>
                 <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
@@ -1303,6 +1305,18 @@ export default {
         letter-spacing: 0px;
     }
 
+    .chat-msg-content-others-txt-div-angle {
+        top: 9px;
+        left: -10px;
+        border-width: 5px;
+        border-style: solid;
+        width: 0px;
+        height: 0px;
+        border-color: transparent;
+        border-right-color: white;
+        position: relative;
+    }
+
     .chat-msg-content-others-link-div {
         float: left;
         background-color: rgba(255, 255, 255, 1);
@@ -1324,7 +1338,7 @@ export default {
 
     .chat-msg-content-others-txt-div:hover {
         float: left;
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: rgba(255, 255, 255, 1);
         max-width: 100%;
         min-width: 20px;
         min-height: 20px;
@@ -1469,10 +1483,10 @@ export default {
         max-width: 170px;
         font-size: 14px;
         font-weight: 550;
-        font-family: 'PingFangSC-Regular';
+        font-family: 'PingFangSC-Medium';
         color: rgb(51, 51, 51);
         overflow: hidden;
-        margin-left: 10px;
+        margin-left: 5px;
         margin-top: 0px;
         margin-right: 0px;
         margin-bottom: 3px;
@@ -1486,12 +1500,25 @@ export default {
         font-family: 'PingFangSC-Regular';
         color: rgb(153, 153, 153);
         overflow: hidden;
-        margin-left: 10px;
+        margin-left: 5px;
         margin-top: 5px;
         margin-right: 0px;
         margin-bottom: 4px;
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+
+    .chat-msg-content-mine-txt-div-angle {
+        top: 9px;
+        right: 0;
+        border-width: 5px;
+        border-style: solid;
+        width: 0px;
+        height: 0px;
+        border-color: transparent;
+        border-left-color: rgba(82, 172, 68, 1);
+        position: relative;
+        margin-left: 100%;
     }
 
     .chat-msg-content-mine-txt-div {
@@ -1514,7 +1541,7 @@ export default {
 
     .chat-msg-content-mine-txt-div:hover{
         float:right;
-        background-color: RGB(92,193,76);
+        background-color: rgba(82, 172, 68, 1);
         max-width: 100%;
         min-width: 20px;
         min-height: 20px;
@@ -1683,7 +1710,7 @@ export default {
     
     .chat-msg-content-mine-file:hover {
         float:right;
-        background-color: rgb(233,234,235);
+        background-color: rgba(255, 255, 255, 1);
         width: 266px;
         height: 60px;
         border-radius: 5px;
