@@ -284,11 +284,11 @@ export default {
 
     .groupMemberInfoImage {
         display: inline-block;
-        padding-top: 8px;
-        padding-bottom: 8px;
+        margin-top: 8px;
+        margin-bottom: 8px;
         width: 24px;
         height: 24px;
-        border-radius:4px;
+        border-radius:50px;
     }
 
     .groupMemberInfoLabel {
