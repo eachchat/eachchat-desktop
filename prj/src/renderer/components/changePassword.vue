@@ -203,7 +203,7 @@ export default {
         margin: 0px 13px 0px 20px;
         padding-left: 10px;
         font-size: 14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 0px;
     }
@@ -234,7 +234,7 @@ export default {
         margin: 0px 13px 0px 20px;
         padding-left: 10px;
         font-size: 14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 0px;
     }
@@ -266,7 +266,7 @@ export default {
         margin: 0px 13px 0px 20px;
         padding-left: 10px;
         font-size: 14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 0px;
     }

@@ -382,7 +382,7 @@ export default {
         display: inline-block;
         width: 142px;
         height: 22px;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
         font-size: 16px;
         font-weight: 500;
         color: #000000;
@@ -436,7 +436,7 @@ export default {
         width: 100px;
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
@@ -471,7 +471,7 @@ export default {
     .phoneBinded {
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
@@ -503,7 +503,7 @@ export default {
         width: 100px;
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
@@ -515,7 +515,7 @@ export default {
     .accountInfoLabel1 {
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
@@ -547,7 +547,7 @@ export default {
         width: 36px;
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
@@ -582,7 +582,7 @@ export default {
     .emailBinded {
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
@@ -603,7 +603,7 @@ export default {
         height: 20px;
         font-size: 14px;
         font-weight: 400;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         color: #333333;
         line-height: 20px;
         letter-spacing: 0px;

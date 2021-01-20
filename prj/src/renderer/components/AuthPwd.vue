@@ -76,7 +76,7 @@ export default {
         display: inline-block;
         width: 142px;
         height: 22px;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
         font-size: 16px;
         font-weight: 500;
         color: #000000;
@@ -108,7 +108,7 @@ export default {
         height: 20px;
         font-size: 14px;
         font-weight: 400;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         color: #333333;
         line-height: 20px;
         letter-spacing: 0px;
@@ -121,7 +121,7 @@ export default {
         height: 20px;
         font-size: 14px;
         font-weight: 400;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         color: #333333;
         line-height: 20px;
         letter-spacing: 0px;
