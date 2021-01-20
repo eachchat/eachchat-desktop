@@ -1542,14 +1542,11 @@ export default {
         min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
-        font-size: 14px;
-        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
-        font-weight:400;
         letter-spacing: 0px;
     }
 
@@ -1561,14 +1558,11 @@ export default {
         min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
-        font-size: 14px;
-        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
-        font-weight:400;
         letter-spacing: 0px;
     }
 
@@ -1662,7 +1656,7 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'PingFangSC-Regular';
+        font-family: 'PingFangSC-Light';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
@@ -1681,7 +1675,7 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'PingFangSC-Regular';
+        font-family: 'PingFangSC-Light';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
