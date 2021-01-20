@@ -520,7 +520,7 @@ export default {
                 }
                 else {
                     if(dealContent.trim().length != 0) {
-                        newInnerHtml += '<span style="display:inline-block;">' + dealContent + '</span>';
+                        newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + dealContent + '</span>';
                     }
                     finished = true;
                 }
@@ -544,7 +544,7 @@ export default {
                 }
                 else {
                     if(dealContent.trim().length != 0) {
-                        newInnerHtml += '<span style="display:inline-block;">' + dealContent + '</span>';
+                        newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + dealContent + '</span>';
                     }
                     finished = true;
                 }
@@ -570,7 +570,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span style="text-decoration: underline;">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -588,11 +588,11 @@ export default {
                 }
                 var checkStartTxt = startTxt;
                 if(checkStartTxt.trim().length != 0) {
-                    newInnerHtml += '<span style="display:inline-block;">' + startTxt + '</span>';
+                    newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + startTxt + '</span>';
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span style="text-decoration: underline;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
