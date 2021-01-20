@@ -3695,7 +3695,7 @@ export default {
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
-    margin-top: 10px;
+    margin-top: 11px;
     margin-right: 0px;
     margin-bottom: 0px;
     white-space: nowrap;
@@ -3723,7 +3723,7 @@ export default {
 
   .group-content {
     width: 147%;
-    font-size: 13px;
+    font-size: 12px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);
     overflow: hidden;
@@ -3731,7 +3731,7 @@ export default {
     margin-left: 0px;
     margin-top: 2px;
     margin-right: 0px;
-    margin-bottom: 10px;
+    margin-bottom: 9px;
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
@@ -3740,7 +3740,7 @@ export default {
 
   .group-content-invite {
     width: 155%;
-    font-size: 13px;
+    font-size: 12px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);
     overflow: hidden;
@@ -3748,7 +3748,7 @@ export default {
     margin-left: 0px;
     margin-top: 2px;
     margin-right: 0px;
-    margin-bottom: 10px;
+    margin-bottom: 9px;
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
