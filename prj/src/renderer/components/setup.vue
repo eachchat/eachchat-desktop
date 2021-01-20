@@ -93,10 +93,9 @@
                   </div>
                 </div>
             </div>
-            <div class="setup-array-with-label">
-                <label class="setup-array-with-label-label">清理缓存</label>
-                <label class="setup-array-with-label-label2" id="setup-general-clear-cache-label2-id">--M</label>
-                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAlert">
+            <div class="setup-array-only-label">
+                <label class="setup-array-only-label-label">清理缓存</label>
+                <label class="setup-array-only-label-label2" id="setup-general-clear-cache-label2-id" @click="showAlert">--M</label>
             </div>
             <div class="setup-title" id="setup-update-notice-id" v-show="false">升级</div>
             <div class="setup-array-with-label" v-show="false">
@@ -1028,7 +1027,7 @@ export default {
   }
 
   .setup-array-only-label-label2 {
-    width:75px;
+    width:94px;
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
