@@ -435,6 +435,7 @@ export default {
           this.curChat = this.showGroupList[0];
         this.$nextTick(() => {
           this.showGroupIconName();
+          this.$emit('matrixSyncEnd', true);
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {

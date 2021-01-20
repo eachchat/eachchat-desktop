@@ -7,7 +7,8 @@
             </div>
             <el-menu
                 class="nav-menu">
-                <el-menu-item
+                <el-menu-item 
+                    :disabled = 'navEnable'
                     class="nav-item"
                     v-for="(tabitem, index) in Navigate"
                     v-bind:key="index"
@@ -26,7 +27,7 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread"/>
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"/>
             </keep-alive>
         </el-main>
         <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
@@ -92,6 +93,7 @@ export default {
     },
     data () {
         return {
+            navEnable: true,
             scrollToRecentUnread: false,
             showChangePassword: false,
             alertContnets: {},
@@ -148,6 +150,10 @@ export default {
         }
     },
     methods: {
+        matrixSyncEnd: function(ret){
+            this.navEnable = !ret;
+        },
+
         CloseChangePassword: function() {
             this.showChangePassword = false;
         },
