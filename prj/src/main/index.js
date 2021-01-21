@@ -90,6 +90,7 @@ const queue = new Bobolink({
 });
 let timeTmp = 0;
 let countTmp = 1;
+let clickQuit = false;
 
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
@@ -123,6 +124,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     {
       label: "退出",
       click: function() {
+        clickQuit = true;
         app.quit();
       }
     }
@@ -1101,8 +1103,12 @@ function openDevToolsInDevelopment(mainWindow) {
     });
   }
   mainWindow.on('close', (event) => {
-    event.preventDefault();
-    mainWindow.hide();
+    if(!clickQuit){
+      event.preventDefault();
+      mainWindow.hide();
+    }
+    else app.quit();
+    
   })
 }
 
