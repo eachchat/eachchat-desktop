@@ -355,7 +355,7 @@ export default {
             }
             else{
                 if(this.selectedGroups.length >= 9) {
-                    this.$toastMessage({message:"最多只能选择9个聊天", time: 2000, type:'error', showWidth:'280px'});
+                    this.$toastMessage({message:"最多选择9个联系人和群组", time: 2000, type:'error', showWidth:'280px'});
                     this.selectedGroups.push(group);
                     this.$nextTick(() => {
                         var index = this.selectedGroups.indexOf(group);
