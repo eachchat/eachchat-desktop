@@ -24,7 +24,7 @@
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
-                        <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ contact.title }}</p>
+                        <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
                     <div class='grid-content'>组织</div>
@@ -183,11 +183,21 @@ export default {
             contactMenu:{
                 display_name: this.$t("contactMenuName")
             },
-            rootDepartmentID: ''
-            //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
+            rootDepartmentID: '',
+            myMatrixId: '',
+            myDoman:''
         }
     },
     methods: {
+        GetContactTitle: function(user){
+            let userDoman = ComponentUtil.GetDomanName(user.matrix_id);
+            if(userDoman == this.myDoman)
+                return user.title;
+            if(user.company && user.company.length != 0)
+                return user.company + " " + user.title;
+            return '';
+        },
+
         Close: function() {
             ipcRenderer.send("win-close");
         },
@@ -416,6 +426,8 @@ export default {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         this.organizeMenuName = this.$t("organizeMenuName"),
         this.contactMenuName = this.$t("contactMenuName"),
+        this.myMatrixId = localStorage.getItem("mx_user_id");
+        this.myDoman = ComponentUtil.GetDomanName(this.myMatrixId);
         console.log("to get organization");
         await this.getOrganizationBaseData();
         var that = this;

@@ -34,7 +34,7 @@
                             <img ondragstart="return false" class="manager-icon" :id="SetUserImgID(user.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="show-contact-list-info">
                                 <p class="contact-list-name">{{ GetDisplayName(user.display_name, user.matrix_id) }}</p>
-                                <p class="contact-list-titile">{{ user.matrix_id }}</p>
+                                <p class="contact-list-titile">{{ GetContactTitle(user) }}</p>
                             </div>
                             <el-button icon="el-icon-delete" circle class="delete-button" v-show="nMouseIndex == index" @click="DeleteContact(user)" size="small"></el-button>
                         </li>
@@ -97,7 +97,9 @@ export default {
             showAlertDlg: false,
             alertContents : null,
             deleteContact: null,
-            contactType: 'contact'
+            contactType: 'contact',
+            myMatrixId: '',
+            myDoman: ''
         }
     },
     props:{
@@ -189,6 +191,14 @@ export default {
         GetDisplayName: function(displayName, userid){
             return ComponentUtil.GetDisplayName(displayName, userid);
         },
+        GetContactTitle: function(user){
+            let userDoman = ComponentUtil.GetDomanName(user.matrix_id);
+            if(userDoman == this.myDoman)
+                return user.title;
+            if(user.company && user.company.length != 0)
+                return user.company + " " + user.title;
+            return '';
+        },
 
         userMenuItemClicked:async function(id) {
             if (this.showUserInfoTips&&(this.userInfo.id == id) || this.showAlertDlg){
@@ -245,6 +255,8 @@ export default {
     },
     created: async function() {
         this.services = global.services.common;
+        this.myMatrixId = localStorage.getItem("mx_user_id");
+        this.myDoman = ComponentUtil.GetDomanName(this.myMatrixId);
         await this.getAppBaseData();
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
 

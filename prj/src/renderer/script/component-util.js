@@ -16,6 +16,15 @@ function getWeekDay(day){
 }
 
 const ComponentUtil = {
+    GetDomanName(matrixID){
+        if(!matrixID)
+            return '';
+        let endPos = matrixID.lastIndexOf(":");
+        if(endPos == -1)
+            return '';
+        return matrixID.slice(endPos + 1, matrixID.length);
+    },
+
     GetDisplayName(displayName, userid){
         if(displayName == '' && userid)
         {
