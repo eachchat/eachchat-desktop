@@ -8,7 +8,7 @@
             <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>
             <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
         </div>
-        <div class="viewerToolbar">
+        <div class="viewerToolbar" v-show="!isPersonalImg">
             <div class="viewer-tool-left" @click="showLeft()">
             </div>
             <div class="viewer-tool-right" @click="showRight()">
@@ -191,31 +191,33 @@ export default {
         },
         rightClick(e) {
             this.menu = new Menu();
-            this.menu.append(new MenuItem({
-                label: "另存为",
-                click: () => {
-                    this.downloadFile()
+            if(!this.isPersonalImg) {
+                this.menu.append(new MenuItem({
+                    label: "另存为",
+                    click: () => {
+                        this.downloadFile()
+                    }
+                }));
+                if(this.curImage.sender && !this.isPersonalImg) {
+                    this.menu.append(new MenuItem({ 
+                        type: 'separator' 
+                    }));
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit()
+                        }
+                    }));
+                    this.menu.append(new MenuItem({
+                        label: "收藏",
+                        click: () => {
+                            this.menuFav()
+                        }
+                    }));
                 }
-            }));
-            if(this.curImage.sender) {
-                this.menu.append(new MenuItem({ 
-                    type: 'separator' 
-                }));
-                this.menu.append(new MenuItem({
-                    label: "转发",
-                    click: () => {
-                        this.transMit()
-                    }
-                }));
-                this.menu.append(new MenuItem({
-                    label: "收藏",
-                    click: () => {
-                        this.menuFav()
-                    }
-                }));
-            }
 
-            this.menu.popup(remote.getCurrentWindow());
+                this.menu.popup(remote.getCurrentWindow());
+            }
         },
         async transMit() {
             console.log("*** transmit image is ", this.curImage);
@@ -291,6 +293,8 @@ export default {
             imgtop: 0,
             imgleft: 0,
             imgheight: 100,
+            isPersonalImg: false,
+            curUrl: '',
         }
     },
     mounted: function() {
@@ -299,6 +303,7 @@ export default {
             this.curImage = {};
             this.curImage = distImageInfo;
             this.curMultiple = 1;
+            this.isPersonalImg = false;
             console.log("mounted cur Image is ", this.curImage);
             this.ImageInfos = imageInfos;
             this.stageElement = document.getElementById("imageViewerStageId");
@@ -306,9 +311,26 @@ export default {
             style += "width:" + this.curImage.info.w + "px";
             style += ";"
             style += "height:" + this.curImage.info.h + "px";
-            // this.updateWindowSize(this.curImage.info);
+            this.updateWindowSize(undefined);
             this.stageElement.setAttribute("style", style);
             this.stageElement.setAttribute("src", this.curImage.imageUrl);
+        });
+        ipcRenderer.on("personalUrl", (event, url) => {
+            this.isPersonalImg = true;
+            this.curUrl = url;
+            var img = new Image();
+            img.src = this.curUrl;
+            img.onload = () => {
+                this.stageElement = document.getElementById("imageViewerStageId");
+                let style = "";
+                style += "width:" + img.width + "px";
+                style += ";"
+                style += "height:" + img.height + "px";
+                console.log("*** style is ", style);
+                this.stageElement.setAttribute("style", style);
+                this.stageElement.setAttribute("src", this.curUrl);
+                this.updateWindowSize({w: img.width, h: img.height});
+            }
         });
         window.addEventListener('keydown', this.keyHandle);
         document.onmousemove = this.mouseMove;

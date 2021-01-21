@@ -289,9 +289,21 @@ ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
   assistWindow.show();
 })
 
+ipcMain.on('showPersonalImageViewWindow', function(event, url) {
+  // assistWindow.webContents.on('did-finish-load', function() {
+  assistWindow.webContents.send("personalUrl", url);
+  // });
+  assistWindow.show();
+})
+
 ipcMain.on('updageAssistWindowSize', function(event, sizeInfo) {
   console.log("*** updage size is ", sizeInfo);
-  assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 44);
+  if(sizeInfo == undefined) {
+    assistWindow.setSize(660, 506);
+  }
+  else {
+    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 68);
+  }
 })
 
 // 收藏详情窗口
@@ -951,10 +963,12 @@ ipcMain.on('modifyGroupImg', function(event, arg) {
 });
 
 ipcMain.on('win-close', function(event, arg) {
+  mainWindow.blur();
   mainWindow.hide();
 });
 
 ipcMain.on('win-min', function(event, arg) {
+  mainWindow.blur();
   mainWindow.minimize();
 });
 
