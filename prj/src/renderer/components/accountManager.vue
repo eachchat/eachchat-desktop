@@ -11,7 +11,7 @@
                     <label class="accountInfoLabel">用户名</label>
                     <label class="accountInfoLabel1">{{ownerAccount}}</label>
                 </li>
-                <li class="phoneBind">
+                <li class="phoneBind" v-show="false">
                     <img class="phoneBindImg" src="../../../static/Img/Setup/Phone@2x.png">
                     <label class="phoneBindLabel">手机号</label>
                     <label class="phoneBindBtn" @click="toBindPhone" v-show="phoneNum.length == 0">绑定</label>
@@ -274,7 +274,7 @@ export default {
                         return;
                     }
                 }
-                this.dlgElement.style.height = "242px";
+                this.dlgElement.style.height = "200px";
                 this.isBindInputPasswordPage = false;
                 this.isMainPage = true;
                 this.cutTitle = "账号管理";
@@ -367,7 +367,7 @@ export default {
         right: 0;
         margin: auto;
         width: 440px;
-        height: 242px;
+        height: 200px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
