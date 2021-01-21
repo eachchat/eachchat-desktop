@@ -171,6 +171,7 @@ import * as Quill from 'quill'
 import confservice from '../../packages/data/conf_service'
 // import { ImageDrop } from 'quill-image-drop-module'
 import {ipcRenderer, remote} from 'electron'
+import { get as getProperty } from 'lodash'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -1569,8 +1570,8 @@ export default {
             }
         },
         insertFace: function(item) {
-            var range = this.editor.getSelection();
-            var curIndex = range==null ? 0 : range.index;
+            var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
+            getProperty(this.editor, 'selection.savedRange.index', 0) 
             this.editor.insertText(curIndex, uncodeUtf16(item));
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
