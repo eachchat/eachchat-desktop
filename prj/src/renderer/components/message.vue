@@ -107,6 +107,7 @@ import * as fs from 'fs-extra'
 import {shell} from 'electron'
 import {ipcRenderer} from 'electron'
 import BenzAMRRecorder from 'benz-amr-recorder'
+import axios from "axios";
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -966,6 +967,12 @@ export default {
                 return;
             }
             if(userUrl == "") {
+                return;
+            }
+            try{
+                var response = await axios.get(userUrl);
+            }
+            catch(e) {
                 return;
             }
             // console.log("userUrl is ", userUrl);
