@@ -6,7 +6,8 @@
                 <img ondragstart="return false" class="ChatCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
             <el-container class="ChatCreaterContent">
-                <div class = 'backgroundDiv'  v-show = 'searchUsers.length == 0'></div>
+                <!-- <div class = 'backgroundDiv'  v-show = 'searchUsers.length == 0'></div> -->
+                <div class = 'backgroundDiv'  v-show = 'false'></div>
                 <el-main class="selectedView">
                     <div class="search">
                         <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" size='mini' clearable>

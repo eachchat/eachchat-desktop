@@ -892,7 +892,6 @@ display: none;
         }
     }
     .message {
-        height: 120px;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
@@ -904,12 +903,10 @@ display: none;
             overflow: hidden;
             font-weight:400;
             color:rgba(0,0,0,1);
-            line-height:22px;
             font-size: 14px;
             padding-top: 20px;
             margin-top: 0px;
             margin-bottom: 0px;
-            height: 44px;
             font-family: PingFangSC-Regular;
         }
         .message-sender{
@@ -950,7 +947,7 @@ display: none;
         }
     }
     .image {
-        height: 150px;
+        height: 135x;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
@@ -961,7 +958,7 @@ display: none;
             padding-top: 20px;
             padding-bottom: 0px;
             display: block;
-            object-fit: scale-down;
+            object-fit: cover;
         }
         .image-sender{
             display: inline-block;
