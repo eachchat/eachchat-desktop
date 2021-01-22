@@ -18,7 +18,7 @@
                         </div>
                         <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
                     </div>
-                    <div class="crumbsxie" v-show="crumbs.length > 1">
+                    <!-- <div class="crumbsxie" v-show="crumbs.length > 1">
                         <span
                             v-for="(ele, idx) in crumbs" 
                             :key="idx"
@@ -26,9 +26,18 @@
                             :style="{color:(idx === crumbs.length-1 ? '#000000' : '#24B36B')}"
                             @click.stop="caonima2(ele)"
                         >{{idx === crumbs.length-1 ? ele.name : ele.name + ' /'}}</span>
-                    </div>
+                    </div> -->
                     <div class="totalListXie">
-                        <div class="totalListXieItem" v-if="crumbs.length > 1">
+                        <div class="crumbsxie" v-show="crumbs.length > 1">
+                            <span
+                                v-for="(ele, idx) in crumbs" 
+                                :key="idx"
+                                class="crumbsxieItem"
+                                :style="{color:(idx === crumbs.length-1 ? '#000000' : '#24B36B')}"
+                                @click.stop="changeLayerByCrumb(ele)"
+                            >{{idx === crumbs.length-1 ? ele.name : ele.name + ' /'}}</span>
+                        </div>
+                        <!-- <div class="totalListXieItem" v-if="crumbs.length > 1">
                             <img
                                 v-if="totalChoosen"
                                 style="height:20px; width:20px; margin-right:8px;"
@@ -47,13 +56,12 @@
                             >
                                 {{'已选'+tn+'人'}}
                             </div>
-                        </div>
-                        <div 
+                        </div> -->
+                        <!-- <div 
                             v-for="(ele, idx) in totalList" 
                             :key="ele.id"
                             class="totalListXieItem"
                         >
-                            <!-- <span @click.stop="caonima2(ele)">{{ele.name}}</span> -->
                             <img 
                                 v-if="crumbs.length === 1" 
                                 style="height:32px; width:32px; margin-right:4px;" 
@@ -89,6 +97,47 @@
                                     src="../../../static/Img/Main/yjt.png" 
                                     style="height:20px; width:20px;"
                                 >
+                            </div>
+                        </div> -->
+                        <div 
+                            v-for="(item, idx) in totalList" 
+                            :key="idx"
+                        >   
+                            <div 
+                                v-if="item.type === 'dep'"
+                                class="room-item room-item-dep"
+                            >   
+                                <div style="display:flex; align-items:center;" @click.stop="checkWrap(item)">
+                                    <img
+                                        v-if="crumbs.length > 1"
+                                        style="height:20px; width:20px; margin-right:8px;"
+                                        :src="item.choosen === 3 ? '../../../static/Img/Main/lg.png' : (item.choosen === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
+                                    >
+                                    <img class="room-img" 
+                                         style="margin-right:2px;" 
+                                         :src="item.avatar"
+                                    /> <!-- src="../../../static/Img/Main/yjt.png" -->
+                                    <div class="user-info">
+                                        <span class="room-info">{{item.display_name}}</span>
+                                    </div>
+                                </div>
+                                <img style="height:20px; width:20px;" src="../../../static/Img/Main/yjt.png" @click.stop="changeLayer(item)">
+                            </div>
+                            <div v-else-if="item.dvd" class="dvd">{{item.txt}}</div>
+                            <div 
+                                v-else
+                                class="room-item"
+                                @click.stop="checkWrap(item)"
+                            >
+                                <img
+                                    style="height:20px; width:20px; margin-right:8px;"
+                                    :src="item.choosen === 3 ? '../../../static/Img/Main/lg.png' : (item.choosen === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
+                                >
+                                <img class="room-img" :src="item.avatar_url"/>
+                                <div class="user-info">
+                                    <span class="room-info">{{item.display_name}}</span>
+                                    <span class="room-info" style="font-size:12px; color:#999999">{{item.secdis || item.matrix_id || item.user_id}}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -152,6 +201,9 @@ import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import {ComponentUtil} from '../script/component-util';
 let gtn = 0;
 let gChoosenMembers = [];
+let mxMap = {};
+let mxMemMap = {};
+let mxDepMap = {};
 const OPTS = {
     limit: 200,
 };
@@ -172,7 +224,7 @@ export default {
         },
         dmMember: {
             type: Object,
-            default: {}
+            default:()=>{}
         }
     },
     data() {
@@ -188,7 +240,7 @@ export default {
 
             searchedMembers: [],
             memText:'',
-            choosenMembers: [],
+            choosenMembers: [], //
             crumbs: [],
             totalList: [],
             isSearch: false,
@@ -622,59 +674,59 @@ export default {
                 // });
             });
         },
-        searchMember: function() {
-            const term = this.memText;
-            const client = window.mxMatrixClientPeg.matrixClient;
-            if (this.timer) clearTimeout(this.timer);
-            if (!term) {
-                this.searchedMembers = [];
-                this.isSearch = false;
-                return
-            }
-            this.timer = setTimeout(async ()=>{
-                const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
-                const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
-                const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
-                console.log('----searchUsers----', searchUsers);
-                console.log('----searchContacts----', searchContacts);
-                console.log('----res----', res);
-                let sus = [];
-                // sus.push({dvd:true, txt:'组织人员'})
-                searchUsers.forEach(c => {
-                    //avatar_url
-                    //display_name
-                    //user_id
-                    let u = {}
-                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-                    u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
-                    u.user_id = c.matrix_id || '';
-                    c.choosen = false;
-                    sus.push(u);
-                })
-                let scs = [];
-                // scs.push({dvd:true, txt:'我的联系人'})
-                searchContacts.forEach(c => {
-                    let u = {}
-                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-                    u.display_name =  c.display_name || c.user_name || '';
-                    u.user_id = c.matrix_id || '';
-                    c.choosen = false;
-                    scs.push(u);
-                })
-                let mxs = [];
-                // mxs.push({dvd:true, txt:'其他联系人'})
-                let results = res.results || [];
-                results.forEach(c => {
-                    c.choosen = false; 
-                    c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
-                    mxs.push(c);
-                })
-                const totalArray = [...sus, ...scs, ...mxs];
-                console.log('----totalArray----', totalArray);
-                this.isSearch = true;
-                this.searchedMembers = [...totalArray];
-            },320)
-        },
+        // searchMember: function() {
+        //     const term = this.memText;
+        //     const client = window.mxMatrixClientPeg.matrixClient;
+        //     if (this.timer) clearTimeout(this.timer);
+        //     if (!term) {
+        //         this.searchedMembers = [];
+        //         this.isSearch = false;
+        //         return
+        //     }
+        //     this.timer = setTimeout(async ()=>{
+        //         const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
+        //         const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
+        //         const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
+        //         console.log('----searchUsers----', searchUsers);
+        //         console.log('----searchContacts----', searchContacts);
+        //         console.log('----res----', res);
+        //         let sus = [];
+        //         // sus.push({dvd:true, txt:'组织人员'})
+        //         searchUsers.forEach(c => {
+        //             //avatar_url
+        //             //display_name
+        //             //user_id
+        //             let u = {}
+        //             u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+        //             u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
+        //             u.user_id = c.matrix_id || '';
+        //             c.choosen = false;
+        //             sus.push(u);
+        //         })
+        //         let scs = [];
+        //         // scs.push({dvd:true, txt:'我的联系人'})
+        //         searchContacts.forEach(c => {
+        //             let u = {}
+        //             u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+        //             u.display_name =  c.display_name || c.user_name || '';
+        //             u.user_id = c.matrix_id || '';
+        //             c.choosen = false;
+        //             scs.push(u);
+        //         })
+        //         let mxs = [];
+        //         // mxs.push({dvd:true, txt:'其他联系人'})
+        //         let results = res.results || [];
+        //         results.forEach(c => {
+        //             c.choosen = false; 
+        //             c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
+        //             mxs.push(c);
+        //         })
+        //         const totalArray = [...sus, ...scs, ...mxs];
+        //         console.log('----totalArray----', totalArray);
+        //         this.isSearch = true;
+        //         this.searchedMembers = [...totalArray];
+        //     },320)
+        // },
         chooseXin(item) {
             let choosenMembers = this.choosenMembers;
             let totalList = this.totalList;
@@ -898,11 +950,369 @@ export default {
             let len = this.crumbs.length;
             let ele = this.crumbs[len-1];
             await this.caonima1(ele, choosen)
+        },
+
+
+
+        // 重构后方法
+        async checkWrap(obj) {
+            let choose;
+            if ( obj.choosen === 3 || obj.choosen === 2) choose = 1;
+            if ( obj.choosen === 1) choose = 3;
+            await this.chooseOrCancel(obj, choose);
+            console.log('wrap over', mxDepMap);
+        },
+        async chooseOrCancel(obj, choose) {
+            console.log('chooseOrCancel choose----', choose);
+            console.log('chooseOrCancel choose----', obj);
+            console.log('000000')
+            obj.choosen = choose;  //是否需要重刷数组
+            if (obj.type !== 'dep') {
+                console.log('1111111')
+                let id = obj.matrix_id || obj.user_id;
+                mxMemMap[id] = (choose === 3) ? 1 : 0; //更新表内该人员信息
+                //TODO 使该用户进入choosenMembers, 并使用优先级高信息
+                const deps = await Department.GetBelongDepartmentsByMatrixID(id);
+                console.log('chooseOrCancel1-----', deps);
+                const len = deps.length;
+                for(let i=len-1; i>=0; i--) {
+                    await this.fillDep(deps[i].department_id);
+                }
+            } else {
+                console.log('222222')
+                await this.fillDepCheck(obj.department_id, choose);
+                console.log('3333', mxDepMap);
+                const deps = await Department.GetBelongDepartmentsByDepartmentID(obj.department_id);
+                console.log('chooseOrCancel2-----', deps);
+                const len = deps.length;
+                for(let i=len-1; i>=0; i--) {
+                    await this.fillDep(deps[i].department_id);
+                }
+            }
+        },
+
+        async fillDepCheck(department_id, check) { //选择部门时 向下
+            console.log('check!!!!!', check)
+            if (!mxDepMap[department_id]) {
+                mxDepMap[department_id] = {};
+                mxDepMap[department_id].check = check;
+                if (department_id === "a512017BA6FC7DDNYRs0") console.log('查看', check)
+                const subDep = await Department.GetSubDepartment(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                const len = subDep.length + subUsers.length;
+                console.log('kkkkkkkk', mxDepMap)
+                if (!len) {
+                    //无操作
+                } else {
+                    const arr = [];
+                    subUsers.forEach(s => {
+                        mxMemMap[s.matrix_id] = (check === 3) ? 1 : 0;
+                        arr.push(s.matrix_id);
+                    })
+                    subDep.forEach( async (s) => {
+                        await this.fillDepCheck(s.department_id, check);
+                        arr.push(s.department_id);                   
+                    })
+                    mxDepMap[department_id].arr = arr;
+                }
+            } else {
+                if (department_id === "a512017BA6FC7DDNYRs0") console.log('查看', check)
+                console.log('yyyyy')
+                mxDepMap[department_id].check = check;
+                if (mxDepMap[department_id].arr && mxDepMap[department_id].arr.length) {
+                    mxDepMap[department_id].arr.forEach(async (id) => {
+                    if (mxMemMap[id] !== undefined) {
+                        mxMemMap[id] = (check === 3) ? 1 : 0;
+                    } else {
+                        await this.fillDepCheck(id, check);
+                    }
+                })
+                }
+            }
+        },
+        async fillDep(department_id) { //选择人员时 向上
+            if (!mxDepMap[department_id]) {
+                mxDepMap[department_id] = {};
+                const subDep = await Department.GetSubDepartment(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                // subUsers.forEach(s => {
+                //     mxMemMap[s.matrix_id] = mxMemMap[s.matrix_id] || 0;
+                // })
+                // for(let i = 0; i < subDep.length; i++) {
+                //     await this.fillDep(subDep[i].department_id);
+                // }
+                const arr = [];
+                subUsers.forEach(s => {
+                    arr.push(s.matrix_id);
+                })
+                subDep.forEach(s => {
+                    arr.push(s.department_id);
+                })
+                if (!arr.length) {
+                    mxDepMap[department_id].check = 1;
+                } else {
+                    mxDepMap[department_id].arr = arr;
+                    const len = mxDepMap[department_id].arr.length;
+                    let i = 0;
+                    let hg = false;
+                    arr.forEach(id => {
+                        if (mxMemMap[id]) i = i+1;
+                        if (mxDepMap[id] && mxDepMap[id].check === 3) i = i+1;
+                        if (mxDepMap[id] && mxDepMap[id].check === 2) hg = true;
+                    });
+                    console.log('aaaabbbbccc1', department_id)
+                    console.log('ddddeeeefff1', len);
+                    console.log('gggghhhhiii1', i);
+                    if (i == 0) {console.log('cccc333');mxDepMap[department_id].check = 1;} //未选
+                    if (i == 0 && hg) {console.log('cccc333');mxDepMap[department_id].check = 2;} //横杆
+                    if (i == len) {console.log('cccc222');mxDepMap[department_id].check = 3;} //全选
+                    if (i>0 && i<len) {console.log('cccc');mxDepMap[department_id].check = 2;} //横杠
+                }
+                console.log('zuihou1', mxDepMap)
+            } else {
+                if (mxDepMap[department_id].arr && mxDepMap[department_id].arr.length) {
+                    const arr = mxDepMap[department_id].arr;
+                    const len = mxDepMap[department_id].arr.length;
+                    let i = 0;
+                    let hg = false;
+                    arr.forEach(id => {
+                        if (mxMemMap[id]) i = i+1;
+                        if (mxDepMap[id] && mxDepMap[id].check === 3) i = i+1;
+                    })
+                    console.log('aaaabbbbccc', department_id)
+                    console.log('ddddeeeefff', len);
+                    console.log('gggghhhhiii', i);
+                    if (i == 0) {console.log('cccc333');mxDepMap[department_id].check = 1;} //未选
+                    if (i == 0 && hg) {console.log('cccc333');mxDepMap[department_id].check = 2;} //横杆
+                    if (i == len) {console.log('cccc222');mxDepMap[department_id].check = 3;} //全选
+                    if (i>0 && i<len) {console.log('cccc');mxDepMap[department_id].check = 2;} //横杠
+                    console.log('zuihou1', mxDepMap)
+                } else {
+                    // 此时不改变
+                }
+                console.log('zuihou', mxDepMap)
+
+            }
+        },
+        matchWithMap(obj) {
+            console.log('matchWithMap', obj);
+            console.log('mxMemMap', mxMemMap);
+            console.log('mxDepMap', mxDepMap);
+            if (obj.type !== 'dep') {
+                let id = obj.matrix_id || obj.user_id;
+                console.log('id', id)
+                if (mxMemMap[id]) return 3; //选中3
+                return 1; //未选1
+            }
+            if (!mxDepMap[obj.department_id]) return 1; //部门 不在表中则为未选1
+            return mxDepMap[obj.department_id].check; // 1未选 2横杠 3全选
+            // const len = mxDepMap[obj.department_id].arr ? mxDepMap[obj.department_id].arr.length : 0; //部门 包含子项目个数
+            // if (!len) {
+            //     if (mxDepMap[obj.department_id].check) return 3; //空部门 选中为3
+            //     return 1; //未选为1
+            // }
+            // let i = 0;
+            // const arr = mxDepMap[obj.department_id].arr; //取子项目
+            // arr.forEach(id => {
+            //     if (mxMemMap[id]) i = i+1;
+            //     if (mxDepMap[id] && mxDepMap[id].check) i = i+1;
+            // })
+            // if (i == 0) return 1; //未选
+            // if (i == len) return 3; //全选
+            // if (0<i<len) return 2; //横杠
+            
+        },
+        quanxuanZhuangtai() {
+
+        },
+        async changeLayerByCrumb(obj) {
+            console.log('caonimao', this.crumbs)
+            const client = window.mxMatrixClientPeg.matrixClient;
+            let department_id = obj.department_id;
+            if (department_id === 'lxr') {
+                await this.originStatus();
+            } else {
+                await this.changeLayer(obj);
+            }
+        },
+        async changeLayer(obj) {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            let department_id = obj.department_id;
+            let crumbs = this.crumbs;
+            const len = crumbs.length;
+            let newCrumbs = []
+            if (len) {
+                for(let i=0; i<len; i++) {
+                    newCrumbs.push(crumbs[i]);
+                    if (crumbs[i].department_id === department_id) {
+                        break;
+                    }
+                    if (i === len-1) {
+                        let layer = {name:obj.display_name, department_id:obj.department_id}
+                        newCrumbs.push(layer);
+                    }
+                }
+            } else {
+                newCrumbs.push({name:obj.display_name, department_id:obj.department_id});
+            }
+            newCrumbs[newCrumbs.length-1].choosen = true;
+            console.log('>>>>>', newCrumbs)
+            if (!this.isSearch) newCrumbs[1].name = '组织';
+            if (obj.department_id === 'contact') newCrumbs[1].name = '我的联系人';
+            this.crumbs = [...newCrumbs];
+            if (obj.department_id === 'contact') {
+                const contactUsers = await Contact.GetAllContact();
+                console.log('contactUsers', contactUsers);
+                contactUsers.forEach(c => {
+                    console.log('----kanha----', client.getUser(c.matrix_id));
+                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                    c.secdis = c.title || c.matrix_id;
+                })
+                let totalArray = [...contactUsers];
+                totalArray.forEach( async (t) => {
+                    if (!t.dvd) t.choosen = this.matchWithMap(t);
+                });
+                this.totalList = [...totalArray];
+            } else {
+                const subDep = await Department.GetSubDepartment(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                console.log('-----subDep-----', subDep)
+                console.log('-----subUsers-----', subUsers)
+                subDep.forEach(s => {
+                    s.type = 'dep';
+                    s.avatar = department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                })
+                subUsers.forEach(c=>{
+                    console.log('----kanha----', client.getUser(c.matrix_id));
+                    c.display_name = c.user_display_name || c.user_name;
+                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                    c.secdis = c.user_title || c.matrix_id;
+                })
+                let totalArray = [...subDep, ...subUsers];
+                totalArray.forEach( async (t) => {
+                    if (!t.dvd) t.choosen = this.matchWithMap(t);
+                });
+                this.totalList = [...totalArray];   
+
+            }
+        },
+        searchMember: async function() {
+            const term = this.memText;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            if (this.timer) clearTimeout(this.timer);
+            if (!term) {
+                this.searchedMembers = [];
+                this.isSearch = false;
+                await this.originStatus();
+                return;
+            }
+            this.timer = setTimeout(async ()=>{
+                const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
+                const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
+                const searchDeps = await Department.SearchByNameKey(term).catch(e => console.log('部门搜索异常', e));
+                const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
+                console.log('----searchUsers----', searchUsers);
+                console.log('----searchContacts----', searchContacts);
+                console.log('----searchDeps----', searchDeps);
+                console.log('----res----', res);
+                let sds = [];
+                if (searchDeps.length > 0) sds.push({dvd:true, txt:'部门'});
+                searchDeps.forEach(s => {
+                    s.type = 'dep';
+                    s.avatar = s.department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    sds.push(s);
+                })
+                let sus = [];
+                if (searchUsers.length > 0) sus.push({dvd:true, txt:'组织'});
+                searchUsers.forEach(c => {
+                    //avatar_url
+                    //display_name
+                    //user_id
+                    let u = {}
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
+                    u.user_id = c.matrix_id || '';
+                    u.secdis = c.user_title || c.matrix_id;
+                    u.choosen = false;
+                    sus.push(u);
+                })
+                let scs = [];
+                if (searchContacts.length > 0) scs.push({dvd:true, txt:'我的联系人'});
+                searchContacts.forEach(c => {
+                    let u = {}
+                    u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.display_name || c.user_name || '';
+                    u.user_id = c.matrix_id || '';
+                    u.secdis = c.title || c.matrix_id;
+                    u.choosen = false;
+                    scs.push(u);
+                })
+                let mxs = [];
+                let results = res.results || [];
+                if (results.length >0) mxs.push({dvd:true, txt:'其他联系人'});
+                results.forEach(c => {
+                    c.choosen = false; 
+                    c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
+                    mxs.push(c);
+                })
+                const totalArray = [...scs, ...sus, ...sds, ...mxs];
+                console.log('----totalArray----', totalArray);
+                this.isSearch = true;
+                // this.searchedMembers = [...totalArray];
+                this.crumbs = [];
+                this.totalList = [...totalArray];
+                // client.searchUserDirectory({term}).then(r => {
+                //     console.log('searchUserDirectory', r)
+                //     if (r.results) {
+                //         const results = r.results.map(res => {
+                //             res.choosen = false; 
+                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                //             return res
+                //         })
+                //         this.searchedMembers = [...results];
+                //     }
+                // }).catch(e => {
+                //     alert('服务异常');
+                //     console.error('异常', e);
+                // })
+            },320)
+        },
+        async originStatus() {
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const rootDep = await Department.GetRoot();
+            rootDep.type = 'dep';
+            rootDep.display_name = '组织';
+            rootDep.avatar = '../../../static/Img/Main/xinzuzhi.png';
+            // const contactUsers = await Contact.GetAllContact();
+            // console.log('contactUsers', contactUsers);
+            // contactUsers.forEach(c => {
+            //     console.log('----kanha----', client.getUser(c.matrix_id));
+            //     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+            // })
+            const dvd = {dvd:true, txt:'我的联系人'};
+            const layer = {name:'联系人', department_id:'lxr', choosen: true}
+            let myContact = {
+                type: 'dep',
+                display_name: '我的联系人',
+                department_id: 'contact',
+                avatar: '../../../static/Img/Main/xincontact.png'
+            }
+            this.rootDepId = rootDep.department_id;
+            let totalArray = [rootDep, myContact];
+            totalArray.forEach(t => t.choosen = false)
+            this.totalList = [...totalArray];
+            this.crumbs = [layer];
         }
+
     },
     components: {
     },
     async created() {
+        await this.originStatus();
+        let hh = await Department.GetBelongDepartmentsByMatrixID("@vincentliu.ai:matrix.each.chat");
+        console.log('hhhhh', hh);
+        return
+        // 
         const client = window.mxMatrixClientPeg.matrixClient;
         const rootDep = await Department.GetRoot();
         rootDep.type = 'dep';
@@ -1175,14 +1585,13 @@ export default {
 
     .mx-create-room-dialog {
         position: absolute;
-        width: 624px;
+        width: 704px;
         height: 468px;
-        display: block;
         background: #fff;
         top: 50%;
         left: 50%;
         margin-top: -234px;
-        margin-left: -312px;
+        margin-left: -352px;
         border-radius: 4px;
         display: flex;
         flex-direction: column;
@@ -1300,12 +1709,9 @@ export default {
         height: 48px;
         display: flex;
         align-items: center;
-        box-sizing: border-box;
         background-color: #fff;
         // width: 100%;
         box-sizing: border-box;
-        margin-left: 16px;
-        margin-right: 16px;
         border-bottom: 1px solid #DDD;
         
     }
