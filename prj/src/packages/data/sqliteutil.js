@@ -286,6 +286,14 @@ const Department = {
             return pinyin.compare(item1.display_name, item2.display_name)
         })
         return departments;
+    },
+
+    async DeleteDepartmentByID(id){
+        let departments = await(await models.Department).find({
+            department_id: id
+        })
+        if(departments.length != 0)
+            departments[0].destroy();
     }
 };
 

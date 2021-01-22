@@ -1,6 +1,6 @@
 import { models } from './models.js'
 import { servicemodels } from './servicemodels.js'
-import { sqliteutil, Group, UserInfo } from './sqliteutil.js'
+import { sqliteutil, Group, UserInfo, Department } from './sqliteutil.js'
 import * as fs from 'fs-extra'
 //import { services } from '../../packages/data'
 import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
@@ -69,7 +69,10 @@ class DepartmentIncrement extends BaseIncrement{
     async handler(){
         if(this.type == "updateDepartment"){
             if(this.item.del == 1)
+            {
+                await Department.DeleteDepartmentByID(this.item.id);
                 return;
+            }
             let itemModel = await servicemodels.DepartmentsModel(this.item);
             if(itemModel == undefined)
             {
