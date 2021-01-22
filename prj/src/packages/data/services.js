@@ -2106,6 +2106,52 @@ const common = {
     return result.data.obj;
   },
 
+  async searchChatFiles(search_key, room_id, perNum, fOrb, sequenceId) {
+    var filterBody = {
+      field: "body",
+      operator: "co",
+      value: search_key,
+      logic: 0      
+    };
+    var filterRoom = {
+      field: "room_id",
+      operator: "co",
+      value: room_id,
+      logic: 0      
+    };
+    var filterType = {
+      field: "type",
+      operator: "co",
+      value: "CHAT",
+      logic: 0      
+    };
+    var filterMsgType = {
+      field: "message_type",
+      operator: "co",
+      value: "FILE",
+      logic: 0
+    }
+    var body = {
+      filters: [
+        filterBody,
+        filterType,
+        filterRoom,
+        filterMsgType
+      ],
+      perPage: perNum,
+      sortOrder: fOrb,
+      sequenceId: sequenceId
+    }
+    let result = await this.api.searchChat(this.data.login.access_token, body);
+    console.log("*** services.js searchAllChat result ", result);
+    console.log("*** services.js searchAllChat result.ok ", result.ok);
+    console.log("*** services.js searchAllChat result.success ", result.success);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data;
+  },
+
   async searchChatMsg(search_key, room_id, perNum, fOrb, sequenceId) {
     var filterBody = {
       field: "body",
@@ -2136,9 +2182,9 @@ const common = {
       sequenceId: sequenceId
     }
     let result = await this.api.searchChat(this.data.login.access_token, body);
-    console.log("*** services.js searchAllChat result ", result);
-    console.log("*** services.js searchAllChat result.ok ", result.ok);
-    console.log("*** services.js searchAllChat result.success ", result.success);
+    // console.log("*** services.js searchAllChat result ", result);
+    // console.log("*** services.js searchAllChat result.ok ", result.ok);
+    // console.log("*** services.js searchAllChat result.success ", result.success);
     if (!result.ok || !result.success) {
       return false;
     }
