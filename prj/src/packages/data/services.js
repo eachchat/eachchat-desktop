@@ -540,6 +540,7 @@ const common = {
     await (await models.UserPhone).truncate();
     await (await models.UserIm).truncate();
     await (await models.Contact).truncate();
+    await(await models.Department).truncate();
     return await this.api.logout(this.data.login.access_token)
   },
 
@@ -659,7 +660,10 @@ const common = {
       for(var item in result.data.results)
       {
         index++;
-        departmentitem = result.data.results[item]
+        departmentitem = result.data.results[item];
+        if(departmentitem.del == 1){
+          continue;
+        } 
         departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
         this.data.department.push(departmentmodel)
         departmentmodel.save();   

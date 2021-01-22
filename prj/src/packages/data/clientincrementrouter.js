@@ -68,6 +68,8 @@ class DepartmentIncrement extends BaseIncrement{
     }
     async handler(){
         if(this.type == "updateDepartment"){
+            if(this.item.del == 1)
+                return;
             let itemModel = await servicemodels.DepartmentsModel(this.item);
             if(itemModel == undefined)
             {
@@ -77,8 +79,7 @@ class DepartmentIncrement extends BaseIncrement{
             let departments = await (await models.Department).find({
                 department_id: departmentModel.department_id
             })
-            if(departmentModel.del == 1)
-                return;
+
             if(departments.length == 0)
             {
                 departmentModel.save();
