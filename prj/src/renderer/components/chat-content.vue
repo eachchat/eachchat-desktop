@@ -35,8 +35,8 @@
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-content-invite" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowInviteMsgContent(chatGroupItem)}}</p>
                   </div>
-                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
+                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
             <!-- </transition-group> -->
@@ -3895,20 +3895,20 @@ export default {
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: solid 0px #009933;
+      border: solid 0px rgba(221, 221, 221, 1);
+      margin-right: 18px;
       margin-top: 10px;
-      margin-left: 15px;
       vertical-align: top;
+      float: right;
   }
 
   .reject-invite {
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: solid 0px rgba(221, 221, 221, 1);
-      margin-right: 18px;
+      border: solid 0px #009933;
       margin-top: 10px;
+      margin-left: 15px;
       vertical-align: top;
-      float: right;
   }
 </style>
