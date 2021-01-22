@@ -202,8 +202,6 @@ import {ComponentUtil} from '../script/component-util';
 let gtn = 0;
 let gChoosenMembers = [];
 let mxMap = {};
-let mxMemMap = {};
-let mxDepMap = {};
 const OPTS = {
     limit: 200,
 };
@@ -246,6 +244,8 @@ export default {
             isSearch: false,
             mxTree: undefined,
             tn: 0,
+            mxMemMap: {},
+            mxDepMap: {}
         }
     },
     timer: null,
@@ -960,7 +960,6 @@ export default {
             if ( obj.choosen === 3 || obj.choosen === 2) choose = 1;
             if ( obj.choosen === 1) choose = 3;
             await this.chooseOrCancel(obj, choose);
-            console.log('wrap over', mxDepMap);
         },
         async chooseOrCancel(obj, choose) {
             console.log('chooseOrCancel choose----', choose);
@@ -968,22 +967,17 @@ export default {
             console.log('000000')
             obj.choosen = choose;  //是否需要重刷数组
             if (obj.type !== 'dep') {
-                console.log('1111111')
                 let id = obj.matrix_id || obj.user_id;
-                mxMemMap[id] = (choose === 3) ? 1 : 0; //更新表内该人员信息
+                this.mxMemMap[id] = (choose === 3) ? 1 : 0; //更新表内该人员信息
                 //TODO 使该用户进入choosenMembers, 并使用优先级高信息
                 const deps = await Department.GetBelongDepartmentsByMatrixID(id);
-                console.log('chooseOrCancel1-----', deps);
                 const len = deps.length;
                 for(let i=len-1; i>=0; i--) {
                     await this.fillDep(deps[i].department_id);
                 }
             } else {
-                console.log('222222')
                 await this.fillDepCheck(obj.department_id, choose);
-                console.log('3333', mxDepMap);
                 const deps = await Department.GetBelongDepartmentsByDepartmentID(obj.department_id);
-                console.log('chooseOrCancel2-----', deps);
                 const len = deps.length;
                 for(let i=len-1; i>=0; i--) {
                     await this.fillDep(deps[i].department_id);
@@ -992,37 +986,34 @@ export default {
         },
 
         async fillDepCheck(department_id, check) { //选择部门时 向下
-            console.log('check!!!!!', check)
-            if (!mxDepMap[department_id]) {
-                mxDepMap[department_id] = {};
-                mxDepMap[department_id].check = check;
-                if (department_id === "a512017BA6FC7DDNYRs0") console.log('查看', check)
+            if (!this.mxDepMap[department_id]) {
+                this.mxDepMap[department_id] = {};
+                this.mxDepMap[department_id].check = check;
                 const subDep = await Department.GetSubDepartment(department_id);
                 const subUsers = await UserInfo.GetSubUserinfo(department_id);
                 const len = subDep.length + subUsers.length;
-                console.log('kkkkkkkk', mxDepMap)
                 if (!len) {
                     //无操作
                 } else {
                     const arr = [];
                     subUsers.forEach(s => {
-                        mxMemMap[s.matrix_id] = (check === 3) ? 1 : 0;
+                        this.mxMemMap[s.matrix_id] = (check === 3) ? 1 : 0;
                         arr.push(s.matrix_id);
                     })
                     subDep.forEach( async (s) => {
                         await this.fillDepCheck(s.department_id, check);
                         arr.push(s.department_id);                   
                     })
-                    mxDepMap[department_id].arr = arr;
+                    this.mxDepMap[department_id].arr = arr;
                 }
             } else {
                 if (department_id === "a512017BA6FC7DDNYRs0") console.log('查看', check)
                 console.log('yyyyy')
-                mxDepMap[department_id].check = check;
-                if (mxDepMap[department_id].arr && mxDepMap[department_id].arr.length) {
-                    mxDepMap[department_id].arr.forEach(async (id) => {
-                    if (mxMemMap[id] !== undefined) {
-                        mxMemMap[id] = (check === 3) ? 1 : 0;
+                this.mxDepMap[department_id].check = check;
+                if (this.mxDepMap[department_id].arr && this.mxDepMap[department_id].arr.length) {
+                    this.mxDepMap[department_id].arr.forEach(async (id) => {
+                    if (this.mxMemMap[id] !== undefined) {
+                        this.mxMemMap[id] = (check === 3) ? 1 : 0;
                     } else {
                         await this.fillDepCheck(id, check);
                     }
@@ -1031,12 +1022,12 @@ export default {
             }
         },
         async fillDep(department_id) { //选择人员时 向上
-            if (!mxDepMap[department_id]) {
-                mxDepMap[department_id] = {};
+            if (!this.mxDepMap[department_id]) {
+                this.mxDepMap[department_id] = {};
                 const subDep = await Department.GetSubDepartment(department_id);
                 const subUsers = await UserInfo.GetSubUserinfo(department_id);
                 // subUsers.forEach(s => {
-                //     mxMemMap[s.matrix_id] = mxMemMap[s.matrix_id] || 0;
+                //     this.xMemMap[s.matrix_id] = this.mxMemMap[s.matrix_id] || 0;
                 // })
                 // for(let i = 0; i < subDep.length; i++) {
                 //     await this.fillDep(subDep[i].department_id);
@@ -1049,77 +1040,54 @@ export default {
                     arr.push(s.department_id);
                 })
                 if (!arr.length) {
-                    mxDepMap[department_id].check = 1;
+                    this.mxDepMap[department_id].check = 1;
                 } else {
-                    mxDepMap[department_id].arr = arr;
-                    const len = mxDepMap[department_id].arr.length;
+                    this.mxDepMap[department_id].arr = arr;
+                    const len = this.mxDepMap[department_id].arr.length;
                     let i = 0;
                     let hg = false;
                     arr.forEach(id => {
-                        if (mxMemMap[id]) i = i+1;
-                        if (mxDepMap[id] && mxDepMap[id].check === 3) i = i+1;
-                        if (mxDepMap[id] && mxDepMap[id].check === 2) hg = true;
+                        if (this.mxMemMap[id]) i = i+1;
+                        if (this.mxDepMap[id] && this.mxDepMap[id].check === 3) i = i+1;
+                        if (this.mxDepMap[id] && this.mxDepMap[id].check === 2) hg = true;
                     });
-                    console.log('aaaabbbbccc1', department_id)
-                    console.log('ddddeeeefff1', len);
-                    console.log('gggghhhhiii1', i);
-                    if (i == 0) {console.log('cccc333');mxDepMap[department_id].check = 1;} //未选
-                    if (i == 0 && hg) {console.log('cccc333');mxDepMap[department_id].check = 2;} //横杆
-                    if (i == len) {console.log('cccc222');mxDepMap[department_id].check = 3;} //全选
-                    if (i>0 && i<len) {console.log('cccc');mxDepMap[department_id].check = 2;} //横杠
+                    if (i == 0) {this.mxDepMap[department_id].check = 1;} //未选
+                    if (i == 0 && hg) {this.mxDepMap[department_id].check = 2;} //横杆
+                    if (i == len) {this.mxDepMap[department_id].check = 3;} //全选
+                    if (i>0 && i<len) {this.mxDepMap[department_id].check = 2;} //横杠
                 }
-                console.log('zuihou1', mxDepMap)
             } else {
-                if (mxDepMap[department_id].arr && mxDepMap[department_id].arr.length) {
-                    const arr = mxDepMap[department_id].arr;
-                    const len = mxDepMap[department_id].arr.length;
+                if (this.mxDepMap[department_id].arr && this.mxDepMap[department_id].arr.length) {
+                    const arr = this.mxDepMap[department_id].arr;
+                    const len = this.mxDepMap[department_id].arr.length;
                     let i = 0;
                     let hg = false;
                     arr.forEach(id => {
-                        if (mxMemMap[id]) i = i+1;
-                        if (mxDepMap[id] && mxDepMap[id].check === 3) i = i+1;
+                        if (this.mxMemMap[id]) i = i+1;
+                        if (this.mxDepMap[id] && this.mxDepMap[id].check === 3) i = i+1;
+                        if (this.mxDepMap[id] && this.mxDepMap[id].check === 2) hg = true;                       
                     })
-                    console.log('aaaabbbbccc', department_id)
-                    console.log('ddddeeeefff', len);
-                    console.log('gggghhhhiii', i);
-                    if (i == 0) {console.log('cccc333');mxDepMap[department_id].check = 1;} //未选
-                    if (i == 0 && hg) {console.log('cccc333');mxDepMap[department_id].check = 2;} //横杆
-                    if (i == len) {console.log('cccc222');mxDepMap[department_id].check = 3;} //全选
-                    if (i>0 && i<len) {console.log('cccc');mxDepMap[department_id].check = 2;} //横杠
-                    console.log('zuihou1', mxDepMap)
+                    if (i == 0) {mxDepMap[department_id].check = 1;} //未选
+                    if (i == 0 && hg) {mxDepMap[department_id].check = 2;} //横杆
+                    if (i == len) {mxDepMap[department_id].check = 3;} //全选
+                    if (i>0 && i<len) {mxDepMap[department_id].check = 2;} //横杠
                 } else {
                     // 此时不改变
                 }
-                console.log('zuihou', mxDepMap)
-
             }
         },
         matchWithMap(obj) {
             console.log('matchWithMap', obj);
-            console.log('mxMemMap', mxMemMap);
-            console.log('mxDepMap', mxDepMap);
+            console.log('mxMemMap', this.mxMemMap);
+            console.log('mxDepMap', this.mxDepMap);
             if (obj.type !== 'dep') {
                 let id = obj.matrix_id || obj.user_id;
                 console.log('id', id)
-                if (mxMemMap[id]) return 3; //选中3
+                if (this.mxMemMap[id]) return 3; //选中3
                 return 1; //未选1
             }
-            if (!mxDepMap[obj.department_id]) return 1; //部门 不在表中则为未选1
-            return mxDepMap[obj.department_id].check; // 1未选 2横杠 3全选
-            // const len = mxDepMap[obj.department_id].arr ? mxDepMap[obj.department_id].arr.length : 0; //部门 包含子项目个数
-            // if (!len) {
-            //     if (mxDepMap[obj.department_id].check) return 3; //空部门 选中为3
-            //     return 1; //未选为1
-            // }
-            // let i = 0;
-            // const arr = mxDepMap[obj.department_id].arr; //取子项目
-            // arr.forEach(id => {
-            //     if (mxMemMap[id]) i = i+1;
-            //     if (mxDepMap[id] && mxDepMap[id].check) i = i+1;
-            // })
-            // if (i == 0) return 1; //未选
-            // if (i == len) return 3; //全选
-            // if (0<i<len) return 2; //横杠
+            if (!this.mxDepMap[obj.department_id]) return 1; //部门 不在表中则为未选1
+            return this.mxDepMap[obj.department_id].check; // 1未选 2横杠 3全选
             
         },
         quanxuanZhuangtai() {
