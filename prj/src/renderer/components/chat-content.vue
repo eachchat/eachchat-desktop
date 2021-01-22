@@ -159,7 +159,7 @@
               <div class="search-list-content-more-div" @click="showAllSearchUsers" v-show="showSearchAllMember">查看全部 >></div>
             </div>
             <div class="search-list-chat-message" id="search-list-chat-message-id" v-show="showSearchAllChat">
-              <div class="search-list-chat-label">聊天</div>
+              <div class="search-list-chat-label">群组</div>
               <div class="search-list-chat-content">
                 <ul class="search-list-chat-list">
                   <li class="search-item"
@@ -1697,6 +1697,7 @@ export default {
       for(var i=0;i<groups.length;i++) {
         // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
         if(global.mxMatrixClientPeg.DMCheck(groups[i])) {
+          continue;
           var distUserId = global.mxMatrixClientPeg.getDMMemberId(groups[i]);
           if(!distUserId) {
             continue;
