@@ -541,6 +541,7 @@ const common = {
     await (await models.UserIm).truncate();
     await (await models.Contact).truncate();
     await(await models.Department).truncate();
+    await(await models.FavouriteRoom).truncate();
     return await this.api.logout(this.data.login.access_token)
   },
 
