@@ -1027,7 +1027,7 @@ export default {
                 const subDep = await Department.GetSubDepartment(department_id);
                 const subUsers = await UserInfo.GetSubUserinfo(department_id);
                 // subUsers.forEach(s => {
-                //     this.xMemMap[s.matrix_id] = this.mxMemMap[s.matrix_id] || 0;
+                //     this.mxMemMap[s.matrix_id] = this.mxMemMap[s.matrix_id] || 0;
                 // })
                 // for(let i = 0; i < subDep.length; i++) {
                 //     await this.fillDep(subDep[i].department_id);
@@ -1067,10 +1067,10 @@ export default {
                         if (this.mxDepMap[id] && this.mxDepMap[id].check === 3) i = i+1;
                         if (this.mxDepMap[id] && this.mxDepMap[id].check === 2) hg = true;                       
                     })
-                    if (i == 0) {mxDepMap[department_id].check = 1;} //未选
-                    if (i == 0 && hg) {mxDepMap[department_id].check = 2;} //横杆
-                    if (i == len) {mxDepMap[department_id].check = 3;} //全选
-                    if (i>0 && i<len) {mxDepMap[department_id].check = 2;} //横杠
+                    if (i == 0) {this.mxDepMap[department_id].check = 1;} //未选
+                    if (i == 0 && hg) {this.mxDepMap[department_id].check = 2;} //横杆
+                    if (i == len) {this.mxDepMap[department_id].check = 3;} //全选
+                    if (i>0 && i<len) {this.mxDepMap[department_id].check = 2;} //横杠
                 } else {
                     // 此时不改变
                 }
