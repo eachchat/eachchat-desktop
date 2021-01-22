@@ -331,7 +331,28 @@ export default {
                     this.$emit('playAudioOfMessage', this.msg.event.event_id);
                 }
                 else if(this.MsgIsLink(this.msg)) {
-                    shell.openExternal(chatGroupMsgContent.body);
+                    var finished = false;
+                    var dealContent = chatGroupMsgContent.body;
+                    var distUrl = "";
+                    while(dealContent.trim().length > 0 && !finished) {
+                        if(dealContent.indexOf("https:") >= 0) {
+                            var result = this.getAndOpenUrl("https:", dealContent);
+                            dealContent = result[0];
+                            distUrl = result[1];
+                        }
+                        else if(dealContent.indexOf("http://") >= 0) {
+                            var result = this.getAndOpenUrl("http:", dealContent);
+                            dealContent = result[0];
+                            distUrl = result[1];
+                        }
+                        else {
+                            if(dealContent.trim().length != 0 || distUrl.trim().length != 0) {
+                                finished = true;
+                            }
+                            finished = true;
+                        }
+                    }
+                    shell.openExternal(distUrl);
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     // var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
@@ -508,7 +529,8 @@ export default {
             }
         },
         getMsgOtherLinkContent: function(content) {
-            var dealContent = content;
+            var dealContent = this.getPhoneHeightLight(content, '#5B6A91');
+            // var dealContent = content;
             var newInnerHtml = "";
             var finished = false;
             while(dealContent.trim().length > 0 && !finished) {
@@ -531,8 +553,15 @@ export default {
             }
             return newInnerHtml;
         },
+        getPhoneHeightLight: function(content, color) {
+            let phoneHight = content.replace(/\d{11}/g, function(num){
+                return '<span style="color:' + color + ';display:inline-block;">' + num + "</span>"
+            })
+            return phoneHight;
+        },
         getMsgMineLinkContent: function(content) {
-            var dealContent = content;
+            var dealContent = this.getPhoneHeightLight(content, 'rgba(255, 255, 255, 1)');
+            // var dealContent = content;
             var newInnerHtml = "";
             var finished = false;
             while(dealContent.trim().length > 0 && !finished) {
@@ -580,14 +609,20 @@ export default {
             }
             else {
                 startTxt = dealContent.substring(0, httpsIndex);
-                dealContent = dealContent.substring(httpsIndex - checkKey.length, dealContent.length - 1).trim();
+                console.log("*** startText is ", startTxt);
+                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
+                console.log("*** dealContent is ", dealContent);
                 var endIndex = dealContent.indexOf(" ");
+                console.log("*** endIndex is ", endIndex);
                 if(endIndex > 0) {
-                    url = dealContent.substring(httpsIndex, endIndex);
+                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
+                    console.log("*** url is ", url);
                     dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                    console.log("*** dealContent is ", dealContent);
                 }
                 else {
                     url = dealContent.substring(0, dealContent.length - 1);
+                    console.log("*** url is ", url);
                     dealContent = "";
                 }
                 var checkStartTxt = startTxt;
@@ -626,10 +661,10 @@ export default {
             }
             else {
                 startTxt = dealContent.substring(0, httpsIndex);
-                dealContent = dealContent.substring(httpsIndex - checkKey.length, dealContent.length - 1).trim();
+                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
                 var endIndex = dealContent.indexOf(" ");
                 if(endIndex > 0) {
-                    url = dealContent.substring(httpsIndex, endIndex);
+                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
                     dealContent = dealContent.substring(endIndex, dealContent.length - 1);
                 }
                 else {
@@ -645,6 +680,40 @@ export default {
                     newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
+            }
+        },
+        getAndOpenUrl: function(checkKey, content) {
+            var dealContent = content.trim();
+            var startTxt = "";
+            var url = "";
+            var endTxt = "";
+            var newInnerHtml = "";
+            var httpsIndex = dealContent.indexOf(checkKey);
+            if(httpsIndex == 0) {
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(0, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                return [dealContent, url];
+            }
+            else {
+                startTxt = dealContent.substring(0, httpsIndex);
+                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                return [dealContent, url];
             }
         },
         MsgIsLink: function() {
