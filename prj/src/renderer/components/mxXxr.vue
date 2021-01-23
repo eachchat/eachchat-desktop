@@ -294,7 +294,14 @@ export default {
             if (this.loading) return;
             this.loading = true;
             this.choosenMembers.map(c => {
-                if (c.id && c.id !== selfId) invite.push(c);
+                if (c.user_id && c.user_id !== selfId) invite.push(c);
+            })
+            invite = invite.map( c => {
+                let o = {
+                    id: c.user_id,
+                    name: c.display_name
+                }
+                return o;
             })
             if (this.creDir) {
                 let createOpts = {};
