@@ -1023,13 +1023,17 @@ export default {
         setQuanxuan() {
             let choose;
             if ( this.qx === 3 || this.qx === 2) {
-                this.qx = 1; 
                 choose = 1;
+                this.qx = 1; 
             } else {
-                this.qx = 3; 
                 choose = 3
+                this.qx = 3;
             };
-            // TODO 改为通过面包屑最后一个处理
+            let totalList = [...this.totalList];
+            totalList.forEach(t => {
+                t.choosen = choose;
+            });
+            this.totalList = [...totalList];
             const crb = this.crumbs[this.crumbs.length-1];
             const obj = {type:'dep', department_id:crb.department_id};
             this.checkWrap(obj, choose);
