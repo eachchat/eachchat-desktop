@@ -24,7 +24,7 @@
                         </div>
                         <div class="room-xie4" v-if="!item.joined">
                             <div class="room-join" @click.stop="joinRoom(item)">
-                                <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/>
+                                <!-- <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/> -->
                                 <span>加入</span>
                             </div>
                         </div>

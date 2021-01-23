@@ -1228,8 +1228,10 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 12px;
+    font-size: 10px;
     margin-left: 4px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
 }  
 
 .groupInfo {
@@ -1325,7 +1327,7 @@ export default {
 .memberItemContent {
     height: 38px;
     flex:1;
-    margin-left: 4px;
+    margin-left: 12px;
 }
 
 .memberItemName {
@@ -1333,6 +1335,8 @@ export default {
     font-size: 14px;
     display: flex;
     align-items: center;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
 }
 
 .memberItemMxId {
@@ -1751,7 +1755,7 @@ export default {
     font-family: PingFangSC-Regular;
     font-weight: 400;
     letter-spacing: 0px;
-    color: rgba(51, 51, 51, 1);
+    color: #000000;
 }
 
 .groupSettingSlienceSwitch {
@@ -1809,7 +1813,7 @@ export default {
     font-family: PingFangSC-Regular;
     font-weight: 400;
     letter-spacing: 0px;
-    color: rgba(51, 51, 51, 1);
+    color: #000000;
 }
 
 .groupSettingFavouriteLabelA {
@@ -1820,7 +1824,7 @@ export default {
     font-family: PingFangSC-Regular;
     font-weight: 400;
     letter-spacing: 0px;
-    color: rgba(51, 51, 51, 1);
+    color: #000000;
 }
 
 .groupSettingFavouriteSwitch {
@@ -1952,7 +1956,7 @@ export default {
     font-family: PingFangSC-Regular;
     font-weight: 400;
     letter-spacing: 0px;
-    color: rgba(51, 51, 51, 1);
+    color: #000000;
 }
 
 .groupMemberAddDivImage {
