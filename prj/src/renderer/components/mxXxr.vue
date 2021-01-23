@@ -143,11 +143,11 @@
                     </div>
                 </div>
                 <div class="kuangtiYou">
-                    <div class="yxField">
-                        <span style="margin-right:8px;">已选:</span>
-                        <span>{{choosenMembers.length}}</span>
-                    </div>
                     <div class="xuanzhonglie">
+                        <div class="yxField">
+                            <span style="margin-right:8px;">已选:</span>
+                            <span>{{choosenMembers.length}}</span>
+                        </div>
                         <div 
                             class="totalListXieItem"
                             v-for="(ele, idx) in choosenMembers"
@@ -1037,7 +1037,7 @@ export default {
                 }
             }
             let totalList = this.totalList;
-            totalList.forEach( async (t) => {
+            totalList.forEach((t) => {
                 if (!t.dvd) t.choosen = this.matchWithMap(t);
             });
             this.totalList = [...totalList];
@@ -1203,7 +1203,7 @@ export default {
                     c.secdis = c.title || c.matrix_id;
                 })
                 let totalArray = [...contactUsers];
-                totalArray.forEach( async (t) => {
+                totalArray.forEach((t) => {
                     if (!t.dvd) t.choosen = this.matchWithMap(t);
                 });
                 this.totalList = [...totalArray];
@@ -1223,7 +1223,7 @@ export default {
                     c.secdis = c.user_title || c.matrix_id;
                 })
                 let totalArray = [...subDep, ...subUsers];
-                totalArray.forEach( async (t) => {
+                totalArray.forEach((t) => {
                     if (!t.dvd) t.choosen = this.matchWithMap(t);
                 });
                 this.totalList = [...totalArray];   
