@@ -145,7 +145,7 @@
                 <div class="kuangtiYou">
                     <div class="yxField">
                         <span style="margin-right:8px;">已选:</span>
-                        <span>{{tn}}</span>
+                        <span>{{choosenMembers.length}}</span>
                     </div>
                     <div class="xuanzhonglie">
                         <div 
@@ -153,16 +153,16 @@
                             v-for="(ele, idx) in choosenMembers"
                             :key="ele.name+idx"
                         >
-                            <img class="shun1" :src="ele.avatar">
+                            <img class="shun1" :src="ele.avatar_url">
                             <div class="shun2">
-                                <div class="shun3">{{ele.name}}</div>
-                                <div class="shun4">{{ele.id}}</div>
+                                <div class="shun3">{{ele.display_name}}</div>
+                                <div class="shun4">{{ele.secdis}}</div>
                             </div>
                             <div class="shun5">
                                 <img 
                                     class="shun6" 
                                     src="../../../static/Img/Chat/delete-20px@2x.png"
-                                    @click.stop="caonima1(ele, false)"
+                                    @click.stop="checkWrap(ele, 1)"
                                 >
                             </div>
                         </div>
@@ -954,22 +954,75 @@ export default {
 
 
 
+        setChoosenMembers(obj, choose) {
+            const id = obj.matrix_id || obj.user_id;
+            const client = window.mxMatrixClientPeg.matrixClient;  
+            let choosenMembers = [...this.choosenMembers];      
+            if (choose) {
+                const list = []
+                this.totalList.forEach(c => {
+                    if(!c.dvd && c.type !== 'dep') {
+                        const cid = c.matrix_id || c.user_id;
+                        if (cid === id) {
+                            let u = {};
+                            u.avatar_url = (client.getUser(id) ? client.mxcUrlToHttp(client.getUser(id).avatarUrl || client.getUser(id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                            u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
+                            u.user_id = id || '';
+                            u.secdis = c.user_title || id;
+                            list.push(u);
+                        }
+                    }
+                })
+                let u = {}
+                if (list.length) {
+                    u = list[0];
+                } else {
+                    const c = obj
+                    u.avatar_url = (client.getUser(id) ? client.mxcUrlToHttp(client.getUser(id).avatarUrl || client.getUser(id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                    u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
+                    u.user_id = id || '';
+                    u.secdis = c.user_title || id;
+                }
+                let you = false;
+                choosenMembers.forEach(c => {
+                    const cid = c.matrix_id || c.user_id;
+                    if (cid === id) you = true;
+                })
+                if (!you) choosenMembers.push(u);
+            } else {
+                choosenMembers = choosenMembers.filter(c => {
+                    const cid = c.matrix_id || c.user_id;
+                    return cid !== id;
+                })
+            }
+            this.choosenMembers = [...choosenMembers];
+            console.log('this.choosenMembers====', this.choosenMembers)
+        },
         // 重构后方法
-        async checkWrap(obj) {
+        async checkWrap(obj, check) {
             let choose;
-            if ( obj.choosen === 3 || obj.choosen === 2) choose = 1;
-            if ( obj.choosen === 1) choose = 3;
+            if (check) {
+                choose = check;
+                // this.totalList.forEach(t => {
+                //     const id = obj.matrix_id || obj.user_id;
+                //     const tid = t.matrix_id || t.user_id;
+                //     if (tid === id) t.choosen = choose;
+                // })
+            } else {
+                if ( obj.choosen === 3 || obj.choosen === 2) choose = 1;
+                if ( obj.choosen === 1) choose = 3;
+            }
             await this.chooseOrCancel(obj, choose);
         },
         async chooseOrCancel(obj, choose) {
             console.log('chooseOrCancel choose----', choose);
             console.log('chooseOrCancel choose----', obj);
-            console.log('000000')
-            obj.choosen = choose;  //是否需要重刷数组
+            obj.choosen = choose;
             if (obj.type !== 'dep') {
-                let id = obj.matrix_id || obj.user_id;
-                this.mxMemMap[id] = (choose === 3) ? 1 : 0; //更新表内该人员信息
-                //TODO 使该用户进入choosenMembers, 并使用优先级高信息
+                const id = obj.matrix_id || obj.user_id;
+                const xie = (choose === 3) ? 1 : 0;
+                this.mxMemMap[id] = xie; //更新表内该人员信息
+                this.setChoosenMembers(obj, xie);
                 const deps = await Department.GetBelongDepartmentsByMatrixID(id);
                 const len = deps.length;
                 for(let i=len-1; i>=0; i--) {
@@ -983,6 +1036,11 @@ export default {
                     await this.fillDep(deps[i].department_id);
                 }
             }
+            let totalList = this.totalList;
+            totalList.forEach( async (t) => {
+                if (!t.dvd) t.choosen = this.matchWithMap(t);
+            });
+            this.totalList = [...totalList];
         },
 
         async fillDepCheck(department_id, check) { //选择部门时 向下
@@ -997,8 +1055,10 @@ export default {
                 } else {
                     const arr = [];
                     subUsers.forEach(s => {
-                        this.mxMemMap[s.matrix_id] = (check === 3) ? 1 : 0;
+                        const xie = (check === 3) ? 1 : 0;
+                        this.mxMemMap[s.matrix_id] = xie;
                         arr.push(s.matrix_id);
+                        this.setChoosenMembers(s, xie);
                     })
                     subDep.forEach( async (s) => {
                         await this.fillDepCheck(s.department_id, check);
@@ -1011,6 +1071,12 @@ export default {
                 console.log('yyyyy')
                 this.mxDepMap[department_id].check = check;
                 if (this.mxDepMap[department_id].arr && this.mxDepMap[department_id].arr.length) {
+                    const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                    subUsers.forEach(s => {
+                        const xie = (check === 3) ? 1 : 0;
+                        this.mxMemMap[s.matrix_id] = xie;
+                        this.setChoosenMembers(s, xie);
+                    });
                     this.mxDepMap[department_id].arr.forEach(async (id) => {
                     if (this.mxMemMap[id] !== undefined) {
                         this.mxMemMap[id] = (check === 3) ? 1 : 0;
