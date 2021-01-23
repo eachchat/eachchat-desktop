@@ -99,7 +99,7 @@
                                 >
                             </div>
                         </div> -->
-                        <div class="totalListXieItem" v-if="crumbs.length > 1 ">
+                        <div class="totalListXieItem" v-if="isSearch ? crumbs.length >= 1 : crumbs.length > 1 ">
                             <img
                                 style="height:20px; width:20px; margin-right:8px;"
                                 :src="qx === 3 ? '../../../static/Img/Main/lg.png' : (qx === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
