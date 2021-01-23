@@ -99,6 +99,19 @@
                                 >
                             </div>
                         </div> -->
+                        <div class="totalListXieItem" v-if="crumbs.length > 1 ">
+                            <img
+                                style="height:20px; width:20px; margin-right:8px;"
+                                :src="qx === 3 ? '../../../static/Img/Main/lg.png' : (qx === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
+                                @click.stop="setQuanxuan()"
+                            >
+                            <div class="itemF">全选</div>
+                            <div 
+                                class="youjiantouField"
+                            >
+                                {{'已选'+choosenMembers.length+'人'}}
+                            </div>
+                        </div>
                         <div 
                             v-for="(item, idx) in totalList" 
                             :key="idx"
@@ -245,7 +258,8 @@ export default {
             mxTree: undefined,
             tn: 0,
             mxMemMap: {},
-            mxDepMap: {}
+            mxDepMap: {},
+            qx: 1
         }
     },
     timer: null,
@@ -1006,6 +1020,25 @@ export default {
             console.log('this.choosenMembers====', this.choosenMembers)
         },
         // 重构后方法
+        setQuanxuan() {
+            let choose;
+            if ( this.qx === 3 || this.qx === 2) {
+                this.qx = 1; 
+                choose = 1;
+            } else {
+                this.qx = 3; 
+                choose = 3
+            };
+            // TODO 改为通过面包屑最后一个处理
+            const crb = this.crumbs[this.crumbs.length-1];
+            const obj = {type:'dep', department_id:crb.department_id};
+            this.checkWrap(obj, choose);
+        },
+        matchQuanxuan() {
+            const crb = this.crumbs[this.crumbs.length-1];
+            const obj = {type:'dep', department_id:crb.department_id};
+            this.qx = this.matchWithMap(obj);
+        },
         async checkWrap(obj, check) {
             let choose;
             if (check) {
@@ -1020,6 +1053,12 @@ export default {
                 if ( obj.choosen === 1) choose = 3;
             }
             await this.chooseOrCancel(obj, choose);
+            let totalList = [...this.totalList];
+            totalList.forEach((t) => {
+                if (!t.dvd) t.choosen = this.matchWithMap(t);
+            });
+            this.totalList = [...totalList];
+            this.matchQuanxuan();
         },
         async chooseOrCancel(obj, choose) {
             console.log('chooseOrCancel choose----', choose);
@@ -1043,11 +1082,6 @@ export default {
                     await this.fillDep(deps[i].department_id);
                 }
             }
-            let totalList = this.totalList;
-            totalList.forEach((t) => {
-                if (!t.dvd) t.choosen = this.matchWithMap(t);
-            });
-            this.totalList = [...totalList];
         },
 
         async fillDepCheck(department_id, check) { //选择部门时 向下
@@ -1085,12 +1119,12 @@ export default {
                         this.setChoosenMembers(s, xie);
                     });
                     this.mxDepMap[department_id].arr.forEach(async (id) => {
-                    if (this.mxMemMap[id] !== undefined) {
-                        this.mxMemMap[id] = (check === 3) ? 1 : 0;
-                    } else {
-                        await this.fillDepCheck(id, check);
-                    }
-                })
+                        if (this.mxMemMap[id] !== undefined) {
+                            this.mxMemMap[id] = (check === 3) ? 1 : 0;
+                        } else {
+                            await this.fillDepCheck(id, check);
+                        }
+                    })
                 }
             }
         },
