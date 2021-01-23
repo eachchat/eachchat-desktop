@@ -34,12 +34,14 @@
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else-if="MsgIsLink()">
-                        <a class="chat-msg-content-mine-link" :id="msg.event.event_id">{{messageContent}}</a>
+                        <div class="chat-msg-content-mine-txt" :id="msg.event.event_id" v-html="getMsgMineLinkContent(messageContent)"></div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-mine-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
+                    <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
+                    <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
                     <div class="msgStageDiv" :key="updateStatus">
                         <div class="msgState" v-if="MsgIsSending()">
                             <i class="el-icon-loading"></i>
@@ -83,10 +85,15 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
+                    <div class="chat-msg-content-others-link-div" 
+                        v-on:click="ShowFile()" v-else-if="MsgIsLink()">
+                        <div class="chat-msg-content-others-txt" :id="msg.event.event_id" v-html="getMsgOtherLinkContent(messageContent)"></div>
+                    </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
                         <p class="chat-msg-content-others-txt" :id="msg.event.event_id">{{messageContent}}</p>
                     </div>
+                    <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
                 <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
@@ -100,6 +107,7 @@ import * as fs from 'fs-extra'
 import {shell} from 'electron'
 import {ipcRenderer} from 'electron'
 import BenzAMRRecorder from 'benz-amr-recorder'
+import axios from "axios";
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -323,7 +331,28 @@ export default {
                     this.$emit('playAudioOfMessage', this.msg.event.event_id);
                 }
                 else if(this.MsgIsLink(this.msg)) {
-                    shell.openExternal(chatGroupMsgContent.body);
+                    var finished = false;
+                    var dealContent = chatGroupMsgContent.body;
+                    var distUrl = "";
+                    while(dealContent.trim().length > 0 && !finished) {
+                        if(dealContent.indexOf("https:") >= 0) {
+                            var result = this.getAndOpenUrl("https:", dealContent);
+                            dealContent = result[0];
+                            distUrl = result[1];
+                        }
+                        else if(dealContent.indexOf("http://") >= 0) {
+                            var result = this.getAndOpenUrl("http:", dealContent);
+                            dealContent = result[0];
+                            distUrl = result[1];
+                        }
+                        else {
+                            if(dealContent.trim().length != 0 || distUrl.trim().length != 0) {
+                                finished = true;
+                            }
+                            finished = true;
+                        }
+                    }
+                    shell.openExternal(distUrl);
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     // var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
@@ -497,6 +526,194 @@ export default {
             }
             else{
                 return false;
+            }
+        },
+        getMsgOtherLinkContent: function(content) {
+            var dealContent = this.getPhoneHeightLight(content, '#5B6A91');
+            // var dealContent = content;
+            var newInnerHtml = "";
+            var finished = false;
+            while(dealContent.trim().length > 0 && !finished) {
+                if(dealContent.indexOf("https:") >= 0) {
+                    var result = this.getOthersUrlHtml("https:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else if(dealContent.indexOf("http://") >= 0) {
+                    var result = this.getOthersUrlHtml("http:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else {
+                    if(dealContent.trim().length != 0) {
+                        newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + dealContent + '</span>';
+                    }
+                    finished = true;
+                }
+            }
+            return newInnerHtml;
+        },
+        getPhoneHeightLight: function(content, color) {
+            let phoneHight = content.replace(/\d{11}/g, function(num){
+                return '<span style="color:' + color + ';display:inline-block;">' + num + "</span>"
+            })
+            return phoneHight;
+        },
+        getMsgMineLinkContent: function(content) {
+            var dealContent = this.getPhoneHeightLight(content, 'rgba(255, 255, 255, 1)');
+            // var dealContent = content;
+            var newInnerHtml = "";
+            var finished = false;
+            while(dealContent.trim().length > 0 && !finished) {
+                if(dealContent.indexOf("https:") >= 0) {
+                    var result = this.getMineUrlHtml("https:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else if(dealContent.indexOf("http://") >= 0) {
+                    var result = this.getMineUrlHtml("http:", dealContent);
+                    dealContent = result[0];
+                    newInnerHtml += result[1];
+                }
+                else {
+                    if(dealContent.trim().length != 0) {
+                        newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + dealContent + '</span>';
+                    }
+                    finished = true;
+                }
+            }
+            return newInnerHtml;
+        },
+        getMineUrlHtml: function(checkKey, content) {
+            var dealContent = content.trim();
+            var startTxt = "";
+            var url = "";
+            var endTxt = "";
+            var newInnerHtml = "";
+            var httpsIndex = dealContent.indexOf(checkKey);
+            if(httpsIndex == 0) {
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(0, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+            else {
+                startTxt = dealContent.substring(0, httpsIndex);
+                console.log("*** startText is ", startTxt);
+                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
+                console.log("*** dealContent is ", dealContent);
+                var endIndex = dealContent.indexOf(" ");
+                console.log("*** endIndex is ", endIndex);
+                if(endIndex > 0) {
+                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
+                    console.log("*** url is ", url);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                    console.log("*** dealContent is ", dealContent);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    console.log("*** url is ", url);
+                    dealContent = "";
+                }
+                var checkStartTxt = startTxt;
+                if(checkStartTxt.trim().length != 0) {
+                    newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + startTxt + '</span>';
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+        },
+        getOthersUrlHtml: function(checkKey, content) {
+            var dealContent = content.trim();
+            var startTxt = "";
+            var url = "";
+            var endTxt = "";
+            var newInnerHtml = "";
+            var httpsIndex = dealContent.indexOf(checkKey);
+            if(httpsIndex == 0) {
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(0, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+            else {
+                startTxt = dealContent.substring(0, httpsIndex);
+                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                var checkStartTxt = startTxt;
+                if(checkStartTxt.trim().length != 0) {
+                    newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + startTxt + '</span>';
+                }
+                var chackUrl = url;
+                if(chackUrl.trim().length != 0) {
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                }
+                return [dealContent, newInnerHtml];
+            }
+        },
+        getAndOpenUrl: function(checkKey, content) {
+            var dealContent = content.trim();
+            var startTxt = "";
+            var url = "";
+            var endTxt = "";
+            var newInnerHtml = "";
+            var httpsIndex = dealContent.indexOf(checkKey);
+            if(httpsIndex == 0) {
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(0, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                return [dealContent, url];
+            }
+            else {
+                startTxt = dealContent.substring(0, httpsIndex);
+                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
+                var endIndex = dealContent.indexOf(" ");
+                if(endIndex > 0) {
+                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
+                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
+                }
+                else {
+                    url = dealContent.substring(0, dealContent.length - 1);
+                    dealContent = "";
+                }
+                return [dealContent, url];
             }
         },
         MsgIsLink: function() {
@@ -821,6 +1038,12 @@ export default {
             if(userUrl == "") {
                 return;
             }
+            try{
+                var response = await axios.get(userUrl);
+            }
+            catch(e) {
+                return;
+            }
             // console.log("userUrl is ", userUrl);
             this.userIconElement.setAttribute("src", userUrl);
         },
@@ -942,7 +1165,12 @@ export default {
             if(id != this.msg.event.event_id) {
                 return;
             }
-
+            
+            var chatGroupMsgContent = this.msg.getContent();
+            if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file')
+            {
+                shell.openPath(localPath);
+            }
             this.showProgress = false;
             if(this.downloadingInterval) {
                 clearInterval(this.downloadingInterval);
@@ -1154,7 +1382,19 @@ export default {
         letter-spacing: 0px;
     }
 
-    .chat-msg-content-others-txt-div:hover {
+    .chat-msg-content-others-txt-div-angle {
+        top: 9px;
+        left: -10px;
+        border-width: 5px;
+        border-style: solid;
+        width: 0px;
+        height: 0px;
+        border-color: transparent;
+        border-right-color: white;
+        position: relative;
+    }
+
+    .chat-msg-content-others-link-div {
         float: left;
         background-color: rgba(255, 255, 255, 1);
         max-width: 100%;
@@ -1172,10 +1412,30 @@ export default {
         font-weight:400;
         letter-spacing: 0px;
     }
+
+    .chat-msg-content-others-txt-div:hover {
+        float: left;
+        background-color: rgba(255, 255, 255, 1);
+        max-width: 100%;
+        min-width: 20px;
+        min-height: 20px;
+        border-radius: 5px;
+        padding: 10px 12px 10px 12px;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing: 0px;
+        cursor: text;
+    }
     
     .chat-msg-content-others-txt{
         float: left;
-        background-color: rgba(255, 255, 255, 1);
+        background-color: rgba(255, 255, 255, 0);
         max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
@@ -1193,7 +1453,7 @@ export default {
 
     .chat-msg-content-others-txt:hover{
         float: left;
-        background-color: rgba(255, 255, 255, 1);
+        background-color: rgba(255, 255, 255, 0);
         max-width: 100%;
         min-width: 20px;
         border-radius: 5px;
@@ -1207,6 +1467,7 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing: 0px;
+        cursor: text;
     }
 
     .chat-msg-content-others-img {
@@ -1299,10 +1560,10 @@ export default {
         max-width: 170px;
         font-size: 14px;
         font-weight: 550;
-        font-family: 'PingFangSC-Regular';
+        font-family: 'PingFangSC-Medium';
         color: rgb(51, 51, 51);
         overflow: hidden;
-        margin-left: 10px;
+        margin-left: 0px;
         margin-top: 0px;
         margin-right: 0px;
         margin-bottom: 3px;
@@ -1316,12 +1577,38 @@ export default {
         font-family: 'PingFangSC-Regular';
         color: rgb(153, 153, 153);
         overflow: hidden;
-        margin-left: 10px;
+        margin-left: 0px;
         margin-top: 5px;
         margin-right: 0px;
         margin-bottom: 4px;
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+
+    .chat-msg-content-mine-txt-div-angle {
+        top: 9px;
+        right: 0;
+        border-width: 5px;
+        border-style: solid;
+        width: 0px;
+        height: 0px;
+        border-color: transparent;
+        border-left-color: rgba(82, 172, 68, 1);
+        position: relative;
+        margin-left: 100%;
+    }
+
+    .chat-msg-content-mine-file-div-angle {
+        top: 9px;
+        right: 0;
+        border-width: 5px;
+        border-style: solid;
+        width: 0px;
+        height: 0px;
+        border-color: transparent;
+        border-left-color: rgba(255, 255, 255, 1);
+        position: relative;
+        margin-left: 100%;
     }
 
     .chat-msg-content-mine-txt-div {
@@ -1331,33 +1618,27 @@ export default {
         min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
-        font-size: 14px;
-        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
-        font-weight:400;
         letter-spacing: 0px;
     }
 
     .chat-msg-content-mine-txt-div:hover{
         float:right;
-        background-color: RGB(92,193,76);
+        background-color: rgba(82, 172, 68, 1);
         max-width: 100%;
         min-width: 20px;
         min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
-        font-size: 14px;
-        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
         line-height: 20px;
-        font-weight:400;
         letter-spacing: 0px;
     }
 
@@ -1377,7 +1658,9 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing: 0px;
-        color: #3B89CF;
+        text-decoration: underline;
+        color: white;
+        cursor: text;
     }
 
     .chat-msg-content-mine-link:hover{
@@ -1396,10 +1679,11 @@ export default {
         line-height: 20px;
         font-weight:400;
         letter-spacing: 0px;
-        color: #3B89CF;
+        color: white;
         text-decoration: underline
     }
-    .chat-msg-content-mine-txt {
+
+    .chat-msg-content-others-link {
         float:right;
         background-color: rgba(1,1,1,0);
         max-width: 100%;
@@ -1408,6 +1692,47 @@ export default {
         padding: 0;
         font-size: 14px;
         font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing: 0px;
+        text-decoration: underline;
+        color: #5B6A91;
+    }
+
+    .chat-msg-content-others-link:hover {
+        float:right;
+        background-color: rgba(1,1,1,0);
+        max-width: 100%;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        text-align: left;
+        margin: 0px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        font-weight:400;
+        letter-spacing: 0px;
+        text-decoration: underline;
+        color: #5B6A91;
+        cursor: pointer;
+    }
+
+    .chat-msg-content-mine-txt {
+        float:right;
+        background-color: rgba(1,1,1,0);
+        max-width: 100%;
+        min-width: 20px;
+        border-radius: 5px;
+        padding: 0;
+        font-size: 14px;
+        font-family: 'PingFangSC-Light';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
@@ -1426,7 +1751,7 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'PingFangSC-Regular';
+        font-family: 'PingFangSC-Light';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
@@ -1435,6 +1760,7 @@ export default {
         font-weight:400;
         letter-spacing: 0px;
         color: rgba(255, 255, 255, 1);
+        cursor: text;
     }
 
     .chat-msg-content-mine-img {
@@ -1468,7 +1794,7 @@ export default {
     
     .chat-msg-content-mine-file:hover {
         float:right;
-        background-color: rgb(233,234,235);
+        background-color: rgba(255, 255, 255, 1);
         width: 266px;
         height: 60px;
         border-radius: 5px;
@@ -1482,7 +1808,7 @@ export default {
     
     .chat-msg-content-mine-voice {
         float:right;
-        background-color: rgba(255, 255, 255, 1);
+        background-color: rgba(82, 172, 68, 1);
         width: 90px;
         min-height: 12px;
         border-radius: 5px;

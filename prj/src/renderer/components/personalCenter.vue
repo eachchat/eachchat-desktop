@@ -2,7 +2,7 @@
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
             <div class="personalCenter-iconView">
-                <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png">
+                <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterShowIcon()">
                 <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar.png" @click="personalCenterIconClicked()">
             </div>
             <div class="personalCenter-baseInfo">
@@ -81,6 +81,12 @@ export default {
         displayNameChange(){
             if(this.displayName.length == 0) return;
             global.mxMatrixClientPeg.matrixClient.setDisplayName(this.displayName)
+        },
+        async personalCenterShowIcon() {
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.userId);
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('showPersonalImageViewWindow', avaterUrl);
         },
         personalCenterIconClicked(){
             const ipcRenderer = require('electron').ipcRenderer;
@@ -392,7 +398,7 @@ export default {
     
 }
 .personalCenter-name {
-    width: 100px;
+    width: 120px;
     height: 22px;
     font-size: 15px;
     font-family: PingFangSC-Medium, PingFang SC;
@@ -400,7 +406,6 @@ export default {
     color: #000000;
     line-height: 22px;
     border: 0;
-    text-overflow: ellipsis;
 }
 
 .personalCenter-state{

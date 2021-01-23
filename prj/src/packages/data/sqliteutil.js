@@ -282,11 +282,38 @@ const Department = {
         let departments = await (await models.Department).find({
             display_name: "%"+key
         });
+        departments.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
+        })
         return departments;
+    },
+
+    async DeleteDepartmentByID(id){
+        let departments = await(await models.Department).find({
+            department_id: id
+        })
+        if(departments.length != 0)
+            departments[0].destroy();
     }
 };
 
 const UserInfo = {
+    async DeleteUserByUserID(userID){
+        let userinfos = await(await models.UserInfo).find({
+            user_id: userID
+        })
+        if(userinfos.length != 0)
+            userinfos[0].destroy();
+    },
+
+    async DeleteUserByMatrixID(matrixID){
+        let userinfos = await(await models.UserInfo).find({
+            matrix_id: matrixID
+        })
+        if(userinfos.length != 0)
+            userinfos[0].destroy();
+    },
+
     async GetMaxUpdateTime(){
         let userinfos = await(await models.UserInfo).find({
             $order: {
@@ -400,6 +427,9 @@ const UserInfo = {
             _user_title:         "%"+key,
             _display_name_py:    "%"+key,
             $size: 20
+        })
+        infos.sort((item1, item2) => {
+            return pinyin.compare(item1.user_display_name, item2.user_display_name)
         })
         return infos;
     },
@@ -878,8 +908,46 @@ const Contact = {
             _title:         "%"+key,
             $size: 20
         })
+        contacts.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
+        })
         return contacts;
     },
+}
+
+const ContactRoom = {
+    async DeleteByRoomID(roomID){
+        let rooms = await(await models.FavouriteRoom).find({
+            room_id: roomID
+        });
+        if(rooms.length != 0){
+            rooms[0].destroy();
+        }
+    },
+
+    async ExistRoom(roomID){
+        let rooms = await(await models.FavouriteRoom).find({
+            room_id: roomID
+        });
+        return rooms.length != 0;
+    },
+
+    async GetAllRooms(){
+        return await(await models.FavouriteRoom).find();
+    },
+
+    async GetMaxUpdateTime(){
+        let rooms = await (await models.FavouriteRoom).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(rooms.length == 0)
+            return "0";
+        return rooms[0].updatetime
+    }
 }
 
 export{
@@ -891,5 +959,6 @@ export{
     Collection,
     Config,
     Secret,
-    Contact
+    Contact,
+    ContactRoom
 }

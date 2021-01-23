@@ -35,8 +35,12 @@ export default new Vuex.Store({
     soundNotice: true, 
     flashNotice: true,
     draft: {},
+    curRoomId: undefined,
   },
   mutations: {
+    setCurChatId(state, curRoomId) {
+      state.curRoomId = curRoomId;
+    },
     setDraft(state, draftInfo) {
       var roomId = draftInfo[0];
       var draft = draftInfo[1];
@@ -222,6 +226,9 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getCurChatId: state => () => {
+      return state.curRoomId;
+    },
     getDraft: state => (roomId) => {
       return state.draft[roomId] == undefined ? "" : state.draft[roomId];
     },

@@ -1103,7 +1103,48 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async addRoomToContact(accessToken,
+        roomID){
+    var response = await this.commonApi.post(
+    "/api/apps/contacts/v1/contact/room",
+    {
+      roomId: roomID
+    },
+    {
+      Authorization: "Bearer " + accessToken
+    });
+    return this.parseStatus(response);
+  }
+
+  async deleteRoomFromContact(accessToken, roomID){
+    var response = await this.commonApi.delete(
+      "/api/apps/contacts/v1/contact/room",
+      {
+        Authorization: "Bearer " + accessToken
+      },{
+        data:{roomId: roomID}
+      });
+      return this.parseStatus(response);
+  }
+
+  async updateRoomFromContact(accessToken, name, updateTime, perPage, sequenceID){
+    var response = await this.commonApi.post(
+      "/api/apps/contacts/v1/increment",
+      {
+        name: name,
+        updateTime: updateTime,
+        perPage: perPage,
+        sequenceId: sequenceID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+      return this.parseStatus(response);
+  }
 }
+
+
 
 class MQTTTransaction {}
 

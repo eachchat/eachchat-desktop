@@ -9,7 +9,7 @@
         </div>
         <div class="detailContent">
             <div class="messageContent" v-if="showMessageContent">
-                <p class="messageText">{{ collectionInfo.collection_content.body }}</p>
+                <p class="messageText" v-html="msgContentShowPhoneAndHightLight(collectionInfo.collection_content.body)">{{ collectionInfo.collection_content.body }}</p>
             </div>
             <div class="imageContent" v-if="!showMessageContent">
                 <img ondragstart="return false" class="image" :id="collectionInfo.collection_id" src="../../../static/Img/Chat/loading.gif">
@@ -63,6 +63,10 @@ export default {
         },
         formatTimeFilter(secondsTime) {
             return ComponentUtil.formatTimeFilter(secondsTime);
+        },
+
+        msgContentShowPhoneAndHightLight: function(curMsg){
+            return ComponentUtil.msgContentShowPhoneAndHightLight(curMsg, 'rgba(91, 106, 145, 1)');
         },
     },
     mounted:function() {

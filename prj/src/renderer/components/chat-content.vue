@@ -13,7 +13,7 @@
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
             <!-- <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link> -->
-            <div class = "grid-content">邀请</div>
+            <!-- <div class = "grid-content">邀请</div> -->
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
             <ul class="group-list" name="group-list">
               <li class = 'group'
@@ -33,27 +33,27 @@
                     <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
                     <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
                     <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowInviteMsgContent(chatGroupItem)}}</p>
+                    <p class="group-content-invite" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowInviteMsgContent(chatGroupItem)}}</p>
                   </div>
-                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                   <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
+                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
                 </div>
               </li>
             <!-- </transition-group> -->
             </ul>
             <!-- <ul class="group-list"> -->
             <!-- <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'><span class = "grid-content" >置顶</span></el-link> -->
-            <div class = "grid-content">置顶</div>
+            <!-- <div class = "grid-content">置顶</div> -->
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
             <ul class="group-list" name="group-list">
-              <li class = 'group'
+              <li :class = 'getGroupClassName(chatGroupItem)("group-fav")'
                   v-for="(chatGroupItem, index) in showFavouriteRooms"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
                   v-show='bCollections'>
-                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
+                <div :class = 'getGroupDivClassName(chatGroupItem)("group-fav-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -75,17 +75,17 @@
             </ul>
             <!-- </transition-group> -->
             <!-- <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link> -->
-            <div class = "grid-content">聊天</div>
+            <!-- <div class = "grid-content">聊天</div> -->
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
-              <li class = 'group'
+              <li :class = 'getGroupClassName(chatGroupItem)("group")'
                   v-for="(chatGroupItem, index) in showDealGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
                   v-show='bRooms'>
-                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
+                <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -108,14 +108,14 @@
             <!-- </transition-group> -->
             <ul class="group-list" name="group-list">
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
-              <li class = 'group'
+              <li :class = 'getGroupClassName(chatGroupItem)("group")'
                   v-for="(chatGroupItem, index) in showLowPriorityGroupList"
                   @click="showChat(chatGroupItem, index)"
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
                   v-show='bRooms'>
-                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
+                <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
@@ -193,11 +193,11 @@
               <div class="search-list-content-label">聊天记录</div>
               <div class="search-list-content-content">
                 <ul class="search-list-content-list">
-                  <li class="search-item"
+                  <li :class = 'getGroupClassName(searchMessageItem)("search-item")'
                       v-for="searchMessageItem in searchMessageItems"
                       @click="showGroup(searchMessageItem)"
                       >
-                    <div class="search-list-content-list-div">
+                    <div :class = 'getGroupDivClassName(searchMessageItem)("search-list-content-list-div")' >
                       <div class="search-item-img-div">
                         <img class="search-item-img-ico" :id="getSearchChatMsgItemImgElementId(searchMessageItem.room_id)" src="../../../static/Img/User/group-40px@2x.png"/>
                       </div>
@@ -349,9 +349,9 @@ export default {
     scrollToRecentUnread: function() {
       var distItem = this.getDistUnreadItem();
       console.log("*** scrollToRecentUnread distItem ", distItem);
-      if(this.checkNeedScroll(distItem)) {
+      // if(this.checkNeedScroll(distItem)) {
         this.scrollToDistPosition(distItem);
-      }
+      // }
     },
     inviteGroupsList: function(){
       if(this.searchKey == '')
@@ -435,6 +435,7 @@ export default {
           this.curChat = this.showGroupList[0];
         this.$nextTick(() => {
           this.showGroupIconName();
+          this.$emit('matrixSyncEnd', true);
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
@@ -455,7 +456,7 @@ export default {
                   }
                   this.inviteGroupsList.unshift(newRoom);
                   this.$nextTick(() => {
-                    this.showGroupIconName();
+                    this.showGroupIconName(newRoom);
                   })
                   var fromName = await this.getNoticeShowGroupName(newRoom);
                   const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
@@ -570,6 +571,48 @@ export default {
     };
   },
   methods: {
+    getGroupClassName(groupItem){
+      return (className) =>{
+        if(!this.isSearch) {
+          if(!this.curChat.roomId){
+            return className
+          }
+          if(groupItem.roomId == this.curChat.roomId){
+            return 'group-clicked'
+          }
+          return className
+        }
+        else {
+          if(!this.searchChat){
+            return className;
+          }
+          if(groupItem.room_id == this.searchChat.roomId){
+            return 'group-clicked'
+          }
+          return className;
+        }
+      }
+
+    },
+    getGroupDivClassName(groupItem){
+      return (className) => {
+        if(!this.isSearch) {
+          if(!this.curChat.roomId)
+            return className
+          if(groupItem.roomId == this.curChat.roomId)
+            return 'group-div-clicked'
+          return className
+        }
+        else {
+          if(!this.searchChat)
+            return className
+          if(groupItem.room_id == this.searchChat.roomId)
+            return 'group-div-clicked'
+          return className
+        }
+      }  
+    },
+
     getShowUnreadCountId(chatGroupItem) {
       return "unread-count-element-id-" + chatGroupItem.roomId;
     },
@@ -660,18 +703,14 @@ export default {
     updateItemUnreadState(item) {
       if(item) {
         if(this.groupIsSlience(item)) {
-          console.log("******")
-          console.log("****** global.mxMatrixClientPeg.getChatUnreadState(item.roomId) ", global.mxMatrixClientPeg.getChatUnreadState(item.roomId));
           if(global.mxMatrixClientPeg.getChatUnreadState(item.roomId)) {
             var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
-            console.log("*** unreadCountelement is ", unreadCountelement);
             if(unreadCountelement) {
               unreadCountelement.style.display = "block";
             }
           }
           else {
             var unreadCountelement = document.getElementById(this.getShowUnreadCountId(item));
-            console.log("*** unreadCountelement is ", unreadCountelement);
             if(unreadCountelement) {
               unreadCountelement.style.display = "none";
             }
@@ -814,7 +853,8 @@ export default {
       }
       setTimeout(() => {
         this.$nextTick(() => {
-          this.showGroupIconName();
+          this.showGroupIconName(room);
+          this.sortGroup();
         })
       }, 0)
     },
@@ -872,14 +912,14 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return sender + ":[文件]:" + chatGroupMsgContent.body;
+            return sender + "：[文件]" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var content = chatGroupMsgContent.body;
-            return sender + ":" + content;
+            return sender + "：" + content;
           }
           else if(chatGroupMsgContent.msgtype == 'm.image'){
-            return sender + ":[图片]";
+            return sender + "：[图片]";
           } 
       }
       else if(chatGroupMsgType === "m.room.encrypted") {
@@ -903,7 +943,14 @@ export default {
         return "收到一条短消息";
 
     },
-
+    sortFavourete() {
+      if(this.favouriteRooms.length != 0)
+        this.favouriteRooms.sort(this.SortGroupByTimeLine);
+    },
+    sortLowPriority() {
+      if(this.lowPriorityGroupList.length != 0)
+        this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
+    },
     sortGroup(){
       if(this.favouriteRooms.length != 0)
         this.favouriteRooms.sort(this.SortGroupByTimeLine);
@@ -913,6 +960,10 @@ export default {
 
       if(this.lowPriorityGroupList.length != 0)
         this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
+
+      if(this.hasUnreadItems.length != 0) {
+        this.hasUnreadItems.sort(this.SortGroupByTimeLine);
+      }
     },
 
     async getNoticeShowGroupName(groupInfo) {
@@ -934,6 +985,12 @@ export default {
       // console.log("*** room ", room);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
+      if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
+        return;
+      }
+      else {
+        this.dealingEventIds.push(ev.event.event_id);
+      }
       if(this.isFirstLogin) {
         var curTime = new Date().getTime();
         if(curTime - ev.event.origin_server_ts > 1000 * 60) {
@@ -941,23 +998,14 @@ export default {
         }
       }
       if(data.liveEvent) {
-        if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
-          return;
-        }
-        else {
-          this.dealingEventIds.push(ev.event.event_id);
-        }
         if(room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = !this.newMsg;
         }
         this.updateChatList(ev);
       }
       
-      for(let i in this.dealingEventIds){
-        if(this.dealingEventIds[i] == ev.event.event_id) {
-          this.dealingEventIds.splice(i, 1);
-          break;
-        } 
+      if(this.dealingEventIds.length > 20) {
+          this.dealingEventIds.splice(19, this.dealingEventIds.length - 20);
       }
         // if(!this.isScroll) {
         //     console.log("onRoomTimeline ", ev)
@@ -985,12 +1033,12 @@ export default {
         // }
     },
     async updateChatList(newMsg) {
-      this.sortGroup();
       if(newMsg.isState()) {
         return;
       }
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
       this.updateGroupMsgContent([groupInfo]);
+      this.sortGroup();
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -1003,7 +1051,7 @@ export default {
           if(this.checkNeedScroll(this.curChat)) {
             this.scrollToDistPosition(this.curChat);
           }
-        }, 1000)
+        }, 100)
         return;
       }
       if(newMsg.event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
@@ -1263,7 +1311,7 @@ export default {
         this.groupListElement = document.getElementById("list-content-id");
       }
       if(this.groupListElement && distGroupItem) {
-        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'instant'})
+        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 70, behavior: 'instant'})
       }
       // this.needScroll = false;
     },
@@ -1286,80 +1334,80 @@ export default {
     rightClick(e, groupItem) {
         console.log("groupItem is ", groupItem)
         console.log("e.target is ", e.target.className)
+        if(this.groupIsInvite(groupItem)) return;
         // let distElement = document.getElementById(msgItem.message_id);
         // console.log("distElement is ", distElement.className);
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
         //     return;
         // }
         var isSecret = false;
-        if(groupItem.key_id != undefined && groupItem.key_id.length != 0 && groupItem.group_type == 102) {
-          isSecret = true;
-        }
+
         this.menu = new Menu();
-        /*
-        this.menu.append(new MenuItem({
+        let unread = groupItem.getUnreadNotificationCount();
+        if(unread != 0){
+          this.menu.append(new MenuItem({
             label: "标记已读",
             click: () => {
                 this.SetRoomReader(groupItem)
             }
-        })); 
-        */
-        if(!isSecret) {
-          /*
-          if(this.groupIsSlience(groupItem)) {
-            this.menu.append(new MenuItem({
-                label: "允许消息通知",
-                click: () => {
-                    this.setUnSlience(groupItem)
-                }
-            }));
-          }
-          else {
-            if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem))
-            {
-              this.menu.append(new MenuItem({
-                  label: "消息免打扰",
-                  click: () => {
-                      this.setSlience(groupItem)
-                  }
-              }));  
-            }
-          }
-          */
-          if(this.groupIsInFavourite(groupItem)) {
-            this.menu.append(new MenuItem({
-                label: "取消置顶",
-                click: () => {
-                    this.unFavouriteIt(groupItem)
-                }
-            }));
-          }
-          else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
-            this.menu.append(new MenuItem({
-                label: "置顶聊天",
-                click: () => {
-                    this.favouriteIt(groupItem)
-                }
-            }));
-          }
-
-          if(this.groupIsInLowPriority(groupItem)){
-            this.menu.append(new MenuItem({
-              label: "取消置底",
+          })); 
+        }
+        
+        /*
+        if(this.groupIsSlience(groupItem)) {
+          this.menu.append(new MenuItem({
+              label: "允许消息通知",
               click: () => {
-                  this.DelRoomLowpriority(groupItem)
+                  this.setUnSlience(groupItem)
               }
-            }));
-          }
-          else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+          }));
+        }
+        else {
+          if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem))
+          {
             this.menu.append(new MenuItem({
-              label: "置底聊天",
-              click: () => {
-                  this.SetRoomLowpriority(groupItem)
-              }
-            }));
+                label: "消息免打扰",
+                click: () => {
+                    this.setSlience(groupItem)
+                }
+            }));  
           }
         }
+        */
+        if(this.groupIsInFavourite(groupItem)) {
+          this.menu.append(new MenuItem({
+              label: "取消置顶",
+              click: () => {
+                  this.unFavouriteIt(groupItem)
+              }
+          }));
+        }
+        else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
+          this.menu.append(new MenuItem({
+              label: "置顶聊天",
+              click: () => {
+                  this.favouriteIt(groupItem)
+              }
+          }));
+        }
+
+        if(this.groupIsInLowPriority(groupItem)){
+          this.menu.append(new MenuItem({
+            label: "取消置底",
+            click: () => {
+                this.DelRoomLowpriority(groupItem)
+            }
+          }));
+        }
+        else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+          this.menu.append(new MenuItem({
+            label: "置底聊天",
+            click: () => {
+                this.SetRoomLowpriority(groupItem)
+            }
+          }));
+        }
+      
        /*
         this.menu.append(new MenuItem({
             label: "退出",
@@ -1437,12 +1485,10 @@ export default {
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
         if(!distUrl || distUrl == '') {
-            let defaultGroupIcon;
             if(global.mxMatrixClientPeg.DMCheck(distGroup))
-                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+                distUrl = "./static/Img/User/user-40px@2x.png";
             else
-                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-            elementImg.setAttribute("src", defaultGroupIcon); 
+                distUrl = "./static/Img/User/group-40px@2x.png";  
         }
         if(elementImg != undefined && distUrl) {
           elementImg.setAttribute("src", distUrl);
@@ -1486,13 +1532,21 @@ export default {
               }
               const inviterUserId = inviteEvent.events.member.getSender();
               var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
-              distElement.innerHTML = "[邀请]:" + inviterName;
+              if(global.mxMatrixClientPeg.DMCheck(item)) {
+                distElement.innerHTML = inviterUserId;
+              }
+              else {
+                distElement.innerHTML = "由 " + inviterName + " 邀请";
+              }
             }
           };
         }
       }
     },
     updateGroupContent: async function(item) {
+      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+      }
       var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
       if(distContentElement) {
@@ -1519,13 +1573,13 @@ export default {
             if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
               var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
               if(chatGroupMsgContent.msgtype == 'm.file'){
-                distContentElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML =  senderName + "：" + "[文件]" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
-                distContentElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
+                distContentElement.innerHTML = senderName + "：" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
-                distContentElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML = senderName + "：" + "[图片]";// + chatGroupMsgContent.body;
               } 
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = senderName + ":" + "[语音]";
@@ -1533,13 +1587,13 @@ export default {
             }
             else {
               if(chatGroupMsgContent.msgtype == 'm.file'){
-                distContentElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML =  "[文件]" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
                 distContentElement.innerHTML = chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
-                distContentElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
+                distContentElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;
               } 
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = "[语音]";
@@ -1574,6 +1628,7 @@ export default {
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
+        this.updateGroupContent(distGroup);
         this.UpdateGroupImage(distGroup);
         this.updageGroupName(distGroup);
       }
@@ -1581,12 +1636,16 @@ export default {
           this.UpdateGroupsImageAndName(this.showFavouriteRooms);
           // this.updateGroupMsgContent(this.showFavouriteRooms);
           this.UpdateGroupsImageAndName(this.showInviteGroupList);
-          // this.updateInviteChatContent(this.showInviteGroupList);
+          this.updateInviteChatContent(this.showInviteGroupList);
           this.UpdateGroupsImageAndName(this.showDealGroupList);
           // this.updateGroupMsgContent(this.showDealGroupList);
           this.UpdateGroupsImageAndName(this.showLowPriorityGroupList);
           // this.updateGroupMsgContent(this.showLowPriorityGroupList);
       }
+    },
+
+    groupIsInvite(groupInfo){
+      return this.inviteGroupsList.some(item => item.roomId == groupInfo.roomId)
     },
 
     groupIsInLowPriority(groupInfo){
@@ -1638,6 +1697,7 @@ export default {
       for(var i=0;i<groups.length;i++) {
         // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
         if(global.mxMatrixClientPeg.DMCheck(groups[i])) {
+          continue;
           var distUserId = global.mxMatrixClientPeg.getDMMemberId(groups[i]);
           if(!distUserId) {
             continue;
@@ -1737,6 +1797,9 @@ export default {
           this.showSearchMessage = true;
           this.searchPeopleItems = [];
           this.searchMessageItems = [];
+          if(this.$store.getters.getCurChatId() == undefined) {
+            this.isEmpty = true;
+          }
           console.log("this.issearch = ", this.isSearch)
         }
         else {
@@ -1749,6 +1812,9 @@ export default {
         this.showSearchAllChat = true;
         this.searchPeopleItems = [];
         this.searchMessageItems = [];
+        if(this.$store.getters.getCurChatId() == undefined) {
+          this.isEmpty = true;
+        }
       }
     },
     showSearchResultIcon: async function() {
@@ -2026,14 +2092,19 @@ export default {
           return "group-readall" + endPoint;
         }
         else {
-          return "group-unread";
+          if(this.getUnReadCount(chatItem) > 99) {
+            return "group-unread-99";
+          }
+          else {
+            return "group-unread";
+          }
         }
       }
     },
     getUnReadCount(chatItem) {
       const notificationCount = chatItem.getUnreadNotificationCount();
-
-      return notificationCount == 0 ? '' : notificationCount;
+      if(notificationCount == undefined || (notificationCount != undefined && notificationCount == 0)) return '';
+      return notificationCount;
     },
     getShowUnReadCount(roomItem) {
       var unreadCount = roomItem.getUnreadNotificationCount();
@@ -2041,6 +2112,7 @@ export default {
       // console.log(" *** unreadcount of " + roomItem.name + " unreadCount is " + unreadCount);
       
       if(unreadCount == undefined || (unreadCount != undefined && unreadCount == 0)) return '';
+      if(unreadCount > 99) return "...";
       return unreadCount;
     },
     findOverrideMuteRule(roomId) {
@@ -2479,7 +2551,12 @@ export default {
       if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
         if(chatGroupItem.getMyMembership() == "invite") {
           var inviteMemer = this._getInviteMember(chatGroupItem);
-          return "[邀请]：" + inviteMemer.rawDisplayName;
+          if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+            return inviteMemer.userId;
+          }
+          else {
+            return "由" + inviteMemer.userId + "邀请";
+          }
         }
       };
     },
@@ -2523,6 +2600,9 @@ export default {
         return timelineSet;
     },
     async toUpdateTimeLine(chatGroupItem) {
+      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+      }
       var distElement = document.getElementById(this.getChatContentElementId(chatGroupItem.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(chatGroupItem.roomId));
       var timeLineSet = await this.updateTimelineSet(chatGroupItem);
@@ -2565,13 +2645,13 @@ export default {
             var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
             // console.log("*** sender ", sender);
             if(chatGroupMsgContent.msgtype == 'm.file'){
-              distElement.innerHTML =  senderName + ":" + "[文件]:" + chatGroupMsgContent.body;
+              distElement.innerHTML =  senderName + "：" + "[文件]" + chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.text'){
               distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.image'){
-              distElement.innerHTML = senderName + ":" + "[图片]:" + chatGroupMsgContent.body;
+              distElement.innerHTML = senderName + "：" + "[图片]";// + chatGroupMsgContent.body;
             } 
             else if(chatGroupMsgContent.msgtype == "m.audio") {
               distElement.innerHTML = senderName + ":" + "[语音]";
@@ -2579,13 +2659,13 @@ export default {
           }
           else {
             if(chatGroupMsgContent.msgtype == 'm.file'){
-              distElement.innerHTML =  "[文件]:" + chatGroupMsgContent.body;
+              distElement.innerHTML =  "[文件]" + chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.text'){
               distElement.innerHTML = chatGroupMsgContent.body;
             }
             else if(chatGroupMsgContent.msgtype == 'm.image'){
-              distElement.innerHTML = "[图片]:" + chatGroupMsgContent.body;
+              distElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;
             } 
             else if(chatGroupMsgContent.msgtype == "m.audio") {
               distElement.innerHTML = "[语音]";
@@ -2628,7 +2708,7 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return "[文件]:" + chatGroupMsgContent.body;
+            return "[文件]" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var sender = distTimeLine.sender.name;
@@ -2643,7 +2723,7 @@ export default {
           return "收到一条加密消息";
           // chatGroupMsgContent = this.msg.getContent();
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return "[文件]:" + chatGroupMsgContent.body;
+            return "[文件]" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var sender = distTimeLine.sender.name;
@@ -2718,6 +2798,7 @@ export default {
       }
       else {
         this.searchKeyFromList = "";
+        /*
         let groupItemElementID = this.ChatGroupId(chatGroup);
         let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
         this.oldElementGroupItem = SaveChatGroupElement(this.oldElementGroupItem);
@@ -2725,7 +2806,7 @@ export default {
         let groupDivElementID = this.ChatGroupDivId(chatGroup);
         let SaveCharGroupDivElement = this.SetGroupItemGround(groupDivElementID);
         this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
-
+        */
         this.isEmpty = false;
         var isSecret = false;
 
@@ -2739,8 +2820,9 @@ export default {
         if(this.curChat != undefined && this.curChat.timeline.length != 0) {
           console.log("*** showChat SetRoomReader");
           unreadInfo = [this.curChat.roomId, false];
-        global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
+          global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
           this.SetRoomReader(this.curChat);
+          this.showGroupIconName(this.curChat);
         }
 
         console.log("*** showChat SetRoomReader");
@@ -2759,7 +2841,8 @@ export default {
         if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
           isSecret = true;
         }
-        this.showGroupIconName();
+        this.showGroupIconName(this.curChat);
+        this.$store.commit("setCurChatId", this.curChat.roomId);
       }
     },
     ToJoinRoom: function(roomId) {
@@ -2871,10 +2954,10 @@ export default {
       this.dealShowGroupList.unshift(newRoom);
       this.$nextTick(async () => {
         await newRoom.loadMembersIfNeeded();
-        this.showGroupIconName(newRoom);
         this.showChat(newRoom, 0);
         setTimeout(() => {
           if(this.checkNeedScroll(newRoom)) {
+            this.showGroupIconName(newRoom);
             this.scrollToDistPosition(newRoom);
           }
         }, 1000)
@@ -2992,13 +3075,13 @@ export default {
   }
 
   .chat-empty-bg {
-    width: 168px;
-    height: 168px;
+    width: 228px;
+    height: 150px;
     background-color: rgba(255, 255, 255, 1);
   }
 
   .chat {
-    width:100%;
+    width:calc(100% - 281px);
     background-color: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
@@ -3364,6 +3447,19 @@ export default {
     margin: 0;
     scroll-behavior:smooth;
   }
+  
+
+  .group-fav-div {
+    height: 60px;
+    border-bottom:1px solid rgba(238,238,238,1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+    background-color :rgba(247, 248, 250, 1);
+  }
 
   .group-div {
     height: 60px;
@@ -3495,15 +3591,36 @@ export default {
     font-size: 0px;
     box-sizing: border-box;
   }
+   .group-div-clicked {
+    height: 60px;
+    background-color: rgba(221, 221, 221, 1);
+    border-bottom:1px solid rgba(221, 221, 221, 1);
+    margin-left: 16px;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    font-size: 0px;
+    box-sizing: border-box;
+  }
 
   ////////////////////////////////////
   .group {
     height: 60px;
   }
 
+  .group-fav{
+    height: 60px;
+    background-color: rgba(247, 248, 250, 1);
+  }
+
   .group-top {
     height: 60px;
     background-color: rgba(243, 244, 247, 1);
+  }
+
+  .group-clicked{
+    height: 60px;
+    background-color: #dddddd;
   }
 
   .group-top:hover {
@@ -3580,7 +3697,7 @@ export default {
     color: rgba(0, 0, 0, 1);
     overflow: hidden;
     margin-left: 0px;
-    margin-top: 10px;
+    margin-top: 11px;
     margin-right: 0px;
     margin-bottom: 0px;
     white-space: nowrap;
@@ -3607,8 +3724,8 @@ export default {
   }
 
   .group-content {
-    width: 119%;
-    font-size: 13px;
+    width: 147%;
+    font-size: 12px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);
     overflow: hidden;
@@ -3616,7 +3733,24 @@ export default {
     margin-left: 0px;
     margin-top: 2px;
     margin-right: 0px;
-    margin-bottom: 10px;
+    margin-bottom: 9px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    height: 18px;
+    letter-spacing: 0px;
+  }
+
+  .group-content-invite {
+    width: 155%;
+    font-size: 12px;
+    font-weight:400;
+    color: rgba(153, 153, 153, 1);
+    overflow: hidden;
+    font-family:PingFangSC-Regular;
+    margin-left: 0px;
+    margin-top: 2px;
+    margin-right: 0px;
+    margin-bottom: 9px;
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 18px;
@@ -3634,9 +3768,9 @@ export default {
   .group-time {
     color: rgba(187, 187, 187, 1);
     margin-left: 0px;
-    margin-top: 10px;
+    margin-top: 11px;
     font-family:PingFangSC-Regular;
-    font-size: 11px;
+    font-size: 12px;
     margin-right: 0px;
     margin-bottom: 2px;
     font-weight:400;
@@ -3681,6 +3815,24 @@ export default {
     // z-index:-1;
   }
 
+  .group-unread-99 {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    font-size: 10px;
+    font-family: PingFangSC-Medium;
+    float: right;
+    color: rgb(255, 255, 255);
+    margin: 0px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 9px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+    // z-index:-1;
+  }
+
   .group-readall-selected {
     position: absolute;
     top: 7px;
@@ -3718,14 +3870,14 @@ export default {
   .group-slience {
     float: right;
     color: rgb(255, 255, 255);
-    height: 20px;
-    width: 20px;
+    height: 16px;
+    width: 16px;
     margin-left: 0px;
-    margin-top: 0px;
+    margin-top: 3px;
     margin-right: 0px;
     margin-bottom: 10px;
-    background-color: rgba(228, 49, 43, 0);
-    background-image: url("../../../static/Img/Chat/slience-20px@2x.png");
+    background-color: rgba(255, 255, 255, 0);
+    background-image: url("../../../static/Img/Chat/slience@2x.png");
     background-size: contain;
   }
 
@@ -3743,20 +3895,20 @@ export default {
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: solid 0px #009933;
-      margin-top: 19px;
-      margin-left: 13px;
+      border: solid 0px rgba(221, 221, 221, 1);
+      margin-right: 18px;
+      margin-top: 10px;
       vertical-align: top;
+      float: right;
   }
 
   .reject-invite {
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: solid 0px rgba(221, 221, 221, 1);
-      margin-right: 16px;
-      margin-top: 19px;
+      border: solid 0px #009933;
+      margin-top: 10px;
+      margin-left: 15px;
       vertical-align: top;
-      float: right;
   }
 </style>

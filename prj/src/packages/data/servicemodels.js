@@ -650,6 +650,27 @@ const servicemodels = {
       }
       let contactModel = await new(await models.Contact)(contactValue);
       return contactModel;
+    },
+
+    async ContactRoom(room){
+      let roomValue = {
+        id:          "",
+        room_id:      "",
+        update_time:  ""
+      }
+
+      let map = {
+        id: "id",
+        roomId: "room_id",
+        updateTimestamp: 'updatetime' 
+      }
+      for(let key in map)
+      {  
+        roomValue[map[key]] = room[key];
+      }
+      let roomModel = await new(await models.FavouriteRoom)(roomValue);
+      return roomModel;
+
     }
 }
 

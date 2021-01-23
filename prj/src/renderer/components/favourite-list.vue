@@ -13,7 +13,7 @@
                             <li class="message"
                                 v-for="(message, index) in favourites" 
                                 :key="index">
-                                <p class="message-text" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
+                                <p class="message-text" @click="messageListClicked(message)" v-html = 'msgContentShowPhoneAndHightLight(message.collection_content.body)'>{{ message.collection_content.body }}</p>
                                 <p class="message-sender">{{ message.user_name }}</p>
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
@@ -347,10 +347,67 @@ export default {
             message.title = "消息详情"
             this.OpenFavouriteDetail(message);
         },
-        imageListClicked(image) {
-            image.title = "图片详情"
-            image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
-            this.OpenFavouriteDetail(image);
+        async imageListClicked(image) {
+            // image.title = "图片详情"
+            // image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
+            // this.OpenFavouriteDetail(image);
+            var imageCollectionModel = await global.services.common.ListPictureCollections();
+            var imgFavourites = await this.getObjectFromCollectionModel(imageCollectionModel);
+            console.log("*** imgFavourites is ", imgFavourites);
+            var showImageInfoList = [];
+            var distImageInfo = {};
+            imgFavourites.forEach(imgFavouriteItem => {
+                let chatGroupMsgContent = imgFavouriteItem.collection_content;
+                
+                let maxSize = 366;
+                var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+    
+                let info = {
+                    w: maxSize,
+                    h: maxSize
+                };
+                console.log("*** image info is ", chatGroupMsgContent.info);
+                if(chatGroupMsgContent.info)
+                    info = chatGroupMsgContent.info
+                if(!info.h)
+                    info.h = maxSize;
+                if(!info.w)
+                    info.w = maxSize;
+                let max = Math.max(info.w, info.h);
+                if(max > maxSize ){
+                    if(info.w > info.h){
+                        info.h = info.h/(info.w/maxSize);
+                        info.w = maxSize;
+                    }
+                    else{
+                        info.w = info.w/(info.h/maxSize)
+                        info.h = maxSize;
+                    }
+                }
+
+                var curImageInfo = {
+                    imageUrl: curUrl,
+                    url: chatGroupMsgContent.url,
+                    imageEventId: imgFavouriteItem.collection_id,
+                    info: info,
+                    body: imgFavouriteItem.body,
+                    sender: undefined,
+                    origin_server_ts: imgFavouriteItem.timestamp
+                }
+                if(image.collection_id == imgFavouriteItem.collection_id) {
+                    distImageInfo = {
+                        imageUrl: curUrl,
+                        url: chatGroupMsgContent.url,
+                        imageEventId: imgFavouriteItem.collection_id,
+                        info: info,
+                        body: imgFavouriteItem.body,
+                        sender: undefined,
+                        origin_server_ts: imgFavouriteItem.timestamp
+                    }
+                }
+                showImageInfoList.unshift(curImageInfo);
+            })
+            ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
         },
 
         DownloadFile: function(file){
@@ -527,6 +584,11 @@ export default {
         formatTimeFilter(secondsTime) {
             return ComponentUtil.formatTimeFilter(secondsTime);
         },
+
+        msgContentShowPhoneAndHightLight: function(curMsg){
+            return ComponentUtil.msgContentShowPhoneAndHightLight(curMsg, 'rgba(91, 106, 145, 1)');
+        },
+
         msgContentHightLight: function(curMsg) {
             var showContent = curMsg;
             // showContent = showContent + ' ';
@@ -582,7 +644,6 @@ export default {
         
         updateSearchCollectionResult:async function(key){
             var tempResult = await this.getSearchCollectionResult(key);
-            this.headerTitle = '收藏';
             var temp = {};
             
             if(tempResult.message){
@@ -684,13 +745,13 @@ export default {
             return;
         }
         if (this.favouriteType == 'message'){
-            this.headerTitle = '收藏';
+            this.headerTitle = '消息';
             var messageCollectionModel = await global.services.common.ListMessageCollections();
             this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
             
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
-            this.headerTitle = '收藏';
+            this.headerTitle = '图片';
             var imageCollectionModel = await global.services.common.ListPictureCollections();
             this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
@@ -701,7 +762,7 @@ export default {
             });
   
         }else if(this.favouriteType == 'file') {
-            this.headerTitle = '收藏';
+            this.headerTitle = '文件';
             var fileCollectionModel = await global.services.common.ListFileCollections();
 
             this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
@@ -791,11 +852,13 @@ display: none;
     .favourite-action {
         display: none;
         font-size: 0px;
-        vertical-align: top;
-        padding-top: 18px;
+        vertical-align: bottom;
+        padding-top: 14px;
         padding-right: 0px;
-        padding-bottom: 7px;
-        width: 78px;
+        padding-bottom: 0px;
+        //margin-left: calc(100% - 218px);
+        //width: 78px;
+        float: right;
         height: 20px;
         .transmit-img {
             display: inline-block;
@@ -824,16 +887,11 @@ display: none;
     margin: 0px;
     padding: 0px;
     .message:hover{
-        .message-time {
-            display: none;
-            
-        }
         .favourite-action{
             display: inline-block;
         }
     }
     .message {
-        height: 120px;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
@@ -845,12 +903,10 @@ display: none;
             overflow: hidden;
             font-weight:400;
             color:rgba(0,0,0,1);
-            line-height:22px;
             font-size: 14px;
             padding-top: 20px;
             margin-top: 0px;
             margin-bottom: 0px;
-            height: 44px;
             font-family: PingFangSC-Regular;
         }
         .message-sender{
@@ -858,10 +914,11 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 83px);
             margin-top: 15px;
+            margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
+            //width: 50px
         }
         .message-time{
             display: inline-block;
@@ -870,7 +927,9 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
-            width: 78px;
+            margin-bottom: 0px;
+            //width: 78px;
+            margin-left: 5px;
             margin-top: 15px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
@@ -883,15 +942,12 @@ display: none;
     margin: 0px;
     padding: 0px;
     .image:hover{
-        .image-time {
-            display: none;
-        }
         .favourite-action{
             display: inline-block;
         }
     }
     .image {
-        height: 150px;
+        height: 135x;
         margin: 0px;
         padding: 0px;
         cursor: pointer;
@@ -902,17 +958,18 @@ display: none;
             padding-top: 20px;
             padding-bottom: 0px;
             display: block;
-            object-fit: scale-down;
+            object-fit: cover;
         }
         .image-sender{
             display: inline-block;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 83px);
             margin-top: 15px;
+            margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
+            //width: 50px
         }
         .image-time{
             display: inline-block;
@@ -921,8 +978,10 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
-            width: 78px;
+            //width: 78px;
+            margin-left: 5px;
             margin-top: 15px;
+            margin-bottom: 0px;
             font-family: PingFangSC-Regular;
         }
     }
@@ -933,9 +992,6 @@ display: none;
     padding: 0px;
     
     .file:hover{
-        .file-time {
-            display: none;
-        }
         .favourite-action{
             display: inline-block;
         }
@@ -1015,10 +1071,11 @@ display: none;
             color: rgb(102, 102, 102);
             font-size: 12px;
             line-height: 18px;
-            width: calc(100% - 83px);
             margin-top: 15px;
+            margin-bottom: -3px;
             font-family: PingFangSC-Regular;
             font-weight: 400;
+            //width: 50px
         }
         .file-time{
             display: inline-block;
@@ -1027,8 +1084,10 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             //text-align: right;
-            width: 78px;
+            //width: 78px;
+            margin-left: 5px;
             margin-top: 15px;
+            margin-bottom: 0px;
             font-family: PingFangSC-Regular;
         }
     }

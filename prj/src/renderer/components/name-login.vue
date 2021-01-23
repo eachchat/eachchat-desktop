@@ -23,7 +23,11 @@
                 <div class="title" v-else>
                     <div class="title-ico">
                         <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
-                    </div><div class="tltle-content">
+                    </div>
+                    <div class="tltle-content-win" v-if="isWindows()">
+                        {{$t("appName")}}
+                    </div>
+                    <div class="tltle-content-mac" v-if="!isWindows()">
                         {{$t("appName")}}
                     </div>
                 </div>
@@ -361,6 +365,9 @@ export default {
         }
     },
     methods: {
+        isWindows() {
+            return environment.os.isWindows || environment.os.isLinux;
+        },
         toShowPwd: function() {
             console.log("=============")
             this.showPwd = !this.showPwd;
@@ -2716,12 +2723,22 @@ export default {
                 }
             }
 
-            .tltle-content {
+            .tltle-content-win {
                 display: inline-block;
                 vertical-align: top;
                 height:36px;
                 font-size:24px;
                 font-weight:600;
+                color:rgba(39,45,52,1);
+                line-height:36px;
+                padding-left: 8px;
+                font-family: PingFangSC-Medium;
+            }
+            .tltle-content-mac {
+                display: inline-block;
+                vertical-align: top;
+                height:36px;
+                font-size:24px;
                 color:rgba(39,45,52,1);
                 line-height:36px;
                 padding-left: 8px;

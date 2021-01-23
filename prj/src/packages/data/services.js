@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Secret, Contact, Department} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Secret, Contact, Department, ContactRoom} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -392,7 +392,7 @@ const common = {
 
   async InitDbData()
   {
-    Promise.all([this.GetAllContact(), this.UpdateUserinfo(), this.UpdateDepartment()])
+    Promise.all([this.GetAllContact(), this.UpdateUserinfo(), this.UpdateDepartment(), this.getAllContactRooms()])
   },
 
   async UpdateDepartment(){
@@ -540,6 +540,8 @@ const common = {
     await (await models.UserPhone).truncate();
     await (await models.UserIm).truncate();
     await (await models.Contact).truncate();
+    await(await models.Department).truncate();
+    await(await models.FavouriteRoom).truncate();
     return await this.api.logout(this.data.login.access_token)
   },
 
@@ -575,8 +577,10 @@ const common = {
       {
         index++;
         useritem = result.data.results[item]
-        if(useritem.del == 1)
+        if(useritem.del == 1){
+          await UserInfo.DeleteUserByUserID(item.id);
           continue;
+        }
         usermodel = await servicemodels.UsersModel(useritem)
         if(usermodel == undefined)
         {
@@ -657,7 +661,10 @@ const common = {
       for(var item in result.data.results)
       {
         index++;
-        departmentitem = result.data.results[item]
+        departmentitem = result.data.results[item];
+        if(departmentitem.del == 1){
+          continue;
+        } 
         departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
         this.data.department.push(departmentmodel)
         departmentmodel.save();   
@@ -2099,6 +2106,52 @@ const common = {
     return result.data.obj;
   },
 
+  async searchChatFiles(search_key, room_id, perNum, fOrb, sequenceId) {
+    var filterBody = {
+      field: "body",
+      operator: "co",
+      value: search_key,
+      logic: 0      
+    };
+    var filterRoom = {
+      field: "room_id",
+      operator: "co",
+      value: room_id,
+      logic: 0      
+    };
+    var filterType = {
+      field: "type",
+      operator: "co",
+      value: "CHAT",
+      logic: 0      
+    };
+    var filterMsgType = {
+      field: "message_type",
+      operator: "co",
+      value: "FILE",
+      logic: 0
+    }
+    var body = {
+      filters: [
+        filterBody,
+        filterType,
+        filterRoom,
+        filterMsgType
+      ],
+      perPage: perNum,
+      sortOrder: fOrb,
+      sequenceId: sequenceId
+    }
+    let result = await this.api.searchChat(this.data.login.access_token, body);
+    console.log("*** services.js searchAllChat result ", result);
+    console.log("*** services.js searchAllChat result.ok ", result.ok);
+    console.log("*** services.js searchAllChat result.success ", result.success);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data;
+  },
+
   async searchChatMsg(search_key, room_id, perNum, fOrb, sequenceId) {
     var filterBody = {
       field: "body",
@@ -2129,9 +2182,9 @@ const common = {
       sequenceId: sequenceId
     }
     let result = await this.api.searchChat(this.data.login.access_token, body);
-    console.log("*** services.js searchAllChat result ", result);
-    console.log("*** services.js searchAllChat result.ok ", result.ok);
-    console.log("*** services.js searchAllChat result.success ", result.success);
+    // console.log("*** services.js searchAllChat result ", result);
+    // console.log("*** services.js searchAllChat result.ok ", result.ok);
+    // console.log("*** services.js searchAllChat result.success ", result.success);
     if (!result.ok || !result.success) {
       return false;
     }
@@ -2541,6 +2594,69 @@ const common = {
                                 title);
     ipcRenderer.send("updateContact")
     return true;
+  },
+
+  async addRoomToContact(roomID){
+    let result = await this.api.addRoomToContact(this.data.login.access_token, roomID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    let room = result.data.obj;
+    let roomModel = await servicemodels.ContactRoom(room);
+    roomModel.save();
+  },
+
+  async deleteRoomFromContact(roomID){
+    let result = await this.api.deleteRoomFromContact(this.data.login.access_token, roomID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    console.log(roomID)
+    await ContactRoom.DeleteByRoomID(roomID)
+  },
+
+  async getAllContactRooms(){
+    let updateTime = await ContactRoom.GetMaxUpdateTime();
+    let sequenceID = 0;
+    let perPage = 20;
+    let bNext = true;
+    while(bNext){
+      let result = await await this.api.updateRoomFromContact(this.data.login.access_token, 
+                                                              'updateContactRoom', 
+                                                              updateTime, 
+                                                              perPage, 
+                                                              sequenceID);
+      if (!result.ok || !result.success) {
+        return false;
+      }
+      bNext = result.data.hasNext;
+      for(let item of result.data.results){
+        sequenceID++;
+        if(item.del == 1){
+          await ContactRoom.DeleteByRoomID(item.roomId);
+          continue;
+        }
+        let roomModel = await servicemodels.ContactRoom(item);
+        await roomModel.save();
+      }
+    }
+  },
+
+  async updateRoomFromContact(updateTime, perPage, sequenceID){
+    let result = await this.api.updateRoomFromContact(this.data.login.access_token, 
+                                                'updateContactRoom', 
+                                                updateTime, 
+                                                perPage, 
+                                                sequenceID);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    for(let item of result.data.results){
+      if(item.del == 0)
+        continue;
+      let roomModel = await servicemodels.ContactRoom(item);
+      await roomModel.save();
+    }
   }
 
 };

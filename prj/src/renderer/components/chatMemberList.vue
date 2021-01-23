@@ -73,6 +73,7 @@ export default {
         getMemberInfo: async function() {
             this.memberListShow.forEach(async (item)=>{
                 var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(item.userId);
+                item.displayName = fromUserName;
 
                 var distNameElement = document.getElementById(this.getNameIdThroughMemberUid(item.userId));
                 if(distNameElement) {
@@ -111,10 +112,15 @@ export default {
     },
     watch: {
         GroupInfo: async function() {
-
             if(!this.GroupInfo.currentState)
                 return;
             this.memberListShow = this.GroupInfo.currentState.getMembers();
+            for(var i=0;i<this.memberListShow.length;i++) {
+                if(this.memberListShow[i].userId == this.$store.state.userId) {
+                    this.memberListShow.splice(i, 1);
+                    break;
+                }
+            }
             console.log("*** this.memberListShow ", this.memberListShow);
             this.memberListShowOriginal = this.memberListShow;
 
@@ -166,7 +172,7 @@ export default {
                 if((this.chatMemberSearchKey != null && this.chatMemberSearchKey.length == 0) || this.chatMemberSearchKey == null) {
                     console.log("toall ========")
                     for(var i=0;i<this.memberListShowOriginal.length;i++) {
-                        if(this.memberListShow.indexOf(this.memberListShowOriginal[i]) == -1) {
+                        if(this.memberListShow.indexOf(this.memberListShowOriginal[i]) == -1 && this.memberListShowOriginal[i].userId != this.$store.state.userId) {
                             this.memberListShow.push(this.memberListShowOriginal[i]);
                         }
                     }
@@ -194,8 +200,9 @@ export default {
 
                 this.searchId = curSearchId;
                 for(var i=0;i<this.memberListShowOriginal.length;i++) {
-                    console.log("searchResult is ", this.memberListShowOriginal[i].name.indexOf(this.chatMemberSearchKey));
-                    if(this.memberListShowOriginal[i].name.indexOf(this.chatMemberSearchKey) != -1) {
+                    var checkName = this.memberListShowOriginal[i].displayName ? this.memberListShowOriginal[i].displayName : this.memberListShowOriginal[i].name;
+                    console.log("searchResult is ", checkName.indexOf(this.chatMemberSearchKey));
+                    if(checkName.indexOf(this.chatMemberSearchKey) != -1 && this.memberListShowOriginal[i].userId != this.$store.state.userId) {
                         if(searchResult.searchList.indexOf(this.memberListShowOriginal[i]) == -1) {
                             searchResult.searchList.push(this.memberListShowOriginal[i]);
                         }
@@ -284,11 +291,11 @@ export default {
 
     .groupMemberInfoImage {
         display: inline-block;
-        padding-top: 8px;
-        padding-bottom: 8px;
+        margin-top: 8px;
+        margin-bottom: 8px;
         width: 24px;
         height: 24px;
-        border-radius:4px;
+        border-radius:50px;
     }
 
     .groupMemberInfoLabel {

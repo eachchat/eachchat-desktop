@@ -171,6 +171,7 @@ import * as Quill from 'quill'
 import confservice from '../../packages/data/conf_service'
 // import { ImageDrop } from 'quill-image-drop-module'
 import {ipcRenderer, remote} from 'electron'
+import { get as getProperty } from 'lodash'
 
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
@@ -192,6 +193,7 @@ import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import {EventTimeline} from "matrix-js-sdk";
+import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
 import Invite from './invite.vue';
 import encrypt from 'browser-encrypt-attachment';
@@ -208,6 +210,9 @@ var isEnter = false;
 var canNewLine = false;
 // Quill.register('modules/imageDrop', ImageDrop);
 // Quill.register('modules/resizeImage', resizeImage);
+
+const MAX_WIDTH = 800;
+const MAX_HEIGHT = 600;
 
 function extend(target, base) {
     console.log("base is ", base);
@@ -297,15 +302,25 @@ export default {
         Invite,
         mxHistoryPage,
         mxFilePage,
-        mxMemberSelectDlg
+        mxMemberSelectDlg,
     },
     methods: {
         clearCache: function() {
-            this.multiDel();
-            this.selectedMsgs = [];
-            this.showAlertDlg = false;
+            if(this.curOperate == "Trans") {
+                this.transmitNeedAlert = false;
+                this.curOperate == "";
+                this.showAlertDlg = false;
+                this.multiTransMit();
+            }
+            else if(this.curOperate == "Del") {
+                this.curOperate == "";
+                this.showAlertDlg = false;
+                this.multiDel();
+                this.selectedMsgs = [];
+            }
         },
         closeAlertDlg: function() {
+            this.curOperate = "";
             this.showAlertDlg = false;
         },
         groupIsSlience() {
@@ -568,6 +583,7 @@ export default {
         },
         rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
+            console.log("*** e.target.className ", e.target.className);
             var showRedact = this.canRedact(msgItem);
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
@@ -734,10 +750,21 @@ export default {
             this.transmitTogether = true;
         },
         async multiTransMit() {
-            this.recentGroups = await Group.GetGroupByTime();
-            this.transmitKey ++;
-            this.showTransmitDlg = true;
-            this.transmitTogether = false;
+            this.curOperate = "Trans";
+            if(this.transmitNeedAlert) {
+                this.alertContnets = {
+                    "Details": "你选择的消息中包含语音不能转发，是否继续？",
+                    "Abstrace": "提示"
+                }
+                this.showAlertDlg = true;
+            }
+            else{
+                this.curOperate = "";
+                this.recentGroups = await Group.GetGroupByTime();
+                this.transmitKey ++;
+                this.showTransmitDlg = true;
+                this.transmitTogether = false;
+            }
         },
         showAddMembersPrepare: async function() {
             // var memeberList = this.curChat.contain_user_ids.split(",");
@@ -862,6 +889,7 @@ export default {
             this.multiToolsClose();
         },
         toMultiDel() {
+            this.curOperate = "Del";
             this.selectedMsgs.push(msg);
             this.alertContnets = {
                 "Details": "是否删除聊天记录？",
@@ -944,6 +972,9 @@ export default {
                 if(!this.canRedact(k)) {
                     canShowDelete = false;
                 }
+                if(this.MsgIsVoice(k)) {
+                    this.transmitNeedAlert = true;
+                }
             })
             var deleteElement = document.getElementById("multiSelectDelDivId");
             if(!canShowDelete) {
@@ -951,6 +982,18 @@ export default {
             }
             else {
                 deleteElement.style.display = 'inline-block';
+            }
+        },
+        MsgIsVoice: function(msg) {
+            let chatGroupMsgType = msg.event.content.msgtype == undefined ? msg.getContent().msgtype : msg.event.content.msgtype;
+            if(chatGroupMsgType == 'm.audio'){
+                return true;
+            }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
+            else{
+                return false;
             }
         },
         closeTransmitDlg() {
@@ -1137,6 +1180,7 @@ export default {
                         if(this.curSelectedIndex == 0) {
                             this.curSelectedIndex = this.ulElement.children.length - 1;
                             this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[0].style.color = "rgb(0, 0, 0)";
                             this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
@@ -1146,6 +1190,7 @@ export default {
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                             this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[this.curSelectedIndex+1].style.color = "rgb(0, 0, 0)";
                         }
                         else if(this.curSelectedIndex == this.ulElement.children.length) {
                             this.curSelectedIndex--;
@@ -1153,6 +1198,7 @@ export default {
                             this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
                             this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[this.curSelectedIndex].style.color = "rgba(0, 0, 0, 1)";
                         }
                         break;
                     }
@@ -1160,6 +1206,7 @@ export default {
                         console.log("=======down", this.curSelectedIndex);
                         if(this.curSelectedIndex == this.ulElement.children.length) {
                             this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
                             this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
                             this.ulElement.children[0].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
@@ -1170,6 +1217,7 @@ export default {
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                             if(this.ulElement.children[this.curSelectedIndex-1]){
                                 this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                                this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
                             }
                             this.curSelectedIndex++;
                         }
@@ -1282,10 +1330,79 @@ export default {
             this.$emit('getCreateGroupInfo', groupInfo);
             this.showUserInfoTips = false;
         },
-        showImageOfMessage(distEvent) {
+        async updateImgTimelineSet(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+            
+            if (room) {
+                let timelineSet;
+
+                try {
+                    timelineSet = await this.fetchFileEventsServer(room);
+                } catch (error) {
+                    console.error("Failed to get or create file panel filter", error);
+                }
+                return timelineSet;
+            } else {
+                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
+            }
+        },
+        async fetchFileEventsServer(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+
+            const filter = new Filter(client.credentials.userId);
+            filter.setDefinition(
+                {
+                    "room": {
+                        "timeline": {
+                            "contains_url": true,
+                            "types": [
+                                "m.room.message"
+                            ],
+                        },
+                    },
+                },
+            );
+
+            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
+            filter.filterId = filterId;
+            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
+
+            return timelineSet;
+        },
+        async toGetShowImage(distRoom) {
+            var curTimeLineSetRoomId = this.imgTimeLineSet ? this.imgTimeLineSet.room.roomId : undefined;
+            if(distRoom.roomId == curTimeLineSetRoomId) {
+                var fileListInfo = this._imgTimelineWindow.getEvents();
+                var thresholdNum = fileListInfo.length;
+                while(fileListInfo.length == thresholdNum && this._imgTimelineWindow.canPaginate('b')) {
+                    await this._imgTimelineWindow.paginate("b", 20);
+                    fileListInfo = await this._imgTimelineWindow.getEvents();
+                }
+                return fileListInfo;
+            }
+            else {
+                this.imgTimeLineSet = await this.updateImgTimelineSet(distRoom);
+                console.log("*** imgTimeLineSet ", this.imgTimeLineSet);
+                // var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
+                this._imgTimelineWindow = new Matrix.TimelineWindow(
+                    global.mxMatrixClientPeg.matrixClient, 
+                    this.imgTimeLineSet,
+                    {windowLimit:Number.MAX_VALUE},
+                )
+                await this._imgTimelineWindow.load(undefined, 20);
+                var fileListInfo = this._imgTimelineWindow.getEvents();
+                while(fileListInfo.length == 0 && this._imgTimelineWindow.canPaginate('b')) {
+                    await this._imgTimelineWindow.paginate("b", 20);
+                    fileListInfo = await this._imgTimelineWindow.getEvents();
+                }
+                return fileListInfo;
+            }
+        },
+        async showImageOfMessage(distEvent) {
             var showImageInfoList = [];
             var distImageInfo = {};
-            this.messageList.forEach(curEvent => {
+            var imgMsgList = await this.toGetShowImage(this.curChat);
+            imgMsgList.forEach(curEvent => {
                 let event = curEvent.event;
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
@@ -1322,7 +1439,7 @@ export default {
                         imageEventId: event.event_id,
                         info: info,
                         body: chatGroupMsgContent.body,
-                        sender: curEvent.sender.userId,
+                        sender: curEvent.sender ? curEvent.sender.userId : curEvent.sender,
                         origin_server_ts: curEvent.event.origin_server_ts
                     }
                     if(distEvent.event.event_id == event.event_id) {
@@ -1332,7 +1449,7 @@ export default {
                             imageEventId: event.event_id,
                             info: info,
                             body: chatGroupMsgContent.body,
-                            sender: curEvent.sender.userId,
+                            sender: curEvent.sender ? curEvent.sender.userId : curEvent.sender,
                             origin_server_ts: curEvent.event.origin_server_ts
                         }
                     }
@@ -1456,8 +1573,8 @@ export default {
             }
         },
         insertFace: function(item) {
-            var range = this.editor.getSelection();
-            var curIndex = range==null ? 0 : range.index;
+            var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
+            getProperty(this.editor, 'selection.savedRange.index', 0) 
             this.editor.insertText(curIndex, uncodeUtf16(item));
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
@@ -1592,7 +1709,6 @@ export default {
                 }
             }
         },
-       
         sendAgain: async function(retryMsg) {
             
         },
@@ -1620,6 +1736,13 @@ export default {
         },
         sendFile: async function(fileinfo) {
             console.log("fileinfo is ", fileinfo);
+            const content = {
+                body: fileinfo.name || 'Attachment',
+                info: {
+                    size: fileinfo.size,
+                },
+                msgtype: "", // set later
+            };
             var showfileObj = undefined;
             var stream = "";
             var encryptInfo;
@@ -1639,13 +1762,26 @@ export default {
 
             reader.onload = () => {
                 let type = GetFileType(reader.result);
+                // content.info.mimetype = fileinfo.type;
                 let fileResult = reader.result;
                 this.showUploadProgress = true;
                 this.UploadingName = fileinfo.name;
                 let filename = fileinfo.name;
                 var roomID = this.curChat.roomId;
                 if(type == 'm.image'){
-                    this.SendImage(showfileObj, fileResult, stream)
+                    content.msgtype = 'm.image';
+                    // this.SendImage(showfileObj, fileResult, stream)
+                    this.infoForImageFile(this.curChat.roomId, showfileObj).then((imageInfo) => {
+                        extend(content.info, imageInfo);
+                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
+                            content.file = ret.file;
+                            content.url = ret.url;
+                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
+                            this.showUploadProgress = false;
+                        })
+                    }, (e) => {
+                        console.log("**** getInfoForImageFile Exception ", e);
+                    })
                 }
                 else{
                     if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
@@ -1678,19 +1814,28 @@ export default {
                     }
                     else {
                         let filename = fileinfo.name;
-                        global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
-                            name: filename,
-                            progressHandler: this.onUploadProgress
-                        }).then((url)=>{
-                            var content = {
-                                msgtype: 'm.file',
-                                body: filename,
-                                url: url,
-                                info:{
-                                    size: fileinfo.size,
-                                    mimetype: fileinfo.type
-                                }
-                            };
+                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
+                        // global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
+                        //     name: filename,
+                        //     progressHandler: this.onUploadProgress
+                        // }).then((ret)=>{
+                            content.msgtype = 'm.file';
+                            content.file = ret.file;
+                            content.url = ret.url;
+                            console.log("*** name is ", filename);
+                            console.log("*** path.extname(filename) is ", path.extname(filename));
+                            content.info.mimetype = fileMIMEFromType(path.extname(filename).split('.')[1]);
+                            console.log("***fileMIMEFromType(path.extname(filename) is ", fileMIMEFromType(path.extname(filename).split('.')[1]));
+                            console.log("***content is ", content);
+                            // var content = {
+                            //     msgtype: 'm.file',
+                            //     body: filename,
+                            //     url: url,
+                            //     info:{
+                            //         size: fileinfo.size,
+                            //         mimetype: fileinfo.type
+                            //     }
+                            // };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                             this.showUploadProgress = false;
                         });
@@ -1707,6 +1852,168 @@ export default {
                 };
                 reader.onerror = reject;
                 reader.readAsArrayBuffer(file);
+            });
+        },
+        /**
+         * Load a file into a newly created image element.
+         *
+         * @param {File} imageFile The file to load in an image element.
+         * @return {Promise} A promise that resolves with the html image element.
+         */
+        async loadImageElement(imageFile) {
+            // Load the file into an html element
+            const img = document.createElement("img");
+            const objectUrl = URL.createObjectURL(imageFile);
+            const imgPromise = new Promise((resolve, reject) => {
+                img.onload = function() {
+                    URL.revokeObjectURL(objectUrl);
+                    resolve(img);
+                };
+                img.onerror = function(e) {
+                    reject(e);
+                };
+            });
+            img.src = objectUrl;
+
+            // // check for hi-dpi PNGs and fudge display resolution as needed.
+            // // this is mainly needed for macOS screencaps
+            // let parsePromise;
+            // if (imageFile.type === "image/png") {
+            //     // in practice macOS happens to order the chunks so they fall in
+            //     // the first 0x1000 bytes (thanks to a massive ICC header).
+            //     // Thus we could slice the file down to only sniff the first 0x1000
+            //     // bytes (but this makes extractPngChunks choke on the corrupt file)
+            //     const headers = imageFile; //.slice(0, 0x1000);
+            //     parsePromise = readFileAsArrayBuffer(headers).then(arrayBuffer => {
+            //         const buffer = new Uint8Array(arrayBuffer);
+            //         const chunks = extractPngChunks(buffer);
+            //         for (const chunk of chunks) {
+            //             if (chunk.name === 'pHYs') {
+            //                 if (chunk.data.byteLength !== PHYS_HIDPI.length) return;
+            //                 return chunk.data.every((val, i) => val === PHYS_HIDPI[i]);
+            //             }
+            //         }
+            //         return false;
+            //     });
+            // }
+
+            // const [hidpi] = await Promise.all([parsePromise, imgPromise]);
+            const [hidpi] = await Promise.all([imgPromise]);
+            const width = hidpi ? (img.width >> 1) : img.width;
+            const height = hidpi ? (img.height >> 1) : img.height;
+            return {width, height, img};
+        },
+        /**
+         * Read the metadata for an image file and create and upload a thumbnail of the image.
+         *
+         * @param {MatrixClient} matrixClient A matrixClient to upload the thumbnail with.
+         * @param {String} roomId The ID of the room the image will be uploaded in.
+         * @param {File} imageFile The image to read and thumbnail.
+         * @return {Promise} A promise that resolves with the attachment info.
+         */
+        infoForImageFile(roomId, imageFile) {
+            let thumbnailType = "image/png";
+            if (imageFile.type === "image/jpeg") {
+                thumbnailType = "image/jpeg";
+            }
+
+            let imageInfo;
+            return this.loadImageElement(imageFile).then((r) => {
+                return this.createThumbnail(r.img, r.width, r.height, thumbnailType);
+            }).then((result) => {
+                imageInfo = result.info;
+                return this.uploadFile(roomId, result.thumbnail);
+            }).then((result) => {
+                imageInfo.thumbnail_url = result.url;
+                imageInfo.thumbnail_file = result.file;
+                return imageInfo;
+            });
+        },
+        /**
+         * Upload the file to the content repository.
+         * If the room is encrypted then encrypt the file before uploading.
+         *
+         * @param {MatrixClient} matrixClient The matrix client to upload the file with.
+         * @param {String} roomId The ID of the room being uploaded to.
+         * @param {File} file The file to upload.
+         * @param {Function?} progressHandler optional callback to be called when a chunk of
+         *    data is uploaded.
+         * @return {Promise} A promise that resolves with an object.
+         *  If the file is unencrypted then the object will have a "url" key.
+         *  If the file is encrypted then the object will have a "file" key.
+         */
+        uploadFile(roomId, file) {
+            let canceled = false;
+            if (global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(roomId)) {
+                // If the room is encrypted then encrypt the file before uploading it.
+                // First read the file into memory.
+                let uploadPromise;
+                let encryptInfo;
+                const prom = readFileAsArrayBuffer(file).then((data) => {
+                    return encrypt.encryptAttachment(data);
+                }).then((encryptResult) => {
+                    // Record the information needed to decrypt the attachment.
+                    encryptInfo = encryptResult.info;
+                    // Pass the encrypted data as a Blob to the uploader.
+                    const blob = new Blob([encryptResult.data]);
+                    uploadPromise = global.mxMatrixClientPeg.matrixClient.uploadContent(blob, {
+                        progressHandler: this.onUploadProgress,
+                        includeFilename: false,
+                    });
+                    return uploadPromise;
+                }).then((url) => {
+                    // If the attachment is encrypted then bundle the URL along
+                    // with the information needed to decrypt the attachment and
+                    // add it under a file key.
+                    encryptInfo.url = url;
+                    if (file.type) {
+                        encryptInfo.mimetype = file.type;
+                    }
+                    return {"file": encryptInfo};
+                });
+            } else {
+                const basePromise = global.mxMatrixClientPeg.matrixClient.uploadContent(file, {
+                    progressHandler: this.onUploadProgress,
+                });
+                const promise1 = basePromise.then((url) => {
+                    // If the attachment isn't encrypted then include the URL directly.
+                    return {"url": url};
+                });
+                return promise1;
+            }
+        },
+        createThumbnail(element, inputWidth, inputHeight, mimeType) {
+            return new Promise((resolve) => {
+                let targetWidth = inputWidth;
+                let targetHeight = inputHeight;
+                if (targetHeight > MAX_HEIGHT) {
+                    targetWidth = Math.floor(targetWidth * (MAX_HEIGHT / targetHeight));
+                    targetHeight = MAX_HEIGHT;
+                }
+                if (targetWidth > MAX_WIDTH) {
+                    targetHeight = Math.floor(targetHeight * (MAX_WIDTH / targetWidth));
+                    targetWidth = MAX_WIDTH;
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                canvas.getContext("2d").drawImage(element, 0, 0, targetWidth, targetHeight);
+                canvas.toBlob((thumbnail) => {
+                    resolve({
+                        info: {
+                            thumbnail_info: {
+                                w: targetWidth,
+                                h: targetHeight,
+                                mimetype: thumbnail.type,
+                                size: thumbnail.size,
+                            },
+                            w: inputWidth,
+                            h: inputHeight,
+                        },
+                        thumbnail: thumbnail,
+                    });
+                }, mimeType);
             });
         },
         SendImage: function(fileinfo, fileResult, stream){
@@ -2763,6 +3070,7 @@ export default {
                     var blod = item.getAsFile();
                     var fileObj = new window.File([blod], blod.name, {type: blod.type});
                     let fileinfo = {};
+                    console.log("((( the fileInfo is ", fileObj);
                     fileinfo.path = URL.createObjectURL(fileObj);
                     fileinfo.size = blod.size;
                     fileinfo.name = blod.name;
@@ -2780,15 +3088,43 @@ export default {
                 }
             }
         },
+        async toGetShowMessage() {
+            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this.timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            await this._timelineWindow.load(undefined, 20);
+            var fileListInfo = [];
+            var originalFileListInfo = this._timelineWindow.getEvents();
+            originalFileListInfo.forEach(item => {
+                if(this.messageFilter(item) && item.event.content){
+                    fileListInfo.push(item);
+                } 
+            })
+            while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
+                await this._timelineWindow.paginate("b", 20);
+                var fileListInfoTmp = await this._timelineWindow.getEvents();
+                fileListInfoTmp.forEach(item => {
+                    if(this.messageFilter(item) && item.event.content){
+                        fileListInfo.push(item);
+                    }
+                })
+            }
+            return fileListInfo;
+        },
         initMessage: function() {
-            global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
+            // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
             if(this.curChat.getMyMembership() == "invite") {
                 this.isRefreshing = false;
                 this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.curChat);
                 this.isInvite = true;
             }
             else {
-                this._loadTimeline(undefined, undefined, undefined)
+                // this._loadTimeline(undefined, undefined, undefined)
+                console.log("*** initMessage 。。。。 ");
+                this.toGetShowMessage()
                     .then((ret) => {
                         this.isRefreshing = false;
                         this.messageList = this._getEvents();
@@ -2796,17 +3132,18 @@ export default {
                             this.$nextTick(() => {
                                 this.needToBottom = true;
 
-                                let uldiv = document.getElementById("message-show-list");
-                                if(uldiv.clientHeight < uldiv.offsetHeight) {
-                                    this.handleScroll(true);
-                                }
-                                
                                 let div = document.getElementById("message-show-list");
                                 if(div) {
                                     div.scrollTop = div.scrollHeight + 52;
                                     div.addEventListener('scroll', this.handleScroll);
                                     this.showScrollBar();
                                 }
+
+                                let uldiv = document.getElementById("message-show-list");
+                                if(uldiv.clientHeight < uldiv.offsetHeight) {
+                                    this.handleScroll(true);
+                                }
+                                
                             })
                         }, 100)
                     })
@@ -2829,6 +3166,10 @@ export default {
     },
     data() {
         return {
+            transmitNeedAlert: false,
+            curOperate: "",
+            imgTimeLineSet: undefined,
+            _imgTimelineWindow: undefined,
             alertContnets: {},
             showAlertDlg: false,
             contentType: '',
@@ -2888,7 +3229,7 @@ export default {
             fileListGroupInfo: {},
             showFileListInfo: false,
             messageListElement: null,
-            checkClassName: ["chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
+            checkClassName: ["msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
             updateUser:[],
@@ -3121,8 +3462,10 @@ export default {
         },
         newMsg: function() {
             console.log("*** newMsg")
-            this._timelineWindow.paginate("f", 1, false).then(() => {
+            this.showGroupName(this.curChat);
+            this._timelineWindow.paginate("f", 10).then(() => {
                 this.messageList = this._getEvents();
+                console.log("*** to get new message ", this.messageList);
             })
             setTimeout(() => {
                 this.$nextTick(() => {

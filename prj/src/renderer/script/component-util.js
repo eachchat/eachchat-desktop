@@ -1,10 +1,6 @@
 
 import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
-
-function Appendzero(o_num) {
-    if(o_num < 10) return "0" + "" + o_num;
-    else return o_num;
-}
+import {Appendzero} from '../../packages/core/Utils.js'
 
 function getWeekDay(day){
     let week = {
@@ -20,6 +16,15 @@ function getWeekDay(day){
 }
 
 const ComponentUtil = {
+    GetDomanName(matrixID){
+        if(!matrixID)
+            return '';
+        let endPos = matrixID.lastIndexOf(":");
+        if(endPos == -1)
+            return '';
+        return matrixID.slice(endPos + 1, matrixID.length);
+    },
+
     GetDisplayName(displayName, userid){
         if(displayName == '' && userid)
         {
@@ -177,9 +182,6 @@ const ComponentUtil = {
         let m = distdate.getMinutes();
         let s = distdate.getSeconds();
         let day = distdate.getDay();
-        // console.log(distdate)
-        // console.log(cutTime)
-        // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
   
         if(cutTime < 8 * 24 * 3600 * 1000)
         {
@@ -194,14 +196,26 @@ const ComponentUtil = {
                 return getWeekDay(day);
             }
             else {
-                return y + '/' + Appendzero(mon) + '/' + Appendzero(d);
+                return y + '/' + mon + '/' + d;
             }
         }
         else
         {
-          return y + '/' + Appendzero(mon) + '/' + Appendzero(d);
+          return y + '/' + mon + '/' + d;
         }
-      },
+    },
+    
+    msgContentShowPhoneAndHightLight: function(curMsg, color){
+        let phoneHight = curMsg.replace(/\d{11}/g, function(num){
+            return '<span style="color:' + color + ';">' + num + "</span>"
+        })
+
+        let linkHight = phoneHight.replace(/(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/g, function(link){
+            return '<span style="color:' + color + ';">' + link + "</span>"
+        })
+        return linkHight;
+    },
+
 }
 
 export{

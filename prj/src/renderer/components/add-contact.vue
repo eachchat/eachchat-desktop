@@ -6,7 +6,8 @@
                 <img ondragstart="return false" class="ChatCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
             <el-container class="ChatCreaterContent">
-                <div class = 'backgroundDiv'  v-show = 'searchUsers.length == 0'></div>
+                <!-- <div class = 'backgroundDiv'  v-show = 'searchUsers.length == 0'></div> -->
+                <div class = 'backgroundDiv'  v-show = 'false'></div>
                 <el-main class="selectedView">
                     <div class="search">
                         <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" size='mini' clearable>
@@ -25,8 +26,8 @@
                             :key="index">
                             <img ondragstart="return false" class="contact-list-icon" :id="SetUserImgID(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
                             <div class="contact-list-info">
-                                <p class="contact-list-name">{{ contact.user_display_name }}</p>
-                                <p class="contact-list-titile">{{ contact.matrix_id }}</p>
+                                <p class="contact-list-name" v-html="searchKeyHightLight(contact.user_display_name)">{{ contact.user_display_name }}</p>
+                                <p class="contact-list-titile">{{ contact.user_title }}</p>
                             </div>
                             <button v-if = 'DisableSave(contact)' class="contact-list-disable-button" @click="HandleSave(index, contact)" :disabled='true'>已添加</button>
                             <button v-else class="contact-list-button" @click="HandleSave(index, contact)" >添加</button>
@@ -82,6 +83,12 @@ export default {
         }
     },
     methods: {
+        searchKeyHightLight(content){
+            return content.replace(this.searchKey, function(item) {
+                return '<span style="color:rgba(0, 169, 113, 1);">' + item + "</span>"; 
+            })
+        },
+
         DisableSave(row){
             for(let item of this.contacts){
                 if(row.matrix_id == item.matrix_id)
@@ -218,7 +225,7 @@ export default {
                 if(!userIconElement){
                     return;
                 }
-                let validUrl = "../static/Img/User/user-40px@2x.png"
+                let validUrl = "./static/Img/User/user-40px@2x.png"
                 if(info.avatar_url)
                   validUrl = this.matrixClient.mxcUrlToHttp(info.avatar_url);
                 userIconElement.setAttribute("src", validUrl);

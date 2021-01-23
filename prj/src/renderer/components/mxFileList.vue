@@ -2,19 +2,19 @@
     <div class="MxFileListDlg" id="MxFileListDlgId">
         <div class="MxFileListDlgContent" id="MxFileListDlgContentId">
             <div class="MxTitle">
-                <img class="MxTitleGoBackImg" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" />
-                <div class="MxTitleGoBackLabel">返回聊天</div>
+                <img class="MxTitleGoBackImg" src="../../../static/Img/MessageHistory/goback@2x.png" @click="Close()" />
+                <div class="MxTitleGoBackLabel">{{curChatName}}</div>
             </div>
             <div class="MxGroupInfo">
-                <img class="MxGroupInfoImg" id="MxMsgListGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png">
-                <label class="MxGroupInfoName" id="MxMsgListGroupInfoNameId">{{GroupInfo ? GroupInfo.name : ''}}</label>
-                <label class="MxGroupInfoMemberNum" id="MxMsgListGroupInfoMemberNumId"></label>
+                <img class="MxGroupInfoImg" id="MxMsgListGroupInfoImgId" src="../../../static/Img/User/group-40px@2x.png" v-show="false">
+                <label class="MxGroupInfoName" id="MxMsgListGroupInfoNameId" v-show="false">{{GroupInfo ? GroupInfo.name : ''}}</label>
+                <label class="MxGroupInfoMemberNum" id="MxMsgListGroupInfoMemberNumId" v-show="false"></label>
             </div>
             <div class="Mxsearch">
                 <input class="MxFileListDlgSearchInput" id="MxFileListDlgSearchInputId" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
-            <ul class="Mxfile-list" id="Mxfile-list-id" v-viewer="options">
+            <ul class="Mxfile-list" id="Mxfile-list-id">
                 <li v-for="(item, index) in fileListShow" class="MxfileItem" @click="openFile(item)">
                     <img :class="MxgetClassName(item)" :id="getFileIconId(item)" :src="getIcon(item)">
                     <div class="MxfileInfoDiv">
@@ -72,11 +72,16 @@ export default {
             originalFileList: [],
             lastSequenceId: 0,
             searchEmpty: false,
+            curChatName: "",
+            ret : [],
+            canBackPaginate : true,
+            sequenceId : 0,
+            total : 0,
         }
     }, 
     methods: {
         MxgetClassName: function(curItem) {
-            var content = curItem.getContent();
+            var content = curItem.event.content ? curItem.event.content : curItem.getContent();
             if(content.body != undefined) {
                 if(content.msgtype == 'm.file'){
                     return "MxfileImageFile"
@@ -96,7 +101,7 @@ export default {
         },
         openFile: async function(curItem) {
             console.log("*** ")
-            var chatGroupMsgContent = curItem.getContent();
+            var chatGroupMsgContent = curItem.event.content ? curItem.event.content : curItem.getContent();
             if(chatGroupMsgContent.msgtype == 'm.file'){
                 var distPath = confservice.getFilePath(curItem.event.origin_server_ts);
                 var finalPath = path.join(distPath, chatGroupMsgContent.body);
@@ -185,6 +190,19 @@ export default {
             this.updatePage();
             this.$emit("fileListClose");
         },
+        SearchMsgBelongUserName: async function(curItem) {
+            if(curItem === null) {
+                return '';
+            }
+            else {
+                var sender = this.GroupInfo.getMember(curItem.event.sender);
+                if(sender == null) {
+                    return '';
+                }
+                var distUserName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);;
+                return distUserName;
+            }
+        },
         MsgBelongUserName: async function(curItem) {
             if(curItem === null) {
                 return '';
@@ -212,6 +230,20 @@ export default {
         getFileIconThroughExt: function(ext) {
             var iconPath = getIconPath(ext);
             return iconPath;
+        },
+        showSearchResultInfo: async function() {
+            setTimeout(() => {
+                this.$nextTick(async () => {
+                    for(var i=0;i<this.fileListShow.length;i++) {
+                        var elementLabelId = this.getFileLabelId(this.fileListShow[i]);
+                        var elementLabel = document.getElementById(elementLabelId);
+                        if(elementLabel != undefined) {
+                            var showInfo = await this.getSearchFileInfo(this.fileListShow[i]);
+                            elementLabel.innerHTML = showInfo;
+                        }
+                    }
+                })
+            }, 0)
         },
         showResultInfo: async function() {
             this.$nextTick(() => {
@@ -288,7 +320,7 @@ export default {
             }
         },
         fileNameHeightLight: function(curItem) {
-            var showContent = curItem.getContent();
+            var showContent = curItem.event.content ? curItem.event.content : curItem.getContent();
             var fileName = showContent.body;
             // showContent = showContent + ' ';
             if(this.searchKey.length == 0) {
@@ -299,11 +331,30 @@ export default {
                 let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
                 return newInnerHtml;
             }
+            else if(fileName.indexOf(this.searchKey.toLowerCase()) != -1) {
+                let splitValue = fileName.split(this.searchKey.toLowerCase());
+                let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey.toLowerCase() + "</span>");
+                return newInnerHtml;
+            }
+            else if(fileName.indexOf(this.searchKey.toUpperCase()) != -1) {
+                let splitValue = fileName.split(this.searchKey.toUpperCase());
+                let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey.toUpperCase() + "</span>");
+                return newInnerHtml;
+            }
+            else{
+                return fileName;
+            }
+        },
+        appSearch: function() {
+            return global.services.common.searchChatFiles(this.searchKey, this.distRoomId, 15, 1, this.sequenceId)
         },
         search: function() {
+            console.log("**** this.searchKey is ", this.searchKey);
             if(this.searchKey.length == 0) {
                 this.fileListShow = this.originalFileList;
+                this.toInit();
                 this.showResultInfo();
+                return;
             }
             var curSearchId = new Date().getTime();
             console.log("searchkey is ", this.searchKey);
@@ -312,32 +363,84 @@ export default {
                 "searchList": []
             };
             this.searchId = curSearchId;
-            for(let i=0;i<this.originalFileList.length;i++) {
-                var curFileName = this.getFileName(this.originalFileList[i]);
-                if(curFileName.indexOf(this.searchKey) != -1) {
-                    searchResult.searchList.push(this.originalFileList[i]);
-                }
-            }
+            this.appSearch()
+                .then((ret) => {
+                    if(ret.results == undefined) {
+                        this.toInit();
+                        // console.log("this.messagelsitshow is ", this.messageListShow)
+                        this.showResultInfo();
+                    }
+                    else {
+                        if(searchResult.id == this.searchId) {
+                            console.log("((((( ret is ", ret);
+                            this.ret = ret.results;
+                            this.fileListShow = this.ret;
+                            console.log("***ret is ", ret.results);
+                            if(this.ret.length == 0) {
+                                this.searchEmpty = true;
+                            }
+                            else {
+                                this.searchEmpty = false;
+                            }
+                            this.total = ret.total;
+                            console.log("*** ret.length ", this.ret.length);
+                            this.sequenceId = this.ret.length;
+                            console.log("*** this.sequenceId ", this.sequenceId);
+                            this.showSearchResultInfo();
+                            setTimeout(() => {
+                                this.$nextTick(() => {
+                                    var div = document.getElementById("Mxfile-list-id");
+                                    div.addEventListener('scroll', this.handleScroll);
+                                })
+                            }, 0)
+                        }
+                    }
+                    
+                })
+            // for(let i=0;i<this.originalFileList.length;i++) {
+            //     var curFileName = this.getFileName(this.originalFileList[i]);
+            //     if(curFileName.indexOf(this.searchKey) != -1) {
+            //         searchResult.searchList.push(this.originalFileList[i]);
+            //     }
+            // }
 
-            if(searchResult.id == this.searchId) {
-                this.fileListShow = searchResult.searchList;
-                this.showResultInfo();
-            }
+            // if(searchResult.id == this.searchId) {
+            //     this.fileListShow = searchResult.searchList;
+            //     this.showResultInfo();
+            // }
+        },
+        toInit() {
+            this.searchKey = "";
+            this.ret = [];
+            this.isRefreshing = false;
+            this.canBackPaginate = true;
+            this.sequenceId = 0;
+            this.total = 0;
+            this.searchEmpty = false;
         },
         getFileName: function(curItem) {
-            var showContent = curItem.getContent();
+            var showContent = curItem.event.content ? curItem.event.content : curItem.getContent();
             var fileName = showContent.body;
             return fileName;
         },
         getFileInfo: async function(curItem) {
-            var MsgContent = curItem.getContent().info;
-            var fileSize = getFileSizeByNumber(MsgContent.size);
+            var MsgContent = curItem.event.content;
+            console.log("*** msgcontent is ", MsgContent);
+            var fileSize = getFileSizeByNumber(MsgContent.info.size);
             var fileDate = this.MsgTime(curItem);
             var fileFromUserName = await this.MsgBelongUserName(curItem);
             return fileSize + " " + fileFromUserName + " " + fileDate;
         },
+        getSearchFileInfo: async function(curItem) {
+            var MsgContent = curItem.event.content;
+            console.log("*** msgcontent is ", MsgContent);
+            var fileSize = getFileSizeByNumber(MsgContent.info.size);
+            var fileDate = this.MsgTime(curItem);
+            var fileFromUserName = await this.SearchMsgBelongUserName(curItem);
+            return fileSize + " " + fileFromUserName + " " + fileDate;
+        },
         getIcon: function(curItem) {
-            var content = curItem.getContent();
+            var content = curItem.event.content ? curItem.event.content : curItem.getContent();
             if(content.body != undefined) {
                 if(content.msgtype == 'm.file'){
                     let ext = path.extname(content.body);
@@ -378,6 +481,25 @@ export default {
             console.log("global is ", global.mxMatrixClientPeg)
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
             console.log("the init user id is ,", this.GroupInfo)
+            if(this.$store.getters.getCurChatId() == undefined) {
+                this.curChatName = "返回聊天";
+            }
+            else {
+                var showGroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.$store.getters.getCurChatId());
+                
+                if(global.mxMatrixClientPeg.DMCheck(showGroupInfo)) {
+                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(showGroupInfo);
+                    if(!distUserId) {
+                        this.curChatName = showGroupInfo.name;
+                    }
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    this.curChatName = displayName;
+                }
+                else {
+                    this.curChatName = showGroupInfo.name;
+                }
+            }
+
             confservice.init(global.mxMatrixClientPeg.matrixClient.getUserId());
             this.showGroupInfo();
             // this.$store.commit("setUserId", this.curUserInfo.id)
@@ -403,6 +525,7 @@ export default {
                 })
         },
         handleScroll: function(force=false) {
+            console.log("**8 handleScroll ", force);
             let uldiv = document.getElementById("Mxfile-list-id");
             let client = document.getElementById("MxFileListDlgContentId");
             // console.log("=====client.clientHeight is ", client.clientHeight);
@@ -411,33 +534,63 @@ export default {
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
             // console.log("=====isRefreshing is ", this.isRefreshing);
             if(uldiv) {
+                var curTime = new Date().getTime();
                 if((uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight && !this.isRefreshing) || force==true) {
                     console.log("=======wo bottom");
                     this.isRefreshing = true;
-                    var canForwardPaginate = this._timelineWindow.canPaginate("f");
-                    if(!canForwardPaginate && !(force==true)) {
-                        this.isRefreshing = false;
-                        return;
-                    }
-                    this.lastScrollHeight = uldiv.scrollHeight;
-                    this.lastRefreshTime = new Date().getTime();
+
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                    this._timelineWindow.paginate("b", 20)
-                        .then((ret) => {
-                            if(ret == false) {
+                    if(this.searchKey.length == 0) {
+                        this.lastScrollHeight = uldiv.scrollHeight;
+                        this.lastRefreshTime = new Date().getTime();
+                        var canForwardPaginate = this._timelineWindow.canPaginate("f");
+                        if(!canForwardPaginate && !(force==true)) {
+                            this.isRefreshing = false;
+                            return;
+                        }
+                        this._timelineWindow.paginate("b", 20)
+                            .then((ret) => {
+                                if(ret == false) {
+                                    return;
+                                }
+                                console.log("f scroll ret is ", ret);
+                                this.isRefreshing = false;
+                                this.fileListInfo = this._timelineWindow.getEvents();
+                                this.$nextTick(() => {
+                                    console.log("---------update croll top is ", uldiv.scrollHeight);
+                                    // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                                })
+                                if(this.fileListInfo.length == 0) {
+                                    this.handleScroll(true);
+                                }
+                            })
+                    }
+                    else {
+                        if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing || force==true) {
+                            this.lastRefreshTime = new Date().getTime();
+                            this.lastScrollHeight = uldiv.scrollHeight;
+                            if(!this.canBackPaginate && !(force==true)) {
+                                this.isRefreshing = false;
                                 return;
                             }
-                            console.log("f scroll ret is ", ret);
-                            this.isRefreshing = false;
-                            this.fileListInfo = this._timelineWindow.getEvents();
-                            this.$nextTick(() => {
-                                console.log("---------update croll top is ", uldiv.scrollHeight);
-                                // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
-                            })
-                            if(this.fileListInfo.length == 0) {
-                                this.handleScroll(true);
-                            }
-                        })
+                            this.appSearch()
+                                .then((ret) => {
+                                    console.log("*** ret.length ", ret.results);
+                                    console.log("*** this.messageListShow.length ", this.fileListShow.length);
+                                    this.sequenceId = ret.results.length + this.fileListShow.length;
+                                    console.log("*** this.sequenceId ", this.sequenceId);
+                                    if(this.sequenceId >= ret.total) {
+                                        this.canBackPaginate = false;
+                                    }
+                                    this.ret = this.ret.concat(ret.results);
+                                    this.fileListShow = this.ret;
+                                    this.isRefreshing = false;
+                                    console.log("*** this.sequenceId ", this.sequenceId);
+                                    console.log("*** this.fileListShow ", this.fileListShow);
+                                    this.showSearchResultInfo();
+                                })
+                        }
+                    }
                 }
             }
         },
@@ -517,6 +670,7 @@ export default {
     },
     watch: {
         distRoomId: async function() {
+            this.toInit();
             this.existingMsgId = [];
             this.fileListInfo = [];
             if(this.distRoomId == "") {
@@ -536,6 +690,7 @@ export default {
     mounted: function() {
         // ipcRenderer.on('updateMsgFile', this.updateMsgFile);
         ipcRenderer.on("distGroupInfo", (event, groupId) => {
+            this.toInit();
             this.groupId = groupId;
             this.lastSequenceId = 0;
         })
@@ -605,7 +760,7 @@ export default {
     }
 
     .MxGroupInfo {
-        height: 60px;
+        height: 20px;
         width: 100%;
         margin: 0;
     }
@@ -730,7 +885,7 @@ export default {
 
     .Mxfile-list {
         width: 100%;
-        max-height: calc(100% - 135px);
+        max-height: calc(100% - 95px);
         margin: 0;
         padding: 0;
         list-style: none;
@@ -740,7 +895,7 @@ export default {
 
     .Mxfile-list:hover {
         width: 100%;
-        max-height: calc(100% - 135px);
+        max-height: calc(100% - 95px);
         margin: 0;
         padding: 0;
         list-style: none;

@@ -20,7 +20,7 @@
                         <label class="sessionTime">{{DealTime(item.last_seen_ts)}}</label>
                     </div>
                     <div class="sessionOperate" v-show="item.device_id != ownDeviceId">
-                        <label class="sessionRemove" @click="removeSession(item)">移除会话</label>
+                        <label class="sessionRemove" @click="removeSession(item)">移除</label>
                     </div>
                 </li>
             </ul>
@@ -255,7 +255,7 @@ export default {
         display: inline-block;
         width: 142px;
         height: 22px;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
         font-size: 16px;
         font-weight: 500;
         color: #000000;
@@ -330,7 +330,7 @@ export default {
         line-height: 20px;
         font-size: 14px;
         color: rgba(51, 51, 51, 1);
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
     }
 
@@ -339,7 +339,7 @@ export default {
         max-width: 80%;
         font-size: 14px;
         color: rgba(51, 51, 51, 1);
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         border: 1px solid rgba(153, 153, 153, 1);
     }
@@ -352,7 +352,7 @@ export default {
         border-radius: 4px;
         height: 16px;
         font-size: 10px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         line-height: 16px;
         text-align: center;
@@ -365,7 +365,7 @@ export default {
         height: 18px;
         color: rgba(153, 153, 153, 1);
         font-size: 12px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         line-height: 18px;
     }
@@ -376,7 +376,7 @@ export default {
         height: 18px;
         color: rgba(153, 153, 153, 1);
         font-size: 12px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight: 400;
         line-height: 18px;
     }
@@ -399,7 +399,7 @@ export default {
         border-radius: 4px;
         font-size: 14px;
         font-weight: 400;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         line-height: 28px;
         letter-spacing: 0px;
         padding: 4px 16px 4px 16px;

@@ -11,7 +11,7 @@
                     <label class="accountInfoLabel">用户名</label>
                     <label class="accountInfoLabel1">{{ownerAccount}}</label>
                 </li>
-                <li class="phoneBind">
+                <li class="phoneBind" v-show="false">
                     <img class="phoneBindImg" src="../../../static/Img/Setup/Phone@2x.png">
                     <label class="phoneBindLabel">手机号</label>
                     <label class="phoneBindBtn" @click="toBindPhone" v-show="phoneNum.length == 0">绑定</label>
@@ -274,7 +274,7 @@ export default {
                         return;
                     }
                 }
-                this.dlgElement.style.height = "242px";
+                this.dlgElement.style.height = "200px";
                 this.isBindInputPasswordPage = false;
                 this.isMainPage = true;
                 this.cutTitle = "账号管理";
@@ -367,7 +367,7 @@ export default {
         right: 0;
         margin: auto;
         width: 440px;
-        height: 242px;
+        height: 200px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
@@ -382,7 +382,7 @@ export default {
         display: inline-block;
         width: 142px;
         height: 22px;
-        font-family: SCPingFang-Medium;
+        font-family: PingFangSC-Medium;
         font-size: 16px;
         font-weight: 500;
         color: #000000;
@@ -436,7 +436,7 @@ export default {
         width: 100px;
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
@@ -471,7 +471,7 @@ export default {
     .phoneBinded {
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
@@ -503,7 +503,7 @@ export default {
         width: 100px;
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
@@ -515,7 +515,7 @@ export default {
     .accountInfoLabel1 {
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
@@ -547,7 +547,7 @@ export default {
         width: 36px;
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(51, 51, 51, 1);
         line-height:20px;
@@ -582,7 +582,7 @@ export default {
     .emailBinded {
         height: 20px;
         font-size:14px;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         font-weight:400;
         color:rgba(153, 153, 153, 1);
         line-height:20px;
@@ -603,7 +603,7 @@ export default {
         height: 20px;
         font-size: 14px;
         font-weight: 400;
-        font-family: SCPingFang-Regular;
+        font-family: PingFangSC-Regular;
         color: #333333;
         line-height: 20px;
         letter-spacing: 0px;
