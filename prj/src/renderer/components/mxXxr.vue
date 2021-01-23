@@ -1295,6 +1295,7 @@ export default {
                 searchDeps.forEach(s => {
                     s.type = 'dep';
                     s.avatar = s.department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    s.choosen = this.matchWithMap(s);
                     sds.push(s);
                 })
                 let sus = [];
@@ -1308,7 +1309,7 @@ export default {
                     u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
                     u.secdis = c.user_title || c.matrix_id;
-                    u.choosen = false;
+                    u.choosen = this.matchWithMap(c);
                     sus.push(u);
                 })
                 let scs = [];
@@ -1319,14 +1320,14 @@ export default {
                     u.display_name =  c.display_name || c.user_name || '';
                     u.user_id = c.matrix_id || '';
                     u.secdis = c.title || c.matrix_id;
-                    u.choosen = false;
+                    u.choosen = this.matchWithMap(c);
                     scs.push(u);
                 })
                 let mxs = [];
                 let results = res.results || [];
                 if (results.length >0) mxs.push({dvd:true, txt:'其他联系人'});
                 results.forEach(c => {
-                    c.choosen = false; 
+                    c.choosen = this.matchWithMap(c);
                     c.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
                     mxs.push(c);
                 })
