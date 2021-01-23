@@ -109,7 +109,7 @@
                             >   
                                 <div style="display:flex; align-items:center;" @click.stop="checkWrap(item)">
                                     <img
-                                        v-if="crumbs.length > 1"
+                                        v-if="isSearch ? true : crumbs.length > 1"
                                         style="height:20px; width:20px; margin-right:8px;"
                                         :src="item.choosen === 3 ? '../../../static/Img/Main/lg.png' : (item.choosen === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
                                     >
