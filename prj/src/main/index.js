@@ -329,6 +329,10 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
     favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
     //openDevToolsInDevelopment(favouriteDetailWindow);
     favouriteDetailWindow.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
       event.preventDefault();
       favouriteDetailWindow.hide();
     })
@@ -373,6 +377,10 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
       reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
     });
     reportRelationWindow.on("close", (event) => {
+      if(clickQuit){
+        app.quit()
+        return;
+      }
       event.preventDefault();
       reportRelationWindow.hide();
     })
@@ -1103,6 +1111,11 @@ function openDevToolsInDevelopment(mainWindow) {
     });
   }
   mainWindow.on('close', (event) => {
+    if(process.platform == 'linux' || process.platform == 'darwin'){
+      clickQuit = true;
+      app.quit();
+      return;
+    }
     if(!clickQuit){
       event.preventDefault();
       mainWindow.hide();
