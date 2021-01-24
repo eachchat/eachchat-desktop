@@ -44,7 +44,7 @@ const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
 const OPTS = {
-    limit: 200,
+    limit: 500,
 };
 export default {
     name: 'mxCreateRoomDlg',

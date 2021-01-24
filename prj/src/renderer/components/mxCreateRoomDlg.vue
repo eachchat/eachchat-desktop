@@ -43,7 +43,7 @@
                 </div> -->
                 <div class="setting-field" v-show="isPublic == 'y'">
                     <div class="field-left">
-                        <div class="setting-title">群聊广场</div>
+                        <div class="setting-title2">群聊广场</div>
                         <div class="setting-tip">将群聊发布到群聊广场中</div>
                     </div>
                     <el-switch 
@@ -538,6 +538,14 @@ export default {
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #666666;
+        line-height: 20px;
+    }
+    .setting-title2 {
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
         line-height: 20px;
     }
     .setting-tip {

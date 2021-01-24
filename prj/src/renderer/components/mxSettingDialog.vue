@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="setting-field">
-                <div class="filed-title">设置群聊地址</div>
+                <div class="filed-title">设置群聊新地址</div>
                 <!-- <div class="xiaomiaoshu tipdesc">任何服务器上的任何人都可以使用发布的群聊地址加入您的聊天室。如果要发布群聊地址，需要先设置为去群聊地址。</div> -->
                 <div class="xiaomiaoshu serverRow">
                     <div class="serverFrame">
