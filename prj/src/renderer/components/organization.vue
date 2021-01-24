@@ -12,6 +12,9 @@
                         />
                     </i>
                     </el-input>
+                    <div class='chat-tool-invite-div'>
+                        <el-image src="./static/Img/Organization/Image/addContact-24px.png" @click='AddContact()'></el-image>
+                    </div>
                 </div>
             </div>
             <div class="search-view" v-show="showSearchView">
@@ -57,12 +60,10 @@
                         <div class="department-info">
                         <p v-html="msgContentHightLight(room.name)" class="department-name">{{ room.name }}</p>
                         </div>
-                    </li>
-                    
-                    
+                    </li> 
                 </ul>
             </div>
-            <div v-show="!showSearchView">
+            <div v-show="!showSearchView" class = 'departmentsdiv'>
                 <ul class="departments-list">
                     <li class="department"
                         @click="departmentMenuItemClicked(departmentMenu)">
@@ -82,13 +83,15 @@
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </li>
-                    <li class="department"
-                        @click="departmentMenuItemClicked(contactMenu)">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organizetion-contact@2x.png"><div class="department-info">
-                            <p class="department-name">{{ contactMenu.display_name }}</p>
-                        </div>
-                        <div align="center" class="item-arrow">
-                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                    <li class="contact"
+                        v-for="contact in contactList"
+                        @click="SearchContactItemClicked(contact.matrix_id)" 
+                        @contextmenu="rightClick($event, contact)"
+                        :key="contact.matrix_id">
+                        <img ondragstart="return false" class="contact-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <div class="contact-list-info">
+                        <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
+                        <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
                 </ul>
@@ -96,7 +99,7 @@
         </el-aside>
         <el-container class="right-container">
             <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
-            <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList>
+            <!-- <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList> -->
             <contactRoomList v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
             </contactRoomList>
         </el-container>
@@ -104,14 +107,13 @@
         <div class="win-header">
             <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
+        <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="ClearCache"/>
+        <addContact v-if="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact"></addContact>
     </el-container>
 </template>
 <script>
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import {services, environment} from '../../packages/data/index.js';
-import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
-import confservice from '../../packages/data/conf_service.js'
+
+import {environment} from '../../packages/data/index.js';
 import {Contact, ContactRoom, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
 import contactList from './contact-list'
@@ -119,9 +121,12 @@ import contactRoomList from './contact-room'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header-login.vue';
-import {ipcRenderer} from 'electron'
 import {ComponentUtil} from '../script/component-util.js'
 import '../style/organise.css'
+import {ipcRenderer, remote} from 'electron'
+const {Menu, MenuItem} = remote;
+import AlertDlg from './alert-dlg.vue'
+import addContact from './add-contact';
 
 export default {
     name: 'organization',
@@ -177,6 +182,7 @@ export default {
             searchUserInfoPosition:{},
             contactType:"organise",
             contactListKey: 0,
+            contactList: [],
             departmentMenu:{
                 display_name: this.$t("organizeMenuName")
             },
@@ -185,10 +191,63 @@ export default {
             },
             rootDepartmentID: '',
             myMatrixId: '',
-            myDoman:''
+            myDoman:'',
+            showAlertDlg: false,
+            alertContents: {},
+            showChatContactDlg: false
         }
     },
     methods: {
+        HandleInputContact: async function(){
+            this.showChatContactDlg = false;
+            this.contactList = await Contact.GetAllContact();
+        },
+
+        AddContact(){
+            this.showChatContactDlg = true;
+        },
+
+        closeAddContactDlg: async function(){
+            this.showChatContactDlg = false;
+            this.contactList = await Contact.GetAllContact();
+        }, 
+
+        rightClick(e, contact) {
+            this.menu = new Menu();
+            this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.DeleteContact(contact);
+                    }
+                })); 
+            this.menu.popup(remote.getCurrentWindow());
+        },
+        CloseAlertDlg: function(){
+            this.showAlertDlg = false;
+        },
+
+        ClearCache: async function(){
+            this.showAlertDlg = false;
+            let ret = await global.services.common.DeleteContact(this.deleteContact.matrix_id)
+            if(ret){
+                for(let index in this.contactList){
+                    if(this.contactList[index].matrix_id == this.deleteContact.matrix_id){
+                        this.contactList.splice(index, 1);
+                        return;
+                    }
+                }
+            }
+        },
+
+        DeleteContact(contact){
+            this.deleteContact = contact;
+            this.showAlertDlg = true;
+            this.alertContents = {
+                "Details": this.$t("DeleteContactAlertTitle") + ' ' + contact.display_name + ' ?',
+                "Abstrace": this.$t("DeleteContactAlertDetail")
+            }
+        },
+
         GetContactTitle: function(user){
             let userDoman = ComponentUtil.GetDomanName(user.matrix_id);
             if(userDoman == this.myDoman)
@@ -255,6 +314,10 @@ export default {
         },
         getSearchUserIconId(id){
             return 'search' + id;
+        },
+
+        getContactIconId(id){
+            return 'contact' + id;
         },
 
         getDepartmentImage: async function(department){
@@ -420,7 +483,9 @@ export default {
         userInfoContent,
         winHeaderBar,
         contactList,
-        contactRoomList
+        contactRoomList,
+        AlertDlg,
+        addContact
     },
     created:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
@@ -430,6 +495,12 @@ export default {
         this.myDoman = ComponentUtil.GetDomanName(this.myMatrixId);
         console.log("to get organization");
         await this.getOrganizationBaseData();
+        this.contactList = await Contact.GetAllContact();
+        this.$nextTick(function(){
+                this.contactList.forEach(item => {
+                    this.getUserImg(item, 'contact')
+                })
+        });
         var that = this;
         document.addEventListener('click',function(e){
             if(e.target.className.indexOf('userInfo') == -1){
@@ -493,6 +564,23 @@ display: none;
     -webkit-app-region: no-drag;
 }
 
+.chat-tool-invite-div {
+    display: inline-block;
+    text-align:center;
+    vertical-align:middle;
+    float: right;
+    width: 50px;
+    height: 30px;
+}
+
+.departmentsdiv{
+    width: 100%;
+    height: 90%;
+    padding: 0;
+    margin: 0;
+    overflow: scroll;
+}
+
 .departments-list {
     width: 100%;
     height: 100%;
@@ -554,6 +642,29 @@ display: none;
     width: 7px;
     height: 13px;
 }
+
+.contact {
+    height: 60px;
+    //border-bottom: 1px solid rgb(221, 221, 221);
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-block;
+            margin-left: 16px;
+            margin-top: 10px;
+            margin-right: 0px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-radius: 50%;
+        }
+    }
+.contact:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+}
+    
+
 .search-view{
     width: 100%;
     height: 90%;
@@ -679,7 +790,7 @@ display: none;
     .search-input {
         display: inline-block;
         position: absolute;
-        width: 248px;
+        width: 200px;
         padding: 0;
         margin: 0px;
         height: 32px;

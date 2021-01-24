@@ -105,8 +105,8 @@ export default {
             else{
                 info = await ComponentUtil.OrgUserInfoToContact(row);
             }
-            await this.services.AddContact(info);
             await this.services.GetAllContact();
+            await this.services.AddContact(info); 
             this.contacts = await Contact.GetAllContact();
         },
 
