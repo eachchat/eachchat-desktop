@@ -24,7 +24,7 @@
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
                         <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
-                            <p class="file-size" v-show="false">{{this.voiceLenth}} s</p>
+                            <p class="file-size" v-show="false">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-mine-transmit"
@@ -77,7 +77,7 @@
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
                         <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info" v-show="false">
-                            <p class="file-size">{{this.voiceLenth}} s</p>
+                            <p class="file-size">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
                     <div class="chat-msg-content-other-transmit"
@@ -1554,6 +1554,12 @@ export default {
         max-height: 23px;
         display: inline-block;
         vertical-align: top;
+        .file-size{
+            font-weight: 400;
+            color: #000000;
+            font-size: 14px;
+            margin: 0;
+        }
     }
 
     .file-name {
@@ -1817,7 +1823,13 @@ export default {
         text-align: left;
         margin: 0px;
         cursor: pointer;
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
         -webkit-user-select:none;
+        .voice-image{
+            transform: rotate(180deg);
+        }
     }
 
     .chat-msg-content-other-transmit {
