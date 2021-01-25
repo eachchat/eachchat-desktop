@@ -66,18 +66,18 @@
             <div v-show="!showSearchView" class = 'departmentsdiv'>
                 <ul class="departments-list">
                     <li class="department"
-                        @click="departmentMenuItemClicked(departmentMenu)">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
-                            <p class="department-name">{{ departmentMenu.display_name }}</p>
+                        @click="roomItemClick()">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
+                            <p class="department-name">群聊</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </li>
                     <li class="department"
-                        @click="roomItemClick()">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
-                            <p class="department-name">群聊</p>
+                        @click="departmentMenuItemClicked(departmentMenu)">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
+                            <p class="department-name">{{ departmentMenu.display_name }}</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
