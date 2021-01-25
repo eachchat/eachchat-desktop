@@ -27,7 +27,8 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"/>
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
+                :organizationClick = "organizationClick"/>
             </keep-alive>
         </el-main>
         <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
@@ -114,6 +115,7 @@ export default {
             distUserId: '',
             curindex: -1,
             curView: 'ChatContent',
+            organizationClick: 0,
             //serverapi: new ServerApi('http', '139.198.15.253'),
             Navigate:[
                 {    
@@ -287,6 +289,7 @@ export default {
                 }
             }
             else if(cur_name == "contact list") {
+                this.organizationClick++;
                 if(this.$route.name != "organization") {
                     this.$router.push("/main/organization")
                 }

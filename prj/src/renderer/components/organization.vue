@@ -134,9 +134,19 @@ export default {
         receiveSearchKey: {
             type: String,
             default: ''
+        },
+        organizationClick:{
+            type: Number,
+            default: 0
         }
     },
     watch: {
+        organizationClick: function(){
+            global.services.common.GetAllContact().then(async() => {
+                this.contactList = await Contact.GetAllContact();
+            }) 
+        },
+
         receiveSearchKey: function() {
             console.log("can search is ", this.canSearch);
             if(this.canSearch) {
