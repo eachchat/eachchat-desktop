@@ -305,13 +305,15 @@ export default {
                         if(this.amr.isInit()) {
                             console.log("play")
                             this.amr.play();
-                            this.voicePlayingImg();
-                            this.amr.onEnded(() => {
-                                clearInterval(this.flashingInterval);
-                                this.flashingIndex = 0;
-                                var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
-                            })
+                            setTimeout(() => {
+                                this.voicePlayingImg();
+                                this.amr.onEnded(() => {
+                                    clearInterval(this.flashingInterval);
+                                    this.flashingIndex = 0;
+                                    var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                })
+                            }, 50)
                         }
                         else {
                             var showfu = new FileUtil(existLocalFile);
@@ -438,6 +440,9 @@ export default {
             }
         },
         voicePlayingImg:function() {
+            if (this.flashingInterval) {
+                clearInterval(this.flashingInterval)
+            }
             this.flashingInterval = setInterval(() => {
                 console.log("this.indexi ", this.flashingIndex);
                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
