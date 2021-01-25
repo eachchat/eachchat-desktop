@@ -3,10 +3,10 @@
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
-                    <el-input size='mini' clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
+                    <el-input clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
                     <i slot="prefix" style="display: flex;align-items: center;">
                         <img
-                            style="width:20px;height:20px;margin-top: 4px;"
+                            style="width:20px;height:20px;margin-top: 7px;margin-left: 2px;"
                             src="../../../static/Img/Main/search@2x.png"
                             alt
                         />
@@ -742,9 +742,9 @@ display: none;
 }
 
     .search {
-        margin: 12px 16px 12px 16px;
+        margin: 12px 0px 12px 16px;
         text-align: left;
-        width: calc(100% - 32px);
+        width: calc(100% - 16px);
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
@@ -796,11 +796,23 @@ display: none;
         display: inline-block;
         color: rgb(255,204,102);
     }
+
+    /deep/ .el-input__inner{
+          height: 32px;
+        }
+    /deep/.el-input--prefix .el-input__inner {
+        padding-top: 1px;
+        padding-left: 32px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+    }
     
     .search-input {
         display: inline-block;
         position: absolute;
-        width: 200px;
+        width: 208px;
         padding: 0;
         margin: 0px;
         height: 32px;
