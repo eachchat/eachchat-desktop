@@ -721,7 +721,7 @@ export default {
         width: 64px;
         height: 100%;
         padding: 0px;
-        margin-top: 36px;
+        margin-top: 0px;
         background: rgba(74, 76, 91, 1);
     }
 
@@ -742,7 +742,7 @@ export default {
         height: 40px;
         text-align: center;
         line-height: 40px;
-        margin: 40px 0px 10px 0px;
+        margin: 40px 0px 20px 0px;
         border-radius:4px;
     }
 
@@ -755,7 +755,7 @@ export default {
 
     .nav-unread {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -773,7 +773,7 @@ export default {
 
     .nav-unread-99 {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -791,7 +791,7 @@ export default {
 
     .nav-unread-no-focuse {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -808,7 +808,7 @@ export default {
 
     .nav-unread-no-focuse-99 {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -825,7 +825,7 @@ export default {
 
     .mac-nav-unread {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -843,7 +843,7 @@ export default {
 
     .mac-nav-unread-99 {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -861,7 +861,7 @@ export default {
 
     .mac-nav-unread-no-focuse {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -878,7 +878,7 @@ export default {
 
     .mac-nav-unread-no-focuse-99 {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -895,7 +895,7 @@ export default {
 
     .nav-readall-unselected {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;
@@ -912,7 +912,7 @@ export default {
 
     .mac-nav-readall-unselected {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;
