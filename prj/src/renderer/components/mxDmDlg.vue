@@ -63,7 +63,7 @@
                         <div 
                             class="room-item"
                             @click.stop="chooseT(item, idx)"
-                            :style="{'background': item.choosen ? '#A7E0C4':'#fff'}" 
+                            :style="{'background': item.choosen ? '#EEEEEE':'#fff'}" 
                             v-else
                         >
                             <img class="room-img" :src="item.avatar_url"/>
