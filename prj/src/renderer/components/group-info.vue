@@ -58,7 +58,7 @@
             </div>
         </div>
         <div v-if="isDm" class="groupSettingSilenceDiv qsz" @click.stop="changeMxXxr()">
-            <label class="groupSettingFavouriteLabelA">创建群聊</label>
+            <label class="groupSettingFavouriteLabelA">发起群聊</label>
             <img style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
         </div>
         <div v-if="!isDm && showGroupInfo.userLevel>=100" class="groupSettingSilenceDiv qsz" @click.stop="openSetting()">
