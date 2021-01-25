@@ -95,7 +95,9 @@ export default {
             this.ownerPosition = user.title;
             if(this.ownerPosition && this.ownerPosition.length != 0)  height += 40;
 
-            this.ownerDepartment = user.department.display_name;
+            let companyName = await Department.GetBelongCompanyNameByMatriID(this.ownerId);
+            if(companyName) this.ownerDepartment = companyName + "/"
+            this.ownerDepartment = this.ownerDepartment + user.department.display_name;
             if(this.ownerDepartment && this.ownerDepartment.length != 0)  height += 40;
 
             

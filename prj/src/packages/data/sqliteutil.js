@@ -220,6 +220,14 @@ const Department = {
             return await this.GetBelongDepartmentsByDepartmentID(department.department_id);
     },
 
+    async GetBelongCompanyNameByMatriID(matrixID){
+        let departments = await this.GetBelongDepartmentsByMatrixID(matrixID);
+        for(let item of departments){
+            if(item.department_type === 'company')
+                return item.display_name;
+        }
+    },
+
     async GetMaxDeparmentUpdateTime(){
         let departments = await (await models.Department).find({
             $order: {

@@ -153,7 +153,8 @@ var models = {
           admin_id:      types.string,
           del:           types.integer,
           show_order:    types.integer,
-          updatetime:    types.integer
+          updatetime:    types.integer,
+          department_type: types.string
         },
         primaryKey: "department_id"
       });
