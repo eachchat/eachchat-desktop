@@ -3,10 +3,10 @@
         <div class="mx-setting-dialog">
             <div class="inner-wrap">
                 <div class="title">
-                    <span class="titlespan">编辑群资料</span>
+                    <span class="titlespan">修改群聊信息</span>
                     <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png">
                 </div>
-                <div class="filed-title">群名称</div>
+                <div class="filed-title">群聊名称</div>
                 <input 
                     type="text" 
                     placeholder="请输入群名称" 
@@ -14,7 +14,7 @@
                     maxlength="24"
                     v-model="roomName"
                 />
-                <div class="filed-title">群名称</div>
+                <div class="filed-title">群描述</div>
                 <textarea 
                     placeholder="请输入群描述" 
                     class="desc-text"
@@ -91,6 +91,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    ::-webkit-input-placeholder {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+    }
     .wrap-layer {
         height: 100%;
         width: 100%;
@@ -128,7 +134,6 @@ export default {
             font-weight: 500;
             color: #000000;
             line-height: 22px;
-            letter-spacing: 0px;
         }
         .close {
             height: 20px;
@@ -136,13 +141,13 @@ export default {
         }
         .filed-title {
             height: 20px;
-            font-size: 14px;
+            font-size: 13px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
-            color: #333333;
+            color: #666666;
             line-height: 20px;
-            letter-spacing: 0px;
             margin-left: 40px;
+
         }
         .title-input {
             height: 32px;
@@ -155,7 +160,10 @@ export default {
             margin-bottom: 20px;
             margin-top: 8px;
             padding-left: 10px;
-            font-family: PingFangSC-Medium, PingFang SC;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #000000;
 
         }
         .desc-text {
@@ -171,7 +179,10 @@ export default {
             margin-bottom: 30px;
             resize: none;
             padding-left: 10px;
-            font-family: PingFangSC-Medium, PingFang SC;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #000000;
         }
         .input-tip {
             color:rgb(118, 118, 118);
