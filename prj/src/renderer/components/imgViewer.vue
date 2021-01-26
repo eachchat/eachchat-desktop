@@ -316,6 +316,7 @@ export default {
             this.stageElement.setAttribute("src", this.curImage.imageUrl);
         });
         ipcRenderer.on("personalUrl", (event, url) => {
+            this.curImage.imageUrl = undefined;
             this.isPersonalImg = true;
             this.curUrl = url;
             var img = new Image();
@@ -329,7 +330,7 @@ export default {
                 console.log("*** style is ", style);
                 this.stageElement.setAttribute("style", style);
                 this.stageElement.setAttribute("src", this.curUrl);
-                this.updateWindowSize({w: img.width, h: img.height});
+                this.updateWindowSize({w: img.width > 100 ? img.width : 100, h: img.height > 100 ? img.height : 100});
             }
         });
         window.addEventListener('keydown', this.keyHandle);

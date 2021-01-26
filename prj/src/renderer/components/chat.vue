@@ -1411,7 +1411,7 @@ export default {
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
-                    let maxSize = 366;
+                    let maxSize = 390;
                     var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
         
                     let info = {
