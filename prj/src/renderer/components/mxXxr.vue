@@ -910,7 +910,7 @@ export default {
             let department_id = obj.department_id;
             if (department_id === this.crumbs[0].department_id) {
                 const rootDep = await Department.GetRoot();
-                const dvd = {dvd:true, txt:'我的联系人'};
+                const dvd = {dvd:true, txt:'联系人'};
                 const contactUsers = await Contact.GetAllContact();
                 contactUsers.forEach(c => {
                     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
