@@ -27,7 +27,7 @@
                         <div class="serverFrameStart">#</div>
                         <input 
                             type="text" 
-                            placeholder="群聊地址"
+                            placeholder="输入地址"
                             class="serverInput"
                             v-model="serverAddress"
                         >
