@@ -628,7 +628,7 @@ export default {
             if(!serverCheckRet) {
                 return false;
             }
-            var loginSettingRet = await global.services.common.getLoginConfig(this.appServerHost);
+            var loginSettingRet = await global.services.common.getLoginConfig(host);
             if(!loginSettingRet) {
                 if(domain != undefined){
                     this.$toastMessage({message:"获取登录配置失败", time: 2000, type:'error', showWidth:'280px'});
@@ -937,8 +937,8 @@ export default {
                     else {
                         this.isLdap = false;
                         this.isMatrixPwd = true;
-                        this.loginPageTitle = "用户名登录";
-                        this.loginPageTitlellustrate = "";
+                        this.loginPageTitle = "登录 亿洽";
+                        this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
                         this.loginPageAccountLabel = "用户名";
                         this.loginPageAccountPlaceholder = "请输入用户名";
                         this.loginPagePwdLabel = "密码";
