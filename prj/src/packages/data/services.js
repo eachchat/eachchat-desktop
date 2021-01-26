@@ -15,7 +15,7 @@ import {Base64} from "js-base64";
 import {environment} from "./environment.js";
 import {globalConfig} from "../core/config.js"
 import {SqliteEncrypt, AESEncrypt} from "../core/encrypt.js"
-
+import log from 'electron-log';
 
 const mqtt = require('mqtt')
 
@@ -263,6 +263,7 @@ const common = {
     if(this.api != undefined)
       return;
     console.log("initServiceApi")
+    log.info("this.config.hostname, this.config.apiPort, this.config.hostTls", this.config.hostname, this.config.apiPort, this.config.hostTls);
     this.api = new APITransaction(this.config.hostname, this.config.apiPort, this.config.hostTls);
     this.api.SetService(this);
   },
@@ -398,6 +399,7 @@ const common = {
   async UpdateDepartment(){
     let updateTime = await Department.GetMaxDeparmentUpdateTime();
     console.log("max Department updatetime is "+ updateTime)
+    log.info("max Department updatetime is "+ updateTime);
     if(updateTime == 0)
       await this.AllDepartmentInfo();
     else
@@ -407,6 +409,7 @@ const common = {
   async UpdateUserinfo(){
     let updateTime = await UserInfo.GetMaxUpdateTime();
     console.log("max updatetime in userinfo is "+ updateTime)
+    log.info("max updatetime in userinfo is "+ updateTime)
     if(updateTime == 0)
       await this.AllUserinfo();
     else
@@ -563,6 +566,7 @@ const common = {
     await (await models.UserIm).truncate()
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
+      log.info("AllUserinfo", result)
       if (!result.ok || !result.success) {
         return result;
       }
@@ -609,7 +613,6 @@ const common = {
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
-    
     return await this.api.getUserinfo(this.data.login.access_token, filters, perPage, sortOrder, sequenceId);
   },
 
@@ -656,6 +659,7 @@ const common = {
       }
 
       if (!("obj" in result.data)) {
+        log.warn("AllDepartmentInfo", result)
         return result;
       }
       for(var item in result.data.results)
@@ -2236,6 +2240,7 @@ const common = {
         'tenantName': domain
       }
     );
+    log.info("newGmsConfiguration", response)
     if (response.status != 200 
       || response.data == undefined
       || response.data.obj == undefined) {
@@ -2320,7 +2325,8 @@ const common = {
       response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
       console.log("the url is ", host + "/gms/v1/configuration/" + value);
       // response = await axios.get(host + "/" + value);
-    
+    log.info("gmsConfiguration", response)
+
     if (response.status != 200 
       || response.data == undefined
       || response.data.obj == undefined) {
@@ -2504,6 +2510,7 @@ const common = {
                                           contactInfo.telephone,
                                           contactInfo.company,
                                           contactInfo.title);
+    log.info("AddContact", result)
     if (!result.ok || !result.success) {
       return result;
     }
@@ -2521,6 +2528,7 @@ const common = {
     let existModel = null;
     while(1){
       result = await this.api.IncrementContact(this.data.login.access_token, updateTime, sequenceID);
+      log.info("GetAllContact", result)
       if (!result.ok || !result.success) {
         await Contact.DeleteAllContact();
         return result;
@@ -2547,6 +2555,7 @@ const common = {
 
   async DeleteContact(matrixID){
     let result = await this.api.DeleteContact(this.data.login.access_token, matrixID);
+    log.info("DeleteContact", result);
     console.log(result)
     if (!result.ok || !result.success) {
       return false;
@@ -2582,6 +2591,7 @@ const common = {
                                               telephone,
                                               company,
                                               title);
+    log.info("UpdateContact", result);
     if (!result.ok || !result.success) {
       return false;
     }
@@ -2598,6 +2608,7 @@ const common = {
 
   async addRoomToContact(roomID){
     let result = await this.api.addRoomToContact(this.data.login.access_token, roomID);
+    log.info("addRoomToContact", result);
     if (!result.ok || !result.success) {
       return false;
     }
@@ -2608,6 +2619,7 @@ const common = {
 
   async deleteRoomFromContact(roomID){
     let result = await this.api.deleteRoomFromContact(this.data.login.access_token, roomID);
+    log.info("deleteRoomFromContact", result);
     if (!result.ok || !result.success) {
       return false;
     }
@@ -2626,6 +2638,7 @@ const common = {
                                                               updateTime, 
                                                               perPage, 
                                                               sequenceID);
+      log.info("getAllContactRooms", result);
       if (!result.ok || !result.success) {
         return false;
       }
@@ -2648,6 +2661,7 @@ const common = {
                                                 updateTime, 
                                                 perPage, 
                                                 sequenceID);
+    log.info("updateRoomFromContact", result);
     if (!result.ok || !result.success) {
       return false;
     }
