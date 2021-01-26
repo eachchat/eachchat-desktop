@@ -1795,7 +1795,7 @@ export default {
     }
 }
 .macWindowHeader {
-    padding: 0px;
+    padding: 0px 0px 0px 12px;
     margin: 0px;
     width: 64px;
 }

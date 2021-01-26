@@ -44,7 +44,7 @@ export default {
         },
         showMin: function() {
             console.log("this.showMin ", this.showMin);
-        }
+        },
     },
     methods: {
         isOSX() {

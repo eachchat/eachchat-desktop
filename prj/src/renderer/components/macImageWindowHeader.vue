@@ -81,7 +81,7 @@ export default {
         height: 12px;
         border-radius: 6px;
         padding-left: 0px;
-        padding-top: 12px;
+        padding-top: 13px;
 
     }
     .min-image {
@@ -90,7 +90,7 @@ export default {
         height: 12px;
         border-radius: 6px;
         padding-left: 8px;
-        padding-top: 12px;
+        padding-top: 13px;
     }
     .zoom-min-image {
         display: inline-block;
@@ -98,7 +98,7 @@ export default {
         height: 12px;
         border-radius: 6px;
         padding-left: 8px;
-        padding-top: 12px;
+        padding-top: 13px;
     }
     .zoom-max-image {
         display: inline-block;
@@ -106,7 +106,7 @@ export default {
         height: 12px;
         border-radius: 6px;
         padding-left: 8px;
-        padding-top: 12px;
+        padding-top: 13px;
     }
 }
 .window-header-bar:hover{
