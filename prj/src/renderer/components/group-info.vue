@@ -96,6 +96,16 @@
             >
             </el-switch>
         </div>
+        <div class="groupSettingFavouriteDiv" v-show="isGroup">
+            <label class="groupSettingFavouriteLabel">保存到联系人</label>
+            <el-switch 
+                class="groupSettingFavouriteSwitch" 
+                v-model="mxContact" 
+                @change="mxContactChange(mxContact)"
+                :active-color="'#24B36B'"
+            >
+            </el-switch>
+        </div>
         <!-- <div class="groupSettingTopDiv" v-show="!isSecret">
             <label class="groupSettingTopLabel">置顶聊天</label>
             <el-switch 
@@ -234,7 +244,7 @@ import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
-import { UserInfo, Contact } from '../../packages/data/sqliteutil.js'
+import { UserInfo, Contact, ContactRoom} from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
 import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
@@ -242,6 +252,7 @@ import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxXxr from './mxXxr.vue'
 import mxDmDlg from './mxDmDlg.vue'
 import {ComponentUtil} from '../script/component-util'
+import { common } from '../../packages/data/services.js'
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 // export const ALL_MESSAGES = 'all_messages';
@@ -297,7 +308,8 @@ export default {
             memberFilter: '',
             mxAvatar: '',
             mxRoom: {},
-            mxXxrOpen: false
+            mxXxrOpen: false,
+            mxContact: false
         }
     },
     components: {
@@ -549,6 +561,14 @@ export default {
             } else {
                 client.deleteRoomTag(roomId, "m.favourite");
 
+            }
+        },
+        async mxContactChange(mxContact) {
+            const roomId = this.showGroupInfo.groupId;
+            if (mxContact) {
+                await common.addRoomToContact(roomId);
+            } else {
+                await common.deleteRoomFromContact(roomId);
             }
         },
         getRoomFavo(room) {
@@ -984,6 +1004,7 @@ export default {
         const mDirectEvent = global.mxMatrixClientPeg.matrixClient.getAccountData('m.direct');
         let dmRoomMap = {};
         if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
+        this.mxContact = await ContactRoom.ExistRoom(roomId);
         console.log('Room js intent check', mDirectEvent)
         console.log('----dmRoomMap----', dmRoomMap)
         console.log('----chat----', this.showGroupInfo.room)
