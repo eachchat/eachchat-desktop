@@ -69,7 +69,7 @@
                             <img class="room-img" :src="item.avatar_url"/>
                             <div class="user-info">
                                 <span class="room-info">{{item.display_name}}</span>
-                                <span class="room-info" style="font-size:12px; color:#999999">{{item.secdis || item.matrix_id || item.user_id}}</span>
+                                <span class="room-info2">{{item.secdis || item.matrix_id || item.user_id}}</span>
                             </div>
                         </div>
                     </div>
@@ -995,7 +995,14 @@ export default {
         font-weight: 400;
         color: #000000;
         line-height: 20px;
-        letter-spacing: 0px;
+    }
+    .room-info2 {
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 18px;
     }
     .room-join {
         height: 24px;
