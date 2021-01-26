@@ -130,6 +130,11 @@ export default {
             if (this.busy) return;
             this.busy = true;
             const roomId = this.roomId;
+            const reg = /^[-!_+#*A-Za-z0-9]+$/;
+            if (this.serverAddress && !reg.test(this.serverAddress)) {
+                this.busy = false;
+                return alert('设置的群聊地址格式不正确');
+            }
             const address = '#' + this.serverAddress + ':matrix.each.chat';
             const joinRule = this.joinRule;
             const history = this.history;
