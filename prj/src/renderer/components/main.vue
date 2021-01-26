@@ -742,7 +742,7 @@ export default {
         height: 40px;
         text-align: center;
         line-height: 40px;
-        margin: 40px 0px 20px 0px;
+        margin: 56px 0px 20px 0px;
         border-radius:4px;
     }
 
@@ -755,7 +755,7 @@ export default {
 
     .nav-unread {
         position: absolute;
-        top: 108px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -773,7 +773,7 @@ export default {
 
     .nav-unread-99 {
         position: absolute;
-        top: 108px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -791,7 +791,7 @@ export default {
 
     .nav-unread-no-focuse {
         position: absolute;
-        top: 108px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -808,7 +808,7 @@ export default {
 
     .nav-unread-no-focuse-99 {
         position: absolute;
-        top: 108px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -825,7 +825,7 @@ export default {
 
     .mac-nav-unread {
         position: absolute;
-        top: 120px;
+        top: 136px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -843,7 +843,7 @@ export default {
 
     .mac-nav-unread-99 {
         position: absolute;
-        top: 120px;
+        top: 136px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -861,7 +861,7 @@ export default {
 
     .mac-nav-unread-no-focuse {
         position: absolute;
-        top: 120px;
+        top: 136px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -878,7 +878,7 @@ export default {
 
     .mac-nav-unread-no-focuse-99 {
         position: absolute;
-        top: 120px;
+        top: 136px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -895,7 +895,7 @@ export default {
 
     .nav-readall-unselected {
         position: absolute;
-        top: 108px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;
@@ -912,7 +912,7 @@ export default {
 
     .mac-nav-readall-unselected {
         position: absolute;
-        top: 120px;
+        top: 136px;
         left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;
@@ -928,24 +928,24 @@ export default {
     }
 
     .nav-item {
-        height: 50px;
+        height: 48px;
         text-align: center;
-        line-height: 50px;
+        line-height: 48px;
         background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item.active {
-        height: 50px;
+        height: 48px;
         text-align: center;
         color: rgba(255, 255, 255, 1);
-        line-height: 50px;
+        line-height: 48px;
         background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item:hover {
-        height: 50px;
+        height: 48px;
         text-align: center;
-        line-height: 50px;
+        line-height: 48px;
         background-color: rgba(74, 76, 91, 1);;
     }
 

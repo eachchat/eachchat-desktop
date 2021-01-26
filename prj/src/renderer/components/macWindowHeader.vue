@@ -81,6 +81,7 @@ export default {
         border-radius: 6px;
         padding-left: 6px;
         padding-top: 7px;
+        margin-top: 12px;
 
     }
     .min-image {
@@ -90,6 +91,7 @@ export default {
         border-radius: 6px;
         padding-left: 8px;
         padding-top: 7px;
+        margin-top: 12px;
     }
     .zoom-image {
         display: inline-block;
@@ -98,6 +100,7 @@ export default {
         border-radius: 6px;
         padding-left: 8px;
         padding-top: 7px;
+        margin-top: 12px;
     }
 }
 .window-header-bar:hover{
