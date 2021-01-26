@@ -11,7 +11,7 @@
 import { ipcRenderer } from 'electron'
 import { environment} from '../../packages/data/index.js'
 export default {
-    name: 'macWinHeadbar',
+    name: 'macImageWinHeadbar',
     data () {
         return {
         }
@@ -81,7 +81,6 @@ export default {
         border-radius: 6px;
         padding-left: 6px;
         padding-top: 7px;
-        margin-top: 7px;
 
     }
     .min-image {
@@ -91,7 +90,6 @@ export default {
         border-radius: 6px;
         padding-left: 8px;
         padding-top: 7px;
-        margin-top: 7px;
     }
     .zoom-image {
         display: inline-block;
@@ -100,18 +98,20 @@ export default {
         border-radius: 6px;
         padding-left: 8px;
         padding-top: 7px;
-        margin-top: 7px;
     }
 }
 .window-header-bar:hover{
     .close-image{
         content: url('../../../static/Img/Main/Close-hover@2x.png');
+        cursor: pointer;
     }
     .min-image{
         content: url('../../../static/Img/Main/Minimise-hover@2x.png');
+        cursor: pointer;
     }
     .zoom-image{
         content: url('../../../static/Img/Main/zoom-hover@2x.png');
+        cursor: pointer;
     }
 }
 </style>

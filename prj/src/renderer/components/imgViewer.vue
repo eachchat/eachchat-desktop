@@ -1,7 +1,7 @@
 <template>
     <div class="imageViewerPage">
         <div class="windowHeader">
-            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></mac-window-header>
+            <macImageWinHeadbar class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></macImageWinHeadbar>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
         </div>
         <div class="imageBox" id="imageBoxId" @mousedown="holeDown" @mouseup="holeUp">
@@ -34,7 +34,7 @@ import { getFileBlob} from '../../packages/core/Utils.js'
 import {ipcRenderer, remote} from 'electron'
 import * as Matrix from 'matrix-js-sdk';
 import {ComponentUtil} from '../script/component-util';
-import macWindowHeader from './macWindowHeader.vue';
+import macImageWinHeadbar from './macImageWindowHeader.vue';
 import winHeaderBar from './win-header-login.vue';
 import { windowsStore } from 'process'
 
@@ -43,7 +43,7 @@ const {Menu, MenuItem, nativeImage} = remote;
 export default {
     name: 'imageViewer',
     components:{
-        macWindowHeader,
+        macImageWinHeadbar,
         winHeaderBar,
     },
     methods: {
