@@ -727,7 +727,7 @@ export default {
                 u.choosen = false;
                 return u;
             })
-            const layer = {name:'联系人', department_id:'lxr', choosen: true}
+            const layer = {name:'联系人', department_id:'lxr', choosen: false}
             // const dvd = {dvd:true, txt:'我的联系人'};
             // let myContact = {
             //     type: 'dep',

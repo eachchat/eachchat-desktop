@@ -131,7 +131,7 @@
                                          :src="item.avatar"
                                     /> <!-- src="../../../static/Img/Main/yjt.png" -->
                                     <div class="user-info">
-                                        <span class="room-info">{{item.display_name}}</span>
+                                        <div class="room-info" v-html="searchKeyHightLight(item.display_name)">{{item.display_name}}</div>
                                     </div>
                                 </div>
                                 <img style="height:20px; width:20px;" src="../../../static/Img/Main/yjt.png" @click.stop="changeLayer(item)">
@@ -148,8 +148,8 @@
                                 >
                                 <img class="room-img" :src="item.avatar_url"/>
                                 <div class="user-info">
-                                    <span class="room-info">{{item.display_name}}</span>
-                                    <span class="room-info" style="font-size:12px; color:#999999">{{item.secdis || item.matrix_id || item.user_id}}</span>
+                                    <div class="room-info" v-html="searchKeyHightLight(item.display_name)">{{item.display_name}}</div>
+                                    <div class="room-info2">{{item.secdis || item.matrix_id || item.user_id}}</div>
                                 </div>
                             </div>
                         </div>
@@ -264,6 +264,11 @@ export default {
     },
     timer: null,
     methods: {
+        searchKeyHightLight(content){
+            return content.replace(this.memText, function(item) {
+                return '<span style="color:rgba(0, 169, 113, 1);">' + item + "</span>"; 
+            })
+        },
         async createXie() {
             // if (this.loading) return;
             // this.loading = true;
@@ -910,7 +915,7 @@ export default {
             let department_id = obj.department_id;
             if (department_id === this.crumbs[0].department_id) {
                 const rootDep = await Department.GetRoot();
-                const dvd = {dvd:true, txt:'我的联系人'};
+                const dvd = {dvd:true, txt:'联系人'};
                 const contactUsers = await Contact.GetAllContact();
                 contactUsers.forEach(c => {
                     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
@@ -1039,9 +1044,11 @@ export default {
             this.checkWrap(obj, choose);
         },
         matchQuanxuan() {
-            const crb = this.crumbs[this.crumbs.length-1];
-            const obj = {type:'dep', department_id:crb.department_id};
-            this.qx = this.matchWithMap(obj);
+            if (this.crumbs.length) {
+                const crb = this.crumbs[this.crumbs.length-1];
+                const obj = {type:'dep', department_id:crb.department_id};
+                this.qx = this.matchWithMap(obj);
+            }
         },
         async checkWrap(obj, check) {
             let choose;
@@ -1112,8 +1119,8 @@ export default {
                     this.mxDepMap[department_id].arr = arr;
                 }
             } else {
-                if (department_id === "a512017BA6FC7DDNYRs0") console.log('查看', check)
-                console.log('yyyyy')
+                // if (department_id === "a512017BA6FC7DDNYRs0") console.log('查看', check)
+                // console.log('yyyyy')
                 this.mxDepMap[department_id].check = check;
                 if (this.mxDepMap[department_id].arr && this.mxDepMap[department_id].arr.length) {
                     const subUsers = await UserInfo.GetSubUserinfo(department_id);
@@ -1188,9 +1195,9 @@ export default {
             }
         },
         matchWithMap(obj) {
-            console.log('matchWithMap', obj);
-            console.log('mxMemMap', this.mxMemMap);
-            console.log('mxDepMap', this.mxDepMap);
+            // console.log('matchWithMap', obj);
+            // console.log('mxMemMap', this.mxMemMap);
+            // console.log('mxDepMap', this.mxDepMap);
             if (obj.type !== 'dep') {
                 let id = obj.matrix_id || obj.user_id;
                 console.log('id', id)
@@ -1363,23 +1370,29 @@ export default {
             rootDep.type = 'dep';
             rootDep.display_name = '组织';
             rootDep.avatar = '../../../static/Img/Main/xinzuzhi.png';
-            // const contactUsers = await Contact.GetAllContact();
-            // console.log('contactUsers', contactUsers);
-            // contactUsers.forEach(c => {
-            //     console.log('----kanha----', client.getUser(c.matrix_id));
-            //     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-            // })
-            const dvd = {dvd:true, txt:'我的联系人'};
-            const layer = {name:'联系人', department_id:'lxr', choosen: true}
-            let myContact = {
-                type: 'dep',
-                display_name: '我的联系人',
-                department_id: 'contact',
-                avatar: '../../../static/Img/Main/xincontact.png'
-            }
+            const contactUsers = await Contact.GetAllContact();
+            const cts = contactUsers.map(c => {
+                let u = {}
+                u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                u.display_name =  c.display_name || c.user_name || '';
+                u.user_id = c.matrix_id || '';
+                u.secdis = c.title || c.matrix_id;
+                u.choosen = this.matchWithMap(c);
+                return u;
+            })
+
+            const layer = {name:'联系人', department_id:'lxr', choosen: false}
+            console.log('ctsssssss', cts)
+            // const dvd = {dvd:true, txt:'我的联系人'};
+            // let myContact = {
+            //     type: 'dep',
+            //     display_name: '我的联系人',
+            //     department_id: 'contact',
+            //     avatar: '../../../static/Img/Main/xincontact.png'
+            // }
             this.rootDepId = rootDep.department_id;
-            let totalArray = [rootDep, myContact];
-            totalArray.forEach(t => t.choosen = false)
+            let totalArray = [rootDep, ...cts];
+            // totalArray.forEach(t => t.choosen = false)
             this.totalList = [...totalArray];
             this.crumbs = [layer];
         }
@@ -1825,6 +1838,14 @@ export default {
         color: #000000;
         line-height: 20px;
         letter-spacing: 0px;
+    }
+    .room-info2 {
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 18px;
     }
     .room-join {
         height: 24px;
