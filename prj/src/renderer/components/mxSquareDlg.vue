@@ -407,6 +407,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    ::-webkit-input-placeholder {
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+    }
     ::-webkit-scrollbar {
         /*隐藏滚轮*/
         display: none;
@@ -448,6 +454,10 @@ export default {
         height: 30px;
         box-sizing: border-box;
         border: none;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
     }
     .search-field {
         display: flex;
