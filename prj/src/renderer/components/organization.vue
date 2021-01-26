@@ -3,10 +3,10 @@
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
-                    <el-input size='mini' clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
+                    <el-input clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
                     <i slot="prefix" style="display: flex;align-items: center;">
                         <img
-                            style="width:20px;height:20px;margin-top: 4px;"
+                            style="width:20px;height:20px;margin-top: 7px;margin-left: 2px;"
                             src="../../../static/Img/Main/search@2x.png"
                             alt
                         />
@@ -66,18 +66,18 @@
             <div v-show="!showSearchView" class = 'departmentsdiv'>
                 <ul class="departments-list">
                     <li class="department"
-                        @click="departmentMenuItemClicked(departmentMenu)">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
-                            <p class="department-name">{{ departmentMenu.display_name }}</p>
+                        @click="roomItemClick()">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
+                            <p class="department-name">群聊</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </li>
                     <li class="department"
-                        @click="roomItemClick()">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
-                            <p class="department-name">群聊</p>
+                        @click="departmentMenuItemClicked(departmentMenu)">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
+                            <p class="department-name">{{ departmentMenu.display_name }}</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -134,9 +134,19 @@ export default {
         receiveSearchKey: {
             type: String,
             default: ''
+        },
+        organizationClick:{
+            type: Number,
+            default: 0
         }
     },
     watch: {
+        organizationClick: function(){
+            global.services.common.GetAllContact().then(async() => {
+                this.contactList = await Contact.GetAllContact();
+            }) 
+        },
+
         receiveSearchKey: function() {
             console.log("can search is ", this.canSearch);
             if(this.canSearch) {
@@ -732,9 +742,9 @@ display: none;
 }
 
     .search {
-        margin: 12px 16px 12px 16px;
+        margin: 12px 0px 12px 16px;
         text-align: left;
-        width: calc(100% - 32px);
+        width: calc(100% - 16px);
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
@@ -786,11 +796,23 @@ display: none;
         display: inline-block;
         color: rgb(255,204,102);
     }
+
+    /deep/ .el-input__inner{
+          height: 32px;
+        }
+    /deep/.el-input--prefix .el-input__inner {
+        padding-top: 1px;
+        padding-left: 32px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+    }
     
     .search-input {
         display: inline-block;
         position: absolute;
-        width: 200px;
+        width: 208px;
         padding: 0;
         margin: 0px;
         height: 32px;

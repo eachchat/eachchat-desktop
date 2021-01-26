@@ -78,6 +78,7 @@ export default {
         },
         
         getAppBaseData:async function() {
+            await this.services.getAllContactRooms();
             this.roomList = await ContactRoom.GetAllRooms();
             this.roomList.forEach(item => {
                 let room = this.matrixClient.getRoom(item.room_id);

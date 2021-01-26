@@ -27,7 +27,8 @@
         <el-main class="tabcontainer">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"/>
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
+                :organizationClick = "organizationClick"/>
             </keep-alive>
         </el-main>
         <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
@@ -114,6 +115,7 @@ export default {
             distUserId: '',
             curindex: -1,
             curView: 'ChatContent',
+            organizationClick: 0,
             //serverapi: new ServerApi('http', '139.198.15.253'),
             Navigate:[
                 {    
@@ -287,6 +289,7 @@ export default {
                 }
             }
             else if(cur_name == "contact list") {
+                this.organizationClick++;
                 if(this.$route.name != "organization") {
                     this.$router.push("/main/organization")
                 }
@@ -718,7 +721,7 @@ export default {
         width: 64px;
         height: 100%;
         padding: 0px;
-        margin-top: 36px;
+        margin-top: 0px;
         background: rgba(74, 76, 91, 1);
     }
 
@@ -739,7 +742,7 @@ export default {
         height: 40px;
         text-align: center;
         line-height: 40px;
-        margin: 40px 0px 10px 0px;
+        margin: 40px 0px 20px 0px;
         border-radius:4px;
     }
 
@@ -752,7 +755,7 @@ export default {
 
     .nav-unread {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -770,7 +773,7 @@ export default {
 
     .nav-unread-99 {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -788,7 +791,7 @@ export default {
 
     .nav-unread-no-focuse {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -805,7 +808,7 @@ export default {
 
     .nav-unread-no-focuse-99 {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -822,7 +825,7 @@ export default {
 
     .mac-nav-unread {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -840,7 +843,7 @@ export default {
 
     .mac-nav-unread-99 {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -858,7 +861,7 @@ export default {
 
     .mac-nav-unread-no-focuse {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -875,7 +878,7 @@ export default {
 
     .mac-nav-unread-no-focuse-99 {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -892,7 +895,7 @@ export default {
 
     .nav-readall-unselected {
         position: absolute;
-        top: 124px;
+        top: 108px;
         left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;
@@ -909,7 +912,7 @@ export default {
 
     .mac-nav-readall-unselected {
         position: absolute;
-        top: 136px;
+        top: 120px;
         left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;

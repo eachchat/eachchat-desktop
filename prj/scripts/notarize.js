@@ -13,8 +13,8 @@ exports.default = async function notarizing(context) {
   return await notarize({
     appBundleId: 'com.worklyai.eachchat.desktop.testing',
     appPath: `${appOutDir}/${appName}.app`,
-    appleId: '812214689@qq.com',
-    appleIdPassword: 'avwq-cpyp-ensw-uhid',
+    appleId: 'chengfang0911@sina.com',
+    appleIdPassword: 'jatb-anrh-hewh-ckft',
   });
 };
 
