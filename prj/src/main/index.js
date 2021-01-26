@@ -301,7 +301,7 @@ ipcMain.on('showPersonalImageViewWindow', function(event, url) {
 ipcMain.on('updageAssistWindowSize', function(event, sizeInfo) {
   console.log("*** updage size is ", sizeInfo);
   if(sizeInfo == undefined) {
-    assistWindow.setSize(660, 506);
+    assistWindow.setSize(480, 480);
   }
   else {
     assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 68);
@@ -1071,8 +1071,8 @@ function createWindow () {
   }
   app.setAppUserModelId('EachChat');
   assistWindow = new BrowserWindow({
-    height: 506,
-    width: 660,
+    height: 480,
+    width: 480 + 24,
     frame: false,
     resizable: true,
     webPreferences: {

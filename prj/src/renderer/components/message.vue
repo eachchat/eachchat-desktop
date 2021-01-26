@@ -34,11 +34,11 @@
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else-if="MsgIsLink()">
-                        <div class="chat-msg-content-mine-txt" :id="msg.event.event_id" v-html="getMsgMineLinkContent(messageContent)"></div>
+                        <div class="chat-msg-content-mine-txt" :id="getTextElementId()" v-html="getMsgMineLinkContent(messageContent)"></div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-mine-txt" :id="msg.event.event_id">{{messageContent}}</p>
+                        <p class="chat-msg-content-mine-txt" :id="getTextElementId()">{{messageContent}}</p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
@@ -121,6 +121,9 @@ export default {
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     methods: {
+        getTextElementId: function() {
+            return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
+        },
         sendAgain: function() {
             this.$emit("sendAgain", this.msg);
         },
@@ -149,10 +152,10 @@ export default {
             this.$emit("openUserInfoTip", tipInfos);
         },
         msgNameId: function() {
-            return this.msg.event.event_id + "-username";
+            return (this.msg._txnId ? this.msg._txnId : this.msg.event.event_id).toString() + "-username";
         },
         getUserIconId: function() {
-            return this.msg.event.event_id + "-usericon"
+            return (this.msg._txnId ? this.msg._txnId : this.msg.event.event_id).toString() + "-usericon"
         },
         async getFileExist() {
             let msgs = await Message.FindMessageByMesssageID(this.msg.event.event_id);
@@ -166,7 +169,7 @@ export default {
             this.contentLength = contentLength;
         },
         decryptAndPlayingFile: async function() {
-            const content = this.msg.getContent();
+            const content = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             if(this.decrypting) return;
             if(this.decryptedBlob == null) {
                 this.decrypting = true;
@@ -214,7 +217,7 @@ export default {
             // var targetPath = path.join(targetDir, targetFileName);
             let event = this.msg.event;
             let chatGroupMsgType = event.type;
-            var chatGroupMsgContent = this.msg.getContent();
+            var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             if(chatGroupMsgType === "m.room.encrypted") {
                 console.log("========= encrypted file ");
                 if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -486,7 +489,7 @@ export default {
             return iconPath;
         },
         getMsgFileIcon: function() {
-            var content = this.msg.getContent();
+            var content = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             if(content.body != undefined) {
                 let ext = path.extname(content.body);
                 // console.log("getmsgfileicon ext is ", ext);
@@ -498,7 +501,8 @@ export default {
             return iconPath;
         },
         MsgIsImage: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
+            let msgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? msgContent.msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.image'){
                 return true;
             }
@@ -510,7 +514,8 @@ export default {
             }
         },
         MsgIsFile: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
+            let msgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? msgContent.msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.file'){
                 return true;
             }
@@ -522,7 +527,8 @@ export default {
             }
         },
         MsgIsVoice: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
+            let msgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? msgContent.msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.audio'){
                 return true;
             }
@@ -722,9 +728,9 @@ export default {
             }
         },
         MsgIsLink: function() {
-            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? this.msg.getContent().msgtype : this.msg.event.content.msgtype;
+            var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? chatGroupMsgContent.msgtype : this.msg.event.content.msgtype;
             if(chatGroupMsgType == 'm.text'){
-                var chatGroupMsgContent = this.msg.getContent();
                 if(chatGroupMsgContent.body.indexOf("http://") >= 0 ||
                     chatGroupMsgContent.body.indexOf("https://") >= 0 || 
                     chatGroupMsgContent.body.indexOf("www.") >= 0) {
@@ -753,7 +759,7 @@ export default {
             }
         },
         decryptAndDownloadFile: async function() {
-            const content = this.msg.getContent();
+            const content = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             if(this.decrypting) return;
             if(this.decryptedBlob == null) {
                 this.decrypting = true;
@@ -776,7 +782,7 @@ export default {
             }
         },
         decryptImg: async function() {
-            const content = this.msg.getContent();
+            const content = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             if(content.file !== undefined && this.decryptedUrl == null) {
                 let thumbnailPromise = Promise.resolve(null);
                 if(content.info && content.info.thumbnail_file) {
@@ -847,7 +853,7 @@ export default {
             this.transmitMsgContent = '';
             let event = this.msg.event;
             let chatGroupMsgType = event.type;
-            var chatGroupMsgContent = this.msg.getContent();
+            var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             // console.log("chatGroupMsgContent is ", chatGroupMsgContent)
             // console.log("this.msg.getType() is ", this.msg.getType())
             // console.log("chatGroupMsgType.type is ", chatGroupMsgType)
@@ -1171,7 +1177,7 @@ export default {
                 return;
             }
             
-            var chatGroupMsgContent = this.msg.getContent();
+            var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file')
             {
                 shell.openPath(localPath);
@@ -1226,7 +1232,7 @@ export default {
         },
         updateMsgStatus: function() {
             // console.log("updateMsgstatus ", this.updateMsgStatus);
-            if(this.updateMsgStatus.id == this.msg.message_id) {
+            if(this.updateMsgStatus.id == this.msg._txnId || this.updateMsgStatus.id == this.msg.event.event_id) {
                 this.updateStatus = !this.updateStatus;
             }
         },
@@ -1340,14 +1346,12 @@ export default {
         height: 30px;
         float: right;
         margin-right: 10px;
-        margin-top: 2px;
     }
 
     .msgState {
         display: inline-block;
         width: 20px;
         height: 20px;
-        margin-top: 10px;
     }
 
     .msg-info-username-mine {
@@ -1625,7 +1629,7 @@ export default {
     .chat-msg-content-mine-txt-div {
         float:right;
         background-color: rgba(82, 172, 68, 1);
-        max-width: 100%;
+        max-width: calc(100% - 60px);
         min-height: 20px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
@@ -1640,7 +1644,7 @@ export default {
     .chat-msg-content-mine-txt-div:hover{
         float:right;
         background-color: rgba(82, 172, 68, 1);
-        max-width: 100%;
+        max-width: calc(100% - 60px);
         min-width: 20px;
         min-height: 20px;
         border-radius: 5px;

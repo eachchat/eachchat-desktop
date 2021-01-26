@@ -548,7 +548,7 @@ export default {
       clickedGroupList: [],      //没用到
       isEmpty: true,      //没有群组选中时候右侧占位图片
       groupListElement: null,      //dom
-      newMsg: false,      //转发之类的消息信息
+      newMsg: null,      //转发之类的消息信息
       mqttGroupVar: [],      //一些不完整的group的临时存储
       searchId: 0,      //复合搜索,
       matrixClient: undefined,
@@ -999,7 +999,7 @@ export default {
       }
       if(data.liveEvent) {
         if(room.roomId == this.curChat.roomId && !this.isFirstLogin) {
-          this.newMsg = !this.newMsg;
+          this.newMsg = ev;
         }
         this.updateChatList(ev);
       }
