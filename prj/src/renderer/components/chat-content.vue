@@ -1533,7 +1533,7 @@ export default {
               const inviterUserId = inviteEvent.events.member.getSender();
               var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
               if(global.mxMatrixClientPeg.DMCheck(item)) {
-                distElement.innerHTML = inviterUserId;
+                distElement.innerHTML = "";//inviterUserId;
               }
               else {
                 distElement.innerHTML = "由 " + inviterName + " 邀请";
@@ -2564,7 +2564,7 @@ export default {
         if(chatGroupItem.getMyMembership() == "invite") {
           var inviteMemer = this._getInviteMember(chatGroupItem);
           if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-            return inviteMemer.userId;
+            return "";//inviteMemer.userId;
           }
           else {
             return "由" + inviteMemer.userId + "邀请";
@@ -3736,7 +3736,7 @@ export default {
   }
 
   .group-content {
-    width: 147%;
+    width: 119%;
     font-size: 12px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);
@@ -3753,7 +3753,7 @@ export default {
   }
 
   .group-content-invite {
-    width: 155%;
+    width: 119%;
     font-size: 12px;
     font-weight:400;
     color: rgba(153, 153, 153, 1);
@@ -3909,7 +3909,7 @@ export default {
       height: 20px;
       border: solid 0px rgba(221, 221, 221, 1);
       margin-right: 18px;
-      margin-top: 10px;
+      margin-top: 19px;
       vertical-align: top;
       float: right;
   }
@@ -3919,7 +3919,7 @@ export default {
       width: 20px;
       height: 20px;
       border: solid 0px #009933;
-      margin-top: 10px;
+      margin-top: 19px;
       margin-left: 15px;
       vertical-align: top;
   }
