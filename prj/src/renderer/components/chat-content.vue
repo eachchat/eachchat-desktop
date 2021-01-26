@@ -882,6 +882,9 @@ export default {
           if(this.checkNeedScroll(room)) {
             this.scrollToDistPosition(room);
           }
+          else {
+            this.showGroupIconName(room);
+          }
           return this.showChat(newRooms[i], i);
         }
       }
@@ -1050,6 +1053,9 @@ export default {
         setTimeout(() => {
           if(this.checkNeedScroll(this.curChat)) {
             this.scrollToDistPosition(this.curChat);
+          }
+          else {
+            this.showGroupIconName(this.curChat);
           }
         }, 100)
         return;
@@ -1229,6 +1235,9 @@ export default {
               this.showChat(groupInfo, 0, this.searchKey);
               if(this.checkNeedScroll(groupInfo)) {
                 this.scrollToDistPosition(groupInfo);
+              }
+              else {
+                this.showGroupIconName(groupInfo);
               }
               return;
             } 
@@ -1500,11 +1509,14 @@ export default {
       if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
         if(!distUserId) {
-          // elementGroupName.innerHTML = distGroup.name;
+          elementGroupName.innerHTML = distGroup.name;
           return;
         }
         var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
         elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+      }
+      else {
+          groupNameElement.innerHTML = chatGroupItem.name;
       }
     },
 
@@ -1809,6 +1821,9 @@ export default {
                   if(this.checkNeedScroll(this.dealShowGroupList[i])) {
                     this.scrollToDistPosition(this.dealShowGroupList[i]);
                   }
+                  else {
+                    this.showGroupIconName(this.dealShowGroupList[i]);
+                  }
                   return;
                 } 
               }
@@ -1837,6 +1852,9 @@ export default {
                 this.showChat(this.dealShowGroupList[i], i);
                 if(this.checkNeedScroll(this.dealShowGroupList[i])) {
                   this.scrollToDistPosition(this.dealShowGroupList[i]);
+                }
+                else {
+                  this.showGroupIconName(this.dealShowGroupList[i]);
                 }
                 return;
               } 
@@ -2956,8 +2974,11 @@ export default {
         if(this.dealShowGroupList[i].roomId == roomID) {
           this.showChat(newRoom, i);
           if(this.checkNeedScroll(newRoom)) {
-            this.showGroupIconName(newRoom);
             this.scrollToDistPosition(newRoom);
+            this.showGroupIconName(newRoom);
+          }
+          else {
+            this.showGroupIconName(newRoom);
           }
           return;
         } 
@@ -2969,8 +2990,11 @@ export default {
         this.showChat(newRoom, 0);
         setTimeout(() => {
           if(this.checkNeedScroll(newRoom)) {
-            this.showGroupIconName(newRoom);
             this.scrollToDistPosition(newRoom);
+            this.showGroupIconName(newRoom);
+          }
+          else {
+            this.showGroupIconName(newRoom);
           }
         }, 1000)
       })
