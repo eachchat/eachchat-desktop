@@ -159,7 +159,7 @@
               <div class="search-list-content-more-div" @click="showAllSearchUsers" v-show="showSearchAllMember">查看全部 >></div>
             </div>
             <div class="search-list-chat-message" id="search-list-chat-message-id" v-show="showSearchAllChat">
-              <div class="search-list-chat-label">群组</div>
+              <div class="search-list-chat-label">群聊</div>
               <div class="search-list-chat-content">
                 <ul class="search-list-chat-list">
                   <li class="search-item"
@@ -181,7 +181,7 @@
                         <img class="search-item-img-ico" src="../../../static/Img/User/user-40px@2x.png"/>
                       </div>
                       <div class="search-item-info-more" @click="showAllSearchChats">
-                        <p class="search-more-item-name">更多群组</p>
+                        <p class="search-more-item-name">更多群聊</p>
                         <img class="search-item-name-more-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAllSearchChats">
                         <p class="search-item-position" v-html="heightLightSth()" v-show="false"></p>
                       </div>
@@ -1797,8 +1797,22 @@ export default {
           this.showSearchMessage = true;
           this.searchPeopleItems = [];
           this.searchMessageItems = [];
-          if(this.$store.getters.getCurChatId() == undefined) {
+          if(this.$store.getters.getCurChatId() == undefined || this.isFirstLogin) {
             this.isEmpty = true;
+          }
+          else if(this.curChat.roomId != this.$store.getters.getCurChatId()) {
+            this.$nextTick(() => {
+              var roomID = this.$store.getters.getCurChatId();
+              for(let i in this.dealShowGroupList){
+                if(this.dealShowGroupList[i].roomId == roomID) {
+                  this.showChat(this.dealShowGroupList[i], i);
+                  if(this.checkNeedScroll(this.dealShowGroupList[i])) {
+                    this.scrollToDistPosition(this.dealShowGroupList[i]);
+                  }
+                  return;
+                } 
+              }
+            })
           }
           console.log("this.issearch = ", this.isSearch)
         }
@@ -1814,6 +1828,20 @@ export default {
         this.searchMessageItems = [];
         if(this.$store.getters.getCurChatId() == undefined) {
           this.isEmpty = true;
+        }
+        else if(this.curChat.roomId != this.$store.getters.getCurChatId()) {
+          this.$nextTick(() => {
+            var roomID = this.$store.getters.getCurChatId();
+            for(let i in this.dealShowGroupList){
+              if(this.dealShowGroupList[i].roomId == roomID) {
+                this.showChat(this.dealShowGroupList[i], i);
+                if(this.checkNeedScroll(this.dealShowGroupList[i])) {
+                  this.scrollToDistPosition(this.dealShowGroupList[i]);
+                }
+                return;
+              } 
+            }
+          })
         }
       }
     },
@@ -2039,29 +2067,13 @@ export default {
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       this.DeleteGroup(roomId);
     },
-    updateChatGroupStatus(groupId, groupStatus, updateType) {
-      // ++this.needUpdate;
-      if(updateType == "top" || updateType == "slience") {
-        console.log("updatechatgroupstatus ", groupStatus);
-        var groupListTmp = this.showGroupList;
-        for(var i=0;i<groupListTmp.length;i++) {
-          if(groupListTmp[i].group_id === groupId) {
-            groupListTmp[i].status = groupStatus;
-            break;
-          }
-        }
-        if(updateType == "top") {
-          console.log("top")
-          this.showGroupList = groupListTmp;
-          this.$nextTick(() => {
-            this.showGroupIconName()
-          })
-        }
+    updateChatGroupStatus(groupId, groupStatus) {
+      for(let i in this.dealShowGroupList){
+        if(this.dealShowGroupList[i].roomId == groupId) {
+            this.showGroupIconName(this.dealShowGroupList[i]);
+          return;
+        } 
       }
-      else {
-        this.updateChatGroupFavStatus(groupId, groupStatus)
-      }
-      // ++this.needUpdate;
     },
     updateChatGroupFavStatus(groupId, toFavourete) {
       // ++this.needUpdate;
@@ -2084,14 +2096,14 @@ export default {
       if(selected) {
         endPoint = "-selected";
       }
-      if(this.groupIsSlience(chatItem)) {
-        return "group-unread-slience"
-      }
       else {
         if(this.getUnReadCount(chatItem) === '') {
           return "group-readall" + endPoint;
         }
         else {
+          if(this.groupIsSlience(chatItem)) {
+            return "group-unread-slience"
+          }
           if(this.getUnReadCount(chatItem) > 99) {
             return "group-unread-99";
           }
@@ -2822,7 +2834,6 @@ export default {
           unreadInfo = [this.curChat.roomId, false];
           global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
           this.SetRoomReader(this.curChat);
-          this.showGroupIconName(this.curChat);
         }
 
         console.log("*** showChat SetRoomReader");
@@ -2945,6 +2956,7 @@ export default {
         if(this.dealShowGroupList[i].roomId == roomID) {
           this.showChat(newRoom, i);
           if(this.checkNeedScroll(newRoom)) {
+            this.showGroupIconName(newRoom);
             this.scrollToDistPosition(newRoom);
           }
           return;

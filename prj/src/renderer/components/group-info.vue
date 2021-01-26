@@ -538,6 +538,7 @@ export default {
             const newState = this.mxMute ? MUTE : ALL_MESSAGES;
             console.log('---newState---', newState);
             setRoomNotifsState(roomId, newState);
+            this.$emit("updateChatGroupStatus", roomId, newState);
         },
         mxFavoChange(mxFavo) {
             const client = window.mxMatrixClientPeg.matrixClient;

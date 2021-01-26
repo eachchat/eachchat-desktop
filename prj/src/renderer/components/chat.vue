@@ -2734,6 +2734,7 @@ export default {
             setTimeout(() => {
                 this.showGroupName(distChat);
             }, 1000);
+            this.$store.commit("setCurChatId", distChat.roomId);
         },
         scrollToDistMsg: function(eventId) {
             var ulDiv = document.getElementById("message-show-list");
@@ -2920,9 +2921,10 @@ export default {
                 distUlElement.insertBefore(hideUlElement.childNodes[i], distUlElement[2]);
             }
         },
-        updateChatGroupStatus(groupId, groupStatus, updateType) {
+        updateChatGroupStatus(roomId, groupStatus) {
             // console.log("======== ");
-            this.$emit("updateChatGroupStatus", groupId, groupStatus, updateType);
+            this.$emit("updateChatGroupStatus", roomId, groupStatus);
+            // this.groupIsSlience();
         },
         leaveGroup(groupId) {
             this.$emit("leaveGroup", groupId);
