@@ -22,6 +22,7 @@ import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { nextTick } from 'process'
 import {ComponentUtil} from '../script/component-util'
+import axios from "axios";
 export default {
     name: 'atDlg',
     data() {
@@ -89,6 +90,12 @@ export default {
                 var distElement = document.getElementById(this.getIdThroughMemberUid(item.userId));
                 if(!distElement)
                     return;
+                try{
+                    var response = await axios.get(avaterUrl);
+                }
+                catch(e) {
+                    return;
+                }
                 distElement.setAttribute("src", avaterUrl);
             })
         },

@@ -50,6 +50,7 @@ import {services} from '../../packages/data/index.js';
 import {Department} from '../../packages/data/sqliteutil.js'
 import imageCropper from './imageCropper.vue'
 import * as utils from '../../packages/core/Utils.js'
+import axios from "axios";
 
 export default {
     name: 'user-info',
@@ -252,7 +253,13 @@ export default {
             // }
             let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
             if(avaterUrl != '') {
-                userIconElement.setAttribute("src", avaterUrl);
+                try{
+                    var response = await axios.get(avaterUrl);
+                    userIconElement.setAttribute("src", avaterUrl);
+                }
+                catch(e) {
+                    
+                }
             }
             this.displayName = displayName;
 

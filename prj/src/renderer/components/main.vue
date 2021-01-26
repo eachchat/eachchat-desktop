@@ -24,13 +24,19 @@
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
-        <el-main class="tabcontainer">
+        <el-main class="tabcontainer" v-show="!navEnable">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
                 :organizationClick = "organizationClick"/>
             </keep-alive>
         </el-main>
+        <div class="loadingDiv" v-show="navEnable">
+            <div class="loadingInfo">
+                <i class="el-icon-loading"></i>
+                <div class="loadingText">加载中，请稍后...</div>
+            </div>
+        </div>
         <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
         <userInfoContent :userInfo="userInfo" :originPosition="pagePosition" v-if="showPersonalInfo" :key="userInfoTipKey"  :userType="userType" :isOwn="isOwn"></userInfoContent>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo" :canCancel="upgradeCanCancel"/>
@@ -61,6 +67,7 @@ import userInfoContent from './user-info';
 import {ComponentUtil} from '../script/component-util.js'
 import AlertDlg from './alert-dlg.vue'
 import ChangePassword from './changePassword.vue'
+import axios from "axios";
 
 import UpdateAlertDlg from './update-alert-dlg.vue'
 import { setInterval } from 'timers';
@@ -370,6 +377,12 @@ export default {
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             if(avaterUrl != "") {
+                try{
+                    var response = await axios.get(avaterUrl);
+                }
+                catch(e) {
+                    return;
+                }
                 elementImg.setAttribute("src", avaterUrl);
             }
         },
@@ -1085,9 +1098,41 @@ export default {
         overflow-y:hidden;
         overflow-x: hidden;
     }
-.macWindowHeader {
-    padding: 0px;
-    margin: 0px;
-    width: 64px;
-}
+
+    .loadingDiv {
+        padding: 0px;
+        width: calc(100% - 70px);
+        height: 100%;
+        vertical-align: top;
+        margin: 0px;
+        overflow-y:hidden;
+        overflow-x: hidden;
+    }
+
+    .loadingInfo {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 145px;
+        height: 100px;
+    }
+
+    .loadingText {
+        font-size: 14px;
+        font-family:PingFangSC-Regular;
+        text-align: center;
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        margin-left: 5px;
+    }
+
+    .macWindowHeader {
+        padding: 0px;
+        margin: 0px;
+        width: 64px;
+    }
 </style>

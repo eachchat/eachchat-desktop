@@ -60,6 +60,7 @@
 import {ComponentUtil} from '../script/component-util';
 import { Department, UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import * as utils from '../../packages/core/Utils.js'
+import axios from "axios";
 export default {
     name: "ownerInfo",
     props: {
@@ -77,7 +78,13 @@ export default {
             var distImgElement = document.getElementById("ownerInfoImageId");
             var avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(ownerInfo.avatarUrl);
             if(distImgElement && avatarTUrl) {
-                distImgElement.src = avatarTUrl;
+                try{
+                    var response = await axios.get(avatarTUrl);
+                    distImgElement.src = avatarTUrl;
+                }
+                catch(e) {
+                    
+                }
             }
             let user = await ComponentUtil.ShowOrgInfoByMatrixID(this.ownerId)
             this.ownerPhone = user.phone.mobile;

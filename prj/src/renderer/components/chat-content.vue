@@ -312,6 +312,7 @@ import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
 import {ComponentUtil} from '../script/component-util.js';
+import axios from "axios";
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 export default {
   components: {
@@ -1490,9 +1491,21 @@ export default {
       return distUid;
     },
 
-    UpdateGroupImage: function(distGroup){
+    UpdateGroupImage: async function(distGroup){
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
+        if(distUrl && distUrl != '') {
+          try{
+              var response = await axios.get(distUrl);
+          }
+          catch(e) {
+            console.log("*** e is ", e);
+            if(global.mxMatrixClientPeg.DMCheck(distGroup))
+                distUrl = "./static/Img/User/user-40px@2x.png";
+            else
+                distUrl = "./static/Img/User/group-40px@2x.png";  
+          }
+        }
         if(!distUrl || distUrl == '') {
             if(global.mxMatrixClientPeg.DMCheck(distGroup))
                 distUrl = "./static/Img/User/user-40px@2x.png";
