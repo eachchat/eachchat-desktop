@@ -10,7 +10,7 @@
         </div> -->
         <!-- <div class="login-panel" v-else style="-webkit-app-region: no-drag"> -->
         <div class="windowHeader">
-            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false" :isNormal="true"></mac-window-header>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
         </div>
         <!-- <certification v-show="showCertification" :backupInfo="backupInfo"></certification>

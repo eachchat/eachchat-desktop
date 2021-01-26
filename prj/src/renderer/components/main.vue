@@ -1,7 +1,7 @@
 <template>
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
-            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()"></mac-window-header>
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :isNormal="false"></mac-window-header>
             <div class="User">
                 <img class="login-logo" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()"/>
             </div>

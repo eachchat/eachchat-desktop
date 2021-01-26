@@ -1,8 +1,9 @@
 <template>
     <div class="window-header-bar" v-if="isOSX()">
-            <img ondragstart="return false" class="close-image" @click="Close()" src="../../../static/Img/Main/Close@2x.png" v-show="showClose">
-            <img ondragstart="return false" class="min-image" @click="Min()" src="../../../static/Img/Main/Minimise@2x.png" v-show="showMin">
-            <img ondragstart="return false" class="zoom-image" @click="Max()" src="../../../static/Img/Main/Zoom@2x.png" v-show="showMax">
+        <img ondragstart="return false" class="close-image" @click="Close()" src="../../../static/Img/Main/Close@2x.png" v-show="showClose">
+        <img ondragstart="return false" class="min-image" @click="Min()" src="../../../static/Img/Main/Minimise@2x.png" v-show="showMin">
+        <img ondragstart="return false" class="zoom-min-image" @click="Max()" src="../../../static/Img/Main/Zoom@2x.png" v-show="showMax" v-if="isNormal">
+        <img ondragstart="return false" class="zoom-max-image" @click="Max()" src="../../../static/Img/Main/Zoom@2x.png" v-show="showMax"  v-else>
     </div>
 
 </template>
@@ -28,6 +29,10 @@ export default {
         showMin: {
             type: Boolean,
             default: true
+        },
+        isNormal: {
+            type: Boolean,
+            default: true
         }
     },
     watch: {
@@ -39,10 +44,6 @@ export default {
         },
         showMin: function() {
             console.log("this.showMin ", this.showMin);
-        }
-    },
-    data () {
-        return {
         }
     },
     methods: {
@@ -58,6 +59,7 @@ export default {
             // ipcRenderer.send("win-close");
         },
         Max: function() {
+            this.isNormal = !this.isNormal;
             this.$emit("Max");
             // ipcRenderer.send("win-max");
         }
@@ -93,7 +95,16 @@ export default {
         padding-top: 7px;
         margin-top: 7px;
     }
-    .zoom-image {
+    .zoom-min-image {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 6px;
+        padding-left: 8px;
+        padding-top: 7px;
+        margin-top: 7px;
+    }
+    .zoom-max-image {
         display: inline-block;
         width: 12px;
         height: 12px;
@@ -110,8 +121,11 @@ export default {
     .min-image{
         content: url('../../../static/Img/Main/Minimise-hover@2x.png');
     }
-    .zoom-image{
+    .zoom-min-image{
         content: url('../../../static/Img/Main/zoom-hover@2x.png');
+    }
+    .zoom-max-image{
+        content: url('../../../static/Img/Main/zoom-max-hover2@2x.png');
     }
 }
 </style>
