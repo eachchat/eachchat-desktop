@@ -475,7 +475,7 @@ export default {
                     sus.push(u);
                 })
                 let scs = [];
-                if (searchContacts.length > 0) scs.push({dvd:true, txt:'我的联系人'});
+                if (searchContacts.length > 0) scs.push({dvd:true, txt:'联系人'});
                 searchContacts.forEach(c => {
                     let u = {}
                     u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
@@ -716,22 +716,27 @@ export default {
             rootDep.type = 'dep';
             rootDep.display_name = '组织';
             rootDep.avatar = './static/Img/Main/xinzuzhi.png';
-            // const contactUsers = await Contact.GetAllContact();
-            // console.log('contactUsers', contactUsers);
-            // contactUsers.forEach(c => {
-            //     console.log('----kanha----', client.getUser(c.matrix_id));
-            //     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-            // })
-            const dvd = {dvd:true, txt:'我的联系人'};
+            const contactUsers = await Contact.GetAllContact();
+            console.log('contactUsers', contactUsers);
+            const cts = contactUsers.map(c => {
+                let u = {}
+                u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
+                u.display_name =  c.display_name || c.user_name || '';
+                u.user_id = c.matrix_id || '';
+                u.secdis = c.title || c.matrix_id;
+                u.choosen = false;
+                return u;
+            })
+            // const dvd = {dvd:true, txt:'我的联系人'};
             const layer = {name:'联系人', department_id:'lxr', choosen: true}
-            let myContact = {
-                type: 'dep',
-                display_name: '我的联系人',
-                department_id: 'contact',
-                avatar: './static/Img/Main/xincontact.png'
-            }
+            // let myContact = {
+            //     type: 'dep',
+            //     display_name: '我的联系人',
+            //     department_id: 'contact',
+            //     avatar: './static/Img/Main/xincontact.png'
+            // }
             this.rootDepId = rootDep.department_id;
-            let totalArray = [rootDep, myContact];
+            let totalArray = [rootDep, ...cts];
             totalArray.forEach(t => t.choosen = false)
             this.totalList = [...totalArray];
             this.crumbs = [layer];
