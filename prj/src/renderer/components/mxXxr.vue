@@ -1616,7 +1616,7 @@ export default {
         height: 340px;
     }
     .kuangtiZuo {
-        width: 50%;
+        width: 360px;
         box-sizing: border-box;
         border-right: 1px solid #DDDDDD;
         padding: 12px 16px;
@@ -1624,7 +1624,7 @@ export default {
         flex-direction: column;
     }
     .kuangtiYou {
-        width: 50%;
+        flex: 1;
         box-sizing: border-box;
         padding: 12px 16px;
         display: flex;
