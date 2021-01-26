@@ -396,6 +396,7 @@ export default {
         height: 100%;
         background: rgba(255, 255, 255, 1);
         text-align: center;
+        user-select:none;
     }
 
     .imageViewerStage {
