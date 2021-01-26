@@ -3131,8 +3131,8 @@ export default {
 
   .list-header {
     width: 100%;
-    height: 41px;
-    line-height: 41px;
+    height: 32px;
+    line-height: 32px;
     background-color: rgb(255, 255, 255);
     border: 0px;
     display: block;
