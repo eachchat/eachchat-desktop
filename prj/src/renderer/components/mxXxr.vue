@@ -131,7 +131,7 @@
                                          :src="item.avatar"
                                     /> <!-- src="../../../static/Img/Main/yjt.png" -->
                                     <div class="user-info">
-                                        <span class="room-info">{{item.display_name}}</span>
+                                        <div class="room-info" v-html="searchKeyHightLight(item.display_name)">{{item.display_name}}</div>
                                     </div>
                                 </div>
                                 <img style="height:20px; width:20px;" src="../../../static/Img/Main/yjt.png" @click.stop="changeLayer(item)">
@@ -148,8 +148,8 @@
                                 >
                                 <img class="room-img" :src="item.avatar_url"/>
                                 <div class="user-info">
-                                    <span class="room-info">{{item.display_name}}</span>
-                                    <span class="room-info" style="font-size:12px; color:#999999">{{item.secdis || item.matrix_id || item.user_id}}</span>
+                                    <div class="room-info" v-html="searchKeyHightLight(item.display_name)">{{item.display_name}}</div>
+                                    <div class="room-info2">{{item.secdis || item.matrix_id || item.user_id}}</div>
                                 </div>
                             </div>
                         </div>
@@ -264,6 +264,11 @@ export default {
     },
     timer: null,
     methods: {
+        searchKeyHightLight(content){
+            return content.replace(this.memText, function(item) {
+                return '<span style="color:rgba(0, 169, 113, 1);">' + item + "</span>"; 
+            })
+        },
         async createXie() {
             // if (this.loading) return;
             // this.loading = true;
@@ -1833,6 +1838,14 @@ export default {
         color: #000000;
         line-height: 20px;
         letter-spacing: 0px;
+    }
+    .room-info2 {
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        line-height: 18px;
     }
     .room-join {
         height: 24px;
