@@ -164,7 +164,7 @@
                     </div> -->
                     <!-- <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)"> -->
                     <div class="memberItemLeft">
-                        <img :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
+                        <img onerror = "this.src = './static/Img/User/user-40px@2x.png'" :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
                         <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
                             <div class="memberItemName">
                                 <span>{{item.dspName}}</span>
