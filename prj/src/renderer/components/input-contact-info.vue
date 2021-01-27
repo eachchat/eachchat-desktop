@@ -102,7 +102,7 @@ export default {
                     this.sError = '联系人重复';
                     return;
                 }
-                let ret = this.services.AddContact(this.contactInfo);
+                let ret = await this.services.AddContact(this.contactInfo);
                 if(ret) this.closeDialog();
                 this.sError = '添加联系人失败';
             }).catch(e => {
