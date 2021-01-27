@@ -103,7 +103,7 @@
             <contactRoomList v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
             </contactRoomList>
         </el-container>
-        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
+        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-if="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
             <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
