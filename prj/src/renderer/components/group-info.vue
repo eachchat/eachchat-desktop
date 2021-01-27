@@ -6,7 +6,7 @@
         <div class="groupInfo-view">
             <div v-if="!isDm" class="groupInfoImageDiv" style="margin-right: 8px;">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
-                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar">
+                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror = "this.src = './static/Img/User/group-40px@2x.png'">
                 <img 
                     id="groupInfoImageChangeId" 
                     class="groupInfoImageChange" 
@@ -18,7 +18,9 @@
                 <img 
                     id="groupInfoImageId" 
                     class="groupInfoImage" 
-                    :src="mxAvatar">
+                    :src="mxAvatar"
+                    onerror = "this.src = './static/Img/User/user-40px@2x.png'"
+                >
             </div>
             <div class="groupInfoNoticeAndName" v-if="!isDm">
                 <div class="groupInfoName">
