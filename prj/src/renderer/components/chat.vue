@@ -805,23 +805,23 @@ export default {
             this.chatCreaterDisableUsers = [];
         },
         showAddMembers: async function(existedMembers){
-            this.chatCreaterDisableUsers = existedMembers;
-            var self = await services.common.GetSelfUserModel();
-            console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(self.id);
-            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            var root = await Department.GetRoot();
-            console.log("root is ", root);
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = rootDepartmentModels;
-            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
+            // this.chatCreaterDisableUsers = existedMembers;
+            // var self = await services.common.GetSelfUserModel();
+            // console.log("self is ", self);
+            // this.chatCreaterDisableUsers.push(self.id);
+            // console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
+            // var root = await Department.GetRoot();
+            // console.log("root is ", root);
+            // var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
+            // console.log("rootDepartmentModels is ", rootDepartmentModels);
+            // var temp = rootDepartmentModels;
+            // this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
             
-            this.chatCreaterKey ++;
-            this.createNewChat = false;
-            this.addMemberGroupType = this.curChat.group_type;
-            this.showChatCreaterDlg = true;
-            this.chatCreaterDialogTitle = "添加成员";
+            // this.chatCreaterKey ++;
+            // this.createNewChat = false;
+            // this.addMemberGroupType = this.curChat.group_type;
+            // this.showChatCreaterDlg = true;
+            // this.chatCreaterDialogTitle = "添加成员";
         },
         compare(property){
             return function(a,b){

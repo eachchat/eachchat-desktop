@@ -60,6 +60,7 @@ import confservice from '../../packages/data/conf_service.js'
 import { Group } from '../../packages/data/sqliteutil'
 import eventSearch, {searchPagination} from '../../packages/data/Searching.js';
 import {ComponentUtil} from '../script/component-util'
+import axios from "axios";
 export default {
     name: 'HistoryMsgDlg',
     data () {
@@ -267,7 +268,13 @@ export default {
                 var distUserName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);;
                 distUserNameElement.innerHTML = distUserName;
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
-                    distUserImgElement.setAttribute("src", userUrl);
+                    try{
+                        var response = await axios.get(userUrl);
+                        distUserImgElement.setAttribute("src", userUrl);
+                    }
+                    catch(e) {
+
+                    }
                 }
                 if(curItem.content.msgtype == "m.image") {
                     var chatGroupMsgContent = curItem.content;
