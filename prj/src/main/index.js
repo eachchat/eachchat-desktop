@@ -304,7 +304,7 @@ ipcMain.on('updageAssistWindowSize', function(event, sizeInfo) {
     assistWindow.setSize(480, 480);
   }
   else {
-    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 68);
+    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 48);
   }
 })
 
