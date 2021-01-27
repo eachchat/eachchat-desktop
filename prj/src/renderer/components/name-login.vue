@@ -548,7 +548,7 @@ export default {
         },
         getServerInfo: async function(host) {
             var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
-            console.log('appServerInfo is ', appServerInfo);
+            log.info("appServerInfo is ", appServerInfo)
             if(appServerInfo.status != 200) {
                 this.$toastMessage({message:"Home Server地址不正确，请重新输入", time: 2000, type:'success', showWidth:'280px', showHeight:"100px"});
                 return false;
@@ -628,7 +628,8 @@ export default {
             if(!serverCheckRet) {
                 return false;
             }
-            var loginSettingRet = await global.services.common.getLoginConfig(host);
+            var appserver = window.localStorage.getItem("app_server");
+            var loginSettingRet = await global.services.common.getLoginConfig(appserver);
             if(!loginSettingRet) {
                 if(domain != undefined){
                     this.$toastMessage({message:"获取登录配置失败", time: 2000, type:'error', showWidth:'280px'});

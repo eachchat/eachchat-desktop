@@ -1978,6 +1978,26 @@ const common = {
     return result.data.results;
   },
 
+  getUrlFromHostPortTls(appServerObj) {
+    console.log("*** appServerObj ", appServerObj);
+    var protocol = "http://";
+    var port = 80;
+    var host = appServerObj.host;
+    if(appServerObj.tls == true || appServerObj.tls == 1) {
+      protocol = "https://";
+      port = 443;
+    }
+    if(appServerObj.port) {
+      port = appServerObj.port;
+    }
+    console.log("*** protocol ", protocol);
+    console.log("*** port ", port);
+    console.log("*** host ", host);
+    var url = protocol + host + ":" + port.toString();
+    console.log("*** url ", url);
+    return url;
+  },
+
   getHostPortTls(BaseUrl) {
     if(BaseUrl.endsWith("/")) {
       BaseUrl = BaseUrl.substring(0, BaseUrl.length - 1);
@@ -2214,7 +2234,7 @@ const common = {
       host = host.substring(0, host.length - 1);
     }
     var response = await axios.get(host + "/api/services/auth/v1/auth/setting");
-    console.log("response is ", response)
+    log.info("getLoginConfig is ", response)
     if (response.status != 200 
       || response.data == undefined
       || response.data.obj == undefined) {
@@ -2268,10 +2288,20 @@ const common = {
     else
       mqtt.tls = 0;
 
-    var entryObj = this.getHostPortTls(host);
-    var entryHost = entryObj[0];
-    var entryHostPort = entryObj[1];
-    var entryHostTls = entryObj[2];
+    if(entry.host) {
+      var finalUrl = this.getUrlFromHostPortTls(entry);
+      log.info("appserver url ", finalUrl)
+      localStorage.setItem("app_server", finalUrl);
+      var entryHost = entry.host;
+      var entryHostPort = entry.port;
+      var entryHostTls = entry.tls;
+    }
+    else {
+      var entryObj = this.getHostPortTls(entry);
+      var entryHost = entryObj[0];
+      var entryHostPort = entryObj[1];
+      var entryHostTls = entryObj[2];
+    }
     console.log("======= ", entryObj);
     this.config.hostname = entryHost;
     localStorage.setItem("hostname", this.config.hostname);
