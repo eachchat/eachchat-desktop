@@ -8,6 +8,7 @@ import {environment} from '../data/environment.js';
 var sqlite3 = require('sqlite3');
 import {SqliteEncrypt} from "./encrypt.js"
 const fs = require('fs');
+import log from 'electron-log'
 
 
 class Sqlite {
@@ -29,6 +30,7 @@ class Sqlite {
     let password = this.encryption.decrypt(sourcePassword);
 
     console.log('load ' + filename);
+    log.info('load ' + filename);
     this.db = new sqlite3.Database(this.filename);
     this.db.serialize(() => {
       this.db.run("PRAGMA KEY = " + password);
@@ -50,6 +52,7 @@ class Sqlite {
       console.log("sleep end");
       fs.unlinkSync(environment.path.sqlite);
       console.log("file is not sqlcipher,remove " + filename);
+      log.info("file is not sqlcipher,remove " + filename);
       this.db = new sqlite3.Database(this.filename);
       this.db.serialize(() => {
         this.db.run("PRAGMA KEY = " + password);
@@ -60,6 +63,8 @@ class Sqlite {
     }
 
     let oldVersion = version[0].user_version;
+    log.info("oldVersion", oldVersion);
+    log.info('newVersion', newVersion);
     if(oldVersion == newVersion)
       console.log("version is same as before");
     else

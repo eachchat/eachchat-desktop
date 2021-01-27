@@ -413,7 +413,7 @@ export default {
             //get userinfo
             var selfUser = await global.services.common.GetSelfUserModel();
             console.log("is owner is ", this.isOwn);
-            if(id == selfUser.id) {
+            if(selfUser && id == selfUser.id) {
                 this.isOwn = true;
             }
             var user;

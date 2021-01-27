@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
+import log from 'electron-log'
 /**
  * {
  *      "homeserver": {
@@ -58,7 +59,8 @@ function getDefaultHomeServerInfo() {
 
 function getDefaultLanguage() {
     var defaultLanguage = getConf("defaultLanguage");
-    console.log("------- ", defaultLanguage)
+    console.log("------- ", defaultLanguage);
+    log.info("getDefaultHomeServerName", defaultLanguage);
     if(defaultLanguage == undefined) {
         return "zh";
     }

@@ -267,7 +267,7 @@ export default {
             if(userIdElement != undefined) {
                 let departments = await Department.GetBelongDepartmentsByMatrixID(uId);
                 console.log(departments)
-                if(departments.length == 0)
+                if(!departments || departments.length == 0)
                     return '';
                 else if(departments.length == 1)
                     userIdElement.innerHTML = departments[0].display_name;
