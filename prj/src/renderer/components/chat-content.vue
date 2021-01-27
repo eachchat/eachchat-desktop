@@ -1526,7 +1526,9 @@ export default {
           return;
         }
         var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-        elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+        if(elementGroupName) {
+          elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+        }
       }
       else {
         if(elementGroupName) {

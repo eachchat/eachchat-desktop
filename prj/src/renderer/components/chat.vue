@@ -1549,17 +1549,25 @@ export default {
                     return;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                groupNameElement.innerHTML = displayName;
+                if(groupNameElement) {
+                    groupNameElement.innerHTML = displayName;
+                }
             }
             else {
-                groupNameElement.innerHTML = chatGroupItem.name;
+                if(groupNameElement) {
+                    groupNameElement.innerHTML = chatGroupItem.name;
+                }
             }
             var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
-                groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+                if(groupContentNumElement) {
+                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+                }
             }
             else {
-                groupContentNumElement.innerHTML = "";
+                if(groupContentNumElement) {
+                    groupContentNumElement.innerHTML = "";
+                }
             }
 
             this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.curChat);
@@ -1570,7 +1578,9 @@ export default {
                     this.distUrl = "./static/Img/User/user-40px@2x.png";
                 else
                     this.distUrl = "./static/Img/User/group-40px@2x.png";
-               groupIcoElement.setAttribute("src", this.distUrl); 
+                if(groupIcoElement) {
+                    groupIcoElement.setAttribute("src", this.distUrl); 
+                }
             }
             if(groupIcoElement != undefined && this.distUrl) {
               groupIcoElement.setAttribute("src", this.distUrl);
@@ -1747,6 +1757,9 @@ export default {
             if(this.sendLength >= this.contentLength) {
                 console.log("*** onProgerss hide upload progerss");
                 this.showUploadProgress = false;
+                this.curTotal = 0;
+                this.lastPercent = 0.01;
+                this.curPercent = 0.01;
             }
         },
         sendFile: async function(fileinfo) {
@@ -1789,9 +1802,6 @@ export default {
                     this.infoForImageFile(this.curChat.roomId, showfileObj).then((imageInfo) => {
                         extend(content.info, imageInfo);
                         this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
-                            content.file = ret.file;
-                            content.url = ret.url;
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                             if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
                                 this.showUploadProgress = false;
                                 this.curUpdateFilesNum = 0;
@@ -1802,6 +1812,9 @@ export default {
                                 this.curProcess = this.sendLength;
                                 this.curUpdateFilesNum += 1;
                             }
+                            content.file = ret.file;
+                            content.url = ret.url;
+                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
                         })
                     }, (e) => {
                         console.log("**** getInfoForImageFile Exception ", e);
@@ -1843,6 +1856,16 @@ export default {
                         //     name: filename,
                         //     progressHandler: this.onUploadProgress
                         // }).then((ret)=>{
+                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
+                                this.showUploadProgress = false;
+                                this.curUpdateFilesNum = 0;
+                                this.needUpdatefilesNum = 0;
+                                this.curProcess = 1;
+                            }
+                            else {
+                                this.curProcess = this.sendLength;
+                                this.curUpdateFilesNum += 1;
+                            }
                             content.msgtype = 'm.file';
                             content.file = ret.file;
                             content.url = ret.url;
@@ -1880,16 +1903,6 @@ export default {
                                     }
                                 }
                             })
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
                         });
                     }
                 }
@@ -2119,6 +2132,16 @@ export default {
                             name: filename,
                             progressHandler: this.onUploadProgress
                         }).then((url)=>{
+                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
+                                this.showUploadProgress = false;
+                                this.curUpdateFilesNum = 0;
+                                this.needUpdatefilesNum = 0;
+                                this.curProcess = 1;
+                            }
+                            else {
+                                this.curProcess = this.sendLength;
+                                this.curUpdateFilesNum += 1;
+                            }
                             var content = {
                                 msgtype: 'm.image',
                                 body: filename,
@@ -2131,16 +2154,6 @@ export default {
                                 }
                             };
                             global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
                         });
                     }
                 }
