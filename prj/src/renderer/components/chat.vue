@@ -1744,6 +1744,10 @@ export default {
                 this.lastPercent = curPercent;
                 this.curPercent = curPercent;
             }
+            if(this.sendLength >= this.contentLength) {
+                console.log("*** onProgerss hide upload progerss");
+                this.showUploadProgress = false;
+            }
         },
         sendFile: async function(fileinfo) {
             console.log("fileinfo is ", fileinfo);
