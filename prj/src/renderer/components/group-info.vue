@@ -401,7 +401,8 @@ export default {
                     query = query.toLowerCase();
                     const matchesName = m.name.toLowerCase().indexOf(query) !== -1;
                     const matchesId = m.userId.toLowerCase().indexOf(query) !== -1;
-                    if (matchesName || matchesId) {
+                    const matchesDspName = m.dspName.toLowerCase().indexOf(query) !== -1;
+                    if (matchesName || matchesId || matchesDspName) {
                         return m;
                     }
                 });
