@@ -146,7 +146,7 @@
                                     style="height:20px; width:20px; margin-right:8px;"
                                     :src="item.choosen === 3 ? '../../../static/Img/Main/lg.png' : (item.choosen === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
                                 >
-                                <img class="room-img" :src="item.avatar_url"/>
+                                <img class="room-img" :src="item.avatar_url" onerror="this.src = './static/Img/User/user-40px@2x.png'"/>
                                 <div class="user-info">
                                     <div class="room-info" v-html="searchKeyHightLight(item.display_name)">{{item.display_name}}</div>
                                     <div class="room-info2">{{item.secdis || item.matrix_id || item.user_id}}</div>
@@ -166,7 +166,7 @@
                             v-for="(ele, idx) in choosenMembers"
                             :key="ele.name+idx"
                         >
-                            <img class="shun1" :src="ele.avatar_url">
+                            <img class="shun1" :src="ele.avatar_url" onerror="this.src = './static/Img/User/user-40px@2x.png'">
                             <div class="shun2">
                                 <div class="shun3">{{ele.display_name}}</div>
                                 <div class="shun4">{{ele.secdis}}</div>

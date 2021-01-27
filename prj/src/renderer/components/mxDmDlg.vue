@@ -66,7 +66,7 @@
                             :style="{'background': item.choosen ? '#EEEEEE':'#fff'}" 
                             v-else
                         >
-                            <img class="room-img" :src="item.avatar_url"/>
+                            <img class="room-img" :src="item.avatar_url" onerror="this.src = './static/Img/User/user-40px@2x.png'"/>
                             <div class="user-info">
                                 <div class="room-info" v-html="searchKeyHightLight(item.display_name)">{{item.display_name}}</div>
                                 <div class="room-info2">{{item.secdis || item.matrix_id || item.user_id}}</div>
