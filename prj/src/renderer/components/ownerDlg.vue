@@ -10,7 +10,7 @@
                 <div class="ownerInfoBaseDiv">
                     <label class="ownerInfoBaseLabel">头像</label>
                     <div style="position:relative;">
-                        <img class="ownerInfoImage" id="ownerInfoImageId" src="../../../static/Img/User/user-40px@2x.png"/>
+                        <img class="ownerInfoImage" id="ownerInfoImageId" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                         <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar.png" @click="changeIconClicked">
                     </div>
                 </div>

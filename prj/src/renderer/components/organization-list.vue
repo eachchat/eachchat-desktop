@@ -30,7 +30,7 @@
                             </div>
                             <RecycleScroller class="managers-List" :items="organizationList[orgIndex].users" :item-size="60" key-field="user_id" v-slot="{ item }">
                                 <div class="manager" @click="userMenuItemClicked(item.user_id)">
-                                    <img ondragstart="return false" class="manager-icon" :id="item.user_id" src="../../../static/Img/User/user-40px@2x.png">
+                                    <img ondragstart="return false" class="manager-icon" :id="item.user_id" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                                     <div class="manager-info">
                                         <p class="contact-list-name">{{ item.user_display_name }}</p>
                                         <p class="contact-list-titile">{{ item.user_title }}</p>
