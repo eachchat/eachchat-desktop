@@ -1624,11 +1624,11 @@ export default {
         flex-direction: column;
     }
     .kuangtiYou {
-        flex: 1;
         box-sizing: border-box;
         padding: 12px 16px;
         display: flex;
         flex-direction: column;
+        width: 280px;
     }
     .xuanzhonglie {
         flex: 1;
