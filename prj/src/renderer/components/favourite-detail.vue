@@ -1,7 +1,7 @@
 <template>
     <div class="detailPage" v-if="showView">
         <div class="detailHeader">
-            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromMatrixId" src="../../../static/Img/User/user-40px@2x.png">
+            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromMatrixId" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
             <div class="userInfo">
                 <p class="userName">{{ userName }}</p>
                 <p class="userTime">{{ formatTimeFilter(collectionInfo.timestamp) }}</p>

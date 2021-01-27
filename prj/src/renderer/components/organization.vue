@@ -24,7 +24,7 @@
                         v-for="contact in searchContacts"
                         @click="SearchContactItemClicked(contact.matrix_id)" 
                         :key="contact.matrix_id">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
                         <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
@@ -88,7 +88,7 @@
                         @click="SearchContactItemClicked(contact.matrix_id)" 
                         @contextmenu="rightClick($event, contact)"
                         :key="contact.matrix_id">
-                        <img ondragstart="return false" class="contact-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <img ondragstart="return false" class="contact-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
                         <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ GetContactTitle(contact) }}</p>

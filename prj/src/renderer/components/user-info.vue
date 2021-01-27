@@ -3,7 +3,7 @@
     <div class="userInfo-view" :style="pagePosition">
         <div class="userInfoBaseInfo-view">
             <div class="userInfo-iconDiv">
-                <img ondragstart="return false" class = 'userInfo-icon' src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)">
+                <img ondragstart="return false" class = 'userInfo-icon' src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                 <div class = 'userInfo-changeIcon' @click="personalCenterIconClicked()" v-show = 'showChangeIcon'>
                     <img ondragstart="return false" class="userInfo-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
                 </div>

@@ -29,7 +29,7 @@
                         <li class="contact-list-item"
                             v-for="(contact, index) in searchUsers"
                             :key="index">
-                            <img ondragstart="return false" class="contact-list-icon" :id="SetUserImgID(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png">
+                            <img ondragstart="return false" class="contact-list-icon" :id="SetUserImgID(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                             <div class="contact-list-info">
                                 <p class="contact-list-name" v-html="searchKeyHightLight(contact.user_display_name)">{{ contact.user_display_name }}</p>
                                 <p class="contact-list-titile">{{ contact.user_title }}</p>
