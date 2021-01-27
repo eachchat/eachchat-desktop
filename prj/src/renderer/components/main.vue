@@ -33,8 +33,8 @@
         </el-main>
         <div class="loadingDiv" v-show="navEnable">
             <div class="loadingInfo">
-                <i class="el-icon-loading"></i>
-                <div class="loadingText">加载中，请稍后...</div>
+                <img class="isLoading" id="isLoadingId" src="../../../static/Img/Main/mainLoading@2x.png">
+                <div class="loadingText">正在加载数据</div>
             </div>
         </div>
         <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
@@ -155,12 +155,18 @@ export default {
     
             showPersonalCenter:false,
             showPersonalInfo: false,
-            personalCenterKey: 0
+            personalCenterKey: 0,
+            loadingInterval: undefined,
+            loadingElement: undefined,
+            curRotate: 0,
         }
     },
     methods: {
         matrixSyncEnd: function(ret){
             this.navEnable = !ret;
+            if(this.loadingInterval) {
+                clearInterval(this.loadingInterval);
+            }
         },
 
         CloseChangePassword: function() {
@@ -613,6 +619,13 @@ export default {
         ChangePassword
     },
     mounted: async function() {
+        this.loadingInterval = setInterval(() => {
+            if(this.loadingElement == undefined) {
+                this.loadingElement = document.getElementById("isLoadingId");
+            }
+            this.loadingElement.style.transform = 'rotate(' + (this.curRotate += 30) + 'deg)';
+            this.loadingElement.style.transition = 'all 1s linear';
+        }, 100);
         ipcRenderer.on('setUnreadCount', (e, count) => {
             this.unReadCount = count;
         })
@@ -1118,16 +1131,23 @@ export default {
         margin: auto;
         width: 145px;
         height: 100px;
+        text-align: center;
     }
 
     .loadingText {
         font-size: 14px;
         font-family:PingFangSC-Regular;
         text-align: center;
-        display: inline-block;
-        height: 30px;
-        line-height: 30px;
+        font-weight: 400;
+        color: rgba(153, 153, 153, 1);
+        height: 20px;
+        line-height: 20px;
         margin-left: 5px;
+    }
+
+    .isLoading {
+        width: 40px;
+        height: 40px;
     }
 
     .macWindowHeader {
