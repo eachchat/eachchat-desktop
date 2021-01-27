@@ -171,7 +171,7 @@
                                 <span v-if="item.powerLevel==100" class="adminBadge">群主</span>
                                 <span v-if="item.powerLevel==50" class="adminBadge">群管理员</span>
                             </div>
-                            <div class="memberItemMxId">{{item.userId}}</div>
+                            <div class="memberItemMxId">{{item.title}}</div>
                         </div>
                     </div>
                     <img 
@@ -244,7 +244,7 @@ import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { stat } from 'fs'
 import imageCropper from './imageCropper.vue'
-import { UserInfo, Contact, ContactRoom} from '../../packages/data/sqliteutil.js'
+import { UserInfo, Contact, ContactRoom, Department} from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
 import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
@@ -309,7 +309,8 @@ export default {
             mxAvatar: '',
             mxRoom: {},
             mxXxrOpen: false,
-            mxContact: false
+            mxContact: false,
+            myDomain: ''
         }
     },
     components: {
@@ -534,6 +535,25 @@ export default {
                 let o = xie1.currentState.members[key];
                 o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
                 o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
+                const contactInfo = await Contact.GetContactInfo(o.userId);
+                const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
+                console.log('看一看1', contactInfo);
+                console.log('看一看2', depInfo);
+                console.log('看一看3', this.myDomain);
+                let userDomain = ComponentUtil.GetDomanName(o.userId);
+                let company = '';
+                let title = '';
+                if(userDomain == this.myDomain) {
+                    let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
+                    title = company + user_title;
+                    title = title ? title : depInfo.user_title;
+                } else {
+                    let company = (contactInfo && contactInfo.company) ? contactInfo.company + '  ' : '';
+                    let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
+                    title = company + user_title;
+                    title = title ? title : depInfo.user_title;
+                }
+                o.title = title ? title : o.userId;
                 let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
@@ -1001,6 +1021,7 @@ export default {
         const client = window.mxMatrixClientPeg.matrixClient;
         const userId = client.getUserId();
         const vtx = this;
+        this.myDomain = ComponentUtil.GetDomanName(userId);
         const mDirectEvent = global.mxMatrixClientPeg.matrixClient.getAccountData('m.direct');
         let dmRoomMap = {};
         if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
@@ -1242,7 +1263,8 @@ export default {
 }  
 
 .adminBadge {
-    width: 46px;
+    padding-left: 8px;
+    padding-right: 8px;
     height: 16px;
     background: #24B36B;
     border-radius: 8px;
@@ -1365,6 +1387,12 @@ export default {
     height: 18px;
     color: #999999;
     font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 180px;
 }
 
 .memberItemOptionsImg {
