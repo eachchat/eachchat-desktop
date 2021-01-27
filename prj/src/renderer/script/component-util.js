@@ -71,6 +71,15 @@ const ComponentUtil = {
         tempUserInfo.avatar_url = user.avatar_url;
         tempUserInfo.company = user.company;
         tempUserInfo.matrix_id = matrix_id;
+        if(user.display_name == ''){
+            try{
+                let profile = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(matrix_id);
+                user.display_name = profile.displayname;
+            }catch(e){
+                console.log(e);
+            }
+        }
+        
         tempUserInfo.displayName = ComponentUtil.GetDisplayName(user.display_name, matrix_id);
         tempUserInfo.title = ComponentUtil.ShowInfoContent(user.title);
         tempUserInfo.statusDescription = ComponentUtil.ShowInfoContent(user.status_description);

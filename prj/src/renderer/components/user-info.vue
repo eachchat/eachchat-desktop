@@ -356,9 +356,6 @@ export default {
 
         },
         reportRelationClicked:async function() {
-            this.curUserInfo = await this.services.GetSelfUserModel();
-            var tempUserinfo = this.userInfo;
-            tempUserinfo.curUserInfo = this.curUserInfo;
             let leaders = this.userInfo.leaders;
             let proArray = [];
             for(let item of leaders){

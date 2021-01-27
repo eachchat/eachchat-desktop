@@ -146,7 +146,7 @@ export default {
     watch: {
         organizationClick: function(){
             global.services.common.GetAllContact().then(async() => {
-                this.contactList = await Contact.GetAllContact();
+                this.UpdateContact();
             }) 
             this.contactListKey++;
         },
@@ -212,7 +212,16 @@ export default {
             showInputContactDlg: false
         }
     },
-    methods: {
+    methods: {    
+        UpdateContact: async function(){
+            this.contactList = await Contact.GetAllContact();
+            this.$nextTick(function(){
+                    this.contactList.forEach(item => {
+                        this.getUserImg(item, 'contact')
+                    })
+            });
+        },
+        
         CloseInputContactDlg: async function(){
             this.showInputContactDlg = false;
             this.contactList = await Contact.GetAllContact();
@@ -226,7 +235,7 @@ export default {
         HandleInputContact: async function(){
             this.showChatContactDlg = false;
             this.showInputContactDlg = true;
-            this.contactList = await Contact.GetAllContact();
+            this.UpdateContact();
         },
 
         AddContact(){
@@ -237,7 +246,7 @@ export default {
         closeAddContactDlg: async function(){
             this.showChatContactDlg = false;
             this.showInputContactDlg = false;
-            this.contactList = await Contact.GetAllContact();
+            this.UpdateContact();
         }, 
 
         rightClick(e, contact) {
@@ -323,8 +332,6 @@ export default {
                 this.searchRooms.push(item);
             })
             
-
-            //if(this.searchDeparements.length!=0 || this.searchUsers.length != 0 || this.searchContacts.length != 0)
             this.showSearchView = true;
             this.$nextTick(function(){
                 this.searchContacts.forEach(item => {
@@ -363,8 +370,11 @@ export default {
             global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id).then(profileInfo => {
                 if(!profileInfo.avatar_url) return;
                 let userIconElement;
-                if(type == 'contact')
+                if(type == 'contact'){
                     userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.matrix_id));
+                    if(userInfo.display_name.length == 0)
+                        userInfo.display_name = ComponentUtil.GetDisplayName(profileInfo.displayname, userInfo.matrix_id);
+                }
                 else 
                     userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.user_id));
                 let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
@@ -516,6 +526,7 @@ export default {
         addContact,
         InputContactInfo
     },
+
     created:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         this.organizeMenuName = this.$t("organizeMenuName"),
@@ -524,16 +535,12 @@ export default {
         this.myDoman = ComponentUtil.GetDomanName(this.myMatrixId);
         console.log("to get organization");
         await this.getOrganizationBaseData();
-        this.contactList = await Contact.GetAllContact();
-        this.$nextTick(function(){
-                this.contactList.forEach(item => {
-                    this.getUserImg(item, 'contact')
-                })
-        });
-        var that = this;
-        document.addEventListener('click',function(e){
+        await this.UpdateContact();
+
+        document.addEventListener('click',(e) => {
             if(e.target.className.indexOf('userInfo') == -1){
-                that.showSearchUserInfoTips = false;
+                this.showSearchUserInfoTips = false;
+                this.UpdateContact();
             }
             
         });
