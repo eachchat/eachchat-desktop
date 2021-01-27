@@ -912,7 +912,7 @@ const Contact = {
         let contacts = await(await models.Contact).find({
             display_name:  "%"+key,
             _matrix_id:          "%"+key,
-            _title:         "%"+key,
+            //_title:         "%"+key,
             $size: 20
         })
         contacts.sort((item1, item2) => {

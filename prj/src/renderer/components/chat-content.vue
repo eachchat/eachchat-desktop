@@ -1526,10 +1526,14 @@ export default {
           return;
         }
         var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-        elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+        if(elementGroupName) {
+          elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+        }
       }
       else {
-          groupNameElement.innerHTML = chatGroupItem.name;
+        if(elementGroupName) {
+          elementGroupName.innerHTML = distGroup.name;
+        }
       }
     },
 

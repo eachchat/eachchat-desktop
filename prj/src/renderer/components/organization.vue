@@ -103,12 +103,14 @@
             <contactRoomList v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
             </contactRoomList>
         </el-container>
-        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
+        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-if="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
             <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
         <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="ClearCache"/>
         <addContact v-if="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact"></addContact>
+        <InputContactInfo v-if='showInputContactDlg' @closeInputContact="CloseInputContactDlg">
+        </InputContactInfo>
     </el-container>
 </template>
 <script>
@@ -127,6 +129,7 @@ import {ipcRenderer, remote} from 'electron'
 const {Menu, MenuItem} = remote;
 import AlertDlg from './alert-dlg.vue'
 import addContact from './add-contact';
+import InputContactInfo from './input-contact-info';
 
 export default {
     name: 'organization',
@@ -145,6 +148,7 @@ export default {
             global.services.common.GetAllContact().then(async() => {
                 this.contactList = await Contact.GetAllContact();
             }) 
+            this.contactListKey++;
         },
 
         receiveSearchKey: function() {
@@ -204,21 +208,35 @@ export default {
             myDoman:'',
             showAlertDlg: false,
             alertContents: {},
-            showChatContactDlg: false
+            showChatContactDlg: false,
+            showInputContactDlg: false
         }
     },
     methods: {
+        CloseInputContactDlg: async function(){
+            this.showInputContactDlg = false;
+            this.contactList = await Contact.GetAllContact();
+            this.$nextTick(function(){
+                this.contactList.forEach(item => {
+                    this.getUserImg(item, 'contact')
+                })
+            });
+        },
+
         HandleInputContact: async function(){
             this.showChatContactDlg = false;
+            this.showInputContactDlg = true;
             this.contactList = await Contact.GetAllContact();
         },
 
         AddContact(){
             this.showChatContactDlg = true;
+            this.showInputContactDlg = false;
         },
 
         closeAddContactDlg: async function(){
             this.showChatContactDlg = false;
+            this.showInputContactDlg = false;
             this.contactList = await Contact.GetAllContact();
         }, 
 
@@ -495,7 +513,8 @@ export default {
         contactList,
         contactRoomList,
         AlertDlg,
-        addContact
+        addContact,
+        InputContactInfo
     },
     created:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;

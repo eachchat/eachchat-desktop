@@ -57,7 +57,7 @@
       "icon": "./static/Img/logo.ico"
     },
     "linux": {
-      "icon": "build/icons",
+      "icon": "./static/Img/Main/logo@6x.png",
       "extraResources": [
         {
           "from": "./extralib/libcrypto.so",
