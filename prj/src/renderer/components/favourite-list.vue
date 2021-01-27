@@ -18,8 +18,7 @@
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                                    <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
-                                    <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
+              
                                     <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                                 </div>    
                                
@@ -83,8 +82,7 @@
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
                                     <img ondragstart="return false" class="transmit-img" @click="transmitMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/transmit@2x.png">
-                                    <!-- <img class="transmit-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/transmit@2x.png"> -->
-                                    <!-- <img class="delete-img" @click="testChatCreaterDialog()" src="../../../static/Img/Favorite/Detail/delete@2x.png"> -->
+ 
                                     <img ondragstart="return false" class="delete-img" @click="deleteMessageCollectionClicked(message)" src="../../../static/Img/Favorite/Detail/delete@2x.png">
                                 </div>
                                 <div>
@@ -307,24 +305,7 @@ export default {
         updateChatList: function(ret) {
             ipcRenderer.send("favourite-update-chatlist", ret);
         },
-        testChatCreaterDialog:async function() {
-            this.chatCreaterKey ++;
-            var self = await services.common.GetSelfUserModel();
-            this.chatCreaterDisableUsers.push(await UserInfo.GetUserInfo(self.id));
-            var root = await Department.GetRoot();
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            var temp = [];
-            for(var i = 0; i < rootDepartmentModels.length; i ++) {
-                var department = rootDepartmentModels[i];
-                temp[department.show_order] = department;
-            }
-            this.chatCreaterDialogRootDepartments =  temp;
-            
-            this.showChatCreaterDlg = true;
-            this.transmitKey ++;
-            this.chatCreaterDialogTitle = "创建";
 
-        },
         closeTransmitDlg(content) {
             this.showTransmitDlg = false;
                 

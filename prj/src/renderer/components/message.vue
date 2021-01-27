@@ -1129,8 +1129,8 @@ export default {
     },
     created: async function() {
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
-        this.loginInfo = undefined;//await services.common.GetLoginModel();
-        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
+        this.loginInfo = undefined;
+        this.curUserInfo = undefined;
     },
     watch: {
         msg: async function() {
