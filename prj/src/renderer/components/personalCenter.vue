@@ -2,7 +2,7 @@
     <div class="personalCenter-view" :style="pagePosition">
         <div class="personalCenterBaseInfo-view">
             <div class="personalCenter-iconView">
-                <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterShowIcon()">
+                <img ondragstart="return false" class="personalCenter-icon" src="../../../static/Img/User/user-40px@2x.png"  onerror = "this.src = './static/Img/User/user-40px@2x.png'" @click="personalCenterShowIcon()">
                 <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar.png" @click="personalCenterIconClicked()">
             </div>
             <div class="personalCenter-baseInfo">
@@ -253,13 +253,7 @@ export default {
             // }
             let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
             if(avaterUrl != '') {
-                try{
-                    var response = await axios.get(avaterUrl);
-                    userIconElement.setAttribute("src", avaterUrl);
-                }
-                catch(e) {
-                    
-                }
+                 userIconElement.setAttribute("src", avaterUrl);
             }
             this.displayName = displayName;
 
