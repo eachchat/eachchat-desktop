@@ -20,6 +20,11 @@
                             </i>
                         </el-input>
                     </div>
+                    <div class = 'newContactDiv' v-show = 'searchUsers.length == 0' @click = "AddByMatrixID()">
+                        <img class = 'newContactIcon' src="../../../static/Img/Organization/Image/inputContact.png">
+                        <label class = 'newContactText' for="">新建联系人</label>
+                        <img class = 'newContactClick' src="../../../static/Img/Setup/arrow-20px.png">
+                    </div>
                     <ul class = 'contact-list'>
                         <li class="contact-list-item"
                             v-for="(contact, index) in searchUsers"
@@ -41,16 +46,7 @@
 </template>
 
 <script>
-import {services, environment} from '../../packages/data/index.js'
-import * as fs from 'fs-extra'
-import {ipcRenderer} from 'electron'
-import { object } from '../../packages/core/types'
-import confservice from '../../packages/data/conf_service';
-import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil } from '../../packages/core/Utils.js'
-import * as path from 'path'
-import { model } from '../../packages/core'
-import { models } from '../../packages/data/models.js';
-import { UserInfo, Contact, Department } from '../../packages/data/sqliteutil'
+import { UserInfo, Contact } from '../../packages/data/sqliteutil'
 import { ComponentUtil } from '../script/component-util.js'
 
 
@@ -83,6 +79,10 @@ export default {
         }
     },
     methods: {
+        newContactClick(){
+            
+        },
+
         searchKeyHightLight(content){
             return content.replace(this.searchKey, function(item) {
                 return '<span style="color:rgba(0, 169, 113, 1);">' + item + "</span>"; 
@@ -262,6 +262,31 @@ export default {
 /*隐藏滚轮*/
 display: none;
 }
+    .newContactDiv{
+        margin-top: 20px;
+        margin-left: 20px;
+        margin-right: 17px;
+    }
+
+    .newContactIcon{
+        vertical-align: middle;
+    }
+
+    .newContactText{
+        vertical-align: middle;
+        margin-left: 12px;
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        line-height: 20px;
+    }
+
+    .newContactClick{
+        vertical-align: middle;
+        float: right;
+    }
     .ChatCreaterLayers {
         height: 100%;
         width: 100%;

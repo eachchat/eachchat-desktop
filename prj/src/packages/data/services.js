@@ -2512,12 +2512,13 @@ const common = {
                                           contactInfo.title);
     log.info("AddContact", result)
     if (!result.ok || !result.success) {
-      return result;
+      return false;
     }
     let item = result.data.obj;
     let contactModelValue = await servicemodels.ContactModel(item);
     await contactModelValue.save();
     ipcRenderer.send("updateContact")
+    return true;
   },
 
   async GetAllContact(){
