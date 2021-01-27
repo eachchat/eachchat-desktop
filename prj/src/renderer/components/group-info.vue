@@ -6,7 +6,7 @@
         <div class="groupInfo-view">
             <div v-if="!isDm" class="groupInfoImageDiv" style="margin-right: 8px;">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
-                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror = "this.src = './static/Img/User/group-40px@2x.png'">
+                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror="this.src = './static/Img/User/group-40px@2x.png'">
                 <img 
                     id="groupInfoImageChangeId" 
                     class="groupInfoImageChange" 
@@ -19,7 +19,7 @@
                     id="groupInfoImageId" 
                     class="groupInfoImage" 
                     :src="mxAvatar"
-                    onerror = "this.src = './static/Img/User/user-40px@2x.png'"
+                    onerror="this.src = './static/Img/User/user-40px@2x.png'"
                 >
             </div>
             <div class="groupInfoNoticeAndName" v-if="!isDm">
@@ -166,7 +166,7 @@
                     </div> -->
                     <!-- <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)"> -->
                     <div class="memberItemLeft">
-                        <img onerror = "this.src = './static/Img/User/user-40px@2x.png'" :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
+                        <img onerror="this.src = './static/Img/User/user-40px@2x.png'" :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
                         <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
                             <div class="memberItemName">
                                 <span>{{item.dspName}}</span>
