@@ -220,17 +220,18 @@ export default {
 </script>
 <style lang="scss" scoped>
 ::-webkit-scrollbar-track-piece {
-    background-color: #F1F1F1;
+    background-color: #FFFFFF;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 4px;
+    height: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    height: 50px;
+    height: 57px;
+    width: 57px;
     background-color: #C1C1C1;
     border-radius: 10px;
     outline: none;
