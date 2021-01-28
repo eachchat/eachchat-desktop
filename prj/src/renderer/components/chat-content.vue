@@ -396,8 +396,8 @@ export default {
         }
       }
     },
-    distGroupId: async function() {
-      console.log("in chat content distGroupId is ", this.distGroupId);
+    distGroupId: function() {
+      if(this.distGroupId.length == 0) return;
       let room = global.mxMatrixClientPeg.matrixClient.getRoom(this.distGroupId);
       if(room) {
         console.log('------distGroupId------');
