@@ -24,10 +24,9 @@
 </template>
 <script>
 
-import {services} from '../../packages/data/index.js';
 import {ContactRoom} from '../../packages/data/sqliteutil.js'; 
 import "../style/contact-list.css"
-import {ComponentUtil} from '../script/component-util.js'
+import log from 'electron-log'
 
 
 export default {
@@ -80,10 +79,14 @@ export default {
         getAppBaseData:async function() {
             await this.services.getAllContactRooms();
             this.roomList = await ContactRoom.GetAllRooms();
+            log.info('contact-room', this.roomList)
             this.roomList.forEach(item => {
                 let room = this.matrixClient.getRoom(item.room_id);
+                console.log('room', room);
+                log.info('room name', room.name);
                 item.name = room.name;
                 var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+                log.info('RoomAvatar', RoomAvatar);
                 if(!RoomAvatar) 
                     item.avatar_url = './static/Img/User/group-40px@2x.png';
                 else 
@@ -91,27 +94,6 @@ export default {
             })
         },
 
-
-        getUserImg: async function(userinfo) {
-            var elementImg = document.getElementById(userinfo.matrix_id + 'roomList');
-            if(!elementImg){
-                return;
-            }
-            if(userinfo.matrix_id[0] != "@"){
-                elementImg.setAttribute("src", './static/Img/User/user-40px@2x.png');
-                return;
-            }
-            var profileInfo = await this.matrixClient.getProfileInfo(userinfo.matrix_id);
-            if(!profileInfo.avatar_url){
-                elementImg.setAttribute("src", './static/Img/User/user-40px@2x.png');
-                return;
-            }
-            let validUrl = this.matrixClient.mxcUrlToHttp(profileInfo.avatar_url); 
-            if(validUrl)
-                elementImg.setAttribute("src", validUrl);
-            else
-                elementImg.setAttribute("src", './static/Img/User/user-40px@2x.png');
-        },
     },
     created: async function() {
         this.services = global.services.common;
