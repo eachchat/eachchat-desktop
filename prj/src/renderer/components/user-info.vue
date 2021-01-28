@@ -23,7 +23,8 @@
                 src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" 
                 @click="createDm" 
             >  <!--click jumpToChat-->
-            <img ondragstart="return false" v-show = "bShowSaveContact" src="../../../static/Img/Organization/UserInfo/addToConact_32px@2x.png" @click="SaveContact">
+            <img ondragstart="return false" v-if = "bShowSaveContact" src="../../../static/Img/Organization/UserInfo/addToConact_32px@2x.png" @click="SaveContact">
+            <img ondragstart="return false" v-else src="../../../static/Img/Organization/UserInfo/inContact_32px@2x.png">
         </div>
         <div class="userInfoState-view" >
             <ul class="userInfoState-list">
@@ -262,6 +263,7 @@ export default {
                 let contact = await ComponentUtil.OrgUserInfoToContact(this.userInfo);
                 await this.services.AddContact(contact);
             }
+            this.bShowSaveContact = false;
             console.log("save ", this.userInfo)
         },
 
