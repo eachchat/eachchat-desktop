@@ -16,7 +16,7 @@
             </div>
             <ul class="MxHistoryMsg-list" id="MxHistoryMsg-list-Id">
                 <li v-for="(item, index) in messageListShow" class="MxmessageItem" v-on:click="ShowFile(item)">
-                    <img class="MxmessageOwnerImage" src="../../../static/Img/User/user-40px@2x.png" :id="getUserHeadImageId(item)" @click="openFile(item)">
+                    <img class="MxmessageOwnerImage" src="../../../static/Img/User/user-40px@2x.png" :id="getUserHeadImageId(item)" @click="openFile(item)" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                     <div class="MxmessageInfoDiv">
                         <div class="MxmessageOwnerTimeDiv">
                             <label class="MxmessageInfoOwnerNameLabel" :id="getUserNameId(item)"></label>
@@ -268,13 +268,7 @@ export default {
                 var distUserName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);;
                 distUserNameElement.innerHTML = distUserName;
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
-                    try{
-                        var response = await axios.get(userUrl);
-                        distUserImgElement.setAttribute("src", userUrl);
-                    }
-                    catch(e) {
 
-                    }
                 }
                 if(curItem.content.msgtype == "m.image") {
                     var chatGroupMsgContent = curItem.content;

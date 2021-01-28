@@ -336,10 +336,10 @@ export default {
             type: Boolean,
             default: false
         },
-        'updateUser': {
-            type: Array,
-            default: []
-        },
+        // 'updateUser': {
+        //     type: Array,
+        //     default: []
+        // },
         // "updateNotice": {
         //     type: String,
         //     default: ""
@@ -1213,20 +1213,20 @@ export default {
                 this.groupNotice = '';
             }
         },
-        updateUser: function() {
-            var state = this.updateUser[0];
-            var stateInfo = this.updateUser[1];
-            var id = this.updateUser[2];
-            var localPath = this.updateUser[3];
+        // updateUser: function() {
+        //     var state = this.updateUser[0];
+        //     var stateInfo = this.updateUser[1];
+        //     var id = this.updateUser[2];
+        //     var localPath = this.updateUser[3];
 
-            console.log("group info updateuserimage args ", this.updateUser)
+        //     console.log("group info updateuserimage args ", this.updateUser)
 
-            var distElement = document.getElementById(this.getIdThroughMemberUid(id));
-            if(distElement == null) {
-                return
-            }
-            distElement.setAttribute("src", localPath);
-        },
+        //     var distElement = document.getElementById(this.getIdThroughMemberUid(id));
+        //     if(distElement == null) {
+        //         return
+        //     }
+        //     distElement.setAttribute("src", localPath);
+        // },
         // updateNotice: function() {
         //     this.groupNotice = this.updateNotice;
         // },

@@ -1696,7 +1696,7 @@ export default {
         loginToMainPage() {
             var elementButton = document.getElementById('loginButton');
             //this.loginButtonValue = "正在加载数据";
-            this.$toastMessage({message:"登录成功", time: 3000, type:'success', showWidth:'280px'});
+            this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
             // this.loginState = "登录成功";
             this.showLoginView = false;
             this.showLoadingView = true;

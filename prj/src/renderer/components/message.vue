@@ -10,7 +10,7 @@
                     <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片" :style="getImageStyle()">
                     </div>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -53,17 +53,17 @@
                         </div>
                     </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                 <el-progress class="my-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-if="isGroup">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-else>
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片">
+                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片" :style="getImageStyle()">
                     </div>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="MsgIsFile()">
@@ -357,7 +357,9 @@ export default {
                             finished = true;
                         }
                     }
-                    shell.openExternal(distUrl);
+                    if(distUrl.length != 0) {
+                        shell.openExternal(distUrl);
+                    }
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     // var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
@@ -497,7 +499,8 @@ export default {
             }
         },
         getMsgImgIcon: function() {
-            let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
+            var distUrl = (this.msg.event.content.info && this.msg.event.content.info.thumbnail_url && this.msg.event.content.info.thumbnail_url.length != 0) ? this.msg.event.content.info.thumbnail_url : this.msg.event.content.url;
+            let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
             return iconPath;
         },
         MsgIsImage: function() {
@@ -844,6 +847,39 @@ export default {
                 })
             }
         },
+        getImageStyle: function() {
+            var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            let maxSize = 400;
+            
+            let info = {
+                w: maxSize,
+                h: maxSize
+            };
+            if(chatGroupMsgContent.info)
+                info = chatGroupMsgContent.info
+            if(!info.h)
+                info.h = maxSize;
+            if(!info.w)
+                info.w = maxSize;
+            
+            let style = "";
+            let max = Math.max(info.w, info.h);
+            if(max > maxSize ){
+                if(info.w > info.h){
+                    info.h = info.h/(info.w/maxSize);
+                    info.w = maxSize;
+                }
+                else{
+                    info.w = info.w/(info.h/maxSize)
+                    info.h = maxSize;
+                }
+
+            }
+            style += "width:" + info.w + "px";
+            style += ";"
+            style += "height:" + info.h + "px";
+            return style;
+        },
         MsgContent: async function(is_mine=false) {
             if(this.msg === null) {
                 return '';
@@ -875,40 +911,18 @@ export default {
                     }
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
-                    let maxSize = 400;
                     if(chatGroupMsgContent.body)
                         this.fileName = chatGroupMsgContent.body;
+
                     let info = {
-                        w: maxSize,
-                        h: maxSize
                     };
+
                     if(chatGroupMsgContent.info)
-                        info = chatGroupMsgContent.info
-                    if(!info.h)
-                        info.h = maxSize;
-                    if(!info.w)
-                        info.w = maxSize;
+                        info = chatGroupMsgContent.info;
+                        
                     if(info.size)
                         this.fileSizeNum = getFileSizeByNumber(info.size);
                     this.messageContent = chatGroupMsgContent.body;
-                    var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
-                    let style = "";
-                    let max = Math.max(info.w, info.h);
-                    if(max > maxSize ){
-                        if(info.w > info.h){
-                            info.h = info.h/(info.w/maxSize);
-                            info.w = maxSize;
-                        }
-                        else{
-                            info.w = info.w/(info.h/maxSize)
-                            info.h = maxSize;
-                        }
-
-                    }
-                    style += "width:" + info.w + "px";
-                    style += ";"
-                    style += "height:" + info.h + "px";
-                    imgMsgImgElement.setAttribute("style", style);
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.audio'){
                     this.messageContent = chatGroupMsgContent.body;
@@ -1047,12 +1061,6 @@ export default {
                 return;
             }
             if(userUrl == "") {
-                return;
-            }
-            try{
-                var response = await axios.get(userUrl);
-            }
-            catch(e) {
                 return;
             }
             // console.log("userUrl is ", userUrl);
@@ -1210,6 +1218,8 @@ export default {
             }
         },
         updateUser: function() {
+            this.MsgBelongUserImg();
+            return;
             var state = this.updateUser[0];
             var stateInfo = this.updateUser[1];
             var id = this.updateUser[2];

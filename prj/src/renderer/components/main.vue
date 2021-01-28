@@ -90,6 +90,10 @@ export default {
                 }
                 this.updateImg = !this.updateImg;
                 this.curindex = 0;
+                setTimeout(() => {
+                    this.distUserId = '';
+                    this.distGroupId = '';
+                }, 500);
             }
             else if(to.name == "organization") {
                 if(to.params.searchKey != undefined) {

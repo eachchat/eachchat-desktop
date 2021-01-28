@@ -136,11 +136,13 @@ export default {
             }  
             setTimeout(()=>{
             this.$nextTick(function(){
-                for(var i = 0; i < organization.users.length; i ++){
-                    this.getUserImg(organization.users[i]);
-                }
+                    for(var i = 0; i < organization.users.length; i ++){
+                        this.getUserImg(organization.users[i]);
+                    }
+                    let scrollElement = document.getElementById('organization-main-container');   
+                    if(scrollElement) scrollElement.scrollTo({left: 280 * level, behavior: 'smooth'})
                 });
-            }, 0)          
+            }, 0)       
             
         },
         userMenuItemClicked:async function(id) {  

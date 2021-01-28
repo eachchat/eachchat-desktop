@@ -5,7 +5,7 @@
         <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
         <div class="chat-title">
             <div class="chatInfo">
-                <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png"/>
+                <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
                 <p class="chat-name" id="chat-group-name">{{curChat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
@@ -112,7 +112,6 @@
             v-if="showGroupInfoTips"
             :showGroupInfoTips="showGroupInfoTips"
             :showGroupInfo="groupInfo" 
-            :updateUser="updateUser" 
             :cleanCache="cleanCache" 
             @showAddMembers="showAddMembers"
             @openUserInfoTip="openUserInfoTip" 
@@ -851,7 +850,11 @@ export default {
                 content.fromMatrixId = msg.sender.userId;
             if(msg.event.origin_server_ts)
                 content.fromTimestamp = msg.event.origin_server_ts;
-            global.services.common.CollectMessage(event_id, content);
+            global.services.common.CollectMessage(event_id, content).then((ret) => {
+                if(ret == true) {
+                    this.$toastMessage({message:"收藏成功", time: 2000, type:'success'});
+                }
+            })
         },
         async imageViewerFav(event, imageInfo) {
             let event_id = imageInfo.imageEventId;
@@ -1460,6 +1463,46 @@ export default {
                     showImageInfoList.unshift(curImageInfo);
                 }
             });
+            if(!distImageInfo.imageUrl) {
+                let event = distEvent.event;
+                let chatGroupMsgContent = distEvent.getContent();
+
+                let maxSize = 390;
+                var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+    
+                let info = {
+                    w: maxSize,
+                    h: maxSize
+                };
+                console.log("*** image info is ", chatGroupMsgContent.info);
+                if(chatGroupMsgContent.info)
+                    info = chatGroupMsgContent.info
+                if(!info.h)
+                    info.h = maxSize;
+                if(!info.w)
+                    info.w = maxSize;
+                let max = Math.max(info.w, info.h);
+                if(max > maxSize ){
+                    if(info.w > info.h){
+                        info.h = info.h/(info.w/maxSize);
+                        info.w = maxSize;
+                    }
+                    else{
+                        info.w = info.w/(info.h/maxSize)
+                        info.h = maxSize;
+                    }
+                }
+
+                distImageInfo = {
+                    imageUrl: curUrl,
+                    url: chatGroupMsgContent.url,
+                    imageEventId: event.event_id,
+                    info: info,
+                    body: chatGroupMsgContent.body,
+                    sender: distEvent.sender ? distEvent.sender.userId : distEvent.sender,
+                    origin_server_ts: distEvent.event.origin_server_ts
+                }
+            }
             ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
         },
         playAudioOfMessage(audioMsgId) {
@@ -2186,7 +2229,12 @@ export default {
                     }
                 })
             }, 100)
-            global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, curTimeSeconds);
+            try{
+                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, curTimeSeconds)
+            }
+            catch(error) {
+                console.log("error is ", error);
+            }
         },
 
         sendMsg: async function() {
@@ -2796,14 +2844,14 @@ export default {
             }
             return ret;
         },
-        _loadTimeline: function(eventId, pixelOffset, offsetBase, distChat=this.curChat) {
+        _loadTimeline: function(eventId, pixelOffset, offsetBase, distChat=this.curChat, num=20) {
             this.timeLineSet = distChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
                 this.timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
-            return this._timelineWindow.load(eventId, 20);
+            return this._timelineWindow.load(eventId, num);
         },
         _getEvents() {
             var events = this._timelineWindow.getEvents();
@@ -2822,15 +2870,16 @@ export default {
             this.isJumpPage = true;
             this.messageList = [];
             // this.curChat.resetLiveTimeline();
-            this._loadTimeline(eventId, undefined, undefined, distChat).then(() => {
+            this._loadTimeline(eventId, undefined, undefined, distChat, 1).then(() => {
                 this.messageList = this._getEvents();
+                console.log("*** this.messageList is ", this.messageList);
                 setTimeout(() => {
                     this.$nextTick(() => {
+                        this.scrollToDistMsg(eventId);
                         let uldiv = document.getElementById("message-show-list");
                         if(uldiv.clientHeight < uldiv.offsetHeight) {
-                            this.handleScroll();
+                            this.paginageForwork();
                         }
-                        this.scrollToDistMsg(eventId);
                         div.addEventListener('scroll', this.handleScroll);
                     })
                 }, 500);
@@ -2976,7 +3025,35 @@ export default {
             }
             return msgList;
         },
-
+        paginageForwork: function() {
+            let uldiv = document.getElementById("message-show-list");
+            if(!uldiv)
+                return;
+            var canForwardPaginate = this._timelineWindow.canPaginate("f");
+            if(!canForwardPaginate) {
+                this.isRefreshing = false;
+                return;
+            }
+            this.isScroll = true;
+            this.lastScrollTop = uldiv.scrollTop;
+            console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
+            // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
+            this.getShowMessage(this.messageFilter, 10, 'f')
+                .then((ret) => {
+                    this.messageList = ret
+                    this.isRefreshing = false;
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            // console.log("---------update croll top is ", uldiv.scrollHeight);
+                            uldiv.scrollTop = this.lastScrollTop;
+                            this.isScroll = false;
+                            // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
+                            // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
+                        })
+                    }, 0)
+                    this.needToBottom = false;
+                })
+        },
         handleScroll: function(toBottom=false) {
             let uldiv = document.getElementById("message-show-list");
             if(!uldiv)
@@ -3134,7 +3211,7 @@ export default {
         },
         updateUserImage(e, args) {
             console.log("updateUserImage ", args);
-            this.updateUser = args;
+            // this.updateUser = args;
         },
         setFocuse(e) {
             if(this.editor == undefined) {
@@ -3392,7 +3469,7 @@ export default {
             checkClassName: ["msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
-            updateUser:[],
+            updateUser: 1,
             updateMsg: {},
             menu: null,
             cleanCache: false,
@@ -3619,6 +3696,8 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
+            this.initMessage();
+            this.updateUser++;
         },
         newMsg: function() {
             console.log("*** newMsg ", this.newMsg)
