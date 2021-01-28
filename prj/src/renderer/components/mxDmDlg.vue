@@ -504,7 +504,7 @@ export default {
                 //     if (r.results) {
                 //         const results = r.results.map(res => {
                 //             res.choosen = false; 
-                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
                 //             return res
                 //         })
                 //         this.searchedMembers = [...results];
