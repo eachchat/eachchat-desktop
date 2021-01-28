@@ -105,19 +105,21 @@ export default {
         AlertConfirm: function() {
             if(this.isUnbindEmail) {
                 global.mxMatrixClientPeg.matrixClient.deleteThreePid('email', this.emailAddress).then(() => {
-                    this.$toastMessage({message:"解除对" + this.emailAddress + "的绑定", time: 2000, type:'sucess'});
                     this.emailAddress = "";
-                    this.unBindEmail = false;
+                    this.isUnbindEmail = false;
+                    this.closeAlertDlg();
                 }).catch((err) => {
+                    this.closeAlertDlg();
                     this.$toastMessage({message:(err && err.message) ? err.message : "操作失败", time: 2000, type:'error'});
                 });
             }
             else if(this.isUnbindPhone) {
                 global.mxMatrixClientPeg.matrixClient.deleteThreePid('msisdn', this.phoneNum).then(() => {
-                    this.$toastMessage({message:"解除对" + this.phoneNum + "的绑定", time: 2000, type:'sucess'});
                     this.phoneNum = "";
-                    this.unBindPhone = false;
+                    this.isUnbindPhone = false;
+                    this.closeAlertDlg();
                 }).catch((err) => {
+                    this.closeAlertDlg();
                     this.$toastMessage({message:(err && err.message) ? err.message : "操作失败", time: 2000, type:'error'});
                 });
             }
@@ -128,17 +130,21 @@ export default {
         },
         unBindEmail: function() {
             this.alertContnets = {
-                "Details": "是否确定删除邮箱" + this.emailAddress + "?",
+                "Details": "是否删除邮箱?",
                 "Abstrace": "提示"
             };
-            this.unBindEmail = true;
+            this.isUnbindEmail = true;
+            this.isUnbindPhone = false;
+            this.showAlertDlg = true;
         },
         unBindPhone: function() {
             this.alertContnets = {
-                "Details": "是否确定删除手机号" + this.phoneNum + "?",
+                "Details": "是否删除手机号?",
                 "Abstrace": "提示"
             };
-            this.unBindPhone = true;
+            this.isUnbindPhone = true;
+            this.isUnbindEmail = false;
+            this.showAlertDlg = true;
         },
         Close: function() {
             this.isMainPage = true;
@@ -188,6 +194,7 @@ export default {
                 this.isBindInputPasswordPage = true;
                 this.accountAddress = "";
                 this.cutTitle = "身份认证";
+                this.confirmText = "提交";
                 this.accountAddressPlaceHolder = "请输入验登录密码";
                 this.toSetAddressLabel = "添加手机号操作需要额外的身份认证，请输入您的登录密码";
             }
@@ -197,22 +204,26 @@ export default {
                     this.toSetAddressLabelState = "邮箱格式不正确"
                     return;
                 }
+                this.disableConfirm = true;
                 this.clientSecret = global.mxMatrixClientPeg.matrixClient.generateClientSecret();
                 global.mxMatrixClientPeg.matrixClient.requestAdd3pidEmailToken(
                     this.accountAddress, this.clientSecret, 1
                 ).then((ret) => {
+                    this.disableConfirm = false;
                     this.sessionId = ret.sid;
                     this.isBindEmailSetAddressPage = false;
                     this.isBindEmailCheckPage = true;
                     this.emailAddress = this.accountAddress;
                     this.accountAddress = "";
                     this.cutTitle = "验证邮箱";
+                    this.confirmText = "下一步";
                     this.toSetAddressLabel = "已向您的邮箱" + this.emailAddress + "发送验证邮件，请检查您的电子邮箱并点击里面包含的链接，完成时请点击下一步。";
                     if(this.time <= 0) {
                         this.time = 61;
                         this.timer();
                     }
                 }).catch((err) => {
+                    this.disableConfirm = false;
                     if (err.errcode === 'M_THREEPID_IN_USE') {
                         this.$toastMessage({message:"该邮箱已经被使用。", time: 2000, type:'error'});
                     } else if (err.httpStatus) {
@@ -246,6 +257,7 @@ export default {
                 this.isBindInputPasswordPage = true;
                 this.accountAddress = "";
                 this.cutTitle = "身份认证";
+                this.confirmText = "提交";
                 this.accountAddressPlaceHolder = "请输入验登录密码";
                 this.toSetAddressLabel = "添加邮箱需要额外的身份认证，请输入您的登录密码";
             }
@@ -265,7 +277,6 @@ export default {
                 try{
                     var ret = await this._makeAddThreepidOnlyRequest(auth);
                     console.log("=========== ret ", ret);
-                    this.$toastMessage({message:"该邮箱已经被使用。", time: 2000, type:'error'});
                 }
                 catch(e) {
                     if (e.httpStatus !== 401 || !e.data || !e.data.flows) {
@@ -299,6 +310,7 @@ export default {
             this.toSetAddressLabel = "请添加用于登录的邮箱";
             this.accountAddress = "";
             this.accountAddressPlaceHolder = "请输入邮箱";
+            this.confirmText = "下一步";
             this.isMainPage = false;
             this.isBindEmailSetAddressPage = true;
         },
@@ -309,6 +321,7 @@ export default {
             this.dlgElement.style.height = "216px";
             this.cutTitle = "添加登录手机号"
             this.toSetAddressLabel = "请添加用于登录的手机号";
+            this.confirmText = "下一步";
             this.accountAddress = "";
             this.accountAddressPlaceHolder = "请输入手机号";
             this.isMainPage = false;
@@ -411,7 +424,7 @@ export default {
 
     .accountManagerContentPageBind {
         width: 360px;
-        height: 104px;
+        height: 125px;
         background: #FFFFFF;
         border: 0px solid rgba(221,221,221,1);
         border-radius: 4px;
