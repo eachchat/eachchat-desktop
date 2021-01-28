@@ -102,7 +102,7 @@
                         <div class="totalListXieItem" v-if="isSearch ? crumbs.length >= 1 : crumbs.length > 1 ">
                             <img
                                 style="height:20px; width:20px; margin-right:8px;"
-                                :src="qx === 3 ? '../../../static/Img/Main/lg.png' : (qx === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
+                                :src="qx === 3 ? './static/Img/Main/lg.png' : (qx === 2 ? './static/Img/Main/ljh.png' : './static/Img/Main/tmk.png')"
                                 @click.stop="setQuanxuan()"
                             >
                             <div class="itemF">全选</div>
@@ -124,7 +124,7 @@
                                     <img
                                         v-if="isSearch ? true : crumbs.length > 1"
                                         style="height:20px; width:20px; margin-right:8px;"
-                                        :src="item.choosen === 3 ? '../../../static/Img/Main/lg.png' : (item.choosen === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
+                                        :src="item.choosen === 3 ? './static/Img/Main/lg.png' : (item.choosen === 2 ? './static/Img/Main/ljh.png' : './static/Img/Main/tmk.png')"
                                     >
                                     <img class="room-img" 
                                          style="margin-right:2px;" 
@@ -144,7 +144,7 @@
                             >
                                 <img
                                     style="height:20px; width:20px; margin-right:8px;"
-                                    :src="item.choosen === 3 ? '../../../static/Img/Main/lg.png' : (item.choosen === 2 ? '../../../static/Img/Main/ljh.png' : '../../../static/Img/Main/tmk.png')"
+                                    :src="item.choosen === 3 ? './static/Img/Main/lg.png' : (item.choosen === 2 ? './static/Img/Main/ljh.png' : './static/Img/Main/tmk.png')"
                                 >
                                 <img class="room-img" :src="item.avatar_url" onerror="this.src = './static/Img/User/user-40px@2x.png'"/>
                                 <div class="user-info">
@@ -1266,7 +1266,7 @@ export default {
                 console.log('-----subUsers-----', subUsers)
                 subDep.forEach(s => {
                     s.type = 'dep';
-                    s.avatar = department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    s.avatar = department_id === this.rootDepId ? './static/Img/Main/primdep.png' : './static/Img/Main/secdep.png';
                 })
                 subUsers.forEach(c=>{
                     console.log('----kanha----', client.getUser(c.matrix_id));
@@ -1305,7 +1305,7 @@ export default {
                 if (searchDeps.length > 0) sds.push({dvd:true, txt:'部门'});
                 searchDeps.forEach(s => {
                     s.type = 'dep';
-                    s.avatar = s.department_id === this.rootDepId ? '../../../static/Img/Main/primdep.png' : '../../../static/Img/Main/secdep.png';
+                    s.avatar = s.department_id === this.rootDepId ? './static/Img/Main/primdep.png' : './static/Img/Main/secdep.png';
                     s.choosen = this.matchWithMap(s);
                     sds.push(s);
                 })
@@ -1353,7 +1353,7 @@ export default {
                 //     if (r.results) {
                 //         const results = r.results.map(res => {
                 //             res.choosen = false; 
-                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || '../../../static/Img/User/user-40px@2x.png';
+                //             res.avatar_url = client.mxcUrlToHttp(res.avatar_url) || './static/Img/User/user-40px@2x.png';
                 //             return res
                 //         })
                 //         this.searchedMembers = [...results];
@@ -1369,7 +1369,7 @@ export default {
             const rootDep = await Department.GetRoot();
             rootDep.type = 'dep';
             rootDep.display_name = '组织';
-            rootDep.avatar = '../../../static/Img/Main/xinzuzhi.png';
+            rootDep.avatar = './static/Img/Main/xinzuzhi.png';
             const contactUsers = await Contact.GetAllContact();
             const cts = contactUsers.map(c => {
                 let u = {}
@@ -1388,7 +1388,7 @@ export default {
             //     type: 'dep',
             //     display_name: '我的联系人',
             //     department_id: 'contact',
-            //     avatar: '../../../static/Img/Main/xincontact.png'
+            //     avatar: './static/Img/Main/xincontact.png'
             // }
             this.rootDepId = rootDep.department_id;
             let totalArray = [rootDep, ...cts];
