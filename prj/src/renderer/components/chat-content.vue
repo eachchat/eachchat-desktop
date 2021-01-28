@@ -578,7 +578,7 @@ export default {
     getGroupClassName(groupItem){
       return (className) =>{
         if(!this.isSearch) {
-          if(!this.curChat.roomId){
+          if(!this.curChat || !this.curChat.roomId){
             return className
           }
           if(groupItem.roomId == this.curChat.roomId){
@@ -601,7 +601,7 @@ export default {
     getGroupDivClassName(groupItem){
       return (className) => {
         if(!this.isSearch) {
-          if(!this.curChat.roomId)
+          if(!this.curChat || !this.curChat.roomId)
             return className
           if(groupItem.roomId == this.curChat.roomId)
             return 'group-div-clicked'

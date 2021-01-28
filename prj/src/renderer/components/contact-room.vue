@@ -80,9 +80,14 @@ export default {
             await this.services.getAllContactRooms();
             this.roomList = await ContactRoom.GetAllRooms();
             log.info('contact-room', this.roomList)
-            this.roomList.forEach(item => {
+            for(let i = 0; i < this.roomList.length; i++){
+                let item = this.roomList[i];
                 let room = this.matrixClient.getRoom(item.room_id);
-                if(!room) return;
+                if(!room){
+                    this.roomList.splice(i, 1);
+                    i--;
+                    continue;
+                } 
                 console.log('room', room);
                 log.info('room name', room.name);
                 item.name = room.name;
@@ -92,7 +97,7 @@ export default {
                     item.avatar_url = './static/Img/User/group-40px@2x.png';
                 else 
                     item.avatar_url = RoomAvatar;
-            })
+            }
         },
 
     },
