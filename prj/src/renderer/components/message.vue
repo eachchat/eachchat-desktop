@@ -499,7 +499,8 @@ export default {
             }
         },
         getMsgImgIcon: function() {
-            let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
+            var distUrl = (this.msg.event.content.info && this.msg.event.content.info.thumbnail_url && this.msg.event.content.info.thumbnail_url.length != 0) ? this.msg.event.content.info.thumbnail_url : this.msg.event.content.url;
+            let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
             return iconPath;
         },
         MsgIsImage: function() {

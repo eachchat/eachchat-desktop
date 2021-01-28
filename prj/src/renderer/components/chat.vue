@@ -1463,6 +1463,46 @@ export default {
                     showImageInfoList.unshift(curImageInfo);
                 }
             });
+            if(!distImageInfo.imageUrl) {
+                let event = distEvent.event;
+                let chatGroupMsgContent = distEvent.getContent();
+
+                let maxSize = 390;
+                var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+    
+                let info = {
+                    w: maxSize,
+                    h: maxSize
+                };
+                console.log("*** image info is ", chatGroupMsgContent.info);
+                if(chatGroupMsgContent.info)
+                    info = chatGroupMsgContent.info
+                if(!info.h)
+                    info.h = maxSize;
+                if(!info.w)
+                    info.w = maxSize;
+                let max = Math.max(info.w, info.h);
+                if(max > maxSize ){
+                    if(info.w > info.h){
+                        info.h = info.h/(info.w/maxSize);
+                        info.w = maxSize;
+                    }
+                    else{
+                        info.w = info.w/(info.h/maxSize)
+                        info.h = maxSize;
+                    }
+                }
+
+                distImageInfo = {
+                    imageUrl: curUrl,
+                    url: chatGroupMsgContent.url,
+                    imageEventId: event.event_id,
+                    info: info,
+                    body: chatGroupMsgContent.body,
+                    sender: distEvent.sender ? distEvent.sender.userId : distEvent.sender,
+                    origin_server_ts: distEvent.event.origin_server_ts
+                }
+            }
             ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
         },
         playAudioOfMessage(audioMsgId) {
