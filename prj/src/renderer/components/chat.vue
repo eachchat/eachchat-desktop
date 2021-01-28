@@ -1428,17 +1428,6 @@ export default {
                         info.h = maxSize;
                     if(!info.w)
                         info.w = maxSize;
-                    let max = Math.max(info.w, info.h);
-                    if(max > maxSize ){
-                        if(info.w > info.h){
-                            info.h = info.h/(info.w/maxSize);
-                            info.w = maxSize;
-                        }
-                        else{
-                            info.w = info.w/(info.h/maxSize)
-                            info.h = maxSize;
-                        }
-                    }
 
                     var curImageInfo = {
                         imageUrl: curUrl,
@@ -1481,18 +1470,7 @@ export default {
                     info.h = maxSize;
                 if(!info.w)
                     info.w = maxSize;
-                let max = Math.max(info.w, info.h);
-                if(max > maxSize ){
-                    if(info.w > info.h){
-                        info.h = info.h/(info.w/maxSize);
-                        info.w = maxSize;
-                    }
-                    else{
-                        info.w = info.w/(info.h/maxSize)
-                        info.h = maxSize;
-                    }
-                }
-
+                    
                 distImageInfo = {
                     imageUrl: curUrl,
                     url: chatGroupMsgContent.url,

@@ -23,6 +23,7 @@ let flashIconTimer = null;
 let iconPath 
 let soundPath
 let notificationIco
+let screenSize
 let notification = null
 var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
@@ -286,26 +287,29 @@ ipcMain.on('imageViewerTransmit', function(event, toTransmitEvent) {
 
 ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
   // assistWindow.webContents.on('did-finish-load', function() {
-  assistWindow.webContents.send("timelines", imageInfos, distImageInfo);
+  assistWindow.webContents.send("timelines", imageInfos, distImageInfo, screenSize);
   // });
   assistWindow.show();
+  assistWindow.center();
 })
 
 ipcMain.on('showPersonalImageViewWindow', function(event, url) {
   // assistWindow.webContents.on('did-finish-load', function() {
-  assistWindow.webContents.send("personalUrl", url);
+  assistWindow.webContents.send("personalUrl", url, screenSize);
   // });
   assistWindow.show();
+  assistWindow.center();
 })
 
-ipcMain.on('updageAssistWindowSize', function(event, sizeInfo) {
+ipcMain.on('updageAssistWindowSize', function(event, sizeInfo, isHeaderImg) {
   console.log("*** updage size is ", sizeInfo);
-  if(sizeInfo == undefined) {
-    assistWindow.setSize(480, 480);
+  if(isHeaderImg) {
+    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 48, true);
   }
   else {
-    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 48);
+    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 98, true);
   }
+  assistWindow.center();
 })
 
 // 收藏详情窗口
@@ -1036,6 +1040,8 @@ function createWindow () {
   if (process.env.NODE_ENV === "development") {
     resizableValue = true;
   }
+
+  screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   Menu.setApplicationMenu(null)
   mainWindow = new BrowserWindow({

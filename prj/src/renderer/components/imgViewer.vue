@@ -48,64 +48,74 @@ export default {
     },
     methods: {
         zoomimg: function(event) {
-            var delta = 0;
-            if (!event) event = window.event;
-            if(event.wheelDelta) {
-                delta = event.wheelDelta / 120;
-            }
-            if(delta > 0) {
-                if(this.curMultiple < this.curMultiple * 2) {
-                    this.curMultiple += 0.1;
+            if(!this.isPersonalImg) {
+                var delta = 0;
+                if (!event) event = window.event;
+                if(event.wheelDelta) {
+                    delta = event.wheelDelta / 120;
                 }
-            }
-            else {
-                if(this.curMultiple > this.curMultiple / 2) {
-                    this.curMultiple -= 0.1;
+                if(delta > 0) {
+                    if(this.curMultiple < this.curMultiple * 2) {
+                        this.curMultiple += 0.1;
+                    }
                 }
+                else {
+                    if(this.curMultiple > this.curMultiple / 2) {
+                        this.curMultiple -= 0.1;
+                    }
+                }
+                let style = "";
+                style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+                style += ";"
+                style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                this.stageElement.setAttribute("style", style);
             }
-            let style = "";
-            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
-            style += ";"
-            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
-            this.stageElement.setAttribute("style", style);
         },
         enlarge: function() {
-            this.curMultiple += 0.1;
-            let style = "";
-            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
-            style += ";"
-            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
-            this.stageElement.setAttribute("style", style);
+            if(!this.isPersonalImg) {
+                this.curMultiple += 0.1;
+                let style = "";
+                style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+                style += ";"
+                style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                this.stageElement.setAttribute("style", style);
+            }
         },
         reduce: function() {
-            this.curMultiple -= 0.1;
-            let style = "";
-            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
-            style += ";"
-            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
-            this.stageElement.setAttribute("style", style);
+            if(!this.isPersonalImg) {
+                this.curMultiple -= 0.1;
+                let style = "";
+                style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+                style += ";"
+                style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                this.stageElement.setAttribute("style", style);
+            }
         },
         clockWise: function() {
-            this.curMultiple = 1;
-            this.curRotate -= 90;
-            let style = "";
-            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
-            style += ";"
-            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
-            style += ";"
-            style += "transform:" + "rotate(" + this.curRotate + "deg)";
-            this.stageElement.setAttribute("style", style);
+            if(!this.isPersonalImg) {
+                this.curMultiple = 1;
+                this.curRotate -= 90;
+                let style = "";
+                style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+                style += ";"
+                style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                style += ";"
+                style += "transform:" + "rotate(" + this.curRotate + "deg)";
+                this.stageElement.setAttribute("style", style);
+            }
         },
         antiClockWise: function() {
-            this.curMultiple = 1;
-            this.curRotate += 90;
-            let style = "";
-            style += "width:" + this.curImage.info.w * this.curMultiple + "px";
-            style += ";"
-            style += "height:" + this.curImage.info.h * this.curMultiple + "px";
-            style += ";"
-            style += "transform:" + "rotate(" + this.curRotate + "deg)";
-            this.stageElement.setAttribute("style", style);
+            if(!this.isPersonalImg) {
+                this.curMultiple = 1;
+                this.curRotate += 90;
+                let style = "";
+                style += "width:" + this.curImage.info.w * this.curMultiple + "px";
+                style += ";"
+                style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                style += ";"
+                style += "transform:" + "rotate(" + this.curRotate + "deg)";
+                this.stageElement.setAttribute("style", style);
+            }
         },
         Close: function() {
             this.curUrl = "";
@@ -122,72 +132,146 @@ export default {
             return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
         },
         showRight() {
-            this.curMultiple = 1;
-            if(this.stageElement == undefined) {
-                this.stageElement = document.getElementById("imageViewerStageId");
-            }
-            var curIndex = -1;
-            for(var i=0;i<this.ImageInfos.length;i++) {
-                if(this.ImageInfos[i].imageEventId == this.curImage.imageEventId) {
-                    curIndex = i;
-                    break;
+            if(!this.isPersonalImg) {
+                this.curMultiple = 1;
+                if(this.stageElement == undefined) {
+                    this.stageElement = document.getElementById("imageViewerStageId");
                 }
-            }
-            console.log("*** showRight curIndex is ", curIndex);
-            if(curIndex > 0) {
-                curIndex = curIndex - 1;
-                this.curImage = this.ImageInfos[curIndex];
-                let style = "";
-                style += "width:" + this.curImage.info.w + "px";
-                style += ";"
-                style += "height:" + this.curImage.info.h + "px";
-                // this.updateWindowSize(this.curImage.info);
-                this.stageElement.setAttribute("style", style);
-                this.stageElement.setAttribute("src", this.curImage.imageUrl);
+                var curIndex = -1;
+                for(var i=0;i<this.ImageInfos.length;i++) {
+                    if(this.ImageInfos[i].imageEventId == this.curImage.imageEventId) {
+                        curIndex = i;
+                        break;
+                    }
+                }
+                console.log("*** showRight curIndex is ", curIndex);
+                if(curIndex > 0) {
+                    curIndex = curIndex - 1;
+                    this.curImage = this.ImageInfos[curIndex];
+                    
+                    if(this.curImage.info.w > this.curImage.info.h) {
+                        if(this.curImage.info.w > this.screenWidth ){
+                            this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                            this.curImage.info.w = this.screenWidth;
+                            if(this.curImage.info.h > this.screenHeight) {
+                                this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                                this.curImage.info.h = this.screenHeight;
+                            }
+                        }
+                        else {
+                            if(this.curImage.info.h > this.screenHeight) {
+                                this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                                this.curImage.info.h = this.screenHeight;
+                            }
+                        }
+                    }
+                    else {
+                        if(this.curImage.info.h > this.screenHeight) {
+                            this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                            this.curImage.info.h = this.screenHeight;
+                            if(this.curImage.info.w > this.screenWidth ){
+                                this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                                this.curImage.info.w = this.screenWidth;
+                            }
+                        }
+                        else {
+                            if(this.curImage.info.w > this.screenWidth ){
+                                this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                                this.curImage.info.w = this.screenWidth;
+                            }
+                        }
+                    }
+
+                    let style = "";
+                    style += "width:" + this.curImage.info.w + "px";
+                    style += ";"
+                    style += "height:" + this.curImage.info.h + "px";
+                    this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
+                    this.stageElement.setAttribute("src", this.curImage.imageUrl);
+                    this.stageElement.setAttribute("style", style);
+                }
             }
         },
         showLeft() {
-            this.curMultiple = 1;
-            if(this.stageElement == undefined) {
-                this.stageElement = document.getElementById("imageViewerStageId");
-            }
-            var curIndex = -1;
-            for(var i=0;i<this.ImageInfos.length;i++) {
-                if(this.ImageInfos[i].imageEventId == this.curImage.imageEventId) {
-                    curIndex = i;
-                    break;
+            if(!this.isPersonalImg) {
+                this.curMultiple = 1;
+                if(this.stageElement == undefined) {
+                    this.stageElement = document.getElementById("imageViewerStageId");
+                }
+                var curIndex = -1;
+                for(var i=0;i<this.ImageInfos.length;i++) {
+                    if(this.ImageInfos[i].imageEventId == this.curImage.imageEventId) {
+                        curIndex = i;
+                        break;
+                    }
+                }
+                console.log("*** showLeft curIndex is ", curIndex);
+                if(curIndex < this.ImageInfos.length - 1) {
+                    curIndex = curIndex + 1;
+                    this.curImage = this.ImageInfos[curIndex];
+                        
+                    if(this.curImage.info.w > this.curImage.info.h) {
+                        if(this.curImage.info.w > this.screenWidth ){
+                            this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                            this.curImage.info.w = this.screenWidth;
+                            if(this.curImage.info.h > this.screenHeight) {
+                                this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                                this.curImage.info.h = this.screenHeight;
+                            }
+                        }
+                        else {
+                            if(this.curImage.info.h > this.screenHeight) {
+                                this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                                this.curImage.info.h = this.screenHeight;
+                            }
+                        }
+                    }
+                    else {
+                        if(this.curImage.info.h > this.screenHeight) {
+                            this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                            this.curImage.info.h = this.screenHeight;
+                            if(this.curImage.info.w > this.screenWidth ){
+                                this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                                this.curImage.info.w = this.screenWidth;
+                            }
+                        }
+                        else {
+                            if(this.curImage.info.w > this.screenWidth ){
+                                this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                                this.curImage.info.w = this.screenWidth;
+                            }
+                        }
+                    }
+
+                    let style = "";
+                    style += "width:" + this.curImage.info.w + "px";
+                    style += ";"
+                    style += "height:" + this.curImage.info.h + "px";
+                    this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
+                    this.stageElement.setAttribute("src", this.curImage.imageUrl);
+                    this.stageElement.setAttribute("style", style);
                 }
             }
-            console.log("*** showLeft curIndex is ", curIndex);
-            if(curIndex < this.ImageInfos.length - 1) {
-                curIndex = curIndex + 1;
-                this.curImage = this.ImageInfos[curIndex];
-                let style = "";
-                style += "width:" + this.curImage.info.w + "px";
-                style += ";"
-                style += "height:" + this.curImage.info.h + "px";
-                // this.updateWindowSize(this.curImage.info);
-                this.stageElement.setAttribute("style", style);
-                this.stageElement.setAttribute("src", this.curImage.imageUrl);
-            }
         },
-        updateWindowSize(sizeInfo) {
+        updateWindowSize(sizeInfo, isHeadImg=false) {
             console.log("*** send updageAssistWindowSize ", sizeInfo);
             ipcRenderer.send("updageAssistWindowSize", sizeInfo);
         },
         keyHandle(event) {
-            console.log("*** keyHandle ", event);
-            if(event.code == "Enter" && !event.ctrlKey) {
+            if(!this.isPersonalImg) {
+                console.log("*** keyHandle ", event);
+                if(event.code == "Enter" && !event.ctrlKey) {
 
-            }
-            else if(event.code == "Escape") {
+                }
+                else if(event.code == "Escape") {
 
-            }
-            else if(event.code == "ArrowRight") {
-                this.showRight();
-            }
-            else if(event.code == "ArrowLeft"){
-                this.showLeft();
+                }
+                else if(event.code == "ArrowRight") {
+                    this.showRight();
+                }
+                else if(event.code == "ArrowLeft"){
+                    this.showLeft();
+                }
             }
         },
         rightClick(e) {
@@ -277,9 +361,11 @@ export default {
             this.DownUp = true;
         },
         mouseMove(ev) {
-            if(this.DownUp) {
-                this.imgtop = this.imgtop + ev.movementY;
-                this.imgleft = this.imgleft + ev.movementX;
+            if(!this.isPersonalImg) {
+                if(this.DownUp) {
+                    this.imgtop = this.imgtop + ev.movementY;
+                    this.imgleft = this.imgleft + ev.movementX;
+                }
             }
         },
     },
@@ -296,28 +382,75 @@ export default {
             imgheight: 100,
             isPersonalImg: false,
             curUrl: '',
+            maxSize: 100,
+            screenWidth: 100,
+            screenHeight: 100,
         }
     },
     mounted: function() {
         const ipcRenderer = require('electron').ipcRenderer;
-        ipcRenderer.on("timelines", (event, imageInfos, distImageInfo) => {
+        ipcRenderer.on("timelines", (event, imageInfos, distImageInfo, screenSize) => {
+            console.log("*** screenSize ", screenSize);
+            this.screenWidth = screen.width * 0.9;
+            this.screenHeight = screen.height * 0.8;
+            this.maxSize = Math.max(this.screenHeight, this.screenWidth);
+            console.log("*** this.maxSize is ", this.maxSize);
             this.curImage = {};
             this.curImage = distImageInfo;
             this.curMultiple = 1;
             this.isPersonalImg = false;
             console.log("mounted cur Image is ", this.curImage);
             this.ImageInfos = imageInfos;
+            
+            if(this.curImage.info.w > this.curImage.info.h) {
+                if(this.curImage.info.w > this.screenWidth ){
+                    this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                    this.curImage.info.w = this.screenWidth;
+                    if(this.curImage.info.h > this.screenHeight) {
+                        this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                        this.curImage.info.h = this.screenHeight;
+                    }
+                }
+                else {
+                    if(this.curImage.info.h > this.screenHeight) {
+                        this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                        this.curImage.info.h = this.screenHeight;
+                    }
+                }
+            }
+            else {
+                if(this.curImage.info.h > this.screenHeight) {
+                    this.curImage.info.w = this.curImage.info.w/(this.curImage.info.h/this.screenHeight)
+                    this.curImage.info.h = this.screenHeight;
+                    if(this.curImage.info.w > this.screenWidth ){
+                        this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                        this.curImage.info.w = this.screenWidth;
+                    }
+                }
+                else {
+                    if(this.curImage.info.w > this.screenWidth ){
+                        this.curImage.info.h = this.curImage.info.h/(this.curImage.info.w/this.screenWidth);
+                        this.curImage.info.w = this.screenWidth;
+                    }
+                }
+            }
+
             this.stageElement = document.getElementById("imageViewerStageId");
             let style = "";
             style += "width:" + this.curImage.info.w + "px";
             style += ";"
             style += "height:" + this.curImage.info.h + "px";
-            this.updateWindowSize(undefined);
-            this.stageElement.setAttribute("style", style);
-                this.stageElement.style.top = "-20px";
+            console.log("*** this.curImage is ", this.curImage.info);
+            this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
+            // this.updateWindowSize(undefined);
             this.stageElement.setAttribute("src", this.curImage.imageUrl);
+            this.stageElement.setAttribute("style", style);
+            this.stageElement.style.top = "-20px";
         });
-        ipcRenderer.on("personalUrl", (event, url) => {
+        ipcRenderer.on("personalUrl", (event, url, screenSize) => {
+            this.screenWidth = screen.width * 0.9;
+            this.screenHeight = screen.height * 0.8;
+            this.maxSize = Math.max(this.screenHeight, this.screenWidth);
             this.curImage.imageUrl = "";
             this.isPersonalImg = true;
             this.curUrl = url;
@@ -326,14 +459,47 @@ export default {
             img.onload = () => {
                 this.stageElement = document.getElementById("imageViewerStageId");
                 let style = "";
+
+                if(img.width > img.height) {
+                    if(img.width > this.screenWidth ){
+                        img.height = img.height/(img.width/this.screenWidth);
+                        img.width = this.screenWidth;
+                        if(img.height > this.screenHeight) {
+                            img.width = img.width/(img.height/this.screenHeight)
+                            img.height = this.screenHeight;
+                        }
+                    }
+                    else {
+                        if(img.height > this.screenHeight) {
+                            img.width = img.width/(img.height/this.screenHeight)
+                            img.height = this.screenHeight;
+                        }
+                    }
+                }
+                else {
+                    if(img.height > this.screenHeight) {
+                        img.width = img.width/(img.height/this.screenHeight)
+                        img.height = this.screenHeight;
+                        if(img.width > this.screenWidth ){
+                            img.height = img.height/(img.width/this.screenWidth);
+                            img.width = this.screenWidth;
+                        }
+                    }
+                    else {
+                        if(img.width > this.screenWidth ){
+                            img.height = img.height/(img.width/this.screenWidth);
+                            img.width = this.screenWidth;
+                        }
+                    }
+                }
                 style += "width:" + img.width + "px";
                 style += ";"
                 style += "height:" + img.height + "px";
                 console.log("*** style is ", style);
+                this.stageElement.setAttribute("src", this.curUrl);
                 this.stageElement.setAttribute("style", style);
                 this.stageElement.style.top = "0px";
-                this.stageElement.setAttribute("src", this.curUrl);
-                this.updateWindowSize({w: img.width > 100 ? img.width : 100, h: img.height > 100 ? img.height : 100});
+                this.updateWindowSize({w: img.width > 480 ? img.width : 480, h: img.height > 502 ? img.height : 502}, true);
             }
         });
         window.addEventListener('keydown', this.keyHandle);
