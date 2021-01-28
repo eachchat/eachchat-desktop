@@ -617,7 +617,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -645,7 +645,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -669,7 +669,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -691,7 +691,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
