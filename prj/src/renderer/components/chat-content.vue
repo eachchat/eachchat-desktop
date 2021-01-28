@@ -2593,13 +2593,12 @@ export default {
             else {
               return timeLineTmp;
             }
-            continue;
           }
           if(chatGroupItem.distTimeLine) {
             return chatGroupItem.distTimeLine;
           }
           else {
-            return undefined
+            continue;
           }
         }
       }
