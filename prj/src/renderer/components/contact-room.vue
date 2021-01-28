@@ -82,6 +82,7 @@ export default {
             log.info('contact-room', this.roomList)
             this.roomList.forEach(item => {
                 let room = this.matrixClient.getRoom(item.room_id);
+                if(!room) return;
                 console.log('room', room);
                 log.info('room name', room.name);
                 item.name = room.name;
