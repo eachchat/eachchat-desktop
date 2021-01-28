@@ -561,13 +561,17 @@ export default {
       bCollections: true,
       bRooms: true,
       favouriteRooms: [],//置顶列表
+      favouriteIds: [],
       showFavouriteRooms: [],//显示置顶列表
       inviteGroupsList:[],//邀请列表
       showInviteGroupList:[],
       dealShowGroupList:[],//聊天列表
+      dealShowGroupIds: [],
       showDealGroupList:[],
       lowPriorityGroupList: [],
+      lowPriorityGroupIds: [],
       showLowPriorityGroupList:[],
+      showLowPriorityGroupIds: [],
       oldElementGroupItem: null,
       oldElementGroupDiv: null,
       unreadIndex: -1,
@@ -761,8 +765,11 @@ export default {
       this.unreadCount = 0;
       this.inviteGroupsList.length = 0;
       this.favouriteRooms.length = 0;
+      this.favouriteIds = [];
       this.dealShowGroupList.length = 0;
+      this.dealShowGroupIds = [];
       this.lowPriorityGroupList.length = 0;
+      this.lowPriorityGroupIds = [];
       this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
@@ -777,12 +784,21 @@ export default {
           }
           let tags = item.tags;
           if(tags && tags['m.favourite']){
-            this.favouriteRooms.push(item)
+            if(this.favouriteIds.indexOf(item.roomId) < 0) {
+              this.favouriteRooms.push(item)
+            }
+            this.favouriteIds.push(item.roomId);
           }
           else if(tags && tags['m.lowpriority']){
-            this.lowPriorityGroupList.push(item)
+            if(this.lowPriorityGroupIds.indexOf(item.roomId) < 0) {
+              this.lowPriorityGroupIds.push(item.roomId);
+            }
+            this.lowPriorityGroupList.push(item);
           }
           else{
+            if(this.dealShowGroupIds.indexOf(item.roomId) < 0) {
+              this.dealShowGroupIds.push(item.roomId);
+            }
             this.dealShowGroupList.push(item);
           }
         }
@@ -852,6 +868,9 @@ export default {
         if(this.dealShowGroupList.every(item=>{
           return item.roomId != room.roomId
         })){
+          if(this.dealShowGroupIds.indexOf(room.roomId) < 0) {
+            this.dealShowGroupIds.push(room.roomId);
+          }
           this.dealShowGroupList.unshift(room);
         }
       }
@@ -2930,6 +2949,9 @@ export default {
     },
     UpdateRoomListPassive: function(member) {
       //join leave invite
+      if(this.dealShowGroupIds.indexOf(member.roomId) >= 0 || this.favouriteIds.indexOf(member.roomId) >= 0 || this.lowPriorityGroupIds.indexOf(member.roomId) >= 0) {
+        return;
+      }
       this.unreadCount = 0;
       this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
@@ -2952,11 +2974,17 @@ export default {
           let tags = item.tags;
           if(tags && tags['m.favourite']){
             if(this.favouriteRooms.indexOf(item) < 0) {
+              if(this.favouriteIds.indexOf(item.roomId) < 0) {
+                this.favouriteRooms.push(item)
+              }
               this.favouriteRooms.push(item)
             }
           }
           else{
             if(this.dealShowGroupList.indexOf(item) < 0) {
+              if(this.dealShowGroupIds.indexOf(item.roomId) < 0) {
+                this.dealShowGroupIds.push(item.roomId);
+              }
               this.dealShowGroupList.push(item);
             }
           }
@@ -2999,8 +3027,10 @@ export default {
           return;
         } 
       }
-
       this.dealShowGroupList.unshift(newRoom);
+      if(this.dealShowGroupIds.indexOf(newRoom.roomId) < 0) {
+        this.dealShowGroupIds.push(newRoom.roomId);
+      }
       this.$nextTick(async () => {
         await newRoom.loadMembersIfNeeded();
         this.showChat(newRoom, 0);
