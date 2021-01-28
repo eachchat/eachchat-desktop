@@ -108,6 +108,7 @@ export default {
             this.stageElement.setAttribute("style", style);
         },
         Close: function() {
+            this.curUrl = "";
             this.curImage = {};
             ipcRenderer.send("image-win-close");
         },

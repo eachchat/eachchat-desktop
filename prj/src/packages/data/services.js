@@ -2233,13 +2233,23 @@ const common = {
     if(host.endsWith("/")) {
       host = host.substring(0, host.length - 1);
     }
-    var response = await axios.get(host + "/api/services/auth/v1/auth/setting");
-    log.info("getLoginConfig is ", response)
-    if (response.status != 200 
-      || response.data == undefined
-      || response.data.obj == undefined) {
+    var response = undefined;
+    try {
+      var response = await axios.get(host + "/api/services/auth/v1/auth/setting");
+      log.info("getLoginConfig is ", response)
+      if (response.status != 200 
+        || response.data == undefined
+        || response.data.obj == undefined) {
+        return false;
+      };
+    }
+    catch(error) {
+      log.info("getLoginConfig exception ", error);
       return false;
-    };
+    }
+    if(!response) {
+      return false;
+    }
     var loginSettingObj = response.data.obj;
     global.localStorage.setItem("authType", loginSettingObj['authType']);
     global.localStorage.setItem("threeAuthType", loginSettingObj['threeAuthType']);
@@ -2255,18 +2265,27 @@ const common = {
     if(host.endsWith("/")) {
       host = host.substring(0, host.length - 1);
     }
-    var response = await axios.post(host + "/gms/v1/configuration", 
-      {
-        'tenantName': domain
+    var response = undefined;
+    try{
+      response = await axios.post(host + "/gms/v1/configuration", 
+        {
+          'tenantName': domain
+        }
+      );
+      log.info("newGmsConfiguration", response)
+      if (response.status != 200 
+        || response.data == undefined
+        || response.data.obj == undefined) {
+        return false;
       }
-    );
-    log.info("newGmsConfiguration", response)
-    if (response.status != 200 
-      || response.data == undefined
-      || response.data.obj == undefined) {
+    }
+    catch(error) {
+      log.info("newGmsConfiguration exception ", error);
       return false;
     }
-    
+    if(!response) {
+      return;
+    }
     let entry = response.data.obj.entry;
     let mqtt = response.data.obj.mqtt;
     let channel = response.data.obj.channel;

@@ -26,7 +26,7 @@
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
-                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                     <!-- <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p> -->
                   </div>
                   <div class="group-info">
@@ -57,7 +57,7 @@
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
-                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex)" :id="getShowUnreadCountId(chatGroupItem)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
@@ -89,7 +89,7 @@
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
-                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex)" :id="getShowUnreadCountId(chatGroupItem)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
@@ -119,7 +119,7 @@
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
                     <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
-                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png"/>
+                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                     <p :class="getUnreadClass(chatGroupItem, index===curindex)" :id="getShowUnreadCountId(chatGroupItem)">{{getShowUnReadCount(chatGroupItem)}}</p>
                   </div>
                   <div class="group-info">
@@ -414,6 +414,9 @@ export default {
         }
       }
       else {
+        if(this.checkNeedScroll(this.curChat)) {
+          this.scrollToDistPosition(this.curChat);
+        }
         this.toBottom = true;
         this.$nextTick(() => {
           this.toBottom = false;
@@ -1494,18 +1497,6 @@ export default {
     UpdateGroupImage: async function(distGroup){
         var elementImg = document.getElementById(distGroup.roomId);
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(distGroup);
-        if(distUrl && distUrl != '') {
-          try{
-              var response = await axios.get(distUrl);
-          }
-          catch(e) {
-            console.log("*** e is ", e);
-            if(global.mxMatrixClientPeg.DMCheck(distGroup))
-                distUrl = "./static/Img/User/user-40px@2x.png";
-            else
-                distUrl = "./static/Img/User/group-40px@2x.png";  
-          }
-        }
         if(!distUrl || distUrl == '') {
             if(global.mxMatrixClientPeg.DMCheck(distGroup))
                 distUrl = "./static/Img/User/user-40px@2x.png";
@@ -2105,7 +2096,8 @@ export default {
     updateChatGroupStatus(groupId, groupStatus) {
       for(let i in this.dealShowGroupList){
         if(this.dealShowGroupList[i].roomId == groupId) {
-            this.showGroupIconName(this.dealShowGroupList[i]);
+          this.showGroupIconName(this.dealShowGroupList[i]);
+          this.groupIsSlience(this.dealShowGroupList[i]);
           return;
         } 
       }
@@ -2567,16 +2559,23 @@ export default {
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
-            return timeLineTmp;
+          if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.room.member'].indexOf(timeLineTmp.getType()) >= 0) {
+            if(timeLineTmp.getType() == "m.room.member" && i==chatGroupItem.timeline.length-1) {
+              const content = timeLineTmp.getContent();
+
+              if(content.membership == 'join') {
+                if((timeLineTmp.sender ? timeLineTmp.sender.userId : timeLineTmp.event.sender) == this.$store.state.userId) {
+                  return timeLineTmp;
+                }
+              }
+            }
+            else if(timeLineTmp.getType() == "m.room.member" ) {
+            }
+            else {
+              return timeLineTmp;
+            }
+            continue;
           }
-  /*
-          else
-          {
-            console.log('----------')
-            console.log(timeLineTmp.getType()) 
-          }
-  */
           if(chatGroupItem.distTimeLine) {
             return chatGroupItem.distTimeLine;
           }
