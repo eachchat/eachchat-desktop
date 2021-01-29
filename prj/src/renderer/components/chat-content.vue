@@ -300,6 +300,7 @@ import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToSt
 import { Group, UserInfo, Department, Message, Contact  } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
+import { UpdateUserAvater } from '../../utils/commonFuncs.js'
 // import avatarBlock from './avatar.vue';
 import {shell} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
@@ -1039,7 +1040,7 @@ export default {
         //     console.log("onRoomTimeline ", ev)
         //     this.$emit("updateChatList", ev);
         // }
-        // //this.UpdateUserAvater(ev);
+       UpdateUserAvater(ev);
         
         // if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
         
