@@ -306,6 +306,7 @@ export default {
     },
     methods: {
         clearCache: function() {
+            console.log("*** this.curOperate is ", this.curOperate);
             if(this.curOperate == "Trans") {
                 this.transmitNeedAlert = false;
                 this.curOperate == "";
@@ -316,10 +317,11 @@ export default {
                 this.curOperate == "";
                 this.showAlertDlg = false;
                 this.multiDel();
-                this.selectedMsgs = [];
             }
+            this.closeAlertDlg();
         },
         closeAlertDlg: function() {
+            console.log("*** close curoperate is empty");
             this.curOperate = "";
             this.showAlertDlg = false;
         },
@@ -691,6 +693,7 @@ export default {
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
+            this.curOperate = "Del";
             this.selectedMsgs.push(msg);
             this.alertContnets = {
                 "Details": "是否删除聊天记录？",
@@ -762,6 +765,7 @@ export default {
                 this.showAlertDlg = true;
             }
             else{
+                console.log("**** transmit");
                 this.curOperate = "";
                 this.recentGroups = await Group.GetGroupByTime();
                 this.transmitKey ++;
