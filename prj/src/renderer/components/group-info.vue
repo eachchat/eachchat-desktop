@@ -157,8 +157,8 @@
                 > <!--@click="showAddMembers"-->
             </div>
         </div>
-        <div :class="groupListViewClassName()" v-if="isGroup && !isDm">
-            <ul class="groupMember-list">
+        <!-- <div :class="groupListViewClassName()" v-if="isGroup && !isDm"> -->
+            <ul class="groupMember-list" v-if="isGroup && !isDm">
                 <li v-for="(item, index) in mxMembers" class="memberItem"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
                     <!-- <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
@@ -190,7 +190,7 @@
                     </div>
                 </li>
             </ul>
-        </div>
+        <!-- </div> -->
         <div class="footer" v-if="!isDm">
             <div class="groupLeave-view"> <!--v-show="isGroup"-->
                 <p class="groupLeaveDiv" @click.stop="mxLeaveRoom()"> <!--@click="leave()"-->
@@ -1294,6 +1294,9 @@ export default {
     top: 0;
     right: 0;
     z-index: 3;
+    display: flex;
+    flex-direction: column;
+    flex-flow: column;
 }
 
 .groupInfoTitleDiv {
@@ -1314,6 +1317,10 @@ export default {
     margin: 0 0 0 16px;
     font-family: PingFangSC-Medium;
     letter-spacing: 0px;
+}
+
+.groupMember-view2 {
+
 }
 
 .groupMember-view {
@@ -1337,18 +1344,19 @@ export default {
 }
 
 .groupMember-list {
-    height: 100%;
-    list-style: none;
     margin: 0;
     padding: 0;
     display: block;
     list-style: none;
     overflow-y: scroll;
     overflow-x: hidden;
+    height: 0;
+    flex: 1;
+    width: 100%;
+    overflow: auto;
 }
 
 .memberItem {
-    width: 248px;
     height: 48px;
     padding-left: 16px;
     padding-right: 16px;
@@ -2033,16 +2041,18 @@ export default {
 }
 
 .footer{
-    position: absolute;
-    left: 0px;
-    bottom: 0px;
+    // position: absolute;
+    // left: 0px;
+    // bottom: 0px;
     width: 100%;
+    background: #FFFFFF;
+    box-shadow: 0px 1px 0px 0px #EEEEEE;
+    height: 48px;
+
 }
 
 .groupLeave-view{   
     height: 48px;
-    background: #FFFFFF;
-    box-shadow: 0px 1px 0px 0px #EEEEEE;
 }
 
 .groupLeaveDiv{
