@@ -335,7 +335,7 @@ export default {
                     }
                     this.$emit('playAudioOfMessage', this.msg.event.event_id);
                 }
-                else if(this.MsgIsLink(this.msg)) {
+                else if(this.MsgIsLink(this.msg) && false) {
                     var finished = false;
                     var dealContent = chatGroupMsgContent.body;
                     var distUrl = "";
@@ -617,7 +617,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -645,10 +645,13 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer;" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
+        },
+        openUrl: function(url) {
+            shell.openExternal(url);
         },
         getOthersUrlHtml: function(checkKey, content) {
             var dealContent = content.trim();
@@ -669,7 +672,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -691,7 +694,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -1134,6 +1137,7 @@ export default {
                 }, 500)
             })
         }, 0)
+        window.openUrl=this.openUrl;
     },
     created: async function() {
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
