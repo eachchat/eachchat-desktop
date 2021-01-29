@@ -2636,7 +2636,7 @@ export default {
         },
         // Difference in css. Left of Right
         ChatLeftOrRightClassName: function (curMsg) {
-            if(curMsg.sender.userId === this.userID) {
+            if((curMsg.sender ? curMsg.sender.userId : curMsg.event.sender) === this.userID) {
                 return "message-right";
             }
             else {
@@ -2994,7 +2994,8 @@ export default {
                 let index = 0;
                 msgList.length = 0;
                 tmpList.forEach(item => {
-                    if(msgFileter(item) && item.event.content){
+                    // if(msgFileter(item) && item.event.content){
+                    if(item.event.content){
                         msgList.push(item);
                         index++;
                     } 
@@ -3297,29 +3298,56 @@ export default {
                 }
             }
         },
+        async updateTimelineSet(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+            
+            if (room) {
+                let timelineSet;
+
+                try {
+                    timelineSet = await this.fetchFileEventsServer(room);
+                } catch (error) {
+                    console.error("Failed to get or create file panel filter", error);
+                }
+                return timelineSet;
+            } else {
+                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
+            }
+        },
+        async fetchFileEventsServer(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+
+            const filter = new Filter(client.credentials.userId);
+            filter.setDefinition(
+                {
+                    "room": {
+                        "timeline": {
+                            "types": [
+                                "m.room.message"
+                            ],
+                        },
+                    },
+                },
+            );
+
+            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
+            filter.filterId = filterId;
+            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
+
+            return timelineSet;
+        },
         async toGetShowMessage() {
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
+            this.timeLineSet = await this.updateTimelineSet(this.curChat);
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
                 this.timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
             await this._timelineWindow.load(undefined, 20);
-            var fileListInfo = [];
-            var originalFileListInfo = this._timelineWindow.getEvents();
-            originalFileListInfo.forEach(item => {
-                if(this.messageFilter(item) && item.event.content){
-                    fileListInfo.push(item);
-                } 
-            })
+            var fileListInfo = this._timelineWindow.getEvents();
             while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
                 await this._timelineWindow.paginate("b", 20);
-                var fileListInfoTmp = await this._timelineWindow.getEvents();
-                fileListInfoTmp.forEach(item => {
-                    if(this.messageFilter(item) && item.event.content){
-                        fileListInfo.push(item);
-                    }
-                })
+                fileListInfo = await this._timelineWindow.getEvents();
             }
             return fileListInfo;
         },
@@ -3680,6 +3708,9 @@ export default {
         newMsg: function() {
             console.log("*** newMsg ", this.newMsg)
             if(this.newMsg == null) {
+                return;
+            }
+            if(!this._timelineWindow) {
                 return;
             }
             this.showGroupName(this.curChat);

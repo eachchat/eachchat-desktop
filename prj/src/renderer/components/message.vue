@@ -1028,7 +1028,7 @@ export default {
             }
         },
         MsgIsMine:function() {
-            if(this.msg.sender.userId === this.$store.state.userId) {
+            if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
                 return true;
             }
             else {
@@ -1048,13 +1048,13 @@ export default {
 
             // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
             
-            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(this.msg.sender.userId);
+            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender));
 
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;
             }
                 
-            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.msg.sender.userId);
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender));
             var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             
             if(this.userIconElement == undefined) {
@@ -1069,7 +1069,7 @@ export default {
         msgUserInfo: async function() {
             this.userInfo = {};
             if(this.msg.sender){
-                this.userInfo.matrix_id = this.msg.sender.userId;
+                this.userInfo.matrix_id = (this.msg.sender ? this.msg.sender.userId : this.msg.event.sender);
             }
         },
         compare: function(){
