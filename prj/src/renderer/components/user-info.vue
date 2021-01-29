@@ -3,7 +3,7 @@
     <div class="userInfo-view" :style="pagePosition">
         <div class="userInfoBaseInfo-view">
             <div class="userInfo-iconDiv">
-                <img ondragstart="return false" class = 'userInfo-icon' src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <img ondragstart="return false" class = 'userInfo-icon' src="../../../static/Img/User/user-40px@2x.png" :id="getUserInfoIconID(userInfo.matrix_id)" onerror = "this.src = './static/Img/User/user-40px@2x.png'" @click="userImageShow()">
                 <div class = 'userInfo-changeIcon' @click="personalCenterIconClicked()" v-show = 'showChangeIcon'>
                     <img ondragstart="return false" class="userInfo-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar-24px@2x.png">
                 </div>
@@ -230,6 +230,13 @@ export default {
                     if(elementImg)
                         elementImg.setAttribute("src", avaterUrl);
             });       
+        },
+
+        async userImageShow() {
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.userInfo.matrix_id);
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('showPersonalImageViewWindow', avaterUrl);
         },
 
         personalCenterIconClicked(){
