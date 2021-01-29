@@ -55,6 +55,7 @@
                                     <div class="file-info" @click="fileListClicked(file)">
                                         <p class="file-name">{{ file.collection_content.body }}</p>
                                         <p class="file-size">{{ FileSizeByNumber(file.collection_content.info.size) }}</p>
+                                        <progress class="file-progress" value="22" max="100"></progress> 
                                     </div>
                                     <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                                 </div>
@@ -967,6 +968,17 @@ display: none;
         }
     }
 }
+
+/* 表示总长度背景色 */
+progress::-webkit-progress-bar {
+    background-color: rgba(210, 215, 222, 1);
+}
+
+/* 表示已完成进度背景色 */
+progress::-webkit-progress-value {
+    background: rgba(36, 179, 107, 1)
+}
+
 .file-list {
     list-style: none;
     margin: 0px;
@@ -1044,6 +1056,14 @@ display: none;
                     color:rgba(153,153,153,1);
                     line-height:18px;
                     font-family: PingFangSC-Regular;
+                }
+                .file-progress{
+                    width: 200px;
+                    height: 2px;
+                    background: #D2D7DE;
+                    border-radius: 1px;
+                    vertical-align: top;
+                    margin-top: -10px;
                 }
             }
         }
