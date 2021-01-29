@@ -1428,17 +1428,6 @@ export default {
                         info.h = maxSize;
                     if(!info.w)
                         info.w = maxSize;
-                    let max = Math.max(info.w, info.h);
-                    if(max > maxSize ){
-                        if(info.w > info.h){
-                            info.h = info.h/(info.w/maxSize);
-                            info.w = maxSize;
-                        }
-                        else{
-                            info.w = info.w/(info.h/maxSize)
-                            info.h = maxSize;
-                        }
-                    }
 
                     var curImageInfo = {
                         imageUrl: curUrl,
@@ -1481,18 +1470,7 @@ export default {
                     info.h = maxSize;
                 if(!info.w)
                     info.w = maxSize;
-                let max = Math.max(info.w, info.h);
-                if(max > maxSize ){
-                    if(info.w > info.h){
-                        info.h = info.h/(info.w/maxSize);
-                        info.w = maxSize;
-                    }
-                    else{
-                        info.w = info.w/(info.h/maxSize)
-                        info.h = maxSize;
-                    }
-                }
-
+                    
                 distImageInfo = {
                     imageUrl: curUrl,
                     url: chatGroupMsgContent.url,
@@ -2658,7 +2636,7 @@ export default {
         },
         // Difference in css. Left of Right
         ChatLeftOrRightClassName: function (curMsg) {
-            if(curMsg.sender.userId === this.userID) {
+            if((curMsg.sender ? curMsg.sender.userId : curMsg.event.sender) === this.userID) {
                 return "message-right";
             }
             else {
@@ -3016,7 +2994,8 @@ export default {
                 let index = 0;
                 msgList.length = 0;
                 tmpList.forEach(item => {
-                    if(msgFileter(item) && item.event.content){
+                    // if(msgFileter(item) && item.event.content){
+                    if(item.event.content){
                         msgList.push(item);
                         index++;
                     } 
@@ -3319,29 +3298,56 @@ export default {
                 }
             }
         },
+        async updateTimelineSet(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+            
+            if (room) {
+                let timelineSet;
+
+                try {
+                    timelineSet = await this.fetchFileEventsServer(room);
+                } catch (error) {
+                    console.error("Failed to get or create file panel filter", error);
+                }
+                return timelineSet;
+            } else {
+                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
+            }
+        },
+        async fetchFileEventsServer(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+
+            const filter = new Filter(client.credentials.userId);
+            filter.setDefinition(
+                {
+                    "room": {
+                        "timeline": {
+                            "types": [
+                                "m.room.message"
+                            ],
+                        },
+                    },
+                },
+            );
+
+            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
+            filter.filterId = filterId;
+            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
+
+            return timelineSet;
+        },
         async toGetShowMessage() {
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
+            this.timeLineSet = await this.updateTimelineSet(this.curChat);
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
                 this.timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
             await this._timelineWindow.load(undefined, 20);
-            var fileListInfo = [];
-            var originalFileListInfo = this._timelineWindow.getEvents();
-            originalFileListInfo.forEach(item => {
-                if(this.messageFilter(item) && item.event.content){
-                    fileListInfo.push(item);
-                } 
-            })
+            var fileListInfo = this._timelineWindow.getEvents();
             while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
                 await this._timelineWindow.paginate("b", 20);
-                var fileListInfoTmp = await this._timelineWindow.getEvents();
-                fileListInfoTmp.forEach(item => {
-                    if(this.messageFilter(item) && item.event.content){
-                        fileListInfo.push(item);
-                    }
-                })
+                fileListInfo = await this._timelineWindow.getEvents();
             }
             return fileListInfo;
         },
@@ -3466,7 +3472,7 @@ export default {
             fileListGroupInfo: {},
             showFileListInfo: false,
             messageListElement: null,
-            checkClassName: ["msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
+            checkClassName: ["file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
             updateUser: 1,
@@ -3702,6 +3708,9 @@ export default {
         newMsg: function() {
             console.log("*** newMsg ", this.newMsg)
             if(this.newMsg == null) {
+                return;
+            }
+            if(!this._timelineWindow) {
                 return;
             }
             this.showGroupName(this.curChat);

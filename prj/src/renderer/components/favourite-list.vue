@@ -55,6 +55,7 @@
                                     <div class="file-info" @click="fileListClicked(file)">
                                         <p class="file-name">{{ file.collection_content.body }}</p>
                                         <p class="file-size">{{ FileSizeByNumber(file.collection_content.info.size) }}</p>
+                                        <progress class="file-progress" :id="file.collection_id" value="0" max="100" v-show="false"></progress> 
                                     </div>
                                     <img ondragstart="return false" class="file-action" :src="getFileStateSourceImage(file)" @click="fileActionClicked(file)">
                                 </div>
@@ -390,14 +391,23 @@ export default {
             })
             ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
         },
-
+        ProCallback: function(receivedLength, contentLength, collectionId) {
+            var distElement = document.getElementById(collectionId);
+            distElement.value = parseInt(receivedLength*100/Number(contentLength));
+            console.log("**** valud ", distElement.value);
+            if(distElement.value == 100) {
+                distElement.style.display = "none";
+            }
+        },
         DownloadFile: function(file){
             let filepath = file.localPath;
             if(filepath.length == 0){
+                var distElement = document.getElementById(file.collection_id);
+                distElement.style.display = "block";
                 var chatGroupMsgContent = file.collection_content;
                 let msgKey = Base64.encode(chatGroupMsgContent.url, true)
                 var distPath = confservice.getFilePath(chatGroupMsgContent.fromTimestamp);
-                getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback, file.collection_id)
                 .then((blob) => {
                     let reader = new FileReader();
                     reader.onload = function() {
@@ -967,6 +977,17 @@ display: none;
         }
     }
 }
+
+/* 表示总长度背景色 */
+progress::-webkit-progress-bar {
+    background-color: rgba(210, 215, 222, 1);
+}
+
+/* 表示已完成进度背景色 */
+progress::-webkit-progress-value {
+    background: rgba(36, 179, 107, 1)
+}
+
 .file-list {
     list-style: none;
     margin: 0px;
@@ -1044,6 +1065,14 @@ display: none;
                     color:rgba(153,153,153,1);
                     line-height:18px;
                     font-family: PingFangSC-Regular;
+                }
+                .file-progress{
+                    width: 200px;
+                    height: 2px;
+                    background: #D2D7DE;
+                    border-radius: 1px;
+                    vertical-align: top;
+                    margin-top: -10px;
                 }
             }
         }

@@ -481,6 +481,8 @@ export default {
                 }
               }
               else {
+                let getRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                getRoom.distTimeLine = event;
                 this.UpdateRoomListPassive(member);
               }
             },320)
@@ -1117,7 +1119,6 @@ export default {
           console.log("*** do not need Scroll");
           return false;
         }
-        this.groupListElement.scrollTo({top: distGroupItem.offsetTop - 120, behavior: 'instant'});
       }
       else {
         return false;
@@ -2578,7 +2579,7 @@ export default {
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.room.member'].indexOf(timeLineTmp.getType()) >= 0) {
+          if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
             if(timeLineTmp.getType() == "m.room.member" && i==chatGroupItem.timeline.length-1) {
               const content = timeLineTmp.getContent();
 
@@ -2593,13 +2594,12 @@ export default {
             else {
               return timeLineTmp;
             }
-            continue;
           }
           if(chatGroupItem.distTimeLine) {
             return chatGroupItem.distTimeLine;
           }
           else {
-            return undefined
+            continue;
           }
         }
       }

@@ -815,7 +815,7 @@ function decryptFile(file, url) {
     });
 }
 
-function getFileBlob(fileInfo, url, proCallback) {
+function getFileBlob(fileInfo, url, proCallback, collectionId="") {
     // const url = MatrixClientPeg.get().mxcUrlToHttp(file.url);
     // Download the encrypted file as an array buffer.
     return Promise.resolve(fetch(url)).then(async function(response) {
@@ -839,7 +839,7 @@ function getFileBlob(fileInfo, url, proCallback) {
               
                 console.log(`Received ${receivedLength} of ${contentLength}`)
                 if(proCallback) {
-                    proCallback(receivedLength, contentLength);
+                    proCallback(receivedLength, contentLength, collectionId);
                 }
             }
             

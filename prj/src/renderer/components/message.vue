@@ -617,7 +617,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -645,7 +645,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -669,7 +669,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -691,7 +691,7 @@ export default {
                 }
                 var chackUrl = url;
                 if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;">' + url + '</span>';
+                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;">' + url + '</span>';
                 }
                 return [dealContent, newInnerHtml];
             }
@@ -851,33 +851,33 @@ export default {
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             let maxSize = 400;
             
-            let info = {
-                w: maxSize,
-                h: maxSize
-            };
-            if(chatGroupMsgContent.info)
-                info = chatGroupMsgContent.info
-            if(!info.h)
-                info.h = maxSize;
-            if(!info.w)
-                info.w = maxSize;
+            let showWidth = maxSize;
+            let showHeight = maxSize;
+            
+            if(chatGroupMsgContent.info) {
+                if(!chatGroupMsgContent.info.h)
+                    chatGroupMsgContent.info.h = maxSize;
+                if(!chatGroupMsgContent.info.w)
+                    chatGroupMsgContent.info.w = maxSize;
+                showWidth = chatGroupMsgContent.info.w;
+                showHeight = chatGroupMsgContent.info.h;
+            }
             
             let style = "";
-            let max = Math.max(info.w, info.h);
+            let max = Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h);
             if(max > maxSize ){
-                if(info.w > info.h){
-                    info.h = info.h/(info.w/maxSize);
-                    info.w = maxSize;
+                if(chatGroupMsgContent.info.w > chatGroupMsgContent.info.h){
+                    showHeight = chatGroupMsgContent.info.h/(chatGroupMsgContent.info.w/maxSize);
+                    showWidth = maxSize;
                 }
                 else{
-                    info.w = info.w/(info.h/maxSize)
-                    info.h = maxSize;
+                    showWidth = chatGroupMsgContent.info.w/(chatGroupMsgContent.info.h/maxSize)
+                    showHeight = maxSize;
                 }
-
             }
-            style += "width:" + info.w + "px";
+            style += "width:" + showWidth + "px";
             style += ";"
-            style += "height:" + info.h + "px";
+            style += "height:" + showHeight + "px";
             return style;
         },
         MsgContent: async function(is_mine=false) {
@@ -1028,7 +1028,7 @@ export default {
             }
         },
         MsgIsMine:function() {
-            if(this.msg.sender.userId === this.$store.state.userId) {
+            if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
                 return true;
             }
             else {
@@ -1048,13 +1048,13 @@ export default {
 
             // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
             
-            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(this.msg.sender.userId);
+            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender));
 
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;
             }
                 
-            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.msg.sender.userId);
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender));
             var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             
             if(this.userIconElement == undefined) {
@@ -1069,7 +1069,7 @@ export default {
         msgUserInfo: async function() {
             this.userInfo = {};
             if(this.msg.sender){
-                this.userInfo.matrix_id = this.msg.sender.userId;
+                this.userInfo.matrix_id = (this.msg.sender ? this.msg.sender.userId : this.msg.event.sender);
             }
         },
         compare: function(){
