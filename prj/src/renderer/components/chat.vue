@@ -2724,6 +2724,8 @@ export default {
             // var isOwner = (this.curChat.owner == this.curUserInfo.id);
             console.log('aaaa', myUserId);
             console.log('bbbb', members);
+            console.log('cccc', myUserId);
+            console.log('dddd', members[myUserId]);
             const isOwner = members[myUserId].powerLevel === 100; //owner`s powerLevel is 100?
             let ownerId;
             for(let key in members) {
