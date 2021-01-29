@@ -36,8 +36,23 @@ export default new Vuex.Store({
     flashNotice: true,
     draft: {},
     curRoomId: undefined,
+    inviteRooms: {}
   },
   mutations: {
+    updateInviteState(state, roomObj){
+      if(state.inviteRooms[roomObj.roomID] == 0){
+        state.inviteRooms[roomObj.roomID] = roomObj.roomState;
+      }
+    },
+
+    addInviteRooms(state, inviteRoom){
+      state.inviteRooms[inviteRoom.roomID] = inviteRoom.roomState;
+    },
+
+    deleteInviteRooms(state, roomID){
+      delete state.inviteRooms[roomID];
+    },
+
     setCurChatId(state, curRoomId) {
       state.curRoomId = curRoomId;
     },
@@ -226,6 +241,10 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getInviteRooms: state => () => {
+      return state.inviteRooms;
+    },
+
     getCurChatId: state => () => {
       return state.curRoomId;
     },

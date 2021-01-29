@@ -16,6 +16,7 @@
                     :class="{active: index===curindex}"
                     >
                     <p :class="getCurNavIcon(index)"></p>
+                    <p id = 'main-invitenum' v-show = 'index == 1 && getInviteNum() != 0' :class = 'getInviteNumClass()'>{{getInviteNum()}}</p>
                     <!-- <i :class="getCurNavIcon(index)"></i> -->
                 </el-menu-item>
             </el-menu>
@@ -166,6 +167,25 @@ export default {
         }
     },
     methods: {
+        getInviteNumClass() {
+            let count = this.getInviteNum();
+            if(count > 99) {
+                return "group-unread-99";
+            }
+            else {
+                return "group-unread";
+            }
+        },
+
+        getInviteNum(){
+            let count = 0;
+            let rooms = this.$store.getters.getInviteRooms();
+            for(let key in rooms){
+                if(rooms[key] == 0) count++;
+            }
+            return count;
+        },
+
         matrixSyncEnd: function(ret){
             this.navEnable = !ret;
             if(this.loadingInterval) {
@@ -740,6 +760,39 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .group-unread {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgb(255, 255, 255);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+    }
+
+    .group-unread-99 {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgb(255, 255, 255);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+    }
     .mainpage {
         cursor: default;
         margin: 0 0 0 0;

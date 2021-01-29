@@ -12,39 +12,6 @@
           </div>
           <p class="chat-label">普通</p>
           <div class="list-content" id="list-content-id" v-show="!isSearch" :key="needUpdate">
-            <!-- <el-link :underline="false" @click="InvitesClick()" icon='el-icon-caret-bottom'>邀请</el-link> -->
-            <!-- <div class = "grid-content">邀请</div> -->
-            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
-            <ul class="group-list" name="group-list">
-              <li class = 'group'
-                  v-for="(chatGroupItem, index) in showInviteGroupList"
-                  @contextmenu="rightClick($event, chatGroupItem)"
-                  v-bind:key="ChatGroupId(chatGroupItem)"
-                  :id="ChatGroupId(chatGroupItem)"
-                  v-show='bInvites'>
-                <div class = 'group-div' :id='ChatGroupDivId(chatGroupItem)'>
-                  <!-- <listItem @groupInfo="chatGroupItem"/> -->
-                  <div class="group-img">
-                    <!-- <avatar-block :ownerName="chatGroupItem.name"></avatar-block> -->
-                    <img class="group-ico" :id="chatGroupItem.roomId" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
-                    <!-- <p :class="getUnreadClass(chatGroupItem, index===curindex, chatGroupItem.status)">1</p> -->
-                  </div>
-                  <div class="group-info">
-                    <img class="secret-flag" src="../../../static/Img/Chat/secretFlag@2x.png" v-show="isSecret(chatGroupItem)">
-                    <p class="group-name-secret" v-if="isSecret(chatGroupItem)" :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-name" v-else :id="getChatGroupNameElementId(chatGroupItem.roomId, undefined)">{{getShowGroupName(chatGroupItem)}}</p>
-                    <p class="group-content-invite" :id="getInviteChatContentElementId(chatGroupItem.roomId)">{{getShowInviteMsgContent(chatGroupItem)}}</p>
-                  </div>
-                  <img class="reject-invite" src="../../../static/Img/Chat/reject-room@2x.png" @click="RejectRoom(chatGroupItem.roomId)"/>
-                  <img class="accept-invite" src="../../../static/Img/Chat/join-roomm@2x.png" @click="ToJoinRoom(chatGroupItem.roomId)"/>
-                </div>
-              </li>
-            <!-- </transition-group> -->
-            </ul>
-            <!-- <ul class="group-list"> -->
-            <!-- <el-link :underline="false" @click="CollectionRoomClick()" icon='el-icon-caret-bottom'><span class = "grid-content" >置顶</span></el-link> -->
-            <!-- <div class = "grid-content">置顶</div> -->
-            <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
             <ul class="group-list" name="group-list">
               <li :class = 'getGroupClassName(chatGroupItem)("group-fav")'
                   v-for="(chatGroupItem, index) in showFavouriteRooms"
@@ -355,10 +322,6 @@ export default {
         this.scrollToDistPosition(distItem);
       // }
     },
-    inviteGroupsList: function(){
-      if(this.searchKey == '')
-        this.showInviteGroupList = this.inviteGroupsList;
-    },
 
     dealShowGroupList: function(){
       if(this.searchKey == '')
@@ -454,12 +417,7 @@ export default {
                 //join leave invite
                 let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
                 if (member.membership == 'invite') {
-                  for(let item of this.inviteGroupsList){
-                    if(item.roomId == member.roomId){
-                      return;
-                    }
-                  }
-                  this.inviteGroupsList.unshift(newRoom);
+                  this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
                   this.$nextTick(() => {
                     this.showGroupIconName(newRoom);
                   })
@@ -566,8 +524,6 @@ export default {
       favouriteRooms: [],//置顶列表
       favouriteIds: [],
       showFavouriteRooms: [],//显示置顶列表
-      inviteGroupsList:[],//邀请列表
-      showInviteGroupList:[],
       dealShowGroupList:[],//聊天列表
       dealShowGroupIds: [],
       showDealGroupList:[],
@@ -766,7 +722,6 @@ export default {
     },
     ShowAllGroup: function(){
       this.unreadCount = 0;
-      this.inviteGroupsList.length = 0;
       this.favouriteRooms.length = 0;
       this.favouriteIds = [];
       this.dealShowGroupList.length = 0;
@@ -776,8 +731,7 @@ export default {
       this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          // this.unreadCount += 1;
-          this.inviteGroupsList.push(item);
+          this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();
@@ -1368,7 +1322,6 @@ export default {
     rightClick(e, groupItem) {
         console.log("groupItem is ", groupItem)
         console.log("e.target is ", e.target.className)
-        if(this.groupIsInvite(groupItem)) return;
         // let distElement = document.getElementById(msgItem.message_id);
         // console.log("distElement is ", distElement.className);
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
@@ -1676,17 +1629,11 @@ export default {
       else{
           this.UpdateGroupsImageAndName(this.showFavouriteRooms);
           // this.updateGroupMsgContent(this.showFavouriteRooms);
-          this.UpdateGroupsImageAndName(this.showInviteGroupList);
-          this.updateInviteChatContent(this.showInviteGroupList);
           this.UpdateGroupsImageAndName(this.showDealGroupList);
           // this.updateGroupMsgContent(this.showDealGroupList);
           this.UpdateGroupsImageAndName(this.showLowPriorityGroupList);
           // this.updateGroupMsgContent(this.showLowPriorityGroupList);
       }
-    },
-
-    groupIsInvite(groupInfo){
-      return this.inviteGroupsList.some(item => item.roomId == groupInfo.roomId)
     },
 
     groupIsInLowPriority(groupInfo){
@@ -2910,41 +2857,7 @@ export default {
         this.$store.commit("setCurChatId", this.curChat.roomId);
       }
     },
-    ToJoinRoom: function(roomId) {
-      try{
-          global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
-          .then(() => {
-              // this.isRefreshing = true;
-              setTimeout(() => {
-                this.JoinRoom(roomId);
-              }, 500)
-          })
-          .catch((error) => {
-              console.log("========join failed and err is ", error.error);
-              if(error.httpStatus == 403) {
-                  this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
-              }
-              else if(error.httpStatus == 429) {
-                  this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
-              }
-              else if(error.httpStatus == 404) {
-                  this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
-                  this.RejectRoom(roomId);
-              }
-          })
-      }
-      catch(e){
-        console.log(e)
-      }
-      
-    },
-    RejectRoom: function(roomId) {
-      global.mxMatrixClientPeg.matrixClient.leave(roomId);
-      setTimeout(() => {
-          this.DeleteGroup(roomId);
-          this.checkUnreadCount();
-      }, 0)
-    },
+
     reCountUnreadCount: function() {
       this.checkUnreadCount();
     },
@@ -2957,15 +2870,10 @@ export default {
       this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
-          if(this.inviteGroupsList.indexOf(item) < 0) {
-            // this.unreadCount += 1;
-            this.inviteGroupsList.push(item);
-          }
+          this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState : 0});
         }
         else{
-          if(this.inviteGroupsList.indexOf(item) >= 0) {
-            this.inviteGroupsList.splice(this.inviteGroupsList.indexOf(item), 1);
-          }
+          this.$store.commit("updateInviteState", {roomID : item.roomId, roomState : 2});
           const notificationCount = item.getUnreadNotificationCount();
           console.log("notification is ", notificationCount);
           if(notificationCount) {
@@ -3009,12 +2917,7 @@ export default {
     },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
-      for(let i in this.inviteGroupsList){
-        if(this.inviteGroupsList[i].roomId == roomID) {
-          this.inviteGroupsList.splice(i, 1);
-          break;
-        } 
-      }
+      this.$store.commit("updateInviteState", {roomID : roomID, roomState : 2});
       for(let i in this.dealShowGroupList){
         if(this.dealShowGroupList[i].roomId == roomID) {
           this.showChat(newRoom, i);
@@ -3060,7 +2963,6 @@ export default {
     },
 
     DeleteGroup: function(distGroupId) {
-      this.DeleteFromGroups(this.inviteGroupsList, distGroupId);
       this.DeleteFromGroups(this.dealShowGroupList, distGroupId);
       this.DeleteFromGroups(this.favouriteRooms, distGroupId);
       this.DeleteFromGroups(this.lowPriorityGroupList, distGroupId);

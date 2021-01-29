@@ -67,19 +67,18 @@ export default {
 
     methods: {
         roomMenuItemClicked:function(roomId) {
-               this.$router.push(
-                    {
-                        name: 'ChatContent', 
-                        params: {
-                            group_id: roomId
-                        }
-                    })
+            this.$router.push(
+                {
+                    name: 'ChatContent', 
+                    params: {
+                        group_id: roomId
+                    }
+                })
         },
         
         getAppBaseData:async function() {
             await this.services.getAllContactRooms();
             this.roomList = await ContactRoom.GetAllRooms();
-            log.info('contact-room', this.roomList)
             for(let i = 0; i < this.roomList.length; i++){
                 let item = this.roomList[i];
                 let room = this.matrixClient.getRoom(item.room_id);
@@ -89,10 +88,9 @@ export default {
                     continue;
                 } 
                 console.log('room', room);
-                log.info('room name', room.name);
                 item.name = room.name;
                 var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
-                log.info('RoomAvatar', RoomAvatar);
+         
                 if(!RoomAvatar) 
                     item.avatar_url = './static/Img/User/group-40px@2x.png';
                 else 

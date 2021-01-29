@@ -66,6 +66,17 @@
             <div v-show="!showSearchView" class = 'departmentsdiv'>
                 <ul class="departments-list">
                     <li class="department"
+                        @click="inviteRoomItemClick()">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
+                        <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
+                        <div class="department-info">
+                            <p class="department-name">邀请</p>
+                        </div>
+                        <div align="center" class="item-arrow">
+                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                        </div>
+                    </li>
+                    <li class="department"
                         @click="roomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
                             <p class="department-name">群聊</p>
@@ -102,6 +113,7 @@
             <!-- <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList> -->
             <contactRoomList v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
             </contactRoomList>
+            <inviteRoomList v-show = 'bInviteRoomShow' :key = 'inviteRoomKey'></inviteRoomList>
         </el-container>
         <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-if="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
@@ -120,6 +132,7 @@ import {Contact, ContactRoom, Department, UserInfo} from '../../packages/data/sq
 import organizationList from './organization-list';
 import contactList from './contact-list'
 import contactRoomList from './contact-room'
+import inviteRoomList from './invite-room'
 import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header-login.vue';
@@ -173,7 +186,6 @@ export default {
             organizeMenuName : '',
             contactMenuName: '',
             bOrganizeShow: false,
-            bContactShow: true,
             bContactRoomShow: false,
             canSearch: false,
             departments: [],
@@ -196,6 +208,8 @@ export default {
             searchUserInfoPosition:{},
             contactType:"organise",
             contactListKey: 0,
+            inviteRoomKey: 0,
+            bInviteRoomShow: false,
             contactList: [],
             departmentMenu:{
                 display_name: this.$t("organizeMenuName")
@@ -212,7 +226,7 @@ export default {
             showInputContactDlg: false
         }
     },
-    methods: {    
+    methods: {   
         UpdateContact: async function(){
             this.contactList = await Contact.GetAllContact();
             this.$nextTick(function(){
@@ -220,6 +234,27 @@ export default {
                         this.getUserImg(item, 'contact')
                     })
             });
+        },
+
+        getInviteNumClass() {
+            let count = this.getInviteNum();
+            if(count > 99) {
+                return "group-unread-99";
+            }
+            else {
+                return "group-unread";
+            }
+        },
+
+        getInviteNum(){
+            let count = 0;
+            let rooms = this.$store.getters.getInviteRooms();
+            for(let key in rooms){
+                if(rooms[key] == 0) count++;
+            }
+            //let element = document.getElementById("main-invitenum");
+            //if(element) element.innerHTML = count;
+            return count;
         },
         
         CloseInputContactDlg: async function(){
@@ -403,7 +438,6 @@ export default {
             this.showSearchView = false;
             this.showSearchUserInfoTips = false;
             this.bOrganizeShow = true;
-            this.bContactShow = false;
             this.bContactRoomShow = false;
             this.rootDepartment = this.departments[0];
             this.currentDepartment = department;
@@ -465,23 +499,30 @@ export default {
         
         roomItemClick(){
             this.bOrganizeShow = false;
-            this.bContactShow = false;
             this.bContactRoomShow = true;
+            this.bInviteRoomShow = false;
             this.contactListKey++;
+        },
+
+        inviteRoomItemClick(){
+            this.bOrganizeShow = false;
+            this.bContactRoomShow = false;
+            this.bInviteRoomShow = true;
+            this.inviteRoomKey++;
         },
 
         departmentMenuItemClicked(department) {
             if(department.display_name == this.organizeMenuName){
                 //组织架构模板
                 this.bOrganizeShow = true;
-                this.bContactShow = false;
                 this.bContactRoomShow = false;
+                this.bInviteRoomShow = false;
             }
             else if(department.display_name == this.contactMenuName){
                 //联系人模板
                 this.bOrganizeShow = false;
-                this.bContactShow = true;
                 this.bContactRoomShow = false;
+                this.bInviteRoomShow = false;
                 this.contactListKey++;
              }
             this.currentDepartment = department;
@@ -524,7 +565,8 @@ export default {
         contactRoomList,
         AlertDlg,
         addContact,
-        InputContactInfo
+        InputContactInfo,
+        inviteRoomList
     },
 
     created:async function() {
@@ -599,6 +641,38 @@ display: none;
 * {
     -webkit-app-region: no-drag;
 }
+
+  .group-unread {
+    position: absolute;
+    z-index: 1;
+    display:inline-block;
+    font-size: 10px;
+    font-family: PingFangSC-Medium;
+    color: rgb(255, 255, 255);
+    margin-left: -15px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 14px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+  }
+
+  .group-unread-99 {
+    position: absolute;
+    z-index: 1;
+    display:inline-block;
+    font-size: 10px;
+    font-family: PingFangSC-Medium;
+    color: rgb(255, 255, 255);
+    margin-left: -15px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 9px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+  }
 
 .chat-tool-invite-div {
     display: inline-block;
