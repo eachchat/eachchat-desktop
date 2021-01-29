@@ -566,7 +566,7 @@ const common = {
     await (await models.UserIm).truncate()
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
-      log.info("AllUserinfo", result)
+      //log.info("AllUserinfo", result)
       if (!result.ok || !result.success) {
         return result;
       }
