@@ -2039,11 +2039,10 @@ export default {
     width: 100%;
 }
 
-.groupLeave-view{
+.groupLeave-view{   
     height: 48px;
-    padding: 0px;
-    background: rgba(255, 255, 255, 1);
-    border: 0px solid rgba(221, 221, 221, 1);
+    background: #FFFFFF;
+    box-shadow: 0px 1px 0px 0px #EEEEEE;
 }
 
 .groupLeaveDiv{
@@ -2057,7 +2056,7 @@ export default {
     font-weight: 400;
     letter-spacing: 0px;
     font-size: 14px;
-    color: red;
+    color: #E4312B;
     text-align: center;
     cursor: pointer;
 }
