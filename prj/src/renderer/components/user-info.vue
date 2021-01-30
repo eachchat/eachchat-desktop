@@ -23,7 +23,7 @@
                 src="../../../static/Img/Organization/UserInfo/userInfoChat_icon@2x.png" 
                 @click="createDm" 
             >  <!--click jumpToChat-->
-            <img ondragstart="return false" v-if = "bShowSaveContact" src="../../../static/Img/Organization/UserInfo/addToConact_32px@2x.png" @click="SaveContact">
+            <img ondragstart="return false" v-if = "bShowSaveContact" src="../../../static/Img/Organization/UserInfo/addToConact_32px@2x.png" @click="SaveContact" id = 'user-info-save'>
             <img ondragstart="return false" v-else src="../../../static/Img/Organization/UserInfo/inContact_32px@2x.png">
         </div>
         <div class="userInfoState-view" >

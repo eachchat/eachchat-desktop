@@ -213,7 +213,7 @@ export default {
         var that = this;
         document.addEventListener('click',function(e){
             console.log(e.target.className)
-            if(e.target.className.indexOf('userInfo') == -1){
+            if(e.target.className.indexOf('userInfo') == -1 && e.target.id != 'user-info-save'){
                 that.showUserInfoTips = false;
             }
         });
