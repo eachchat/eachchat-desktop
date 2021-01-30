@@ -165,7 +165,7 @@ ipcMain.on("token-expired", function(event, arg) {
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   isLogin = false;
   Menu.setApplicationMenu(null)
-  mainWindow.hide();
+  //mainWindow.hide();
   if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();
   }
