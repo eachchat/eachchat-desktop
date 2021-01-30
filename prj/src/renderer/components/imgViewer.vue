@@ -1,6 +1,6 @@
 <template>
     <div class="imageViewerPage">
-        <div class="windowHeader">
+        <div class="imageWindowHeader">
             <macImageWinHeadbar class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></macImageWinHeadbar>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
         </div>
@@ -8,18 +8,20 @@
             <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>
             <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
         </div>
-        <div class="viewerToolbar" v-show="!isPersonalImg">
-            <div class="viewer-tool-left" @click="showLeft()">
-            </div>
-            <div class="viewer-tool-right" @click="showRight()">
-            </div>
-            <div class="viewer-tool-enlarge" @click="enlarge()">
-            </div>
-            <div class="viewer-tool-reduce" @click="reduce()">
-            </div>
-            <div class="viewer-tool-clock-wise" @click="clockWise()">
-            </div>
-            <div class="viewer-tool-anticlock-wise" @click="antiClockWise()">
+        <div class="viewerToolBox">
+            <div class="viewerToolbar" v-show="!isPersonalImg">
+                <div class="viewer-tool-left" @click="showLeft()">
+                </div>
+                <div class="viewer-tool-right" @click="showRight()">
+                </div>
+                <div class="viewer-tool-enlarge" @click="enlarge()">
+                </div>
+                <div class="viewer-tool-reduce" @click="reduce()">
+                </div>
+                <div class="viewer-tool-clock-wise" @click="clockWise()">
+                </div>
+                <div class="viewer-tool-anticlock-wise" @click="antiClockWise()">
+                </div>
             </div>
         </div>
     </div>
@@ -48,6 +50,8 @@ export default {
     },
     methods: {
         zoomimg: function(event) {
+            console.log("*** imagetop is ", this.imgtop)
+            console.log("*** imageleftr is ", this.imgleft)
             if(!this.isPersonalImg) {
                 var delta = 0;
                 if (!event) event = window.event;
@@ -68,11 +72,18 @@ export default {
                 style += "width:" + this.curImage.info.w * this.curMultiple + "px";
                 style += ";"
                 style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                style += ";"
+                style += "top:" + this.imgtop + "px";
+                style += ";"
+                style += "left:" + this.imgleft + "px";
+                style += ";"
                 this.stageElement.setAttribute("style", style);
             }
         },
         enlarge: function() {
             if(!this.isPersonalImg) {
+                this.imgtop = 0;
+                this.imgleft = 0;
                 this.curMultiple += 0.1;
                 let style = "";
                 style += "width:" + this.curImage.info.w * this.curMultiple + "px";
@@ -83,6 +94,8 @@ export default {
         },
         reduce: function() {
             if(!this.isPersonalImg) {
+                this.imgtop = 0;
+                this.imgleft = 0;
                 this.curMultiple -= 0.1;
                 let style = "";
                 style += "width:" + this.curImage.info.w * this.curMultiple + "px";
@@ -93,6 +106,8 @@ export default {
         },
         clockWise: function() {
             if(!this.isPersonalImg) {
+                this.imgtop = 0;
+                this.imgleft = 0;
                 this.curMultiple = 1;
                 this.curRotate -= 90;
                 let style = "";
@@ -106,6 +121,8 @@ export default {
         },
         antiClockWise: function() {
             if(!this.isPersonalImg) {
+                this.imgtop = 0;
+                this.imgleft = 0;
                 this.curMultiple = 1;
                 this.curRotate += 90;
                 let style = "";
@@ -133,6 +150,8 @@ export default {
         },
         showRight() {
             if(!this.isPersonalImg) {
+                this.imgtop = 0;
+                this.imgleft = 0;
                 this.curMultiple = 1;
                 if(this.stageElement == undefined) {
                     this.stageElement = document.getElementById("imageViewerStageId");
@@ -194,6 +213,8 @@ export default {
         },
         showLeft() {
             if(!this.isPersonalImg) {
+                this.imgtop = 0;
+                this.imgleft = 0;
                 this.curMultiple = 1;
                 if(this.stageElement == undefined) {
                     this.stageElement = document.getElementById("imageViewerStageId");
@@ -544,7 +565,7 @@ export default {
     //     line-height: 46px;
     // }
     
-    .windowHeader{
+    .imageWindowHeader{
         padding: 0px;
         margin: 0px;
         height: 24px;
@@ -554,6 +575,9 @@ export default {
         * {
             -webkit-app-region: no-drag;
         }
+        z-index: 3;
+        position: fixed;
+        top: 0;
     }
     .macWindowHeader {
         padding: 0px;
@@ -578,6 +602,7 @@ export default {
         margin: auto;
         width: 320px;
         height: 366px;
+        z-index: 1;
     }
 
     .imageBox {
@@ -590,14 +615,27 @@ export default {
         width: 366px;
     }
 
+    .viewerToolBox {
+        background-color: rgba(255, 255, 255, 1);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 50px;
+        width: 100%;
+        z-index: 3;
+    }
+
     .viewerToolbar {
         position: fixed;
-        bottom: 20px;
+        bottom: 10px;
         left: 0;
         right: 0;
         margin: auto;
         height: 30px;
         width: 366px;
+        z-index: 3;
     }
 
     .viewer-tool-left {
