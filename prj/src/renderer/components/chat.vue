@@ -1142,6 +1142,24 @@ export default {
                 }
             }
         },
+        checkNeedScroll(checkItem) {
+            if(this.ulElement == undefined) {
+                this.ulElement = document.getElementById("atListId");
+            }
+            if(this.ulElement && checkItem) {
+                if(this.ulElement.scrollTop > checkItem.offsetTop || (this.ulElement.scrollTop + this.ulElement.clientHeight < checkItem.offsetTop)) {
+                    console.log("*** need Scroll");
+                    return true;
+                }
+                else {
+                    console.log("*** do not need Scroll");
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        },
         keyHandle(event) {
             // console.log("event ", event)
             // console.log("clipboard ", clipboard.readImage())
@@ -1192,12 +1210,17 @@ export default {
                             this.curSelectedIndex = this.ulElement.children.length - 1;
                             this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
                             this.ulElement.children[0].style.color = "rgb(0, 0, 0)";
-                            this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            if(this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex])) {
+                                this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            }
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                         }
                         else if(this.curSelectedIndex > 0 && this.curSelectedIndex < this.ulElement.children.length) {
                             this.curSelectedIndex--;
+                            if(this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex])) {
+                                this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            }
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgb(17, 180, 105)";
                             this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
                             this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -1231,6 +1254,9 @@ export default {
                                 this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
                             }
                             this.curSelectedIndex++;
+                            if(this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex])) {
+                                this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            }
                         }
                         break;
                     }
@@ -1263,7 +1289,7 @@ export default {
                 return true;
             }
             else if(event.code == "Digit2" && event.shiftKey == true) {
-                if(this.curChat.group_type == 102) {
+                if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                     return;
                 }
                 //this.chatMemberDlgVisible = false;
