@@ -585,6 +585,10 @@ export default {
     flex-direction: column;
     border-right: 1px solid rgb(242, 242, 246);
     background-color: rgba(255,255,255,1);
+    -webkit-app-region: drag;
+    * {
+        -webkit-app-region: no-drag;
+    }
   }
 
   .list-content {
@@ -725,6 +729,10 @@ export default {
     padding-right: 20px;
     overflow-y: scroll;
     overflow-x: hidden;
+    -webkit-app-region: drag;
+    * {
+        -webkit-app-region: no-drag;
+    }
   }
 
   .setup-with-switch-label {
