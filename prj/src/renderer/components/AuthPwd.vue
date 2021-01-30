@@ -33,6 +33,7 @@ export default {
     },
     methods: {
         Close: function() {
+            this.password = "";
             this.$emit("closeAuthDlg");
         },
         Confirm: async function() {

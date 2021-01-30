@@ -26,7 +26,7 @@
             </ul>
         </div>
         <!-- <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="AlertConfirm" :width="alertWidth" :height="alertHeight" :contentLeft="alertContentLeft" :iconType="iconType"/> -->
-        <AuthDlg v-show="showAuthPwd" @closeAuthDlg="closeAuthDlg" @canDeleteSession="canDeleteSession"></AuthDlg>
+        <AuthDlg v-show="showAuthPwd" :clearPwd="clearPwd" @closeAuthDlg="closeAuthDlg" @canDeleteSession="canDeleteSession"></AuthDlg>
     </div>
 </template>
 
@@ -44,6 +44,7 @@ export default {
     },
     data () {
         return {
+            clearPwd: 0,
             showAuthPwd: false,
             ownDeviceId: '',
             iconType: "alert",
@@ -89,7 +90,7 @@ export default {
         _makeDeleteRequest(auth) {
             return global.mxMatrixClientPeg.matrixClient.deleteMultipleDevices(this.toDeleteItem, auth).then(
                 () => {
-                    this.getDeviceList();
+                    // this.getDeviceList();
                 },
             );
         },
@@ -103,8 +104,7 @@ export default {
             try{
                 var ret = await this._makeDeleteRequest(auth);
                 this.getDeviceList();
-                this.devices.splice(this.devices.indexOf(this.toDeleteItem), 1);
-                this.toDeleteItem = null;
+                this.clearPwd+=1;
             }
             catch(e) {
                 if (e.httpStatus !== 401 || !e.data || !e.data.flows) {
@@ -166,6 +166,13 @@ export default {
                 (resp) => {
                     this.isRefresh = false;
                     var devicesList = resp.devices || [];
+                    for(var i=0;i<devicesList.length;i++) {
+                        if(devicesList[i].device_id == (this.toDeleteItem ? this.toDeleteItem.device_id : '')) {
+                            console.log("**8 deleat");
+                            devicesList.splice(i, 1);
+                            this.toDeleteItem = null;
+                        }
+                    }
                     this.devices = devicesList.sort(this._deviceCompare);
                     console.log("=========== this.devices is ", this.devices);
                 },
