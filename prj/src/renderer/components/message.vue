@@ -18,6 +18,7 @@
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
+                            <progress class="my-file-progress" :value="curPercent" max="100" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></progress>
                         </div>
                     </div>
                     <div class="chat-msg-content-mine-voice"
@@ -33,12 +34,8 @@
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
-                        v-on:click="ShowFile()" v-else-if="MsgIsLink()">
-                        <div class="chat-msg-content-mine-txt" :id="getTextElementId()" v-html="getMsgMineLinkContent(messageContent)"></div>
-                    </div>
-                    <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-mine-txt" :id="getTextElementId()">{{messageContent}}</p>
+                        <p class="chat-msg-content-mine-txt" :id="getTextElementId()" v-html="getMsgMineLinkContent(messageContent)"></p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
@@ -54,7 +51,6 @@
                     </div>
                 </div>
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-                <el-progress class="my-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
             <div class="msg-info-others" v-else>
                 <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
@@ -71,6 +67,7 @@
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
+                            <progress class="others-file-progress" :value="curPercent" max="100" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></progress>
                         </div>
                     </div>
                     <div class="chat-msg-content-others-voice"
@@ -85,17 +82,12 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <div class="chat-msg-content-others-link-div" 
-                        v-on:click="ShowFile()" v-else-if="MsgIsLink()">
-                        <div class="chat-msg-content-others-txt" :id="msg.event.event_id" v-html="getMsgOtherLinkContent(messageContent)"></div>
-                    </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-others-txt" :id="msg.event.event_id">{{messageContent}}</p>
+                        <p class="chat-msg-content-others-txt" :id="msg.event.event_id" v-html="getMsgOtherLinkContent(messageContent)"></p>
                     </div>
                     <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
-                <el-progress class="others-file-progress" :percentage="curPercent" color="#11b067" v-show="showProgress" :show-text="false" :width="70"></el-progress>
             </div>
         </div>
     </div>
@@ -335,32 +327,6 @@ export default {
                     }
                     this.$emit('playAudioOfMessage', this.msg.event.event_id);
                 }
-                else if(this.MsgIsLink(this.msg) && false) {
-                    var finished = false;
-                    var dealContent = chatGroupMsgContent.body;
-                    var distUrl = "";
-                    while(dealContent.trim().length > 0 && !finished) {
-                        if(dealContent.indexOf("https:") >= 0) {
-                            var result = this.getAndOpenUrl("https:", dealContent);
-                            dealContent = result[0];
-                            distUrl = result[1];
-                        }
-                        else if(dealContent.indexOf("http://") >= 0) {
-                            var result = this.getAndOpenUrl("http:", dealContent);
-                            dealContent = result[0];
-                            distUrl = result[1];
-                        }
-                        else {
-                            if(dealContent.trim().length != 0 || distUrl.trim().length != 0) {
-                                finished = true;
-                            }
-                            finished = true;
-                        }
-                    }
-                    if(distUrl.length != 0) {
-                        shell.openExternal(distUrl);
-                    }
-                }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     // var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
                     // var imageInfo = {
@@ -543,29 +509,8 @@ export default {
             }
         },
         getMsgOtherLinkContent: function(content) {
-            var dealContent = this.getPhoneHeightLight(content, '#5B6A91');
-            // var dealContent = content;
-            var newInnerHtml = "";
-            var finished = false;
-            while(dealContent.trim().length > 0 && !finished) {
-                if(dealContent.indexOf("https:") >= 0) {
-                    var result = this.getOthersUrlHtml("https:", dealContent);
-                    dealContent = result[0];
-                    newInnerHtml += result[1];
-                }
-                else if(dealContent.indexOf("http://") >= 0) {
-                    var result = this.getOthersUrlHtml("http:", dealContent);
-                    dealContent = result[0];
-                    newInnerHtml += result[1];
-                }
-                else {
-                    if(dealContent.trim().length != 0) {
-                        newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + dealContent + '</span>';
-                    }
-                    finished = true;
-                }
-            }
-            return newInnerHtml;
+            var dealContent = this.msgContentShowPhoneAndHightLight(content, '#5B6A91');
+            return dealContent;
         },
         getPhoneHeightLight: function(content, color) {
             let phoneHight = content.replace(/\d{11}/g, function(num){
@@ -574,182 +519,25 @@ export default {
             return phoneHight;
         },
         getMsgMineLinkContent: function(content) {
-            var dealContent = this.getPhoneHeightLight(content, 'rgba(255, 255, 255, 1)');
-            // var dealContent = content;
-            var newInnerHtml = "";
-            var finished = false;
-            while(dealContent.trim().length > 0 && !finished) {
-                if(dealContent.indexOf("https:") >= 0) {
-                    var result = this.getMineUrlHtml("https:", dealContent);
-                    dealContent = result[0];
-                    newInnerHtml += result[1];
-                }
-                else if(dealContent.indexOf("http://") >= 0) {
-                    var result = this.getMineUrlHtml("http:", dealContent);
-                    dealContent = result[0];
-                    newInnerHtml += result[1];
-                }
-                else {
-                    if(dealContent.trim().length != 0) {
-                        newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + dealContent + '</span>';
-                    }
-                    finished = true;
-                }
-            }
-            return newInnerHtml;
+            var dealContent = this.msgContentShowPhoneAndHightLight(content, 'rgba(255, 255, 255, 1)');
+            return dealContent;
         },
-        getMineUrlHtml: function(checkKey, content) {
-            var dealContent = content.trim();
-            var startTxt = "";
-            var url = "";
-            var endTxt = "";
-            var newInnerHtml = "";
-            var httpsIndex = dealContent.indexOf(checkKey);
-            if(httpsIndex == 0) {
-                var endIndex = dealContent.indexOf(" ");
-                if(endIndex > 0) {
-                    url = dealContent.substring(0, endIndex);
-                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
-                }
-                else {
-                    url = dealContent.substring(0, dealContent.length - 1);
-                    dealContent = "";
-                }
-                var chackUrl = url;
-                if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
-                }
-                return [dealContent, newInnerHtml];
-            }
-            else {
-                startTxt = dealContent.substring(0, httpsIndex);
-                console.log("*** startText is ", startTxt);
-                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
-                console.log("*** dealContent is ", dealContent);
-                var endIndex = dealContent.indexOf(" ");
-                console.log("*** endIndex is ", endIndex);
-                if(endIndex > 0) {
-                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
-                    console.log("*** url is ", url);
-                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
-                    console.log("*** dealContent is ", dealContent);
-                }
-                else {
-                    url = dealContent.substring(0, dealContent.length - 1);
-                    console.log("*** url is ", url);
-                    dealContent = "";
-                }
-                var checkStartTxt = startTxt;
-                if(checkStartTxt.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + startTxt + '</span>';
-                }
-                var chackUrl = url;
-                if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer;" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
-                }
-                return [dealContent, newInnerHtml];
-            }
+        msgContentShowPhoneAndHightLight: function(curMsg, color){
+            let phoneHight = curMsg.replace(/\d{11}/g, function(num){
+                return '<span style="color:' + color + ';">' + num + "</span>"
+            })
+
+            let linkHight = phoneHight.replace(/((?:(http|https|Http|Https|rtsp|Rtsp|ftp|Ftp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?(?:(([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]){0,1}\.)+[a-zA-Z]{2,63}|((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9]))))(?:\:\d{1,5})?)((?:\/(?:(?:[a-zA-Z0-9 -퟿豈-﷏ﷰ-￯\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))+[\;\.\=\?\/\+\)][a-zA-Z0-9\%\#\&\-\_\.\~]*)|(?:\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*))?(?:\b|$|(?=[ -퟿豈-﷏ﷰ-￯]))/g, function(link){
+                // return '<span style="color:' + color + ';">' + link + "</span>"
+                return '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer;color:' + color + ';" onclick="openUrl(\'' + link + '\');">' + link + '</span>'
+            })
+            return linkHight;
         },
         openUrl: function(url) {
+            if(url.indexOf("https://") < 0 && url.indexOf("http://") < 0) {
+                url = "https://" + url;
+            }
             shell.openExternal(url);
-        },
-        getOthersUrlHtml: function(checkKey, content) {
-            var dealContent = content.trim();
-            var startTxt = "";
-            var url = "";
-            var endTxt = "";
-            var newInnerHtml = "";
-            var httpsIndex = dealContent.indexOf(checkKey);
-            if(httpsIndex == 0) {
-                var endIndex = dealContent.indexOf(" ");
-                if(endIndex > 0) {
-                    url = dealContent.substring(0, endIndex);
-                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
-                }
-                else {
-                    url = dealContent.substring(0, dealContent.length - 1);
-                    dealContent = "";
-                }
-                var chackUrl = url;
-                if(chackUrl.trim().length != 0) {
-                    newInnerHtml = '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
-                }
-                return [dealContent, newInnerHtml];
-            }
-            else {
-                startTxt = dealContent.substring(0, httpsIndex);
-                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
-                var endIndex = dealContent.indexOf(" ");
-                if(endIndex > 0) {
-                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
-                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
-                }
-                else {
-                    url = dealContent.substring(0, dealContent.length - 1);
-                    dealContent = "";
-                }
-                var checkStartTxt = startTxt;
-                if(checkStartTxt.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-txt" style="display:inline-block;">' + startTxt + '</span>';
-                }
-                var chackUrl = url;
-                if(chackUrl.trim().length != 0) {
-                    newInnerHtml += '<span class="msg-link-url" style="text-decoration: underline;color:#5B6A91;cursor:pointer;" onclick="openUrl(\'' + url + '\');">' + url + '</span>';
-                }
-                return [dealContent, newInnerHtml];
-            }
-        },
-        getAndOpenUrl: function(checkKey, content) {
-            var dealContent = content.trim();
-            var startTxt = "";
-            var url = "";
-            var endTxt = "";
-            var newInnerHtml = "";
-            var httpsIndex = dealContent.indexOf(checkKey);
-            if(httpsIndex == 0) {
-                var endIndex = dealContent.indexOf(" ");
-                if(endIndex > 0) {
-                    url = dealContent.substring(0, endIndex);
-                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
-                }
-                else {
-                    url = dealContent.substring(0, dealContent.length - 1);
-                    dealContent = "";
-                }
-                return [dealContent, url];
-            }
-            else {
-                startTxt = dealContent.substring(0, httpsIndex);
-                dealContent = dealContent.substring(httpsIndex, dealContent.length - 1).trim();
-                var endIndex = dealContent.indexOf(" ");
-                if(endIndex > 0) {
-                    url = dealContent.substring(httpsIndex - checkKey.length, endIndex);
-                    dealContent = dealContent.substring(endIndex, dealContent.length - 1);
-                }
-                else {
-                    url = dealContent.substring(0, dealContent.length - 1);
-                    dealContent = "";
-                }
-                return [dealContent, url];
-            }
-        },
-        MsgIsLink: function() {
-            var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
-            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? chatGroupMsgContent.msgtype : this.msg.event.content.msgtype;
-            if(chatGroupMsgType == 'm.text'){
-                if(chatGroupMsgContent.body.indexOf("http://") >= 0 ||
-                    chatGroupMsgContent.body.indexOf("https://") >= 0 || 
-                    chatGroupMsgContent.body.indexOf("www.") >= 0) {
-                        return true;
-                    }
-                return false;
-            }
-            else if(chatGroupMsgType == "m.bad.encrypted") {
-                return false;
-            }
-            else{
-                return false;
-            }
         },
         MsgIsTransmit: function() {
             let chatGroupMsgType = this.msg.message_type;
@@ -1264,6 +1052,16 @@ export default {
         display: none;
     }
     
+    /* 表示总长度背景色 */
+    progress::-webkit-progress-bar {
+        background-color: rgba(210, 215, 222, 1);
+    }
+
+    /* 表示已完成进度背景色 */
+    progress::-webkit-progress-value {
+        background: rgba(36, 179, 107, 1)
+    }
+
     .message {
         font-size: 15px;
     }
@@ -1289,16 +1087,24 @@ export default {
 
     .my-file-progress {
         display: block;
-        margin-right: 61px;
-        width: 100px;
+        width: 100%;
         float: right;
+        height: 2px;
+        background: #D2D7DE;
+        border-radius: 1px;
+        vertical-align: top;
+        margin-top: -5px;
     }
 
     .others-file-progress {
         display: block;
-        margin-left: 47px;
-        width: 100px;
+        width: 100%;
         float: left;
+        height: 2px;
+        background: #D2D7DE;
+        border-radius: 1px;
+        vertical-align: top;
+        margin-top: -5px;
     }
 
     .msg-info-user-img-no-name {
