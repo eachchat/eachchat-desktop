@@ -10,8 +10,9 @@
                         <li class="manager"
                             v-for="(item, index) in roomList"
                             :key="index">
-                            <img ondragstart="return false" class="manager-icon"  :src="item.avatar_url">
-                            <div class="department-info">
+                            <img ondragstart="return false" class="manager-icon"  :src="item.avatar_url"
+                            @click = 'roomMenuItemClicked(item)'>
+                            <div class="department-info" @click = 'roomMenuItemClicked(item)'>
                                 <p class="group-name">{{ item.name }}</p>
                                 <p class="group-content-invite">{{ item.inviteName }}</p>
                             </div>  
@@ -113,14 +114,16 @@ export default {
             })
         },
 
-        roomMenuItemClicked:function(roomId) {
-               this.$router.push(
-                    {
-                        name: 'ChatContent', 
-                        params: {
-                            group_id: roomId
-                        }
-                    })
+        roomMenuItemClicked:function(room) {
+            if(room.roomState != 2)
+                return
+            this.$router.push(
+                {
+                    name: 'ChatContent', 
+                    params: {
+                        group_id: room.roomID
+                    }
+                })
         },
 
         async getShowInviteMsgContent(chatGroupItem) {
