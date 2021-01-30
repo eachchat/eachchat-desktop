@@ -643,12 +643,13 @@ display: none;
 }
 
   .group-unread {
-    position: absolute;
+    position: relative;
     z-index: 1;
     display:inline-block;
     font-size: 10px;
     font-family: PingFangSC-Medium;
     color: rgb(255, 255, 255);
+    top : -40px;
     margin-left: -15px;
     text-align: center;
     height: 14px;
