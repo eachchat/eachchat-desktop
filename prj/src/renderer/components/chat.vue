@@ -9,7 +9,7 @@
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
                 <p class="chat-name" id="chat-group-name">{{curChat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
-                <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="groupIsSlience()"/>
+                <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="isMute"/>
             </div>
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
@@ -329,10 +329,10 @@ export default {
             if(this.curChat.roomId) {
                 const state = getRoomNotifsState(this.curChat.roomId);
                 if(state == MUTE) {
-                    return true;
+                    this.isMute = true;
                 }
                 else {
-                    return false;
+                    this.isMute = false;
                 }
             }
         },
@@ -3037,6 +3037,9 @@ export default {
                             // console.log("---------update croll top is ", uldiv.scrollHeight);
                             uldiv.scrollTop = this.lastScrollTop;
                             this.isScroll = false;
+                            if(this.messageList.length < 10) {
+                                this.handleScroll(true);
+                            }
                             // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                             // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
                         })
@@ -3136,7 +3139,13 @@ export default {
             }
         },
         updateChatGroupStatus(roomId, groupStatus) {
-            // console.log("======== ");
+            if(groupStatus == MUTE) {
+                this.isMute = true;
+            }
+            else {
+                this.isMute = false;
+            }
+            console.log("======== groupStatus ", groupStatus);
             this.$emit("updateChatGroupStatus", roomId, groupStatus);
             // this.groupIsSlience();
         },
@@ -3416,6 +3425,7 @@ export default {
     },
     data() {
         return {
+            isMute: false,
             txnId2EventId: {},
             transmitNeedAlert: false,
             curOperate: "",
@@ -3635,6 +3645,7 @@ export default {
             console.log("this.curGroupId is ", this.curGroupId);
             
             this.initMessage();
+            this.groupIsSlience();
         },
         searchKeyFromList: function() {
             if(this.searchKeyFromList != '') {

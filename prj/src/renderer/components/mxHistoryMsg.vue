@@ -22,7 +22,7 @@
                             <label class="MxmessageInfoOwnerNameLabel" :id="getUserNameId(item)"></label>
                             <label class="MxmessageInfoTimeLabel">{{getMsgTime(item)}}</label>
                         </div>
-                        <div class="MxmessageInfoDetailLabel" v-html="msgContentHeightLight(item)" v-show="!MsgIsVoice(item)"></div>
+                        <div class="MxmessageInfoDetailLabel" v-html="msgContentHeightLight(item)" v-show="showContent(item)"></div>
                         <div class="MxmessageImg" v-if="MsgIsImage(item)">
                             <img class="Mx-msg-image" :id="getMxImgId(item)" :src="getMsgImgIcon(item)" alt="图片">
                         </div>
@@ -107,6 +107,14 @@ export default {
         }
     },
     methods: {
+        showContent: function(msgItem) {
+            if(!this.MsgIsFile(msgItem) && !this.MsgIsImage(msgItem) && !this.MsgIsVoice(msgItem)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        },
         isDeleted: function(msgItem) {
             if(!msgItem.sender) {
                 return false;

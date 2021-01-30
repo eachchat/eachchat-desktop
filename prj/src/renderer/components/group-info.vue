@@ -574,6 +574,7 @@ export default {
             const newState = this.mxMute ? MUTE : ALL_MESSAGES;
             console.log('---newState---', newState);
             setRoomNotifsState(roomId, newState).then((ret) => {
+                console.log("*** newState ", newState);
                 this.$emit("updateChatGroupStatus", roomId, newState);
             })
         },

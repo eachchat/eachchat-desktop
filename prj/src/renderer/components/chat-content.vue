@@ -35,7 +35,7 @@
                   </div>
                   <div class="group-notice">
                     <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
-                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                    <p class="group-slience" :id="getChatGroupIsSlienceElementId(chatGroupItem.roomId)" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
               </li>
@@ -67,7 +67,7 @@
                   </div>
                   <div class="group-notice">
                     <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
-                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                    <p class="group-slience" :id="getChatGroupIsSlienceElementId(chatGroupItem.roomId)" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
               </li>
@@ -97,7 +97,7 @@
                   </div>
                   <div class="group-notice">
                     <p class="group-time" :id="getChatGroupTimeElementId(chatGroupItem.roomId)"></p>
-                    <p class="group-slience" v-show="groupIsSlience(chatGroupItem)"></p>
+                    <p class="group-slience" :id="getChatGroupIsSlienceElementId(chatGroupItem.roomId)" v-show="groupIsSlience(chatGroupItem)"></p>
                   </div>
                 </div>
               </li>
@@ -1223,6 +1223,30 @@ export default {
               return;
             } 
           }
+          for(let i in this.favouriteRooms){
+            if(this.favouriteRooms[i].roomId == groupInfo.roomId) {
+              this.showChat(groupInfo, 0, this.searchKey);
+              if(this.checkNeedScroll(groupInfo)) {
+                this.scrollToDistPosition(groupInfo);
+              }
+              else {
+                this.showGroupIconName(groupInfo);
+              }
+              return;
+            } 
+          }
+          for(let i in this.lowPriorityGroupList){
+            if(this.lowPriorityGroupList[i].roomId == groupInfo.roomId) {
+              this.showChat(groupInfo, 0, this.searchKey);
+              if(this.checkNeedScroll(groupInfo)) {
+                this.scrollToDistPosition(groupInfo);
+              }
+              else {
+                this.showGroupIconName(groupInfo);
+              }
+              return;
+            } 
+          }
         })
       }, 0)
     },
@@ -1656,7 +1680,15 @@ export default {
         return false;
       return true;
     },
-
+    groupIsSlienceThroughRoomId(roomId) {
+      const state = getRoomNotifsState(roomId);
+      if(state == MUTE) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    },
     groupIsSlience(groupInfo) {
       const state = getRoomNotifsState(groupInfo.roomId);
       if(state == MUTE) {
@@ -2064,12 +2096,33 @@ export default {
       this.DeleteGroup(roomId);
     },
     updateChatGroupStatus(groupId, groupStatus) {
+      console.log("*** **** updateChatGroupStatus ", groupId);
       for(let i in this.dealShowGroupList){
         if(this.dealShowGroupList[i].roomId == groupId) {
+          console.log("*** updateChatGroupStatus ", groupStatus);
           this.showGroupIconName(this.dealShowGroupList[i]);
-          this.groupIsSlience(this.dealShowGroupList[i]);
+          var dist = document.getElementById(this.getChatGroupIsSlienceElementId(groupId));
+          if(this.groupIsSlienceThroughRoomId(groupId)) {
+            dist.style.display = "none";
+          }
+          else {
+            dist.style.display = "block";
+          }
           return;
         } 
+      }
+      for(let i in this.favouriteRooms) {
+        if(this.favouriteRooms[i].roomId == groupId) {
+          this.showGroupIconName(this.favouriteRooms[i]);
+          var dist = document.getElementById(this.getChatGroupIsSlienceElementId(groupId));
+          if(this.groupIsSlienceThroughRoomId(groupId)) {
+            dist.style.display = "none";
+          }
+          else {
+            dist.style.display = "block";
+          }
+
+        }
       }
     },
     updateChatGroupFavStatus(groupId, toFavourete) {
@@ -2200,6 +2253,9 @@ export default {
     },
     getChatGroupTimeElementId: function(roomId) {
       return "chatList-Time-" + roomId;
+    },
+    getChatGroupIsSlienceElementId: function(roomId) {
+      return "chatList-Slience-" + roomId;
     },
     getChatGroupNameElementId: function(groupId, uid) {
       if(groupId != undefined && uid != undefined) {
