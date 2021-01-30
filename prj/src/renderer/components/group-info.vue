@@ -88,7 +88,7 @@
             >
             </el-switch>
         </div>
-        <div class="groupSettingFavouriteDiv" v-show="isGroup">
+        <div class="groupSettingFavouriteDiv" >
             <label class="groupSettingFavouriteLabel">置顶聊天</label>
             <el-switch 
                 class="groupSettingFavouriteSwitch" 
@@ -98,7 +98,7 @@
             >
             </el-switch>
         </div>
-        <div class="groupSettingFavouriteDiv" v-show="isGroup">
+        <div class="groupSettingFavouriteDiv" v-if="!isDm">
             <label class="groupSettingFavouriteLabel">保存到联系人</label>
             <el-switch 
                 class="groupSettingFavouriteSwitch" 
@@ -1028,7 +1028,6 @@ export default {
         const mDirectEvent = global.mxMatrixClientPeg.matrixClient.getAccountData('m.direct');
         let dmRoomMap = {};
         if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-        this.mxContact = await ContactRoom.ExistRoom(roomId);
         console.log('Room js intent check', mDirectEvent)
         console.log('----dmRoomMap----', dmRoomMap)
         console.log('----chat----', this.showGroupInfo.room)
@@ -1066,6 +1065,7 @@ export default {
                 this.dmMember = {...dmMember};
             }
         } else {this.isDm = false;}
+        if (!this.isDm) this.mxContact = await ContactRoom.ExistRoom(roomId);
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
         this.getRoomFavo(room);
