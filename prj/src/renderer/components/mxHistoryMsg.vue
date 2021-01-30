@@ -15,8 +15,8 @@
                 <img class="Mxicon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="MxHistoryMsg-list" id="MxHistoryMsg-list-Id">
-                <li v-for="(item, index) in messageListShow" class="MxmessageItem" v-on:click="ShowFile(item)">
-                    <img class="MxmessageOwnerImage" src="../../../static/Img/User/user-40px@2x.png" :id="getUserHeadImageId(item)" @click="openFile(item)" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <li v-for="(item, index) in messageListShow" class="MxmessageItem" v-on:click="ShowFile(item)" v-show="!isDeleted(item)">
+                    <img class="MxmessageOwnerImage" src="../../../static/Img/User/user-40px@2x.png" :id="getUserHeadImageId(item)" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                     <div class="MxmessageInfoDiv">
                         <div class="MxmessageOwnerTimeDiv">
                             <label class="MxmessageInfoOwnerNameLabel" :id="getUserNameId(item)"></label>
@@ -30,7 +30,7 @@
                             <img class="mx-file-image" :id="getMxImgId(item)" style="vertical-align:middle" :src="getMsgFileIcon(item)">
                             <div class="mx-file-info">
                                 <p class="mx-file-name" v-html="msgContentHeightLight(item)"></p>
-                                <p class="mx-file-size">{{getFileNumber(item.content.info.size)}}</p>
+                                <p class="mx-file-size">{{getFileNumber(item.event.content ? item.event.content.info.size : item.getContent().info.size)}}</p>
                             </div>
                         </div>
                         <div class="MxmessageVoice" v-else-if="MsgIsVoice(item)">
@@ -41,7 +41,7 @@
             </ul>
             <div class="MxHistoryMsgEmpty" v-show="showEmpty">
                 <img class="MxHistoryMsgEmptyBg" src="../../../static/Img/MessageHistory/search-empty@2x.png">
-                <div class="MxHistoryMsgEmptyText">搜索会话中的消息</div>
+                <div class="MxHistoryMsgEmptyText">搜索聊天中的消息</div>
             </div>
             <div class="MxHistorySearchEmpty" v-show="searchEmpty">
                 <div class="MxHistorySearchEmptyText">暂无结果</div>
@@ -60,7 +60,8 @@ import confservice from '../../packages/data/conf_service.js'
 import { Group } from '../../packages/data/sqliteutil'
 import eventSearch, {searchPagination} from '../../packages/data/Searching.js';
 import {ComponentUtil} from '../script/component-util'
-import axios from "axios";
+import {Filter} from 'matrix-js-sdk';
+import * as Matrix from 'matrix-js-sdk';
 export default {
     name: 'HistoryMsgDlg',
     data () {
@@ -88,17 +89,15 @@ export default {
                     console.log("*** return []");
                     return searchResult;
                 }
-                if(this.isMatrixSearch) {
-                    for(let i=0;i<this.ret.results.length;i++) {
-                        var timeLine = this.ret.results[i].context.getTimeline()[this.ret.results[i].context.getOurEventIndex()];
-
-                        searchResult.push(timeLine);
+                if(this.searchKey.length == 0) {
+                    for(let i=0;i<this.ret.length;i++) {
+                        searchResult.push(this.ret[i]);
                     }
                 }
                 else {
                     console.log("*** this.ret.length ", this.ret.length);
                     for(let i=0;i<this.ret.length;i++) {
-                        var timeLine = this.ret[i].event;
+                        var timeLine = this.ret[i];
 
                         searchResult.push(timeLine);
                     }
@@ -108,14 +107,20 @@ export default {
         }
     },
     methods: {
+        isDeleted: function(msgItem) {
+            if(!msgItem.sender) {
+                return false;
+            }
+            return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
+        },
         ShowFile: function(item) {
-            this.$emit('jumpToEvent', item.event_id, this.GroupInfo);
+            this.$emit('jumpToEvent', item.event_id ? item.event_id : item.event.event_id, this.GroupInfo);
         },
         getFileNumber: function(nSize) {
             return getFileSizeByNumber(nSize);
         },
         getMsgFileIcon: function(item) {
-            var content = item.content;
+            var content = item.event.content ? item.event.content : item.getContent();
             if(content.body != undefined) {
                 let ext = path.extname(content.body);
                 // console.log("getmsgfileicon ext is ", ext);
@@ -127,12 +132,12 @@ export default {
             return iconPath;
         },
         getMsgImgIcon: function(item) {
-            let iconPath = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(item.event.content.url);
+            let iconPath = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(item.event.content ? item.event.content.url : item.getContent());
             return iconPath;
         },
         MsgIsImage: function(curItem) {
             // let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
-            let chatGroupMsgType = curItem.content.msgtype;
+            let chatGroupMsgType = curItem.event.content ? curItem.event.content.msgtype : curItem.getContent().msgtype;
             if(chatGroupMsgType == 'm.image'){
                 return true;
             }
@@ -145,7 +150,7 @@ export default {
         },
         MsgIsFile: function(curItem) {
             // let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
-            let chatGroupMsgType = curItem.content.msgtype;
+            let chatGroupMsgType = curItem.event.content ? curItem.event.content.msgtype : curItem.getContent().msgtype;
             if(chatGroupMsgType == 'm.file'){
                 return true;
             }
@@ -158,7 +163,7 @@ export default {
         },
         MsgIsVoice: function(curItem) {
             // let chatGroupMsgType = curItem.event.content.msgtype == undefined ? curItem.getContent().msgtype : curItem.event.content.msgtype;
-            let chatGroupMsgType = curItem.content.msgtype;
+            let chatGroupMsgType = curItem.event.content ? curItem.event.content.msgtype : curItem.getContent().msgtype;
             if(chatGroupMsgType == 'm.audio'){
                 return true;
             }
@@ -261,17 +266,16 @@ export default {
                 var distUserImgElement = document.getElementById(this.getUserHeadImageId(curItem));
                 var distUserNameElement = document.getElementById(this.getUserNameId(curItem));
 
-                var sender = global.mxMatrixClientPeg.matrixClient.getUser(curItem.sender);
-                // console.log("============ sender ", sender)
+                var sender = global.mxMatrixClientPeg.matrixClient.getUser(curItem.sender ? curItem.sender.userId : curItem.event.sender);
                 
                 var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(sender.avatarUrl, null, null);
-                var distUserName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);;
+                var distUserName = await ComponentUtil.GetDisplayNameByMatrixID(sender.userId);
                 distUserNameElement.innerHTML = distUserName;
                 if(userUrl != null && userUrl != undefined && userUrl != '') {
-
+                    distUserImgElement.setAttribute("src", userUrl);
                 }
-                if(curItem.content.msgtype == "m.image") {
-                    var chatGroupMsgContent = curItem.content;
+                if((curItem.event.content ? curItem.event.content.msgtype : curItem.getContent().msgtype) == "m.image") {
+                    var chatGroupMsgContent = curItem.content ? curItem.content : curItem.getContent();
                     let maxSize = 260;
                     let info = {
                         w: maxSize,
@@ -309,30 +313,6 @@ export default {
             if(this.GroupInfo.roomId == undefined){
                 return "";
             }
-            var groupContentNumElement = document.getElementById("MxHistoryMsgGroupInfoMemberNumId");
-            if(groupContentNumElement) {
-                var totalMemberCount = this.mxGetMembers();
-                if(totalMemberCount > 2) {
-                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
-                }
-                else {
-                    groupContentNumElement.innerHTML = "";
-                }
-            }
-            var groupImgElement = document.getElementById("MxHistoryMsgGroupInfoImgId");
-            if(groupImgElement) {
-                var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.GroupInfo);
-                if(!distUrl || distUrl == '') {
-                    if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo))
-                        distUrl = "./static/Img/User/user-40px@2x.png";
-                    else
-                        distUrl = "./static/Img/User/group-40px@2x.png";
-                    groupImgElement.setAttribute("src", distUrl); 
-                }
-                if(distUrl) {
-                    groupImgElement.setAttribute("src", distUrl);
-                }
-            }
             var groupNameElement = document.getElementById("MxHistoryMsgGroupInfoNameId");
             if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo)) {
                 var distUserId = global.mxMatrixClientPeg.getDMMemberId(this.GroupInfo);
@@ -358,7 +338,12 @@ export default {
             if(this.searchKey.length == 0) {
                 console.log("this.messagelsitshow is ", this.messageListShow)
                 this.toInit();
-                this.showResultInfo();
+                this.getHistoryMsgList();
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        this.showResultInfo();
+                    })
+                })
                 return
             }
             var curSearchId = new Date().getTime();
@@ -405,6 +390,25 @@ export default {
                     
                 })
         },
+        async getShowMessage(num, type)
+        {
+            let msgList = [];
+            while(this._timelineWindow.canPaginate(type)){
+                //获取历史消息
+                await this._timelineWindow.paginate(type, 20);
+                let tmpList = this._getEvents().reverse();
+                let index = 0;
+                msgList.length = 0;
+                tmpList.forEach(item => {
+                    if(item.event.content){
+                        msgList.push(item);
+                        index++;
+                    } 
+                })
+                if(index > num) break;
+            }
+            return msgList;
+        },
         handleScroll: function() {
             let uldiv = document.getElementById("MxHistoryMsg-list-Id");
             let client = document.getElementById("MxHistoryMsgDlgContentId");
@@ -414,29 +418,33 @@ export default {
                     this.isRefreshing = false;
                     return;
                 }
+                this.lastScrollTop = uldiv.scrollTop;
                 if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing) {
                     if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
                         console.log("=======wo bottom");
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
-                        if(this.isMatrixSearch) {
-                            if(this.ret.next_batch) {
-                                searchPagination(this.ret)
-                                    .then((ret) => {
-                                        this.ret = ret;
-                                        setTimeout(() => {
-                                            this.$nextTick(() => {
-                                                this.showResultInfo();
-                                            })
-                                        }, 0)
-                                        
-                                        this.isRefreshing = false;
-                                    })
-                            }
+                        if(this.searchKey.length == 0) {
+                            this.getShowMessage(10, 'b')
+                                .then((ret) => {
+                                    this.isRefreshing = false;
+                                    this.ret = this._getEvents().reverse();
+                                    setTimeout(() => {
+                                        this.$nextTick(() => {
+                                            this.showResultInfo();
+                                            console.log("---------update croll top is ", uldiv.scrollHeight);
+                                            uldiv.scrollTop = this.lastScrollTop;
+                                            this.isScroll = false;
+                                        })
+                                    }, 0);
+                                })
                         }
                         else {
+                            this.isRefreshing = true;
                             this.appSearch()
                                 .then((ret) => {
+                                    this.isRefreshing = false;
+                                    this.lastRefreshTime = new Date().getTime();
                                     console.log("*** ret.length ", ret.results);
                                     console.log("*** this.messageListShow.length ", this.messageListShow.length);
                                     this.sequenceId = ret.results.length + this.messageListShow.length;
@@ -469,10 +477,10 @@ export default {
         },
         msgContentHeightLight: function(curMsg) {
             // var showContent = curMsg.getContent();
-            var showContent = curMsg.content;
+            var showContent = curMsg.event.content ? curMsg.event.content : curMsg.getContent();
             // showContent = showContent + ' ';
             if(this.searchKey.length == 0) {
-                return showContent
+                return showContent.body;
             }
             if(showContent.msgtype == "m.text") {
                 var textContent = showContent.body;
@@ -516,15 +524,102 @@ export default {
             }
         },
         MsgContent: function(curMsg) {
-            var tmpContent = curMsg.content;
+            var tmpContent = curMsg.content ? curMsg.content : curMsg.getContent();
             return tmpContent.text;
         },
         getMsgTime: function(curMsg) {
             var fileDate = this.MsgTime(curMsg);
             return fileDate;
         },
+        async updateTimelineSet(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+            
+            if (room) {
+                let timelineSet;
+
+                try {
+                    timelineSet = await this.fetchFileEventsServer(room);
+                } catch (error) {
+                    console.error("Failed to get or create file panel filter", error);
+                }
+                return timelineSet;
+            } else {
+                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
+            }
+        },
+        async fetchFileEventsServer(room) {
+            const client = global.mxMatrixClientPeg.matrixClient;
+
+            const filter = new Filter(client.credentials.userId);
+            filter.setDefinition(
+                {
+                    "room": {
+                        "timeline": {
+                            "types": [
+                                "m.room.message"
+                            ],
+                        },
+                    },
+                },
+            );
+
+            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
+            filter.filterId = filterId;
+            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
+
+            return timelineSet;
+        },
+        async toGetShowMessage() {
+            this.timeLineSet = await this.updateTimelineSet(this.GroupInfo);
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this.timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            await this._timelineWindow.load(undefined, 20);
+            var fileListInfo = this._timelineWindow.getEvents();
+            while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
+                await this._timelineWindow.paginate("b", 20);
+                fileListInfo = await this._timelineWindow.getEvents();
+            }
+            return fileListInfo;
+        },
+        _getEvents() {
+            var events = this._timelineWindow.getEvents();
+            // console.log("========== getEvent ", events);
+            return events;
+        },
+        getHistoryMsgList: function() {
+            this.toGetShowMessage()
+                .then((ret) => {
+
+                    this.ret = this._getEvents().reverse();
+                    console.log("*** this.ret.results is ", this.ret);
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.needToBottom = true;
+                            this.showResultInfo();
+
+                            // let div = document.getElementById("message-show-list");
+                            // if(div) {
+                            //     div.scrollTop = this.lastScrollTop;
+                            //     div.addEventListener('scroll', this.handleScroll);
+                            //     this.showScrollBar();
+                            // }
+
+                            // let uldiv = document.getElementById("message-show-list");
+                            // if(uldiv.clientHeight < uldiv.offsetHeight) {
+                            //     this.handleScroll(true);
+                            // }
+                            let div = document.getElementById("MxHistoryMsg-list-Id");
+                            div.addEventListener('scroll', this.handleScroll);
+                        })
+                    }, 100)
+                })
+        },
         updatePage: function() {
             console.log("filelist group info is ", this.GroupInfo);
+            this.getHistoryMsgList();
             if(this.GroupInfo == undefined) {
                 return;
             };

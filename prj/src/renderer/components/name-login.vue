@@ -689,11 +689,11 @@ export default {
                     // }
                 }
                 
-                this.loginState = this.$t("invalidServerAddress");
+                // this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
                 return false;
             },(err) => {
-                this.loginState = this.$t("invalidServerAddress");
+                // this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
                 return false;
             })
@@ -907,7 +907,7 @@ export default {
                 .then((result) => {
                     console.log(result);
                     if(!result){
-                        this.loginState = this.$t("invalidServerAddress");
+                        // this.loginState = this.$t("invalidServerAddress");
                         this.organizationButtonDisabled = false;
                         this.isLoading = false;
                         return;
@@ -1421,7 +1421,7 @@ export default {
                 }
                 else if(client == undefined) {
                     this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'280px'});
-                    this.loginState = e.message;
+                    // this.loginState = e.message;
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     return;
@@ -1472,7 +1472,7 @@ export default {
                     this.$toastMessage({message:verCodeRet.data.error, time: 3000, type:'error', showWidth:'260px'});
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
-                    this.loginState = verCodeRet.data.error;
+                    // this.loginState = verCodeRet.data.error;
                     return;
                 }
                 else if(verCodeRet.status == 400) {
@@ -1505,7 +1505,7 @@ export default {
                 }
                 else if(client == undefined) {
                     this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'280px'});
-                    this.loginState = e.message;
+                    // this.loginState = e.message;
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     return;
