@@ -3114,9 +3114,11 @@ export default {
             this.$emit("updateChatGroupStatus", roomId, groupStatus);
             // this.groupIsSlience();
         },
-        leaveGroup(groupId) {
-            this.$emit("leaveGroup", groupId);
-            this.showGroupInfoTips = false;
+        leaveGroup(roomId) {
+            this.$emit("leaveGroup", roomId);
+            if(roomId == this.curChat.roomId) {
+
+            }
         },
         updateChatGroupNotice(groupId, originalNotice, isOwner) {
             // console.log("==========")

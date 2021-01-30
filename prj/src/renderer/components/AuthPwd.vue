@@ -22,6 +22,15 @@
 export default {
     name: 'AuthPwd',
     props: {
+        clearPwd: {
+            type: Number,
+            default: 0
+        }
+    },
+    watch: {
+        clearPwd: function() {
+            this.password = "";
+        }
     },
     data () {
         return {

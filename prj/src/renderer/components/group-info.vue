@@ -513,6 +513,7 @@ export default {
                     confirm () {
                         // 这里执行点击确定按钮需要做的事，默认执行关闭弹框
                         client.leave(roomId);
+                        this.$emit("leaveGroup", roomId);
                     },
                     cancel () {
                         // 这里执行点击取消按钮需要做的事，默认执行关闭弹框
