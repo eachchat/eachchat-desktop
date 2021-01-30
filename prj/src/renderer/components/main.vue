@@ -102,7 +102,7 @@ export default {
                 }
                 this.curindex = 1;
             }
-        },
+        }
     },
     data () {
         return {
@@ -178,12 +178,8 @@ export default {
         },
 
         getInviteNum(){
-            let count = 0;
-            let rooms = this.$store.getters.getInviteRooms();
-            for(let key in rooms){
-                if(rooms[key] == 0) count++;
-            }
-            return count;
+            return this.$store.getters.getInviteRoomsNum();
+
         },
 
         matrixSyncEnd: function(ret){

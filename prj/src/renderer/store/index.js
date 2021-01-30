@@ -36,9 +36,14 @@ export default new Vuex.Store({
     flashNotice: true,
     draft: {},
     curRoomId: undefined,
-    inviteRooms: {}
+    inviteRooms: {},
+    inviteRoomsNum: 0
   },
   mutations: {
+    updateInviteRoomsNum(state, num){
+      state.inviteRoomsNum = num;
+    },
+
     updateInviteState(state, roomObj){
       if(state.inviteRooms[roomObj.roomID] == 0){
         state.inviteRooms[roomObj.roomID] = roomObj.roomState;
@@ -241,6 +246,10 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getInviteRoomsNum: state => () => {
+      return state.inviteRoomsNum;
+    },
+
     getInviteRooms: state => () => {
       return state.inviteRooms;
     },

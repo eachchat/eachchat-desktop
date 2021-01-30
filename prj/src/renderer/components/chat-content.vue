@@ -729,9 +729,11 @@ export default {
       this.lowPriorityGroupList.length = 0;
       this.lowPriorityGroupIds = [];
       this.hasUnreadItems = [];
+      let nInviteRooms = 0;
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
+          this.$store.commit("updateInviteRoomsNum", ++nInviteRooms);
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();

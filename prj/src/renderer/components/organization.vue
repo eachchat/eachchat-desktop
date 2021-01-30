@@ -252,8 +252,7 @@ export default {
             for(let key in rooms){
                 if(rooms[key] == 0) count++;
             }
-            //let element = document.getElementById("main-invitenum");
-            //if(element) element.innerHTML = count;
+            this.$store.commit("updateInviteRoomsNum", count);
             return count;
         },
         
