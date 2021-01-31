@@ -17,7 +17,7 @@
         <p class="strong">
         当您按照亿洽相关注册页面提示填写信息、阅读并同意本协议且完成全部注册程序后，或您按照亿洽相关激活页面提示填写信息、阅读并同意本协议且完成全部激活程序后，或您以其他方式使用亿洽平台的产品及服务时，即代表您已经充分理解并同意全部协议内容，承诺遵守本协议约定，本协议内容对您产生约束力。</p>
         <h3>一、 缔约主体</h3>
-        <p>1、 本协议由通过爱工作运营的workly.ai数字化办公平台（网站为 <a href="https://workly.ai" rel="noopener noreferrer">https://workly.ai</a>）中的亿洽沟通与协作平台管理后台、亿洽移动客户端、PC端应用软件以及其他方式使用本平台产品及服务的用户和爱工作共同缔结的协议，本协议载列了用户访问和使用本平台的相关网站、服务、应用程序、产品及内容须遵守的条款及条件。若您在使用爱工作的关联方或其他第三方产品或服务中使用了本平台产品及服务的，该等使用行为同样适用于本协议的约定。
+        <p>1、 本协议由通过爱工作运营的workly.ai数字化办公平台（网站为 <a rel="noopener noreferrer" @click="openWorklyai()">https://workly.ai</a>）中的亿洽沟通与协作平台管理后台、亿洽移动客户端、PC端应用软件以及其他方式使用本平台产品及服务的用户和爱工作共同缔结的协议，本协议载列了用户访问和使用本平台的相关网站、服务、应用程序、产品及内容须遵守的条款及条件。若您在使用爱工作的关联方或其他第三方产品或服务中使用了本平台产品及服务的，该等使用行为同样适用于本协议的约定。
         </p>
         <p>若您在使用本平台产品及服务时涉及使用来自第三方（包括但不限于爱工作的关联方、供应商）的产品或服务的，适用本协议第七条的约定。</p>
         <p>2、
@@ -153,10 +153,10 @@
         本协议之效力、解释、变更、执行与争议解决均适用中华人民共和国法律（为明确起见，不包含香港特别行政区、澳门特别行政区及台湾地区）。因本协议产生之争议，涉及各方首先应协商解决，协商不成的，任何一方均有权将争议向北京市朝阳区人民法院起诉。</p>
         <h3>十五、联系方式</h3>
         <p>如果您对本协议或使用亿洽产品及服务有任何疑问、意见或建议，可通过以下方式与爱工作联系。</p>
-        <p>1、 工单方式：<a href="https://customer.quanxiangyun.com/worklyai" rel="noopener noreferrer">https://customer.quanxiangyun.com/worklyai</a>。
+        <p>1、 工单方式：<a rel="noopener noreferrer" @click="openCustomer">https://customer.quanxiangyun.com/worklyai</a>。
         </p>
         <p>2、 邮寄方式：收件地址及收件人：北京市朝阳区朝来科技产业园16号楼7层，爱工作。</p>
-        <p>3、 客服方式：<a href="tel:400-8576-886">400-8576-886</a>。</p>
+        <p>3、 客服方式：<a>400-8576-886</a>。</p>
         <p>我们将尽快审核您提交的疑问、意见或建议，并尽快予以回复！</p>
         </body>
     </div>
@@ -164,6 +164,7 @@
 
 
 <script>
+import {shell} from 'electron'
 export default {
     name: 'Agreement',
     data () {
@@ -171,6 +172,12 @@ export default {
         }
     },
     methods: {
+        openWorklyai: function() {
+            shell.openExternal("https://workly.ai");
+        },
+        openCustomer: function() {
+            shell.openExternal("https://customer.quanxiangyun.com/worklyai");
+        }
     },
     components: {
     },
@@ -219,7 +226,14 @@ export default {
     a {
         color: #4394ff;
         word-wrap: break-word;
-        text-decoration: none
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #4394ff;
+        word-wrap: break-word;
+        text-decoration: none;
+        cursor: pointer;
     }
 
     .strong {
