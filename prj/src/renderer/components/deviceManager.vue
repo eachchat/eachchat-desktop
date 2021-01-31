@@ -114,6 +114,40 @@ export default {
                 }
             }
         },
+        deleteSessionItem: async function() {
+            var isClean = false;
+            for(var i=0;i<this.devices.length;i++) {
+                if(this.devices[i].display_name) {
+                    continue;
+                }
+                console.log("**** this.devices ", this.devices.length)
+                await this.removeSession(this.devices[i]);
+                isClean = true;
+                var auth = {
+                    session: this.session,
+                    password: "",
+                    type: "m.login.password",
+                    user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                }
+                try{
+                    var ret = await this._makeDeleteRequest(auth);
+                    this.devices.splice(i, 1);
+                    break;
+                }
+                catch(e) {
+                    console.log("*** e is ", this.devices.length, e);
+                    if (e.httpStatus !== 401 || !e.data || !e.data.flows) {
+                        // doesn't look like an interactive-auth failure
+                        this.$toastMessage({message:"移除会话失败", time: 2000, type:'error'});
+                        return;
+                    }
+                }
+            }
+            if(!isClean) {
+                clearInterval(this.flashingInterval);
+            }
+            return;
+        },
         Close: function() {
             this.$emit("deviceMgrDlgClose");
         },
@@ -195,6 +229,9 @@ export default {
         this.ownDeviceId = global.mxMatrixClientPeg.matrixClient.getDeviceId();
         this.isRefresh = true;
         this.getDeviceList();
+        // this.flashingInterval = setInterval(() => {
+        //     this.deleteSessionItem();
+        // }, 1000)
       }
       catch(error) {
           console.log("get threed pids exception ", error)
