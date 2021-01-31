@@ -61,6 +61,10 @@ const EMAIL_ADDRESS_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export default {
     name: 'AccountManager',
     props: {
+        needUpdate: {
+            type: Boolean,
+            default: false
+        }
     },
     components: {
         AlertDlg
@@ -340,7 +344,7 @@ export default {
     },
     mounted: async function() {
       try{
-          global.mxMatrixClientPeg.matrixClient.getThreePids()
+        global.mxMatrixClientPeg.matrixClient.getThreePids()
             .then((ret) => {
               console.log("threepdis is ", ret);
               var threePids = ret.threepids;
@@ -350,13 +354,36 @@ export default {
               this.emailAddress = emainObj.length == 0 ? "" : emainObj[0].address;
               this.phoneNum = phoneObj.length == 0 ? "" : phoneObj[0].address;
             })
+        }
+        catch(error) {
+            console.log("get threed pids exception ", error)
+        }
         var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
         var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userId);
         this.ownerAccount = profileInfo.displayname;
-      }
-      catch(error) {
-          console.log("get threed pids exception ", error)
-      }
+    },
+    watch: {
+        needUpdate: async function() {
+            console.log("*******");
+            try{
+                global.mxMatrixClientPeg.matrixClient.getThreePids()
+                    .then((ret) => {
+                    console.log("threepdis is ", ret);
+                    var threePids = ret.threepids;
+                    var emainObj = threePids.filter((a) => a.medium === 'email');
+                    var phoneObj = threePids.filter((a) => a.medium === 'msisdn');
+                    console.log("e,ainmlson ", emainObj)
+                    this.emailAddress = emainObj.length == 0 ? "" : emainObj[0].address;
+                    this.phoneNum = phoneObj.length == 0 ? "" : phoneObj[0].address;
+                    })
+            }
+            catch(error) {
+                console.log("get threed pids exception ", error)
+            }
+            var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userId);
+            this.ownerAccount = profileInfo.displayname;
+        }
     }
 }
 </script>
