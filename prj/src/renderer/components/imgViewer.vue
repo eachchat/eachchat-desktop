@@ -411,6 +411,8 @@ export default {
     mounted: function() {
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on("timelines", (event, imageInfos, distImageInfo, screenSize) => {
+            this.stageElement = document.getElementById("imageViewerStageId");
+            this.stageElement.setAttribute("src", "");
             console.log("*** screenSize ", screenSize);
             this.screenWidth = screen.width * 0.9;
             this.screenHeight = screen.height * 0.8;
@@ -456,19 +458,20 @@ export default {
                 }
             }
 
-            this.stageElement = document.getElementById("imageViewerStageId");
             let style = "";
             style += "width:" + this.curImage.info.w + "px";
             style += ";"
             style += "height:" + this.curImage.info.h + "px";
             console.log("*** this.curImage is ", this.curImage.info);
-            this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
             // this.updateWindowSize(undefined);
             this.stageElement.setAttribute("src", this.curImage.imageUrl);
             this.stageElement.setAttribute("style", style);
             this.stageElement.style.top = "-20px";
+            this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
         });
         ipcRenderer.on("personalUrl", (event, url, screenSize) => {
+            this.stageElement = document.getElementById("imageViewerStageId");
+            this.stageElement.setAttribute("src", "");
             this.screenWidth = screen.width * 0.9;
             this.screenHeight = screen.height * 0.8;
             this.maxSize = Math.max(this.screenHeight, this.screenWidth);
@@ -478,7 +481,6 @@ export default {
             var img = new Image();
             img.src = this.curUrl;
             img.onload = () => {
-                this.stageElement = document.getElementById("imageViewerStageId");
                 let style = "";
 
                 if(img.width > img.height) {
@@ -591,6 +593,18 @@ export default {
         background: rgba(255, 255, 255, 1);
         text-align: center;
         user-select:none;
+    }
+
+    .el-icon-loading {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        z-index: 1;
+        width:18px;
+        height: 18px;
     }
 
     .imageViewerStage {
