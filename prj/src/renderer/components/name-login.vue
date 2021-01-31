@@ -1401,7 +1401,7 @@ export default {
             var client = undefined;
             var verCodeRet = undefined;
             try {
-                client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password);
+                client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password, version);
                 console.log("===== ", client)
                 if(client == undefined || client == null) {
                     this.$toastMessage({message:"创建连接异常", time: 3000, type:'error', showWidth:'280px'});
@@ -1456,7 +1456,7 @@ export default {
             var client = undefined;
             var verCodeRet = undefined;
             try {
-                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password);
+                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password, version);
                 console.log("===== ", verCodeRet)
                 if(verCodeRet.status == 200) {
                     client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);

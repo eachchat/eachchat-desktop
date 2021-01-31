@@ -440,7 +440,7 @@ class _MatrixClientPeg{
       }
     }
 
-    async LoginWithVerCode(checkType, username, password) {
+    async LoginWithVerCode(checkType, username, password, deviceName="") {
       let response = null;
       this.checkType = checkType;
       this.account = username;
@@ -452,7 +452,8 @@ class _MatrixClientPeg{
             {
               'type': checkType,
               'msisdn': username,
-              'ver_code': password
+              'ver_code': password,
+              'initial_device_display_name': deviceName
             });
         }
         catch(e) {
@@ -467,7 +468,8 @@ class _MatrixClientPeg{
             {
               type: checkType,
               email: username,
-              ver_code: password
+              ver_code: password,
+              initial_device_display_name: deviceName
             });
         }
         catch(e) {
@@ -482,7 +484,8 @@ class _MatrixClientPeg{
             {
               type: checkType,
               user: username,
-              password: password
+              password: password,
+              initial_device_display_name: deviceName
             });
         }
         catch(e) {
@@ -563,7 +566,7 @@ class _MatrixClientPeg{
       return response;
     }
   
-    async LoginWithPassword(account, password){
+    async LoginWithPassword(account, password, deviceName=""){
         try {
           window.sessionStorage.clear();
           if(this.matrixClient)
@@ -573,11 +576,18 @@ class _MatrixClientPeg{
           
         }
         this.checkType = 'm.login.password';
+        var loginParams = {
+          user: account,
+          password: password,
+          initial_device_display_name: deviceName,
+        }
         this.account = account;
         this.password = password;
-        let userLoginResult = await this.registrationClient.loginWithPassword(
-            account,
-            password);
+        // let userLoginResult = await this.registrationClient.loginWithPassword(
+        //     account,
+        //     password);
+        let userLoginResult = await this.registrationClient.login(this.checkType, loginParams);
+        console.log("**** userLoginResult ", userLoginResult);
         let ops = {
             baseUrl: this.homeserve,
             userId: userLoginResult.user_id,
