@@ -95,7 +95,7 @@
             </div>
             <div class="setup-array-only-label">
                 <label class="setup-array-only-label-label">清理缓存</label>
-                <label class="setup-array-only-label-label2" id="setup-general-clear-cache-label2-id" @click="showAlert">--M</label>
+                <label class="setup-array-only-label-label2-cache" id="setup-general-clear-cache-label2-id" @click="showAlert">--M</label>
             </div>
             <div class="setup-title" id="setup-update-notice-id" v-show="false">升级</div>
             <div class="setup-array-with-label" v-show="false">
@@ -147,7 +147,7 @@
       </div>
       <!-- <generalSecureBackUpPage  v-show="showGeneralPage"></generalSecureBackUpPage> -->
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
-      <AccountManager v-show="showAccountMgr" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
+      <AccountManager v-show="showAccountMgr" :needUpdate="needUpdate" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
       <DeviceManager v-show="showDeviceMgr" @deviceMgrDlgClose="deviceMgrDlgClose"></DeviceManager>
       <OwnerDlg v-show="showOwnerDlg" :updateOwnerInfo="updateOwnerInfo" @CloseownerInfo="CloseownerInfo"></OwnerDlg>
     </div>
@@ -199,6 +199,7 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      needUpdate: false,
       canChangePwd: false,
       updateOwnerInfo: false,
       showOwnerDlg: false,
@@ -269,9 +270,11 @@ export default {
       this.showCertification = false;
     },
     bindEmail: function() {
+      this.needUpdate = !this.needUpdate;
       this.showAccountMgr = true;
     },
     accountManager: async function() {
+      this.needUpdate = !this.needUpdate;
       console.log("=============")
       this.showAccountMgr = true;
     },
@@ -1032,6 +1035,41 @@ export default {
     font-weight:400;
     letter-spacing: 0px;
     vertical-align: top;
+  }
+
+  .setup-array-only-label-label2-cache {
+    width:94px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing: 0px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+  }
+
+  .setup-array-only-label-label2-cache:hover {
+    width:94px;
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing: 0px;
+    vertical-align: top;
+    color: rgba(153,153,153,1);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align:right;
+    cursor: pointer;
   }
 
   .setup-array-only-label-label2 {
