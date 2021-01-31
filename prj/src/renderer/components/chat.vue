@@ -901,7 +901,6 @@ export default {
         },
         toMultiDel() {
             this.curOperate = "Del";
-            this.selectedMsgs.push(msg);
             this.alertContnets = {
                 "Details": "是否删除聊天记录？",
                 "Abstrace": "删除聊天记录"
@@ -1465,7 +1464,7 @@ export default {
                         imageEventId: event.event_id,
                         info: info,
                         body: chatGroupMsgContent.body,
-                        sender: curEvent.sender ? curEvent.sender.userId : curEvent.sender,
+                        sender: curEvent.sender ? curEvent.sender.userId : curEvent.event.sender,
                         origin_server_ts: curEvent.event.origin_server_ts
                     }
                     if(distEvent.event.event_id == event.event_id) {
@@ -1475,7 +1474,7 @@ export default {
                             imageEventId: event.event_id,
                             info: info,
                             body: chatGroupMsgContent.body,
-                            sender: curEvent.sender ? curEvent.sender.userId : curEvent.sender,
+                            sender: curEvent.sender ? curEvent.sender.userId : curEvent.event.sender,
                             origin_server_ts: curEvent.event.origin_server_ts
                         }
                     }
@@ -1507,7 +1506,7 @@ export default {
                     imageEventId: event.event_id,
                     info: info,
                     body: chatGroupMsgContent.body,
-                    sender: distEvent.sender ? distEvent.sender.userId : distEvent.sender,
+                    sender: distEvent.sender ? distEvent.sender.userId : distEvent.event.sender,
                     origin_server_ts: distEvent.event.origin_server_ts
                 }
             }
