@@ -835,8 +835,8 @@ export default {
       }
       setTimeout(() => {
         this.$nextTick(() => {
-          this.showGroupIconName(room);
           this.sortGroup();
+          this.showGroupIconName();
         })
       }, 0)
     },
