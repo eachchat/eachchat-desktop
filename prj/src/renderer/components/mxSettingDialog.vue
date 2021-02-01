@@ -1,6 +1,6 @@
 <template>
     <div class="setting-wrap" @click.self.stop="close">
-        <div class="mx-setting-dialog">
+        <div :class="{mxSettingDialog:(joinRule == 'public'), mxSettingDialog2:(joinRule != 'public')}">
             <div class="titleLine">
                 <div class="title">群聊设置</div>
                 <img class="close" @click.self.stop="close" src="../../../static/Img/Main/xincaca.png">
@@ -19,7 +19,7 @@
                     <label for="puborprt1"  >私人-需要邀请加入</label>
                 </div>
             </div>
-            <div class="setting-field">
+            <div class="setting-field" v-if="joinRule == 'public'">
                 <div class="filed-title">设置群聊新地址</div>
                 <!-- <div class="xiaomiaoshu tipdesc">任何服务器上的任何人都可以使用发布的群聊地址加入您的聊天室。如果要发布群聊地址，需要先设置为去群聊地址。</div> -->
                 <div class="xiaomiaoshu serverRow">
@@ -311,16 +311,29 @@ export default {
         background: rgba(0, 0, 0, 0.6);
         z-index:3;
     }
-    .mx-setting-dialog {
+    .mxSettingDialog {
         position: absolute;
         left: 50%;
         top: 50%;
-        margin-top: -305px;
-        margin-left: -217px;
+        margin-top: -205px;
+        margin-left: -220px;
         background-color: #fff;
         border-radius: 4px;
         width: 440px;
-        height: 434px;
+        height: 410px;
+        z-index: 99999;
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
+    }
+    .mxSettingDialog2 {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-top: -165px;
+        margin-left: -220px;
+        background-color: #fff;
+        border-radius: 4px;
+        width: 440px;
+        height: 330px;
         z-index: 99999;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
     }
@@ -334,7 +347,7 @@ export default {
         align-items: center;
         margin-left: 32px;
         margin-right: 20px;
-        margin-bottom: 16px;
+        margin-bottom: 8px;
         height: 56px;
     }
     .title {
@@ -350,7 +363,7 @@ export default {
         width: 20px;
     }
     .setting-field {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         margin-left: 40px;
         margin-right: 40px;
     }
@@ -457,6 +470,7 @@ export default {
         display: flex;
         flex-direction: row-reverse;
         justify-content: center;
+        margin-top: 24px;
     }
     .mxTransmitCancleButton {
         border-radius:4px;
