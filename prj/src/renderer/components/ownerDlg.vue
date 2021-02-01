@@ -78,13 +78,7 @@ export default {
             var distImgElement = document.getElementById("ownerInfoImageId");
             var avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(ownerInfo.avatarUrl);
             if(distImgElement && avatarTUrl) {
-                try{
-                    var response = await axios.get(avatarTUrl);
-                    distImgElement.src = avatarTUrl;
-                }
-                catch(e) {
-                    
-                }
+                distImgElement.src = avatarTUrl;
             }
             let user = await ComponentUtil.ShowOrgInfoByMatrixID(this.ownerId)
             this.ownerPhone = user.phone.mobile;
