@@ -130,7 +130,34 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       }
     }
   ]);
+  var template = [
+    {
+        label: '编辑',
+        submenu: [
+            {
 
+                label: '复制',
+                role: 'copy'
+            },
+            {
+
+                label: '剪切',
+                role: 'cut'
+            },
+            {
+                label: '全选',
+                role: 'selectAll',
+            },
+            {
+
+              label: '撤销',
+              role: 'redo'
+          },
+        ]
+    }
+]
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   appIcon.setToolTip("EachChat");
   appIcon.setContextMenu(contextMenu);
 
