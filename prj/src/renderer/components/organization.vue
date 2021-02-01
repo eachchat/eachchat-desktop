@@ -354,6 +354,8 @@ export default {
             this.searchRooms = [];
             allContactRooms.forEach(item => {
                 let room = this.matrixClient.getRoom(item.room_id);
+                if(!room)
+                    return;
                 item.name = room.name;
                 if(room.name.indexOf(this.searchKey) == -1)
                     return;
