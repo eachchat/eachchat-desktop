@@ -69,7 +69,7 @@
                         @click="inviteRoomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
                         <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
-                        <div class="department-info">
+                        <div class="inviteroom-info">
                             <p class="department-name">邀请</p>
                         </div>
                         <div align="center" class="item-arrow">
@@ -718,6 +718,15 @@ display: none;
     margin-bottom: 10px;
     border-radius: 50%;
 }
+
+.inviteroom-info {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 99px);
+    margin-left: -8px;
+}
+
 .department-info {
     display: inline-block;
     vertical-align: top;
