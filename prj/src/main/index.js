@@ -31,7 +31,7 @@ let isLogin = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
-    iconPath = "../../static/Img/Main/IconTemplate@2x.png";
+    iconPath = "../../static/Img/Main/IconTemplate@3x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "../../static/Img/Main/icon.png";
@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === "development") {
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
-    iconPath = "/static/Img/Main/IconTemplate@2x.png";
+    iconPath = "/static/Img/Main/IconTemplate@3x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "/static/Img/Main/icon.png";
