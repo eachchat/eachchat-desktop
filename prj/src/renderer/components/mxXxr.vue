@@ -994,7 +994,7 @@ export default {
                             u.avatar_url = (client.getUser(id) ? client.mxcUrlToHttp(client.getUser(id).avatarUrl || client.getUser(id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                             u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                             u.user_id = id || '';
-                            u.secdis = c.user_title || id;
+                            u.secdis = c.secdis || c.user_title || c.title || id;
                             list.push(u);
                         }
                     }
@@ -1007,7 +1007,7 @@ export default {
                     u.avatar_url = (client.getUser(id) ? client.mxcUrlToHttp(client.getUser(id).avatarUrl || client.getUser(id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                     u.display_name =  c.user_display_name || c.display_name || c.user_name || '';
                     u.user_id = id || '';
-                    u.secdis = c.user_title || id;
+                    u.secdis = c.secdis || c.user_title || c.title || id;
                 }
                 let you = false;
                 choosenMembers.forEach(c => {
