@@ -57,7 +57,7 @@
                         @click="searchRoomItemClicked(room.room_id)" 
                         :key="room.room_id">
                         <img ondragstart="return false" class="department-icon" :src="room.avatar_url">
-                        <div :class="department-info">
+                        <div class="department-info">
                         <p v-html="msgContentHightLight(room.name)" class="department-name">{{ room.name }}</p>
                         </div>
                     </li> 
