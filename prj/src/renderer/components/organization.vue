@@ -3,7 +3,7 @@
         <el-aside width="280px">
             <div class="list-header">
                 <div class="search">
-                    <el-input clearable class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
+                    <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
                     <i slot="prefix" style="display: flex;align-items: center;">
                         <img
                             style="width:20px;height:20px;margin-top: 7px;margin-left: 2px;"
@@ -27,7 +27,7 @@
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
-                        <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
+                        <p  class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
                     <div class='grid-content'>组织</div>
@@ -38,7 +38,7 @@
                         <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(manager.user_display_name)" class="contact-list-name">{{ manager.user_display_name }}</p>
-                        <p v-html="msgContentHightLight(manager.user_title)" class="contact-list-titile">{{ manager.user_title }}</p>
+                        <p class="contact-list-titile">{{ manager.user_title }}</p>
                         </div>
                     </li>
                     <div class='grid-content'>部门</div>
