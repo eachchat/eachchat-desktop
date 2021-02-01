@@ -104,10 +104,20 @@ import axios from "axios";
 import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
+import {downloadGroupAvatar, generalGuid, Appendzero, fileMIMEFromType, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
 import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
 import {ComponentUtil} from '../script/component-util.js'
+import { models } from '../../packages/data/models.js';
 
+const MAX_WIDTH = 800;
+const MAX_HEIGHT = 600;
+
+function extend(target, base) {
+    console.log("base is ", base);
+  for (var prop in base) {
+    target[prop] = base[prop];
+  }
+}
 export default {
     components: {
     },
@@ -336,79 +346,6 @@ export default {
                     this.$emit('showImageOfMessage', this.msg);
                 }
             }
-            if(msgType === 102)
-            {
-                this.$emit('showImageOfMessage', this.msg);
-            }
-            else if(msgType === 103)
-            {
-                // var ext = msgContent.ext;
-                // var targetDir = confservice.getFilePath();
-                var targetFileName = msgContent.fileName;
-                var ext = path.extname(targetFileName);
-                var targetPath = decodeURIComponent(await services.common.GetFilePath(this.msg.message_id));
-                var needOpen = true;
-                if(fs.existsSync(targetPath)){
-                    shell.openItem(targetPath);
-                }
-                else{
-                    console.log("=======target path download ", targetPath);
-                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                        services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize, msgContent.url);
-                    }
-                    else {
-                        services.common.downloadFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize);
-                    }
-                }
-            }
-            else if(msgType == 105) {
-                var targetFileName = msgContent.fileName;
-                var targetPath = await services.common.GetFilePath(this.msg.message_id);
-                if(fs.existsSync(targetPath)){
-                    if(this.amr == null){
-                        this.amr = new BenzAMRRecorder();
-                    }
-                    if(this.amr.isPlaying()) {
-                        console.log("stop")
-                        this.amr.stop();
-                    }
-                    if(this.amr.isInit()) {
-                        console.log("play")
-                        this.amr.play();
-                        this.voicePlayingImg();
-                        this.amr.onEnded(() => {
-                            clearInterval(this.flashingInterval);
-                            this.flashingIndex = 0;
-                            var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                            fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
-                        })
-                    }
-                    else {
-                        this.amr.initWithUrl(targetPath).then(() => {
-                            this.amr.play();
-                            this.voicePlayingImg();
-                            this.amr.onEnded(() => {
-                                clearInterval(this.flashingInterval);
-                                this.flashingIndex = 0;
-                                var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
-                            })
-                        })
-                    }
-                }
-                else{
-                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize, msgContent.url);
-                    }
-                    else {
-                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, true, msgContent.fileSize);
-                    }
-                }
-                this.$emit('playAudioOfMessage', this.msg.message_id);
-            }
-            else if(msgType == 106) {
-                ipcRenderer.send("showAnotherWindow", [this.msg.time_line_id, this.msg.group_id], "TransmitMsgList");
-            }
         },
         voicePlayingImg:function() {
             if (this.flashingInterval) {
@@ -466,8 +403,13 @@ export default {
         },
         getMsgImgIcon: function() {
             var distUrl = (this.msg.event.content.info && this.msg.event.content.info.thumbnail_url && this.msg.event.content.info.thumbnail_url.length != 0) ? this.msg.event.content.info.thumbnail_url : this.msg.event.content.url;
-            let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
-            return iconPath;
+            if(!distUrl.startsWith('blob:')) {
+                let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
+                return iconPath;
+            }
+            else {
+                return distUrl;
+            }
         },
         MsgIsImage: function() {
             let msgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
@@ -644,32 +586,87 @@ export default {
             
             let showWidth = maxSize;
             let showHeight = maxSize;
-            
-            if(chatGroupMsgContent.info) {
-                if(!chatGroupMsgContent.info.h)
-                    chatGroupMsgContent.info.h = maxSize;
-                if(!chatGroupMsgContent.info.w)
-                    chatGroupMsgContent.info.w = maxSize;
-                showWidth = chatGroupMsgContent.info.w;
-                showHeight = chatGroupMsgContent.info.h;
+
+            if((!chatGroupMsgContent.info.h || !chatGroupMsgContent.info.w) && this.msg.event.content.url) {
+                var img = new Image();
+                img.onload = () => {
+                    this.imgWidth = img.width;
+                    this.imgHeight = img.height;
+
+                    showWidth = img.width;
+                    showHeight = img.height;
+
+                    let style = "";
+                    let max = Math.max(img.width, img.height);
+                    if(max > maxSize ){
+                        if(img.width > img.height){
+                            showHeight = img.height/(img.width/maxSize);
+                            showWidth = maxSize;
+                        }
+                        else{
+                            showWidth = img.width/(img.height/maxSize)
+                            showHeight = maxSize;
+                        }
+                    }
+                    style += "width:" + showWidth + "px";
+                    style += ";"
+                    style += "height:" + showHeight + "px";
+                    console.log("*** from image is ", style);
+                    return style;
+                }
+                img.onerror = () => {
+                    showWidth = this.imgWidth;
+                    showHeight = this.imgHeight;
+
+                    let style = "";
+                    let max = Math.max(img.width, img.height);
+                    if(max > maxSize ){
+                        if(img.width > img.height){
+                            showHeight = img.height/(img.width/maxSize);
+                            showWidth = maxSize;
+                        }
+                        else{
+                            showWidth = img.width/(img.height/maxSize)
+                            showHeight = maxSize;
+                        }
+                    }
+                    style += "width:" + showWidth + "px";
+                    style += ";"
+                    style += "height:" + showHeight + "px";
+                    console.log("*** from image is ", style);
+                    return style;
+                }
+                img.src = this.msg.event.content.url;
+            }
+            else {
+                if(chatGroupMsgContent.info) {
+                    if(!chatGroupMsgContent.info.h)
+                        chatGroupMsgContent.info.h = this.imgHeight;
+                    if(!chatGroupMsgContent.info.w)
+                        chatGroupMsgContent.info.w = this.imgWidth;
+                    showWidth = chatGroupMsgContent.info.w;
+                    showHeight = chatGroupMsgContent.info.h;
+                }
+                
+                let style = "";
+                let max = Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h);
+                if(max > maxSize ){
+                    if(chatGroupMsgContent.info.w > chatGroupMsgContent.info.h){
+                        showHeight = chatGroupMsgContent.info.h/(chatGroupMsgContent.info.w/maxSize);
+                        showWidth = maxSize;
+                    }
+                    else{
+                        showWidth = chatGroupMsgContent.info.w/(chatGroupMsgContent.info.h/maxSize)
+                        showHeight = maxSize;
+                    }
+                }
+                style += "width:" + showWidth + "px";
+                style += ";"
+                style += "height:" + showHeight + "px";
+                console.log("*** from info is ", style);
+                return style;
             }
             
-            let style = "";
-            let max = Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h);
-            if(max > maxSize ){
-                if(chatGroupMsgContent.info.w > chatGroupMsgContent.info.h){
-                    showHeight = chatGroupMsgContent.info.h/(chatGroupMsgContent.info.w/maxSize);
-                    showWidth = maxSize;
-                }
-                else{
-                    showWidth = chatGroupMsgContent.info.w/(chatGroupMsgContent.info.h/maxSize)
-                    showHeight = maxSize;
-                }
-            }
-            style += "width:" + showWidth + "px";
-            style += ";"
-            style += "height:" + showHeight + "px";
-            return style;
         },
         MsgContent: async function(is_mine=false) {
             if(this.msg === null) {
@@ -782,41 +779,6 @@ export default {
                     this.messageContent = "**无法解密:发送方的设备没有给我们发送此消息的密钥。**";
                 }
             }
-            else if(chatGroupMsgType === 105)//语音消息
-            {
-                // var targetDir = confservice.getFilePath();
-                var targetFileName = chatGroupMsgContent.fileName;
-                // var targetPath = path.join(targetDir, targetFileName);
-                var targetPath = this.msg.file_local_path;
-                // if(chatGroupMsgContent.fileLocalPath != undefined && fs.existsSync(chatGroupMsgContent.fileLocalPath)){
-                //     targetPath = chatGroupMsgContent.fileLocalPath;
-                // }
-                var needOpen = false;
-                if(!fs.existsSync(targetPath)){
-                    if(this.msg.key_id != undefined && this.msg.key_id.length != 0) {
-                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen, chatGroupMsgContent.fileSize, chatGroupMsgContent.url);
-                    }
-                    else {
-                        services.common.downloadVoiceFile(this.msg.time_line_id, this.msg.message_timestamp, targetFileName, needOpen, chatGroupMsgContent.fileSize);
-                    }
-                }
-                var fileMsgImgElement = document.getElementById(this.msg.message_id);
-                // console.log("fileMsgImgElement ia ", fileMsgImgElement);
-                this.voiceLenth = chatGroupMsgContent.length;
-                this.fileSize = getFileSizeByNumber(chatGroupMsgContent.fileSize);
-                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
-                fileMsgImgElement.setAttribute("height", 12);
-            }
-            else if(chatGroupMsgType === 106)//转发
-            {
-                this.transmitMsgTitle = chatGroupMsgContent.title;
-                this.transmitMsgContent = chatGroupMsgContent.text;
-                this.messageContent = "[聊天记录]";
-                
-            }
-            else {
-                return this.messageContent = "不支持的消息类型，请升级客户端。"
-            }
         },
         MsgIsMine:function() {
             if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
@@ -870,7 +832,245 @@ export default {
                 var value2 = b.sequence_id;
                 return value2 - value1;
             }
-        }
+        },
+        readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    resolve(e.target.result);
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        },
+        /**
+         * Load a file into a newly created image element.
+         *
+         * @param {File} imageFile The file to load in an image element.
+         * @return {Promise} A promise that resolves with the html image element.
+         */
+        async loadImageElement(imageFile) {
+            // Load the file into an html element
+            const img = document.createElement("img");
+            const objectUrl = this.msg.event.content.url ? this.msg.event.content.url : URL.createObjectURL(imageFile);
+            const imgPromise = new Promise((resolve, reject) => {
+                img.onload = function() {
+                    this.imgWidth = img.width;
+                    this.imgHeight = img.height;
+                    URL.revokeObjectURL(objectUrl);
+                    resolve(img);
+                };
+                img.onerror = function(e) {
+                    reject(e);
+                };
+            });
+            img.src = objectUrl;
+
+            // // check for hi-dpi PNGs and fudge display resolution as needed.
+            // // this is mainly needed for macOS screencaps
+            // let parsePromise;
+            // if (imageFile.type === "image/png") {
+            //     // in practice macOS happens to order the chunks so they fall in
+            //     // the first 0x1000 bytes (thanks to a massive ICC header).
+            //     // Thus we could slice the file down to only sniff the first 0x1000
+            //     // bytes (but this makes extractPngChunks choke on the corrupt file)
+            //     const headers = imageFile; //.slice(0, 0x1000);
+            //     parsePromise = readFileAsArrayBuffer(headers).then(arrayBuffer => {
+            //         const buffer = new Uint8Array(arrayBuffer);
+            //         const chunks = extractPngChunks(buffer);
+            //         for (const chunk of chunks) {
+            //             if (chunk.name === 'pHYs') {
+            //                 if (chunk.data.byteLength !== PHYS_HIDPI.length) return;
+            //                 return chunk.data.every((val, i) => val === PHYS_HIDPI[i]);
+            //             }
+            //         }
+            //         return false;
+            //     });
+            // }
+
+            // const [hidpi] = await Promise.all([parsePromise, imgPromise]);
+            const [hidpi] = await Promise.all([imgPromise]);
+            const width = hidpi ? (img.width >> 1) : img.width;
+            const height = hidpi ? (img.height >> 1) : img.height;
+            return {width, height, img};
+        },
+        /**
+         * Read the metadata for an image file and create and upload a thumbnail of the image.
+         *
+         * @param {MatrixClient} matrixClient A matrixClient to upload the thumbnail with.
+         * @param {String} roomId The ID of the room the image will be uploaded in.
+         * @param {File} imageFile The image to read and thumbnail.
+         * @return {Promise} A promise that resolves with the attachment info.
+         */
+        infoForImageFile(roomId, imageFile) {
+            let thumbnailType = "image/png";
+            if (imageFile.type === "image/jpeg") {
+                thumbnailType = "image/jpeg";
+            }
+
+            let imageInfo;
+            return this.loadImageElement(imageFile).then((r) => {
+                console.log("*** loadImageElement return is ", r);
+                return this.createThumbnail(r.img, r.width, r.height, thumbnailType);
+            }).then((result) => {
+                imageInfo = result.info;
+                return this.uploadFile(roomId, result.thumbnail);
+            }).then((result) => {
+                imageInfo.thumbnail_url = result.url;
+                imageInfo.thumbnail_file = result.file;
+                return imageInfo;
+            });
+        },
+        /**
+         * Upload the file to the content repository.
+         * If the room is encrypted then encrypt the file before uploading.
+         *
+         * @param {MatrixClient} matrixClient The matrix client to upload the file with.
+         * @param {String} roomId The ID of the room being uploaded to.
+         * @param {File} file The file to upload.
+         * @param {Function?} progressHandler optional callback to be called when a chunk of
+         *    data is uploaded.
+         * @return {Promise} A promise that resolves with an object.
+         *  If the file is unencrypted then the object will have a "url" key.
+         *  If the file is encrypted then the object will have a "file" key.
+         */
+        uploadFile(roomId, file) {
+            let canceled = false;
+            if (global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(roomId)) {
+                // If the room is encrypted then encrypt the file before uploading it.
+                // First read the file into memory.
+                let uploadPromise;
+                let encryptInfo;
+                const prom = readFileAsArrayBuffer(file).then((data) => {
+                    return encrypt.encryptAttachment(data);
+                }).then((encryptResult) => {
+                    // Record the information needed to decrypt the attachment.
+                    encryptInfo = encryptResult.info;
+                    // Pass the encrypted data as a Blob to the uploader.
+                    const blob = new Blob([encryptResult.data]);
+                    uploadPromise = global.mxMatrixClientPeg.matrixClient.uploadContent(blob, {
+                        progressHandler: this.onUploadProgress,
+                        includeFilename: false,
+                    });
+                    return uploadPromise;
+                }).then((url) => {
+                    // If the attachment is encrypted then bundle the URL along
+                    // with the information needed to decrypt the attachment and
+                    // add it under a file key.
+                    encryptInfo.url = url;
+                    if (file.type) {
+                        encryptInfo.mimetype = file.type;
+                    }
+                    return {"file": encryptInfo};
+                });
+            } else {
+                const basePromise = global.mxMatrixClientPeg.matrixClient.uploadContent(file, {
+                    progressHandler: this.onUploadProgress,
+                });
+                const promise1 = basePromise.then((url) => {
+                    // If the attachment isn't encrypted then include the URL directly.
+                    return {"url": url};
+                });
+                return promise1;
+            }
+        },
+        createThumbnail(element, inputWidth, inputHeight, mimeType) {
+            return new Promise((resolve) => {
+                let targetWidth = inputWidth;
+                let targetHeight = inputHeight;
+                if (targetHeight > MAX_HEIGHT) {
+                    targetWidth = Math.floor(targetWidth * (MAX_HEIGHT / targetHeight));
+                    targetHeight = MAX_HEIGHT;
+                }
+                if (targetWidth > MAX_WIDTH) {
+                    targetHeight = Math.floor(targetHeight * (MAX_WIDTH / targetWidth));
+                    targetWidth = MAX_WIDTH;
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                canvas.getContext("2d").drawImage(element, 0, 0, targetWidth, targetHeight);
+                canvas.toBlob((thumbnail) => {
+                    resolve({
+                        info: {
+                            thumbnail_info: {
+                                w: targetWidth,
+                                h: targetHeight,
+                                mimetype: thumbnail.type,
+                                size: thumbnail.size,
+                            },
+                            w: inputWidth,
+                            h: inputHeight,
+                        },
+                        thumbnail: thumbnail,
+                    });
+                }, mimeType);
+            });
+        },
+        onUploadProgress(ev) {
+            this.curPercent = parseInt(ev.loaded*100/Number(ev.total));
+            if(ev.loaded >= ev.total) {
+                this.showProgress = false;
+                this.curPercent = 1;
+            }
+        },
+        sendFile: async function() {
+            var showfileObj = this.msg.fileObj;
+
+            var roomID = this.msg.event.room_id;
+            if(this.msg.event.content.msgtype == 'm.image'){
+                // this.SendImage(showfileObj, fileResult, stream)
+                this.infoForImageFile(roomID, showfileObj).then((imageInfo) => {
+                    extend(this.msg.event.content.info, imageInfo);
+                    this.uploadFile(this.msg.event.room_id, showfileObj, this.onUploadProgress).then((ret) => {
+                        this.showProgress = false;
+                        this.curProcess = 1;
+                        this.msg.event.content.file = ret.file;
+                        this.msg.event.content.url = ret.url;
+                        global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, this.msg._txnId);
+                        this.msg.message_status = 0;
+                        this.showState = false;
+                    })
+                }, (e) => {
+                    console.log("**** getInfoForImageFile Exception ", e);
+                })
+            }
+            else{
+                this.showProgress = true;
+                this.uploadFile(roomID, showfileObj, this.onUploadProgress).then((ret) => {
+                    console.log("*** ret id ", ret);
+                    this.showProgress = false;
+                    this.curProcess = 1;
+                        
+                    this.msg.event.content.msgtype = 'm.file';
+                    this.msg.event.content.file = ret.file;
+                    this.msg.event.content.url = ret.url;
+                    this.msg.event.content.info.mimetype = fileMIMEFromType(path.extname(showfileObj.name).split('.')[1]);
+                    this.msg.event.content.info.size = this.msg.event.content.info.size;
+                    global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, this.msg._txnId).then(async (ret) => {
+                        if(fs.existsSync(this.msg.path)) {
+                            let msgs = await Message.FindMessageByMesssageID(ret.event_id);
+                            if(msgs.length != 0){
+                                msgs[0].file_local_path = this.msg.path;
+                                msgs[0].save();
+                            }
+                            else{
+                                let msgValue = {
+                                    message_id: ret.event_id,
+                                    file_local_path: this.msg.path
+                                }
+                                let model = await new(await models.Message)(msgValue);
+                                model.save();
+                            }
+                        }
+                        this.msg.message_status = 0;
+                        this.showState = false;
+                    })
+                });
+
+            }
+        },
     },
     data() {
         return {
@@ -905,10 +1105,16 @@ export default {
             userInfo: null,
             ipcInited: false,
             amr: null,
-            matrixClient: undefined
+            matrixClient: undefined,
+            imgWidth: 400,
+            imgHeight: 400,
         }
     },
     mounted: async function() {
+        if(this.msg.event.msgtype != "m.text" && !this.msg.event.event_id) {
+        // if(this.msg.event.msgtype != "m.text") {
+            this.sendFile();
+        }
         setTimeout(() => {
             this.$nextTick(() => {
                 this.MsgBelongUserImg();
