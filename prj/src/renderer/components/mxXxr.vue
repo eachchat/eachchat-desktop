@@ -395,7 +395,7 @@ export default {
                 }
             } else {
                 let subDeps = await Department.GetSubDepartment(ele.id);
-                let subUsers = await UserInfo.GetSubUserinfo(ele.id);
+                let subUsers = await UserInfo.GetSubUserinfo(ele.id, this.selfId);
                 subDeps = subDeps.map(s => {
                     let o = {
                         id: s.department_id, 
@@ -480,7 +480,7 @@ export default {
                 return;
             }
             let subDeps = await Department.GetSubDepartment(ele.id);
-            let subUsers = await UserInfo.GetSubUserinfo(ele.id);
+            let subUsers = await UserInfo.GetSubUserinfo(ele.id, this.selfId);
             subDeps = subDeps.map(s => {
                 let o = {
                     id: s.department_id, 
@@ -916,7 +916,7 @@ export default {
             if (department_id === this.crumbs[0].department_id) {
                 const rootDep = await Department.GetRoot();
                 const dvd = {dvd:true, txt:'联系人'};
-                const contactUsers = await Contact.GetAllContact();
+                const contactUsers = await Contact.GetAllContact(this.selfId);
                 contactUsers.forEach(c => {
                     c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
                 })
@@ -953,7 +953,7 @@ export default {
             newCrumbs[0].name = '组织';
             this.crumbs = [...newCrumbs];
             const subDep = await Department.GetSubDepartment(department_id);
-            const subUsers = await UserInfo.GetSubUserinfo(department_id);
+            const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
             subDep.forEach(s=>s.type = 'dep')
             subUsers.forEach(c=>{
                 c.display_name = c.user_display_name || c.user_name;
@@ -1100,7 +1100,7 @@ export default {
                 this.mxDepMap[department_id] = {};
                 this.mxDepMap[department_id].check = check;
                 const subDep = await Department.GetSubDepartment(department_id);
-                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
                 const len = subDep.length + subUsers.length;
                 if (!len) {
                     //无操作
@@ -1123,7 +1123,7 @@ export default {
                 // console.log('yyyyy')
                 this.mxDepMap[department_id].check = check;
                 if (this.mxDepMap[department_id].arr && this.mxDepMap[department_id].arr.length) {
-                    const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                    const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
                     subUsers.forEach(s => {
                         const xie = (check === 3) ? 1 : 0;
                         this.mxMemMap[s.matrix_id] = xie;
@@ -1143,7 +1143,7 @@ export default {
             if (!this.mxDepMap[department_id]) {
                 this.mxDepMap[department_id] = {};
                 const subDep = await Department.GetSubDepartment(department_id);
-                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
                 // subUsers.forEach(s => {
                 //     this.mxMemMap[s.matrix_id] = this.mxMemMap[s.matrix_id] || 0;
                 // })
@@ -1261,7 +1261,7 @@ export default {
                 this.totalList = [...totalArray];
             } else {
                 const subDep = await Department.GetSubDepartment(department_id);
-                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
                 console.log('-----subDep-----', subDep)
                 console.log('-----subUsers-----', subUsers)
                 subDep.forEach(s => {
@@ -1293,8 +1293,8 @@ export default {
                 return;
             }
             this.timer = setTimeout(async ()=>{
-                const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
-                const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
+                const searchUsers = await UserInfo.SearchByNameKey(term, this.selfId).catch(e => console.log('组织人员搜索异常', e));
+                const searchContacts = await Contact.SearchByNameKey(term, this.selfId).catch(e => console.log('联系人搜索异常', e));
                 const searchDeps = await Department.SearchByNameKey(term).catch(e => console.log('部门搜索异常', e));
                 const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
                 console.log('----searchUsers----', searchUsers);
@@ -1370,7 +1370,7 @@ export default {
             rootDep.type = 'dep';
             rootDep.display_name = '组织';
             rootDep.avatar = './static/Img/Main/xinzuzhi.png';
-            const contactUsers = await Contact.GetAllContact();
+            const contactUsers = await Contact.GetAllContact(this.selfId);
             const cts = contactUsers.map(c => {
                 let u = {}
                 u.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
@@ -1401,56 +1401,11 @@ export default {
     components: {
     },
     async created() {
-        await this.originStatus();
-        let hh = await Department.GetBelongDepartmentsByMatrixID("@vincentliu.ai:matrix.each.chat");
-        console.log('hhhhh', hh);
-        return
-        // 
         const client = window.mxMatrixClientPeg.matrixClient;
-        const rootDep = await Department.GetRoot();
-        rootDep.type = 'dep';
-        rootDep.display_name = '组织';
-        let root = {
-            id: rootDep.department_id, 
-            type: 'dep', 
-            data: rootDep, 
-            parent: null, 
-            czs:[],
-            choosen: false,
-            name: rootDep.display_name
-
-        }
-        let subDeps = await Department.GetSubDepartment(root.id);
-        let subUsers = await UserInfo.GetSubUserinfo(root.id);
-        subDeps = subDeps.map(s => {
-            let o = {
-                id: s.department_id,
-                type: 'dep', 
-                data: s, 
-                parent: root, 
-                czs:[],
-                choosen: false,
-                name: s.display_name
-            }
-            return o;
-        })
-        subUsers = subUsers.map(s => {
-            s.avatar_url = (client.getUser(s.matrix_id) ? client.mxcUrlToHttp(client.getUser(s.matrix_id).avatarUrl || client.getUser(s.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-            let o = {
-                id: s.matrix_id, 
-                type: 'user', 
-                data: s, 
-                parent: root,
-                choosen: false,
-                name: s.user_display_name || s.display_name || s.user_name,
-                avatar: s.avatar_url
-            }
-            return o;
-        })
-        root.czs = [...subDeps, ...subUsers];
-        this.crumbs = [root];
-        this.mxTree = {...root};
-        this.totalList = [...subDeps, ...subUsers];
+        this.selfId = client.getUserId();
+        await this.originStatus();
+        // let hh = await Department.GetBelongDepartmentsByMatrixID("@vincentliu.ai:matrix.each.chat");
+        // console.log('hhhhh', hh);
     },
     
     mounted() {

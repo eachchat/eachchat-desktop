@@ -160,7 +160,8 @@ export default {
             crumbs: [],
             totalList: [],
             isSearch: false,
-            rootDepId: ''
+            rootDepId: '',
+            selfId: ''
         }
     },
     timer: null,
@@ -445,8 +446,8 @@ export default {
                 return;
             }
             this.timer = setTimeout(async ()=>{
-                const searchUsers = await UserInfo.SearchByNameKey(term).catch(e => console.log('组织人员搜索异常', e));
-                const searchContacts = await Contact.SearchByNameKey(term).catch(e => console.log('联系人搜索异常', e));
+                const searchUsers = await UserInfo.SearchByNameKey(term, this.selfId).catch(e => console.log('组织人员搜索异常', e));
+                const searchContacts = await Contact.SearchByNameKey(term, this.selfId).catch(e => console.log('联系人搜索异常', e));
                 const searchDeps = await Department.SearchByNameKey(term).catch(e => console.log('部门搜索异常', e));
                 const res = await client.searchUserDirectory({term}).catch(e => console.log('域用户搜索失败', e));
                 console.log('----searchUsers----', searchUsers);
@@ -679,7 +680,7 @@ export default {
             if (obj.department_id === 'contact') newCrumbs[1].name = '我的联系人';
             this.crumbs = [...newCrumbs];
             if (obj.department_id === 'contact') {
-                const contactUsers = await Contact.GetAllContact();
+                const contactUsers = await Contact.GetAllContact(this.selfId);
                 console.log('contactUsers', contactUsers);
                 contactUsers.forEach(c => {
                     console.log('----kanha----', client.getUser(c.matrix_id));
@@ -691,7 +692,7 @@ export default {
                 this.totalList = [...totalArray];
             } else {
                 const subDep = await Department.GetSubDepartment(department_id);
-                const subUsers = await UserInfo.GetSubUserinfo(department_id);
+                const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
                 console.log('-----subDep-----', subDep)
                 console.log('-----subUsers-----', subUsers)
                 subDep.forEach(s => {
@@ -716,7 +717,7 @@ export default {
             rootDep.type = 'dep';
             rootDep.display_name = '组织';
             rootDep.avatar = './static/Img/Main/xinzuzhi.png';
-            const contactUsers = await Contact.GetAllContact();
+            const contactUsers = await Contact.GetAllContact(this.selfId);
             console.log('contactUsers', contactUsers);
             const cts = contactUsers.map(c => {
                 let u = {}
@@ -745,6 +746,8 @@ export default {
     components: {
     },
     async created() {
+        const client = window.mxMatrixClientPeg.matrixClient;
+        this.selfId = client.getUserId();
         await this.originStatus();
     },
     

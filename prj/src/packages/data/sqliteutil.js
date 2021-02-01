@@ -341,13 +341,18 @@ const UserInfo = {
         });
         return userinfos;
     },
-    async GetSubUserinfo(departmentID){
+    async GetSubUserinfo(departmentID, uid){
         let userinfos = await(await models.UserInfo).find({
             belong_to_department_id: departmentID
         })
         userinfos.sort((item1, item2) => {
             return pinyin.compare(item1.user_display_name, item2.user_display_name)
-        })
+        });
+        if (uid) {
+            userinfos = userinfos.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
         return userinfos;
     },
 
@@ -428,7 +433,7 @@ const UserInfo = {
         }
     },
 
-    async SearchByNameKey(key){
+    async SearchByNameKey(key, uid){
         let infos = await(await models.UserInfo).find({
             user_display_name:  "%"+key,
             _user_name:          "%"+key,
@@ -437,7 +442,12 @@ const UserInfo = {
         })
         infos.sort((item1, item2) => {
             return pinyin.compare(item1.user_display_name, item2.user_display_name)
-        })
+        });
+        if (uid) {
+            infos = infos.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
         return infos;
     },
 
@@ -841,11 +851,17 @@ const Secret = {
 }
 
 const Contact = {
-    async GetAllContact(){
+    async GetAllContact(uid){
         let contacts =  await (await models.Contact).find()
-        return contacts.sort((item1, item2) => {
+        contacts.sort((item1, item2) => {
             return pinyin.compare(item1.display_name, item2.display_name)
-        })
+        });
+        if (uid) {
+            contacts = contacts.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
+        return contacts;
     },
 
     async DeleteAllContact(){
@@ -908,7 +924,7 @@ const Contact = {
         }
     },
 
-    async SearchByNameKey(key){
+    async SearchByNameKey(key, uid){
         let contacts = await(await models.Contact).find({
             display_name:  "%"+key,
             _matrix_id:          "%"+key,
@@ -917,7 +933,12 @@ const Contact = {
         })
         contacts.sort((item1, item2) => {
             return pinyin.compare(item1.display_name, item2.display_name)
-        })
+        });
+        if (uid) {
+            contacts = contacts.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
         return contacts;
     },
 }
