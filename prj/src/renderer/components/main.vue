@@ -170,10 +170,16 @@ export default {
         getInviteNumClass() {
             let count = this.getInviteNum();
             if(count > 99) {
-                return "group-unread-99";
+                if(this.curindex == 1)
+                    return "group-unread-99";
+                else
+                    return 'group-unread-99-nofocus';
             }
             else {
-                return "group-unread";
+                if(this.curindex == 1)
+                    return "group-unread";
+                else 
+                    return 'group-unread-nofocus';
             }
         },
 
@@ -792,6 +798,41 @@ export default {
         border-radius: 20px;
         background-color: rgba(228, 49, 43, 1);
     }
+
+    .group-unread-nofocus {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgba(255, 255, 255, 0.5);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
+    .group-unread-99-nofocus {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgba(255, 255, 255, 0.5);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
     .mainpage {
         cursor: default;
         margin: 0 0 0 0;
