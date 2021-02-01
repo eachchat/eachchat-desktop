@@ -247,13 +247,7 @@ export default {
         },
 
         getInviteNum(){
-            let count = 0;
-            let rooms = this.$store.getters.getInviteRooms();
-            for(let key in rooms){
-                if(rooms[key] == 0) count++;
-            }
-            this.$store.commit("updateInviteRoomsNum", count);
-            return count;
+            return this.$store.getters.getInviteRoomsNum();
         },
         
         CloseInputContactDlg: async function(){

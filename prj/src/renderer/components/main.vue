@@ -185,7 +185,6 @@ export default {
 
         getInviteNum(){
             return this.$store.getters.getInviteRoomsNum();
-
         },
 
         matrixSyncEnd: function(ret){
