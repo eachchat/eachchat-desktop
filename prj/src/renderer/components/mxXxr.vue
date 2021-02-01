@@ -1405,7 +1405,7 @@ export default {
         let hh = await Department.GetBelongDepartmentsByMatrixID("@vincentliu.ai:matrix.each.chat");
         console.log('hhhhh', hh);
         return
-        // 
+        ////////
         const client = window.mxMatrixClientPeg.matrixClient;
         const rootDep = await Department.GetRoot();
         rootDep.type = 'dep';
