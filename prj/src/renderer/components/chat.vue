@@ -4414,6 +4414,7 @@ export default {
         display: inline-block;
         position: fixed;
         right: 0px;
+        bottom: 4px;
     }
 
     .multiSelectToolClose {
