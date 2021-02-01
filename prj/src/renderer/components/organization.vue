@@ -57,7 +57,7 @@
                         @click="searchRoomItemClicked(room.room_id)" 
                         :key="room.room_id">
                         <img ondragstart="return false" class="department-icon" :src="room.avatar_url">
-                        <div class="department-info">
+                        <div :class="department-info">
                         <p v-html="msgContentHightLight(room.name)" class="department-name">{{ room.name }}</p>
                         </div>
                     </li> 
@@ -69,7 +69,7 @@
                         @click="inviteRoomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
                         <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
-                        <div class="inviteroom-info">
+                        <div :class="getInviteRoomClass()">
                             <p class="department-name">邀请</p>
                         </div>
                         <div align="center" class="item-arrow">
@@ -227,6 +227,12 @@ export default {
         }
     },
     methods: {   
+        getInviteRoomClass: function(){
+            if(this.getInviteNum() == 0)
+                return 'inviteroom-info-zeroinvite';
+            return 'inviteroom-info';
+        },
+
         UpdateContact: async function(){
             this.contactList = await Contact.GetAllContact();
             this.$nextTick(function(){
@@ -713,6 +719,14 @@ display: none;
     margin-right: 0px;
     margin-bottom: 10px;
     border-radius: 50%;
+}
+
+.inviteroom-info-zeroinvite {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 99px);
+    margin-left: -5px;
 }
 
 .inviteroom-info {
