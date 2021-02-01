@@ -7,8 +7,8 @@
             </div>
             <div class="personalCenter-baseInfo">
                 <span>
-                    <input class="personalCenter-name" id="personalCenter-namd-id" v-model="displayName" required maxLength = 32 @change="displayNameChange()" placeholder="请输入昵称">
-                    <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
+                    <input class="personalCenter-name" id="personalCenter-name-id" v-model="displayName" required maxLength = 32 @change="displayNameChange()" placeholder="请输入昵称" @blur = 'inputFocusLeave()' @focus="inputFocus()">
+                    <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png" @click="displayNameEdit()" id = 'owverInfoEnditID' v-if = 'bNameEdit'/>
                 </span>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
@@ -67,7 +67,8 @@ export default {
             showImageCropper:false,
             selectImageSource: '',
             curStateImgElement: undefined,
-            displayName: ""
+            displayName: "",
+            bNameEdit: true
         }
     },
     components:{
@@ -79,6 +80,27 @@ export default {
     },
 
     methods: {
+        inputFocus(){
+            this.bNameEdit = false;
+        },
+        
+        inputFocusLeave(){
+            this.bNameEdit = true;
+        },
+
+        displayNameEdit(){
+            this.bNameEdit = false;
+            let eleEdit = document.getElementById('personalCenter-name-id');
+            if(eleEdit)
+            {
+                eleEdit.setAttribute('width', 200);
+                setTimeout(()=>{
+                    this.$nextTick(eleEdit.focus());
+                }, 0)  
+            }
+                
+        },
+        
         displayNameChange(){
             if(this.displayName.length == 0) return;
             global.mxMatrixClientPeg.matrixClient.setDisplayName(this.displayName)
@@ -270,26 +292,6 @@ export default {
             }
             
         },
-        updateSelfImage: function(e, args) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            if(id != this.userInfo.user_id){
-                return;
-            }
-            var elementImg = document.getElementsByClassName('personalCenter-icon')[0];
-            if(elementImg != null){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    elementImg.setAttribute("src", reader.result);
-                }
-                
-            }
-        },
     },
     created () {
         if(!global.mxMatrixClientPeg.matrixClient)
@@ -320,8 +322,6 @@ export default {
         this.$nextTick(function(){
             this.getUserInfo(this.userId);
         });
-        const ipcRenderer = require('electron').ipcRenderer;
-        ipcRenderer.on('updateUserImage', this.updateSelfImage);
 
     }
 }
@@ -399,7 +399,8 @@ export default {
     
 }
 .personalCenter-name {
-    width: 120px;
+    margin-left: 1px;
+    width: 115px;
     height: 22px;
     font-size: 15px;
     font-family: PingFangSC-Medium, PingFang SC;

@@ -413,9 +413,6 @@ export default {
             }
         },
         personalCenterClicked:async function(){
-            if(this.showPersonalCenter){
-                this.showPersonalCenter = false;
-            }
             console.log("this.showpersonalcenter is ", this.showPersonalCenter);
             this.showPersonalCenter = true;
             this.showPersonalInfo = false;
@@ -721,8 +718,14 @@ export default {
             if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
                     // console.log("============")
-                    _this.showPersonalCenter = false;
                     _this.showPersonalInfo = false;
+                    
+                    if(e.target.id != 'owverInfoEnditID')
+                    {
+                        console.log(e.target.id)
+                        _this.showPersonalCenter = false;    
+                    }
+                        
                 }
 
             }
