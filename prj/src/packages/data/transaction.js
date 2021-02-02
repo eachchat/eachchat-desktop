@@ -353,7 +353,7 @@ class APITransaction {
         name: name,
         updateTime: updateTime,
         sequenceId: sequenceId,
-        countperpage_value: countperpageValue
+        perPage: countperpageValue
       },
       {
         Authorization: "Bearer " + accessToken

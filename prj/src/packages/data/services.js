@@ -400,20 +400,14 @@ const common = {
     let updateTime = await Department.GetMaxDeparmentUpdateTime();
     console.log("max Department updatetime is "+ updateTime)
     log.info("max Department updatetime is "+ updateTime);
-    if(updateTime == 0)
-      await this.AllDepartmentInfo();
-    else
-      await this.clientIncrement("updateDepartment", updateTime, 0, 0);
+    await this.clientIncrement("updateDepartment", updateTime, 0, 0);
   },
 
   async UpdateUserinfo(){
     let updateTime = await UserInfo.GetMaxUpdateTime();
     console.log("max updatetime in userinfo is "+ updateTime)
     log.info("max updatetime in userinfo is "+ updateTime)
-    if(updateTime == 0)
-      await this.AllUserinfo();
-    else
-      await this.clientIncrement("updateUser", updateTime, 0, 0);
+    await this.clientIncrement("updateUser", updateTime, 0, 0);
   },
 
   async UpdateGroups()
@@ -566,12 +560,13 @@ const common = {
     await (await models.UserIm).truncate()
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
-      //log.info("AllUserinfo", result)
       if (!result.ok || !result.success) {
+        log.info("AllUserinfo", result)
         return result;
       }
 
       if (!("obj" in result.data)) {
+        log.info("AllUserinfo", result)
         return result;
       }
 
