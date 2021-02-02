@@ -78,7 +78,7 @@
             >
             </el-switch>
         </div> -->
-        <div class="groupSettingSilenceDiv"> <!--v-show="isGroup"-->
+        <div class="groupSettingSilenceDiv" v-if="firstLoad"> <!--v-show="isGroup"-->
             <label class="groupSettingSlienceLabel">消息免打扰</label>
             <el-switch 
                 class="groupSettingSlienceSwitch" 
@@ -88,7 +88,7 @@
             >
             </el-switch>
         </div>
-        <div class="groupSettingFavouriteDiv" >
+        <div class="groupSettingFavouriteDiv" v-if="firstLoad">
             <label class="groupSettingFavouriteLabel">置顶聊天</label>
             <el-switch 
                 class="groupSettingFavouriteSwitch" 
@@ -98,7 +98,7 @@
             >
             </el-switch>
         </div>
-        <div class="groupSettingFavouriteDiv" v-if="!isDm">
+        <div class="groupSettingFavouriteDiv" v-if="!isDm && firstLoad">
             <label class="groupSettingFavouriteLabel">保存到联系人</label>
             <el-switch 
                 class="groupSettingFavouriteSwitch" 
@@ -312,7 +312,8 @@ export default {
             mxRoom: {},
             mxXxrOpen: false,
             mxContact: false,
-            myDomain: ''
+            myDomain: '',
+            firstLoad: false
         }
     },
     components: {
@@ -1013,12 +1014,6 @@ export default {
             this.cursorY = e.clientY;
         }
     },
-    // created() {
-        // this.loginInfo = await services.common.GetLoginModel();
-        // console.log("userinfo-tip login info is ", this.loginInfo);
-        // this.curUserInfo = await services.common.GetSelfUserModel();
-
-    // },
     destroyed() {
         
     },
@@ -1133,7 +1128,7 @@ export default {
         // this.$nextTick(()=>{
         //     this.getMemberImage();
         // })
-        
+        this.firstLoad = true;
     },
     watch: {
         // showGroupInfoTips: function() {
