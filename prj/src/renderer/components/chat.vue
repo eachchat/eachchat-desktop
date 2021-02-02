@@ -2306,12 +2306,6 @@ export default {
                     }
                 })
             }, 100)
-            try{
-                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, curTimeSeconds)
-            }
-            catch(error) {
-                console.log("error is ", error);
-            }
         },
 
         sendMsg: async function() {

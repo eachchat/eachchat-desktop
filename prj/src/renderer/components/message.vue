@@ -131,7 +131,22 @@ export default {
                 this.sendFile();
             }
             else {
-                this.$emit("sendAgain", this.msg);
+                // let curTimeSeconds = new Date().getTime();
+                // this.sendText(curTimeSeconds);
+                // this.$emit("sendAgain", this.msg);
+                var roomID = this.msg.event.room_id;
+                let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
+                try{
+                    global.mxMatrixClientPeg.matrixClient.resendEvent(this.msg.event, theRoom).then((ret) => {
+                        this.msg.message_status = 0;
+                    }).catch((error) => {
+                        this.msg.message_status = 2;
+                    })
+                }
+                catch(error) {
+                    this.msg.message_status = 2;
+                    console.log("error is ", error);
+                }
             }
         },
         getMessageTemplateId: function() {
@@ -1020,6 +1035,21 @@ export default {
                 this.curPercent = 1;
             }
         },
+        sendText: async function(txnId) {
+            var roomID = this.msg.event.room_id;
+            try{
+                global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, txnId ? txnId : this.msg._txnId).then((ret) => {
+                    this.msg.message_status = 0;
+                }).catch((error) => {
+                    console.log("error is ", error.errcode);
+                    this.msg.message_status = 2;
+                })
+            }
+            catch(error) {
+                this.msg.message_status = 2;
+                console.log("error is ", error);
+            }
+        },
         sendFile: async function() {
             var showfileObj = this.msg.fileObj;
 
@@ -1123,6 +1153,9 @@ export default {
         if(this.msg.event.content.msgtype != "m.text" && !this.msg.event.event_id) {
         // if(this.msg.event.msgtype != "m.text") {
             this.sendFile();
+        }
+        else if(this.msg.event.content.msgtype == "m.text" && !this.msg.event.event_id) {
+            this.sendText();
         }
         setTimeout(() => {
             this.$nextTick(() => {
