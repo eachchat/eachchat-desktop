@@ -1469,7 +1469,7 @@ export default {
                     }
                 }
                 else if(verCodeRet.status == 429) {
-                    this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'260px'});
+                    this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'260px'});
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     // this.loginState = verCodeRet.data.error;
@@ -1488,7 +1488,7 @@ export default {
                     return;
                 }
                 else {
-                    this.$toastMessage({message:verCodeRet.data.error, time: 3000, type:'error', showWidth:'280px'});
+                    this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
                     this.isLoading = false;
                     this.loginButtonDisabled = false;
                     return;
