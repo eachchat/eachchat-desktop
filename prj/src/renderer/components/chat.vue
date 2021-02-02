@@ -1741,8 +1741,13 @@ export default {
                     fileinfo.path = fileList[i];
                     fileinfo.size = fileSize;
                     fileinfo.name = path.basename(fileList[i])
-                    if(fileSize > 50 * 1024 * 1024) {
-                        this.$toastMessage({message:"不支持大于50M的文件发送。", time: 3000, type:'success'});
+
+                    var limitSize = 50 * 1024 *1024;
+                    if(global.mxMatrixClientPeg.mediaConfig != null) {
+                        limitSize = global.mxMatrixClientPeg.mediaConfig["m.upload.size"] ? global.mxMatrixClientPeg.mediaConfig["m.upload.size"] : (50 * 1024 *1024);
+                    }
+                    if(fileSize > limitSize) {
+                        this.$toastMessage({message:"不支持大于" + limitSize/(1024*1024) + "M的文件发送。", time: 3000, type:'error', showWidth:'340px'});
                         continue
                     }
                     varTmp.push(fileinfo);
@@ -1776,11 +1781,18 @@ export default {
             }
         },
         sendAgain: async function(retryMsg) {
-            
+            var sendBody = retryMsg.event.content.body;
+            try{
+                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, retryMsg._TxnId)
+            }
+            catch(error) {
+                console.log("error is ", error);
+            }
         },
         SendFiles: function(fileinfos) {
             for(let i=0;i<fileinfos.length;i++) {
-                this.sendFile(fileinfos[i]);
+                // this.sendFile(fileinfos[i]);
+                this.newSendFile(fileinfos[i]);
             }
             this.closeSendFileDlg();
         },
@@ -1810,6 +1822,68 @@ export default {
                 this.curTotal = 0;
                 this.lastPercent = 0.01;
                 this.curPercent = 0.01;
+            }
+        },
+        newSendFile: async function(fileinfo) {
+            var showfileObj = undefined;
+            if(!fs.existsSync(fileinfo.path)) {
+                showfileObj = this.path2File[fileinfo.path];
+            }
+            else {
+                var showfu = new FileUtil(fileinfo.path);
+                showfileObj = showfu.GetUploadfileobj();
+            }
+            const content = {
+                body: fileinfo.name || 'Attachment',
+                info: {
+                    size: showfileObj.size,
+                },
+                msgtype: "", // set later
+            };
+            // extend(content.info, showfileObj);
+            var reader = new FileReader();
+            reader.readAsDataURL(showfileObj);
+            reader.onload = () => {
+                let type = GetFileType(reader.result);
+                // content.info.mimetype = fileinfo.type;
+                let fileResult = reader.result;
+                let curTimeSeconds = new Date().getTime();
+                var eventTmp = {
+                    event: {
+                        content: content,
+                        origin_server_ts: curTimeSeconds,
+                        room_id: this.curChat.roomId,
+                        sender: this.$store.state.userId,
+                        type: "m.room.message",
+                        user_id: this.$store.state.userId,
+                    },
+                    sender: {
+                        userId: this.$store.state.userId
+                    },
+                    _txnId: curTimeSeconds,
+                    message_status: 1,
+                    path: fileinfo.path,
+                    fileObj: showfileObj,
+                };
+
+                if(type == 'm.image'){
+                    const objectUrl = URL.createObjectURL(showfileObj);
+                    eventTmp.event.content.msgtype = "m.image";
+                    eventTmp.event.content.url = objectUrl;
+                }
+                else{
+                    eventTmp.event.content.msgtype = "m.file";
+                }
+
+                this.messageList.push(eventTmp);
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        var div = document.getElementById("message-show-list");
+                        if(div) {
+                            div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+                        }
+                    })
+                }, 100)
             }
         },
         sendFile: async function(fileinfo) {
@@ -3002,10 +3076,10 @@ export default {
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
-                msgList.length = 0;
+                msgList = [];
                 tmpList.forEach(item => {
                     // if(msgFileter(item) && item.event.content){
-                    if(item.event.content){
+                    if(!this.isDeleted(item)){
                         msgList.push(item);
                         index++;
                     } 
@@ -3253,8 +3327,12 @@ export default {
                 this.curTotal += fileinfo.size;
                 this.needUpdatefilesNum += 1;
                 
-                if(files[i].size > 50 * 1024 * 1024) {
-                    this.$toastMessage({message:"不支持大于50M的文件发送。", time: 3000, type:'success'});
+                var limitSize = 50 * 1024 * 1024;
+                if(global.mxMatrixClientPeg.mediaConfig != null) {
+                    limitSize = global.mxMatrixClientPeg.mediaConfig["m.upload.size"] ? global.mxMatrixClientPeg.mediaConfig["m.upload.size"] : (50 * 1024 *1024);
+                }
+                if(files[i].size > limitSize) {
+                    this.$toastMessage({message:"不支持大于" + limitSize/(1024*1024) + "M的文件发送。", time: 3000, type:'error', showWidth:'340px'});
                     continue
                 }
                 
@@ -3642,6 +3720,9 @@ export default {
             this.multiToolsClose();
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
+            if(!global.mxMatrixClientPeg.mediaConfig) {
+                global.mxMatrixClientPeg.ensureMediaConfigFetched();
+            }
             
             this.initMessage();
             this.groupIsSlience();
@@ -3740,7 +3821,7 @@ export default {
             this._timelineWindow.paginate("f", 10).then(() => {
                 var senderId = this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender;
                 var msgType = this.newMsg.getContent().msgtype;
-                if(senderId = this.$store.state.userId && msgType == "m.text") {
+                if(senderId = this.$store.state.userId) {
                     var getMessageList = this._getEvents();
                     for(let i=0;i<getMessageList.length;i++) {
                         for(let j=this.messageList.length-1;j>= 0;j--) {
@@ -3757,9 +3838,6 @@ export default {
                             }
                         }
                     }
-                }
-                else {
-                    this.messageList = this._getEvents();
                 }
                 console.log("*** to get new message ", this.messageList);
             })
@@ -4354,6 +4432,7 @@ export default {
         display: inline-block;
         position: fixed;
         right: 0px;
+        bottom: 4px;
     }
 
     .multiSelectToolClose {

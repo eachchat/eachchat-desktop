@@ -115,12 +115,6 @@ export default {
                 return false;
             }
         },
-        isDeleted: function(msgItem) {
-            if(!msgItem.sender) {
-                return false;
-            }
-            return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
-        },
         ShowFile: function(item) {
             this.$emit('jumpToEvent', item.event_id ? item.event_id : item.event.event_id, this.GroupInfo);
         },
@@ -266,6 +260,12 @@ export default {
         },
         isWindows() {
             return environment.os.isWindows;
+        },
+        isDeleted: function(msgItem) {
+            if(!msgItem.event.event_id) {
+                return false;
+            }
+            return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
         },
         showResultInfo: async function() {
             console.log("*** showresultinfo is ", this.messageListShow.length);

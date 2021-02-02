@@ -733,7 +733,6 @@ export default {
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
-          this.$store.commit("updateInviteRoomsNum", ++nInviteRooms);
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();

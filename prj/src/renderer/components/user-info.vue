@@ -382,30 +382,28 @@ export default {
 
         },
         getPageHeight(){
-            var total = 448;
-            var count = 0;
-            if(!this.showStatusDescription){
+            var total = 210;
+            var count = 2;
+
+            if(this.showRelation){
                 count ++;
             }
-            if(!this.showWorkDescription){
+            if(this.showDepartment){
                 count ++;
             }
-            if(!this.showRelation){
+            if(this.showCompany){
+                count++;
+            }
+            if(this.showPhone){
                 count ++;
             }
-            if(!this.showDepartment){
+            if(this.showTelephone){
                 count ++;
             }
-            if(!this.showPhone){
+            if(this.showEmail){
                 count ++;
             }
-            if(!this.showTelephone){
-                count ++;
-            }
-            if(!this.showEmail){
-                count ++;
-            }
-            return total - count * 36;
+            return total + count * 36;
         },
         getUserImg: async function (userInfo){
             if(!userInfo.matrix_id)

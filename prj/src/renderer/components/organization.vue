@@ -69,7 +69,7 @@
                         @click="inviteRoomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
                         <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
-                        <div class="inviteroom-info">
+                        <div :class="getInviteRoomClass()">
                             <p class="department-name">邀请</p>
                         </div>
                         <div align="center" class="item-arrow">
@@ -227,6 +227,12 @@ export default {
         }
     },
     methods: {   
+        getInviteRoomClass: function(){
+            if(this.getInviteNum() == 0)
+                return 'inviteroom-info-zeroinvite';
+            return 'inviteroom-info';
+        },
+
         UpdateContact: async function(){
             this.contactList = await Contact.GetAllContact();
             this.$nextTick(function(){
@@ -247,13 +253,7 @@ export default {
         },
 
         getInviteNum(){
-            let count = 0;
-            let rooms = this.$store.getters.getInviteRooms();
-            for(let key in rooms){
-                if(rooms[key] == 0) count++;
-            }
-            this.$store.commit("updateInviteRoomsNum", count);
-            return count;
+            return this.$store.getters.getInviteRoomsNum();
         },
         
         CloseInputContactDlg: async function(){
@@ -354,6 +354,8 @@ export default {
             this.searchRooms = [];
             allContactRooms.forEach(item => {
                 let room = this.matrixClient.getRoom(item.room_id);
+                if(!room)
+                    return;
                 item.name = room.name;
                 if(room.name.indexOf(this.searchKey) == -1)
                     return;
@@ -717,6 +719,14 @@ display: none;
     margin-right: 0px;
     margin-bottom: 10px;
     border-radius: 50%;
+}
+
+.inviteroom-info-zeroinvite {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 99px);
+    margin-left: -5px;
 }
 
 .inviteroom-info {

@@ -80,7 +80,7 @@
             </div>
             <label class="setup-title" id="setup-details-sys-id">系统</label>
             <div class="setup-with-switch">
-                <label class="setup-with-switch-label">开机自动启动亿洽</label>
+                <label class="setup-with-switch-label">开机自启动亿洽</label>
                 <el-switch class="setup-with-switch-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
@@ -94,8 +94,9 @@
                 </div>
             </div>
             <div class="setup-array-only-label">
-                <label class="setup-array-only-label-label">清理缓存</label>
-                <label class="setup-array-only-label-label2-cache" id="setup-general-clear-cache-label2-id" @click="showAlert">--M</label>
+                <label class="setup-array-only-label-label-cache">缓存</label>
+                <label class="setup-array-only-label-label2-cache" id="setup-general-clear-cache-label2-id">--M</label>
+                <div class="setup-clear-cache-btn" @click="showAlert">清除缓存</div>
             </div>
             <div class="setup-title" id="setup-update-notice-id" v-show="false">升级</div>
             <div class="setup-array-with-label" v-show="false">
@@ -726,10 +727,9 @@ export default {
     height: 99%;
     background-color: white;
     position: relative;
-    padding: 16px;
-    padding-bottom: 10px;
-    padding-top: 10px;
-    padding-right: 20px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-left: 16px;
     overflow-y: scroll;
     overflow-x: hidden;
     -webkit-app-region: drag;
@@ -1037,6 +1037,19 @@ export default {
     vertical-align: top;
   }
 
+  .setup-array-only-label-label-cache {
+    width:calc(100% - 212px);
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing: 0px;
+    vertical-align: top;
+  }
+
   .setup-array-only-label-label2-cache {
     width:94px;
     height:48px;
@@ -1053,22 +1066,33 @@ export default {
     text-overflow: ellipsis;
     text-align:right;
   }
-
-  .setup-array-only-label-label2-cache:hover {
-    width:94px;
-    height:48px;
-    line-height: 48px;
+  
+  .setup-clear-cache-btn {
+    width: 84px;
+    height: 28px;
+    background-color: rgba(0, 169, 113, 1);
+    border-radius: 4px;
+    line-height: 28px;
     font-family: PingFangSC-Regular;
     font-size: 14px;
+    color:rgba(255, 255, 255, 1);
+    margin: 5px 0px 5px 12px;
     display: inline-block;
-    font-size:14px;
-    font-weight:400;
-    letter-spacing: 0px;
-    vertical-align: top;
-    color: rgba(153,153,153,1);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    text-align:right;
+    text-align: center;
+  }
+
+  .setup-clear-cache-btn:hover {
+    width: 84px;
+    height: 28px;
+    background-color: rgba(0, 169, 113, 1);
+    border-radius: 4px;
+    line-height: 28px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    color:rgba(255, 255, 255, 1);
+    margin: 5px 0px 5px 12px;
+    display: inline-block;
+    text-align: center;
     cursor: pointer;
   }
 

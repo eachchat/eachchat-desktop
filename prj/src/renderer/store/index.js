@@ -40,17 +40,15 @@ export default new Vuex.Store({
     inviteRoomsNum: 0
   },
   mutations: {
-    updateInviteRoomsNum(state, num){
-      state.inviteRoomsNum = num;
-    },
-
     updateInviteState(state, roomObj){
       if(state.inviteRooms[roomObj.roomID] == 0){
         state.inviteRooms[roomObj.roomID] = roomObj.roomState;
+        state.inviteRoomsNum--;
       }
     },
 
     addInviteRooms(state, inviteRoom){
+      if(!state.inviteRooms.hasOwnProperty(inviteRoom.roomID)) state.inviteRoomsNum++;
       state.inviteRooms[inviteRoom.roomID] = inviteRoom.roomState;
     },
 

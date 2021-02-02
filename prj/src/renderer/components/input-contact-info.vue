@@ -298,4 +298,11 @@ export default {
     margin-bottom: 20px;
     text-align:center;
 }
+
+/deep/.el-input--mini .el-input__inner {
+    font-size: 14px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    margin-top: 1px;
+}
 </style>
