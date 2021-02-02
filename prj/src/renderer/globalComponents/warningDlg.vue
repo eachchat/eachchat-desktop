@@ -97,7 +97,6 @@ export default {
         z-index: 9998;
         .inner-wrap {
             height: 100%;
-            overflow-y: scroll;
             .title {
                 display: flex;
                 align-items: center;
