@@ -60,8 +60,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .reportPage{
-    width: 520px;
-    height: 318px;
     margin: 0px;
     padding: 0px;
     .reportView{
@@ -74,7 +72,6 @@ export default {
         padding-top: 98px;
         width: 478px;
         height: 220px;
-        overflow-x: scroll;
         list-style: none;
         display: inline;
         .report{
