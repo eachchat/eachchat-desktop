@@ -36,24 +36,34 @@ export default new Vuex.Store({
     flashNotice: true,
     draft: {},
     curRoomId: undefined,
-    inviteRooms: {},
+    inviteRooms: [],
     inviteRoomsNum: 0
   },
   mutations: {
     updateInviteState(state, roomObj){
-      if(state.inviteRooms[roomObj.roomID] == 0){
-        state.inviteRooms[roomObj.roomID] = roomObj.roomState;
-        state.inviteRoomsNum--;
+      for(let index in state.inviteRooms){
+        if(state.inviteRooms[index].roomID === roomObj.roomID){
+          state.inviteRooms[index].roomState = roomObj.roomState;
+          state.inviteRoomsNum--;
+          return;
+        }
       }
     },
 
     addInviteRooms(state, inviteRoom){
-      if(!state.inviteRooms.hasOwnProperty(inviteRoom.roomID)) state.inviteRoomsNum++;
-      state.inviteRooms[inviteRoom.roomID] = inviteRoom.roomState;
+      if(state.inviteRooms.some(item => item.roomID == inviteRoom.roomID))
+        return;
+      state.inviteRooms.unshift(inviteRoom);
+      state.inviteRoomsNum++;
     },
 
     deleteInviteRooms(state, roomID){
-      delete state.inviteRooms[roomID];
+      for(let index in state.inviteRooms){
+        if(state.inviteRooms[index].roomID === roomID){
+          state.inviteRooms.splice(index, 1);
+          return;
+        }
+      }
     },
 
     setCurChatId(state, curRoomId) {
@@ -246,10 +256,6 @@ export default new Vuex.Store({
   getters: {
     getInviteRoomsNum: state => () => {
       return state.inviteRoomsNum;
-    },
-
-    getInviteRooms: state => () => {
-      return state.inviteRooms;
     },
 
     getCurChatId: state => () => {
