@@ -42,7 +42,8 @@ export default new Vuex.Store({
   mutations: {
     updateInviteState(state, roomObj){
       for(let index in state.inviteRooms){
-        if(state.inviteRooms[index].roomID === roomObj.roomID){
+        if(state.inviteRooms[index].roomID === roomObj.roomID 
+          && state.inviteRooms[index].roomState === 0){
           state.inviteRooms[index].roomState = roomObj.roomState;
           state.inviteRoomsNum--;
           return;
