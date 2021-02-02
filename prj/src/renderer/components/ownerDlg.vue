@@ -72,15 +72,18 @@ export default {
     watch: {
         updateOwnerInfo: async function() {
             this.ownerId = global.mxMatrixClientPeg.matrixClient.getUserId();
-            let ownerInfo = global.mxMatrixClientPeg.matrixClient.getUser(this.ownerId);
-            this.ownerAccount = await ComponentUtil.GetDisplayName("", ownerInfo.userId);
-            this.ownerDisplayName = ownerInfo.displayName;
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.ownerId );
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            
+            this.ownerAccount = await ComponentUtil.GetDisplayName("", this.ownerId);
+            this.ownerDisplayName = profileInfo.displayname;
             var distImgElement = document.getElementById("ownerInfoImageId");
-            var avatarTUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(ownerInfo.avatarUrl);
-            if(distImgElement && avatarTUrl) {
-                distImgElement.src = avatarTUrl;
+
+            if(distImgElement && avaterUrl) {
+                distImgElement.src = avaterUrl;
             }
             let user = await ComponentUtil.ShowOrgInfoByMatrixID(this.ownerId)
+            if(!user) return;
             this.ownerPhone = user.phone.mobile;
 
             let height = 290;
