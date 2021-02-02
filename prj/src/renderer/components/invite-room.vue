@@ -122,13 +122,11 @@ export default {
         },
         HandleReject(room){
             this.UpdateRoomState(room.roomID, 1)
-            return;
             this.RejectRoom(room.roomID);
         },
 
         HandleAccept(room){
             this.UpdateRoomState(room.roomID, 2)
-            return;
             this.ToJoinRoom(room.roomID);
         },
 
