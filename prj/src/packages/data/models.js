@@ -395,7 +395,7 @@ var models = {
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
-      dbPath = dbFolder + "/achchat.db";
+      dbPath = dbFolder + "/eachchat.db";
     }
     
     var sqlite = new storage.SQLiteStorage({
