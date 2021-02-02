@@ -532,7 +532,7 @@ export default {
             const roomId = this.showGroupInfo.groupId;
             const cli = window.mxMatrixClientPeg.matrixClient;
             const xie1 = cli.getRoom(roomId);
-            const xie2 = cli.getRoomPushRule("global", roomId);
+            await xie1.loadMembersIfNeeded();
             const mxMembers = [];
             for(let key in xie1.currentState.members) {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
