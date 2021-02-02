@@ -408,8 +408,6 @@ export default {
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             console.log('chat-content membership member is ', member);
-            let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
-            this.onRoomName(newRoom);
             const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
             setTimeout(async ()=>{
               if (member.userId == currentUserId) {
@@ -1528,7 +1526,6 @@ export default {
         return;
       }
       var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-      console.log("**********8 displayName is ", displayName);
       if(elementGroupName) {
         elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
         distGroup.contactName = displayName;

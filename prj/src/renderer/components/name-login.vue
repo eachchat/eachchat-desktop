@@ -1475,22 +1475,24 @@ export default {
                     // this.loginState = verCodeRet.data.error;
                     return;
                 }
-                else if(verCodeRet.status == 400) {
-                    this.$toastMessage({message:this.$t("unboundedAccount"), time: 3000, type:'error', showWidth:'280px'});
-                    this.isLoading = false;
-                    this.loginButtonDisabled = false;
-                    return;
-                }
-                else if(verCodeRet.status == 412) {
-                    this.$toastMessage({message:this.$t("invalidVerCode"), time: 3000, type:'error', showWidth:'280px'});
-                    this.isLoading = false;
-                    this.loginButtonDisabled = false;
-                    return;
-                }
+                // else if(verCodeRet.status == 400) {
+                //     this.$toastMessage({message:this.$t("unboundedAccount"), time: 3000, type:'error', showWidth:'280px'});
+                //     this.isLoading = false;
+                //     this.loginButtonDisabled = false;
+                //     return;
+                // }
+                // else if(verCodeRet.status == 412) {
+                //     this.$toastMessage({message:this.$t("invalidVerCode"), time: 3000, type:'error', showWidth:'280px'});
+                //     this.isLoading = false;
+                //     this.loginButtonDisabled = false;
+                //     return;
+                // }
                 else {
-                    this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
-                    this.isLoading = false;
-                    this.loginButtonDisabled = false;
+                    console.log("**** this.pwd")
+                    await this.matrixPwdLogin();
+                    // this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
+                    // this.isLoading = false;
+                    // this.loginButtonDisabled = false;
                     return;
                 }
             }
