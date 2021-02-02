@@ -43,8 +43,8 @@
                         <div class="msgState" v-if="MsgIsSending()">
                             <i class="el-icon-loading"></i>
                         </div>
-                        <div class="msgState" v-else-if="MsgIsFailed()" @click="sendAgain()">
-                            <i class="el-icon-warning"></i>
+                        <div class="msgState" v-else-if="MsgIsFailed()">
+                            <img class="sendWarning" src="../../../static/Img/Chat/sendFaile@2x.png" @click="sendAgain()">
                         </div>
                         <div class="msgState" v-else>
                         </div>
@@ -127,7 +127,12 @@ export default {
             return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
         },
         sendAgain: function() {
-            this.$emit("sendAgain", this.msg);
+            if(this.msg.event.content.msgtype != "m.text") {
+                this.sendFile();
+            }
+            else {
+                this.$emit("sendAgain", this.msg);
+            }
         },
         getMessageTemplateId: function() {
             return "message-template-" + this.msg.event.event_id;
@@ -1067,7 +1072,11 @@ export default {
                         this.msg.message_status = 0;
                         this.showState = false;
                     })
-                });
+                })
+                .catch((error) => {
+                    this.msg.message_status = 2;
+                    this.showState = true;
+                })
 
             }
         },
@@ -1378,6 +1387,17 @@ export default {
         display: inline-block;
         width: 20px;
         height: 20px;
+    }
+
+    .sendWarning {
+        width: 20px;
+        height: 20px;
+    }
+
+    .sendWarning:hover {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
     }
 
     .msg-info-username-mine {

@@ -1741,8 +1741,13 @@ export default {
                     fileinfo.path = fileList[i];
                     fileinfo.size = fileSize;
                     fileinfo.name = path.basename(fileList[i])
-                    if(fileSize > 50 * 1024 * 1024) {
-                        this.$toastMessage({message:"不支持大于50M的文件发送。", time: 3000, type:'success'});
+
+                    var limitSize = 50 * 1024 *1024;
+                    if(global.mxMatrixClientPeg.mediaConfig != null) {
+                        limitSize = global.mxMatrixClientPeg.mediaConfig["m.upload.size"] ? global.mxMatrixClientPeg.mediaConfig["m.upload.size"] : (50 * 1024 *1024);
+                    }
+                    if(fileSize > limitSize) {
+                        this.$toastMessage({message:"不支持大于" + limitSize/(1024*1024) + "M的文件发送。", time: 3000, type:'error', showWidth:'340px'});
                         continue
                     }
                     varTmp.push(fileinfo);
@@ -1776,7 +1781,13 @@ export default {
             }
         },
         sendAgain: async function(retryMsg) {
-            
+            var sendBody = retryMsg.event.content.body;
+            try{
+                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, retryMsg._TxnId)
+            }
+            catch(error) {
+                console.log("error is ", error);
+            }
         },
         SendFiles: function(fileinfos) {
             for(let i=0;i<fileinfos.length;i++) {
@@ -3316,8 +3327,12 @@ export default {
                 this.curTotal += fileinfo.size;
                 this.needUpdatefilesNum += 1;
                 
-                if(files[i].size > 50 * 1024 * 1024) {
-                    this.$toastMessage({message:"不支持大于50M的文件发送。", time: 3000, type:'success'});
+                var limitSize = 50 * 1024 * 1024;
+                if(global.mxMatrixClientPeg.mediaConfig != null) {
+                    limitSize = global.mxMatrixClientPeg.mediaConfig["m.upload.size"] ? global.mxMatrixClientPeg.mediaConfig["m.upload.size"] : (50 * 1024 *1024);
+                }
+                if(files[i].size > limitSize) {
+                    this.$toastMessage({message:"不支持大于" + limitSize/(1024*1024) + "M的文件发送。", time: 3000, type:'error', showWidth:'340px'});
                     continue
                 }
                 
@@ -3705,6 +3720,9 @@ export default {
             this.multiToolsClose();
             console.log("chat ============", this.chat);
             console.log("this.curGroupId is ", this.curGroupId);
+            if(!global.mxMatrixClientPeg.mediaConfig) {
+                global.mxMatrixClientPeg.ensureMediaConfigFetched();
+            }
             
             this.initMessage();
             this.groupIsSlience();

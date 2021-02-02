@@ -27,6 +27,7 @@ class _MatrixClientPeg{
         this.account = null;
         console.log("default display name is ", this.defaultDisplayName);
         this._hasSentOutPatchDirectAccountDataPatch = false;
+        this.mediaConfig = null;
     }
 
     setRecoveryKey(recoveryKey) {
@@ -606,6 +607,22 @@ class _MatrixClientPeg{
         DeviceListener.sharedInstance().start();
         return this.matrixClient;
     }
+
+    ensureMediaConfigFetched() {
+      if (this.mediaConfig !== null) return;
+
+      console.log("[Media Config] Fetching");
+      return this.matrixClient.getMediaConfig().then((config) => {
+          console.log("[Media Config] Fetched config:", config);
+          return config;
+      }).catch(() => {
+          // Media repo can't or won't report limits, so provide an empty object (no limits).
+          console.log("[Media Config] Could not fetch config, so not limiting uploads.");
+          return {};
+      }).then((config) => {
+          this.mediaConfig = config;
+      });
+  }
 
     async checkPrivateKey(recoveryKey) {
       this.recoveryKey = recoveryKey;
