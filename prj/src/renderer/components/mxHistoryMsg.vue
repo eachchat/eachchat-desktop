@@ -223,17 +223,14 @@ export default {
             }
             else {
                 var showGroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.$store.getters.getCurChatId());
-                
-                if(global.mxMatrixClientPeg.DMCheck(showGroupInfo)) {
-                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(showGroupInfo);
-                    if(!distUserId) {
-                        this.curChatName = showGroupInfo.name;
-                    }
-                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                    this.curChatName = displayName;
+            
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(showGroupInfo);
+                if(!distUserId) {
+                    this.curChatName = showGroupInfo.name;
                 }
                 else {
-                    this.curChatName = showGroupInfo.name;
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    this.curChatName = displayName;
                 }
             }
 
@@ -322,18 +319,14 @@ export default {
                 return "";
             }
             var groupNameElement = document.getElementById("MxHistoryMsgGroupInfoNameId");
-            if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo)) {
-                var distUserId = global.mxMatrixClientPeg.getDMMemberId(this.GroupInfo);
-                if(!distUserId) {
-                    groupNameElement.innerHTML = this.GroupInfo.name;
-                    return;
-                }
-                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                groupNameElement.innerHTML = displayName;
-            }
-            else {
+        
+            var distUserId = global.mxMatrixClientPeg.getDMMemberId(this.GroupInfo);
+            if(!distUserId) {
                 groupNameElement.innerHTML = this.GroupInfo.name;
+                return;
             }
+            var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            groupNameElement.innerHTML = displayName;
         },
         matrixSearch: async function() {
             return eventSearch(this.searchKey, this.GroupInfo.roomId);

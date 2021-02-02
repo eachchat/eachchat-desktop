@@ -1120,7 +1120,7 @@ export default {
         }
     },
     mounted: async function() {
-        if(this.msg.event.msgtype != "m.text" && !this.msg.event.event_id) {
+        if(this.msg.event.content.msgtype != "m.text" && !this.msg.event.event_id) {
         // if(this.msg.event.msgtype != "m.text") {
             this.sendFile();
         }

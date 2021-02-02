@@ -7,7 +7,7 @@
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
-                <p class="chat-name" id="chat-group-name">{{curChat.name}}</p>
+                <p class="chat-name" id="chat-group-name">{{curChat.contactName ? curChat.contactName : curChat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="isMute"/>
             </div>
@@ -1592,22 +1592,18 @@ export default {
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             var groupNameElement = document.getElementById("chat-group-name");
             console.log("getShowGroupName is ", chatGroupItem)
-            if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-                var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
-                if(!distUserId) {
-                    groupNameElement.innerHTML = chatGroupItem.name;
-                    return;
-                }
+            
+            var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
+            if(!distUserId) {
+                groupNameElement.innerHTML = chatGroupItem.name;
+            }
+            else {
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
                 if(groupNameElement) {
                     groupNameElement.innerHTML = displayName;
                 }
             }
-            else {
-                if(groupNameElement) {
-                    groupNameElement.innerHTML = chatGroupItem.name;
-                }
-            }
+
             var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
                 if(groupContentNumElement) {

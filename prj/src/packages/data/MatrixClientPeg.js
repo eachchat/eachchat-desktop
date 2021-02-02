@@ -60,7 +60,7 @@ class _MatrixClientPeg{
           var roomMembers = this.mxGetMembers(theRoom);
           roomMembers = roomMembers.map(m => {
               if (m.userId != selfUserId) {
-                otherUserId = m.userId;
+                distUserId = m.userId;
               }
           });
         }
