@@ -3076,10 +3076,10 @@ export default {
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
-                msgList.length = 0;
+                msgList = [];
                 tmpList.forEach(item => {
                     // if(msgFileter(item) && item.event.content){
-                    if(item.event.content){
+                    if(!this.isDeleted(item)){
                         msgList.push(item);
                         index++;
                     } 
