@@ -157,7 +157,7 @@ export default {
                 var ulDiv = document.getElementById("atListId");
                 var selectedIndex = -1;
                 for(var i=0;i<ulDiv.children.length;i++) {
-                    if(ulDiv.children[i].style.backgroundColor == "rgb(17, 180, 105)") {
+                    if(ulDiv.children[i].style.backgroundColor == "rgba(243, 244, 247, 1)") {
                         selectedIndex = i;
                         break;
                     }
@@ -286,7 +286,7 @@ export default {
         height: 40px;
         padding-left: 16px;
         padding-right: 0px;
-        background-color: rgb(17, 180, 105);
+        background-color: rgba(243, 244, 247, 1);
     }
 
     .groupMemberInfoDiv {
