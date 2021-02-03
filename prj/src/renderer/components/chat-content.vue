@@ -2147,7 +2147,7 @@ export default {
         endPoint = "-selected";
       }
       else {
-        if(this.getUnReadCount(chatItem) === '') {
+        if(this.getUnReadCount(chatItem) === '' && !global.mxMatrixClientPeg.getChatUnreadState(chatItem.roomId)) {
           return "group-readall" + endPoint;
         }
         else {
