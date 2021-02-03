@@ -179,7 +179,7 @@
                     <img 
                         src="../../../static/Img/Main/sandian.png" 
                         class="memberItemOptionsImg"
-                        @click.self.stop="switchOption(index)"
+                        @click.self.stop="switchOption(item)"
                         v-if="currentUser.powerLevel > item.powerLevel"
                     >
                     <div class="memberItemOptions" v-show="item.choosen">
@@ -478,10 +478,15 @@ export default {
             mxMembers.forEach(m => m.choosen = false);
             this.mxMembers = [...mxMembers];
         },
-        switchOption: function(idx) {
+        switchOption: function(ele) {
             let mxMembers = this.mxMembers;
-            mxMembers.forEach(m => m.choosen = false);
-            mxMembers[idx].choosen = true;
+            mxMembers.forEach(m => {
+                if (m.userId === ele.userId) {
+                    m.choosen = true;
+                } else {
+                    m.choosen = false;
+                }
+            });
             this.mxMembers = [...mxMembers];
         },
         mxLeaveRoom: function() {
