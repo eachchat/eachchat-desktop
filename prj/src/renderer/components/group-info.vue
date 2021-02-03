@@ -511,8 +511,10 @@ export default {
                     close () {
                         // 这里执行点击右上角需要做的事，默认执行关闭弹框
                     },
-                    confirm () {
+                    async confirm () {
                         // 这里执行点击确定按钮需要做的事，默认执行关闭弹框
+                        if(await ContactRoom.ExistRoom(roomId))
+                            common.deleteRoomFromContact(roomId);
                         client.leave(roomId);
                         this.$emit("leaveGroup", roomId);
                     },
