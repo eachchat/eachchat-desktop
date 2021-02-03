@@ -2088,6 +2088,7 @@ export default {
       this.showImageLayers = false;
     },
     leaveGroup(roomId) {
+      console.log("************** leavegroup")
       if(this.curChat && roomId == this.curChat.roomId)
       {
         this.isEmpty = true;
@@ -2143,8 +2144,9 @@ export default {
       }
     },
     getUnreadClass(chatItem, selected) {
+      if(!chatItem.roomId) return;
       var endPoint = "-unselected";
-      if(chatItem.roomId == this.curChat.roomId){
+      if(chatItem.roomId == (this.curChat ? this.curChat.roomId : "")){
         endPoint = "-selected";
       }
       else {
