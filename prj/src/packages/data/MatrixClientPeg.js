@@ -106,7 +106,9 @@ class _MatrixClientPeg{
       if(window.localStorage) {
         var jsonData = {};
         var getStrJsonData = window.localStorage.getItem("ChatUnreadState");
-        jsonData = JSON.parse(getStrJsonData);
+        if(getStrJsonData) {
+          jsonData = JSON.parse(getStrJsonData);
+        }
         jsonData[chatUnreadStateInfo[0]] = chatUnreadStateInfo[1];
         var strJsonData = JSON.stringify(jsonData);
         window.localStorage.setItem('ChatUnreadState', strJsonData);
@@ -116,6 +118,7 @@ class _MatrixClientPeg{
     getChatUnreadState(roomId) {
       if(window.localStorage) {
         var getStrJsonData = window.localStorage.getItem("ChatUnreadState");
+        if(!getStrJsonData) return false;
         var getJsonData = JSON.parse(getStrJsonData);
         return getJsonData[roomId] == undefined ? false : getJsonData[roomId];
       }
