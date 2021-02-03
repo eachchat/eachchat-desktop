@@ -6,10 +6,11 @@
         <el-main  style="overflow: hidden">
             <el-container class="bottom-container" id="contact-main-container">
                 <div class="contact-view">
-                    <ul class="managers-list">
+                    <ul class="managers-list" :key = 'updateRoomList'>
                         <li class="manager"
                             v-for="(item, index) in roomList"
-                            :key="index">
+                            :key="index"
+                            @contextmenu="rightBtnClick(item)">
                             <img ondragstart="return false" class="manager-icon"  :src="item.avatar_url"
                             @click = 'roomMenuItemClicked(item)'>
                             <div class="department-info" @click = 'roomMenuItemClicked(item)'>
@@ -34,7 +35,8 @@
 import {ComponentUtil} from '../script/component-util.js';
 import "../style/contact-list.css"
 import log from 'electron-log'
-
+import {remote} from 'electron'
+const {Menu, MenuItem} = remote;
 
 export default {
     name: 'roomList',
@@ -42,19 +44,11 @@ export default {
     },
     data () {
         return {
-            headerTitle: '',
             roomList: [],
-            userInfo: {},
-            showUserInfoTips: false,
-            userInfoTipKey: 1,
-            userInfoPosition: {},
-            showChatContactDlg: false,
-            showInputContactDlg: false,
-            nMouseIndex: -1,
+            updateRoomList: 0,
             showAlertDlg: false,
             alertContents : null,
             deleteContact: null,
-            contactType: 'contact'
         }
     },
     props:{
@@ -66,7 +60,36 @@ export default {
 
     },
 
+    watch:{
+        '$store.state.inviteRoomsNum': function () {
+                this.updateRoomInfo();
+            }
+    },
+
     methods: {
+        rightBtnClick(room){
+            if(room.roomState === 0)
+                return;
+            this.menu = new Menu();
+            this.menu.append(new MenuItem({
+                label: "删除",
+                click: () => {
+                    this.deleteRoom(room)
+                }
+            })); 
+            this.menu.popup(remote.getCurrentWindow());
+        },
+
+        deleteRoom(room){
+            for(let index in this.roomList){
+                if(room.roomID == this.roomList[index].roomID){
+                    this.roomList.splice(index, 1);
+                    this.$store.commit('deleteInviteRooms', room.roomID);
+                    return;
+                }
+            }
+        },
+
         ToJoinRoom: function(roomId) {
             try{
                 global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
@@ -109,9 +132,12 @@ export default {
 
         UpdateRoomState(roomID, state){
             this.$store.commit("updateInviteState", {roomID : roomID, roomState : state});
-            this.roomList.forEach(item => {
-                if(item.roomID == roomID) item.roomState = state;
-            })
+            for(let index in this.roomList){
+                if(this.roomList[index].roomID == roomID){
+                    this.roomList[index].roomState = state;
+                    return;
+                } 
+            }
         },
 
         roomMenuItemClicked:function(room) {
@@ -155,14 +181,14 @@ export default {
         },
 
         async updateRoomInfo(){
-            for(let key in this.$store.state.inviteRooms){
+            for(let item of this.$store.state.inviteRooms){
                 let roomInfo = {};
-                let room = this.matrixClient.getRoom(key);
+                let room = this.matrixClient.getRoom(item.roomID);
                 if(!room){
                     return;
                 } 
-                roomInfo.roomID = key;
-                roomInfo.roomState = this.$store.state.inviteRooms[key];
+                roomInfo.roomID = item.roomID;
+                roomInfo.roomState = item.roomState;
                 roomInfo.name = room.name;
                 var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
                 log.info('invite-room RoomAvatar', RoomAvatar);
@@ -171,14 +197,39 @@ export default {
                 else 
                     roomInfo.avatar_url = RoomAvatar;
                 roomInfo.inviteName = await this.getShowInviteMsgContent(room);
-                this.roomList.push(roomInfo)
+                if(roomInfo.roomState === 0 && this.roomList.every(curitem => curitem.roomID != item.roomID)){
+                    console.log('roomList', roomInfo)
+                    this.roomList.unshift(roomInfo);
+                    this.updateRoomList++;
+                } 
             }
+        },
+
+        async createRoomInfo(){
+            for(let item of this.$store.state.inviteRooms){
+                let roomInfo = {};
+                let room = this.matrixClient.getRoom(item.roomID);
+                if(!room){
+                    return;
+                } 
+                roomInfo.roomID = item.roomID;
+                roomInfo.roomState = item.roomState;
+                roomInfo.name = room.name;
+                var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+                log.info('invite-room RoomAvatar', RoomAvatar);
+                if(!RoomAvatar) 
+                    roomInfo.avatar_url = './static/Img/User/group-40px@2x.png';
+                else 
+                    roomInfo.avatar_url = RoomAvatar;
+                roomInfo.inviteName = await this.getShowInviteMsgContent(room);
+                this.roomList.push(roomInfo);
+            } 
         }
     },
     created: function() {
         this.services = global.services.common;
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-        this.updateRoomInfo();
+        this.createRoomInfo();
     }
 }
 </script>

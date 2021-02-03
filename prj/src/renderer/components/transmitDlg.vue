@@ -200,15 +200,13 @@ export default {
                 var distGroup = this.showRecentChat[i];
                 if(!distGroup) continue;
                 var elementGroupName = document.getElementById(this.getTransmitNameId(distGroup));
-                if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
-                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
-                    if(!distUserId) {
-                    // elementGroupName.innerHTML = distGroup.name;
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                if(!distUserId) {
                     return;
-                    }
-                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                    elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
                 }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                
                 this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
             }
         },
@@ -217,15 +215,14 @@ export default {
                 var distGroup = this.selectedGroups[i];
                 if(!distGroup) continue;
                 var elementGroupName = document.getElementById(this.getSelectedChatNameId(distGroup));
-                if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
-                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
-                    if(!distUserId) {
-                    // elementGroupName.innerHTML = distGroup.name;
+            
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                if(!distUserId) {
                     return;
-                    }
-                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                    elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
                 }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                    
                 this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
             }
         },
@@ -234,15 +231,14 @@ export default {
                 var distGroup = this.searchGroup[i];
                 if(!distGroup) continue;
                 var elementGroupName = document.getElementById(this.getSearchChatNameId(distGroup));
-                if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
-                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
-                    if(!distUserId) {
-                    // elementGroupName.innerHTML = distGroup.name;
+                
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                if(!distUserId) {
                     return;
-                    }
-                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                    elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
                 }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                
                 this.getGroupAvatarContent(this.searchGroup[i], 'search');
             }
         },

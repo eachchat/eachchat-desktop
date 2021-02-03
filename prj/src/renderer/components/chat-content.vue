@@ -447,8 +447,9 @@ export default {
             },320)
         })
         
-        global.mxMatrixClientPeg.matrixClient.on("Room.tags", this.handleRoomTags)
+        global.mxMatrixClientPeg.matrixClient.on("Room.tags", this.handleRoomTags);
         global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
+        global.mxMatrixClientPeg.matrixClient.on("Room.name", this.onRoomName);
       }
     }
   },
@@ -730,7 +731,7 @@ export default {
       this.lowPriorityGroupIds = [];
       this.hasUnreadItems = [];
       let nInviteRooms = 0;
-      this.showGroupList.forEach((item)=>{
+      this.showGroupList.forEach(async (item)=>{
         if(item.getMyMembership() == "invite") {
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
         }
@@ -799,7 +800,19 @@ export default {
       }
       return timeline2 - timeline1;
     },
-
+    async onRoomName(room) {
+      if(!room) return;
+      try {
+        var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
+        if(distUserId) {
+          var fromName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          room.contactName = fromName;
+        }
+      }
+      catch(error) {
+        console.log("onRoomName Change get exception");
+      }
+    },
     handleRoomTags(event, roomTagsEvent, room){
       console.log("room ", room)
       console.log("roomname ", room.name)
@@ -952,15 +965,13 @@ export default {
 
     async getNoticeShowGroupName(groupInfo) {
       if(groupInfo != undefined) {
-        if(global.mxMatrixClientPeg.DMCheck(groupInfo)) {
-          var distUserId = global.mxMatrixClientPeg.getDMMemberId(groupInfo);
-          if(!distUserId) {
-            return groupInfo.name;
-          }
-          else {
-            var fromName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-            return fromName
-          }
+        var distUserId = global.mxMatrixClientPeg.getDMMemberId(groupInfo);
+        if(!distUserId) {
+          return groupInfo.name;
+        }
+        else {
+          var fromName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          return fromName
         }
       }
     },
@@ -1509,21 +1520,15 @@ export default {
 
     updageGroupName: async function(distGroup) {
       var elementGroupName = document.getElementById(this.getChatGroupNameElementId(distGroup.roomId));
-      if(global.mxMatrixClientPeg.DMCheck(distGroup)) {
-        var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
-        if(!distUserId) {
-          elementGroupName.innerHTML = distGroup.name;
-          return;
-        }
-        var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-        if(elementGroupName) {
-          elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
-        }
+      var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+      if(!distUserId) {
+        elementGroupName.innerHTML = distGroup.name;
+        return;
       }
-      else {
-        if(elementGroupName) {
-          elementGroupName.innerHTML = distGroup.name;
-        }
+      var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+      if(elementGroupName) {
+        elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+        distGroup.contactName = displayName;
       }
     },
 
@@ -1905,16 +1910,14 @@ export default {
         var searchChatNameElement = document.getElementById(searchChatNameId);
         
         var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.roomId);
-        if(global.mxMatrixClientPeg.DMCheck(curRoom)) {
-          var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
-          if(!distUserId) {
-            continue;
-          }
+
+        var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
+        if(!distUserId) {
+          searchChatNameElement.innerHTML = curRoom.name;
+        }
+        else {
           var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
           searchChatNameElement.innerHTML = displayName;
-        }
-        else{
-          searchChatNameElement.innerHTML = curRoom.name;
         }
 
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
@@ -1940,16 +1943,14 @@ export default {
         var searchChatMsgContentElement = document.getElementById(searchChatMsgContentId);
         
         var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
-        if(global.mxMatrixClientPeg.DMCheck(curRoom)) {
-          var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
-          if(!distUserId) {
-            continue;
-          }
+      
+        var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
+        if(!distUserId) {
+          searchChatMsgNameElement.innerHTML = curRoom.name;
+        }
+        else {
           var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
           searchChatMsgNameElement.innerHTML = displayName;
-        }
-        else{
-          searchChatMsgNameElement.innerHTML = curRoom.name;
         }
 
         var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
@@ -2142,7 +2143,7 @@ export default {
     },
     getUnreadClass(chatItem, selected) {
       var endPoint = "-unselected";
-      if(selected) {
+      if(chatItem.roomId == this.curChat.roomId){
         endPoint = "-selected";
       }
       else {
@@ -2269,7 +2270,7 @@ export default {
     },
     getShowGroupName(chatGroupItem) {
       // if(!global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-        return chatGroupItem.name;
+        return chatGroupItem.contactName ? chatGroupItem.contactName : chatGroupItem.name;
       // }
     },
     _getInviteMember: function(chatGroupItem) {

@@ -7,7 +7,7 @@
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
-                <p class="chat-name" id="chat-group-name">{{curChat.name}}</p>
+                <p class="chat-name" id="chat-group-name">{{curChat.contactName ? curChat.contactName : curChat.name}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="isMute"/>
             </div>
@@ -1592,22 +1592,18 @@ export default {
             var groupContentNumElement = document.getElementById("chat-group-content-num");
             var groupNameElement = document.getElementById("chat-group-name");
             console.log("getShowGroupName is ", chatGroupItem)
-            if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-                var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
-                if(!distUserId) {
-                    groupNameElement.innerHTML = chatGroupItem.name;
-                    return;
-                }
+            
+            var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
+            if(!distUserId) {
+                groupNameElement.innerHTML = chatGroupItem.name;
+            }
+            else {
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
                 if(groupNameElement) {
                     groupNameElement.innerHTML = displayName;
                 }
             }
-            else {
-                if(groupNameElement) {
-                    groupNameElement.innerHTML = chatGroupItem.name;
-                }
-            }
+
             var totalMemberCount = this.mxGetMembers();
             if(totalMemberCount > 2) {
                 if(groupContentNumElement) {
@@ -2310,12 +2306,6 @@ export default {
                     }
                 })
             }, 100)
-            try{
-                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, curTimeSeconds)
-            }
-            catch(error) {
-                console.log("error is ", error);
-            }
         },
 
         sendMsg: async function() {
@@ -3078,11 +3068,12 @@ export default {
                 let index = 0;
                 msgList = [];
                 tmpList.forEach(item => {
-                    // if(msgFileter(item) && item.event.content){
-                    if(!this.isDeleted(item)){
-                        msgList.push(item);
-                        index++;
-                    } 
+                    if(msgFileter(item) && item.event.content){
+                        if(!this.isDeleted(item)){
+                            msgList.push(item);
+                            index++;
+                        } 
+                    }
                 })
                 if(index > num) break;
             }
@@ -3436,17 +3427,29 @@ export default {
             return timelineSet;
         },
         async toGetShowMessage() {
-            this.timeLineSet = await this.updateTimelineSet(this.curChat);
+            // this.timeLineSet = await this.updateTimelineSet(this.curChat);
+            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
                 this.timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
             await this._timelineWindow.load(undefined, 20);
-            var fileListInfo = this._timelineWindow.getEvents();
+            var fileListInfo = [];
+            var originalFileListInfo = this._timelineWindow.getEvents();
+            originalFileListInfo.forEach(item => {
+                if(this.messageFilter(item) && item.event.content){
+                    fileListInfo.push(item);
+                } 
+            })
             while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
                 await this._timelineWindow.paginate("b", 20);
-                fileListInfo = await this._timelineWindow.getEvents();
+                var fileListInfoTmp = await this._timelineWindow.getEvents();
+                fileListInfoTmp.forEach(item => {
+                    if(this.messageFilter(item) && item.event.content){
+                        fileListInfo.push(item);
+                    }
+                })
             }
             return fileListInfo;
         },
@@ -3821,23 +3824,31 @@ export default {
             this._timelineWindow.paginate("f", 10).then(() => {
                 var senderId = this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender;
                 var msgType = this.newMsg.getContent().msgtype;
-                if(senderId = this.$store.state.userId) {
+                if(senderId == this.$store.state.userId) {
                     var getMessageList = this._getEvents();
                     for(let i=0;i<getMessageList.length;i++) {
                         for(let j=this.messageList.length-1;j>= 0;j--) {
-                            if(this.messageList[j]._txnId == getMessageList[i].getTxnId() && !this.messageList[j].event.event_id) {
-                                console.log("*** this.messageList[j] ", this.messageList[j]);
-                                this.messageList[j].message_status = 0;
-                                this.messageList[j] = getMessageList[i];
-                                this.updatemsgStatus = {
-                                    "id": this.messageList[j]._txnId ? this.messageList[j]._txnId : this.messageList[j].event.event_id,
-                                    "status": 0
-                                };
-                                
-                                break;
+                            if(!this.messageList[j].event.event_id) {
+                                if(this.messageList[j]._txnId == getMessageList[i].getTxnId()) {
+                                    console.log("*** this.messageList[j] ", this.messageList[j]);
+                                    this.messageList[j].message_status = 0;
+                                    this.messageList[j] = getMessageList[i];
+                                    this.updatemsgStatus = {
+                                        "id": this.messageList[j]._txnId ? this.messageList[j]._txnId : this.messageList[j].event.event_id,
+                                        "status": 0
+                                    };
+                                    
+                                    break;
+                                }
+                            }
+                            else {
+                                this.messageList = this._getEvents();
                             }
                         }
                     }
+                }
+                else {
+                    this.messageList = this._getEvents();
                 }
                 console.log("*** to get new message ", this.messageList);
             })

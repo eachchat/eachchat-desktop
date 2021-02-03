@@ -66,7 +66,7 @@ const common = {
 
   callback: undefined,
 
-  reconnectTime: 0,
+  reconnectTime: 1,
 
   async GetGlobalLogin(){
     let globalLogin = await(await globalModels.Login).find();
@@ -400,14 +400,14 @@ const common = {
     let updateTime = await Department.GetMaxDeparmentUpdateTime();
     console.log("max Department updatetime is "+ updateTime)
     log.info("max Department updatetime is "+ updateTime);
-    await this.clientIncrement("updateDepartment", updateTime, 0, 0);
+    await this.clientIncrement("updateDepartment", updateTime, 0, 50);
   },
 
   async UpdateUserinfo(){
     let updateTime = await UserInfo.GetMaxUpdateTime();
     console.log("max updatetime in userinfo is "+ updateTime)
     log.info("max updatetime in userinfo is "+ updateTime)
-    await this.clientIncrement("updateUser", updateTime, 0, 0);
+    await this.clientIncrement("updateUser", updateTime, 0, 50);
   },
 
   async UpdateGroups()
@@ -888,6 +888,16 @@ const common = {
         totalIndex,
         countperpageValue)
       if (!result.ok || !result.success) {
+        this.reconnectTime = this.reconnectTime * 2;
+        if(this.reconnectTime > 30)
+        this.reconnectTime = 30;
+        log.warn("increment again--this.reconnectTime, name, updateTime, sequenceId, countperpageValue---:" + this.reconnectTime, name, updateTime, 0, countperpageValue)
+        setTimeout(() => {
+          if(name === 'updateUser')
+            this.UpdateUserinfo();
+          else
+            this.UpdateDepartment();
+        }, this.reconnectTime * 1000);
         return undefined;
       }
       next = result.data.hasNext;
@@ -898,8 +908,8 @@ const common = {
         item = result.data.results[index];
         await clientIncrementRouter(name, item, this)
       }
-       
     }
+    this.reconnectTime = 1;
   },
 
   async groupIncrement(updateTime, notification, callback = undefined){

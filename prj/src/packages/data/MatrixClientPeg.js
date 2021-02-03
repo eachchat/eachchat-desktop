@@ -9,6 +9,7 @@ import DMRoomMap from './DMRoomMap';
 import DeviceListener from './DeviceListener.js';
 import { net } from '../core/index.js'
 
+const EMAIL_ADDRESS_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 class _MatrixClientPeg{
     constructor(){
         this.matrixClient = undefined;
@@ -51,6 +52,10 @@ class _MatrixClientPeg{
       return mxMembers;
     }
 
+    looksValid(email) {
+      return EMAIL_ADDRESS_REGEX.test(email);
+    }
+
     getDMMemberId(theRoom) {
       var distUserId = undefined;
       var selfUserId = this.matrixClient.getUserId();
@@ -60,7 +65,7 @@ class _MatrixClientPeg{
           var roomMembers = this.mxGetMembers(theRoom);
           roomMembers = roomMembers.map(m => {
               if (m.userId != selfUserId) {
-                otherUserId = m.userId;
+                distUserId = m.userId;
               }
           });
         }
@@ -577,11 +582,21 @@ class _MatrixClientPeg{
           
         }
         this.checkType = 'm.login.password';
-        var loginParams = {
-          user: account,
-          password: password,
-          initial_device_display_name: deviceName,
+        var identifier = {};
+        if(this.looksValid(account)) {
+          identifier["medium"] = "email";
+          identifier["address"] = account;
+          identifier["type"] = "m.id.thirdparty";
         }
+        else {
+          identifier["user"] = account;
+          identifier["type"] = 'm.id.user';
+        }
+        var loginParams = {
+          password,
+          identifier,
+          initial_device_display_name: deviceName,
+        };
         this.account = account;
         this.password = password;
         // let userLoginResult = await this.registrationClient.loginWithPassword(

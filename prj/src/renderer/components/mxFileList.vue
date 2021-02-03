@@ -306,18 +306,14 @@ export default {
                 }
             }
             var groupNameElement = document.getElementById("MxMsgListGroupInfoNameId");
-            if(global.mxMatrixClientPeg.DMCheck(this.GroupInfo)) {
-                var distUserId = global.mxMatrixClientPeg.getDMMemberId(this.GroupInfo);
-                if(!distUserId) {
-                    groupNameElement.innerHTML = this.GroupInfo.name;
-                    return;
-                }
-                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                groupNameElement.innerHTML = displayName;
-            }
-            else {
+        
+            var distUserId = global.mxMatrixClientPeg.getDMMemberId(this.GroupInfo);
+            if(!distUserId) {
                 groupNameElement.innerHTML = this.GroupInfo.name;
+                return;
             }
+            var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            groupNameElement.innerHTML = displayName;
         },
         fileNameHeightLight: function(curItem) {
             var showContent = curItem.event.content ? curItem.event.content : curItem.getContent();
@@ -486,17 +482,14 @@ export default {
             }
             else {
                 var showGroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.$store.getters.getCurChatId());
-                
-                if(global.mxMatrixClientPeg.DMCheck(showGroupInfo)) {
-                    var distUserId = global.mxMatrixClientPeg.getDMMemberId(showGroupInfo);
-                    if(!distUserId) {
-                        this.curChatName = showGroupInfo.name;
-                    }
-                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                    this.curChatName = displayName;
+            
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(showGroupInfo);
+                if(!distUserId) {
+                    this.curChatName = showGroupInfo.name;
                 }
                 else {
-                    this.curChatName = showGroupInfo.name;
+                    var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                    this.curChatName = displayName;
                 }
             }
 

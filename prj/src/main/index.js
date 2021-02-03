@@ -130,34 +130,34 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       }
     }
   ]);
-  var template = [
-    {
-        label: '编辑',
-        submenu: [
-            {
+//   var template = [
+//     {
+//         label: '编辑',
+//         submenu: [
+//             {
 
-                label: '复制',
-                role: 'copy'
-            },
-            {
+//                 label: '复制',
+//                 role: 'copy'
+//             },
+//             {
 
-                label: '剪切',
-                role: 'cut'
-            },
-            {
-                label: '全选',
-                role: 'selectAll',
-            },
-            {
+//                 label: '剪切',
+//                 role: 'cut'
+//             },
+//             {
+//                 label: '全选',
+//                 role: 'selectAll',
+//             },
+//             {
 
-              label: '撤销',
-              role: 'redo'
-          },
-        ]
-    }
-]
+//               label: '撤销',
+//               role: 'redo'
+//           },
+//         ]
+//     }
+// ]
 
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  // Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   appIcon.setToolTip("EachChat");
   appIcon.setContextMenu(contextMenu);
 
@@ -1136,12 +1136,11 @@ function openDevToolsInDevelopment(mainWindow) {
 
   // Open dev tools initially when in development mode
   if (process.env.NODE_ENV === "development") {
-    return;
     mainWindow.webContents.on("did-frame-finish-load", () => {
     mainWindow.webContents.once("devtools-opened", () => {
     mainWindow.focus();
     });
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     });
   }
   mainWindow.on('close', (event) => {

@@ -46,7 +46,7 @@
                     <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
                     <div class="chat-name">{{dmMember.dspName || dmMember.name}}</div>
                 </div>
-                <div class="chat-desc">{{dmMember.userId || ''}}</div>
+                <div @contextmenu.prevent="openMenu" class="chat-desc">{{dmMember.userId || ''}}</div>
             </div>
         </div>
         <div class="secretGroupDiv" v-show="!isGroup && isSecret" @click="showSecretType()">
@@ -255,6 +255,7 @@ import mxXxr from './mxXxr.vue'
 import mxDmDlg from './mxDmDlg.vue'
 import {ComponentUtil} from '../script/component-util'
 import { common } from '../../packages/data/services.js'
+import { openRemoteMenu } from '../../utils/commonFuncs'
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 // export const ALL_MESSAGES = 'all_messages';
@@ -349,6 +350,9 @@ export default {
     computed: {
     },
     methods: {
+        openMenu() {
+            openRemoteMenu()
+        },
         async _onAvatarChanged(e) {
             console.log('-----_onAvatarChanged-----')
             const client = window.mxMatrixClientPeg.matrixClient;
@@ -511,8 +515,10 @@ export default {
                     close () {
                         // 这里执行点击右上角需要做的事，默认执行关闭弹框
                     },
-                    confirm () {
+                    async confirm () {
                         // 这里执行点击确定按钮需要做的事，默认执行关闭弹框
+                        if(await ContactRoom.ExistRoom(roomId))
+                            common.deleteRoomFromContact(roomId);
                         client.leave(roomId);
                         this.$emit("leaveGroup", roomId);
                     },

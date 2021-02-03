@@ -102,7 +102,7 @@
                         <img ondragstart="return false" class="contact-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                         <div class="contact-list-info">
                         <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
-                        <p v-html="msgContentHightLight(contact.title)" class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
+                        <p class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
                 </ul>

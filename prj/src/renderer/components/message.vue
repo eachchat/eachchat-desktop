@@ -40,13 +40,13 @@
                     <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
                     <div class="msgStageDiv" :key="updateStatus">
-                        <div class="msgState" v-if="MsgIsSending()">
+                        <div :class="getMsgStateClass()" v-if="MsgIsSending()">
                             <i class="el-icon-loading"></i>
                         </div>
-                        <div class="msgState" v-else-if="MsgIsFailed()">
+                        <div :class="getMsgStateClass()" v-else-if="MsgIsFailed()">
                             <img class="sendWarning" src="../../../static/Img/Chat/sendFaile@2x.png" @click="sendAgain()">
                         </div>
-                        <div class="msgState" v-else>
+                        <div :class="getMsgStateClass()" v-else>
                         </div>
                     </div>
                 </div>
@@ -123,6 +123,14 @@ export default {
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     methods: {
+        getMsgStateClass: function() {
+            if(this.msg.event.content.msgtype != "m.text") {
+                return "fileMsgState";
+            }
+            else {
+                return "msgState";
+            }
+        },
         getTextElementId: function() {
             return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
         },
@@ -131,7 +139,22 @@ export default {
                 this.sendFile();
             }
             else {
-                this.$emit("sendAgain", this.msg);
+                // let curTimeSeconds = new Date().getTime();
+                // this.sendText(curTimeSeconds);
+                // this.$emit("sendAgain", this.msg);
+                var roomID = this.msg.event.room_id;
+                let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
+                try{
+                    global.mxMatrixClientPeg.matrixClient.resendEvent(this.msg.event, theRoom).then((ret) => {
+                        this.msg.message_status = 0;
+                    }).catch((error) => {
+                        this.msg.message_status = 2;
+                    })
+                }
+                catch(error) {
+                    this.msg.message_status = 2;
+                    console.log("error is ", error);
+                }
             }
         },
         getMessageTemplateId: function() {
@@ -248,6 +271,9 @@ export default {
             else if(chatGroupMsgType === "m.room.message") {
                 console.log("tmd sha wanyierer ", chatGroupMsgContent.msgtype);
                 if(chatGroupMsgContent.msgtype == 'm.file'){
+                    if(fs.existsSync(this.msg.path)) {
+                        shell.openPath(this.msg.path);
+                    }
                     console.log("========= file ");
                     var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
@@ -1020,6 +1046,21 @@ export default {
                 this.curPercent = 1;
             }
         },
+        sendText: async function(txnId) {
+            var roomID = this.msg.event.room_id;
+            try{
+                global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, txnId ? txnId : this.msg._txnId).then((ret) => {
+                    this.msg.message_status = 0;
+                }).catch((error) => {
+                    console.log("error is ", error.errcode);
+                    this.msg.message_status = 2;
+                })
+            }
+            catch(error) {
+                this.msg.message_status = 2;
+                console.log("error is ", error);
+            }
+        },
         sendFile: async function() {
             var showfileObj = this.msg.fileObj;
 
@@ -1120,9 +1161,12 @@ export default {
         }
     },
     mounted: async function() {
-        if(this.msg.event.msgtype != "m.text" && !this.msg.event.event_id) {
+        if(this.msg.event.content.msgtype != "m.text" && !this.msg.event.event_id) {
         // if(this.msg.event.msgtype != "m.text") {
             this.sendFile();
+        }
+        else if(this.msg.event.content.msgtype == "m.text" && !this.msg.event.event_id) {
+            this.sendText();
         }
         setTimeout(() => {
             this.$nextTick(() => {
@@ -1387,6 +1431,13 @@ export default {
         display: inline-block;
         width: 20px;
         height: 20px;
+    }
+
+    .fileMsgState {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-top: 10px;
     }
 
     .sendWarning {
