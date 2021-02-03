@@ -1,3 +1,14 @@
+import {remote} from 'electron'
+const Menu = remote.Menu;
+const MenuItem = remote.MenuItem;
+
+const menu = new Menu();
+menu.append(new MenuItem({ label: '复制', role: 'copy' }));
+
+export function openRemoteMenu() {
+    menu.popup(remote.getCurrentWindow());
+}
+
 export function UpdateUserAvater(ev){
   const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId()
   if(ev.getType() === 'm.room.member' && ev.getSender() === myUserId){
