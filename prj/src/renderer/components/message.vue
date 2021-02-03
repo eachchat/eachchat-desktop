@@ -1346,7 +1346,7 @@ export default {
 
     .my-file-progress {
         display: block;
-        width: 100%;
+        width: 170px;
         float: right;
         height: 2px;
         background: #D2D7DE;
