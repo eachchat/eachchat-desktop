@@ -2143,7 +2143,7 @@ export default {
     },
     getUnreadClass(chatItem, selected) {
       var endPoint = "-unselected";
-      if(selected) {
+      if(chatItem.roomId == this.curChat.roomId){
         endPoint = "-selected";
       }
       else {
