@@ -535,6 +535,45 @@ export default {
         openSetting: function() {
             this.$emit('openSetting')
         },
+        async fillMember(o) {
+            const cli = window.mxMatrixClientPeg.matrixClient;
+            o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
+            o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
+            const contactInfo = await Contact.GetContactInfo(o.userId);
+            const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
+            // console.log('看一看1', contactInfo);
+            // console.log('看一看2', depInfo);
+            // console.log('看一看3', this.myDomain);
+            let userDomain = ComponentUtil.GetDomanName(o.userId);
+            let company = '';
+            let title = '';
+            if(userDomain == this.myDomain) {
+                let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
+                title = company + user_title;
+                title = title ? title : ((depInfo && depInfo.user_title) || '');
+            } else {
+                let company = (contactInfo && contactInfo.company) ? contactInfo.company + '  ' : '';
+                let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
+                title = company + user_title;
+                title = title ? title : ((depInfo && depInfo.user_title) || '');
+            }
+            o.title = title ? title : o.userId;
+            let obj = {...o, choosen:false}
+            let you = false;
+            let mxMembers = this.mxMembers;
+            mxMembers.forEach((m, idx) => {
+                if (m.userId === obj.userId) {
+                    mxMembers[idx] = obj;
+                    you = true;
+                }
+            })
+            if (!you) mxMembers.push(obj);
+            console.log('----fillMember----', o);
+            mxMembers = mxMembers.filter(m => {
+                return m.membership != 'leave';
+            })
+            this.mxMembers = [...mxMembers];
+        },
         async mxGetMembers(userId) {
             const roomId = this.showGroupInfo.groupId;
             const cli = window.mxMatrixClientPeg.matrixClient;
@@ -548,9 +587,9 @@ export default {
                 o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
                 const contactInfo = await Contact.GetContactInfo(o.userId);
                 const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
-                console.log('看一看1', contactInfo);
-                console.log('看一看2', depInfo);
-                console.log('看一看3', this.myDomain);
+                // console.log('看一看1', contactInfo);
+                // console.log('看一看2', depInfo);
+                // console.log('看一看3', this.myDomain);
                 let userDomain = ComponentUtil.GetDomanName(o.userId);
                 let company = '';
                 let title = '';
@@ -568,11 +607,11 @@ export default {
                 let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
-            console.log('check xie1', xie1);
-            console.log('全member', xie1.currentState.members);
-            console.log('mxMembers', mxMembers);
+            // console.log('check xie1', xie1);
+            // console.log('全member', xie1.currentState.members);
+            // console.log('mxMembers', mxMembers);
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
-            console.log('----mxMembers[userId]----', userId)
+            // console.log('----mxMembers[userId]----', userId)
             this.mxMembers = [...mxMembers];
         },
         mxMuteChange: function(mxMute) {
@@ -1091,17 +1130,10 @@ export default {
         console.log('----dmMember----', this.dmMember);
 
         client.on("RoomMember.powerLevel", (event, member) => {
-            console.log('ppppwooooooo', member)
+            console.log('---on powerLevel 1---', event)
+            console.log('---on powerLevel 2---', member)
             // this.mxGetMembers(userId);
-            // let mxMembers = this.mxMembers;
-            // mxMembers = mxMembers.map(m => {
-            //     if (m.userId == member.userId) {
-            //         return member;
-            //     }
-            //     return m;
-            // })
-            // this.mxMembers = [...mxMembers];
-            this.mxGetMembers(userId);
+            this.fillMember(member);
         });
 
         // client.on('RoomState.newMember', (event, state, member) => {
@@ -1112,9 +1144,11 @@ export default {
         //     this.mxMembers = [...mxMembers];
         // })
 
-        client.on('RoomMember.membership', (event, state, member) => {
-            console.log('???+++___', event);
-            this.mxGetMembers(userId);
+        client.on('RoomMember.membership', (event, member) => {
+            console.log('---on membership 1---', event);
+            console.log('---on membership 2---', member);
+            // this.mxGetMembers(userId);
+            this.fillMember(member);
         })
 
         this.memberList = this.showGroupInfo.memberList;
