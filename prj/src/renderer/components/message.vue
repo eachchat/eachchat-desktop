@@ -40,13 +40,13 @@
                     <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
                     <div class="msgStageDiv" :key="updateStatus">
-                        <div class="msgState" v-if="MsgIsSending()">
+                        <div :class="getMsgStateClass()" v-if="MsgIsSending()">
                             <i class="el-icon-loading"></i>
                         </div>
-                        <div class="msgState" v-else-if="MsgIsFailed()">
+                        <div :class="getMsgStateClass()" v-else-if="MsgIsFailed()">
                             <img class="sendWarning" src="../../../static/Img/Chat/sendFaile@2x.png" @click="sendAgain()">
                         </div>
-                        <div class="msgState" v-else>
+                        <div :class="getMsgStateClass()" v-else>
                         </div>
                     </div>
                 </div>
@@ -123,6 +123,14 @@ export default {
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     methods: {
+        getMsgStateClass: function() {
+            if(this.msg.event.content.msgtype != "m.text") {
+                return "fileMsgState";
+            }
+            else {
+                return "msgState";
+            }
+        },
         getTextElementId: function() {
             return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
         },
@@ -1420,6 +1428,13 @@ export default {
         display: inline-block;
         width: 20px;
         height: 20px;
+    }
+
+    .fileMsgState {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-top: 10px;
     }
 
     .sendWarning {
