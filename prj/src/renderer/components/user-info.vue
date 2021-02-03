@@ -12,7 +12,7 @@
             
             <div class="userInfo-baseInfo">
                 <p class="userInfo-name">{{ GetDisplayName(userInfo.displayName, userInfo.matrix_id) }}</p>
-                <p class="userInfo-title">{{ userInfo.matrix_id }}</p>
+                <p @contextmenu.prevent="openMenu" class="userInfo-title">{{ userInfo.matrix_id }}</p>
             </div>
         </div>
         <div class="userInfoAction-view" v-show="!isOwn">
@@ -87,6 +87,7 @@ import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import * as Rooms from "../../packages/data/Rooms"
 import * as RoomUtil from '../script/room-util'
 import * as utils from '../../packages/core/Utils.js'
+import { openRemoteMenu } from '../../utils/commonFuncs'
 
 export default {
     name: 'user-info',
@@ -203,6 +204,9 @@ export default {
         }
     },
     methods: {
+        openMenu() {
+            openRemoteMenu()
+        },
         nHandleFiles:async function(e, paths) {
             // Select Same File Failed.
             var fileList = paths;
