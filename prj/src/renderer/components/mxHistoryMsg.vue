@@ -262,6 +262,9 @@ export default {
             if(!msgItem.event.event_id) {
                 return false;
             }
+            if(this.searchKey.length != 0) {
+                return false;
+            }
             return msgItem.isRedacted() || msgItem.getType() == "m.room.redaction";
         },
         showResultInfo: async function() {
@@ -570,18 +573,34 @@ export default {
 
             return timelineSet;
         },
+        messageFilter(event){
+            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(event.getType()) >= 0) return true;
+            return false;
+        },
         async toGetShowMessage() {
-            this.timeLineSet = await this.updateTimelineSet(this.GroupInfo);
+            // this.timeLineSet = await this.updateTimelineSet(this.GroupInfo);
+            this.timeLineSet = await this.GroupInfo.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
                 this.timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
             await this._timelineWindow.load(undefined, 20);
-            var fileListInfo = this._timelineWindow.getEvents();
+            var fileListInfo = [];
+            var originalFileListInfo = this._timelineWindow.getEvents();
+            originalFileListInfo.forEach(item => {
+                if(this.messageFilter(item) && item.event.content){
+                    fileListInfo.push(item);
+                } 
+            })
             while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
                 await this._timelineWindow.paginate("b", 20);
-                fileListInfo = await this._timelineWindow.getEvents();
+                var fileListInfoTmp = await this._timelineWindow.getEvents();
+                fileListInfoTmp.forEach(item => {
+                    if(this.messageFilter(item) && item.event.content){
+                        fileListInfo.push(item);
+                    }
+                })
             }
             return fileListInfo;
         },

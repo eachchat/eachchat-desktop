@@ -105,6 +105,8 @@ class _MatrixClientPeg{
     updageChatUnreadState(chatUnreadStateInfo) {
       if(window.localStorage) {
         var jsonData = {};
+        var getStrJsonData = window.localStorage.getItem("ChatUnreadState");
+        jsonData = JSON.parse(getStrJsonData);
         jsonData[chatUnreadStateInfo[0]] = chatUnreadStateInfo[1];
         var strJsonData = JSON.stringify(jsonData);
         window.localStorage.setItem('ChatUnreadState', strJsonData);

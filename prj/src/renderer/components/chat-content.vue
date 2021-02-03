@@ -2143,11 +2143,11 @@ export default {
     },
     getUnreadClass(chatItem, selected) {
       var endPoint = "-unselected";
-      if(selected) {
+      if(chatItem.roomId == this.curChat.roomId){
         endPoint = "-selected";
       }
       else {
-        if(this.getUnReadCount(chatItem) === '') {
+        if(this.getUnReadCount(chatItem) === '' && !global.mxMatrixClientPeg.getChatUnreadState(chatItem.roomId)) {
           return "group-readall" + endPoint;
         }
         else {

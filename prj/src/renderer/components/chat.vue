@@ -3068,11 +3068,12 @@ export default {
                 let index = 0;
                 msgList = [];
                 tmpList.forEach(item => {
-                    // if(msgFileter(item) && item.event.content){
-                    if(!this.isDeleted(item)){
-                        msgList.push(item);
-                        index++;
-                    } 
+                    if(msgFileter(item) && item.event.content){
+                        if(!this.isDeleted(item)){
+                            msgList.push(item);
+                            index++;
+                        } 
+                    }
                 })
                 if(index > num) break;
             }
@@ -3426,17 +3427,29 @@ export default {
             return timelineSet;
         },
         async toGetShowMessage() {
-            this.timeLineSet = await this.updateTimelineSet(this.curChat);
+            // this.timeLineSet = await this.updateTimelineSet(this.curChat);
+            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
                 this.timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
             await this._timelineWindow.load(undefined, 20);
-            var fileListInfo = this._timelineWindow.getEvents();
+            var fileListInfo = [];
+            var originalFileListInfo = this._timelineWindow.getEvents();
+            originalFileListInfo.forEach(item => {
+                if(this.messageFilter(item) && item.event.content){
+                    fileListInfo.push(item);
+                } 
+            })
             while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
                 await this._timelineWindow.paginate("b", 20);
-                fileListInfo = await this._timelineWindow.getEvents();
+                var fileListInfoTmp = await this._timelineWindow.getEvents();
+                fileListInfoTmp.forEach(item => {
+                    if(this.messageFilter(item) && item.event.content){
+                        fileListInfo.push(item);
+                    }
+                })
             }
             return fileListInfo;
         },
@@ -3815,17 +3828,22 @@ export default {
                     var getMessageList = this._getEvents();
                     for(let i=0;i<getMessageList.length;i++) {
                         for(let j=this.messageList.length-1;j>= 0;j--) {
-                            if(this.messageList[j]._txnId == getMessageList[i].getTxnId() && !this.messageList[j].event.event_id) {
-                                console.log("*** this.messageList[j] ", this.messageList[j]);
-                                this.messageList[j].message_status = 0;
-                                this.messageList[j] = getMessageList[i];
-                                this.updatemsgStatus = {
-                                    "id": this.messageList[j]._txnId ? this.messageList[j]._txnId : this.messageList[j].event.event_id,
-                                    "status": 0
-                                };
-                                
-                                break;
+                            if(!this.messageList[j].event.event_id) {
+                                if(this.messageList[j]._txnId == getMessageList[i].getTxnId()) {
+                                    console.log("*** this.messageList[j] ", this.messageList[j]);
+                                    this.messageList[j].message_status = 0;
+                                    this.messageList[j] = getMessageList[i];
+                                    this.updatemsgStatus = {
+                                        "id": this.messageList[j]._txnId ? this.messageList[j]._txnId : this.messageList[j].event.event_id,
+                                        "status": 0
+                                    };
+                                    
+                                    break;
+                                }
                             }
+                            // else {
+                            //     this.messageList = this._getEvents();
+                            // }
                         }
                     }
                 }
