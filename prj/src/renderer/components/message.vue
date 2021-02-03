@@ -50,11 +50,11 @@
                         </div>
                     </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="headerImgUrl" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()" :src="headerImgUrl" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  :src="headerImgUrl" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
@@ -1124,7 +1124,6 @@ export default {
     },
     data() {
         return {
-            headerImgUrl: '../../../static/Img/User/user-40px@2x.png',
             playingAudioId: '',
             decrypting: false,
             decryptedUrl: null,
@@ -1162,15 +1161,6 @@ export default {
         }
     },
     mounted: async function() {
-        self = this;
-        
-        var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender));
-        var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-    
-        if(userUrl != "") {
-            this.headerImgUrl = userUrl;
-        }
-
         if(this.msg.event.content.msgtype != "m.text" && !this.msg.event.event_id) {
         // if(this.msg.event.msgtype != "m.text") {
             this.sendFile();
