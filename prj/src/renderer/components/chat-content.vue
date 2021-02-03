@@ -386,6 +386,7 @@ export default {
           this.toBottom = false;
         })
       }
+      this.sortGroup();
     },
     matrixSync: function() {
       if (this.matrixSync) {
