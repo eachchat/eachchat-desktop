@@ -3841,9 +3841,9 @@ export default {
                                     break;
                                 }
                             }
-                            else {
-                                this.messageList = this._getEvents();
-                            }
+                            // else {
+                            //     this.messageList = this._getEvents();
+                            // }
                         }
                     }
                 }
