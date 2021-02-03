@@ -537,8 +537,8 @@ export default {
         },
         async fillMember(o) {
             const cli = window.mxMatrixClientPeg.matrixClient;
-            o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
             o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
+            o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
             const contactInfo = await Contact.GetContactInfo(o.userId);
             const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
             // console.log('看一看1', contactInfo);
@@ -583,8 +583,8 @@ export default {
             for(let key in xie1.currentState.members) {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let o = xie1.currentState.members[key];
-                o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
                 o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
+                o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
                 const contactInfo = await Contact.GetContactInfo(o.userId);
                 const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
                 // console.log('看一看1', contactInfo);
