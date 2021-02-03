@@ -32,7 +32,7 @@
                             <img ondragstart="return false" class="contact-list-icon" :id="SetUserImgID(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                             <div class="contact-list-info">
                                 <p class="contact-list-name" v-html="searchKeyHightLight(contact.user_display_name)">{{ contact.user_display_name }}</p>
-                                <p class="contact-list-titile">{{ contact.user_title }}</p>
+                                <p class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                             </div>
                             <button v-if = 'DisableSave(contact)' class="contact-list-disable-button" @click="HandleSave(index, contact)" :disabled='true'>已添加</button>
                             <button v-else class="contact-list-button" @click="HandleSave(index, contact)" >添加</button>
@@ -81,6 +81,20 @@ export default {
     methods: {
         newContactClick(){
             
+        },
+
+        GetContactTitle: function(user){
+            let userDoman = ComponentUtil.GetDomanName(user.matrix_id);
+            for(let item of this.contacts){
+                if(item.matrix_id == user.matrix_id){
+                    if(userDoman == this.myDoman)
+                        return user.user_title;
+                    if(item.company && item.company.length != 0)
+                        return item.company + " " + item.title;
+                    return '';
+                }
+            }
+            return user.user_title;
         },
 
         searchKeyHightLight(content){
@@ -247,7 +261,8 @@ export default {
     components: {
     },
     created() {
-  
+        this.myMatrixId = localStorage.getItem("mx_user_id");
+        this.myDoman = ComponentUtil.GetDomanName(this.myMatrixId);
     },
     mounted:async function() {
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
