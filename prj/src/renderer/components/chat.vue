@@ -3811,7 +3811,7 @@ export default {
             this._timelineWindow.paginate("f", 10).then(() => {
                 var senderId = this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender;
                 var msgType = this.newMsg.getContent().msgtype;
-                if(senderId = this.$store.state.userId) {
+                if(senderId == this.$store.state.userId) {
                     var getMessageList = this._getEvents();
                     for(let i=0;i<getMessageList.length;i++) {
                         for(let j=this.messageList.length-1;j>= 0;j--) {
@@ -3828,6 +3828,9 @@ export default {
                             }
                         }
                     }
+                }
+                else {
+                    this.messageList = this._getEvents();
                 }
                 console.log("*** to get new message ", this.messageList);
             })
