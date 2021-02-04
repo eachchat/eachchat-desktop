@@ -582,7 +582,7 @@ export default {
             return timelineSet;
         },
         messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(event.getType()) >= 0) return true;
+            if(['m.room.message', 'm.room.encrypted'].indexOf(event.getType()) >= 0) return true;
             return false;
         },
         async toGetShowMessage() {
@@ -621,7 +621,7 @@ export default {
             this.toGetShowMessage()
                 .then((ret) => {
 
-                    this.ret = this._getEvents().reverse();
+                    this.ret = ret;
                     console.log("*** this.ret.results is ", this.ret);
                     setTimeout(() => {
                         this.$nextTick(() => {
