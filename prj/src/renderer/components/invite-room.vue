@@ -183,6 +183,7 @@ export default {
         async updateRoomInfo(){
             for(let item of this.$store.state.inviteRooms){
                 let roomInfo = this.getRoomInfo(item);
+                if(!roomInfo) continue;
                 if(roomInfo.roomState === 0 && this.roomList.every(curitem => curitem.roomID != item.roomID)){
                     console.log('roomList', roomInfo)
                     this.roomList.unshift(roomInfo);
@@ -210,7 +211,9 @@ export default {
             
             if(global.mxMatrixClientPeg.isDMInvite(room)){
                 roomInfo.avatar_url = './static/Img/User/user-40px@2x.png';
-                roomInfo.name = roomInfo.inviteName;
+                var myMember = global.mxMatrixClientPeg.getMyMember(room);
+                let directMember = myMember.getDMInviter();
+                roomInfo.name = await ComponentUtil.GetDisplayNameByMatrixID(directMember)
             }
 
             return roomInfo;
@@ -219,7 +222,7 @@ export default {
         async createRoomInfo(){
             for(let item of this.$store.state.inviteRooms){
                 let roomInfo = await this.getRoomInfo(item)
-                this.roomList.push(roomInfo);
+                if(roomInfo) this.roomList.push(roomInfo);
             } 
         }
     },
