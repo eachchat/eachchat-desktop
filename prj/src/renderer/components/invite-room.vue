@@ -209,6 +209,7 @@ export default {
             roomInfo.inviteName = await this.getShowInviteMsgContent(room);
             
             if(global.mxMatrixClientPeg.isDMInvite(room)){
+                roomInfo.avatar_url = './static/Img/User/user-40px@2x.png';
                 roomInfo.name = roomInfo.inviteName;
             }
 
