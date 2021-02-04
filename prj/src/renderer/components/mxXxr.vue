@@ -1502,6 +1502,7 @@ export default {
         white-space: nowrap;
         height: 20px;
         line-height: 20px;
+        width: 180px;
     }
     .shun4 {
         font-size: 12px;
@@ -1513,7 +1514,7 @@ export default {
         white-space: nowrap;
         height: 18px;
         line-height: 18px;
-
+        width: 180px;
     }
     .shun5 {
         flex: 1;
@@ -1783,6 +1784,7 @@ export default {
         border-radius: 50%;
     }
     .room-info {
+        width: 238px;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
@@ -1801,6 +1803,10 @@ export default {
         font-weight: 400;
         color: #999999;
         line-height: 18px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 238px;
     }
     .room-join {
         height: 24px;
@@ -1817,6 +1823,7 @@ export default {
     .user-info {
         display: flex;
         flex-direction: column;
+        flex: 1;
     }
     .submit-field {
         display: flex;
