@@ -18,16 +18,18 @@ export function UpdateUserAvater(ev){
               return;
           if(content.membership != 'join')
               return;
-          let url = content.avatar_url;
-          var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url, null, null);
-          var elementImg = document.getElementById("userHead");
-          if(elementImg){
-              if(avaterUrl == ''){
-                  elementImg.setAttribute('src', '../../../static/Img/User/user-40px@2x.png');
-              }
-              else
-                  elementImg.setAttribute('src', avaterUrl);
-          }
+          global.mxMatrixClientPeg.matrixClient.getProfileInfo(myUserId).then(profile => {
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profile.avatar_url);
+            var elementImg = document.getElementById("userHead");
+            if(elementImg){
+                if(avaterUrl == ''){
+                    elementImg.setAttribute('src', './static/Img/User/user-40px@2x.png');
+                }
+                else
+                    elementImg.setAttribute('src', avaterUrl);
+            }
+          });
+          
       }
   }
 }

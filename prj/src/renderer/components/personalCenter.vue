@@ -274,8 +274,10 @@ export default {
             //     avaterUrl = "../../../static/Img/User/user-40px@2x.png"
             // }
             let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
+            var elementImg = document.getElementById("userHead"); 
             if(avaterUrl != '') {
                  userIconElement.setAttribute("src", avaterUrl);
+                 elementImg.setAttribute("src", avaterUrl);
             }
             this.displayName = displayName;
 
