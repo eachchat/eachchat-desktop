@@ -1053,11 +1053,12 @@ ipcMain.on('image-win-max', function(event, arg) {
 });
 
 ipcMain.on('login-win-close', function(event, arg) {
-  if(process.platform == "darwin") {
+  if(process.platform == 'linux' || process.platform == "darwin") {
     mainWindow.hide();
   }
   else {
-    mainWindow.close();
+    clickQuit = true;
+    app.quit();
   }
 });
 
