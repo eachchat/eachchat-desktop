@@ -1035,6 +1035,11 @@ export default {
         cursor: pointer;
     }
 
+    .Mx-msg-image {
+        max-width: 260px;
+        max-height: 260px;
+    }
+
     .MxmessageFile {
         background:rgba(247,248,250,1);
         max-width: 260px;
