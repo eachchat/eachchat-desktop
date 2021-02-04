@@ -1784,7 +1784,7 @@ export default {
         border-radius: 50%;
     }
     .room-info {
-        width: 238px;
+        width: 240px;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
@@ -1806,7 +1806,7 @@ export default {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-        width: 238px;
+        width: 240px;
     }
     .room-join {
         height: 24px;
