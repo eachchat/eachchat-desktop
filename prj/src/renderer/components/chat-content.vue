@@ -1543,7 +1543,7 @@ export default {
     updageGroupName: async function(distGroup) {
       var elementGroupName = document.getElementById(this.getChatGroupNameElementId(distGroup.roomId));
       var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
-      if(!distUserId) {
+      if(!distUserId && elementGroupName) {
         elementGroupName.innerHTML = distGroup.name;
         return;
       }

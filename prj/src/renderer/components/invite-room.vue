@@ -121,7 +121,7 @@ export default {
             global.mxMatrixClientPeg.matrixClient.leave(roomId);
         },
         HandleReject(room){
-            this.UpdateRoomState(room.roomID, 1)
+            this.UpdateRoomState(room.roomID, 1);
             this.RejectRoom(room.roomID);
         },
 
@@ -182,7 +182,7 @@ export default {
 
         async updateRoomInfo(){
             for(let item of this.$store.state.inviteRooms){
-                let roomInfo = this.getRoomInfo(item);
+                let roomInfo = await this.getRoomInfo(item);
                 if(!roomInfo) continue;
                 if(roomInfo.roomState === 0 && this.roomList.every(curitem => curitem.roomID != item.roomID)){
                     console.log('roomList', roomInfo)
