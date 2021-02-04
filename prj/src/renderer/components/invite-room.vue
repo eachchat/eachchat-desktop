@@ -182,21 +182,7 @@ export default {
 
         async updateRoomInfo(){
             for(let item of this.$store.state.inviteRooms){
-                let roomInfo = {};
-                let room = this.matrixClient.getRoom(item.roomID);
-                if(!room){
-                    return;
-                } 
-                roomInfo.roomID = item.roomID;
-                roomInfo.roomState = item.roomState;
-                roomInfo.name = room.name;
-                var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
-                log.info('invite-room RoomAvatar', RoomAvatar);
-                if(!RoomAvatar) 
-                    roomInfo.avatar_url = './static/Img/User/group-40px@2x.png';
-                else 
-                    roomInfo.avatar_url = RoomAvatar;
-                roomInfo.inviteName = await this.getShowInviteMsgContent(room);
+                let roomInfo = this.getRoomInfo(item);
                 if(roomInfo.roomState === 0 && this.roomList.every(curitem => curitem.roomID != item.roomID)){
                     console.log('roomList', roomInfo)
                     this.roomList.unshift(roomInfo);
@@ -205,23 +191,38 @@ export default {
             }
         },
 
+        async getRoomInfo(item){
+            let roomInfo = {};
+            let room = this.matrixClient.getRoom(item.roomID);
+            if(!room){
+                return;
+            } 
+            roomInfo.roomID = item.roomID;
+            roomInfo.roomState = item.roomState;
+            roomInfo.name = room.name;
+            var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+            log.info('invite-room RoomAvatar', RoomAvatar);
+            if(!RoomAvatar) 
+                roomInfo.avatar_url = './static/Img/User/group-40px@2x.png';
+            else 
+                roomInfo.avatar_url = RoomAvatar;
+            roomInfo.inviteName = await this.getShowInviteMsgContent(room);
+            await room.loadMembersIfNeeded();
+            let mxMembers = [];
+            for(let key in room.currentState.members) {
+                let o = room.currentState.members[key];
+                let obj = {...o, choosen:false}
+                if (obj.membership != 'leave') mxMembers.push(obj);
+            }
+            if(mxMembers.length == 2){
+                roomInfo.name =  roomInfo.inviteName;
+            }
+            return roomInfo;
+        },
+
         async createRoomInfo(){
             for(let item of this.$store.state.inviteRooms){
-                let roomInfo = {};
-                let room = this.matrixClient.getRoom(item.roomID);
-                if(!room){
-                    return;
-                } 
-                roomInfo.roomID = item.roomID;
-                roomInfo.roomState = item.roomState;
-                roomInfo.name = room.name;
-                var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
-                log.info('invite-room RoomAvatar', RoomAvatar);
-                if(!RoomAvatar) 
-                    roomInfo.avatar_url = './static/Img/User/group-40px@2x.png';
-                else 
-                    roomInfo.avatar_url = RoomAvatar;
-                roomInfo.inviteName = await this.getShowInviteMsgContent(room);
+                let roomInfo = await this.getRoomInfo(item)
                 this.roomList.push(roomInfo);
             } 
         }
