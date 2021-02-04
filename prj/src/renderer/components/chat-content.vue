@@ -754,7 +754,7 @@ export default {
           if(this.dealShowGroupList.every(dealitem=>{
                 return dealitem.roomId != item.roomId
               })){
-              this.dealShowGroupList.unshift(newRoom);
+              this.dealShowGroupList.unshift(item);
             }
         }
         else{
