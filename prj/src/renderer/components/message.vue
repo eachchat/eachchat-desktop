@@ -273,6 +273,7 @@ export default {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
                     if(fs.existsSync(this.msg.path)) {
                         shell.openPath(this.msg.path);
+                        return;
                     }
                     console.log("========= file ");
                     var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
@@ -280,6 +281,10 @@ export default {
                     var existLocalFile = await this.getFileExist();
                     this.checkingTmpPath = finalPath + "_tmp";
                     if(!fs.existsSync(existLocalFile)) {
+                        if(this.isDownloading) {
+                            return;
+                        }
+                        this.isDownloading = true;
                         getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
                             .then((blob) => {
                                 let reader = new FileReader();
@@ -1124,6 +1129,7 @@ export default {
     },
     data() {
         return {
+            isDownloading: false,
             playingAudioId: '',
             decrypting: false,
             decryptedUrl: null,
@@ -1243,6 +1249,7 @@ export default {
             }
             this.showProgress = false;
             if(this.downloadingInterval) {
+                this.isDownloading = false;
                 clearInterval(this.downloadingInterval);
             }
             if(id == this.playingAudioId) {
