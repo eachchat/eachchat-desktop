@@ -2915,7 +2915,7 @@ export default {
           this.$store.commit("setDraft", [this.curChat.roomId, content]);
         }
         var unreadInfo = [];
-        if(this.curChat != undefined && this.curChat.timeline.length != 0) {
+        if(this.curChat != undefined && (this.curChat.timeline && this.curChat.timeline.length != 0)) {
           console.log("*** showChat SetRoomReader");
           unreadInfo = [this.curChat.roomId, false];
           global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
