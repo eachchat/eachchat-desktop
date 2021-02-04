@@ -36,6 +36,7 @@ import {ComponentUtil} from '../script/component-util.js';
 import "../style/contact-list.css"
 import log from 'electron-log'
 import {remote} from 'electron'
+import * as Rooms from "../../packages/data/Rooms";
 const {Menu, MenuItem} = remote;
 
 export default {
@@ -92,6 +93,10 @@ export default {
 
         ToJoinRoom: function(roomId) {
             try{
+                var distRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomId);
+                if(global.mxMatrixClientPeg.isDMInvite(distRoom)) {
+                    Rooms.setDMRoom(roomId, global.mxMatrixClientPeg.matrixClient.getUserId());
+                }
                 global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
                     // this.isRefreshing = true;
@@ -156,7 +161,7 @@ export default {
             if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
                 if(chatGroupItem.getMyMembership() == "invite") {
                     var inviteMemer = this._getInviteMember(chatGroupItem);
-                    if(global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
+                    if(global.mxMatrixClientPeg.isDMInvite(chatGroupItem)) {
                         return "";//inviteMemer.userId;
                     }
                     else {
