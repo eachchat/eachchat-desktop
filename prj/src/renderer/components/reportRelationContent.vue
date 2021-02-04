@@ -4,7 +4,7 @@
         <ul class="reportList">
             <li class="report" v-for="(user, index) in userInfo.leaders" :key="index">
                 <div class="reportInfo">
-                    <img ondragstart="return false" class="reportIcon" src="../../../static/Img/User/user-40px@2x.png" :id="user._attr.user_id">
+                    <img ondragstart="return false" class="reportIcon" src="../../../static/Img/User/user-40px@2x.png" :id="user._attr.user_id" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                     <p class="reportName">{{ user._attr.user_display_name }}</p>
                     <p class="reportTitle">{{ user._attr.user_title }}</p>
                 </div>
