@@ -78,13 +78,17 @@ export default {
             }
         },
         Confirm() {
+            this.disableChangePassword = true;
             var err = this.onCheckPassword(this.originalPassword, this.newPassword, this.confirmPassword);
             if(err) {
-                this.$toastMessage({message:err, time:2000, type:'success'});
+                this.disableChangePassword = false;
+                this.$toastMessage({message:err, time:2000, type:'error'});
                 this.Close();
             }
             else {
-                this.showChangePasswordAlert = true;
+                // this.showChangePasswordAlert = true;
+                this.changePassword(this.originalPassword, this.newPassword);
+                this.disableChangePassword = false;
             }
         },
         changePassword(oldPassword, newPassword) {
@@ -115,9 +119,11 @@ export default {
                 //     this.props.onFinished();
                 // }
                 this.$toastMessage({message:this.$t("changePasswordSuc"), time:2000, type:'success'});
+                this.disableChangePassword = false;
                 this.Close();
             }, (err) => {
                 this.$toastMessage({message:err, time:2000, type:'success'});
+                this.disableChangePassword = false;
             })
         }
     }

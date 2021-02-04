@@ -250,7 +250,7 @@ export default {
         return {
             ulElement: undefined,
             curSelectedIndex: 0,
-            appServerHost: "http://139.198.18.180:8888", //"https://gms.each.chat",//"http://139.198.18.180:8888",//"https://chat.yunify.com",
+            appServerHost: "https://gms.each.chat", //"https://gms.each.chat",//"http://139.198.18.180:8888",//"https://chat.yunify.com",
             showPwd: false,
             forgetPwdButtonDisabled: false,
             iconType: "alert",
@@ -382,6 +382,7 @@ export default {
         toResetPwd: function() {
             this.loginPageTitle = "重置密码";
             this.loginPageAccountLabel = "邮箱";
+            this.loginPageTitlellustrate = "通过邮箱重置密码";
             this.loginPageAccountPlaceholder = "请输入您的邮箱";
             this.loginPagePwdLabel = "新密码";
             this.loginPagePwdPlaceholder = "请输入新密码";
@@ -412,7 +413,7 @@ export default {
                 return res;
             }, function(err) {
                 if (err.errcode === 'M_THREEPID_NOT_FOUND') {
-                    err.message = _t('This email address was not found');
+                    err.message = "该邮箱地址未绑定";
                 } else if (err.httpStatus) {
                     err.message = err.message + ` (Status ${err.httpStatus})`;
                 }
@@ -1152,8 +1153,8 @@ export default {
         },
         async organizationFinderBackToLoginClicked(){
             if(this.isRecetPwd || this.toVerfyEmail) {
-                this.loginPageTitle = "用户名登录";
-                this.loginPageTitlellustrate = "";
+                this.loginPageTitle = "登录 亿洽";
+                this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
                 this.loginPageAccountLabel = "用户名";
                 this.loginPageAccountPlaceholder = "请输入用户名";
                 this.loginPagePwdLabel = "密码";
@@ -1624,7 +1625,7 @@ export default {
                         passwordInputDivDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
                     }
                 }, (err) => {
-                    this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error'});
+                    this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error', showWidth:"280px", showHeight:"100px"});
                 });
             }
             else {
@@ -1635,7 +1636,7 @@ export default {
             try {
                 await this.checkEmailLinkClicked();
                 
-                this.$toastMessage({message:"密码重置成功：" + err.message, time: 3000, type:'success', showWidth:'280px', showHeight:"100px"});
+                this.$toastMessage({message:"密码重置成功：" + err.message, time: 3000, type:'success', showWidth:'280px'});
                 this.loginPageTitle = "用户名登录";
                 this.loginPageAccountLabel = "用户名";
                 this.loginPageAccountPlaceholder = "请输入用户名";
@@ -1670,16 +1671,38 @@ export default {
             }
         },
         resetPwd: async function() {
-            this.alertContnets = {
-                "Details": "更改您的密码将会重置会话上的加密密钥，在重置密码之前，请先备份密钥或从另一个会话中导出聊天室密钥",
-                "Abstrace": "提示"
-            };
-            this.LoginBtnText = "确定";
-            this.showAlertDlg = true;
-            this.alertWidth = 330;
-            this.alertHeight = 230;
-            this.alertContentLeft = 25;
-            this.iconType = "alert";
+            this.resetPassword(this.username, this.password).then(() => {
+                this.alertContnets = {
+                    "Details": "邮件已经发送至" + this.username + "，请查收邮件并点击链接进行密码修改验证",
+                    "Abstrace": "发送成功"
+                };
+                this.isRecetPwd = false;
+                this.toVerfyEmail = true;
+                this.LoginBtnText = "确定";
+                this.showAlertDlg = true;
+                this.alertWidth = 330;
+                this.alertHeight = 230;
+                this.alertContentLeft = 25;
+                this.iconType = "suc";
+                this.LoginBtnText = "我已验证邮箱";
+                var accountInputDom = document.getElementById("accountInputId");
+                if(accountInputDom) {
+                    accountInputDom.disabled = true;
+                    accountInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                }
+                var passwordInputDom = document.getElementById("passwordInputId");
+                if(passwordInputDom) {
+                    passwordInputDom.disabled = true;
+                    passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                }
+                var passwordInputDivDom = document.getElementById("inputDivId");
+                if(passwordInputDivDom) {
+                    passwordInputDivDom.disabled = true;
+                    passwordInputDivDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                }
+            }, (err) => {
+                this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error', showWidth:"280px", showHeight:"80px"});
+            });
         },
         login:async function() {
             if(this.isLdap) {
