@@ -2697,24 +2697,39 @@ export default {
 
         return timelineSet;
     },
+    messageFilter(event){
+        if(['m.room.message', 'm.room.create'].indexOf(event.getType()) >= 0) return true;
+        return false;
+    },
     async toUpdateTimeLine(chatGroupItem) {
       if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
         this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
       }
       var distElement = document.getElementById(this.getChatContentElementId(chatGroupItem.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(chatGroupItem.roomId));
-      var timeLineSet = await this.updateTimelineSet(chatGroupItem);
-      // var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
+      // var timeLineSet = await this.updateTimelineSet(chatGroupItem);
+      var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
       var _timelineWindow = new Matrix.TimelineWindow(
           global.mxMatrixClientPeg.matrixClient, 
           timeLineSet,
           {windowLimit:Number.MAX_VALUE},
       )
       await _timelineWindow.load(undefined, 20);
-      var fileListInfo = _timelineWindow.getEvents();
+      var fileListInfo = [];
+      var originalFileListInfo = _timelineWindow.getEvents();
+      originalFileListInfo.forEach(item => {
+          if(this.messageFilter(item) && item.event.content){
+              fileListInfo.push(item);
+          } 
+      })
       while(fileListInfo.length == 0 && _timelineWindow.canPaginate('b')) {
-        await _timelineWindow.paginate("b", 20);
-        fileListInfo = await _timelineWindow.getEvents();
+          await _timelineWindow.paginate("b", 20);
+          var fileListInfoTmp = await _timelineWindow.getEvents();
+          fileListInfoTmp.forEach(item => {
+              if(this.messageFilter(item) && item.event.content){
+                  fileListInfo.push(item);
+              }
+          })
       }
       if(fileListInfo.length == 0) {
         return;
