@@ -207,16 +207,11 @@ export default {
             else 
                 roomInfo.avatar_url = RoomAvatar;
             roomInfo.inviteName = await this.getShowInviteMsgContent(room);
-            await room.loadMembersIfNeeded();
-            let mxMembers = [];
-            for(let key in room.currentState.members) {
-                let o = room.currentState.members[key];
-                let obj = {...o, choosen:false}
-                if (obj.membership != 'leave') mxMembers.push(obj);
+            
+            if(global.mxMatrixClientPeg.isDMInvite(room)){
+                roomInfo.name = roomInfo.inviteName;
             }
-            if(mxMembers.length == 2){
-                roomInfo.name =  roomInfo.inviteName;
-            }
+
             return roomInfo;
         },
 
@@ -230,6 +225,7 @@ export default {
     created: function() {
         this.services = global.services.common;
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        this.myUserId = window.localStorage.getItem("mx_user_id");
         this.createRoomInfo();
     }
 }
