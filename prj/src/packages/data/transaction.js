@@ -1142,6 +1142,15 @@ class APITransaction {
       });
       return this.parseStatus(response);
   }
+
+  async getContactSetting(accessToken){
+    var response = await this.commonApi.get(
+      "api/apps/contacts/v1/contact/setting",
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
 
 

@@ -2726,8 +2726,16 @@ const common = {
       let roomModel = await servicemodels.ContactRoom(item);
       await roomModel.save();
     }
-  }
+  },
 
+  async getContactSetting(){
+    let result = await this.api.getContactSetting(this.data.login.access_token);
+    log.info("getContactSetting", result);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result;
+  }
 };
 
 const cache = {
