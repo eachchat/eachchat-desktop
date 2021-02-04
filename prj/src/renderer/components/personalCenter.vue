@@ -340,6 +340,7 @@ export default {
     position: absolute;
     cursor: default;
     overflow: visible;
+    z-index: 2;
 }
 .personalCenterBaseInfo-view {
     height: 48px;
