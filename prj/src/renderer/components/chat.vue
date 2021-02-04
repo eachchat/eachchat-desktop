@@ -1776,7 +1776,7 @@ export default {
         sendAgain: async function(retryMsg) {
             var sendBody = retryMsg.event.content.body;
             try{
-                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, retryMsg._TxnId)
+                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, retryMsg._txnId)
             }
             catch(error) {
                 console.log("error is ", error);
@@ -1867,7 +1867,7 @@ export default {
                 else{
                     eventTmp.event.content.msgtype = "m.file";
                 }
-
+                this.sendingList.push(eventTmp);
                 this.messageList.push(eventTmp);
                 setTimeout(() => {
                     this.$nextTick(() => {
@@ -2294,6 +2294,7 @@ export default {
                 _txnId: curTimeSeconds,
                 message_status: 1,
             };
+            this.sendingList.push(eventTmp);
             this.messageList.push(eventTmp);
             setTimeout(() => {
                 this.$nextTick(() => {
@@ -3136,7 +3137,7 @@ export default {
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     this.getShowMessage(this.messageFilter, 10, 'b')
                         .then((ret) => {
-                            this.messageList = ret;
+                            this.messageList = ret.concat(this.sendingList);
                             this.isRefreshing = false;
                             setTimeout(() => {
                                 this.$nextTick(() => {
@@ -3502,6 +3503,7 @@ export default {
     },
     data() {
         return {
+            sendingList: [],
             isMute: false,
             txnId2EventId: {},
             transmitNeedAlert: false,
@@ -3854,34 +3856,22 @@ export default {
             }
             this.showGroupName(this.curChat);
             this._timelineWindow.paginate("f", 10).then(() => {
-                var senderId = this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender;
-                var msgType = this.newMsg.getContent().msgtype;
-                if(senderId == this.$store.state.userId) {
-                    var getMessageList = this._getEvents();
-                    for(let i=0;i<getMessageList.length;i++) {
-                        for(let j=this.messageList.length-1;j>= 0;j--) {
-                            if(!this.messageList[j].event.event_id) {
-                                if(this.messageList[j]._txnId == getMessageList[i].getTxnId()) {
-                                    console.log("*** this.messageList[j] ", this.messageList[j]);
-                                    this.messageList[j].message_status = 0;
-                                    this.messageList[j] = getMessageList[i];
-                                    this.updatemsgStatus = {
-                                        "id": this.messageList[j]._txnId ? this.messageList[j]._txnId : this.messageList[j].event.event_id,
-                                        "status": 0
-                                    };
-                                    
-                                    break;
-                                }
-                            }
-                            // else {
-                            //     this.messageList = this._getEvents();
-                            // }
+                var getMessageList = this._getEvents();
+                for(let i=0;i<this.sendingList.length;i++) {
+                    for(let j=getMessageList.length-1;j>= 0;j--){
+                        if(this.sendingList[i]._txnId == getMessageList[j]._txnId) {
+                            this.sendingList.splice(i, 1);
+                            getMessageList[j].message_status = 0;
+                            this.updatemsgStatus = {
+                                "id": getMessageList[j]._txnId ? getMessageList[j]._txnId : getMessageList[j].event.event_id,
+                                "status": 0
+                            };
+                            break;
                         }
                     }
                 }
-                else {
-                    this.messageList = this._getEvents();
-                }
+                getMessageList = getMessageList.concat(this.sendingList);
+                this.messageList = getMessageList;
                 console.log("*** to get new message ", this.messageList);
             })
             setTimeout(() => {
