@@ -11,7 +11,7 @@
         <!-- <div class="login-panel" v-else style="-webkit-app-region: no-drag"> -->
         <div class="windowHeader">
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false" :isNormal="true"></mac-window-header>
-            <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
+            <winHeaderBar @Close="winClose()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
         </div>
         <!-- <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
         <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage> -->
@@ -742,6 +742,9 @@ export default {
         },
         Max: function() {
             ipcRenderer.send("win-max");
+        },
+        winClose: function() {
+            ipcRenderer.send("login-win-close");
         },
         resetLoginStateTitle(){
             this.loginState = "";

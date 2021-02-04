@@ -1777,7 +1777,10 @@ export default {
         var showLowPriorityGroupList = await this.searchRoom(this.lowPriorityGroupList, searchKey);
         var concatSearchChatItems = [].concat(showFavouriteRooms, showDealGroupList, showLowPriorityGroupList);
         if(concatSearchChatItems.length > 3) {
-          this.showSearchAllChatMsg = true; 
+          this.showAllSearchAllChat = true; 
+        }
+        if(concatSearchChatItems.length == 0) {
+          this.showSearchAllChat = false;
         }
         this.searchChatItems = concatSearchChatItems.splice(0, 3);
         // console.log("*** searchChatItems ", this.searchChatItems);
@@ -1796,10 +1799,10 @@ export default {
             this.searchMessageItems = searchChat.rooms.results;
             this.showSearchMessage = true;
             if(searchChat.rooms.more) {
-              this.showAllSearchAllChat = true;
+              this.showSearchAllChatMsg = true;
             }
             else {
-              this.showAllSearchAllChat = false;
+              this.showSearchAllChatMsg = false;
             }
           }
           else {
