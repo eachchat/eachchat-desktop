@@ -380,6 +380,9 @@ export default {
             }
         },
         toResetPwd: function() {
+            if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
+                return;
+            }
             this.loginPageTitle = "重置密码";
             this.loginPageAccountLabel = "邮箱";
             this.loginPageTitlellustrate = "通过邮箱重置密码";
@@ -945,7 +948,7 @@ export default {
                         this.loginPageTitle = "登录 亿洽";
                         this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
                         this.loginPageAccountLabel = "用户名";
-                        this.loginPageAccountPlaceholder = "请输入用户名";
+                        this.loginPageAccountPlaceholder = "请输入用户名或邮箱";
                         this.loginPagePwdLabel = "密码";
                         this.loginPagePwdPlaceholder = "请输入密码";
                         this.forgetPasswordContent = "忘记密码";
@@ -1154,42 +1157,79 @@ export default {
                 }
             }
         },
-        async organizationFinderBackToLoginClicked(){
-            if(this.isRecetPwd || this.toVerfyEmail) {
+        resetPageToLogin() {
+            this.isLoading = false;
+            this.organizationButtonDisabled = false;
+            this.resetLoginStateTitle();
+            this.defaultIdentity = global.localStorage.getItem("authType");
+            this.threeAuthType = global.localStorage.getItem("threeAuthType");
+            if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
+                this.isLdap = true;
+                this.isMatrixPwd = false;
+                this.loginPageTitle = "登录 亿洽";
+                this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
+                this.loginPageAccountLabel = "组织ID";
+                this.loginPageAccountPlaceholder = "请输入用户民或邮箱";
+                this.loginPagePwdLabel = "密码";
+                this.loginPagePwdPlaceholder = "请输入密码";
+                this.forgetPasswordContent = "";
+                this.username = "";
+                this.password = "";
+                this.showPwd = true;
+                this.toShowPwd();
+                this.forgetPwdButtonDisabled = true;
+            }
+            else {
+                this.isLdap = false;
+                this.isMatrixPwd = true;
                 this.loginPageTitle = "登录 亿洽";
                 this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
                 this.loginPageAccountLabel = "用户名";
-                this.loginPageAccountPlaceholder = "请输入用户名";
+                this.loginPageAccountPlaceholder = global.localStorage.getItem("userNamePlaceHolder");
                 this.loginPagePwdLabel = "密码";
-                this.loginPagePwdPlaceholder = "请输入密码";
-                this.isMatrixPwd = true;
+                this.loginPagePwdPlaceholder = global.localStorage.getItem("passwordPlaceHolder");
                 this.forgetPasswordContent = "忘记密码";
                 this.username = "";
                 this.password = "";
                 this.showPwd = true;
                 this.toShowPwd();
                 this.forgetPwdButtonDisabled = false;
-                this.isRecetPwd = false;
-                this.toVerfyEmail = false;
-                this.isLdap = false;
-                var accountInputDom = document.getElementById("accountInputId");
-                if(accountInputDom) {
-                    accountInputDom.disabled = false;
-                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
-                    accountInputDom.focus();
-                }
-                var passwordInputDom = document.getElementById("passwordInputId");
-                if(passwordInputDom) {
-                    passwordInputDom.disabled = false;
-                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
-                    passwordInputDom.type = "password";
-                }
-                var passwordInputDivDom = document.getElementById("inputDivId");
-                if(passwordInputDivDom) {
-                    passwordInputDivDom.disabled = false;
-                    passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
-                    passwordInputDivDom.type = "password";
-                }
+            }
+            this.showLoginView = true;
+            this.showOrganizationView = false;
+            this.isRecetPwd = false;
+            this.toVerfyEmail = false;
+            this.$nextTick(() => {
+                var userNameInput = document.getElementById("accountInputId");
+                userNameInput.focus();
+            })
+            
+            this.LoginBtnText = "登录";
+            this.username = "";
+            this.password = "";
+
+            var accountInputDom = document.getElementById("accountInputId");
+            if(accountInputDom) {
+                accountInputDom.disabled = false;
+                accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                accountInputDom.focus();
+            }
+            var passwordInputDom = document.getElementById("passwordInputId");
+            if(passwordInputDom) {
+                passwordInputDom.disabled = false;
+                passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                passwordInputDom.type = "password";
+            }
+            var passwordInputDivDom = document.getElementById("inputDivId");
+            if(passwordInputDivDom) {
+                passwordInputDivDom.disabled = false;
+                passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                passwordInputDivDom.type = "password";
+            }
+        },
+        async organizationFinderBackToLoginClicked(){
+            if(this.isRecetPwd || this.toVerfyEmail) {
+                this.resetPageToLogin();
             }
             else if(this.showOrganizationViewHost) {
                 var host = this.organizationAddress;
@@ -1598,6 +1638,8 @@ export default {
         },
         AlertConfirm: function() {
             if(this.isRecetPwd) {
+                console.log("***** AlertConfirm");
+                this.loginButtonDisabled = false;
                 this.resetPassword(this.username, this.password).then(() => {
                     this.alertContnets = {
                         "Details": "邮件已经发送至" + this.username + "，请查收邮件并点击链接进行密码修改验证",
@@ -1638,43 +1680,19 @@ export default {
         VerfyEmail: async function() {
             try {
                 await this.checkEmailLinkClicked();
+                this.loginButtonDisabled = false;
                 
-                this.$toastMessage({message:"密码重置成功：" + err.message, time: 3000, type:'success', showWidth:'280px'});
-                this.loginPageTitle = "用户名登录";
-                this.loginPageAccountLabel = "用户名";
-                this.loginPageAccountPlaceholder = "请输入用户名";
-                this.loginPagePwdLabel = "密码";
-                this.loginPagePwdPlaceholder = "请输入密码";
-                this.isMatrixPwd = true;
-                this.isRecetPwd = false;
-                this.toVerfyEmail = false;
-                this.isLdap = false;
-                var accountInputDom = document.getElementById("accountInputId");
-                if(accountInputDom) {
-                    accountInputDom.disabled = false;
-                    accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
-                }
-                var passwordInputDom = document.getElementById("passwordInputId");
-                if(passwordInputDom) {
-                    passwordInputDom.disabled = false;
-                    passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
-                }
-                var passwordInputDivDom = document.getElementById("inputDivId");
-                if(passwordInputDivDom) {
-                    passwordInputDivDom.disabled = false;
-                    passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
-                }
-                this.username = "";
-                this.password = "";
-                this.LoginBtnText = "登录";
-                this.forgetPasswordContent = "忘记密码";
-                this.forgetPwdButtonDisabled = false;
+                this.$toastMessage({message:"密码重置成功", time: 3000, type:'success', showWidth:'280px'});
+
+                this.resetPageToLogin();
             } catch (err) {
                 this.$toastMessage({message:"邮件认证失败：" + err.message, time: 3000, type:'error', showWidth:'280px', showHeight:"100px"});
             }
         },
         resetPwd: async function() {
             this.resetPassword(this.username, this.password).then(() => {
+                console.log("***** resetpwd");
+                this.loginButtonDisabled = false;
                 this.alertContnets = {
                     "Details": "邮件已经发送至" + this.username + "，请查收邮件并点击链接进行密码修改验证",
                     "Abstrace": "发送成功"
@@ -1715,9 +1733,11 @@ export default {
                 this.matrixPwdLogin();
             }
             else if(this.isRecetPwd) {
+                this.loginButtonDisabled = true;
                 this.resetPwd();
             }
             else if(this.toVerfyEmail) {
+                this.loginButtonDisabled = true;
                 this.VerfyEmail();
             }
         },

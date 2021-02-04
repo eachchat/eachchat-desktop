@@ -12,7 +12,7 @@
                 </div>
             </div>
             <div class="AlertFotter">
-                <button class="AlertCancleButton" @click="Close()" v-show="canCancel">取消</button>
+                <button class="AlertCancleButton" id="cancleButtonId" @click="Close()" v-show="canCancel">取消</button>
                 <button class="AlertConfirmButton" @click="ClearCache()">确定</button>
             </div>
         </div>
@@ -126,6 +126,14 @@ export default {
                 this.AlertDlgElement = document.getElementById("AlertDlgId");
             }
             this.AlertDlgElement.style.width = this.width.toString() + "px";
+            if(this.width < 340) {
+                var cancelElement = document.getElementById("cancleButtonId");
+                cancelElement.style.marginLeft = "auto";
+            }
+            else {
+                var cancelElement = document.getElementById("cancleButtonId");
+                cancelElement.style.marginLeft = "180px";
+            }
         },
         height:function() {
             if(this.height == 0) return;
