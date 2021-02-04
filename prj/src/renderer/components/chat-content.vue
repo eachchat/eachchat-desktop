@@ -367,6 +367,9 @@ export default {
         console.log('------distGroupId------');
         this.viewRoom(room);
         this.showDealGroupListUpdate++;
+        this.$nextTick(() => {
+          this.showGroupIconName();
+        })
       }
     },
     updateImg: async function() {
@@ -420,11 +423,12 @@ export default {
                 console.log("membership ", member.membership)
                 //join leave invite
                 let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
-                if (member.membership == 'invite') {newRoom
+                if (member.membership == 'invite') {
                   this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
                   if(this.dealShowGroupList.every(item=>{
                       return item.roomId != newRoom.roomId
                     })){
+                    newRoom.distTimeLine = event;
                     this.dealShowGroupList.unshift(newRoom);
                   }
                   this.$nextTick(() => {
