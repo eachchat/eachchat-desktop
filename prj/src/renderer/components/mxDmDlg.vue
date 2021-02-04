@@ -999,6 +999,7 @@ export default {
         border-radius: 50%;
     }
     .room-info {
+        width: 280px;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
@@ -1016,6 +1017,10 @@ export default {
         font-weight: 400;
         color: #999999;
         line-height: 18px;
+        width: 280px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
     .room-join {
         height: 24px;
