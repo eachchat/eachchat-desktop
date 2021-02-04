@@ -43,7 +43,7 @@
             <!-- </transition-group> -->
             <!-- <el-link :underline="false" @click="RoomsClick()" icon='el-icon-caret-bottom'>聊天列表</el-link> -->
             <!-- <div class = "grid-content">聊天</div> -->
-            <ul class="group-list" name="group-list">
+            <ul class="group-list" name="group-list" :key = 'showDealGroupListUpdate'>
             <!-- <transition-group class="group-list" name="group-list" tag="ul"> -->
               <li :class = 'getGroupClassName(chatGroupItem)("group")'
                   v-for="(chatGroupItem, index) in showDealGroupList"
@@ -51,7 +51,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bRooms'>
+                  v-show='bRooms && chatGroupItem.getMyMembership() != "invite"'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -366,6 +366,7 @@ export default {
       if(room) {
         console.log('------distGroupId------');
         this.viewRoom(room);
+        this.showDealGroupListUpdate++;
       }
     },
     updateImg: async function() {
@@ -417,8 +418,13 @@ export default {
                 console.log("membership ", member.membership)
                 //join leave invite
                 let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
-                if (member.membership == 'invite') {
+                if (member.membership == 'invite') {newRoom
                   this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
+                  if(this.dealShowGroupList.every(item=>{
+                      return item.roomId != newRoom.roomId
+                    })){
+                    this.dealShowGroupList.unshift(newRoom);
+                  }
                   this.$nextTick(() => {
                     this.showGroupIconName(newRoom);
                   })
@@ -529,6 +535,7 @@ export default {
       dealShowGroupList:[],//聊天列表
       dealShowGroupIds: [],
       showDealGroupList:[],
+      showDealGroupListUpdate: 0,
       lowPriorityGroupList: [],
       lowPriorityGroupIds: [],
       showLowPriorityGroupList:[],
@@ -1736,7 +1743,7 @@ export default {
           }
         }
         else{
-          if(groups[i].name.indexOf(searchKey) >= 0) {
+          if(groups[i].name.indexOf(searchKey) >= 0 && groups[i].getMyMembership() != "invite") {
             // console.log("inininin put ");
             searchResult.push(groups[i]);
           }
