@@ -751,6 +751,11 @@ export default {
       this.showGroupList.forEach(async (item)=>{
         if(item.getMyMembership() == "invite") {
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
+          if(this.dealShowGroupList.every(dealitem=>{
+                return dealitem.roomId != item.roomId
+              })){
+              this.dealShowGroupList.unshift(newRoom);
+            }
         }
         else{
           const notificationCount = item.getUnreadNotificationCount();

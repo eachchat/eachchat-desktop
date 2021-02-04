@@ -290,6 +290,34 @@ export default {
                     this.jumpToChat(res.room_id);
             })
         },
+
+        ToJoinRoom: function(roomId) {
+            try{
+                global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
+                .then(() => {
+                    // this.isRefreshing = true;
+                    setTimeout(() => {
+                        this.jumpToChat(roomId);
+                    }, 500)
+                })
+                .catch((error) => {
+                    console.log("========join failed and err is ", error.error);
+                    if(error.httpStatus == 403) {
+                        this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 429) {
+                        this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 404) {
+                        this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                })
+            }
+            catch(e){
+                console.log(e)
+            }    
+        },
+
         createDm: function() {
             if (this.loading) return;
             // if (!this.choosenMembers || !this.choosenMembers) return;
@@ -310,6 +338,14 @@ export default {
                 return;
             }
 
+            let existRoomID = this.existInInviteRoom(this.userInfo.matrix_id);
+            console.log("existInInviteRoom", existRoomID);
+            if(existRoomID && existRoomID.length != 0){
+                this.$store.commit("updateInviteState", {roomID : existRoomID, roomState : 2});
+                this.ToJoinRoom(existRoomID);
+                return;
+            }
+            
             const createRoomOptions = {inlineErrors: true};
             //TODO 加密处理
 
@@ -333,6 +369,22 @@ export default {
                 // });
             }
         },
+
+        existInInviteRoom(userMatrixID){
+            let inviteRooms = this.$store.state.inviteRooms;
+            for(let itemroom of inviteRooms){
+                let room = global.mxMatrixClientPeg.matrixClient.getRoom(itemroom.roomID)
+                if(!room) continue;
+                if(global.mxMatrixClientPeg.isDMInvite(room)){
+                    var myMember = global.mxMatrixClientPeg.getMyMember(room);
+                    let directMember = myMember.getDMInviter();
+                    if(directMember == userMatrixID)
+                        return itemroom.roomID;
+                } 
+            }
+            return;
+        },
+
         GetDisplayName: function(displayName, userid){
             return ComponentUtil.GetDisplayName(displayName, userid);
         },
