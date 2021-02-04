@@ -3707,7 +3707,7 @@ export default {
     props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat'],
     watch: {
         chat: function() {
-            if(this.chat == null) {
+            if(!this.chat.roomId) {
                 return;
             }
             this.curChat = this.chat;
@@ -3822,6 +3822,10 @@ export default {
             }
         },
         toBottom: function() {
+            console.log("***** this.chat is ", this.chat)
+            if(!this.chat.roomId) {
+                return;
+            }
             if(this.toBottom == true) {
                 let div = document.getElementById("message-show-list");
                 if(div) {
