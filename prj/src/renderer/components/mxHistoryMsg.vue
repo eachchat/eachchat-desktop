@@ -285,33 +285,41 @@ export default {
                 if((curItem.event.content ? curItem.event.content.msgtype : curItem.getContent().msgtype) == "m.image") {
                     var chatGroupMsgContent = curItem.content ? curItem.content : curItem.getContent();
                     let maxSize = 260;
+
+                    let showWidth = maxSize;
+                    let showHeight = maxSize;
+
                     let info = {
                         w: maxSize,
                         h: maxSize
                     };
-                    if(chatGroupMsgContent.info)
-                        info = chatGroupMsgContent.info
-                    if(!info.h)
-                        info.h = maxSize;
-                    if(!info.w)
-                        info.w = maxSize;
+
+                    if(chatGroupMsgContent.info) {
+                        if(!chatGroupMsgContent.info.h)
+                            chatGroupMsgContent.info.h = this.imgHeight;
+                        if(!chatGroupMsgContent.info.w)
+                            chatGroupMsgContent.info.w = this.imgWidth;
+                        showWidth = chatGroupMsgContent.info.w;
+                        showHeight = chatGroupMsgContent.info.h;
+                    }
+                    
                     var imgMsgImgElement = document.getElementById(this.getMxImgId(curItem));
                     let style = "";
-                    let max = Math.max(info.w, info.h);
+                    let max = Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h);
                     if(max > maxSize ){
-                        if(info.w > info.h){
-                            info.h = info.h/(info.w/maxSize);
-                            info.w = maxSize;
+                        if(chatGroupMsgContent.info.w > chatGroupMsgContent.info.h){
+                            showHeight = chatGroupMsgContent.info.h/(chatGroupMsgContent.info.w/maxSize);
+                            showWidth = maxSize;
                         }
                         else{
-                            info.w = info.w/(info.h/maxSize)
-                            info.h = maxSize;
+                            showWidth = chatGroupMsgContent.info.w/(chatGroupMsgContent.info.h/maxSize)
+                            showHeight = maxSize;
                         }
 
                     }
-                    style += "width:" + info.w + "px";
+                    style += "width:" + showWidth + "px";
                     style += ";"
-                    style += "height:" + info.h + "px";
+                    style += "height:" + showHeight + "px";
                     imgMsgImgElement.setAttribute("style", style);
                 }
             }
