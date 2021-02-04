@@ -1823,7 +1823,6 @@ export default {
     .user-info {
         display: flex;
         flex-direction: column;
-        flex: 1;
     }
     .submit-field {
         display: flex;
