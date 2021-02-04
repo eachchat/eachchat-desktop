@@ -134,10 +134,10 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   if(process.platform == 'darwin'){
     var template = [
       {
-        label: app.name,
+        label: app.name || '',
         submenu:[
           {
-            label: `退出${app.name}`,
+            label: `退出${app.name || ''}`,
             role: "quit"
           }
         ]

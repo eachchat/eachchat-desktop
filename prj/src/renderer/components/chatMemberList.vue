@@ -157,7 +157,7 @@ export default {
                 var ulDiv = document.getElementById("atListId");
                 var selectedIndex = -1;
                 for(var i=0;i<ulDiv.children.length;i++) {
-                    if(ulDiv.children[i].style.backgroundColor == "rgba(243, 244, 247, 1)") {
+                    if(ulDiv.children[i].style.backgroundColor == "rgba(243, 244, 247, 1)" || ulDiv.children[i].style.backgroundColor == "rgb(243, 244, 247)") {
                         selectedIndex = i;
                         break;
                     }

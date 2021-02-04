@@ -409,10 +409,12 @@ export default {
         })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
-            console.log('chat-content membership member is ', member);
-            const currentUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            // console.log('chat-content membership member is ', member);
+            if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+              this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            }
             setTimeout(async ()=>{
-              if (member.userId == currentUserId) {
+              if (member.userId == this.selfUserId) {
                 console.log("event is ", event);
                 console.log("member is ", member);
                 console.log("membership ", member.membership)
@@ -447,6 +449,9 @@ export default {
                 }
               }
               else {
+                if(this.dealShowGroupIds.indexOf(member.roomId) >= 0 || this.favouriteIds.indexOf(member.roomId) >= 0 || this.lowPriorityGroupIds.indexOf(member.roomId) >= 0) {
+                  return;
+                }
                 let getRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
                 getRoom.distTimeLine = event;
                 this.UpdateRoomListPassive(member);

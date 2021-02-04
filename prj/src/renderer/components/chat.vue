@@ -1566,21 +1566,18 @@ export default {
         showExpression: function() {
             this.showFace = !this.showFace;
         },
-        mxGetMembers: function() {
-            var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        mxGetMembers: async function() {
             const roomId = this.curChat.roomId;
             const cli = window.mxMatrixClientPeg.matrixClient;
             const xie1 = cli.getRoom(roomId);
-            const xie2 = cli.getRoomPushRule("global", roomId);
+            await xie1.loadMembersIfNeeded();
             const mxMembers = [];
             for(let key in xie1.currentState.members) {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
-                let obj = {...xie1.currentState.members[key], choosen:false}
+                let o = xie1.currentState.members[key];
+                let obj = {...o, choosen:false}
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
-            console.log('mxMembers', mxMembers);
-            console.log('----mxMembers[userId]----', userId)
-            
             return mxMembers.length;
         },
         showGroupName: async function(chatGroupItem) {
@@ -1604,7 +1601,7 @@ export default {
                 }
             }
 
-            var totalMemberCount = this.mxGetMembers();
+            var totalMemberCount = await this.mxGetMembers();
             if(totalMemberCount > 2) {
                 if(groupContentNumElement) {
                     groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
@@ -3726,7 +3723,15 @@ export default {
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
-            
+            this.messageList = this.chat.timeline;
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.scrollTop = div.scrollHeight + 52;
+                    }
+                })
+            }, 0)
             this.initMessage();
             this.groupIsSlience();
         },
@@ -3760,6 +3765,15 @@ export default {
                 console.log("chat ============", this.curChat);
                 console.log("this.curGroupId is ", this.curGroupId);
                 
+                this.messageList = this.chat.timeline;
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        let div = document.getElementById("message-show-list");
+                        if(div) {
+                            div.scrollTop = div.scrollHeight + 52;
+                        }
+                    })
+                }, 0)
                 this.initMessage();
             }
         },
@@ -3793,6 +3807,15 @@ export default {
                 console.log("chat ============", this.curChat);
                 console.log("this.curGroupId is ", this.curGroupId);
                 
+                this.messageList = this.chat.timeline;
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        let div = document.getElementById("message-show-list");
+                        if(div) {
+                            div.scrollTop = div.scrollHeight + 52;
+                        }
+                    })
+                }, 0)
                 this.initMessage();
             }
         },
@@ -3809,6 +3832,15 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
+            this.messageList = this.chat.timeline;
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.scrollTop = div.scrollHeight + 52;
+                    }
+                })
+            }, 0)
             this.initMessage();
             this.updateUser++;
         },
