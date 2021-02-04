@@ -208,18 +208,8 @@ export default {
                 roomInfo.avatar_url = RoomAvatar;
             roomInfo.inviteName = await this.getShowInviteMsgContent(room);
             
-            await room.loadMembersIfNeeded();
-            let mxMembers = [];
-            for(let key in room.currentState.members) {
-                let o = room.currentState.members[key];
-                let obj = {...o, choosen:false}
-                if (obj.membership != 'leave') mxMembers.push(obj);
-            }
-            if(mxMembers.length == 2){
-                let curRoomMember = room.getMember(this.myUserId);
-                let direct = curRoomMember.getDMInviter();
-                if(direct)
-                    roomInfo.name = roomInfo.inviteName;
+            if(global.mxMatrixClientPeg.isDMInvite(room)){
+                roomInfo.name = roomInfo.inviteName;
             }
 
             return roomInfo;
