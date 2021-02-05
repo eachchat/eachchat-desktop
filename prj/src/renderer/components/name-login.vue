@@ -1464,7 +1464,7 @@ export default {
                     return;
                 }
                 else if(client == undefined) {
-                    this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'280px'});
+                    this.$toastMessage({message:"登录失败", time: 3000, type:'error', showWidth:'280px'});
                     // this.loginState = e.message;
                     this.isLoading = false;
                     this.loginButtonDisabled = false;

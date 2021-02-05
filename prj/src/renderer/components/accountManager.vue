@@ -359,8 +359,8 @@ export default {
             console.log("get threed pids exception ", error)
         }
         var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
-        var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(userId);
-        this.ownerAccount = profileInfo.displayname;
+        var userName = userId.substring(userId.indexOf("@"), userId.indexOf(":"));
+        this.ownerAccount = userName;
     },
     watch: {
         needUpdate: async function() {

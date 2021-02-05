@@ -5,7 +5,7 @@
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
         </div>
         <div class="imageBox" id="imageBoxId" @mousedown="holeDown" @mouseup="holeUp">
-            <i class="el-icon-loading" v-show="this.curImage.imageUrl == undefined"></i>
+            <i class="el-icon-loading" v-show="isLoading"></i>
             <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
         </div>
         <div class="viewerToolBox">
@@ -150,6 +150,7 @@ export default {
         },
         showRight() {
             if(!this.isPersonalImg) {
+                this.isLoading = true;
                 this.imgtop = 0;
                 this.imgleft = 0;
                 this.curMultiple = 1;
@@ -206,6 +207,7 @@ export default {
                     style += ";"
                     style += "height:" + this.curImage.info.h + "px";
                     this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
+                    this.isLoading = false;
                     this.stageElement.setAttribute("src", this.curImage.imageUrl);
                     this.stageElement.setAttribute("style", style);
                 }
@@ -213,6 +215,7 @@ export default {
         },
         showLeft() {
             if(!this.isPersonalImg) {
+                this.isLoading = true;
                 this.imgtop = 0;
                 this.imgleft = 0;
                 this.curMultiple = 1;
@@ -269,6 +272,7 @@ export default {
                     style += ";"
                     style += "height:" + this.curImage.info.h + "px";
                     this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
+                    this.isLoading = false;
                     this.stageElement.setAttribute("src", this.curImage.imageUrl);
                     this.stageElement.setAttribute("style", style);
                 }
@@ -406,6 +410,7 @@ export default {
             maxSize: 100,
             screenWidth: 100,
             screenHeight: 100,
+            isLoading: true,
         }
     },
     mounted: function() {
@@ -464,6 +469,7 @@ export default {
             style += "height:" + this.curImage.info.h + "px";
             console.log("*** this.curImage is ", this.curImage.info);
             // this.updateWindowSize(undefined);
+            this.isLoading = false;
             this.stageElement.setAttribute("src", this.curImage.imageUrl);
             this.stageElement.setAttribute("style", style);
             this.stageElement.style.top = "-20px";
@@ -519,6 +525,7 @@ export default {
                 style += ";"
                 style += "height:" + img.height + "px";
                 console.log("*** style is ", style);
+                this.isLoading = false;
                 this.stageElement.setAttribute("src", this.curUrl);
                 this.stageElement.setAttribute("style", style);
                 this.stageElement.style.top = "0px";

@@ -6,7 +6,7 @@
         <div class="groupInfo-view">
             <div v-if="!isDm" class="groupInfoImageDiv" style="margin-right: 8px;">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
-                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror="this.src = './static/Img/User/group-40px@2x.png'">
+                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror="this.src = './static/Img/User/group-40px@2x.png'" @click="showGroupImg()">
                 <img 
                     id="groupInfoImageChangeId" 
                     class="groupInfoImageChange" 
@@ -20,6 +20,7 @@
                     class="groupInfoImage" 
                     :src="mxAvatar"
                     onerror="this.src = './static/Img/User/user-40px@2x.png'"
+                    @click="showGroupImg()"
                 >
             </div>
             <div class="groupInfoNoticeAndName" v-if="!isDm">
@@ -353,6 +354,10 @@ export default {
     computed: {
     },
     methods: {
+        showGroupImg() {
+            const ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('showPersonalImageViewWindow', this.mxAvatar);
+        },
         openMenu() {
             openRemoteMenu()
         },

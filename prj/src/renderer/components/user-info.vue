@@ -240,7 +240,12 @@ export default {
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.userInfo.matrix_id);
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             const ipcRenderer = require('electron').ipcRenderer;
-            ipcRenderer.send('showPersonalImageViewWindow', avaterUrl);
+            if(avaterUrl != "") {
+                ipcRenderer.send('showPersonalImageViewWindow', avaterUrl);
+            }
+            else {
+                ipcRenderer.send('showPersonalImageViewWindow', './static/Img/User/user-40px@3x.png');
+            }
         },
 
         personalCenterIconClicked(){

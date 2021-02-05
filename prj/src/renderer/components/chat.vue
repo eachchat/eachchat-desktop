@@ -169,7 +169,7 @@ import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
 import confservice from '../../packages/data/conf_service'
 // import { ImageDrop } from 'quill-image-drop-module'
-import {ipcRenderer, remote} from 'electron'
+import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
 
 import {APITransaction} from '../../packages/data/transaction.js'
@@ -3268,6 +3268,9 @@ export default {
             console.log("updateMsgfile ", localPath, eventId);
             var myPackage = [localPath, eventId];
             this.updateMsg = myPackage;
+            if(!eventId && path.extname(localPath) != ".mp3") {
+                shell.openPath(localPath);
+            }
             this.curTotal = 0;
             this.lastPercent = 0.01;
             this.curPercent = 0.01;

@@ -352,6 +352,8 @@ export default {
                 this.showResultInfo();
                 return;
             }
+            this.sequenceId = 0;
+            this.total = 0;
             var curSearchId = new Date().getTime();
             console.log("searchkey is ", this.searchKey);
             var searchResult = {
@@ -421,7 +423,6 @@ export default {
         },
         getFileInfo: async function(curItem) {
             var MsgContent = curItem.event.content;
-            console.log("*** msgcontent is ", MsgContent);
             var fileSize = getFileSizeByNumber(MsgContent.info.size);
             var fileDate = this.MsgTime(curItem);
             var fileFromUserName = await this.MsgBelongUserName(curItem);
@@ -429,7 +430,6 @@ export default {
         },
         getSearchFileInfo: async function(curItem) {
             var MsgContent = curItem.event.content;
-            console.log("*** msgcontent is ", MsgContent);
             var fileSize = getFileSizeByNumber(MsgContent.info.size);
             var fileDate = this.MsgTime(curItem);
             var fileFromUserName = await this.SearchMsgBelongUserName(curItem);
@@ -468,7 +468,6 @@ export default {
             }
         },
         updatePage: function() {
-            console.log("filelist group info is ", this.fileListInfo);
             this.getFileList();
             this.showResultInfo(this.GroupInfo);
         },
@@ -518,7 +517,6 @@ export default {
                 })
         },
         handleScroll: function(force=false) {
-            console.log("**8 handleScroll ", force);
             let uldiv = document.getElementById("Mxfile-list-id");
             let client = document.getElementById("MxFileListDlgContentId");
             // console.log("=====client.clientHeight is ", client.clientHeight);
@@ -602,7 +600,6 @@ export default {
             this.getHistoryMessage(ev);
         },
         getHistoryMessage: function(ev) {
-            console.log("========== get history ev is ", ev);
             if(this.existingMsgId.indexOf(ev.event.event_id) < 0) {
                 this.existingMsgId.push(ev.event.event_id);
             }

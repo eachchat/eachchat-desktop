@@ -402,20 +402,22 @@ export default {
                     
                 })
         },
-        async getShowMessage(num, type)
+        async getShowMessage(msgFileter, num, type)
         {
             let msgList = [];
             while(this._timelineWindow.canPaginate(type)){
                 //获取历史消息
                 await this._timelineWindow.paginate(type, 20);
-                let tmpList = this._getEvents().reverse();
+                let tmpList = this._getEvents();
                 let index = 0;
-                msgList.length = 0;
+                msgList = [];
                 tmpList.forEach(item => {
-                    if(item.event.content){
-                        msgList.push(item);
-                        index++;
-                    } 
+                    if(msgFileter(item) && item.event.content){
+                        if(!this.isDeleted(item)){
+                            msgList.push(item);
+                            index++;
+                        } 
+                    }
                 })
                 if(index > num) break;
             }
@@ -436,11 +438,12 @@ export default {
                         console.log("=======wo bottom");
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
-                        if(this.searchKey.length == 0) {
-                            this.getShowMessage(10, 'b')
+                        if(this.searchKey.length == 0 && this._timelineWindow.canPaginate('b')) {
+                            this.getShowMessage(this.messageFilter, 10, 'b')
                                 .then((ret) => {
                                     this.isRefreshing = false;
-                                    this.ret = this._getEvents().reverse();
+                                    this.ret = ret.reverse();
+                                    console.log("this. ret is ", this.ret);
                                     setTimeout(() => {
                                         this.$nextTick(() => {
                                             this.showResultInfo();
@@ -619,9 +622,13 @@ export default {
         },
         getHistoryMsgList: function() {
             this.toGetShowMessage()
-                .then((ret) => {
-
-                    this.ret = ret;
+                .then(async (ret) => {
+                    var fileListInfoTmp = await this._timelineWindow.getEvents().reverse();
+                    fileListInfoTmp.forEach(item => {
+                        if(this.messageFilter(item) && item.event.content){
+                            this.ret.push(item);
+                        }
+                    })
                     console.log("*** this.ret.results is ", this.ret);
                     setTimeout(() => {
                         this.$nextTick(() => {
