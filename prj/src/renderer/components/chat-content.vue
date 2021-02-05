@@ -2885,7 +2885,7 @@ export default {
       if(!room.timeline)
         return;
       let lasttimeLine = room.timeline[room.timeline.length - 1];
-      if(!lasttimeLine && !lasttimeLine.event)
+      if(!lasttimeLine || !lasttimeLine.event)
         return;
       let eventId = lasttimeLine.event.event_id;
       //return lasttimeLine;
@@ -2906,7 +2906,6 @@ export default {
         var isSecret = false;
         this.searchKeyFromList = searchKey;
         this.searchChat = chatGroup;
-        // this.curindex = index;
         this.showGroupIconName();
       }
       else {

@@ -82,7 +82,7 @@ export default {
             for(let i = 0; i < this.roomList.length; i++){
                 let item = this.roomList[i];
                 let room = this.matrixClient.getRoom(item.room_id);
-                if(!room){
+                if(!room || room.getMyMembership() != 'join'){
                     this.roomList.splice(i, 1);
                     i--;
                     continue;
