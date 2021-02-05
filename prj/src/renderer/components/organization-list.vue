@@ -164,14 +164,16 @@ export default {
             if(userInfo.user_id == undefined || userInfo == null) {
                 return "";
             }
-            var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.avatar_t_url;
-            let userIconElement = document.getElementById(userInfo.user_id);
-            if(!userIconElement)
-                return;
+
             global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id).then((profileInfo) => {
-                if(!profileInfo.avatar_url)
+                let userIconElement = document.getElementById(userInfo.user_id);
+                if(!userIconElement)
                     return;
+                if(!profileInfo.avatar_url){
+                    userIconElement.setAttribute("src", './static/Img/User/user-40px@2x.png');
+                    return;
+                }
+                    
                 let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
                 userIconElement.setAttribute("src", validUrl);
             }).catch((e) => {
