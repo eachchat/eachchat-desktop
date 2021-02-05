@@ -291,14 +291,12 @@ export default {
             })
         },
 
-        ToJoinRoom: function(roomId) {
+        ToJoinRoom: function(roomId, matrixID) {
             try{
                 global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
-                    // this.isRefreshing = true;
-                    setTimeout(() => {
-                        this.jumpToChat(roomId);
-                    }, 500)
+                    Rooms.setDMRoom(roomId, opts.dmUserId);
+                    this.jumpToChat(roomId);
                 })
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);
@@ -342,7 +340,7 @@ export default {
             console.log("existInInviteRoom", existRoomID);
             if(existRoomID && existRoomID.length != 0){
                 this.$store.commit("updateInviteState", {roomID : existRoomID, roomState : 2});
-                this.ToJoinRoom(existRoomID);
+                this.ToJoinRoom(existRoomID, this.userInfo.matrix_id);
                 return;
             }
             
