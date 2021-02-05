@@ -3710,7 +3710,7 @@ export default {
     props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat'],
     watch: {
         chat: function() {
-            if(!this.chat.roomId) {
+            if(!this.chat || (this.chat && !this.chat.roomId)) {
                 return;
             }
             this.curChat = this.chat;
@@ -3826,7 +3826,7 @@ export default {
         },
         toBottom: function() {
             console.log("***** this.chat is ", this.chat)
-            if(!this.chat.roomId) {
+            if(!this.chat || (this.chat && !this.chat.roomId)) {
                 return;
             }
             if(this.toBottom == true) {

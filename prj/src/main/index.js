@@ -341,6 +341,10 @@ ipcMain.on('showPersonalImageViewWindow', function(event, url) {
   assistWindow.center();
 })
 
+ipcMain.on('leaveGroup', function(event, roomId) {
+  mainWindow.webContents.send("roLeaveRoom", roomId);
+})
+
 ipcMain.on('updageAssistWindowSize', function(event, sizeInfo, isHeaderImg) {
   console.log("*** updage size is ", sizeInfo);
   if(isHeaderImg) {

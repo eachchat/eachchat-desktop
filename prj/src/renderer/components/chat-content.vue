@@ -457,7 +457,9 @@ export default {
                   return;
                 }
                 let getRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
-                getRoom.distTimeLine = event;
+                if(getRoom) {
+                  getRoom.distTimeLine = event;
+                }
                 this.UpdateRoomListPassive(member);
               }
             },320)
@@ -1015,7 +1017,7 @@ export default {
         }
       }
       if(data.liveEvent) {
-        if(room.roomId == this.curChat.roomId && !this.isFirstLogin) {
+        if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
         }
         this.updateChatList(ev);
@@ -1092,7 +1094,7 @@ export default {
       this.checkUnreadCount();
     },
     checkNeedScroll(checkItem) {
-      if(this.isFirstLogin && !checkItem) {
+      if((this.isFirstLogin && !checkItem) || !this.curChat) {
         return false;
       }
       var distGroupItem = document.getElementById(this.getChatGroupNameElementId(checkItem ? checkItem.roomId : this.curChat.roomId));
@@ -2111,8 +2113,10 @@ export default {
       this.imageLayersSrc = '';
       this.showImageLayers = false;
     },
+    toLeaveGroup(event, roomId) {
+      this.leaveGroup(roomId);
+    },
     leaveGroup(roomId) {
-      console.log("************** leavegroup")
       if(this.curChat && roomId == this.curChat.roomId)
       {
         this.isEmpty = true;
@@ -3094,6 +3098,7 @@ export default {
     ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
     ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
+    ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);
