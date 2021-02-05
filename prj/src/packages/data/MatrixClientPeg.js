@@ -174,7 +174,7 @@ class _MatrixClientPeg{
         if(!myMember) return false;
         var memberEvent = myMember.events.member;
         var memberContent = memberEvent.getContent();
-        return memberContent.membership == "invite" && memberContent.is_direct;
+        return memberContent.is_direct;
     }
 
     InitOlm(){
