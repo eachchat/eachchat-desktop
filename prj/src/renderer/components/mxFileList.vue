@@ -352,6 +352,8 @@ export default {
                 this.showResultInfo();
                 return;
             }
+            this.sequenceId = 0;
+            this.total = 0;
             var curSearchId = new Date().getTime();
             console.log("searchkey is ", this.searchKey);
             var searchResult = {
