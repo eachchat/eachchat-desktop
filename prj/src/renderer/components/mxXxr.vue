@@ -212,12 +212,16 @@ import * as Rooms from "../../packages/data/Rooms";
 import * as RoomUtil from '../script/room-util';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import {ComponentUtil} from '../script/component-util';
+import {common} from '../../packages/data/services.js';
+
 let gtn = 0;
 let gChoosenMembers = [];
 let mxMap = {};
 const OPTS = {
     limit: 200,
 };
+let totLen = 0;
+let ohsLen = 0;
 export default {
     name: 'mxXxr',
     props: {
@@ -236,7 +240,11 @@ export default {
         dmMember: {
             type: Object,
             default:()=>{}
-        }
+        },
+        nextTime: {
+            type: Boolean,
+            default: false
+        },
     },
     data() {
         return {
@@ -259,7 +267,11 @@ export default {
             tn: 0,
             mxMemMap: {},
             mxDepMap: {},
-            qx: 1
+            qx: 1,
+            lmaxOtherHsMembersFirstTime: 0,
+            totalMembersFirstTime: 0,
+            totalMembersNextTime: 0,
+            myDomain: ''
         }
     },
     timer: null,
@@ -1025,29 +1037,81 @@ export default {
             console.log('this.choosenMembers====', this.choosenMembers)
         },
         // 重构后方法
-        setQuanxuan() {
+        async setQuanxuan() {
             let choose;
             if ( this.qx === 3 || this.qx === 2) {
                 choose = 1;
-                this.qx = 1; 
             } else {
                 choose = 3
-                this.qx = 3;
             };
-            let totalList = [...this.totalList];
-            totalList.forEach(t => {
-                t.choosen = choose;
-            });
-            this.totalList = [...totalList];
             const crb = this.crumbs[this.crumbs.length-1];
             const obj = {type:'dep', department_id:crb.department_id};
-            this.checkWrap(obj, choose);
+            let go = true;
+            if (choose === 3) { go = await this.ifGo(obj);}
+            if (go) {
+                this.qx = choose;
+                let totalList = [...this.totalList];
+                totalList.forEach(t => {
+                    t.choosen = choose;
+                });
+                this.totalList = [...totalList];
+                this.checkWrap(obj, choose);
+            } else {
+                alert('超出人数限制');
+            }
         },
         matchQuanxuan() {
             if (this.crumbs.length) {
                 const crb = this.crumbs[this.crumbs.length-1];
                 const obj = {type:'dep', department_id:crb.department_id};
                 this.qx = this.matchWithMap(obj);
+            }
+        },
+        async ifGo(obj) {
+            const oneLimit = this.nextTime ? this.totalMembersNextTime : this.totalMembersFirstTime;
+            const twoLimit = this.lmaxOtherHsMembersFirstTime;
+            totLen = 0;
+            ohsLen = 0;
+            this.choosenMembers; //已选的总人
+            const otherHs = this.choosenMembers.filter(c => {
+                const id = c.matrix_id || c.user_id;
+                const hs = ComponentUtil.GetDomanName(id);
+                return hs !== this.myDomain;
+            }); //已选人中的外域用户
+            totLen = this.choosenMembers.length;
+            ohsLen = otherHs.length;
+            if (obj.type !== 'dep') {
+                const id = obj.matrix_id || obj.user_id;
+                const hs = ComponentUtil.GetDomanName(id);
+                totLen = totLen + 1;
+                if (hs !== this.myDomain) ohsLen = ohsLen + 1;
+            } else {
+                await this.totalMemInDep(obj);
+            }
+            // console.log('there');
+            if (totLen >= oneLimit) return false;
+            if (totLen < oneLimit && !this.nextTime) {
+                if (ohsLen > twoLimit) return false;
+            }
+            return true;
+        },
+        async totalMemInDep(obj) {
+            const subDep = await Department.GetSubDepartment(obj.department_id);
+            const subUsers = await UserInfo.GetSubUserinfo(obj.department_id, this.selfId);
+            const otherHs = subUsers.filter(c => {
+                const id = c.matrix_id || c.user_id;
+                const hs = ComponentUtil.GetDomanName(id);
+                return hs !== this.myDomain;
+            });
+            totLen = totLen + subUsers.length;
+            ohsLen = ohsLen + otherHs.length;
+            // console.log('totLen', totLen);
+            // console.log('ohsLen', ohsLen);
+            // subDep.forEach(async (s)=>{
+            //     await this.totalMemInDep(s);
+            // })
+            for(let i=0; i<subDep.length; i++) {
+                await this.totalMemInDep(subDep[i]);
             }
         },
         async checkWrap(obj, check) {
@@ -1063,13 +1127,19 @@ export default {
                 if ( obj.choosen === 3 || obj.choosen === 2) choose = 1;
                 if ( obj.choosen === 1) choose = 3;
             }
-            await this.chooseOrCancel(obj, choose);
-            let totalList = [...this.totalList];
-            totalList.forEach((t) => {
-                if (!t.dvd) t.choosen = this.matchWithMap(t);
-            });
-            this.totalList = [...totalList];
-            this.matchQuanxuan();
+            let go = true;
+            if (choose === 3) { go = await this.ifGo(obj);}
+            if (go) {
+                await this.chooseOrCancel(obj, choose);
+                let totalList = [...this.totalList];
+                totalList.forEach((t) => {
+                    if (!t.dvd) t.choosen = this.matchWithMap(t);
+                });
+                this.totalList = [...totalList];
+                this.matchQuanxuan();
+            } else {
+                alert('超出人数');
+            }
         },
         async chooseOrCancel(obj, choose) {
             console.log('chooseOrCancel choose----', choose);
@@ -1401,8 +1471,18 @@ export default {
     components: {
     },
     async created() {
+        totLen = 0;
+        ohsLen = 0;
         const client = window.mxMatrixClientPeg.matrixClient;
         this.selfId = client.getUserId();
+        this.myDomain = ComponentUtil.GetDomanName(this.selfId);
+        const limit = await common.getContactSetting();
+        if (limit && limit.data && limit.data.obj) {
+            this.lmaxOtherHsMembersFirstTime = limit.data.obj.lmaxOtherHsMembersFirstTime;
+            this.totalMembersFirstTime = limit.data.obj.totalMembersFirstTime;
+            this.totalMembersNextTime = limit.data.obj.totalMembersNextTime;
+        }
+        console.log('+++++limit+++++', limit);
         await this.originStatus();
         // let hh = await Department.GetBelongDepartmentsByMatrixID("@vincentliu.ai:matrix.each.chat");
         // console.log('hhhhh', hh);
