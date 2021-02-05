@@ -622,9 +622,13 @@ export default {
         },
         getHistoryMsgList: function() {
             this.toGetShowMessage()
-                .then((ret) => {
-
-                    this.ret = ret.reverse();
+                .then(async (ret) => {
+                    var fileListInfoTmp = await this._timelineWindow.getEvents().reverse();
+                    fileListInfoTmp.forEach(item => {
+                        if(this.messageFilter(item) && item.event.content){
+                            this.ret.push(item);
+                        }
+                    })
                     console.log("*** this.ret.results is ", this.ret);
                     setTimeout(() => {
                         this.$nextTick(() => {
