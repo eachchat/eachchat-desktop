@@ -38,6 +38,8 @@ export default {
             if(userIconElement && user._attr.user_avatar_url.length != 0){
                 userIconElement.setAttribute("src", user._attr.user_avatar_url);
             }
+            else
+                userIconElement.setAttribute("src", './static/Img/User/user-40px@2x.png');
         },
     },
     mounted:function() {
