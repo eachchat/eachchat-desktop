@@ -226,6 +226,8 @@
             @close="changeMxXxr"
             :creDir="isDm"
             :dmMember="dmMember"
+            :nextTime="nextTime"
+            :roomId="showGroupInfo.groupId"
         >
         </mxXxr>
         <mxDmDlg
@@ -314,7 +316,8 @@ export default {
             mxXxrOpen: false,
             mxContact: false,
             myDomain: '',
-            firstLoad: false
+            firstLoad: false,
+            nextTime: false
         }
     },
     components: {
@@ -426,8 +429,9 @@ export default {
             // if (close.data) this.$emit(close.handler, close.data);
             this.mxSelectMemberOpen = false;
         },
-        mxAddMember() {
-            this.mxSelectMemberOpen = true;
+        mxAddMember() { //teyidian
+            // this.mxSelectMemberOpen = true;
+            this.mxXxrOpen = true;
         },
         changeMxXxr(closeRight) {
             this.mxXxrOpen = !this.mxXxrOpen;   
@@ -1092,6 +1096,7 @@ export default {
         let room = global.mxMatrixClientPeg.matrixClient.getRoom(roomId);
         // let numCount = room.getInvitedAndJoinedMemberCount(); todo
         if (dmRoomIdArr.includes(roomId)) {
+            this.nextTime = false;
             this.isDm = true;
             console.log('这是一个单聊', currentRoom);
             console.log('room===', room);
@@ -1112,7 +1117,7 @@ export default {
                 
                 this.dmMember = {...dmMember};
             }
-        } else {this.isDm = false;}
+        } else {this.isDm = false; this.nextTime = true;}
         if (!this.isDm) this.mxContact = await ContactRoom.ExistRoom(roomId);
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);

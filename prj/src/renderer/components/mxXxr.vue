@@ -213,6 +213,8 @@ import * as RoomUtil from '../script/room-util';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import {ComponentUtil} from '../script/component-util';
 import {common} from '../../packages/data/services.js';
+import {getAddressType} from "../../utils/UserAddress";
+
 
 let gtn = 0;
 let gChoosenMembers = [];
@@ -245,6 +247,10 @@ export default {
             type: Boolean,
             default: false
         },
+        roomId: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {
@@ -365,9 +371,83 @@ export default {
                     console.log('???', e)
                     this.loading = false;
                 })
+            } else if (this.nextTime) {
+                this.invite();
             } else {
                 return this.$emit('close', {invite});     
             }     
+        },
+          inviteConduct: async function(roomId, addr, ignoreProfile) {
+            console.log('---get addr----', addr);
+            const addrType = getAddressType(addr);
+            const client = window.mxMatrixClientPeg.matrixClient;
+            if (addrType === 'email') {
+                return client.inviteByEmail(roomId, addr);
+            } else if (addrType === 'mx-user-id') {
+                const room = client.getRoom(roomId);
+                if (!room) throw new Error("Room not found");
+
+                const member = room.getMember(addr);
+                if (member && ['join', 'invite'].includes(member.membership)) {
+                    throw {errcode: "RIOT.ALREADY_IN_ROOM", error: "Member already invited"};
+                }
+
+
+                //todo  更精确的权限控制
+                // if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
+                //     try {
+                //         const profile = await MatrixClientPeg.get().getProfileInfo(addr);
+                //         if (!profile) {
+                //             // noinspection ExceptionCaughtLocallyJS
+                //             throw new Error("User has no profile");
+                //         }
+                //     } catch (e) {
+                //         throw {
+                //             errcode: "RIOT.USER_NOT_FOUND",
+                //             error: "User does not have a profile or does not exist."
+                //         };
+                //     }
+                // }  
+
+                return client.invite(roomId, addr);
+            } else {
+                throw new Error('Unsupported address');
+            }
+
+        },
+        invite() {
+            const targetIds = this.choosenMembers.map(t => t.matrix_id || t.user_id);
+            const vtx = this;
+            const client = window.mxMatrixClientPeg.matrixClient;
+            const roomId = this.roomId;
+            const room = client.getRoom(roomId);
+            console.log('---hendiaoibi---', this.roomId);
+            const membersMap = room.currentState.members;
+            for (let id in membersMap) {
+                if (targetIds.indexOf(id) >= 0 && membersMap[id].membership !== 'leave') {
+                    this.loading = false;
+                    return alert('该用户已存在');
+                }
+            }
+            // if (!room) {
+            //     console.error('no room')
+            //     return alert('无此房间');
+            // }
+            let promises = [];
+            targetIds.forEach(id => {
+                promises.push(vtx.inviteConduct(roomId, id));
+            })
+
+            Promise.all(promises).then(() => {
+                vtx.loading = false;
+                // const obj = {};
+                // obj.data = {room_id: roomId};
+                // obj.handler = 'viewRoom';
+                vtx.$emit('close');
+            }).catch((e)=>{
+                console.log(e)
+
+            });
         },
         mxTreeWalk(obj) {
             // console.log('-----mxTreeWalk----', obj)
