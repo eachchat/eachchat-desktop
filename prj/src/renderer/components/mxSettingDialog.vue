@@ -31,7 +31,7 @@
                             class="serverInput"
                             v-model="serverAddress"
                         >
-                        <div class="serverFrameEnd">:matrix.each.chat</div>
+                        <div class="serverFrameEnd">{{this.mxLoc}}</div>
                     </div>
                     <!-- <div 
                         class="serverBtn" 
@@ -120,7 +120,8 @@ export default {
             mxEncryption: false,
             encryptionWarning: false,
             currentRoom: undefined,
-            busy: false
+            busy: false,
+            mxLoc: ''
         }
     },
     props: ['roomId'],
@@ -135,7 +136,7 @@ export default {
                 this.busy = false;
                 return alert('设置的群聊地址格式不正确');
             }
-            const address = '#' + this.serverAddress + ':matrix.each.chat';
+            const address = '#' + this.serverAddress + this.mxLoc;
             const joinRule = this.joinRule;
             const history = this.history;
             // const guestAccess = this.guestAccess;
@@ -235,6 +236,7 @@ export default {
         const roomId = this.roomId;
         const vtx = this;
         const currentRoom = client.getRoom(roomId);
+        this.mxLoc = ':' + this.roomId.split(':')[1]; 
         const state =currentRoom.currentState;
         const joinRule = this._pullContentPropertyFromEvent(
             state.getStateEvents("m.room.join_rules", ""),
@@ -417,9 +419,9 @@ export default {
         font-size: 14px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        margin-right: 12px;
-
+        justify-content: flex-end;
+        margin-right: 24px;
+        flex: 1;
     }
     .serverInput {
         width: 180px;
