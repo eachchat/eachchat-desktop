@@ -111,6 +111,7 @@ export default {
             if (this.nextBatch) opts.since = this.nextBatch;
             if (my_filter_string) opts.filter = { generic_search_term: my_filter_string };
             console.log('xie', xie)
+            const selfId = client.getUserId();
             return client.publicRooms(xie).then((data) => {
                 // if (
                 //     my_filter_string != this.state.filterString ||
@@ -133,7 +134,10 @@ export default {
                 console.log('---rooms----', rooms)
                 chunk = chunk.map(c => {
                     let r = client.getRoom(c.room_id)
-                    if (r) c.joined = true;
+                    console.log('-------rrrrr-----', r)
+                    if (r) {
+                        if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+                    }
                     c.roomId = c.room_id;
                     c.distUrl = './static/Img/User/group-40px@2x.png';
                     return c;
