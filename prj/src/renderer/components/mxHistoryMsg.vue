@@ -438,7 +438,7 @@ export default {
                         console.log("=======wo bottom");
                         this.isRefreshing = true;
                         this.lastRefreshTime = new Date().getTime();
-                        if(this.searchKey.length == 0 && this._timelineWindow.canPaginate(type)) {
+                        if(this.searchKey.length == 0 && this._timelineWindow.canPaginate('b')) {
                             this.getShowMessage(this.messageFilter, 10, 'b')
                                 .then((ret) => {
                                     this.isRefreshing = false;
