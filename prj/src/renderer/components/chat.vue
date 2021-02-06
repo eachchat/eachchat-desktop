@@ -582,110 +582,125 @@ export default {
 
             return canRedact;
         },
-        rightClick(e, msgItem) {
+        async rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
             console.log("*** e.target.className ", e.target.className);
             var showRedact = this.canRedact(msgItem);
+            var senderId = msgItem.sender.userId ? msgItem.sender.userId : msgItem.event.sender;
+            var showName = await ComponentUtil.GetDisplayNameByMatrixID(senderId);
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
             }
-            var content = msgItem.getContent();
-            this.menu = new Menu();
-            if(content.msgtype == 'm.text') {
+            if(e.target.className == "msg-info-user-img-with-name") {
+                if(global.mxMatrixClientPeg.DMCheck(this.chat)) {
+                    return;
+                }
+                this.menu = new Menu();
                 this.menu.append(new MenuItem({
-                    label: "复制",
+                    label: "@" + showName,
                     click: () => {
-                        this.menuCopy(msgItem)
-                    }
-                }));
-                if(!this.isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "转发",
-                        click: () => {
-                            this.transMit(msgItem)
-                        }
-                    }));
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                }
-                if(showRedact) {
-                    this.menu.append(new MenuItem({
-                        label: "删除",
-                        click: () => {
-                            this.menuDelete(msgItem)
-                        }
-                    }));
-                }
-                if(!this.isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
-                        }
-                    }));
-                }
-                this.menu.append(new MenuItem({
-                    label: "引用",
-                    click: () => {
-                        this.menuQuote(msgItem)
+                        this.atSomeOne(msgItem)
                     }
                 }));
             }
-            else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
-                if(!this.isSecret) {
+            else {
+                var content = msgItem.getContent();
+                this.menu = new Menu();
+                if(content.msgtype == 'm.text') {
                     this.menu.append(new MenuItem({
-                        label: "转发",
+                        label: "复制",
                         click: () => {
-                            this.transMit(msgItem)
+                            this.menuCopy(msgItem)
                         }
                     }));
-                }
-                if(!this.isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "收藏",
-                        click: () => {
-                            this.menuFav(msgItem)
-                        }
-                    }));
-                }
-                if(showRedact) {
-                    this.menu.append(new MenuItem({
-                        label: "删除",
-                        click: () => {
-                            this.menuDelete(msgItem)
-                        }
-                    }));
-                }
-                if(!this.isSecret) {
-                    this.menu.append(new MenuItem({
-                        label: "多选",
-                        click: () => {
-                            this.msgMultiSelect(msgItem);
-                        }
-                    }));
-                }
-                this.menu.append(new MenuItem({
-                    label: "另存为",
-                    click: () => {
-                        this.downloadFile(msgItem);
+                    if(!this.isSecret) {
+                        this.menu.append(new MenuItem({
+                            label: "转发",
+                            click: () => {
+                                this.transMit(msgItem)
+                            }
+                        }));
+                        this.menu.append(new MenuItem({
+                            label: "收藏",
+                            click: () => {
+                                this.menuFav(msgItem)
+                            }
+                        }));
                     }
-                }));
-            }
-            else if(content.msgtype == "m.audio") {
-                if(showRedact) {
+                    if(showRedact) {
+                        this.menu.append(new MenuItem({
+                            label: "删除",
+                            click: () => {
+                                this.menuDelete(msgItem)
+                            }
+                        }));
+                    }
+                    if(!this.isSecret) {
+                        this.menu.append(new MenuItem({
+                            label: "多选",
+                            click: () => {
+                                this.msgMultiSelect(msgItem);
+                            }
+                        }));
+                    }
                     this.menu.append(new MenuItem({
-                        label: "删除",
+                        label: "引用",
                         click: () => {
-                            this.menuDelete(msgItem)
+                            this.menuQuote(msgItem)
                         }
                     }));
                 }
+                else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
+                    if(!this.isSecret) {
+                        this.menu.append(new MenuItem({
+                            label: "转发",
+                            click: () => {
+                                this.transMit(msgItem)
+                            }
+                        }));
+                    }
+                    if(!this.isSecret) {
+                        this.menu.append(new MenuItem({
+                            label: "收藏",
+                            click: () => {
+                                this.menuFav(msgItem)
+                            }
+                        }));
+                    }
+                    if(showRedact) {
+                        this.menu.append(new MenuItem({
+                            label: "删除",
+                            click: () => {
+                                this.menuDelete(msgItem)
+                            }
+                        }));
+                    }
+                    if(!this.isSecret) {
+                        this.menu.append(new MenuItem({
+                            label: "多选",
+                            click: () => {
+                                this.msgMultiSelect(msgItem);
+                            }
+                        }));
+                    }
+                    this.menu.append(new MenuItem({
+                        label: "另存为",
+                        click: () => {
+                            this.downloadFile(msgItem);
+                        }
+                    }));
+                }
+                else if(content.msgtype == "m.audio") {
+                    if(showRedact) {
+                        this.menu.append(new MenuItem({
+                            label: "删除",
+                            click: () => {
+                                this.menuDelete(msgItem)
+                            }
+                        }));
+                    }
+                }
             }
-
             this.menu.popup(remote.getCurrentWindow());
         },
         menuDelete(msg) {
@@ -1324,14 +1339,25 @@ export default {
                 canNewLine = false;
             }
         },
-        atMember(atMemberInfo) {
+        atSomeOne(msgItem) {
+            var senderId = msgItem.sender.userId ? msgItem.sender.userId : msgItem.event.sender;
+            var userInfo = global.mxMatrixClientPeg.matrixClient.getUser(senderId);
+            this.atMember(userInfo);
+        },
+        async atMember(atMemberInfo) {
             // File
             console.log("atmemberinfo is ", atMemberInfo);
             var iconPath = "";
             this.deleteDistContent();
             var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
             complexSpan.id = generalGuid();
-            complexSpan.innerHTML = "@" + atMemberInfo.name;// + ":";
+
+            var distName = ComponentUtil.GetDisplayName("", atMemberInfo.userId);
+            let userInfo = await UserInfo.GetUserInfoByMatrixID(atMemberInfo.userId);
+            if(userInfo && userInfo.user_display_name.length != 0)
+                distName = userInfo.user_display_name;
+
+            complexSpan.innerHTML = "@" + distName;// + ":";
             var distStyle = this.atConstStyle
             // 'display:inline-block;outline:none;border: 0px;font-size:14px;',
             // console.log("diststyle is ", distStyle);
@@ -1342,7 +1368,7 @@ export default {
                 "height": 0,
                 "width": 0,
                 "atUid": atMemberInfo.userId,
-                "atName": atMemberInfo.name,
+                "atName": distName,
             };
             this.idToPath[complexSpan.id] = msgInfo;
             console.log("admember this.curinputindex is ", this.curInputIndex);
@@ -2350,7 +2376,7 @@ export default {
             
             if(sendText.length != 0)
             {
-                sendBody.body = sendText;
+                sendBody.body = sendText.trim();
                 this.SendText(sendBody, varcontent);
             }
         },
@@ -3573,7 +3599,7 @@ export default {
             fileListGroupInfo: {},
             showFileListInfo: false,
             messageListElement: null,
-            checkClassName: ["file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
+            checkClassName: ["msg-info-user-img-with-name", "file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             groupNoticeInfo: {},
             updateUser: 1,

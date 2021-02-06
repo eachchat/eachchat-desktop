@@ -56,6 +56,7 @@
 </template>
 
 <script>
+import { ComponentUtil } from '../script/component-util';
 import AlertDlg from './alert-dlg.vue'
 const EMAIL_ADDRESS_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export default {
@@ -359,7 +360,7 @@ export default {
             console.log("get threed pids exception ", error)
         }
         var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
-        var userName = userId.substring(userId.indexOf("@"), userId.indexOf(":"));
+        var userName = ComponentUtil.GetDisplayName("", userId);
         this.ownerAccount = userName;
     },
     watch: {

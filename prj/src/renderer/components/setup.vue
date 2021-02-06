@@ -176,6 +176,7 @@ import ExportE2EKeyPage from './expore-e2e-key.vue';
 import ImportE2EKeypage from './importE2E.vue';
 import DeviceManager from './deviceManager.vue';
 import OwnerDlg from './ownerDlg.vue';
+import {ComponentUtil} from '../script/component-util';
 
 export default {
   components: {

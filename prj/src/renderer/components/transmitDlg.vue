@@ -198,11 +198,13 @@ export default {
         async updageTransmitChatNameAndImg() {
             for(let i=this.showRecentChat.length-1;i>=0;i--) {
                 var distGroup = this.showRecentChat[i];
+                console.log("distGroup is ", distGroup);
                 if(!distGroup) continue;
                 var elementGroupName = document.getElementById(this.getTransmitNameId(distGroup));
                 var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                console.log("distUserId is ", distUserId);
                 if(!distUserId) {
-                    return;
+                    continue;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
                 elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
@@ -218,7 +220,7 @@ export default {
             
                 var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
                 if(!distUserId) {
-                    return;
+                    continue;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
                 elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
