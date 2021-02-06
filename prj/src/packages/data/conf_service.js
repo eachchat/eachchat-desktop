@@ -18,9 +18,9 @@ class ConfService {
                     // OImage放置原图
 
     constructor() {
-        this.appName = 'EachChat';
+        this.appName = 'EachChat2.0';
         this.companyName = 'Workly';
-        this.productName = 'EachChat';
+        this.productName = 'EachChat2.0';
         this.localAnyBoxDirName = 'AnyBoxSpaces';
         this.filesDirName = 'EachChatFile';
         this.filesFilesDirName = 'Files';
