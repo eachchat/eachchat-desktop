@@ -77,6 +77,8 @@ export default {
                 style += ";"
                 style += "left:" + this.imgleft + "px";
                 style += ";"
+                style += "transform:" + "rotate(" + this.curRotate + "deg)";
+                style += ";"
                 this.stageElement.setAttribute("style", style);
             }
         },
@@ -89,6 +91,9 @@ export default {
                 style += "width:" + this.curImage.info.w * this.curMultiple + "px";
                 style += ";"
                 style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                style += ";"
+                style += "transform:" + "rotate(" + this.curRotate + "deg)";
+                style += ";"
                 this.stageElement.setAttribute("style", style);
             }
         },
@@ -101,6 +106,9 @@ export default {
                 style += "width:" + this.curImage.info.w * this.curMultiple + "px";
                 style += ";"
                 style += "height:" + this.curImage.info.h * this.curMultiple + "px";
+                style += ";"
+                style += "transform:" + "rotate(" + this.curRotate + "deg)";
+                style += ";"
                 this.stageElement.setAttribute("style", style);
             }
         },
