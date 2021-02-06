@@ -530,7 +530,7 @@ export default {
     else {
       this.curLanguage = "English";
     }
-    this.lVersion = "Version " + remote.app.getVersion();
+    this.lVersion = "Version " + remote.app.getVersion() + "-beat";
   }
 };
 </script>
@@ -1025,7 +1025,7 @@ export default {
   }
 
   .setup-array-only-label-label {
-    width:calc(100% - 116px);
+    width:calc(100% - 153px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
