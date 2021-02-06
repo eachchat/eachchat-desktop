@@ -533,6 +533,8 @@ export default {
                         // 这里执行点击确定按钮需要做的事，默认执行关闭弹框
                         if(await ContactRoom.ExistRoom(roomId))
                             common.deleteRoomFromContact(roomId);
+                        const ipcRenderer = require('electron').ipcRenderer;
+                        ipcRenderer.send('leaveGroup', roomId);
                         client.leave(roomId);
                         this.$emit("leaveGroup", roomId);
                     },
