@@ -2896,6 +2896,11 @@ export default {
       var oriRoomUnreadCount = room.getUnreadNotificationCount();
       global.mxMatrixClientPeg.matrixClient.setRoomReadMarkers(room.roomId, eventId, lasttimeLine, {hidden: false}).catch((e) => {
         console.log(e)
+        if(e.errcode == "M_UNKNOWN_TOKEN") {
+          global.mxMatrixClientPeg.logout();
+          global.services.common.logout();
+          ipcRenderer.send("showLoginPageWindow");
+        }
       });
       room.setUnreadNotificationCount('total', 0);
       room.setUnreadNotificationCount('highlight', 0);
