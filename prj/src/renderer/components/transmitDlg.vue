@@ -46,7 +46,7 @@
                                     <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
                                     <img ondragstart="return false" class="group-icon" :id="'transmit' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="group-info">
-                                        <p class="group-name" :id="getTransmitNameId(group)">{{ group.name }}</p>
+                                        <p class="group-name" :id="getTransmitNameId(group)">{{ group.showName ? group.showName : group.name }}</p>
                                     </div>
                                 </li>
                             </ul>
@@ -207,6 +207,7 @@ export default {
                     continue;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                this.showRecentChat[i].showName = displayName;
                 elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
                 
                 this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
@@ -223,6 +224,7 @@ export default {
                     continue;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                this.selectedGroups[i].showName = displayName;
                 elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
                     
                 this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
@@ -236,9 +238,10 @@ export default {
                 
                 var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
                 if(!distUserId) {
-                    return;
+                    continue;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                this.searchGroup[i].showName = displayName;
                 elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
                 
                 this.getGroupAvatarContent(this.searchGroup[i], 'search');
@@ -309,15 +312,30 @@ export default {
             this.$emit("closeTransmitDlg", "");
             
         },
-        searchRoom(searchKey) {
+        async searchRoom(searchKey) {
             var searchResult = [];
             // console.log("search key is ", searchKey);
             for(var i=0;i<this.recentGroups.length;i++) {
                 // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
-                if(this.recentGroups[i].name.indexOf(searchKey) >= 0) {
-                // console.log("inininin put ");
-                    searchResult.push(this.recentGroups[i]);
+                
+                var distGroup = this.recentGroups[i];
+                
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                if(!distUserId) {
+                    if(this.recentGroups[i].name.indexOf(searchKey) >= 0) {
+                    // console.log("inininin put ");
+                        searchResult.push(this.recentGroups[i]);
+                    }
                 }
+                else {
+                    var displayName = this.recentGroups[i].showName;
+                    if(displayName.indexOf(searchKey) >= 0) {
+                    // console.log("inininin put ");
+                        searchResult.push(this.recentGroups[i]);
+                    }
+                }
+                
+
             }
             return searchResult;
         },
@@ -327,7 +345,7 @@ export default {
                 return;
             }
             this.showSearchView = true;
-            this.searchGroup = this.searchRoom(this.searchKey);
+            this.searchGroup = await this.searchRoom(this.searchKey);
 
             setTimeout(() => {
                 this.$nextTick(function(){
