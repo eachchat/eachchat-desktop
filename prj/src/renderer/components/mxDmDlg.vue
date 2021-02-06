@@ -246,6 +246,20 @@ export default {
 
             });
         },
+        existInInviteRoom(userMatrixID){
+            let inviteRooms = this.$store.state.inviteRooms;
+            for(let itemroom of inviteRooms){
+                let room = global.mxMatrixClientPeg.matrixClient.getRoom(itemroom.roomID)
+                if(!room) continue;
+                if(global.mxMatrixClientPeg.isDMInvite(room)){
+                    var myMember = global.mxMatrixClientPeg.getMyMember(room);
+                    let directMember = myMember.getDMInviter();
+                    if(directMember == userMatrixID)
+                        return itemroom.roomID;
+                } 
+            }
+            return;
+        },
         createDm: function() {
             if (this.roomId) return this.invite();
             if (this.loading) return;
@@ -274,6 +288,13 @@ export default {
                 console.log('通过emit, 向上层组件触发viewRoom')
                 this.$emit('close', obj);
                 return;
+            }
+
+            const goOut = this.existInInviteRoom(targetIds[0]);
+            if (goOut) {
+                alert('该用户已给您发送过邀请，请在邀请列表查看');
+                this.loading = false;
+                return
             }
 
             const createRoomOptions = {inlineErrors: true};
