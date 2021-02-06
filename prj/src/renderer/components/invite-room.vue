@@ -200,7 +200,7 @@ export default {
         async getRoomInfo(item){
             let roomInfo = {};
             let room = this.matrixClient.getRoom(item.roomID);
-            if(!room){
+            if(!room || room.getMyMembership() == 'leave'){
                 return;
             } 
             roomInfo.roomID = item.roomID;
