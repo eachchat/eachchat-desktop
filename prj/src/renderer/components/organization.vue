@@ -323,9 +323,11 @@ export default {
             let userDoman = ComponentUtil.GetDomanName(user.matrix_id);
             if(userDoman == this.myDoman)
                 return user.title;
+            let usertitle = '';
             if(user.company && user.company.length != 0)
-                return user.company + " " + user.title;
-            return '';
+                usertitle = user.company + " ";
+            usertitle += user.title;
+            return usertitle;
         },
 
         Close: function() {
