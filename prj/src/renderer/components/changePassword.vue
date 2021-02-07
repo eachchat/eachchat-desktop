@@ -112,17 +112,23 @@ export default {
             this.changePassword(this.originalPassword, this.newPassword);
         },
         Close () {
+            this.originalPassword = "";
+            this.newPassword = "";
+            this.confirmPassword = "";
             this.$emit("CloseChangePassword");
         },
         onCheckPassword (oldPass, newPass, confirmPass) {
+            if(!oldPass || oldPass.length == 0) {
+                return "请输入原始密码"
+            }
+            if (!newPass || newPass.length === 0) {
+                return "请输入新密码"
+            }
+            if (!confirmPass || confirmPass.length == 0) {
+                return "请再次输入新密码"
+            }
             if (newPass !== confirmPass) {
-                return {
-                    error: this.$t("NewPasswordsDontMatch"),
-                };
-            } else if (!newPass || newPass.length === 0) {
-                return {
-                    error: this.$t("PasswordsCantBeEmpty"),
-                };
+                return this.$t("NewPasswordsDontMatch")
             }
         },
         Confirm() {
@@ -131,12 +137,10 @@ export default {
             if(err) {
                 this.disableChangePassword = false;
                 this.$toastMessage({message:err, time:2000, type:'error'});
-                this.Close();
             }
             else {
                 // this.showChangePasswordAlert = true;
                 this.changePassword(this.originalPassword, this.newPassword);
-                this.disableChangePassword = false;
             }
         },
         changePassword(oldPassword, newPassword) {
@@ -172,8 +176,8 @@ export default {
                 this.newPassword = "";
                 this.confirmPassword = "";
                 this.Close();
-            }, (err) => {
-                this.$toastMessage({message:err, time:2000, type:'success'});
+            }).catch((err) => {
+                this.$toastMessage({message:err, time:2000, type:'error'});
                 this.disableChangePassword = false;
             })
         }
