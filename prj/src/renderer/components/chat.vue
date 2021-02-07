@@ -872,6 +872,9 @@ export default {
                 if(ret == true) {
                     this.$toastMessage({message:"收藏成功", time: 2000, type:'success'});
                 }
+                else {
+                    this.$toastMessage({message:"收藏失败", time: 2000, type:'error'});
+                }
             })
         },
         async imageViewerFav(event, imageInfo) {

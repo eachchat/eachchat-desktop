@@ -410,6 +410,17 @@ export default {
           this.showGroupIconName();
           this.$emit('matrixSyncEnd', true);
         })
+
+        global.mxMatrixClientPeg.matrixClient.on('Room.receipt', (event, room) => {
+          console.log("***** Room.receipt event ", event);
+          console.log("***** Room.receipt room ", room);
+          if(this.curChat && (this.curChat.roomId != room.roomId)) {
+            console.log("***** room.getUnreadNotificationCount() ", room.getUnreadNotificationCount());
+            if (room.getUnreadNotificationCount() == 0) {
+              this.checkUnreadCount();
+            }
+          }
+        })
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             // console.log('chat-content membership member is ', member);
@@ -2893,7 +2904,7 @@ export default {
         return;
       let eventId = lasttimeLine.event.event_id;
       //return lasttimeLine;
-      var oriRoomUnreadCount = room.getUnreadNotificationCount();
+      // var oriRoomUnreadCount = room.getUnreadNotificationCount();
       global.mxMatrixClientPeg.matrixClient.setRoomReadMarkers(room.roomId, eventId, lasttimeLine, {hidden: false}).catch((e) => {
         console.log(e)
         if(e.errcode == "M_UNKNOWN_TOKEN") {
