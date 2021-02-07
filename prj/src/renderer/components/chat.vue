@@ -26,8 +26,8 @@
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
-                    <li class="msg-loading" v-show="isRefreshing" v-bind:key="123">
-                        <i class="el-icon-loading"></i>
+                    <li class="msg-loading" v-bind:key="123">
+                        <i class="el-icon-loading" v-show="isRefreshing"></i>
                     </li>
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)"
@@ -525,6 +525,7 @@ export default {
         },
         CloseSearchPage: function() {
             var chatElement = document.getElementById("chat-page-id");
+            if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(241, 241, 241, 1)";
             this.$emit("isSearching", false);
             this.isSerach = false;
@@ -3168,16 +3169,17 @@ export default {
                     this.getShowMessage(this.messageFilter, 10, 'b')
                         .then((ret) => {
                             this.messageList = ret.concat(this.sendingList);
-                            this.isRefreshing = false;
                             setTimeout(() => {
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
                                     console.log("*** toBottom is ", toBottom)
                                     if(toBottom === true) {
                                         uldiv.scrollTop = uldiv.scrollHeight + 52;
+                                        this.isRefreshing = false;
                                     }
                                     else {
-                                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 32;
+                                        uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                        this.isRefreshing = false;
                                     }
                                     this.isScroll = false;
                                 })

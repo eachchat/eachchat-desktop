@@ -85,7 +85,7 @@ const zh = {
     nPwdPlaceHolder: '输入密码',
     cPwdLabel: '确认密码',
     confirmPwdPlaceHolder: '再次输入密码',
-    NewPasswordsDontMatch: "两次输入的新密码不符",
+    NewPasswordsDontMatch: "两次输入的新密码一致",
     PasswordsCantBeEmpty: "密码不能为空",
     changePasswordSuc: "密码修改成功",
     changePasswordAlert: "修改密码会重置所有会话上的端对端加密的密钥，使加密聊天记录不可读，除非您先导出您的群聊密钥，之后再重新导入。在未来会有所改进。",

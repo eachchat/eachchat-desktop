@@ -412,15 +412,21 @@ export default {
         })
 
         global.mxMatrixClientPeg.matrixClient.on('Room.receipt', (event, room) => {
-          console.log("***** Room.receipt event ", event);
-          console.log("***** Room.receipt room ", room);
           if(this.curChat && (this.curChat.roomId != room.roomId)) {
-            console.log("***** room.getUnreadNotificationCount() ", room.getUnreadNotificationCount());
             if (room.getUnreadNotificationCount() == 0) {
               this.checkUnreadCount();
             }
           }
         })
+
+        global.mxMatrixClientPeg.matrixClient.on("RoomState.members", (event, state, member) => {
+            if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+              this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            }
+            if(member.membership == "leave" && member.userId == this.selfUserId) {
+              this.leaveGroup(member.roomId);
+            }
+        });
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             // console.log('chat-content membership member is ', member);
