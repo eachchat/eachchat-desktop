@@ -243,9 +243,6 @@ export default {
             if(avaterUrl != "") {
                 ipcRenderer.send('showPersonalImageViewWindow', avaterUrl);
             }
-            else {
-                ipcRenderer.send('showPersonalImageViewWindow', './static/Img/User/user-40px@3x.png');
-            }
         },
 
         personalCenterIconClicked(){
