@@ -214,13 +214,12 @@ export default {
                 roomInfo.avatar_url = RoomAvatar;
             roomInfo.inviteName = await this.getShowInviteMsgContent(room);
             
-            if(global.mxMatrixClientPeg.isDMInvite(room)){
+            if(global.mxMatrixClientPeg.isDMInvite(room) || global.mxMatrixClientPeg.DMCheck(room)){
                 roomInfo.avatar_url = './static/Img/User/user-40px@2x.png';
                 var myMember = global.mxMatrixClientPeg.getMyMember(room);
                 let directMember = myMember.getDMInviter();
                 roomInfo.name = await ComponentUtil.GetDisplayNameByMatrixID(directMember)
             }
-
             return roomInfo;
         },
 
