@@ -1616,7 +1616,7 @@ export default {
             console.log("getShowGroupName is ", chatGroupItem)
             
             var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
-            if(!distUserId) {
+            if(!distUserId && groupNameElement) {
                 groupNameElement.innerHTML = chatGroupItem.name;
             }
             else {

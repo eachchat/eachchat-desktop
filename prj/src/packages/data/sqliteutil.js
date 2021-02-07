@@ -429,7 +429,11 @@ const UserInfo = {
             array = infos;
             if(infos[0].manager_id == "" || userID == infos[0].manager_id)
                 return array;
-            return array.concat(await this.GetLeaders(infos[0].manager_id));
+            let leader = await this.GetLeaders(infos[0].manager_id);
+            if(leader)
+                return array.concat(leader);
+            else 
+                return array;
         }
     },
 
