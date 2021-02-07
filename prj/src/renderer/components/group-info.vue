@@ -563,6 +563,9 @@ export default {
         openSetting: function() {
             this.$emit('openSetting')
         },
+        onRoomStateMember(event, member) {
+            this.fillMember(member);
+        },
         async fillMember(o) {
             const cli = window.mxMatrixClientPeg.matrixClient;
             o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
@@ -1103,9 +1106,12 @@ export default {
             this.cursorY = e.clientY;
         }
     },
-    destroyed() {
-        
+    beforeDestroy() {
+        const cli = window.mxMatrixClientPeg.matrixClient;
+        cli.removeListener("RoomMember.powerLevel", this.onRoomStateMember);
+        cli.removeListener('RoomMember.membership', this.onRoomStateMember);
     },
+    destroyed() {},
     async created() {
         const roomId = this.showGroupInfo.groupId;
         const client = window.mxMatrixClientPeg.matrixClient;
@@ -1174,27 +1180,8 @@ export default {
         console.log('----mxRoom----', this.mxRoom);
         console.log('----dmMember----', this.dmMember);
 
-        client.on("RoomMember.powerLevel", (event, member) => {
-            console.log('---on powerLevel 1---', event)
-            console.log('---on powerLevel 2---', member)
-            // this.mxGetMembers(userId);
-            this.fillMember(member);
-        });
-
-        // client.on('RoomState.newMember', (event, state, member) => {
-        //     console.log('???+++___', event)
-        //     // this.mxGetMembers(userId);
-        //     let mxMembers = this.mxMembers;
-        //     mxMembers.push(member);
-        //     this.mxMembers = [...mxMembers];
-        // })
-
-        client.on('RoomMember.membership', (event, member) => {
-            console.log('---on membership 1---', event);
-            console.log('---on membership 2---', member);
-            // this.mxGetMembers(userId);
-            this.fillMember(member);
-        })
+        client.on("RoomMember.powerLevel", this.onRoomStateMember);
+        client.on('RoomMember.membership', this.onRoomStateMember);
 
         this.memberList = this.showGroupInfo.memberList;
         this.groupName = this.showGroupInfo.groupName;
