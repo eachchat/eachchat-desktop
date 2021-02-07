@@ -1181,6 +1181,9 @@ function openDevToolsInDevelopment(mainWindow) {
     else app.quit();
     
   })
+  mainWindow.on('page-title-updated', (event, title) => {
+    event.preventDefault();
+  })
 }
 
 app.on('ready', createWindow)
