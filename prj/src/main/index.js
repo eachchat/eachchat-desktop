@@ -1105,7 +1105,8 @@ function createWindow () {
       nodeIntegration:true,
       enableRemoteModule: true
     },
-    icon: path.join(__dirname, iconPath)
+    icon: path.join(__dirname, iconPath),
+    title: "EachChat"
   })
   mainWindow.setResizable(false);
   mainWindow.hide();
@@ -1137,6 +1138,7 @@ function createWindow () {
     },
     icon: path.join(__dirname, iconPath),
     show: false,
+    title: "EachChatImage"
   })
   assistWindow.loadURL(imgViewPageWinURL);
   openDevToolsInDevelopment(assistWindow);
