@@ -160,34 +160,38 @@
         </div>
         <!-- <div :class="groupListViewClassName()" v-if="isGroup && !isDm"> -->
             <ul class="groupMember-list" v-if="isGroup && !isDm">
-                <li v-for="(item, index) in mxMembers" class="memberItem"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
+
+                <li v-for="(item, index) in mxMembers" class="memberItemWrap"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
                     <!-- <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
                         <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
                     </div> -->
                     <!-- <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)"> -->
-                    <div class="memberItemLeft">
-                        <img onerror="this.src = './static/Img/User/user-40px@2x.png'" :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
-                        <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
-                            <div class="memberItemName">
-                                <span>{{item.dspName}}</span>
-                                <span v-if="item.powerLevel==100" class="adminBadge">群主</span>
-                                <span v-if="item.powerLevel==50" class="adminBadge">群管理员</span>
+                    <div class="dvd" v-if="item.dvd">{{item.name}}</div>
+                    <div class="memberItem" v-else>
+                        <div class="memberItemLeft">
+                            <img onerror="this.src = './static/Img/User/user-40px@2x.png'" :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
+                            <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
+                                <div class="memberItemName">
+                                    <span>{{item.dspName}}</span>
+                                    <span v-if="item.powerLevel==100" class="adminBadge">群主</span>
+                                    <span v-if="item.powerLevel==50" class="adminBadge">群管理员</span>
+                                </div>
+                                <div class="memberItemMxId">{{item.title}}</div>
                             </div>
-                            <div class="memberItemMxId">{{item.title}}</div>
                         </div>
-                    </div>
-                    <img 
-                        src="../../../static/Img/Main/sandian.png" 
-                        class="memberItemOptionsImg"
-                        @click.self.stop="switchOption(item)"
-                        v-if="currentUser.powerLevel > item.powerLevel"
-                    >
-                    <div class="memberItemOptions" v-show="item.choosen">
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群管理员</div>
-                        <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群成员</div>
-                        <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=showGroupInfo.totalLevels.canKick">移除成员</div>
+                        <img 
+                            src="../../../static/Img/Main/sandian.png" 
+                            class="memberItemOptionsImg"
+                            @click.self.stop="switchOption(item)"
+                            v-if="currentUser.powerLevel > item.powerLevel && item.membership === 'join'"
+                        >
+                        <div class="memberItemOptions" v-show="item.choosen">
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群管理员</div>
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群成员</div>
+                            <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=showGroupInfo.totalLevels.canKick">移除成员</div>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -409,7 +413,7 @@ export default {
             const userId = client.getUserId();
             let query = this.memberFilter;
             let mxMembers = this.mxMembers
-             if (this.timer) clearTimeout(this.timer);
+            if (this.timer) clearTimeout(this.timer);
             this.timer = setTimeout(()=>{
                 if (!query) return this.mxGetMembers(userId);
                 let newMems = mxMembers.filter((m) => {
@@ -417,11 +421,19 @@ export default {
                     const matchesName = m.name.toLowerCase().indexOf(query) !== -1;
                     const matchesId = m.userId.toLowerCase().indexOf(query) !== -1;
                     const matchesDspName = m.dspName.toLowerCase().indexOf(query) !== -1;
-                    if (matchesName || matchesId || matchesDspName) {
+                    if (!m.dvd && (matchesName || matchesId || matchesDspName)) {
                         return m;
                     }
                 });
-                this.mxMembers = [...newMems];
+                let joined = newMems.filter(m => {
+                    return m.membership === 'join';
+                })
+                let invited = newMems.filter(m => {
+                    return m.membership === 'invite';
+                })
+                if (joined.length) joined.unshift({dvd:true, name:'成员', userId:'chengyuan', dspName:'成员'});
+                if (invited.length) invited.unshift({dvd:true, name:'邀请中', userId:'yaoqingzhong', dspName:'邀请中'});
+                this.mxMembers = [...invited, ...joined];
             },320)
         },
         closeSearchMem() {
@@ -551,6 +563,9 @@ export default {
         openSetting: function() {
             this.$emit('openSetting')
         },
+        onRoomStateMember(event, member) {
+            this.fillMember(member);
+        },
         async fillMember(o) {
             const cli = window.mxMatrixClientPeg.matrixClient;
             o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
@@ -588,7 +603,15 @@ export default {
             mxMembers = mxMembers.filter(m => {
                 return m.membership != 'leave';
             })
-            this.mxMembers = [...mxMembers];
+            let joined = mxMembers.filter(m => {
+                return m.membership === 'join';
+            })
+            let invited = mxMembers.filter(m => {
+                return m.membership === 'invite';
+            })
+            if (joined.length) joined.unshift({dvd:true, name:'成员', userId:'chengyuan', dspName:'成员'});
+            if (invited.length) invited.unshift({dvd:true, name:'邀请中', userId:'yaoqingzhong', dspName:'邀请中'});
+            this.mxMembers = [...invited, ...joined];
         },
         async mxGetMembers(userId) {
             const roomId = this.showGroupInfo.groupId;
@@ -628,7 +651,15 @@ export default {
             // console.log('mxMembers', mxMembers);
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
             // console.log('----mxMembers[userId]----', userId)
-            this.mxMembers = [...mxMembers];
+            let joined = mxMembers.filter(m => {
+                return m.membership === 'join';
+            })
+            let invited = mxMembers.filter(m => {
+                return m.membership === 'invite';
+            })
+            if (joined.length) joined.unshift({dvd:true, name:'成员', userId:'chengyuan', dspName:'成员'});
+            if (invited.length) invited.unshift({dvd:true, name:'邀请中', userId:'yaoqingzhong', dspName:'邀请中'});
+            this.mxMembers = [...invited, ...joined];
         },
         mxMuteChange: function(mxMute) {
             console.log('---mxMuteChange---', this.mxMute);
@@ -1075,9 +1106,12 @@ export default {
             this.cursorY = e.clientY;
         }
     },
-    destroyed() {
-        
+    beforeDestroy() {
+        const cli = window.mxMatrixClientPeg.matrixClient;
+        cli.removeListener("RoomMember.powerLevel", this.onRoomStateMember);
+        cli.removeListener('RoomMember.membership', this.onRoomStateMember);
     },
+    destroyed() {},
     async created() {
         const roomId = this.showGroupInfo.groupId;
         const client = window.mxMatrixClientPeg.matrixClient;
@@ -1146,27 +1180,8 @@ export default {
         console.log('----mxRoom----', this.mxRoom);
         console.log('----dmMember----', this.dmMember);
 
-        client.on("RoomMember.powerLevel", (event, member) => {
-            console.log('---on powerLevel 1---', event)
-            console.log('---on powerLevel 2---', member)
-            // this.mxGetMembers(userId);
-            this.fillMember(member);
-        });
-
-        // client.on('RoomState.newMember', (event, state, member) => {
-        //     console.log('???+++___', event)
-        //     // this.mxGetMembers(userId);
-        //     let mxMembers = this.mxMembers;
-        //     mxMembers.push(member);
-        //     this.mxMembers = [...mxMembers];
-        // })
-
-        client.on('RoomMember.membership', (event, member) => {
-            console.log('---on membership 1---', event);
-            console.log('---on membership 2---', member);
-            // this.mxGetMembers(userId);
-            this.fillMember(member);
-        })
+        client.on("RoomMember.powerLevel", this.onRoomStateMember);
+        client.on('RoomMember.membership', this.onRoomStateMember);
 
         this.memberList = this.showGroupInfo.memberList;
         this.groupName = this.showGroupInfo.groupName;
@@ -1409,6 +1424,20 @@ export default {
     flex: 1;
     width: 100%;
     overflow: auto;
+}
+
+.memberItemWrap {}
+
+.dvd {
+    height: 32px;
+    background: #F3F4F7;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #999999;
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
 }
 
 .memberItem {

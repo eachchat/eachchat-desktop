@@ -591,6 +591,9 @@ export default {
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
             }
+            if(this.multiSelect) {
+                return;
+            }
             if(e.target.className == "msg-info-user-img-with-name") {
                 if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                     return;
