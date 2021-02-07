@@ -106,6 +106,20 @@ export default {
                 userNameElement.innerHTML = fromUserName;
             }
         },
+        mxGetMembers: async function() {
+            const roomId = this.GroupInfo.roomId;
+            const cli = window.mxMatrixClientPeg.matrixClient;
+            const xie1 = cli.getRoom(roomId);
+            await xie1.loadMembersIfNeeded();
+            const mxMembers = [];
+            for(let key in xie1.currentState.members) {
+                // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+                let o = xie1.currentState.members[key];
+                let obj = {...o, choosen:false}
+                if (obj.membership != 'leave' && obj.membership != 'invite') mxMembers.push(obj);
+            }
+            return mxMembers;
+        },
         updateUserImage: function(e, args) {
             var state = args[0];
             var stateInfo = args[1];
@@ -121,7 +135,7 @@ export default {
         GroupInfo: async function() {
             if(!this.GroupInfo.currentState)
                 return;
-            this.memberListShow = this.GroupInfo.currentState.getMembers();
+            this.memberListShow = await this.mxGetMembers();
             for(var i=0;i<this.memberListShow.length;i++) {
                 if(this.memberListShow[i].userId == this.$store.state.userId) {
                     this.memberListShow.splice(i, 1);
