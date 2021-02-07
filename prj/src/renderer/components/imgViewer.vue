@@ -50,21 +50,20 @@ export default {
     },
     methods: {
         zoomimg: function(event) {
-            console.log("*** imagetop is ", this.imgtop)
-            console.log("*** imageleftr is ", this.imgleft)
             if(!this.isPersonalImg) {
                 var delta = 0;
                 if (!event) event = window.event;
                 if(event.wheelDelta) {
                     delta = event.wheelDelta / 120;
                 }
+                console.log("this.curmultiple is ", this.curMultiple);
                 if(delta > 0) {
-                    if(this.curMultiple < this.curMultiple * 2) {
+                    if(this.curMultiple < 5) {
                         this.curMultiple += 0.1;
                     }
                 }
                 else {
-                    if(this.curMultiple > this.curMultiple / 2) {
+                    if(this.curMultiple > 0.3) {
                         this.curMultiple -= 0.1;
                     }
                 }
@@ -86,7 +85,9 @@ export default {
             if(!this.isPersonalImg) {
                 this.imgtop = 0;
                 this.imgleft = 0;
-                this.curMultiple += 0.1;
+                if(this.curMultiple < 5) {
+                    this.curMultiple += 0.1;
+                }
                 let style = "";
                 style += "width:" + this.curImage.info.w * this.curMultiple + "px";
                 style += ";"
@@ -101,7 +102,9 @@ export default {
             if(!this.isPersonalImg) {
                 this.imgtop = 0;
                 this.imgleft = 0;
-                this.curMultiple -= 0.1;
+                if(this.curMultiple > 0.3) {
+                    this.curMultiple -= 0.1;
+                }
                 let style = "";
                 style += "width:" + this.curImage.info.w * this.curMultiple + "px";
                 style += ";"
