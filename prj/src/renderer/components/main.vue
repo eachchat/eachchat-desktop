@@ -688,7 +688,15 @@ export default {
         await global.mxMatrixClientPeg.matrixClient.startClient(ops);
 
         const ctx = this;
+        global.mxMatrixClientPeg.matrixClient.on('Session.logged_out', (errObj) => {
+          global.mxMatrixClientPeg.logout();
+          global.services.common.logout();
+          ipcRenderer.send("showLoginPageWindow");
+        })
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
+            console.log("state ", state);
+            console.log("prevState ", prevState);
+            console.log("data ", data);
           switch(state){
             case "PREPARED":
             //   console.clear();
