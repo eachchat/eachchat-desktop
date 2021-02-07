@@ -1137,7 +1137,16 @@ export default {
                 this.totalList = [...totalList];
                 this.checkWrap(obj, choose);
             } else {
-                alert('超出人数限制');
+                // alert('超出人数限制');
+                let num = this.totalMembersFirstTime;
+                let msg = '';
+                if (this.nextTime) {
+                    num = this.totalMembersNextTime;
+                    msg = `超过新增用户单次人数${num}人上限`;
+                } else {
+                    msg = `超过初次创建群聊人数${num}人上限`;
+                }
+                return this.$toastMessage({message:msg, time: 2000, type:'error', showWidth:'380px'});
             }
         },
         matchQuanxuan() {
@@ -1218,7 +1227,16 @@ export default {
                 this.totalList = [...totalList];
                 this.matchQuanxuan();
             } else {
-                alert('超出人数');
+                // alert('超出人数');
+                let num = this.totalMembersFirstTime;
+                let msg = '';
+                if (this.nextTime) {
+                    num = this.totalMembersNextTime;
+                    msg = `超过新增用户单次人数${num}人上限`;
+                } else {
+                    msg = `超过初次创建群聊人数${num}人上限`;
+                }
+                return this.$toastMessage({message:msg, time: 2000, type:'error', showWidth:'380px'});
             }
         },
         async chooseOrCancel(obj, choose) {
