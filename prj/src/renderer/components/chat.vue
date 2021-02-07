@@ -592,7 +592,7 @@ export default {
                 return;
             }
             if(e.target.className == "msg-info-user-img-with-name") {
-                if(global.mxMatrixClientPeg.DMCheck(this.chat)) {
+                if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                     return;
                 }
                 this.menu = new Menu();
@@ -2962,7 +2962,9 @@ export default {
             this.isSerach = false;
             this.isJumpPage = true;
             this.messageList = [];
+            this.sendingList = [];
             // this.curChat.resetLiveTimeline();
+            this.curChat = distChat;
             this._loadTimeline(eventId, undefined, undefined, distChat, 1).then(() => {
                 this.messageList = this._getEvents();
                 console.log("*** this.messageList is ", this.messageList);
@@ -3318,7 +3320,7 @@ export default {
         async dealDrop(e) {
             console.log("------ ", this.$route.name)
             e.preventDefault();
-            if(this.$route.name != "ChatContent") {
+            if(this.$route.name != "ChatContent" || !this.isSerach || !this.isFileList) {
                 return;
             }
             if(this.curChat.roomId == undefined) {
@@ -3379,6 +3381,9 @@ export default {
             if ( !(e.clipboardData && e.clipboardData.items) ) {
                 console.log("HAHHHAHHAHHA")
                 return ;
+            }
+            if(this.$route.name != "ChatContent" || !this.isSerach || !this.isFileList) {
+                return;
             }
             for(let i=0;i<e.clipboardData.items.length; i++) {
                 var item = e.clipboardData.items[i];
@@ -3792,7 +3797,7 @@ export default {
                 console.log("chat ============", this.curChat);
                 console.log("this.curGroupId is ", this.curGroupId);
                 
-                this.messageList = this.chat.timeline;
+                this.messageList = this.curChat.timeline;
                 setTimeout(() => {
                     this.$nextTick(() => {
                         let div = document.getElementById("message-show-list");
@@ -3834,7 +3839,7 @@ export default {
                 console.log("chat ============", this.curChat);
                 console.log("this.curGroupId is ", this.curGroupId);
                 
-                this.messageList = this.chat.timeline;
+                this.messageList = this.curChat.timeline;
                 setTimeout(() => {
                     this.$nextTick(() => {
                         let div = document.getElementById("message-show-list");
@@ -3847,8 +3852,8 @@ export default {
             }
         },
         toBottom: function() {
-            console.log("***** this.chat is ", this.chat)
-            if(!this.chat || (this.chat && !this.chat.roomId)) {
+            console.log("***** this.chat is ", this.curChat)
+            if(!this.curChat || (this.curChat && !this.curChat.roomId)) {
                 return;
             }
             if(this.toBottom == true) {
@@ -3863,7 +3868,7 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
-            this.messageList = this.chat.timeline;
+            this.messageList = this.curChat.timeline;
             setTimeout(() => {
                 this.$nextTick(() => {
                     let div = document.getElementById("message-show-list");
