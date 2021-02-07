@@ -339,7 +339,6 @@ export default {
     letter-spacing: 0px;
 }
 .users-header {
-    width: 100%;
     height: 28px;
     padding-top: 10px;
     padding-left: 16px;

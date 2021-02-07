@@ -591,6 +591,9 @@ export default {
             if(this.checkClassName.indexOf(e.target.className) == -1) {
                 return;
             }
+            if(this.multiSelect) {
+                return;
+            }
             if(e.target.className == "msg-info-user-img-with-name") {
                 if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                     return;
@@ -1613,7 +1616,7 @@ export default {
             console.log("getShowGroupName is ", chatGroupItem)
             
             var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
-            if(!distUserId) {
+            if(!distUserId && groupNameElement) {
                 groupNameElement.innerHTML = chatGroupItem.name;
             }
             else {
@@ -3320,7 +3323,7 @@ export default {
         async dealDrop(e) {
             console.log("------ ", this.$route.name)
             e.preventDefault();
-            if(this.$route.name != "ChatContent" || !this.isSerach || !this.isFileList) {
+            if(this.$route.name != "ChatContent" || this.isSerach || this.isFileList) {
                 return;
             }
             if(this.curChat.roomId == undefined) {
@@ -3382,7 +3385,7 @@ export default {
                 console.log("HAHHHAHHAHHA")
                 return ;
             }
-            if(this.$route.name != "ChatContent" || !this.isSerach || !this.isFileList) {
+            if(this.$route.name != "ChatContent" || this.isSerach || this.isFileList) {
                 return;
             }
             for(let i=0;i<e.clipboardData.items.length; i++) {

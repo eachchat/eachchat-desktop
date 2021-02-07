@@ -162,7 +162,7 @@ const ComponentUtil = {
             }
         }
         let company = await Department.GetBelongDepartmentsByMatrixID(userinfo.matrix_id);
-        if(company.length == 0)
+        if(!company || company.length == 0)
             contactInfo.company = '';
         else if(company.company == 1)
             contactInfo.company = company[0].display_name;

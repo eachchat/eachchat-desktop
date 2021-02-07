@@ -101,6 +101,8 @@ const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
   isLogin = true;
   mainWindow.hide();
+  mainWindow.setResizable(true);
+  mainWindow.setMinimumSize(720, 600);
   mainWindow.setSize(960, 600);
   mainWindow.center();
   // mainWindow.webContents.on('did-finish-load', function(){
@@ -206,10 +208,11 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   isLogin = false;
   Menu.setApplicationMenu(null)
   //mainWindow.hide();
+  mainWindow.setResizable(true);
+  mainWindow.setMinimumSize(360, 420);
   if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();
   }
-  mainWindow.resizable = true;
   mainWindow.setSize(360, 420)
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
@@ -219,6 +222,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     mainWindow.center();
     mainWindow.show();
   });
+  mainWindow.setResizable(false);
   if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
@@ -1093,7 +1097,7 @@ function createWindow () {
     height: 420,
     width: 360,
     frame: false,
-    resizable: true,
+    // resizable: true,
     /**
      * Across Domains Problem
      */
@@ -1102,8 +1106,10 @@ function createWindow () {
       nodeIntegration:true,
       enableRemoteModule: true
     },
-    icon: path.join(__dirname, iconPath)
+    icon: path.join(__dirname, iconPath),
+    title: "EachChat"
   })
+  mainWindow.setResizable(false);
   mainWindow.hide();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
@@ -1133,6 +1139,7 @@ function createWindow () {
     },
     icon: path.join(__dirname, iconPath),
     show: false,
+    title: "EachChatImage"
   })
   assistWindow.loadURL(imgViewPageWinURL);
   openDevToolsInDevelopment(assistWindow);
@@ -1173,6 +1180,9 @@ function openDevToolsInDevelopment(mainWindow) {
     }
     else app.quit();
     
+  })
+  mainWindow.on('page-title-updated', (event, title) => {
+    event.preventDefault();
   })
 }
 
