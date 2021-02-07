@@ -3323,7 +3323,7 @@ export default {
         async dealDrop(e) {
             console.log("------ ", this.$route.name)
             e.preventDefault();
-            if(this.$route.name != "ChatContent" || !this.isSerach || !this.isFileList) {
+            if(this.$route.name != "ChatContent" || this.isSerach || this.isFileList) {
                 return;
             }
             if(this.curChat.roomId == undefined) {
@@ -3385,7 +3385,7 @@ export default {
                 console.log("HAHHHAHHAHHA")
                 return ;
             }
-            if(this.$route.name != "ChatContent" || !this.isSerach || !this.isFileList) {
+            if(this.$route.name != "ChatContent" || this.isSerach || this.isFileList) {
                 return;
             }
             for(let i=0;i<e.clipboardData.items.length; i++) {
