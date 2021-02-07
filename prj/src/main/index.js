@@ -209,6 +209,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   Menu.setApplicationMenu(null)
   //mainWindow.hide();
   mainWindow.setResizable(true);
+  mainWindow.setMinimumSize(360, 420);
   if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();
   }
