@@ -1157,18 +1157,34 @@ export default {
             }
         },
         async ifGo(obj) {
+            const client = window.mxMatrixClientPeg.matrixClient;
             const oneLimit = this.nextTime ? this.totalMembersNextTime : this.totalMembersFirstTime;
             const twoLimit = this.lmaxOtherHsMembersFirstTime;
             totLen = 0;
             ohsLen = 0;
+            if (this.nextTime) {
+                const room = client.getRoom(this.roomId);
+                console.log('已存在room', room);
+                let zong = 0;
+                let wai = 0;
+                for(let key in room.currentState.members) {
+                    if (key !== this.selfId) {
+                        zong = zong + 1;
+                        const hs = ComponentUtil.GetDomanName(key);
+                        if (hs !== this.myDomain) wai = wai + 1;
+                    }
+                }
+                totLen = totLen + zong;
+                ohsLen = ohsLen + wai;
+            }
             this.choosenMembers; //已选的总人
             const otherHs = this.choosenMembers.filter(c => {
                 const id = c.matrix_id || c.user_id;
                 const hs = ComponentUtil.GetDomanName(id);
                 return hs !== this.myDomain;
             }); //已选人中的外域用户
-            totLen = this.choosenMembers.length;
-            ohsLen = otherHs.length;
+            totLen = totLen + this.choosenMembers.length;
+            ohsLen = ohsLen + otherHs.length;
             if (obj.type !== 'dep') {
                 const id = obj.matrix_id || obj.user_id;
                 const hs = ComponentUtil.GetDomanName(id);
