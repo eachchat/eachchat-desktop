@@ -426,7 +426,9 @@ export default {
             for (let id in membersMap) {
                 if (targetIds.indexOf(id) >= 0 && membersMap[id].membership !== 'leave') {
                     this.loading = false;
-                    return alert('该用户已存在');
+                    const name = this.choosenMembers[targetIds.indexOf(id)].display_name;
+                    const msg = `${name}已存在`;
+                    return this.$toastMessage({message:msg, time: 2000, type:'error', showWidth:'240px'});
                 }
             }
             // if (!room) {
