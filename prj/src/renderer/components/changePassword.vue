@@ -7,15 +7,27 @@
             </div>
             <div class="originalPassword">
                 <p class="originalPasswordLabel">{{originalPasswordLabel}}</p>
-                <input type="password" v-model="originalPassword" :placeholder="originalPasswordPlaceHolder" class="originalPassword-input"/>
+                <div class="originalPassword-input">
+                    <input prefix="ios-lock-outline" type="password" id="originalPasswordInputId" v-model="originalPassword" :placeholder="originalPasswordPlaceHolder" class="original-item-input"/>
+                    <img class="el-icon-view" @click="toShowOriginalPwd" v-show="!showOriginalPwd" src="../../../static/Img/Login/hide-pwd@2x.png">
+                    <img class="el-icon-moon" @click="toShowOriginalPwd" v-show="showOriginalPwd" src="../../../static/Img/Login/view-pwd@2x.png">
+                </div>
             </div>
             <div class="newPassword">
                 <p class="newPasswordLabel">{{newPasswordLabel}}</p>
-                <input type="password" v-model="newPassword" :placeholder="newPasswordPlaceHolder" class="newPassword-input"/>
+                <div class="newPassword-input">
+                    <input prefix="ios-lock-outline" type="password" id="newPasswordInputId" v-model="newPassword" :placeholder="newPasswordPlaceHolder" class="new-item-input"/>
+                    <img class="el-icon-view" @click="toShowNewPwd" v-show="!showNewPwd" src="../../../static/Img/Login/hide-pwd@2x.png">
+                    <img class="el-icon-moon" @click="toShowNewPwd" v-show="showNewPwd" src="../../../static/Img/Login/view-pwd@2x.png">
+                </div>
             </div>
             <div class="confirmNewPassword">
                 <p class="confirmPasswordLabel">{{confirmPasswordLabel}}</p>
-                <input type="password" v-model="confirmPassword" :placeholder="confirmPasswordPlaceHolder" class="confirmPassword-input"/>
+                <div class="confirmPassword-input">
+                    <input prefix="ios-lock-outline" type="password" id="confirmPasswordInputId" v-model="confirmPassword" :placeholder="confirmPasswordPlaceHolder" class="confirm-item-input"/>
+                    <img class="el-icon-view" @click="toShowConfirmPwd" v-show="!showConfirmPwd" src="../../../static/Img/Login/hide-pwd@2x.png">
+                    <img class="el-icon-moon" @click="toShowConfirmPwd" v-show="showConfirmPwd" src="../../../static/Img/Login/view-pwd@2x.png">
+                </div>
             </div>
             <button class="ChangePasswordCancleButton" @click="Close()">{{$t("cancel")}}</button>
             <button class="ChangePasswordConfirmButton" :disabled="disableChangePassword" @click="Confirm()">{{$t("confirm")}}</button>
@@ -33,6 +45,9 @@ export default {
     },
     data() {
         return {
+            showConfirmPwd: false,
+            showNewPwd: false,
+            showOriginalPwd: false,
             originalPassword: '',
             originalPasswordPlaceHolder: '',
             newPassword: '',
@@ -55,6 +70,39 @@ export default {
         this.confirmPasswordPlaceHolder = this.$t("confirmPwdPlaceHolder");
     },
     methods: {
+        toShowOriginalPwd: function() {
+            console.log("=============")
+            this.showOriginalPwd = !this.showOriginalPwd;
+            var pwdElement = document.getElementById("originalPasswordInputId");
+            if(this.showOriginalPwd) {
+                pwdElement.type = "text";
+            }
+            else {
+                pwdElement.type = "password";
+            }
+        },
+        toShowNewPwd: function() {
+            console.log("=============")
+            this.showNewPwd = !this.showNewPwd;
+            var pwdElement = document.getElementById("newPasswordInputId");
+            if(this.showNewPwd) {
+                pwdElement.type = "text";
+            }
+            else {
+                pwdElement.type = "password";
+            }
+        },
+        toShowConfirmPwd: function() {
+            console.log("=============")
+            this.showConfirmPwd = !this.showConfirmPwd;
+            var pwdElement = document.getElementById("confirmPasswordInputId");
+            if(this.showConfirmPwd) {
+                pwdElement.type = "text";
+            }
+            else {
+                pwdElement.type = "password";
+            }
+        },
         cancleToChangePassword() {
             this.showChangePasswordAlert = false;
         },
@@ -120,6 +168,9 @@ export default {
                 // }
                 this.$toastMessage({message:this.$t("changePasswordSuc"), time:2000, type:'success'});
                 this.disableChangePassword = false;
+                this.originalPassword = "";
+                this.newPassword = "";
+                this.confirmPassword = "";
                 this.Close();
             }, (err) => {
                 this.$toastMessage({message:err, time:2000, type:'success'});
@@ -212,6 +263,27 @@ export default {
         font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 0px;
+        text-align: left;
+    }
+
+    .original-item-input {
+        display: inline-block;
+        margin-top: 4px;
+        width:209px;
+        height:34px;
+        font-weight:400;
+        color:rgba(0,0,0,1);
+        line-height:20px;
+        letter-spacing: 0px;
+        margin: 0 0 0 0;
+        box-sizing: border-box;
+        border:0px solid rgba(221,221,221,1);
+        border-radius:4px;
+        padding-left: 0px;
+        font-size:14px;
+        outline: none;
+        font-family: PingFangSC-Regular;
+        background-color: rgba(1, 1, 1, 0);
     }
 
     .newPassword {
@@ -243,6 +315,27 @@ export default {
         font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 0px;
+        text-align: left;
+    }
+
+    .new-item-input {
+        display: inline-block;
+        margin-top: 4px;
+        width:209px;
+        height:34px;
+        font-weight:400;
+        color:rgba(0,0,0,1);
+        line-height:20px;
+        letter-spacing: 0px;
+        margin: 0 0 0 0;
+        box-sizing: border-box;
+        border:0px solid rgba(221,221,221,1);
+        border-radius:4px;
+        padding-left: 0px;
+        font-size:14px;
+        outline: none;
+        font-family: PingFangSC-Regular;
+        background-color: rgba(1, 1, 1, 0);
     }
 
     .confirmNewPassword {
@@ -275,8 +368,29 @@ export default {
         font-family: PingFangSC-Regular;
         font-weight: 400;
         letter-spacing: 0px;
+        text-align: left;
     }
     
+    .confirm-item-input {
+        display: inline-block;
+        margin-top: 4px;
+        width:209px;
+        height:34px;
+        font-weight:400;
+        color:rgba(0,0,0,1);
+        line-height:20px;
+        letter-spacing: 0px;
+        margin: 0 0 0 0;
+        box-sizing: border-box;
+        border:0px solid rgba(221,221,221,1);
+        border-radius:4px;
+        padding-left: 0px;
+        font-size:14px;
+        outline: none;
+        font-family: PingFangSC-Regular;
+        background-color: rgba(1, 1, 1, 0);
+    }
+
     .ChangePasswordConfirmButton {
         display: inline-block;
         width: 100px;
@@ -324,5 +438,47 @@ export default {
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
         font-family: PingFangSC-Regular;
+    }
+
+    .el-icon-view {
+        display: inline-block;
+        float: right;
+        height: 16px;
+        width: 16px;
+        padding: 9px 10px 9px 10px;
+        color: rgb(51, 51, 51);
+        text-align: center;
+    }
+
+    .el-icon-view:hover {
+        display: inline-block;
+        float: right;
+        height: 16px;
+        width: 16px;
+        padding: 9px 10px 9px 10px;
+        color: rgb(51, 51, 51);
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .el-icon-moon {
+        display: inline-block;
+        float: right;
+        height: 16px;
+        width: 16px;
+        padding: 9px 10px 9px 10px;
+        color: rgb(51, 51, 51);
+        text-align: center;
+    }
+
+    .el-icon-moon:hover {
+        display: inline-block;
+        float: right;
+        height: 16px;
+        width: 16px;
+        padding: 9px 10px 9px 10px;
+        color: rgb(51, 51, 51);
+        cursor: pointer;
+        text-align: center;
     }
 </style>
