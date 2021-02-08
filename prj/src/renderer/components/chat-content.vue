@@ -953,6 +953,7 @@ export default {
           console.log('---to show---');
           if(this.checkNeedScroll(room)) {
             this.scrollToDistPosition(room);
+            this.showGroupIconName(room);
           }
           else {
             this.showGroupIconName(room);
