@@ -187,6 +187,7 @@ export default {
         RejectRoom: function() {
             const roomId = this.queRoomId;
             global.mxMatrixClientPeg.matrixClient.leave(roomId);
+            this.$store.commit("updateInviteState", {roomID : roomId, roomState : 1});
             this.anf = false;
         },
         ToJoinRoom: function() {
@@ -201,12 +202,10 @@ export default {
                 global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
                     this.loading = false;
-                    this.$router.push({
-                        name: 'ChatContent', 
-                        params: {
-                            group_id: roomId
-                        }
-                    })
+                    const obj = {data: distRoom, handler: 'viewRoom'};
+                    console.log('通过emit, 向上层组件触发viewRoom');
+                    this.$store.commit("updateInviteState", {roomID : roomId, roomState : 2});
+                    this.$emit('close', obj);
                 })
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);
