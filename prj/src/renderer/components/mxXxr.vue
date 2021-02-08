@@ -1976,7 +1976,7 @@ export default {
     .room-img {
         height: 32px;
         width: 32px;
-        margin-right: 16px;
+        margin-right: 12px;
         border-radius: 50%;
     }
     .room-info {

@@ -1,6 +1,22 @@
 <template>
     <div class="wrap-layer" @click.self.stop="close('close')">
-        <div class="mx-create-room-dialog" v-if="matrixSync">
+        <div class="xuanzekuang" v-if="anf">
+            <div class="xuanzekuangShang">
+                <img class="que6" :src="que.avatar_url" onerror="this.src = './static/Img/User/user-40px@2x.png'"/>
+                <div class="que1">
+                    <div class="que2">
+                        <div class="que4">{{que.display_name}}</div>
+                        <div class="que5">{{que.secdis}}</div>
+                    </div>
+                    <div class="que3">邀请你加入聊天</div>
+                </div>
+            </div>
+            <div class="xuanzekuangXia">
+                <div class="submit-button" @click.stop="ToJoinRoom">接受</div>
+                <div class="cancel-button" @click.stop="RejectRoom">拒绝</div>
+            </div>
+        </div>
+        <div class="mx-create-room-dialog" v-else-if="matrixSync && !anf">
             <div class="mxCreaterHeader">
                 <div class="mxCreaterHeaderTitle">选择联系人</div>
                 <img 
@@ -161,11 +177,56 @@ export default {
             totalList: [],
             isSearch: false,
             rootDepId: '',
-            selfId: ''
+            selfId: '',
+            que: {},
+            anf: false
         }
     },
     timer: null,
     methods: {
+        RejectRoom: function() {
+            const roomId = this.queRoomId;
+            global.mxMatrixClientPeg.matrixClient.leave(roomId);
+            this.anf = false;
+        },
+        ToJoinRoom: function() {
+            if (this.loading) return;
+            this.loading = true;
+            const roomId = this.queRoomId;
+            try{
+                var distRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomId);
+                if(global.mxMatrixClientPeg.isDMInvite(distRoom)) {
+                    Rooms.setDMRoom(roomId, global.mxMatrixClientPeg.matrixClient.getUserId());
+                }
+                global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
+                .then(() => {
+                    this.loading = false;
+                    this.$router.push({
+                        name: 'ChatContent', 
+                        params: {
+                            group_id: roomId
+                        }
+                    })
+                })
+                .catch((error) => {
+                    console.log("========join failed and err is ", error.error);
+                    this.loading = false;
+                    if(error.httpStatus == 403) {
+                        this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 429) {
+                        this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
+                    }
+                    else if(error.httpStatus == 404) {
+                        this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+                        this.RejectRoom(roomId);
+                    }
+                })
+            }
+            catch(e){
+                console.log(e)
+            }    
+        },
         searchKeyHightLight(content){
             return content.replace(this.memText, function(item) {
                 return '<span style="color:rgba(0, 169, 113, 1);">' + item + "</span>"; 
@@ -292,8 +353,11 @@ export default {
 
             const goOut = this.existInInviteRoom(targetIds[0]);
             if (goOut) {
-                alert('该用户已给您发送过邀请，请在邀请列表查看');
+                // alert('该用户已给您发送过邀请，请在邀请列表查看');
                 this.loading = false;
+                this.que = this.choosenMembers[0];
+                this.anf = true;
+                this.queRoomId = goOut;
                 return
             }
 
@@ -808,6 +872,70 @@ export default {
     input:focus{
         outline:none;
     }
+    .xuanzekuang {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 440px;
+        height: 160px;
+        margin-left: -220px;
+        margin-top: -80px;
+        background: #FFFFFF;
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
+        border-radius: 4px;
+        box-sizing: border-box;
+        padding: 32px 20px 20px 32px;
+    }
+    .xuanzekuangShang {
+        height: 48px;
+        display: flex;
+        align-items: center;
+    }
+    .xuanzekuangXia {
+        display: flex;
+        margin-top: 28px;
+        flex-flow: row-reverse;
+    }
+    .que1 {
+        height: 48px;
+    }
+    .que2 {
+        display: flex;
+        align-items: center;
+        height: 22px;
+    }
+    .que4 {
+        font-size: 16px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: #000000;
+        height: 22px;
+        line-height: 22px;
+        margin-right: 4px;
+    }
+    .que5 {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
+        height: 20px;
+        line-height: 20px;
+    }
+    .que3 {
+        margin-top: 4px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        height: 20px;
+        line-height: 20px;
+    }
+    .que6 {
+        height: 48px;
+        width: 48px;
+        margin-right: 12px;
+        border-radius: 50%;
+    }
     .kuangti {
         border: 1px solid #DDDDDD;
         border-radius: 4px;
@@ -1016,7 +1144,7 @@ export default {
     .room-img {
         height: 32px;
         width: 32px;
-        margin-right: 16px;
+        margin-right: 12px;
         border-radius: 50%;
     }
     .room-info {
