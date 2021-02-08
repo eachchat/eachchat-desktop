@@ -201,11 +201,13 @@ export default {
                 }
                 global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
-                    this.loading = false;
-                    const obj = {data: distRoom, handler: 'viewRoom'};
-                    console.log('通过emit, 向上层组件触发viewRoom');
-                    this.$store.commit("updateInviteState", {roomID : roomId, roomState : 2});
-                    this.$emit('close', obj);
+                    setTimeout(() => {
+                        this.loading = false;
+                        const obj = {data: distRoom, handler: 'viewRoom'};
+                        console.log('通过emit, 向上层组件触发viewRoom');
+                        this.$store.commit("updateInviteState", {roomID : roomId, roomState : 2});
+                        this.$emit('close', obj);
+                    }, 500)
                 })
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);

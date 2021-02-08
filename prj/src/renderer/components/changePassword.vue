@@ -70,6 +70,19 @@ export default {
         this.confirmPasswordPlaceHolder = this.$t("confirmPwdPlaceHolder");
     },
     methods: {
+        reset: function() {
+            this.originalPassword = "";
+            this.newPassword = "";
+            this.confirmPassword = "";
+            var pwdElement = document.getElementById("originalPasswordInputId");
+            pwdElement.type = "password";
+            
+            pwdElement = document.getElementById("originalPasswordInputId");
+            pwdElement.type = "password";
+            
+            pwdElement = document.getElementById("originalPasswordInputId");
+            pwdElement.type = "password";
+        },
         toShowOriginalPwd: function() {
             console.log("=============")
             this.showOriginalPwd = !this.showOriginalPwd;
@@ -112,9 +125,7 @@ export default {
             this.changePassword(this.originalPassword, this.newPassword);
         },
         Close () {
-            this.originalPassword = "";
-            this.newPassword = "";
-            this.confirmPassword = "";
+            this.reset();
             this.$emit("CloseChangePassword");
         },
         onCheckPassword (oldPass, newPass, confirmPass) {
