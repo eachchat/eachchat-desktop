@@ -165,6 +165,14 @@ class _MatrixClientPeg{
       return chatGroupItem.currentState.getMember(inviterUserId);
     }
 
+    getDMLeaveMember(chatItem){
+      let members = chatItem.currentState.members;
+      for(let item in members){
+        if(members[item].userId !== this.matrixClient.getUserId())
+          return members[item].userId;
+      }
+    }
+
     getMyMember(chatItem) {
         return chatItem.getMember(this.matrixClient.getUserId());
     }

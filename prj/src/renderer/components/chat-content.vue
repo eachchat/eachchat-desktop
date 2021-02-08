@@ -428,16 +428,29 @@ export default {
             }
             console.log("this.selfuserid is ", this.selfUserId);
             console.log("user id is ", member.userId);
-            if(member.membership == "leave" && member.userId == this.selfUserId) {
+            
+            if(member.membership == "leave") {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
               if(!newRoom) return;
-              console.log("***8 new room is ", newRoom);
-              console.log("88888888 leave group");
-              setTimeout(() => {
-                if(newRoom.getMyMembership() == "leave") {
-                  this.leaveGroup(member.roomId);
+              if(member.userId == this.selfUserId){ 
+                console.log("***8 new room is ", newRoom);
+                console.log("88888888 leave group");
+                setTimeout(() => {
+                  if(newRoom.getMyMembership() == "leave") {
+                    this.leaveGroup(member.roomId);
+                  }
+                }, 2000)
+              }
+              else{
+                if(global.mxMatrixClientPeg.isDMInvite(newRoom) || global.mxMatrixClientPeg.DMCheck(newRoom)){
+                  let inviteMemer = global.mxMatrixClientPeg.getDMLeaveMember(newRoom);
+                  if(inviteMemer) {
+                    this.leaveGroup(newRoom.roomId);
+                    return;
+                  }
                 }
-              }, 2000)
+              }
+              
             }
             else if(member.membership == "invite" && member.userId == this.selfUserId) {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
