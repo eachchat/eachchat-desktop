@@ -518,6 +518,7 @@ export default {
         showHistoryMsgList: function() {
             // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
+            if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
             this.$emit("isSearching", true);
             this.isSerach = true;
@@ -538,6 +539,7 @@ export default {
         showFileList: function() {
             // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
+            if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
             this.$emit("isSearching", true);
             this.isFileList = true;
@@ -546,6 +548,7 @@ export default {
         },
         CloseFileListPage: function() {
             var chatElement = document.getElementById("chat-page-id");
+            if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(241, 241, 241, 1)";
             this.$emit("isSearching", false);
             this.isFileList = false;
@@ -3490,6 +3493,7 @@ export default {
             return fileListInfo;
         },
         initMessage: function() {
+            if(!this.curChat) return;
             // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
             if(this.curChat.getMyMembership() == "invite") {
                 this.isRefreshing = false;
@@ -3515,7 +3519,7 @@ export default {
                                 }
 
                                 let uldiv = document.getElementById("message-show-list");
-                                if(uldiv.clientHeight < uldiv.offsetHeight) {
+                                if(uldiv && (uldiv.clientHeight < uldiv.offsetHeight)) {
                                     this.handleScroll(true);
                                 }
                                 
@@ -3749,6 +3753,7 @@ export default {
                 return;
             }
             this.curChat = this.chat;
+            this.sendingList = [];
             this.initSearchKey = '';
             this.inviterInfo = undefined;
             this.isInvite = false;
@@ -3781,6 +3786,7 @@ export default {
                 this.isInvite = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
+                this.sendingList = [];
                 console.log("***1 searchKeyFromList")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
@@ -3795,6 +3801,7 @@ export default {
             else {
                 this.initSearchKey = '';
                 this.inviterInfo = undefined;
+                this.sendingList = [];
                 this.isInvite = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
