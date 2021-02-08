@@ -1124,6 +1124,7 @@ export default {
         setTimeout(() => {
           if(this.checkNeedScroll(this.curChat)) {
             this.scrollToDistPosition(this.curChat);
+            this.showGroupIconName(this.curChat);
           }
           else {
             this.showGroupIconName(this.curChat);
@@ -1305,6 +1306,7 @@ export default {
               this.showChat(groupInfo, 0, this.searchKey);
               if(this.checkNeedScroll(groupInfo)) {
                 this.scrollToDistPosition(groupInfo);
+                this.showGroupIconName(groupInfo);
               }
               else {
                 this.showGroupIconName(groupInfo);
@@ -1317,6 +1319,7 @@ export default {
               this.showChat(groupInfo, 0, this.searchKey);
               if(this.checkNeedScroll(groupInfo)) {
                 this.scrollToDistPosition(groupInfo);
+                this.showGroupIconName(groupInfo);
               }
               else {
                 this.showGroupIconName(groupInfo);
@@ -1329,6 +1332,7 @@ export default {
               this.showChat(groupInfo, 0, this.searchKey);
               if(this.checkNeedScroll(groupInfo)) {
                 this.scrollToDistPosition(groupInfo);
+                this.showGroupIconName(groupInfo);
               }
               else {
                 this.showGroupIconName(groupInfo);
@@ -1911,14 +1915,41 @@ export default {
           else if(this.curChat.roomId != this.$store.getters.getCurChatId()) {
             this.$nextTick(() => {
               var roomID = this.$store.getters.getCurChatId();
-              for(let i in this.dealShowGroupList){
+              for(let i=0;i<this.dealShowGroupList.length;i++){
                 if(this.dealShowGroupList[i].roomId == roomID) {
                   this.showChat(this.dealShowGroupList[i], i);
                   if(this.checkNeedScroll(this.dealShowGroupList[i])) {
                     this.scrollToDistPosition(this.dealShowGroupList[i]);
+                    this.showGroupIconName(this.dealShowGroupList[i]);
                   }
                   else {
                     this.showGroupIconName(this.dealShowGroupList[i]);
+                  }
+                  return;
+                } 
+              }
+              for(let i=0;i<this.favouriteRooms.length;i++){
+                if(this.favouriteRooms[i].roomId == roomID) {
+                  this.showChat(this.favouriteRooms[i], i);
+                  if(this.checkNeedScroll(this.favouriteRooms[i])) {
+                    this.scrollToDistPosition(this.favouriteRooms[i]);
+                    this.showGroupIconName(this.favouriteRooms[i]);
+                  }
+                  else {
+                    this.showGroupIconName(this.favouriteRooms[i]);
+                  }
+                  return;
+                } 
+              }
+              for(let i=0;i<this.lowPriorityGroupList.length;i++){
+                if(this.lowPriorityGroupList[i].roomId == roomID) {
+                  this.showChat(this.lowPriorityGroupList[i], i);
+                  if(this.checkNeedScroll(this.lowPriorityGroupList[i])) {
+                    this.scrollToDistPosition(this.lowPriorityGroupList[i]);
+                    this.showGroupIconName(this.lowPriorityGroupList[i]);
+                  }
+                  else {
+                    this.showGroupIconName(this.lowPriorityGroupList[i]);
                   }
                   return;
                 } 
@@ -1937,17 +1968,18 @@ export default {
         this.showSearchAllChat = true;
         this.searchPeopleItems = [];
         this.searchMessageItems = [];
-        if(this.$store.getters.getCurChatId() == undefined) {
+        var roomID = this.$store.getters.getCurChatId();
+        if(roomID == undefined) {
           this.isEmpty = true;
         }
-        else if(this.curChat.roomId != this.$store.getters.getCurChatId()) {
+        else if(this.curChat.roomId != roomID) {
           this.$nextTick(() => {
-            var roomID = this.$store.getters.getCurChatId();
-            for(let i in this.dealShowGroupList){
+            for(let i=0;i<this.dealShowGroupList.length;i++){
               if(this.dealShowGroupList[i].roomId == roomID) {
                 this.showChat(this.dealShowGroupList[i], i);
                 if(this.checkNeedScroll(this.dealShowGroupList[i])) {
                   this.scrollToDistPosition(this.dealShowGroupList[i]);
+                  this.showGroupIconName(this.dealShowGroupList[i]);
                 }
                 else {
                   this.showGroupIconName(this.dealShowGroupList[i]);
@@ -1955,7 +1987,36 @@ export default {
                 return;
               } 
             }
+            for(let i=0;i<this.favouriteRooms.length;i++){
+              if(this.favouriteRooms[i].roomId == roomID) {
+                this.showChat(this.favouriteRooms[i], i);
+                if(this.checkNeedScroll(this.favouriteRooms[i])) {
+                  this.scrollToDistPosition(this.favouriteRooms[i]);
+                  this.showGroupIconName(this.favouriteRooms[i]);
+                }
+                else {
+                  this.showGroupIconName(this.favouriteRooms[i]);
+                }
+                return;
+              } 
+            }
+            for(let i=0;i<this.lowPriorityGroupList.length;i++){
+              if(this.lowPriorityGroupList[i].roomId == roomID) {
+                this.showChat(this.lowPriorityGroupList[i], i);
+                if(this.checkNeedScroll(this.lowPriorityGroupList[i])) {
+                  this.scrollToDistPosition(this.lowPriorityGroupList[i]);
+                  this.showGroupIconName(this.lowPriorityGroupList[i]);
+                }
+                else {
+                  this.showGroupIconName(this.lowPriorityGroupList[i]);
+                }
+                return;
+              } 
+            }
           })
+        }
+        else {
+          console.log("+++++++++++++++++++++++++++++++++++++")
         }
       }
     },
