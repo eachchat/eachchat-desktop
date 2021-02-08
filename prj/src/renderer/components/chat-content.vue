@@ -2177,6 +2177,7 @@ export default {
         this.isEmpty = true;
         this.curChat = undefined;
       }
+      this.$store.commit('deleteInviteRooms', roomId);
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       this.DeleteGroup(roomId);
     },

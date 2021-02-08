@@ -37,7 +37,8 @@ export default new Vuex.Store({
     draft: {},
     curRoomId: undefined,
     inviteRooms: [],
-    inviteRoomsNum: 0
+    inviteRoomsNum: 0,
+    nUpdateInviteRoom: 0
   },
   mutations: {
     updateInviteState(state, roomObj){
@@ -52,12 +53,8 @@ export default new Vuex.Store({
     },
 
     addInviteRooms(state, inviteRoom){
-      for(let index in state.inviteRooms){
-        if(state.inviteRooms[index].roomID === inviteRoom.roomID) {
-          state.inviteRooms[index].roomState = inviteRoom.roomState;
-          return;
-        }
-      }
+      if(state.inviteRooms.some(item => item.roomID == inviteRoom.roomID))
+        return;
       state.inviteRooms.unshift(inviteRoom);
       state.inviteRoomsNum++;
     },
@@ -66,6 +63,7 @@ export default new Vuex.Store({
       for(let index in state.inviteRooms){
         if(state.inviteRooms[index].roomID === roomID){
           state.inviteRooms.splice(index, 1);
+          state.nUpdateInviteRoom++;
           return;
         }
       }

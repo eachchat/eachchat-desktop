@@ -63,8 +63,12 @@ export default {
 
     watch:{
         '$store.state.inviteRoomsNum': function () {
-                this.updateRoomInfo();
-            }
+            this.updateRoomInfo();
+        },
+        '$store.state.nUpdateInviteRoom': function () {
+            this.roomList.length = 0;
+            this.createRoomInfo();
+        }  
     },
 
     methods: {
@@ -148,11 +152,6 @@ export default {
         roomMenuItemClicked:function(room) {
             if(room.roomState != 2)
                 return
-            var distRoom = global.mxMatrixClientPeg.matrixClient.getRoom(room.roomID);
-            if(distRoom && distRoom.getMyMembership() == "leave") {
-                this.$toastMessage({message:"您已离开房间", time: 2000, type:'error', showHeight: '80px'});
-                return;
-            }
             this.$router.push(
                 {
                     name: 'ChatContent', 
