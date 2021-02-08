@@ -52,8 +52,12 @@ export default new Vuex.Store({
     },
 
     addInviteRooms(state, inviteRoom){
-      if(state.inviteRooms.some(item => item.roomID == inviteRoom.roomID))
-        return;
+      for(let index in state.inviteRooms){
+        if(state.inviteRooms[index].roomID === inviteRoom.roomID) {
+          state.inviteRooms[index].roomState = inviteRoom.roomState;
+          return;
+        }
+      }
       state.inviteRooms.unshift(inviteRoom);
       state.inviteRoomsNum++;
     },

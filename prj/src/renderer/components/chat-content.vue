@@ -419,12 +419,49 @@ export default {
           }
         })
 
-        global.mxMatrixClientPeg.matrixClient.on("RoomState.members", (event, state, member) => {
+        global.mxMatrixClientPeg.matrixClient.on("RoomState.members", async (event, state, member) => {
+            console.log('RoomState.members event ', event);
+            console.log('RoomState.members state ', state);
+            console.log('RoomState.members member ', member);
             if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
               this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
             }
+            console.log("this.selfuserid is ", this.selfUserId);
+            console.log("user id is ", member.userId);
             if(member.membership == "leave" && member.userId == this.selfUserId) {
-              this.leaveGroup(member.roomId);
+              let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+              if(!newRoom) return;
+              console.log("***8 new room is ", newRoom);
+              console.log("88888888 leave group");
+              setTimeout(() => {
+                if(newRoom.getMyMembership() == "leave") {
+                  this.leaveGroup(member.roomId);
+                }
+              }, 2000)
+            }
+            else if(member.membership == "invite" && member.userId == this.selfUserId) {
+              let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+              console.log("***8 new room is ", newRoom);
+              if(!newRoom) return;
+              this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
+              if(this.dealShowGroupList.every(item=>{
+                  return item.roomId != newRoom.roomId
+                })){
+                newRoom.distTimeLine = event;
+                this.dealShowGroupList.unshift(newRoom);
+              }
+              this.$nextTick(() => {
+                this.showGroupIconName(newRoom);
+              })
+              var fromName = await this.getNoticeShowGroupName(newRoom);
+              const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+              const inviteEvent = newRoom.currentState.getMember(myUserId);
+              if (!inviteEvent) {
+                  return;
+              }
+              const inviterUserId = inviteEvent.events.member.getSender();
+              var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
+              this.showNotice(fromName, inviterName + "邀请你加入群聊");
             }
         });
         
@@ -1080,7 +1117,7 @@ export default {
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender ? newMsg.sender.name : newMsg.event.sender;
       // console.log("*** newMsg is ", newMsg);
-      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
+      if(this.curChat && newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
         console.log("*** updateChatList SetRoomReader");
         this.SetRoomReader(this.curChat);
         setTimeout(() => {
