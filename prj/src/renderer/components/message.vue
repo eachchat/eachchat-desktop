@@ -1197,6 +1197,11 @@ export default {
         this.loginInfo = undefined;
         this.curUserInfo = undefined;
     },
+    beforeDestroy: function() {
+        if(this.amr != null) {
+            this.amr.stop();
+        }
+    },
     watch: {
         msg: async function() {
             setTimeout(() => {

@@ -482,7 +482,7 @@ export default {
                 var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                 this.$emit("closeTransmitDlg", "");
                 if(suc == false) {
-                    this.$toastMessage({message:'转发失败', time:1500, type:'success'});
+                    this.$toastMessage({message:'转发失败', time:1500, type:'error'});
                 }
                 else {
                     this.$toastMessage({message:'转发成功', time:1500, type:'success'});
@@ -493,20 +493,25 @@ export default {
                 var suc = await this.sendImageViewerMsg(this.selectedGroups, this.imageViewerImageInfo);
                 this.$emit("closeTransmitDlg", "");
                 if(suc == false) {
-                    this.$toastMessage({message:'转发失败', time:1500, type:'success'});
+                    this.$toastMessage({message:'转发失败', time:1500, type:'error'});
                 }
                 else {
                     this.$toastMessage({message:'转发成功', time:1500, type:'success'});
                 }
                 return;
             }
-            await this.sendMsg(this.selectedGroups, this.transmitMessages);
+            var suc = await this.sendMsg(this.selectedGroups, this.transmitMessages);
             // for(var i=0;i<this.groupList.length;i++) {
             //     this.groupList[i].checkState = false;
             // }
             // this.selectedChat = [];
             this.$emit("closeTransmitDlg", "");
-            this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+            if(suc == false) {
+                this.$toastMessage({message:'转发失败', time:1500, type:'error'});
+            }
+            else {
+                this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+            }
         },
         createGroupAndTransmit: async function() {
             console.log(this.$refs.chatCreaterContent.getSelectedUsers());
@@ -648,7 +653,7 @@ export default {
                 await this.sendTogetherMsg(distGroups, msgs);
             }
             else {
-                await this.sendSingleMsg(distGroups, msgs);
+                return await this.sendSingleMsg(distGroups, msgs);
             }
         },
         sendTogetherMsg: async function(distGroups, msgs) {
@@ -710,7 +715,13 @@ export default {
                             url: imageViewerImageInfo.url,
                             info:imageViewerImageInfo.info,
                         };
-                global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                try {
+                    var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                }
+                catch(error) {
+                    return false;
+                }
+                
                 return true;
             }
         },
@@ -753,7 +764,12 @@ export default {
                     if(sendText.length != 0)
                     {
                         sendBody.body = sendText;
-                        global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, sendBody);
+                        try {
+                            var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, sendBody);
+                        }
+                        catch(error) {
+                            return false;
+                        }
                     }
                 }
                 else if(varcontent.msgtype == "m.image") {
@@ -763,7 +779,13 @@ export default {
                                 url: varcontent.url,
                                 info:varcontent.info,
                             };
-                    global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                    try {
+                        var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                    }
+                    catch(error) {
+                        return false;
+                    }
+                    
                 }
                 else if(varcontent.msgtype == "m.file") {
                     var body = varcontent.body;
@@ -777,12 +799,19 @@ export default {
                         url: varcontent.url,
                         info: varcontent.info
                     };
-                    global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                    try {
+                        var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                    }
+                    catch(error) {
+                        return false;
+                    }
+                    
                 }
                 // console.log("varcontent is ", varcontent);
             }
         },
         sendSingleMsg: async function(distGroups, msgs) {
+            var haveFailed = false;
             for(var i=0;i<distGroups.length;i++){
                 for(var j=0;j<msgs.length;j++) {
                     var curMsg = msgs[j];
@@ -817,9 +846,15 @@ export default {
                             // else {
                             //     console.log("========= transmit msg failed ", curMsg.getContent());
                             // }
+                        }).catch((error) => {
+                            haveFailed = true;
                         })
                 }
             }
+            if(haveFailed) {
+                return false;
+            }
+            return true;
         },
         getTogetherMsgContent: async function(msgs) {
             if(this.curUserInfo == undefined) {

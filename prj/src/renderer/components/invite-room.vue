@@ -63,8 +63,12 @@ export default {
 
     watch:{
         '$store.state.inviteRoomsNum': function () {
-                this.updateRoomInfo();
-            }
+            this.updateRoomInfo();
+        },
+        '$store.state.nUpdateInviteRoom': function () {
+            this.roomList.length = 0;
+            this.createRoomInfo();
+        }  
     },
 
     methods: {

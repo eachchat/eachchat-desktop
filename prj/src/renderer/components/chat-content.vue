@@ -410,6 +410,60 @@ export default {
           this.showGroupIconName();
           this.$emit('matrixSyncEnd', true);
         })
+
+        global.mxMatrixClientPeg.matrixClient.on('Room.receipt', (event, room) => {
+          if(this.curChat && (this.curChat.roomId != room.roomId)) {
+            if (room.getUnreadNotificationCount() == 0) {
+              this.checkUnreadCount();
+            }
+          }
+        })
+
+        global.mxMatrixClientPeg.matrixClient.on("RoomState.members", async (event, state, member) => {
+            console.log('RoomState.members event ', event);
+            console.log('RoomState.members state ', state);
+            console.log('RoomState.members member ', member);
+            if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+              this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            }
+            console.log("this.selfuserid is ", this.selfUserId);
+            console.log("user id is ", member.userId);
+            if(member.membership == "leave" && member.userId == this.selfUserId) {
+              let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+              if(!newRoom) return;
+              console.log("***8 new room is ", newRoom);
+              console.log("88888888 leave group");
+              setTimeout(() => {
+                if(newRoom.getMyMembership() == "leave") {
+                  this.leaveGroup(member.roomId);
+                }
+              }, 2000)
+            }
+            else if(member.membership == "invite" && member.userId == this.selfUserId) {
+              let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+              console.log("***8 new room is ", newRoom);
+              if(!newRoom) return;
+              this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
+              if(this.dealShowGroupList.every(item=>{
+                  return item.roomId != newRoom.roomId
+                })){
+                newRoom.distTimeLine = event;
+                this.dealShowGroupList.unshift(newRoom);
+              }
+              this.$nextTick(() => {
+                this.showGroupIconName(newRoom);
+              })
+              var fromName = await this.getNoticeShowGroupName(newRoom);
+              const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+              const inviteEvent = newRoom.currentState.getMember(myUserId);
+              if (!inviteEvent) {
+                  return;
+              }
+              const inviterUserId = inviteEvent.events.member.getSender();
+              var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
+              this.showNotice(fromName, inviterName + "邀请你加入群聊");
+            }
+        });
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             // console.log('chat-content membership member is ', member);
@@ -899,6 +953,7 @@ export default {
           console.log('---to show---');
           if(this.checkNeedScroll(room)) {
             this.scrollToDistPosition(room);
+            this.showGroupIconName(room);
           }
           else {
             this.showGroupIconName(room);
@@ -1063,12 +1118,13 @@ export default {
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender ? newMsg.sender.name : newMsg.event.sender;
       // console.log("*** newMsg is ", newMsg);
-      if(newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
+      if(this.curChat && newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
         console.log("*** updateChatList SetRoomReader");
         this.SetRoomReader(this.curChat);
         setTimeout(() => {
           if(this.checkNeedScroll(this.curChat)) {
             this.scrollToDistPosition(this.curChat);
+            this.showGroupIconName(this.curChat);
           }
           else {
             this.showGroupIconName(this.curChat);
@@ -1250,6 +1306,7 @@ export default {
               this.showChat(groupInfo, 0, this.searchKey);
               if(this.checkNeedScroll(groupInfo)) {
                 this.scrollToDistPosition(groupInfo);
+                this.showGroupIconName(groupInfo);
               }
               else {
                 this.showGroupIconName(groupInfo);
@@ -1262,6 +1319,7 @@ export default {
               this.showChat(groupInfo, 0, this.searchKey);
               if(this.checkNeedScroll(groupInfo)) {
                 this.scrollToDistPosition(groupInfo);
+                this.showGroupIconName(groupInfo);
               }
               else {
                 this.showGroupIconName(groupInfo);
@@ -1274,6 +1332,7 @@ export default {
               this.showChat(groupInfo, 0, this.searchKey);
               if(this.checkNeedScroll(groupInfo)) {
                 this.scrollToDistPosition(groupInfo);
+                this.showGroupIconName(groupInfo);
               }
               else {
                 this.showGroupIconName(groupInfo);
@@ -1856,14 +1915,41 @@ export default {
           else if(this.curChat.roomId != this.$store.getters.getCurChatId()) {
             this.$nextTick(() => {
               var roomID = this.$store.getters.getCurChatId();
-              for(let i in this.dealShowGroupList){
+              for(let i=0;i<this.dealShowGroupList.length;i++){
                 if(this.dealShowGroupList[i].roomId == roomID) {
                   this.showChat(this.dealShowGroupList[i], i);
                   if(this.checkNeedScroll(this.dealShowGroupList[i])) {
                     this.scrollToDistPosition(this.dealShowGroupList[i]);
+                    this.showGroupIconName(this.dealShowGroupList[i]);
                   }
                   else {
                     this.showGroupIconName(this.dealShowGroupList[i]);
+                  }
+                  return;
+                } 
+              }
+              for(let i=0;i<this.favouriteRooms.length;i++){
+                if(this.favouriteRooms[i].roomId == roomID) {
+                  this.showChat(this.favouriteRooms[i], i);
+                  if(this.checkNeedScroll(this.favouriteRooms[i])) {
+                    this.scrollToDistPosition(this.favouriteRooms[i]);
+                    this.showGroupIconName(this.favouriteRooms[i]);
+                  }
+                  else {
+                    this.showGroupIconName(this.favouriteRooms[i]);
+                  }
+                  return;
+                } 
+              }
+              for(let i=0;i<this.lowPriorityGroupList.length;i++){
+                if(this.lowPriorityGroupList[i].roomId == roomID) {
+                  this.showChat(this.lowPriorityGroupList[i], i);
+                  if(this.checkNeedScroll(this.lowPriorityGroupList[i])) {
+                    this.scrollToDistPosition(this.lowPriorityGroupList[i]);
+                    this.showGroupIconName(this.lowPriorityGroupList[i]);
+                  }
+                  else {
+                    this.showGroupIconName(this.lowPriorityGroupList[i]);
                   }
                   return;
                 } 
@@ -1882,17 +1968,18 @@ export default {
         this.showSearchAllChat = true;
         this.searchPeopleItems = [];
         this.searchMessageItems = [];
-        if(this.$store.getters.getCurChatId() == undefined) {
+        var roomID = this.$store.getters.getCurChatId();
+        if(roomID == undefined) {
           this.isEmpty = true;
         }
-        else if(this.curChat.roomId != this.$store.getters.getCurChatId()) {
+        else if(this.curChat.roomId != roomID) {
           this.$nextTick(() => {
-            var roomID = this.$store.getters.getCurChatId();
-            for(let i in this.dealShowGroupList){
+            for(let i=0;i<this.dealShowGroupList.length;i++){
               if(this.dealShowGroupList[i].roomId == roomID) {
                 this.showChat(this.dealShowGroupList[i], i);
                 if(this.checkNeedScroll(this.dealShowGroupList[i])) {
                   this.scrollToDistPosition(this.dealShowGroupList[i]);
+                  this.showGroupIconName(this.dealShowGroupList[i]);
                 }
                 else {
                   this.showGroupIconName(this.dealShowGroupList[i]);
@@ -1900,7 +1987,36 @@ export default {
                 return;
               } 
             }
+            for(let i=0;i<this.favouriteRooms.length;i++){
+              if(this.favouriteRooms[i].roomId == roomID) {
+                this.showChat(this.favouriteRooms[i], i);
+                if(this.checkNeedScroll(this.favouriteRooms[i])) {
+                  this.scrollToDistPosition(this.favouriteRooms[i]);
+                  this.showGroupIconName(this.favouriteRooms[i]);
+                }
+                else {
+                  this.showGroupIconName(this.favouriteRooms[i]);
+                }
+                return;
+              } 
+            }
+            for(let i=0;i<this.lowPriorityGroupList.length;i++){
+              if(this.lowPriorityGroupList[i].roomId == roomID) {
+                this.showChat(this.lowPriorityGroupList[i], i);
+                if(this.checkNeedScroll(this.lowPriorityGroupList[i])) {
+                  this.scrollToDistPosition(this.lowPriorityGroupList[i]);
+                  this.showGroupIconName(this.lowPriorityGroupList[i]);
+                }
+                else {
+                  this.showGroupIconName(this.lowPriorityGroupList[i]);
+                }
+                return;
+              } 
+            }
           })
+        }
+        else {
+          console.log("+++++++++++++++++++++++++++++++++++++")
         }
       }
     },
@@ -2122,6 +2238,7 @@ export default {
         this.isEmpty = true;
         this.curChat = undefined;
       }
+      this.$store.commit('deleteInviteRooms', roomId);
       global.mxMatrixClientPeg.matrixClient.leave(roomId);
       this.DeleteGroup(roomId);
     },
@@ -2893,7 +3010,7 @@ export default {
         return;
       let eventId = lasttimeLine.event.event_id;
       //return lasttimeLine;
-      var oriRoomUnreadCount = room.getUnreadNotificationCount();
+      // var oriRoomUnreadCount = room.getUnreadNotificationCount();
       global.mxMatrixClientPeg.matrixClient.setRoomReadMarkers(room.roomId, eventId, lasttimeLine, {hidden: false}).catch((e) => {
         console.log(e)
         if(e.errcode == "M_UNKNOWN_TOKEN") {
