@@ -1107,7 +1107,7 @@ function createWindow () {
       enableRemoteModule: true
     },
     icon: path.join(__dirname, iconPath),
-    title: "EachChat"
+    title: "亿洽"
   })
   mainWindow.setResizable(false);
   mainWindow.hide();
@@ -1139,7 +1139,7 @@ function createWindow () {
     },
     icon: path.join(__dirname, iconPath),
     show: false,
-    title: "EachChatImage"
+    title: "亿洽"
   })
   assistWindow.loadURL(imgViewPageWinURL);
   openDevToolsInDevelopment(assistWindow);
