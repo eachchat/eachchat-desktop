@@ -923,6 +923,9 @@ export default {
     async onRoomName(room) {
       if(!room) return;
       try {
+        if(this.$store.getters.getChatName(room.roomId).length != 0) {
+          room.contactName = this.$store.getters.getChatName(room.roomId);
+        }
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
         if(distUserId) {
           var fromName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);

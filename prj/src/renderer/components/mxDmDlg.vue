@@ -665,10 +665,13 @@ export default {
             return opts;
         },
         createRoom: function(opts) {
-            return RoomUtil.CreateRoom(opts).then((res) => {
+            return RoomUtil.CreateRoom(opts).then(async (res) => {
                 console.log('--create success!!--', res);
                 let roomId = res.room_id;
                 if(roomId) Rooms.setDMRoom(roomId, opts.dmUserId);
+                var senderName = await ComponentUtil.GetDisplayNameByMatrixID(opts.dmUserId);
+                var roomNameInfo = [roomId, senderName];
+                this.$store.commit("setIdToName", roomNameInfo);
                 // const obj = {data: res, handler: 'viewRoom'};
                 this.$emit('close', 'close'); // 新创建时可以靠上层组件中的监听跳跳转，无需传obj
             })

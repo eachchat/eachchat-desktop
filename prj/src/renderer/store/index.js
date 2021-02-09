@@ -35,6 +35,7 @@ export default new Vuex.Store({
     soundNotice: true, 
     flashNotice: true,
     draft: {},
+    roomIdToName: {},
     userToAvater: {},
     curRoomId: undefined,
     inviteRooms: [],
@@ -82,6 +83,11 @@ export default new Vuex.Store({
       var userId = userAvaterInfo[0];
       var avater = userAvaterInfo[1];
       state.userToAvater[userId] = avater;
+    },
+    setIdToName(state, userNameInfo) {
+      var roomId = userNameInfo[0];
+      var name = userNameInfo[1];
+      state.roomIdToName[roomId] = name;
     },
     setHost(state, host){
       state.host = host;
@@ -275,6 +281,9 @@ export default new Vuex.Store({
     },
     getAvater: state => (userId) => {
       return state.userToAvater[userId] == undefined ? "" : state.userToAvater[userId];
+    },
+    getChatName: state => (roomId) => {
+      return state.roomIdToName[roomId] == undefined ? "" : state.roomIdToName[roomId];
     },
     getHost: state => () => {
       return state.host;
