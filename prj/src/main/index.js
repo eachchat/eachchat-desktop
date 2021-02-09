@@ -1195,6 +1195,9 @@ app.on('window-all-closed', () => {
 })
 
 app.on('browser-window-blur', () => {
+  if(mainWindow != undefined) {
+    mainWindow.webContents.send("isBlur");
+  }
   if(process.platform == 'darwin') {
     if(mainWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
       globalShortcut.unregister('CommandOrControl+V');
@@ -1203,18 +1206,19 @@ app.on('browser-window-blur', () => {
 })
 
 app.on('browser-window-focus', () => {
-  if(isLogin) {
-    mainWindow.webContents.send("setFocuse");
-    if(process.platform == 'darwin') {
-      if(mainWindow != undefined) {
-          let content = mainWindow.webContents;
-          globalShortcut.register('CommandOrControl+V', () => {
-            content.paste();
-          })
-      }
-    }
-  
+  if(mainWindow != undefined) {
+    mainWindow.webContents.send("isFocuse");
   }
+
+  mainWindow.webContents.send("setFocuse");
+  if(process.platform == 'darwin') {
+    if(mainWindow != undefined) {
+        let content = mainWindow.webContents;
+        globalShortcut.register('CommandOrControl+V', () => {
+          content.paste();
+        })
+    }
+  }  
 })
 
 app.on('activate', () => {

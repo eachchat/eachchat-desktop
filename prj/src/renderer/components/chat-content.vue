@@ -545,6 +545,7 @@ export default {
   },
   data() {
     return {
+      isBlure: false,
       //需要展示的用户群组
       dealingEventIds: [],
       searchChat: undefined,
@@ -1131,7 +1132,7 @@ export default {
       // console.log("msg.messagefromid ", msg.message_from_id);
       var fromUserInfo = newMsg.sender ? newMsg.sender.name : newMsg.event.sender;
       // console.log("*** newMsg is ", newMsg);
-      if(this.curChat && newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin) {
+      if(this.curChat && newMsg.event.room_id == this.curChat.roomId && !this.isFirstLogin && !this.isBlure) {
         console.log("*** updateChatList SetRoomReader");
         this.SetRoomReader(this.curChat);
         setTimeout(() => {
@@ -3214,6 +3215,15 @@ export default {
         return value2 - value1;
       }
     },
+    curWindowIsBlur() {
+      this.isBlure = true;
+    },
+    curWindowIsFocuse() {
+      if(this.curChat && this.curChat.roomId) {
+        this.SetRoomReader(this.curChat);
+      }
+      this.isBlure = false;
+    },
     async callback(msg, isUpdate=false) {
       
     },
@@ -3234,6 +3244,8 @@ export default {
     ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
     ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
+    ipcRenderer.on('isBlur', this.curWindowIsBlur)
+    ipcRenderer.on('isFocuse', this.curWindowIsFocuse)
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);
