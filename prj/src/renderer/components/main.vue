@@ -3,7 +3,7 @@
         <el-aside class="navigate-panel" width="64px">
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :isNormal="false"></mac-window-header>
             <div class="User">
-                <img class="login-logo" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()"/>
+                <img class="login-logo" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
             </div>
             <el-menu
                 class="nav-menu">
@@ -407,16 +407,16 @@ export default {
         },
         showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");
-            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
+            var myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(myUserId);
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             if(avaterUrl != "") {
-                try{
-                    var response = await axios.get(avaterUrl);
-                }
-                catch(e) {
+                elementImg.setAttribute("src", avaterUrl);
+                if(this.$store.getters.getAvater(myUserId) == avaterUrl) {
                     return;
                 }
-                elementImg.setAttribute("src", avaterUrl);
+                var userToAvaterInfo = [myUserId, avaterUrl];
+                this.$store.commit("setAvater", userToAvaterInfo);
             }
         },
         personalCenterClicked:async function(){

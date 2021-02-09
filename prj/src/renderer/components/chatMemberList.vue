@@ -4,7 +4,7 @@
             <ul class="atList" id="atListId">
                 <li v-for="(item, index) in memberListShow" class="memberItem" @click="atMember(item)">
                     <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" src="../../../static/Img/User/user-40px@2x.png">
+                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" :src="getUserIconSrc(item)" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                         <label class="groupMemberInfoLabel" :id="getNameIdThroughMemberUid(item.userId)">{{item.name}}</label>
                     </div>
                 </li>
@@ -45,6 +45,16 @@ export default {
     computed: {
     },
     methods: {
+        getUserIconSrc: function(memberInfo) {
+            var userId = memberInfo.userId;
+            var avater = this.$store.getters.getAvater(userId);
+            if(avater.length == 0) {
+                return "../../../static/Img/User/user-40px@2x.png";
+            }
+            else {
+                return avater;
+            }
+        },
         atMember: function(memberInfo) {
             this.memberListShowOriginal = [];
             this.memberListShow = [];

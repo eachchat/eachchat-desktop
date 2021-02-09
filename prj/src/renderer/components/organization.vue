@@ -418,6 +418,12 @@ export default {
                 let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
                 if(userIconElement)
                     userIconElement.setAttribute("src", validUrl);
+                    
+                if(this.$store.getters.getAvater(userInfo.user_id) == validUrl) {
+                    return;
+                }
+                var userToAvaterInfo = [userInfo.user_id, validUrl];
+                this.$store.commit("setAvater", userToAvaterInfo);
             }).catch(e => {
                 console.log("error: ",userInfo)
                 console.log(e)

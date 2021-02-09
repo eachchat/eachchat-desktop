@@ -50,11 +50,11 @@
                         </div>
                     </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()" src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()"  src="../../../static/Img/User/user-40px@2x.png" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
+                <img class="msg-info-user-img-with-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
                     <div class="chat-msg-content-others-img"
@@ -186,6 +186,16 @@ export default {
         },
         getUserIconId: function() {
             return (this.msg._txnId ? this.msg._txnId : this.msg.event.event_id).toString() + "-usericon"
+        },
+        getUserIconSrc: function() {
+            var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            var avater = this.$store.getters.getAvater(userId);
+            if(avater.length == 0) {
+                return "../../../static/Img/User/user-40px@2x.png";
+            }
+            else {
+                return avater;
+            }
         },
         async getFileExist() {
             let msgs = await Message.FindMessageByMesssageID(this.msg.event.event_id);
@@ -842,8 +852,9 @@ export default {
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;
             }
-                
-            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender));
+            
+            var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((userId));
             var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             
             if(this.userIconElement == undefined) {
@@ -853,6 +864,10 @@ export default {
                 return;
             }
             // console.log("userUrl is ", userUrl);
+            if(this.$store.getters.getAvater(userId) != userUrl) {
+                var userToAvaterInfo = [userId, userUrl];
+                this.$store.commit("setAvater", userToAvaterInfo);
+            }
             this.userIconElement.setAttribute("src", userUrl);
         },
         msgUserInfo: async function() {

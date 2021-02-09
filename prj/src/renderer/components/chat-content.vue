@@ -224,7 +224,7 @@
           <div class="win-header-white" v-show="isMsgSearch">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <ChatPage ref="chatPageRef" :chat="curChat" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
+          <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -490,6 +490,19 @@ export default {
               var inviterName = await ComponentUtil.GetDisplayNameByMatrixID(inviterUserId);
               this.showNotice(fromName, inviterName + "邀请你加入群聊");
             }
+            else if(member.membership == "join" && member.userId == this.selfUserId) {
+              // if(this.curChat && this.curChat.roomId && this.curChat.roomId == member.roomId) {
+                var profile = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.selfUserId)
+                var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profile.avatar_url);
+
+                if(this.$store.getters.getAvater(member.userId) == avaterUrl) {
+                    return;
+                }
+                var userToAvaterInfo = [member.userId, avaterUrl];
+                this.$store.commit("setAvater", userToAvaterInfo);
+                this.toUpdateMyImg ++;
+              // }
+            }
         });
         
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
@@ -559,6 +572,7 @@ export default {
   },
   data() {
     return {
+      toUpdateMyImg: 0,
       isBlure: false,
       //需要展示的用户群组
       dealingEventIds: [],

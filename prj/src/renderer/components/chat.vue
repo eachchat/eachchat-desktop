@@ -3760,8 +3760,11 @@ export default {
             }
         }
     },
-    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat'],
+    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg'],
     watch: {
+        updateImg: function() {
+            this.updateUser++;
+        },
         chat: function() {
             if(!this.chat || (this.chat && !this.chat.roomId)) {
                 return;
