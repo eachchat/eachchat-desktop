@@ -3675,6 +3675,20 @@ export default {
                                         return false;
                                     }
                                 }
+                            },
+                            up: {
+                                key: 38,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return false;
+                                }
+                            },
+                            down: {
+                                key: 40,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return false;
+                                }
                             }
                         }
                     }
