@@ -29,7 +29,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable">
@@ -76,6 +76,7 @@ export default {
     name: 'mainpage',
     watch: {
         '$route'(to, from){
+            this.toSaveDraft = this.toSaveDraft + 1;
             console.log("========== to.params.user_id is ", to);
             console.log("========== to.params.user_id is ", from);
             if(to.name == "ChatContent") {
@@ -106,6 +107,7 @@ export default {
     },
     data () {
         return {
+            toSaveDraft: 0,
             navEnable: true,
             scrollToRecentUnread: false,
             showChangePassword: false,

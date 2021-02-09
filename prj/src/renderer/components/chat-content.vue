@@ -297,6 +297,10 @@ export default {
     // listItem
   },
   props: {
+    toSaveDraft: {
+      type: Number,
+      default: 0
+    },
     distUserId: {
       type: String,
       default: ""
@@ -315,6 +319,16 @@ export default {
     }
   },
   watch: {
+    toSaveDraft: function() {
+      if(this.curChat != undefined && this.curChat.roomId != undefined) {
+        var charRef = this.$refs.chatPageRef;
+        if(charRef && charRef.editor) {
+          var editor = charRef.editor;
+          var content = editor.getContents();
+          this.$store.commit("setDraft", [this.curChat.roomId, content]);
+        }
+      }
+    },
     scrollToRecentUnread: function() {
       var distItem = this.getDistUnreadItem();
       console.log("*** scrollToRecentUnread distItem ", distItem);
