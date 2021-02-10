@@ -295,6 +295,7 @@ export default {
         margin: 0 14px 0 20px;
         z-index: 1;
         position:absolute; 
+        object-fit:cover;
     }
     .personalCenter-cameraIcon{
         position: absolute;

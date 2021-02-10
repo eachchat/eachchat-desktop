@@ -588,7 +588,8 @@ export default {
         border-radius: 4px;
         border-radius: 50%;
         display: inline-block;
-        cursor: pointer;   
+        cursor: pointer; 
+        object-fit:cover;  
     }
     .userInfo-changeIcon{
         display: none;

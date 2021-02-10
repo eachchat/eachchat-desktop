@@ -1461,6 +1461,7 @@ export default {
     width: 32px;
     flex-shrink: 0;
     border-radius: 50%;
+    object-fit:cover;
 }
 
 .memberItemContent {

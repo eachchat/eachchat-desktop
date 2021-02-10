@@ -3541,6 +3541,7 @@ export default {
     margin-right: 0px;
     margin-bottom: 0px;
     border-radius: 50px;
+    object-fit:cover;
   }
 
   .search-item-info {
@@ -3921,6 +3922,7 @@ export default {
     margin-right: 0px;
     margin-bottom: 0px;
     border-radius:50px;
+    object-fit:cover;
     // z-index:-1;
   }
 

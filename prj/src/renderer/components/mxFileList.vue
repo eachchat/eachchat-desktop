@@ -762,6 +762,7 @@ export default {
         float: left;
         border: 0px solid rgba(0, 0, 0, 0);
         border-radius: 50%;
+        object-fit:cover;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;

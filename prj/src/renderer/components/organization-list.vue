@@ -411,6 +411,7 @@ export default {
     margin-bottom: 10px;
     border-radius: 4px;
     border-radius: 50%;
+    object-fit:cover;
 }
 .manager-info {
     display: inline-block;

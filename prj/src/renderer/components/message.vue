@@ -1399,6 +1399,7 @@ export default {
         width: 32px;
         height: 32px;
         border-radius: 50%;
+        object-fit:cover;
         -webkit-user-select:none;
     }
 
@@ -1420,6 +1421,7 @@ export default {
         border-radius: 50%;
         margin-top: 4px;
         -webkit-user-select:none;
+        object-fit:cover;
     }
 
     .msg-info-user-img-with-name:hover {
@@ -1431,6 +1433,7 @@ export default {
         cursor: pointer;
         margin-top: 4px;
         -webkit-user-select:none;
+        object-fit:cover;
     }
 
     .about-msg {

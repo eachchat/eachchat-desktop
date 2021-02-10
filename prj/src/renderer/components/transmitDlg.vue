@@ -1156,6 +1156,7 @@ display: none;
                             height: 32px;
                             display: inline-block;
                             border-radius: 50px;
+                            object-fit:cover;
                         }
                         .group-info{
                             display: inline-block;
@@ -1208,6 +1209,7 @@ display: none;
                             height: 32px;
                             display: inline-block;
                             border-radius: 50px;
+                            object-fit:cover;
                         }
                         .group-info{
                             display: inline-block;
@@ -1275,6 +1277,7 @@ display: none;
                             border-radius: 50px;
                             margin-top: 8px;
                             margin-bottom: 8px;
+                            object-fit:cover;
                         }
                         .group-info{
                             display: inline-block;
