@@ -464,7 +464,6 @@ export default {
                   }
                 }
               }
-              
             }
             else if(member.membership == "invite" && member.userId == this.selfUserId) {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
@@ -923,7 +922,8 @@ export default {
     async onRoomName(room) {
       if(!room) return;
       try {
-        if(this.$store.getters.getChatName(room.roomId).length != 0) {
+        console.log("88888888888 ", room.name);
+        if(room.name == "Empty room" && this.$store.getters.getChatName(room.roomId).length != 0) {
           room.contactName = this.$store.getters.getChatName(room.roomId);
         }
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
