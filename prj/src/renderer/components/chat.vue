@@ -126,7 +126,7 @@
         </groupInfoTip> <!--todo html-->
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
-        <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @atMember="atMember" :selectClicked="toSelect" v-show="chatMemberDlgVisible"/>
+        <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @clickAtMember="clickAtMember" @atMember="atMember" :selectClicked="toSelect" v-show="chatMemberDlgVisible"/>
         <userInfoContent 
             :userInfo="userInfo" 
             :isOwn="isOwn" 
@@ -1353,6 +1353,47 @@ export default {
             var senderId = msgItem.sender.userId ? msgItem.sender.userId : msgItem.event.sender;
             var userInfo = global.mxMatrixClientPeg.matrixClient.getUser(senderId);
             this.atMember(userInfo);
+        },
+        async clickAtMember(atMemberInfo) {
+            // File
+            console.log("atmemberinfo is ", atMemberInfo);
+            var iconPath = "";
+            this.deleteDistContent();
+            var complexSpan = document.getElementById('complextype').firstElementChild.cloneNode(true);
+            complexSpan.id = generalGuid();
+
+            var distName = ComponentUtil.GetDisplayName("", atMemberInfo.userId);
+            let userInfo = await UserInfo.GetUserInfoByMatrixID(atMemberInfo.userId);
+            if(userInfo && userInfo.user_display_name.length != 0)
+                distName = userInfo.user_display_name;
+
+            complexSpan.innerHTML = "@" + distName;// + ":";
+            var distStyle = this.atConstStyle
+            // 'display:inline-block;outline:none;border: 0px;font-size:14px;',
+            // console.log("diststyle is ", distStyle);
+            complexSpan.style = distStyle;
+            let msgInfo = {
+                "path": "",
+                "type": "at",
+                "height": 0,
+                "width": 0,
+                "atUid": atMemberInfo.userId,
+                "atName": distName,
+            };
+            this.idToPath[complexSpan.id] = msgInfo;
+            var startIndex = this.editor.selection.savedRange.index;
+            startIndex = startIndex - 1;
+            console.log("admember this.curinputindex is ", this.curInputIndex);
+            this.editor.insertEmbed(startIndex, 'span', complexSpan);
+            console.log("this.editor.selection.savedRange.index is ", this.editor.selection.savedRange.index);
+            startIndex = startIndex + 1;
+            this.editor.setSelection(startIndex);
+            this.editor.insertText(startIndex, " ");
+
+            this.chatMemberDlgVisible = false;
+            this.charMemberDlgChat = {};
+            this.chatMemberSearchKey = null;
+            canNewLine = true;
         },
         async atMember(atMemberInfo) {
             // File
@@ -4056,6 +4097,7 @@ export default {
         float: left;
         border: 0px solid rgba(0, 0, 0, 0);
         border-radius: 50%;
+        object-fit:cover;
         -webkit-app-region: drag;
         * {
             -webkit-app-region: no-drag;

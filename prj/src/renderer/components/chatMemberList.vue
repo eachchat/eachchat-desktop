@@ -58,7 +58,7 @@ export default {
         atMember: function(memberInfo) {
             this.memberListShowOriginal = [];
             this.memberListShow = [];
-            this.$emit("atMember", memberInfo);
+            this.$emit("clickAtMember", memberInfo);
         },
         Close: function() {
             this.memberListShowOriginal = [];
