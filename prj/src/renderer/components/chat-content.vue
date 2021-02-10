@@ -922,10 +922,6 @@ export default {
     async onRoomName(room) {
       if(!room) return;
       try {
-        console.log("88888888888 ", room.name);
-        if(room.name == "Empty room" && this.$store.getters.getChatName(room.roomId).length != 0) {
-          room.contactName = this.$store.getters.getChatName(room.roomId);
-        }
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
         if(distUserId) {
           var fromName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
@@ -3187,6 +3183,10 @@ export default {
     },
     JoinRoom: function(roomID){
       let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
+      var theId = newRoom ? newRoom.roomId : "";
+      if(newRoom && newRoom.name == "Empty room" && this.$store.getters.getChatName(theId).length != 0) {
+        newRoom.contactName = this.$store.getters.getChatName(newRoom.roomId);
+      }
       this.$store.commit("updateInviteState", {roomID : roomID, roomState : 2});
       for(let i in this.dealShowGroupList){
         if(this.dealShowGroupList[i].roomId == roomID) {
