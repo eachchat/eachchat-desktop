@@ -162,6 +162,7 @@ export default {
                 this.UpdateContact();
             }) 
             this.contactListKey++;
+            this.inviteRoomKey++;
         },
 
         receiveSearchKey: function() {

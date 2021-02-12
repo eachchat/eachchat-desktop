@@ -297,8 +297,10 @@ export default {
             try{
                 global.mxMatrixClientPeg.matrixClient.joinRoom(roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
-                    Rooms.setDMRoom(roomId, opts.dmUserId);
-                    this.jumpToChat(roomId);
+                    Rooms.setDMRoom(roomId, [this.userInfo.matrix_id]);
+                    setTimeout(() => {
+                        this.jumpToChat(roomId);
+                    }, 500)
                 })
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);

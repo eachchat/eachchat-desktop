@@ -196,9 +196,10 @@ export default {
                 if(roomInfo.roomState === 0 && this.roomList.every(curitem => curitem.roomID != item.roomID)){
                     console.log('roomList', roomInfo)
                     this.roomList.unshift(roomInfo);
-                    this.updateRoomList++;
+                    
                 } 
             }
+            this.updateRoomList++;
         },
 
         async getRoomInfo(item){
