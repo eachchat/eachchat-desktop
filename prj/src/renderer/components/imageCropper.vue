@@ -103,6 +103,9 @@ export default {
             console.log(image.width);
         }
         reader.readAsDataURL(showfileObj);
+        var ele = document.getElementsByClassName("cropper-view-box")[0];
+        console.log("++++++ ele ", ele)
+        ele.style.borderRadius = "50%";
     },
     methods: { 
 
@@ -122,15 +125,16 @@ export default {
         }, 
         cropperConfirmButtonClicked:async function(){
             if(this.groupId.length != 0) {
-                var targetDir = confservice.getUserThumbHeadPath();
-                var targetPath = path.join(targetDir, this.groupId + '.png');
-                if(fs.existsSync(targetPath)) {
-                    fs.unlinkSync(targetPath);
-                }
-
                 var _this = this;
-                this.$refs.cropper.getCropBlob((data) => { 
-                    services.common.UpdateGroupAvatarByData(this.groupId, data,this.imageSource,'image/png');
+                this.$refs.cropper.getCropBlob(async (data) => {
+                    const client = window.mxMatrixClientPeg.matrixClient; 
+                    const uri = await client.uploadContent(data);
+                    console.log('----uri----', uri);
+                    await client.sendStateEvent(this.groupId, 'm.room.avatar', {url: uri}, '');
+                    var mxAvatar = client.mxcUrlToHttp(uri);
+                    var elementImg = document.getElementById(this.groupId);
+                    elementImg.setAttribute("src", mxAvatar);
+
                     _this.closeDialog();
                     _this.$toastMessage({message:'头像修改成功', time:2000, type:'success'});
                     
@@ -139,7 +143,22 @@ export default {
             else {
                 var _this = this;
                 this.$refs.cropper.getCropBlob((data) => { 
-                    services.common.UpdateUserAvatarByData(data,this.imageSource,'image/png');
+                    let matrixClient = global.mxMatrixClientPeg.matrixClient;
+                    const httpPromise = matrixClient.uploadContent(data).then(function(url) {
+                            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
+                            let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
+                            if(avaterUrl != '' && userIconElement) {
+                                userIconElement.setAttribute("src", avaterUrl);
+                            }
+                            userIconElement = document.getElementById('ownerInfoImageId');
+                            if(avaterUrl != '' && userIconElement) {
+                                userIconElement.setAttribute("src", avaterUrl);
+                            }
+                            matrixClient.setAvatarUrl(url);
+                            var elementImg = document.getElementById("userHead");
+                            elementImg.setAttribute("src", avaterUrl);
+                    });       
+                    
                     _this.closeDialog();
                     _this.$toastMessage({message:'头像修改成功', time:2000, type:'success'});
                     
@@ -235,7 +254,7 @@ export default {
                     width: 240px;
                     height: 240px;
                     margin:0px;
-                    border-radius:4px;
+                    border-radius:50%;
                     border:1px solid rgba(221,221,221,1);
                     background-color: white;
                 }

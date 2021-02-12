@@ -386,7 +386,7 @@ export default {
             //     //     avatarFile: file,
             //     //     enableProfileSave: true,
             //     // });
-            //     console.log('---file', file)
+                 console.log('---file', file)
             //     console.log('---file2', ev.target.result)
             //     const uri = await client.uploadContent(file);
             //     console.log('----uri----', uri);
@@ -394,11 +394,16 @@ export default {
             //     this.mxAvatar = client.mxcUrlToHttp(uri);
             // };
             // reader.readAsDataURL(file);
-            console.log('---file', file)
-            const uri = await client.uploadContent(file);
-            console.log('----uri----', uri);
-            await client.sendStateEvent(roomId, 'm.room.avatar', {url: uri}, '');
-            this.mxAvatar = client.mxcUrlToHttp(uri);
+            
+            this.showImageCropper = true;
+            this.selectImageSource = file.path;
+            this.groupId = roomId
+            
+            // console.log('---file', file)
+            // const uri = await client.uploadContent(file);
+            // console.log('----uri----', uri);
+            // await client.sendStateEvent(roomId, 'm.room.avatar', {url: uri}, '');
+            // this.mxAvatar = client.mxcUrlToHttp(uri);
         },
 
         mxUploadAvatar() {
@@ -751,6 +756,17 @@ export default {
             this.showAlertDlg = false;
         },
         closeCropperDlg(){
+            setTimeout(() => {
+                const avatarEvent = this.mxRoom.currentState.getStateEvents("m.room.avatar", "");
+                let avatarUrl = avatarEvent && avatarEvent.getContent() ? avatarEvent.getContent()["url"] : null;
+
+                
+                if (avatarUrl) {
+                    this.mxAvatar = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(avatarUrl);
+                } else {
+                    this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@2x.png';
+                }
+            }, 500)
             this.showImageCropper = false;
         },
         notOwner: function(distUser) {

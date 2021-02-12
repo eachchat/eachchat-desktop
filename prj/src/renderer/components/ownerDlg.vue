@@ -53,6 +53,7 @@
                 </div>
             </div>
         </div>
+        <image-cropper v-if="showImageCropper" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
     </div>
 </template>
 
@@ -61,6 +62,7 @@ import {ComponentUtil} from '../script/component-util';
 import { Department, UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import * as utils from '../../packages/core/Utils.js'
 import axios from "axios";
+import imageCropper from './imageCropper.vue'
 export default {
     name: "ownerInfo",
     props: {
@@ -68,6 +70,9 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    components:{
+        imageCropper,
     },
     watch: {
         updateOwnerInfo: async function() {
@@ -119,6 +124,8 @@ export default {
             ownerId: '',
             ownerAccount: '',
             ownerDisplayName: '',
+            showImageCropper:false,
+            selectImageSource: '',
         }
     },
     methods: {
@@ -162,6 +169,9 @@ export default {
             ipcRenderer.send('open-image-dialog-avatar', 'openFile');
             ipcRenderer.on('selectedAvatarImageItem', this.nHandleFiles);
         },
+        closeCropperDlg(){
+            this.showImageCropper = false;
+        },
         nHandleFiles:async function(e, paths) {
             // Select Same File Failed.
             var fileList = paths;
@@ -169,26 +179,26 @@ export default {
             if(fileList.filePaths.length === 0) {
                 alert("请选择一个图片文件");
             }
-            //this.showImageCropper = true;
+            this.showImageCropper = true;
             this.selectImageSource = fileList.filePaths[0];
-            var showfu = new utils.FileUtil(this.selectImageSource);
-            var stream = showfu.ReadfileSync(this.selectImageSource);
-            let uploadFile = showfu.GetUploadfileobj();
-            let matrixClient = global.mxMatrixClientPeg.matrixClient;
-            const httpPromise = matrixClient.uploadContent(uploadFile).then((url)=> {
-                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
-                    let userIconElement = document.getElementById('ownerInfoImageId');
-                    if(avaterUrl != '') {
-                        userIconElement.setAttribute("src", avaterUrl);
-                    }
-                    matrixClient.setAvatarUrl(url);
-                    var elementImg = document.getElementById("userHead");
-                    elementImg.setAttribute("src", avaterUrl);
+            // var showfu = new utils.FileUtil(this.selectImageSource);
+            // var stream = showfu.ReadfileSync(this.selectImageSource);
+            // let uploadFile = showfu.GetUploadfileobj();
+            // let matrixClient = global.mxMatrixClientPeg.matrixClient;
+            // const httpPromise = matrixClient.uploadContent(uploadFile).then((url)=> {
+            //         var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
+            //         let userIconElement = document.getElementById('ownerInfoImageId');
+            //         if(avaterUrl != '') {
+            //             userIconElement.setAttribute("src", avaterUrl);
+            //         }
+            //         matrixClient.setAvatarUrl(url);
+            //         var elementImg = document.getElementById("userHead");
+            //         elementImg.setAttribute("src", avaterUrl);
 
-                    elementImg = document.getElementsByClassName('personalCenter-icon')[0];
-                    if(elementImg)
-                        elementImg.setAttribute("src", avaterUrl);
-            });       
+            //         elementImg = document.getElementsByClassName('personalCenter-icon')[0];
+            //         if(elementImg)
+            //             elementImg.setAttribute("src", avaterUrl);
+            // });       
         },
 
     }

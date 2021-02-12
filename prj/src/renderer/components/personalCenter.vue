@@ -36,8 +36,8 @@
         <div class="personalCenter-workDescription">
             <img ondragstart="return false" class="personalCenter-descriptionIcon" src="../../../static/Img/personalCenter/workDescription-20px@2x.png">
             <input class="personalCenter-descriptionInput" placeholder="设置工作状态" v-model="workDescriptionInput" @input="checkDescriptionInputLength()" @keyup.enter="workDescriptionChangeConfirm()">
-        </div>
-        <image-cropper v-if="showImageCropper" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper> -->
+        </div> -->
+        <image-cropper v-if="showImageCropper" :imageSource="selectImageSource" @closeCropperDlg="closeCropperDlg"></image-cropper>
     </div>
 </template>
 <script>
@@ -124,22 +124,23 @@ export default {
             if(fileList.filePaths.length === 0) {
                 alert("请选择一个图片文件");
             }
-            //this.showImageCropper = true;
+            this.showImageCropper = true;
             this.selectImageSource = fileList.filePaths[0];
-            var showfu = new utils.FileUtil(this.selectImageSource);
-            var stream = showfu.ReadfileSync(this.selectImageSource);
-            let uploadFile = showfu.GetUploadfileobj();
-            let matrixClient = global.mxMatrixClientPeg.matrixClient;
-            const httpPromise = matrixClient.uploadContent(uploadFile).then(function(url) {
-                    var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
-                    let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
-                    if(avaterUrl != '') {
-                        userIconElement.setAttribute("src", avaterUrl);
-                    }
-                    matrixClient.setAvatarUrl(url);
-                    var elementImg = document.getElementById("userHead");
-                    elementImg.setAttribute("src", avaterUrl);
-            });       
+
+            // var showfu = new utils.FileUtil(this.selectImageSource);
+            // var stream = showfu.ReadfileSync(this.selectImageSource);
+            // let uploadFile = showfu.GetUploadfileobj();
+            // let matrixClient = global.mxMatrixClientPeg.matrixClient;
+            // const httpPromise = matrixClient.uploadContent(uploadFile).then(function(url) {
+            //         var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
+            //         let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
+            //         if(avaterUrl != '') {
+            //             userIconElement.setAttribute("src", avaterUrl);
+            //         }
+            //         matrixClient.setAvatarUrl(url);
+            //         var elementImg = document.getElementById("userHead");
+            //         elementImg.setAttribute("src", avaterUrl);
+            // });       
         },
         personalDetailClicked(){
             this.$emit("showPersonalInfoHanlder", true)
