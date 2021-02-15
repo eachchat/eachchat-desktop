@@ -2413,9 +2413,7 @@ export default {
                     var filePath = msgInfo.path;
                     var fileType = msgInfo.type;
                     if(fileType == "at") {
-                        sendText += msgInfo.atName;
-                        sendText = "@" + sendText + " ";
-                        // sendText += ":"
+                        sendText += ("@" + msgInfo.atName + " ");
                         sendBody.format = "org.matrix.custom.html";
                     }
                 }
