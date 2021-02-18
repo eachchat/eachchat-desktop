@@ -233,7 +233,7 @@ export default {
         async createRoomInfo(){
             for(let item of this.$store.state.inviteRooms){
                 let roomInfo = await this.getRoomInfo(item)
-                if(roomInfo) this.roomList.push(roomInfo);
+                if(roomInfo && this.roomList.every(curitem => curitem.roomID != item.roomID)) this.roomList.push(roomInfo);
             } 
         }
     },

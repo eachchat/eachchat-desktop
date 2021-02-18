@@ -64,6 +64,9 @@ export default new Vuex.Store({
     deleteInviteRooms(state, roomID){
       for(let index in state.inviteRooms){
         if(state.inviteRooms[index].roomID === roomID){
+          if(state.inviteRooms[index].roomState === 0){
+            state.inviteRoomsNum--;
+          }
           state.inviteRooms.splice(index, 1);
           state.nUpdateInviteRoom++;
           return;
