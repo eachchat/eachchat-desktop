@@ -490,7 +490,7 @@ export default {
               this.showNotice(fromName, inviterName + "邀请你加入群聊");
             }
             else if(member.membership == "join" && member.userId == this.selfUserId) {
-              // if(this.curChat && this.curChat.roomId && this.curChat.roomId == member.roomId) {
+              this.$store.commit("updateInviteState", {roomID : member.roomId, roomState : 2});
                 var profile = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.selfUserId)
                 var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profile.avatar_url);
 
@@ -500,7 +500,7 @@ export default {
                 var userToAvaterInfo = [member.userId, avaterUrl];
                 this.$store.commit("setAvater", userToAvaterInfo);
                 this.toUpdateMyImg ++;
-              // }
+
             }
         });
         

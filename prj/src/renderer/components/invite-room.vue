@@ -190,14 +190,17 @@ export default {
         },
 
         async updateRoomInfo(){
-            for(let item of this.$store.state.inviteRooms){
+            for(let index in this.$store.state.inviteRooms){
+                let item = this.$store.state.inviteRooms[index];
                 let roomInfo = await this.getRoomInfo(item);
                 if(!roomInfo) continue;
                 if(roomInfo.roomState === 0 && this.roomList.every(curitem => curitem.roomID != item.roomID)){
                     console.log('roomList', roomInfo)
-                    this.roomList.unshift(roomInfo);
-                    
+                    this.roomList.unshift(roomInfo);  
                 } 
+                else if(roomInfo.roomState !== this.roomList[index].roomState){
+                    this.roomList[index].roomState = roomInfo.roomState;
+                }
             }
             this.updateRoomList++;
         },
