@@ -162,17 +162,16 @@ export default {
         },
 
         async getShowInviteMsgContent(chatGroupItem) {
-            if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
-                if(chatGroupItem.getMyMembership() == "invite") {
-                    var inviteMemer = this._getInviteMember(chatGroupItem);
-                    if(global.mxMatrixClientPeg.isDMInvite(chatGroupItem)) {
-                        return "";//inviteMemer.userId;
-                    }
-                    else {
-                        return "由" + await ComponentUtil.GetDisplayNameByMatrixID(inviteMemer.userId)  + "邀请";
-                    }
+            if(chatGroupItem.getMyMembership() == "invite") {
+                var inviteMemer = this._getInviteMember(chatGroupItem);
+                if(global.mxMatrixClientPeg.isDMInvite(chatGroupItem)) {
+                    return "";//inviteMemer.userId;
                 }
-            };
+                else {
+                    return "由" + await ComponentUtil.GetDisplayNameByMatrixID(inviteMemer.userId)  + "邀请";
+                }
+            }
+
         },
 
         _getInviteMember: function(chatGroupItem) {
