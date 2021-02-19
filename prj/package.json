@@ -15,9 +15,7 @@
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": "",
-    "test": "npm run unit",
-    "e2e": "mocha test/e2e",
-    "unit": "karma start test/unit/karma.conf.js"
+    "test": "mocha"
   },
   "build": {
     "productName": "EachChat",
@@ -148,7 +146,7 @@
     "node-loader": "^0.6.0",
     "node-sass": "^4.9.2",
     "sass-loader": "^7.0.3",
-    "spectron": "^3.8.0",
+    "spectron": "12.0.0",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.4",
