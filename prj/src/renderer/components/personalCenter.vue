@@ -107,6 +107,7 @@ export default {
         },
         async personalCenterShowIcon() {
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(this.userId);
+            if(profileInfo.avatar_url.length == 0) return;
             var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             const ipcRenderer = require('electron').ipcRenderer;
             ipcRenderer.send('showPersonalImageViewWindow', avaterUrl);
