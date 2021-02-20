@@ -2735,7 +2735,19 @@ const common = {
       return false;
     }
     return result;
-  }
+  },
+
+  async gmsHomeServers() {
+    var host = global.localStorage.getItem("app_server");
+    var response = await axios.post(host + "/gms/v1/homeservers", 
+      {
+        sortOrder: 1,
+        sequenceId: 0
+      }
+    );
+    console.log("============== response is ", response);
+    return response;
+  },
 };
 
 const cache = {
