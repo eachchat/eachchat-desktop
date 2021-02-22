@@ -17,6 +17,9 @@
                             <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                         </div>
                         <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
+                        <div class="search-logo">
+                            <img style="height:20px; width:20px;" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
+                        </div>
                     </div>
                     <!-- <div class="crumbsxie" v-show="crumbs.length > 1">
                         <span
@@ -277,7 +280,8 @@ export default {
             lmaxOtherHsMembersFirstTime: 0,
             totalMembersFirstTime: 0,
             totalMembersNextTime: 0,
-            myDomain: ''
+            myDomain: '',
+            bShowDelIco: false
         }
     },
     timer: null,
@@ -1468,8 +1472,19 @@ export default {
 
             }
         },
+
+        clearSearch(){
+            this.memText = '';
+            this.bShowDelIco = false;
+            this.searchMember();
+        },
+
         searchMember: async function() {
             const term = this.memText;
+            if(this.memText.length == 0)
+                this.bShowDelIco = false;
+            else
+                this.bShowDelIco = true;
             const client = window.mxMatrixClientPeg.matrixClient;
             if (this.timer) clearTimeout(this.timer);
             if (!term) {

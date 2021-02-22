@@ -11,6 +11,7 @@
                         <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                     </div>
                     <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
+                    <img style="height:20px; width:20px;" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
                 </div>
                 <div class="room-list">
                     <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
@@ -60,7 +61,8 @@ export default {
             alias: '',
             roomText: '',
             publicRooms: [],
-            loading: false
+            loading: false,
+            bShowDelIco: false
         }
     },
     timer: null,
@@ -178,8 +180,18 @@ export default {
                 // });
             });
         },
+        clearSearch(){
+            this.bShowDelIco = false;
+            this.roomText = '';
+            this.searchRoom();
+        },
+
         searchRoom: function() {
             const roomText = this.roomText;
+            if(roomText.length == 0)
+                this.bShowDelIco = false;
+            else
+                this.bShowDelIco = true;
             if (this.timer) clearTimeout(this.timer);
             this.timer = setTimeout(()=>{
                 console.log('---opts---', OPTS)
