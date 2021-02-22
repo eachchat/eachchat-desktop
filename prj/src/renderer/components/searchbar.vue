@@ -41,7 +41,7 @@ export default {
                 ipcRenderer.send("openDevTools");
             }
             if(this.searchKey.length == 0) this.bShowDelIco = false;
-            this.bShowDelIco = true;
+            else this.bShowDelIco = true;
         },
         search: function() {
             console.log("I am searching ", this.searchKey, " and cur os isWindows  ", environment.os.isWindows);
