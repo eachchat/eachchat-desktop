@@ -60,7 +60,7 @@ export default {
                 full: false, // 输出原图比例截图 props名full
                 outputType: 'png', // 裁剪生成额图片的格式
                 canMove: true,  // 能否拖动图片
-                canScale: false, //滑轮缩放
+                canScale: true, //滑轮缩放
                 original: true,  // 上传图片是否显示原始宽高
                 canMoveBox: false,  // 能否拖动截图框
                 autoCrop: true, // 是否默认生成截图框
@@ -116,9 +116,11 @@ export default {
         },
       // 放大/缩小
         changeScale(num) { 
-            if((this.scaleNumber + num) < 0){
-                return;
-            }
+            console.log("******num ", num);
+            console.log("******scaleNumber ", this.scaleNumber);
+            // if((this.scaleNumber + num) < 0){
+            //     return;
+            // }
             this.scaleNumber += num;
             num = num || 1; 
             this.$refs.cropper.changeScale(num); 
