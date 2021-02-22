@@ -225,7 +225,16 @@ export default {
                 roomInfo.avatar_url = './static/Img/User/user-40px@2x.png';
                 var myMember = global.mxMatrixClientPeg.getMyMember(room);
                 let directMember = myMember.getDMInviter();
-                roomInfo.name = await ComponentUtil.GetDisplayNameByMatrixID(directMember)
+                if(!directMember){
+                    let members = room.currentState.members;
+                    for(let memberItem in members){
+                        if(memberItem != this.myUserId){
+                            directMember = memberItem;
+                            break;
+                        }
+                    }
+                }
+                roomInfo.name = await ComponentUtil.GetDisplayNameByMatrixID(directMember)  
             }
             return roomInfo;
         },
