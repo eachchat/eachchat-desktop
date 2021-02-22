@@ -1,7 +1,8 @@
 <template>
     <div class="search">
         <img class="echat-search-ico" @click="search" src="../../../static/Img/Main/search@2x.png">
-        <input class="echat-search-input" placeholder="搜索" @keyup.enter="search" v-model="searchKey" @input="inputChange">
+        <input class="echat-search-input" placeholder="搜索" @keyup.enter="search" v-model="searchKey" @input="inputChange" width="100">
+        <img class="echat-delete-ico" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/Main/WinClose-20px.png">
     </div>
 </template>
 
@@ -14,6 +15,11 @@ export default {
         cleanSearchKey: {
             type: Boolean,
             default: false
+        },
+
+        length: {
+            type: Number,
+            default: 100
         }
     },
     watch: {
@@ -24,6 +30,7 @@ export default {
     data () {
         return {
             searchKey: '',
+            bShowDelIco: false
         }
     },
     methods: {
@@ -33,9 +40,17 @@ export default {
             if(this.searchKey == "worklyai-open-dev-tools") {
                 ipcRenderer.send("openDevTools");
             }
+            if(this.searchKey.length == 0) this.bShowDelIco = false;
+            this.bShowDelIco = true;
         },
         search: function() {
             console.log("I am searching ", this.searchKey, " and cur os isWindows  ", environment.os.isWindows);
+        },
+
+        clearSearch(){
+            this.searchKey = "";
+            this.$emit("toSearch", this.searchKey);
+            this.bShowDelIco = false;
         }
     },
     components: {
@@ -49,7 +64,6 @@ export default {
     .search {
         margin: 0px 0px 0px 16px;
         text-align: left;
-        width: 200px;
         height: 30px;
         border: 1px solid rgb(221, 221, 221);
         border-radius: 3px;
@@ -81,10 +95,19 @@ export default {
         color: rgb(51, 51, 51);
     }
     
+    .echat-delete-ico {
+        display: inline-block;
+        float: right;
+        width: 20px;
+        height: 20px;
+        margin: 6px 6px 6px 6px;
+        color: rgb(51, 51, 51);
+    }
+
     .echat-search-input {
         display: inline-block;
         position: absolute;
-        width: 173px;
+        width: 133px;
         padding: 0;
         margin: 0px;
         height: 31px;
