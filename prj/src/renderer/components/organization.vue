@@ -4,7 +4,7 @@
             <div class="list-header">
                 <div class="searchDiv">
                     <div class="SearchInput">
-                        <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="search"/>
+                        <eSearch @toSearch="search"/>
                     </div>
                     <div class='chat-tool-invite-div'>
                         <img src="../../../static/Img/Organization/Image/addContact-24px.png" height="30px" @click='AddContact()'>
@@ -927,18 +927,6 @@ display: none;
     .icon-search:hover {
         display: inline-block;
         color: rgb(255,204,102);
-    }
-
-    /deep/ .el-input__inner{
-          height: 32px;
-        }
-    /deep/.el-input--prefix .el-input__inner {
-        padding-top: 1px;
-        padding-left: 32px;
-        font-size: 12px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #999999;
     }
     
     .search-input {

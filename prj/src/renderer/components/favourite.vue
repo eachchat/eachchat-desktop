@@ -2,16 +2,8 @@
     <el-container>
         <el-aside width="280px">
             <div class="list-header">
-                <div class="search">
-                    <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索">
-                        <i slot="prefix" style="display: flex;align-items: center;">
-                            <img
-                                style="width:20px;height:20px;margin-top: 7px;margin-left: 2px;"
-                                src="../../../static/Img/Main/search@2x.png"
-                                alt
-                            />
-                        </i>
-                    </el-input>
+                <div class="searchDiv">
+                    <eSearch @toSearch="search"/>
                 </div>
             </div>
             <div class="list-content">
@@ -77,6 +69,7 @@ import listHeader from './listheader';
 import favouriteList from './favourite-list'
 import winHeaderBar from './win-header-login.vue';
 import {ipcRenderer} from 'electron'
+import eSearch from './searchbar.vue'
 export default {
     name: 'favourite',
     data() {
@@ -111,15 +104,15 @@ export default {
         searchDeleteClicked(){
             
         },
-        search:async function () {
-            
-            if(this.searchKey == ''){
+        search:async function (searchKey) {
+            this.searchKey = searchKey;
+            if(searchKey == ''){
                 this.showSearchView = false;
                 this.favouriteType = 'message';
-                this.listKey ++;
-                return;
             }
-            this.showSearchView = true;
+            else{
+                this.showSearchView = true;
+            }
             this.listKey ++;
         },
 
@@ -147,7 +140,8 @@ export default {
     components: {
         listHeader,
         favouriteList,
-        winHeaderBar
+        winHeaderBar,
+        eSearch
     },
     created() {
         this.showSearchView = false;
@@ -165,7 +159,6 @@ display: none;
 .list-header {
     width: 100%;
     height: 56px;
-    line-height: 56px;
     background-color: rgb(255, 255, 255);
     border: 0px;
     margin: 0px 0px 0px 0px;
@@ -271,15 +264,16 @@ display: none;
         border: hidden;
     }
 }
-    .search {
-        margin: 12px 16px 12px 16px;
+    .searchDiv {
         text-align: left;
-        width: calc(100% - 32px);
+        width: calc(100% - 20px);
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
         border-bottom-left-radius: 2px;
         display: inline-block;
+        margin-top: 12.5px;
+        margin-bottom: 7.5px;
     }
     .search-action{
         border: 1px solid rgb(221, 221, 221);
@@ -345,18 +339,5 @@ display: none;
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:18px;
-    }
-
-    /deep/ .el-input__inner{
-        height: 32px;
-    }
-    
-    /deep/.el-input--prefix .el-input__inner {
-        padding-top: 1px;
-        padding-left: 32px;
-        font-size: 12px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #999999;
     }
 </style>

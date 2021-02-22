@@ -1,8 +1,8 @@
 <template>
     <div class="search">
         <img class="echat-search-ico" @click="search" src="../../../static/Img/Main/search@2x.png">
-        <input class="echat-search-input" placeholder="搜索" @keyup.enter="search" v-model="searchKey" @input="inputChange" width="100">
-        <img class="echat-delete-ico" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/Main/WinClose-20px.png">
+        <input class="echat-search-input" placeholder="搜索" @keyup.enter="search" v-model="searchKey" @input="inputChange">
+        <img class="echat-delete-ico" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
     </div>
 </template>
 
@@ -15,11 +15,6 @@ export default {
         cleanSearchKey: {
             type: Boolean,
             default: false
-        },
-
-        length: {
-            type: Number,
-            default: 100
         }
     },
     watch: {
