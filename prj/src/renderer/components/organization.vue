@@ -2,18 +2,12 @@
     <el-container>
         <el-aside width="280px">
             <div class="list-header">
-                <div class="search">
-                    <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
-                    <i slot="prefix" style="display: flex;align-items: center;">
-                        <img
-                            style="width:20px;height:20px;margin-top: 7px;margin-left: 2px;"
-                            src="../../../static/Img/Main/search@2x.png"
-                            alt
-                        />
-                    </i>
-                    </el-input>
+                <div class="searchDiv">
+                    <div class="SearchInput">
+                        <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="search"/>
+                    </div>
                     <div class='chat-tool-invite-div'>
-                        <el-image src="./static/Img/Organization/Image/addContact-24px.png" @click='AddContact()'></el-image>
+                        <img src="../../../static/Img/Organization/Image/addContact-24px.png" height="30px" @click='AddContact()'>
                     </div>
                 </div>
             </div>
@@ -143,6 +137,7 @@ const {Menu, MenuItem} = remote;
 import AlertDlg from './alert-dlg.vue'
 import addContact from './add-contact';
 import InputContactInfo from './input-contact-info';
+import eSearch from './searchbar.vue'
 
 export default {
     name: 'organization',
@@ -176,10 +171,6 @@ export default {
                     }, 1000)
                 })
             }
-        },
-        searchKey: function(){
-            if(this.searchKey.length == 0) this.showSearchView = false;
-                
         }
     },
     data() {
@@ -224,10 +215,11 @@ export default {
             showAlertDlg: false,
             alertContents: {},
             showChatContactDlg: false,
-            showInputContactDlg: false
+            showInputContactDlg: false,
+            cleanSearchKey: false
         }
     },
-    methods: {   
+    methods: {  
         getInviteRoomClass: function(){
             if(this.getInviteNum() == 0)
                 return 'inviteroom-info-zeroinvite';
@@ -344,7 +336,8 @@ export default {
             return environment.os.isWindows;
         },
 
-        search:async function () {
+        search:async function (searchKey) {
+            this.searchKey = searchKey;
             console.log("this.searchKey ", this.searchKey)
             if (this.searchKey == ''){
                 this.showSearchView = false;
@@ -568,7 +561,7 @@ export default {
     },
     components: {
         organizationList,
-        listHeader,
+        eSearch,
         userInfoContent,
         winHeaderBar,
         contactList,
@@ -652,6 +645,16 @@ display: none;
     -webkit-app-region: no-drag;
 }
 
+    .SearchInput {
+        width: calc(100% - 55px);
+        height: 34px;
+        line-height: 34px;
+        font-size: 14px;
+        display: inline-block;
+        padding: 0px;
+        margin: 0px 0px 0px 0px;
+    }
+
   .group-unread {
     position: relative;
     z-index: 1;
@@ -687,7 +690,6 @@ display: none;
 
 .chat-tool-invite-div {
     display: inline-block;
-    text-align:center;
     vertical-align:middle;
     float: right;
     width: 50px;
@@ -870,10 +872,11 @@ display: none;
     }
 }
 
-    .search {
-        margin: 12px 0px 12px 16px;
+    .searchDiv {
+        margin-top: 12.5px;
+        margin-bottom: 7.5px;
         text-align: left;
-        width: calc(100% - 16px);
+        width: 280px;
         height: 32px;
         border-right: none;
         border-top-left-radius: 2px;
