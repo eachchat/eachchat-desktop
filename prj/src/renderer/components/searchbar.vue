@@ -20,6 +20,8 @@ export default {
     watch: {
         cleanSearchKey: function() {
             this.searchKey = "";
+            this.bShowDelIco = false;
+            this.$emit("toSearch", this.searchKey);
         }
     },
     data () {

@@ -320,6 +320,8 @@ export default {
   },
   watch: {
     toSaveDraft: function() {
+      this.cleanSearchKey = !this.cleanSearchKey;
+
       if(this.curChat != undefined && this.curChat.roomId != undefined) {
         var charRef = this.$refs.chatPageRef;
         if(charRef && charRef.editor) {
