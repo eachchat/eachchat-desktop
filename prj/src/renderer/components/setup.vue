@@ -531,7 +531,7 @@ export default {
     else {
       this.curLanguage = "English";
     }
-    this.lVersion = "Version " + remote.app.getVersion() + "-beat";
+    this.lVersion = "Version " + remote.app.getVersion() + "-beta";
   }
 };
 </script>
