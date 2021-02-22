@@ -1646,7 +1646,7 @@ export default {
       var elementGroupName = document.getElementById(this.getChatGroupNameElementId(distGroup.roomId));
       var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
       if(!distUserId && elementGroupName) {
-        elementGroupName.innerHTML = distGroup.name;
+        elementGroupName.innerHTML = this.getShowGroupName(distGroup);
         return;
       }
       var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
@@ -2457,10 +2457,31 @@ export default {
         return "chat-groupList-name-" + groupId;
       }
     },
+    checkIsEmptyRoom(chatGroupItem) {
+      let checkMxMember = [];
+      for(let key in chatGroupItem.currentState.members) {
+          // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+          let o = chatGroupItem.currentState.members[key];
+          if (o.membership != 'leave') checkMxMember.push(o);
+      }
+      if(checkMxMember.length == 1) {
+          var distMember = checkMxMember[0];
+          if((distMember.userId ? distMember.userId : distMember.user.userId) == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+              return true;
+          }
+      }
+      if(checkMxMember.length == 0) {
+        return true;
+      }
+    },
     getShowGroupName(chatGroupItem) {
-      // if(!global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-        return chatGroupItem.contactName ? chatGroupItem.contactName : chatGroupItem.name;
-      // }
+      if(chatGroupItem.name.startsWith("Empty room")) {
+        if(this.checkIsEmptyRoom(chatGroupItem)) {
+          return "空聊天室";
+        }
+      }
+      
+      return chatGroupItem.contactName ? chatGroupItem.contactName : chatGroupItem.name;
     },
     _getInviteMember: function(chatGroupItem) {
         if (!chatGroupItem) {
