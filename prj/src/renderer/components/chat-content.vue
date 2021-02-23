@@ -1726,7 +1726,7 @@ export default {
                 distContentElement.innerHTML =  senderName + "：" + "[文件]" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
-                distContentElement.innerHTML = senderName + "：" + chatGroupMsgContent.body;
+                distContentElement.innerText = senderName + "：" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = senderName + "：" + "[图片]";// + chatGroupMsgContent.body;
@@ -1740,7 +1740,7 @@ export default {
                 distContentElement.innerHTML =  "[文件]" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
-                distContentElement.innerHTML = chatGroupMsgContent.body;
+                distContentElement.innerText = chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;

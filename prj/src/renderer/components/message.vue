@@ -35,7 +35,8 @@
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-mine-txt" :id="getTextElementId()" v-html="getMsgMineLinkContent(messageContent)"></p>
+                        <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()" v-html="getMsgMineLinkContent(messageContent)"></p>
+                        <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >{{getMsgMineLinkContent(messageContent)}}</p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
@@ -84,7 +85,9 @@
                     </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p class="chat-msg-content-others-txt" :id="msg.event.event_id" v-html="getMsgOtherLinkContent(messageContent)"></p>
+                        <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id" v-html="getMsgOtherLinkContent(messageContent)"></p>
+                        <p v-else class="chat-msg-content-others-txt" :id="msg.event.event_id">{{getMsgOtherLinkContent(messageContent)}}</p>
+
                     </div>
                     <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
@@ -510,8 +513,15 @@ export default {
             var dealContent = this.msgContentShowPhoneAndHightLight(content, 'rgba(255, 255, 255, 1)');
             return dealContent;
         },
+
+        needHightLight(msg){
+            if(!msg || msg.length == 0) return false;
+            if(msg.search(ComponentUtil.hightLightReg) == -1) return false;
+            return true;
+        },
+
         msgContentShowPhoneAndHightLight: function(curMsg, color){
-            let linkHight = curMsg.replace(/((?:(http|https|Http|Https|rtsp|Rtsp|ftp|Ftp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?(?:(([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]){0,1}\.)+[a-zA-Z]{2,63}|((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9]))))(?:\:\d{1,5})?)((?:\/(?:(?:[a-zA-Z0-9 -퟿豈-﷏ﷰ-￯\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))+[\;\.\=\?\/\+\)][a-zA-Z0-9\%\#\&\-\_\.\~]*)|(?:\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*))?(?:\b|$|(?=[ -퟿豈-﷏ﷰ-￯]))/g, function(link){
+            let linkHight = curMsg.replace(ComponentUtil.hightLightReg, function(link){
                 // return '<span style="color:' + color + ';">' + link + "</span>"
                 return '<span class="msg-link-url" style="text-decoration: underline;cursor:pointer;color:' + color + ';" onclick="openUrl(\'' + link + '\');">' + link + '</span>'
             })
