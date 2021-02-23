@@ -1,12 +1,22 @@
 import {remote} from 'electron'
 const Menu = remote.Menu;
 const MenuItem = remote.MenuItem;
-
-const menu = new Menu();
-menu.append(new MenuItem({ label: '复制', role: 'copy' }));
-
-export function openRemoteMenu() {
+const menelabels = {
+    copy: '复制',
+    cut: '剪切',
+    paste: '粘贴'
+}
+export function openRemoteMenu(...args) {
+    const menu = new Menu();
+    args.forEach(role => {
+        if ( ['copy', 'cut', 'paste'].includes(role) ){
+            menu.append(new MenuItem({ label: menelabels[role], role }));
+        }
+    })
     menu.popup(remote.getCurrentWindow());
+}
+export function openBaseMenu() {
+    openRemoteMenu('copy', 'cut', 'paste')
 }
 
 export function UpdateUserAvater(ev){

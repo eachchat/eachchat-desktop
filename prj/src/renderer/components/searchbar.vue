@@ -1,13 +1,14 @@
 <template>
     <div class="search">
         <img class="echat-search-ico" @click="search" src="../../../static/Img/Main/search@2x.png">
-        <input class="echat-search-input" placeholder="搜索" @keyup.enter="search" v-model="searchKey" @input="inputChange">
+        <input class="echat-search-input" @contextmenu.prevent="openMenu" placeholder="搜索" @keyup.enter="search" v-model="searchKey" @input="inputChange">
         <img class="echat-delete-ico" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
     </div>
 </template>
 
 <script>
 import {services, environment} from '../../packages/data/index.js'
+import { openBaseMenu } from '../../utils/commonFuncs'
 import { ipcRenderer } from 'electron';
 export default {
     name: 'eSearch',
@@ -48,6 +49,9 @@ export default {
             this.searchKey = "";
             this.$emit("toSearch", this.searchKey);
             this.bShowDelIco = false;
+        },
+        openMenu:() => {
+            openBaseMenu()
         }
     },
     components: {
