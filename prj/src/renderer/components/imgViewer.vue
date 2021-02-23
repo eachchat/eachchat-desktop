@@ -300,7 +300,7 @@ export default {
 
                 }
                 else if(event.code == "Escape") {
-
+                    this.Close();
                 }
                 else if(event.code == "ArrowRight") {
                     this.showRight();
