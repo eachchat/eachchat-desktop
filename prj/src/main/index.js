@@ -1187,7 +1187,21 @@ function openDevToolsInDevelopment(mainWindow) {
     });
   }
   mainWindow.on('close', (event) => {
-    if(process.platform == 'linux' || process.platform == 'darwin'){
+    if(process.platform == 'darwin') {
+      event.preventDefault();
+      if(mainWindow.isFullScreen()) {
+        //mainWindow.webContents.send("setIsFullScreen", false);
+        mainWindow.setFullScreen(false);
+        toHide = true;
+      }
+      else {
+        clickQuit = true;
+        app.quit();
+        return;
+      }
+
+    }
+    else if(process.platform == 'linux'){
       clickQuit = true;
       app.quit();
       return;
@@ -1209,6 +1223,15 @@ function openDevToolsInDevelopment(mainWindow) {
     }
   })
 
+  mainWindow.on('leave-full-screen', (event) => {
+    console.log("====333===333===");
+    if(process.platform == 'darwin'){
+      if(toHide) {
+        mainWindow.hide();
+        toHide = false;
+      }
+    }
+  })
 }
 
 app.on('ready', createWindow)
