@@ -5,6 +5,7 @@ import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+app.commandLine.appendSwitch('ignore-certificate-errors');
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -106,7 +107,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.setSize(960, 600);
   mainWindow.center();
   // mainWindow.webContents.on('did-finish-load', function(){
-  mainWindow.maximize();
+  // mainWindow.maximize();
   mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);
@@ -1035,11 +1036,20 @@ ipcMain.on('win-min', function(event, arg) {
 });
 
 ipcMain.on('win-max', function(event, arg) {
-  if(mainWindow.isMaximized()) {
-    mainWindow.unmaximize();
+  if(process.platform == 'darwin') {
+    mainWindow.webContents.send("setIsFullScreen", true);
+    mainWindow.setFullScreen(true);
+    mainWindow.setMinimizable(true);
+    mainWindow.setMaximizable(true);
+    mainWindow.setWindowButtonVisibility(true);
   }
   else {
-    mainWindow.maximize();
+    if(assistWindow.isMaximized()) {
+      assistWindow.unmaximize();
+    }
+    else {
+      assistWindow.maximize();
+    }
   }
 });
 
@@ -1097,6 +1107,10 @@ function createWindow () {
     height: 420,
     width: 360,
     frame: false,
+    fullscreenable: true,
+    fullscreenWindowTitle: true,
+    maximizable: true,
+    minimizable: true,
     // resizable: true,
     /**
      * Across Domains Problem
@@ -1184,6 +1198,12 @@ function openDevToolsInDevelopment(mainWindow) {
   mainWindow.on('page-title-updated', (event, title) => {
     event.preventDefault();
   })
+  mainWindow.on('will-resize', (event) => {
+    if(process.platform == 'darwin'){
+      mainWindow.setWindowButtonVisibility(false);
+    }
+  })
+
 }
 
 app.on('ready', createWindow)
