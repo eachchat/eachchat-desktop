@@ -1204,6 +1204,7 @@ function openDevToolsInDevelopment(mainWindow) {
   })
   mainWindow.on('will-resize', (event) => {
     if(process.platform == 'darwin'){
+      mainWindow.webContents.send("setIsFullScreen", false);
       mainWindow.setWindowButtonVisibility(false);
     }
   })
