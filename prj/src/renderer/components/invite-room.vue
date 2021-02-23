@@ -234,6 +234,7 @@ export default {
                         }
                     }
                 }
+                roomInfo.inviteName = directMember;
                 roomInfo.name = await ComponentUtil.GetDisplayNameByMatrixID(directMember)  
             }
             return roomInfo;
