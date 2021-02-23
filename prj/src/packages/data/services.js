@@ -2739,7 +2739,7 @@ const common = {
 
   async gmsHomeServers() {
     var host = global.localStorage.getItem("app_server");
-    var response = await axios.post(host + "/gms/v1/homeservers", 
+    var response = await axios.post(host + "/gms/v1/matrix/servernames", 
       {
         sortOrder: 1,
         sequenceId: 0

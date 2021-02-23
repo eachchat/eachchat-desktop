@@ -350,12 +350,12 @@ export default {
     margin: 0px;
     margin-top: 20px;
     margin-left: 20px;
+    display: flex;
 }
 .personalCenter-iconView{
     padding: 0px;
     width: 48px;
     height: 48px;
-    display: inline-block;
     margin: 0px;
 
     .personalCenter-icon {
@@ -376,7 +376,6 @@ export default {
 }
 
 .personalCenter-baseInfo {
-    display: inline-block;
     height: 48px;
     vertical-align: top;
     margin-left: 12px;

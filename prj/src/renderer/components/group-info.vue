@@ -363,7 +363,7 @@ export default {
             ipcRenderer.send('showPersonalImageViewWindow', this.mxAvatar);
         },
         openMenu() {
-            openRemoteMenu()
+            openRemoteMenu('copy')
         },
         async _onAvatarChanged(e) {
             console.log('-----_onAvatarChanged-----')

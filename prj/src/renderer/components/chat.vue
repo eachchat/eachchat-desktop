@@ -7,7 +7,7 @@
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
-                <p class="chat-name" id="chat-group-name">{{curChat.contactName ? curChat.contactName : curChat.name}}</p>
+                <p class="chat-name" id="chat-group-name">{{getShowGroupName()}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="isMute"/>
             </div>
@@ -203,6 +203,7 @@ import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import { models } from '../../packages/data/models.js';
+import { openRemoteMenu } from '../../utils/commonFuncs'
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -305,6 +306,33 @@ export default {
         mxMemberSelectDlg,
     },
     methods: {
+        checkIsEmptyRoom() {
+            let checkMxMember = [];
+            for(let key in this.curChat.currentState.members) {
+                let o = this.curChat.currentState.members[key];
+                if (o.membership != 'leave') checkMxMember.push(o);
+            }
+            if(checkMxMember.length == 1) {
+                var distMember = checkMxMember[0];
+                if((distMember.userId ? distMember.userId : distMember.user.userId) == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+                    return true;
+                }
+            }
+            if(checkMxMember.length == 0) {
+                return true;
+            }
+        },
+        getShowGroupName() {
+            if(this.curChat && this.curChat.name && this.curChat.name.startsWith("Empty room")) {
+                if(this.checkIsEmptyRoom(this.curChat)) {
+                    console.log("**********************8", this.curChat);
+                    return "空聊天室";
+                }
+            }
+            console.log("**********************9");
+            
+            return this.curChat.contactName ? this.curChat.contactName : this.curChat.name;
+        },
         clearCache: function() {
             console.log("*** this.curOperate is ", this.curOperate);
             if(this.curOperate == "Trans") {
@@ -1665,7 +1693,7 @@ export default {
             
             var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
             if(!distUserId && groupNameElement) {
-                groupNameElement.innerHTML = chatGroupItem.name;
+                groupNameElement.innerHTML = this.getShowGroupName(chatGroupItem);
             }
             else {
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
@@ -3163,7 +3191,9 @@ export default {
             this.lastScrollTop = uldiv.scrollTop;
             console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
             // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-            this.getShowMessage(this.messageFilter, 10, 'f')
+            console.log("====cur num is ", this.messageList.length);
+            let curNum = this.messageList.length;
+            this.getShowMessage(this.messageFilter, curNum + 10, 'f')
                 .then((ret) => {
                     this.messageList = ret
                     this.isRefreshing = false;
@@ -3208,8 +3238,10 @@ export default {
                     this.isRefreshing = true;
                     this.lastRefreshTime = new Date().getTime();
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                    this.getShowMessage(this.messageFilter, 10, 'b')
+                    let curNum = this.messageList.length;
+                    this.getShowMessage(this.messageFilter, curNum + 10, 'b')
                         .then((ret) => {
+                            console.log("++++++++++ ", ret);
                             this.messageList = ret.concat(this.sendingList);
                             setTimeout(() => {
                                 this.$nextTick(() => {
@@ -3243,7 +3275,8 @@ export default {
                     console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                     this.lastRefreshTime = new Date().getTime();
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                    this.getShowMessage(this.messageFilter, 10, 'f')
+                    let curNum = this.messageList.length;
+                    this.getShowMessage(this.messageFilter, curNum + 10, 'f')
                         .then((ret) => {
                             this.messageList = ret
                             let index = 0;
@@ -3774,6 +3807,10 @@ export default {
                 this.showGroupName(this.curChat);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
+                const editorEle = this.editor.container.getElementsByClassName("ql-editor")[0]
+                editorEle && editorEle.addEventListener('contextmenu', () => {
+                    openRemoteMenu('copy', 'cut', 'paste')
+                })
             })
         }, 0)
         document.addEventListener('click',this.closeInfoTip);

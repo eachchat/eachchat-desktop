@@ -5,6 +5,7 @@ import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+app.commandLine.appendSwitch('ignore-certificate-errors');
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -28,6 +29,7 @@ let notification = null
 var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
 let isLogin = false;
+let toHide = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
@@ -106,7 +108,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.setSize(960, 600);
   mainWindow.center();
   // mainWindow.webContents.on('did-finish-load', function(){
-  mainWindow.maximize();
+  // mainWindow.maximize();
   mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);
@@ -160,6 +162,10 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
               {
                   label: '全选',
                   role: 'selectAll',
+              },
+              {
+                label: '粘贴',
+                role: 'paste'
               },
               {
 
@@ -1035,11 +1041,20 @@ ipcMain.on('win-min', function(event, arg) {
 });
 
 ipcMain.on('win-max', function(event, arg) {
-  if(mainWindow.isMaximized()) {
-    mainWindow.unmaximize();
+  if(process.platform == 'darwin') {
+    mainWindow.webContents.send("setIsFullScreen", true);
+    mainWindow.setFullScreen(true);
+    mainWindow.setMinimizable(true);
+    mainWindow.setMaximizable(true);
+    mainWindow.setWindowButtonVisibility(true);
   }
   else {
-    mainWindow.maximize();
+    if(assistWindow.isMaximized()) {
+      assistWindow.unmaximize();
+    }
+    else {
+      assistWindow.maximize();
+    }
   }
 });
 
@@ -1097,6 +1112,10 @@ function createWindow () {
     height: 420,
     width: 360,
     frame: false,
+    fullscreenable: true,
+    fullscreenWindowTitle: true,
+    maximizable: true,
+    minimizable: true,
     // resizable: true,
     /**
      * Across Domains Problem
@@ -1169,7 +1188,25 @@ function openDevToolsInDevelopment(mainWindow) {
     });
   }
   mainWindow.on('close', (event) => {
-    if(process.platform == 'linux' || process.platform == 'darwin'){
+    if(process.platform == 'darwin') {
+      if(clickQuit) {
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      if(mainWindow.isFullScreen()) {
+        //mainWindow.webContents.send("setIsFullScreen", false);
+        mainWindow.setFullScreen(false);
+        toHide = true;
+      }
+      else {
+        clickQuit = true;
+        app.quit();
+        return;
+      }
+
+    }
+    else if(process.platform == 'linux'){
       clickQuit = true;
       app.quit();
       return;
@@ -1183,6 +1220,22 @@ function openDevToolsInDevelopment(mainWindow) {
   })
   mainWindow.on('page-title-updated', (event, title) => {
     event.preventDefault();
+  })
+  mainWindow.on('will-resize', (event) => {
+    if(process.platform == 'darwin'){
+      mainWindow.webContents.send("setIsFullScreen", false);
+      mainWindow.setWindowButtonVisibility(false);
+    }
+  })
+
+  mainWindow.on('leave-full-screen', (event) => {
+    console.log("====333===333===");
+    if(process.platform == 'darwin'){
+      if(toHide) {
+        mainWindow.hide();
+        toHide = false;
+      }
+    }
   })
 }
 

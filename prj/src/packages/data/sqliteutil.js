@@ -369,7 +369,7 @@ const UserInfo = {
         let userinfos = await(await models.UserInfo).find({
             matrix_id: matrixID
         })
-        if(userinfos.length != 0)
+        if(userinfos.length == 1)
             return userinfos[0];
         return undefined;
     },
@@ -378,7 +378,7 @@ const UserInfo = {
         let userinfos = await(await models.UserInfo).find({
             user_id: userID
         })
-        if(userinfos.length != 0)
+        if(userinfos.length == 1)
             return userinfos[0];
         return undefined;
     },
