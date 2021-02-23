@@ -1189,6 +1189,10 @@ function openDevToolsInDevelopment(mainWindow) {
   }
   mainWindow.on('close', (event) => {
     if(process.platform == 'darwin') {
+      if(clickQuit) {
+        app.quit();
+        return;
+      }
       event.preventDefault();
       if(mainWindow.isFullScreen()) {
         //mainWindow.webContents.send("setIsFullScreen", false);
