@@ -29,6 +29,7 @@ let notification = null
 var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
 let isLogin = false;
+let toHide = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   if(process.platform == 'darwin'){
