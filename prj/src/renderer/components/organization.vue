@@ -7,7 +7,7 @@
                         <eSearch @toSearch="search"/>
                     </div>
                     <div class='chat-tool-invite-div'>
-                        <img src="../../../static/Img/Organization/Image/addContact-24px.png" height="30px" @click='AddContact()'>
+                        <img src="../../../static/Img/Organization/Image/addContact-24px@2x.png" height="30px" @click='AddContact()'>
                     </div>
                 </div>
             </div>
