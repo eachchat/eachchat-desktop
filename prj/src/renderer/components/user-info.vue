@@ -205,7 +205,7 @@ export default {
     },
     methods: {
         openMenu() {
-            openRemoteMenu()
+            openRemoteMenu('copy')
         },
         nHandleFiles:async function(e, paths) {
             // Select Same File Failed.

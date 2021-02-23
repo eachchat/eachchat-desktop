@@ -162,6 +162,10 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
                   role: 'selectAll',
               },
               {
+                label: '粘贴',
+                role: 'paste'
+              },
+              {
 
                 label: '撤销',
                 role: 'redo'
