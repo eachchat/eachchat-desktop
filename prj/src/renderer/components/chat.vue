@@ -203,6 +203,7 @@ import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import { models } from '../../packages/data/models.js';
+import { openRemoteMenu } from '../../utils/commonFuncs'
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -3806,6 +3807,10 @@ export default {
                 this.showGroupName(this.curChat);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
+                const editorEle = this.editor.container.getElementsByClassName("ql-editor")[0]
+                editorEle && editorEle.addEventListener('contextmenu', () => {
+                    openRemoteMenu('copy', 'cut', 'paste')
+                })
             })
         }, 0)
         document.addEventListener('click',this.closeInfoTip);
