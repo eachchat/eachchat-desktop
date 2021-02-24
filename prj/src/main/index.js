@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
+import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
@@ -136,6 +136,16 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   ]);
 
   if(process.platform == 'darwin'){
+    nativeTheme.on('updated', () => {
+      if(nativeTheme.shouldUseDarkColors) {
+        console.log("i am black")
+        appIcon.setImage(path.join(__dirname, iconPath))
+      }
+      else {
+        console.log("i am white");
+        appIcon.setImage(path.join(__dirname, iconPath))
+      }
+    })
     var template = [
       {
         label: app.name || '',
@@ -176,6 +186,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       }
     ]
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    
   }
 
   
