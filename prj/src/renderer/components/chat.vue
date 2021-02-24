@@ -3486,7 +3486,7 @@ export default {
                     fileinfo.size = blod.size;
                     fileinfo.name = blod.name;
                     this.path2File[fileinfo.path] = blod;
-                    if(true) {
+                    if(false) {
                         this.SendFiles([fileinfo]);
                     }
                     else {
