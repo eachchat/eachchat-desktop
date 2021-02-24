@@ -1130,7 +1130,7 @@ export default {
                 this.chatMemberDlgVisible = false;
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgchat = {};
-            canNewLine = true;
+                canNewLine = true;
             }
         },
         deleteDistContent() {
@@ -3741,7 +3741,7 @@ export default {
                                 handler: function (range) {
                                     isEnter = true;
                                     if(canNewLine) {
-                                        return true;
+                                        return false;
                                     }
                                     else {
                                         return false;
