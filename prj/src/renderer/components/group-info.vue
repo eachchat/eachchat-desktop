@@ -33,7 +33,7 @@
                         v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canName" 
                         @click.stop="changeChateInfo()"></p>
                 </div>
-                <div class="chat-desc">{{showGroupInfo.groupTopic}}</div>
+                <div @contextmenu.prevent="openMenu" class="chat-desc">{{groupAddress}}</div>
                 <!-- <div class="peopleInfo" v-if="!isGroup">
                     <input class="peopleInfoInput" id="peopleInfoInputId" type="text" :disabled="!isOwner" v-model="peopleState" name="peopleInfo" placeholder="未设置"/>
                 </div>
@@ -48,6 +48,18 @@
                     <div class="chat-name">{{dmMember.dspName || dmMember.name}}</div>
                 </div>
                 <div @contextmenu.prevent="openMenu" class="chat-desc">{{dmMember.userId || ''}}</div>
+            </div>
+        </div>
+        <div v-if="!isDm" class="groupInfo-topic">
+            <div class="groupInfo-topic-top qsz">
+                <label class="groupInfo-topic-title">群描述</label>
+                <img
+                    @click.stop="changeChatTopic()"
+                    v-show="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canName"  
+                    style="height:20px; width:20px" src="../../../static/Img/Main/yjt.png">
+            </div>
+            <div class="groupInfo-topic-content">
+                <linkify :text="showGroupInfo.groupTopic" color="#5B6A91" ></linkify>
             </div>
         </div>
         <div class="secretGroupDiv" v-show="!isGroup && isSecret" @click="showSecretType()">
@@ -263,6 +275,7 @@ import mxDmDlg from './mxDmDlg.vue'
 import {ComponentUtil} from '../script/component-util'
 import { common } from '../../packages/data/services.js'
 import { openRemoteMenu } from '../../utils/commonFuncs'
+import linkify from './linkify'
 
 // export const ALL_MESSAGES_LOUD = 'all_messages_loud';
 // export const ALL_MESSAGES = 'all_messages';
@@ -288,6 +301,7 @@ export default {
             groupName: '',
             groupAvarar: '',
             groupNotice: '',
+            groupAddress: '',
             peopleState: '',
             slienceState: true,
             groupTopState: true,
@@ -322,10 +336,11 @@ export default {
             mxContact: false,
             myDomain: '',
             firstLoad: false,
-            nextTime: false
+            nextTime: false,
         }
     },
     components: {
+        linkify,
         imageCropper,
         AlertDlg,
         encryWarn,
@@ -564,6 +579,9 @@ export default {
         },
         changeChateInfo: function() {
             this.$emit('openChatInfoDlg')
+        },
+        changeChatTopic: function () {
+            this.$emit('openChatTopicDlg')
         },
         openSetting: function() {
             this.$emit('openSetting')
@@ -1213,6 +1231,12 @@ export default {
         this.ownerId = this.showGroupInfo.ownerId;
         document.addEventListener('click', this.updateCursorPosition);
 
+        roomId && global.mxMatrixClientPeg.matrixClient.unstableGetLocalAliases(roomId).then((v) => {
+            if (v && v.aliases && v.aliases.length) {
+                this.groupAddress = v.aliases[v.aliases.length - 1]
+            }
+        })
+
         // this.$nextTick(()=>{
         //     this.getMemberImage();
         // })
@@ -1592,6 +1616,28 @@ export default {
     display: flex;
 }
 
+.groupInfo-topic{
+    &-title{
+        font-size: 13px;
+        font-weight: 400;
+        color: #666666;
+        font-family: PingFangSC-Regular, PingFang SC;
+    }
+    &-content{
+        font-size: 14px;
+        font-weight: 400;
+        color: #000000;
+        line-height: 20px;
+        margin: 0 16px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        border-bottom: 1px solid #EEEEEE;
+        padding-bottom: 10px;
+        max-width: 100%;
+        overflow: hidden;
+        min-height: 20px;
+    }
+}
+
 .groupInfoImageDiv {
     width: 48px;
     height: 48px;
@@ -1628,6 +1674,8 @@ export default {
 .groupInfoName {
     width: 100%;
     height: 22px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .groupInfoNameInput {
@@ -1907,6 +1955,17 @@ export default {
     margin-right: 16px;
     border-bottom: 1px solid #EEEEEE;
     box-sizing: border-box;
+}
+
+.groupInfo-topic-top{
+    background: rgba(255, 255, 255, 1);
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-left: 16px;
+    margin-right: 16px;
+    box-sizing: border-box;
+    margin-top: 10px;
+    margin-bottom: 4px;
 }
 
 .groupSettingSlienceLabel {

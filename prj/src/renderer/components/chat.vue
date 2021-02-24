@@ -121,6 +121,7 @@
             @showOwnerTransferDlg="showOwnerTransferDlg"
             @openSetting="mxRoomSetting"
             @openChatInfoDlg="mxChatInfoDlgSetting"
+            @openChatTopicDlg="mxChatTopicDlgSetting"
             @closeGroupInfo="closeGroupInfo"
         >
         </groupInfoTip> <!--todo html-->
@@ -150,6 +151,7 @@
         </div>
         <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="curChat.roomId"></mxChatInfoDlg>
+        <mxChatTopicDlg v-if="mxChatTopic" @close="mxChatTopicDlgSetting" :roomId="curChat.roomId"></mxChatTopicDlg>
         <!-- <mxMemberSelectDlg 
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
@@ -191,6 +193,7 @@ import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../..
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
+import mxChatTopicDlg from './mxChatTopicDlg'
 import {EventTimeline} from "matrix-js-sdk";
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
@@ -300,6 +303,7 @@ export default {
         SendFileDlg,
         mxSettingDialog,
         mxChatInfoDlg,
+        mxChatTopicDlg,
         Invite,
         mxHistoryPage,
         mxFilePage,
@@ -471,6 +475,13 @@ export default {
             }
             this.closeGroupInfo();
             this.mxChat = true;
+        },
+        mxChatTopicDlgSetting: function(close) {
+            if (close) {
+                return this.mxChatTopic = false;
+            }
+            this.closeGroupInfo();
+            this.mxChatTopic = true;
         },
         mxRoomSetting: function(close) {
             if (close) {
@@ -3781,6 +3792,7 @@ export default {
             matrixClient: undefined,
             mxRoomDlg: false,
             mxChat: false,
+            mxChatTopic: false,
             services: null,
             mxSelectMemberOpen: false,
             isDm: false,
