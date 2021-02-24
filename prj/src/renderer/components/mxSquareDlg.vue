@@ -13,7 +13,10 @@
                     <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
                     <img style="height:20px; width:20px;" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
                 </div>
-                <div class="room-list">
+                <div class="room-list-loading" v-if="!publicRooms.length">
+                    数据加载中...
+                </div>
+                <div class="room-list" else>
                     <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
                         <img class="room-img" :src="item.distUrl" onerror="this.src = './static/Img/User/group-40px@2x.png'"/>
                         <div class="room-xie">
@@ -46,7 +49,7 @@ import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
 import { common } from '../../packages/data/services.js';
 const OPTS = {
-    limit: 500,
+    limit: 200,
 };
 export default {
     name: 'mxCreateRoomDlg',
@@ -79,7 +82,10 @@ export default {
         joinRoom: function(room) {
             const client = window.mxMatrixClientPeg.matrixClient;
             let publicRooms = this.publicRooms;
-            client.joinRoom(room.room_id).then(obj => {
+            console.log('>>>>>room', room);
+            let serverName = room.room_id.split(':')[1];
+            let opts = {viaServers:[serverName]}
+            client.joinRoom(room.room_id, opts).then(obj => {
                 console.log('--加入成功--', obj) //obj.roomId
                 publicRooms = publicRooms.map(p => {
                     if (p.room_id == obj.roomId) {
@@ -115,71 +121,107 @@ export default {
             if (my_filter_string) opts.filter = { generic_search_term: my_filter_string };
             console.log('xie', xie)
             const selfId = client.getUserId();
-            return client.publicRooms(xie).then((data) => {
-                // if (
-                //     my_filter_string != this.state.filterString ||
-                //     my_server != this.state.roomServer ||
-                //     my_next_batch != this.nextBatch) {
-                //     // if the filter or server has changed since this request was sent,
-                //     // throw away the result (don't even clear the busy flag
-                //     // since we must still have a request in flight)
-                //     return;
-                // }
-
-                // if (this._unmounted) {
-                //     // if we've been unmounted, we don't care either.
-                //     return;
-                // }
-                console.log('>>>>>check data>>>>>>', data);
-                this.nextBatch = data.next_batch;
-                let chunk = data.chunk;
-                let rooms = client.getRooms();
-                console.log('---rooms----', rooms)
-                chunk = chunk.map(c => {
-                    let r = client.getRoom(c.room_id)
-                    console.log('-------rrrrr-----', r)
-                    if (r) {
-                        if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+            console.log('this.serverList >>>>', this.serverList)
+            if (this.serverList.length) {
+                let arr = [];
+                this.serverList.forEach(s => {
+                    if (s.serverName) {
+                        let xie2 = {...xie, server:s.serverName}
+                        console.log('xie2>>>>', xie2)
+                        arr.push(client.publicRooms(xie2).catch((e)=>{console.log('+++++error serverName+++++', s.serverName)}))
                     }
-                    c.roomId = c.room_id;
-                    c.distUrl = './static/Img/User/group-40px@2x.png';
-                    return c;
                 })
-                if (cover) return this.publicRooms = [...chunk];
-                this.publicRooms.push(...chunk);
-                console.log('---查看数据---', this.publicRooms)
-                // this.setState((s) => {
-                //     s.publicRooms.push(...(data.chunk || []));
-                //     s.loading = false;
-                //     return s;
-                // });
-                // return Boolean(data.next_batch);
-            }, (err) => {
-                // if (
-                //     my_filter_string != this.state.filterString ||
-                //     my_server != this.state.roomServer ||
-                //     my_next_batch != this.nextBatch) {
-                //     // as above: we don't care about errors for old
-                //     // requests either
-                //     return;
-                // }
+                if (arr.length) {
+                    Promise.all(arr).then((resultList) => {
+                        let chunk = [];
+                        resultList.forEach( (s) => {
+                            if (s && s.chunk) {
+                                chunk = [...chunk, ...s.chunk]
+                            }
+                        })
+                        let rooms = client.getRooms();
+                        console.log('---rooms----', rooms)
+                        chunk = chunk.map(c => {
+                            let r = client.getRoom(c.room_id)
+                            console.log('-------rrrrr-----', r)
+                            if (r) {
+                                if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+                            }
+                            c.roomId = c.room_id;
+                            c.distUrl = './static/Img/User/group-40px@2x.png';
+                            return c;
+                        })
+                        if (cover) return this.publicRooms = [...chunk];
+                        this.publicRooms.push(...chunk);
+                        console.log('---查看数据---', this.publicRooms)
+                    })
+                }
+            }
+            // return client.publicRooms(xie).then((data) => {
+            //     // if (
+            //     //     my_filter_string != this.state.filterString ||
+            //     //     my_server != this.state.roomServer ||
+            //     //     my_next_batch != this.nextBatch) {
+            //     //     // if the filter or server has changed since this request was sent,
+            //     //     // throw away the result (don't even clear the busy flag
+            //     //     // since we must still have a request in flight)
+            //     //     return;
+            //     // }
 
-                // if (this._unmounted) {
-                //     // if we've been unmounted, we don't care either.
-                //     return;
-                // }
+            //     // if (this._unmounted) {
+            //     //     // if we've been unmounted, we don't care either.
+            //     //     return;
+            //     // }
+            //     console.log('>>>>>check data>>>>>>', data);
+            //     this.nextBatch = data.next_batch;
+            //     let chunk = data.chunk;
+            //     let rooms = client.getRooms();
+            //     console.log('---rooms----', rooms)
+            //     chunk = chunk.map(c => {
+            //         let r = client.getRoom(c.room_id)
+            //         console.log('-------rrrrr-----', r)
+            //         if (r) {
+            //             if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+            //         }
+            //         c.roomId = c.room_id;
+            //         c.distUrl = './static/Img/User/group-40px@2x.png';
+            //         return c;
+            //     })
+            //     if (cover) return this.publicRooms = [...chunk];
+            //     this.publicRooms.push(...chunk);
+            //     console.log('---查看数据---', this.publicRooms)
+            //     // this.setState((s) => {
+            //     //     s.publicRooms.push(...(data.chunk || []));
+            //     //     s.loading = false;
+            //     //     return s;
+            //     // });
+            //     // return Boolean(data.next_batch);
+            // }, (err) => {
+            //     // if (
+            //     //     my_filter_string != this.state.filterString ||
+            //     //     my_server != this.state.roomServer ||
+            //     //     my_next_batch != this.nextBatch) {
+            //     //     // as above: we don't care about errors for old
+            //     //     // requests either
+            //     //     return;
+            //     // }
 
-                console.error("Failed to get publicRooms: %s", JSON.stringify(err));
-                // track('Failed to get public room list');
-                // const brand = SdkConfig.get().brand;
-                // this.setState({
-                //     loading: false,
-                //     error: (
-                //         _t('%(brand)s failed to get the public room list.', { brand }) +
-                //         (err && err.message) ? err.message : _t('The homeserver may be unavailable or overloaded.')
-                //     ),
-                // });
-            });
+            //     // if (this._unmounted) {
+            //     //     // if we've been unmounted, we don't care either.
+            //     //     return;
+            //     // }
+
+            //     console.error("Failed to get publicRooms: %s", JSON.stringify(err));
+            //     // track('Failed to get public room list');
+            //     // const brand = SdkConfig.get().brand;
+            //     // this.setState({
+            //     //     loading: false,
+            //     //     error: (
+            //     //         _t('%(brand)s failed to get the public room list.', { brand }) +
+            //     //         (err && err.message) ? err.message : _t('The homeserver may be unavailable or overloaded.')
+            //     //     ),
+            //     // });
+            // });
         },
         clearSearch(){
             this.bShowDelIco = false;
@@ -401,27 +443,31 @@ export default {
     async created() {
         const res = await common.gmsHomeServers();
         console.log('+++++域名信息++++++', res);
+        if (res.data && res.data.results) {
+            this.serverList = res.data.results;
+            this.getMoreRooms();
+        }
     },
     mounted() {
     },
-    watch: {
-        matrixSync: {
-            handler: function(val, oldVal) {
-                console.log(1113, val);
-                const vtx = this;
-                if (val) {
-                    console.log(222);
-                    const client = window.mxMatrixClientPeg.matrixClient;
-                    vtx.isEncrypted = vtx.privateShouldBeEncrypted()
-                    client.doesServerForceEncryptionForPreset("private")
-                        .then(isForced => vtx.canChangeEncryption = !isForced);
-                    console.log(333, window.mxMatrixClientPeg.getHomeserverName())
-                    vtx.getMoreRooms();
-                }
-            },
-            immediate: true
-        }
-    },
+    // watch: {
+    //     matrixSync: {
+    //         handler: function(val, oldVal) {
+    //             console.log(1113, val);
+    //             const vtx = this;
+    //             if (val) {
+    //                 console.log(222);
+    //                 const client = window.mxMatrixClientPeg.matrixClient;
+    //                 vtx.isEncrypted = vtx.privateShouldBeEncrypted()
+    //                 client.doesServerForceEncryptionForPreset("private")
+    //                     .then(isForced => vtx.canChangeEncryption = !isForced);
+    //                 console.log(333, window.mxMatrixClientPeg.getHomeserverName())
+    //                 vtx.getMoreRooms();
+    //             }
+    //         },
+    //         immediate: true
+    //     }
+    // },
     computed: {
         ...mapState({
             matrixSync: state => state.common.matrixSync
@@ -464,6 +510,17 @@ export default {
         overflow-y: scroll;
         margin-left: 16px;
         margin-right: 16px;
+    }
+    .room-list-loading {
+        flex: 1;
+        box-sizing: border-box;
+        overflow-y: scroll;
+        margin-left: 16px;
+        margin-right: 16px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
     }
     .search-logo {
         height: 20px;
