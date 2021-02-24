@@ -15,6 +15,7 @@ export function openRemoteMenu(...args) {
     })
     menu.popup(remote.getCurrentWindow());
 }
+
 export function openBaseMenu() {
     openRemoteMenu('copy', 'cut', 'paste')
 }
