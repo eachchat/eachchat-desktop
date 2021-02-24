@@ -563,6 +563,7 @@ export default {
         global.mxMatrixClientPeg.matrixClient.on("Room.tags", this.handleRoomTags);
         global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
         global.mxMatrixClientPeg.matrixClient.on("Room.name", this.onRoomName);
+        global.mxMatrixClientPeg.matrixClient.on("accountData", this.handleAccountDataUpdate);
       }
     }
   },
@@ -655,6 +656,46 @@ export default {
     };
   },
   methods: {
+    handleAccountDataUpdate(ev) {
+      if (ev.getType() === "m.push_rules") {
+        this.updateNotificationState();
+      }
+    },
+    updateNotificationState() {
+      for(let i in this.dealShowGroupList){
+        this.showGroupIconName(this.dealShowGroupList[i]);
+        var dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.dealShowGroupList[i].roomId));
+        let isMute = this.groupIsSlienceThroughRoomId(this.dealShowGroupList[i].roomId);
+        if(isMute && dist.style.display == "none") {
+          dist.style.display = "block";
+        }
+        else if(!isMute && dist.style.display == "block") {
+          dist.style.display = "none";
+        }
+      }
+      for(let i in this.favouriteRooms){
+        this.showGroupIconName(this.favouriteRooms[i]);
+        var dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.favouriteRooms[i].roomId));
+        let isMute = this.groupIsSlienceThroughRoomId(this.favouriteRooms[i].roomId);
+        if(isMute && dist.style.display == "none") {
+          dist.style.display = "block";
+        }
+        else if(!isMute && dist.style.display == "block") {
+          dist.style.display = "none";
+        }
+      }
+      for(let i in this.lowPriorityGroupList){
+        this.showGroupIconName(this.lowPriorityGroupList[i]);
+        var dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.lowPriorityGroupList[i].roomId));
+        let isMute = this.groupIsSlienceThroughRoomId(this.lowPriorityGroupList[i].roomId);
+        if(isMute && dist.style.display == "none") {
+          dist.style.display = "block";
+        }
+        else if(!isMute && dist.style.display == "block") {
+          dist.style.display = "none";
+        }
+      }
+    },
     getGroupClassName(groupItem){
       return (className) =>{
         if(!this.isSearch) {
