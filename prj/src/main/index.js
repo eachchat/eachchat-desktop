@@ -81,6 +81,18 @@ if(process.platform != 'darwin') {
 }
 //ClearDB(1);
 
+function setImgToNormalIcon() {
+  if(appIcon) {
+    appIcon.setImage(path.join(__dirname, iconPath));
+  }
+}
+
+function setImgToFlashIcon() {
+  if(appIcon) {
+    appIcon.setImage(path.join(__dirname, emptyIconPath));
+  }
+}
+
 let resizableValue = false;
 
 const Bobolink = require('bobolink');
@@ -140,11 +152,11 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     nativeTheme.on('updated', () => {
       if(nativeTheme.shouldUseDarkColors) {
         console.log("i am black")
-        appIcon.setImage(path.join(__dirname, iconPath))
+        setImgToNormalIcon();
       }
       else {
         console.log("i am white");
-        appIcon.setImage(path.join(__dirname, iconPath))
+        setImgToNormalIcon();
       }
     })
     var template = [
@@ -215,19 +227,17 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
     }
   }
   else if(process.platform == "linux") {
-    if(appIcon) {
-      if(arg == 0) {
-        appIcon.setImage(path.join(__dirname, iconPath));
-      }
-      else {
-        appIcon.setImage(path.join(__dirname, emptyIconPath));
-      }
+    if(arg == 0) {
+      setImgToNormalIcon();
+    }
+    else {
+      setImgToFlashIcon();
     }
   }
   else if(process.platform == "win32") {
     if(arg == 0) {
       clearFlashIconTimer();
-      appIcon.setImage(path.join(__dirname, iconPath));
+      setImgToNormalIcon()
     }
   }
   console.log("==========arg ", arg);
@@ -506,7 +516,7 @@ ipcMain.on("showNotice", (event, title, contnet) => {
 
 ipcMain.on("stopFlash", (event) => {
   clearFlashIconTimer();
-  appIcon.setImage(path.join(__dirname, iconPath));
+  setImgToNormalIcon();
 })
 
 // 闪烁任务栏
@@ -522,9 +532,9 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
   flashIconTimer = setInterval(function() {
     count++;
     if (count % 2 === 0) {
-      appIcon.setImage(path.join(__dirname, emptyIconPath));
+      setImgToFlashIcon()
     } else {
-      appIcon.setImage(path.join(__dirname, iconPath));
+      setImgToNormalIcon();
     }
   }, 500);
 
@@ -544,7 +554,7 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
     }, 4000)
     notification.on("click", () => {
       clearFlashIconTimer();
-      appIcon.setImage(path.join(__dirname, iconPath));
+      setImgToNormalIcon();
       mainWindow.show();
     })
   }
@@ -574,7 +584,7 @@ function showMain() {
   mainWindow.show();
 
   clearFlashIconTimer();
-  appIcon.setImage(path.join(__dirname, iconPath));
+  setImgToNormalIcon();
 }
 
 function clearFlashIconTimer() {
