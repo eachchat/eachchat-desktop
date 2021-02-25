@@ -250,7 +250,7 @@ export default {
         return {
             ulElement: undefined,
             curSelectedIndex: 0,
-            appServerHost: "http://139.198.18.180:8888", //"https://gms.each.chat",//"http://139.198.18.180:8888",//"https://chat.yunify.com",
+            appServerHost: "https://gms.each.chat", //"https://gms.each.chat",//"http://139.198.18.180:8888",//"https://chat.yunify.com",
             showPwd: false,
             forgetPwdButtonDisabled: false,
             iconType: "alert",
