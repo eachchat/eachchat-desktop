@@ -32,25 +32,26 @@ let isLogin = false;
 let toHide = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
+  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
   if(process.platform == 'darwin'){
     iconPath = "../../static/Img/Main/IconTemplate@3x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "../../static/Img/Main/icon.png";
+    emptyIconPath = "../../static/Img/Main/logo-notice.png";
   }
-  
-  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
   soundPath = "../../static/sound.wav";
   notificationIco = "../../static/Img/Main/logo@2x.png";
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
+  emptyIconPath = "/static/Img/Main/logo-notice.png";
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/IconTemplate@3x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "/static/Img/Main/icon.png";
+    emptyIconPath = "/static/Img/Main/logo-notice.png";
   }
-  emptyIconPath = "/static/Img/Main/logo-empty.ico";
   soundPath = "/static/sound.wav";
   notificationIco = "/static/Img/Main/logo@2x.png";
 }
@@ -211,6 +212,22 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
     }
     else {
       app.dock.setBadge(arg.toString());
+    }
+  }
+  else if(process.platform == "linux") {
+    if(appIcon) {
+      if(arg == 0) {
+        appIcon.setImage(path.join(__dirname, iconPath));
+      }
+      else {
+        appIcon.setImage(path.join(__dirname, emptyIconPath));
+      }
+    }
+  }
+  else if(process.platform == "win32") {
+    if(arg == 0) {
+      clearFlashIconTimer();
+      appIcon.setImage(path.join(__dirname, iconPath));
     }
   }
   console.log("==========arg ", arg);
@@ -464,7 +481,7 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
 ipcMain.on("showNotice", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
-  if(process.platform == 'darwin'){
+  if(process.platform == 'darwin' || process.platform == 'linux'){
     if(!mainWindow.isFocused()) {
       if(notification != null) {
         notification.close();
@@ -526,6 +543,8 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
       notification.close();
     }, 4000)
     notification.on("click", () => {
+      clearFlashIconTimer();
+      appIcon.setImage(path.join(__dirname, iconPath));
       mainWindow.show();
     })
   }

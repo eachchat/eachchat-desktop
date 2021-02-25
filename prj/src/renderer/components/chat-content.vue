@@ -1301,7 +1301,7 @@ export default {
       }
     },
     showNotice(fromName, notificateContent) {
-      if(this.isWindows() || this.isLinux()) {
+      if(this.isWindows()) {
         if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice") == "true") {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
