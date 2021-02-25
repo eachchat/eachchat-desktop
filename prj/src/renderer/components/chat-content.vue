@@ -1301,7 +1301,7 @@ export default {
       }
     },
     showNotice(fromName, notificateContent) {
-      if(this.isWindows()) {
+      if(this.isWindows() || this.isLinux()) {
         if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice") == "true") {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
@@ -1566,6 +1566,9 @@ export default {
 
     isWindows() {
       return environment.os.isWindows;
+    },
+    isLinux() {
+      return environment.os.isLinux;
     },
     rightClick(e, groupItem) {
         console.log("groupItem is ", groupItem)
