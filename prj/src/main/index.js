@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "development") {
   }
   else if(process.platform == 'linux') {
     iconPath = "../../static/Img/Main/icon.png";
-    emptyIconPath = "../../static/Img/Main/logo-notice.ico";
+    emptyIconPath = "../../static/Img/Main/logo-notice.png";
   }
   soundPath = "../../static/sound.wav";
   notificationIco = "../../static/Img/Main/logo@2x.png";
@@ -49,7 +49,7 @@ if (process.env.NODE_ENV === "development") {
   }
   else if(process.platform == 'linux') {
     iconPath = "/static/Img/Main/icon.png";
-    emptyIconPath = "/static/Img/Main/logo-notice.ico";
+    emptyIconPath = "/static/Img/Main/logo-notice.png";
   }
   soundPath = "/static/sound.wav";
   notificationIco = "/static/Img/Main/logo@2x.png";
