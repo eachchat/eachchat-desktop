@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
+import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
@@ -136,6 +136,16 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   ]);
 
   if(process.platform == 'darwin'){
+    nativeTheme.on('updated', () => {
+      if(nativeTheme.shouldUseDarkColors) {
+        console.log("i am black")
+        appIcon.setImage(path.join(__dirname, iconPath))
+      }
+      else {
+        console.log("i am white");
+        appIcon.setImage(path.join(__dirname, iconPath))
+      }
+    })
     var template = [
       {
         label: app.name || '',
@@ -176,6 +186,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       }
     ]
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    
   }
 
   
@@ -373,6 +384,7 @@ ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
         height: 468,
         resizable: resizableValue,
         width:600,
+        fullscreenable: false,
         webPreferences: {
           webSecurity:false,
           nodeIntegration:true,
@@ -419,6 +431,7 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
       height: 340,
       resizable: resizableValue,
       width: 520,
+      fullscreenable: false,
       webPreferences: {
         webSecurity:false,
         nodeIntegration:true,
@@ -1151,6 +1164,7 @@ function createWindow () {
     width: 480 + 24,
     frame: false,
     resizable: true,
+    fullscreenable: false,
     webPreferences: {
       webSecurity: false,
       nodeIntegration: true,
@@ -1189,19 +1203,14 @@ function openDevToolsInDevelopment(mainWindow) {
   }
   mainWindow.on('close', (event) => {
     if(process.platform == 'darwin') {
-      if(clickQuit) {
-        app.quit();
-        return;
-      }
       event.preventDefault();
       if(mainWindow.isFullScreen()) {
-        //mainWindow.webContents.send("setIsFullScreen", false);
         mainWindow.setFullScreen(false);
         toHide = true;
+        return;
       }
-      else {
-        clickQuit = true;
-        app.quit();
+      else if(!toHide || clickQuit) {
+        app.exit();
         return;
       }
 
@@ -1215,7 +1224,10 @@ function openDevToolsInDevelopment(mainWindow) {
       event.preventDefault();
       mainWindow.hide();
     }
-    else app.quit();
+    else {
+      console.log("==========")
+      app.quit();
+    }
     
   })
   mainWindow.on('page-title-updated', (event, title) => {

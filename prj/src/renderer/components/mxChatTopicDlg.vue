@@ -3,18 +3,17 @@
         <div class="mx-setting-dialog">
             <div class="inner-wrap">
                 <div class="title">
-                    <span class="titlespan">修改群聊信息</span>
+                    <span class="titlespan">修改群描述</span>
                     <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png">
                 </div>
-                <div class="filed-title">群聊名称</div>
-                <input 
-                    type="text" 
+                <div class="filed-title">群描述</div>
+                <textarea 
+                    placeholder="请输入群描述" 
                     @contextmenu.prevent="openMenu"
-                    placeholder="请输入群名称" 
-                    class="title-input"
-                    maxlength="24"
-                    v-model="roomName"
-                />
+                    class="desc-text"
+                    maxlength="100"
+                    v-model="roomTopic"
+                ></textarea>
                 <div class="submit-field">
                     <div class="button button-close" @click.stop="close">取消</div>
                     <div :class="{button:true, buttonConfirm:!loading, buttonConfirmLoading:loading}" @click.stop="updateInfo">确定</div>
@@ -27,10 +26,10 @@
 <script>
 import { openBaseMenu } from '../../utils/commonFuncs'
 export default {
-    name: 'mxChatInfoDlg',
+    name: 'mxChatTopicDlg',
     data () {
         return {
-            roomName:'',
+            roomTopic:'',
             loading: false
         }
     },
@@ -44,10 +43,10 @@ export default {
             if (this.loading) return;
             this.loading = true;
             const vtx = this;
-            const name = this.roomName;
+            const topic = this.roomTopic;
             const client = window.mxMatrixClientPeg.matrixClient;
-            let namePromise = client.setRoomName(this.roomId, name).catch((e)=>{console.error('群名称设置失败',e); vtx.loading = false;});
-            namePromise.then(()=>{
+            let topicPromise = client.setRoomTopic(this.roomId, topic).catch((e)=>{console.error('群描述设置失败',e); vtx.loading = false;});
+            topicPromise.then(()=>{
                 vtx.loading = false;
                 vtx.$emit('close', 'close')
             })
@@ -61,10 +60,9 @@ export default {
     created: function () {
         const roomId = this.roomId;
         const room = window.mxMatrixClientPeg.matrixClient.getRoom(roomId);
-        const nameEvent = room.currentState.getStateEvents('m.room.name', '');
-        const name = nameEvent && nameEvent.getContent() ? nameEvent.getContent()['name'] : '';
-        this.roomName = name;
-        
+        const topicEvent = room.currentState.getStateEvents("m.room.topic", "");
+        const topic = topicEvent && topicEvent.getContent() ? topicEvent.getContent()['topic'] : '';
+        this.roomTopic = topic;  
     },
     mounted: function() {
     },
@@ -97,7 +95,7 @@ export default {
         background-color: #fff;
         z-index: 99999;
         width: 440px;
-        height: 204px;
+        height: 248px;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
         .title {
@@ -129,7 +127,6 @@ export default {
             color: #666666;
             line-height: 20px;
             margin-left: 40px;
-
         }
         .title-input {
             height: 36px;
@@ -147,6 +144,24 @@ export default {
             font-weight: 400;
             color: #000000;
 
+        }
+        .desc-text {
+            box-sizing: border-box;
+            outline: none;
+            width: 360px;
+            height: 80px;
+            background: #FFFFFF;
+            border-radius: 4px;
+            border: 1px solid #DDDDDD;
+            margin-left: 40px;
+            margin-top: 8px;
+            margin-bottom: 24px;
+            resize: none;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #000000;
         }
         .input-tip {
             color:rgb(118, 118, 118);
