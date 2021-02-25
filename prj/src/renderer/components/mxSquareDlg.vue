@@ -2,7 +2,7 @@
     <div class="wrap-layer" @click.self.stop="close('close')">
         <div class="mx-create-room-dialog" v-if="matrixSync">
             <div class="mxCreaterHeader">
-                <div class="mxCreaterHeaderTitle">群聊列表</div>
+                <div class="mxCreaterHeaderTitle">发现群聊</div>
                 <img ondragstart="return false" class="mxCreaterClose" src="../../../static/Img/Main/xincaca.png" @click.self.stop="close('close')">
             </div>
             <div class="xieFrame">
@@ -13,25 +13,30 @@
                     <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
                     <img style="height:20px; width:20px;" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
                 </div>
-                <div class="room-list">
+                <div class="room-list-loading" v-if="this.fetching">
+                    数据加载中...
+                </div>
+                <div class="room-list" else>
                     <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
                         <img class="room-img" :src="item.distUrl" onerror="this.src = './static/Img/User/group-40px@2x.png'"/>
                         <div class="room-xie">
-                            <div class="room-xie1" v-if="item.name" v-html="searchKeyHightLight(item.name)">{{item.name + '(' + item.num_joined_members + ')'}}</div>
-                            <div style="width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:block;" class="room-xie2" v-if="item.topic">{{item.topic}}</div>
-                            <div class="room-xie2" v-if="item.canonical_alias">
-                                <span>{{item.canonical_alias}}</span>
-                            </div>
+                            <div class="room-xie1" v-if="item.name" v-html="searchKeyHightLight((item.name + '(' + item.num_joined_members + ')'))">{{item.name + '(' + item.num_joined_members + ')'}}</div>
+                            <div class="room-xie2">{{item.room_id || item.roomId}}</div>
+                            <div class="room-xie2" v-if="item.topic">{{item.topic}}</div>
                         </div>
-                        <div class="room-xie4" v-if="!item.joined">
+                        <!-- <div class="room-xie4" v-if="!item.joined">
                             <div class="room-join" @click.stop="joinRoom(item)">
-                                <!-- <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/> -->
                                 <span>加入</span>
                             </div>
                         </div>
                         <div class="room-xie4" v-else>
                             <div class="room-join" @click.stop="checkRoom(item)">查看</div>
+                        </div> -->
+                        <div class="room-join" @click.stop="joinRoom(item)" v-if="!item.joined">
+                            <!-- <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/> -->
+                            <span>加入</span>
                         </div>
+                        <div class="room-join" @click.stop="checkRoom(item)" v-else>查看</div>
                     </div>
                 </div>
             </div>
@@ -44,8 +49,9 @@ const E2EE_WK_KEY = "io.element.e2ee";
 const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
+import { common } from '../../packages/data/services.js';
 const OPTS = {
-    limit: 500,
+    limit: 200,
 };
 export default {
     name: 'mxCreateRoomDlg',
@@ -62,7 +68,8 @@ export default {
             roomText: '',
             publicRooms: [],
             loading: false,
-            bShowDelIco: false
+            bShowDelIco: false,
+            fetching: false
         }
     },
     timer: null,
@@ -78,7 +85,10 @@ export default {
         joinRoom: function(room) {
             const client = window.mxMatrixClientPeg.matrixClient;
             let publicRooms = this.publicRooms;
-            client.joinRoom(room.room_id).then(obj => {
+            console.log('>>>>>room', room);
+            let serverName = room.room_id.split(':')[1];
+            let opts = {viaServers:[serverName]}
+            client.joinRoom(room.room_id, opts).then(obj => {
                 console.log('--加入成功--', obj) //obj.roomId
                 publicRooms = publicRooms.map(p => {
                     if (p.room_id == obj.roomId) {
@@ -90,7 +100,7 @@ export default {
                 this.close('close');
             })
         },
-        getMoreRooms: function(obj, cover) {
+        getMoreRooms: async function(obj, cover) {
             console.log('--obj--', obj);
             console.log('cover', cover);
             const xie = obj || {limit: 200};
@@ -114,71 +124,136 @@ export default {
             if (my_filter_string) opts.filter = { generic_search_term: my_filter_string };
             console.log('xie', xie)
             const selfId = client.getUserId();
-            return client.publicRooms(xie).then((data) => {
-                // if (
-                //     my_filter_string != this.state.filterString ||
-                //     my_server != this.state.roomServer ||
-                //     my_next_batch != this.nextBatch) {
-                //     // if the filter or server has changed since this request was sent,
-                //     // throw away the result (don't even clear the busy flag
-                //     // since we must still have a request in flight)
-                //     return;
-                // }
+            console.log('this.serverList >>>>', this.serverList)
+            
+            if (this.serverList.length) {
+                let arr = [];
+                this.fetching = true;
+                if (cover) this.publicRooms = [];
+                for(let i=0; i<this.serverList.length; i++) {
+                    let xie2 = {...xie, server:this.serverList[i].serverName}
+                    console.log('xie2>>>>', xie2)
+                    let data = await client.publicRooms(xie2).catch((e)=>{
+                        console.log('+++++error serverName+++++', this.serverList[i].serverName)
+                        this.fetching = false;
+                    })
+                    this.fetching = false;
+                    let chunk = data.chunk;
+                    let rooms = client.getRooms();
+                    console.log('---rooms----', rooms)
+                    chunk = chunk.map(c => {
+                        let r = client.getRoom(c.room_id)
+                        console.log('-------rrrrr-----', r)
+                        if (r) {
+                            if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+                        }
+                        c.roomId = c.room_id;
+                        c.distUrl = './static/Img/User/group-40px@2x.png';
+                        return c;
+                    })
+                    this.publicRooms = [...this.publicRooms, ...chunk];
+                    console.log('---查看数据---', this.publicRooms)
+                }
 
-                // if (this._unmounted) {
-                //     // if we've been unmounted, we don't care either.
-                //     return;
-                // }
-                console.log('>>>>>check data>>>>>>', data);
-                this.nextBatch = data.next_batch;
-                let chunk = data.chunk;
-                let rooms = client.getRooms();
-                console.log('---rooms----', rooms)
-                chunk = chunk.map(c => {
-                    let r = client.getRoom(c.room_id)
-                    console.log('-------rrrrr-----', r)
-                    if (r) {
-                        if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+                return 
+                this.serverList.forEach(s => {
+                    if (s.serverName) {
+                        let xie2 = {...xie, server:s.serverName}
+                        console.log('xie2>>>>', xie2)
+                        arr.push(client.publicRooms(xie2).catch((e)=>{console.log('+++++error serverName+++++', s.serverName)}))
                     }
-                    c.roomId = c.room_id;
-                    c.distUrl = './static/Img/User/group-40px@2x.png';
-                    return c;
                 })
-                if (cover) return this.publicRooms = [...chunk];
-                this.publicRooms.push(...chunk);
-                console.log('---查看数据---', this.publicRooms)
-                // this.setState((s) => {
-                //     s.publicRooms.push(...(data.chunk || []));
-                //     s.loading = false;
-                //     return s;
-                // });
-                // return Boolean(data.next_batch);
-            }, (err) => {
-                // if (
-                //     my_filter_string != this.state.filterString ||
-                //     my_server != this.state.roomServer ||
-                //     my_next_batch != this.nextBatch) {
-                //     // as above: we don't care about errors for old
-                //     // requests either
-                //     return;
-                // }
+                if (arr.length) {
+                    Promise.all(arr).then((resultList) => {
+                        let chunk = [];
+                        resultList.forEach( (s) => {
+                            if (s && s.chunk) {
+                                chunk = [...chunk, ...s.chunk]
+                            }
+                        })
+                        let rooms = client.getRooms();
+                        console.log('---rooms----', rooms)
+                        chunk = chunk.map(c => {
+                            let r = client.getRoom(c.room_id)
+                            console.log('-------rrrrr-----', r)
+                            if (r) {
+                                if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+                            }
+                            c.roomId = c.room_id;
+                            c.distUrl = './static/Img/User/group-40px@2x.png';
+                            return c;
+                        })
+                        if (cover) return this.publicRooms = [...chunk];
+                        this.publicRooms.push(...chunk);
+                        console.log('---查看数据---', this.publicRooms)
+                    })
+                }
+            }
+            // return client.publicRooms(xie).then((data) => {
+            //     // if (
+            //     //     my_filter_string != this.state.filterString ||
+            //     //     my_server != this.state.roomServer ||
+            //     //     my_next_batch != this.nextBatch) {
+            //     //     // if the filter or server has changed since this request was sent,
+            //     //     // throw away the result (don't even clear the busy flag
+            //     //     // since we must still have a request in flight)
+            //     //     return;
+            //     // }
 
-                // if (this._unmounted) {
-                //     // if we've been unmounted, we don't care either.
-                //     return;
-                // }
+            //     // if (this._unmounted) {
+            //     //     // if we've been unmounted, we don't care either.
+            //     //     return;
+            //     // }
+            //     console.log('>>>>>check data>>>>>>', data);
+            //     this.nextBatch = data.next_batch;
+            //     let chunk = data.chunk;
+            //     let rooms = client.getRooms();
+            //     console.log('---rooms----', rooms)
+            //     chunk = chunk.map(c => {
+            //         let r = client.getRoom(c.room_id)
+            //         console.log('-------rrrrr-----', r)
+            //         if (r) {
+            //             if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+            //         }
+            //         c.roomId = c.room_id;
+            //         c.distUrl = './static/Img/User/group-40px@2x.png';
+            //         return c;
+            //     })
+            //     if (cover) return this.publicRooms = [...chunk];
+            //     this.publicRooms.push(...chunk);
+            //     console.log('---查看数据---', this.publicRooms)
+            //     // this.setState((s) => {
+            //     //     s.publicRooms.push(...(data.chunk || []));
+            //     //     s.loading = false;
+            //     //     return s;
+            //     // });
+            //     // return Boolean(data.next_batch);
+            // }, (err) => {
+            //     // if (
+            //     //     my_filter_string != this.state.filterString ||
+            //     //     my_server != this.state.roomServer ||
+            //     //     my_next_batch != this.nextBatch) {
+            //     //     // as above: we don't care about errors for old
+            //     //     // requests either
+            //     //     return;
+            //     // }
 
-                console.error("Failed to get publicRooms: %s", JSON.stringify(err));
-                // track('Failed to get public room list');
-                // const brand = SdkConfig.get().brand;
-                // this.setState({
-                //     loading: false,
-                //     error: (
-                //         _t('%(brand)s failed to get the public room list.', { brand }) +
-                //         (err && err.message) ? err.message : _t('The homeserver may be unavailable or overloaded.')
-                //     ),
-                // });
-            });
+            //     // if (this._unmounted) {
+            //     //     // if we've been unmounted, we don't care either.
+            //     //     return;
+            //     // }
+
+            //     console.error("Failed to get publicRooms: %s", JSON.stringify(err));
+            //     // track('Failed to get public room list');
+            //     // const brand = SdkConfig.get().brand;
+            //     // this.setState({
+            //     //     loading: false,
+            //     //     error: (
+            //     //         _t('%(brand)s failed to get the public room list.', { brand }) +
+            //     //         (err && err.message) ? err.message : _t('The homeserver may be unavailable or overloaded.')
+            //     //     ),
+            //     // });
+            // });
         },
         clearSearch(){
             this.bShowDelIco = false;
@@ -397,28 +472,34 @@ export default {
     },
     components: {
     },
-    created() {
+    async created() {
+        const res = await common.gmsHomeServers();
+        console.log('+++++域名信息++++++', res);
+        if (res.data && res.data.results) {
+            this.serverList = res.data.results;
+            this.getMoreRooms();
+        }
     },
     mounted() {
     },
-    watch: {
-        matrixSync: {
-            handler: function(val, oldVal) {
-                console.log(1113, val);
-                const vtx = this;
-                if (val) {
-                    console.log(222);
-                    const client = window.mxMatrixClientPeg.matrixClient;
-                    vtx.isEncrypted = vtx.privateShouldBeEncrypted()
-                    client.doesServerForceEncryptionForPreset("private")
-                        .then(isForced => vtx.canChangeEncryption = !isForced);
-                    console.log(333, window.mxMatrixClientPeg.getHomeserverName())
-                    vtx.getMoreRooms();
-                }
-            },
-            immediate: true
-        }
-    },
+    // watch: {
+    //     matrixSync: {
+    //         handler: function(val, oldVal) {
+    //             console.log(1113, val);
+    //             const vtx = this;
+    //             if (val) {
+    //                 console.log(222);
+    //                 const client = window.mxMatrixClientPeg.matrixClient;
+    //                 vtx.isEncrypted = vtx.privateShouldBeEncrypted()
+    //                 client.doesServerForceEncryptionForPreset("private")
+    //                     .then(isForced => vtx.canChangeEncryption = !isForced);
+    //                 console.log(333, window.mxMatrixClientPeg.getHomeserverName())
+    //                 vtx.getMoreRooms();
+    //             }
+    //         },
+    //         immediate: true
+    //     }
+    // },
     computed: {
         ...mapState({
             matrixSync: state => state.common.matrixSync
@@ -461,6 +542,17 @@ export default {
         overflow-y: scroll;
         margin-left: 16px;
         margin-right: 16px;
+    }
+    .room-list-loading {
+        flex: 1;
+        box-sizing: border-box;
+        overflow-y: scroll;
+        margin-left: 16px;
+        margin-right: 16px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #999999;
     }
     .search-logo {
         height: 20px;
@@ -632,6 +724,7 @@ export default {
         box-sizing: border-box;
         background-color: #fff;
         border-bottom: 1px solid #EEEEEE;
+        position: relative;
     }
     .room-img {
         height: 40px;
@@ -653,6 +746,11 @@ export default {
         font-weight: 400;
         color: #000000;
         line-height: 20px;
+        width: 300px; 
+        text-overflow:ellipsis; 
+        overflow:hidden; 
+        white-space:nowrap; 
+        display:block;
     }
     .room-xie2 {
         height: 18px;
@@ -661,8 +759,11 @@ export default {
         font-weight: 400;
         color: #999999;
         line-height: 18px;
-        display: flex;
-        align-items: center;
+        width: 300px; 
+        text-overflow:ellipsis; 
+        overflow:hidden; 
+        white-space:nowrap; 
+        display:block;
     }
     .room-xie4 {
         flex: 1;
@@ -680,10 +781,12 @@ export default {
         align-items: center;
         color: #fff;
         background-color: #24B36B;   
-        margin-left: 160px;
         font-size: 14px;
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
         color: #FFFFFF;
+        position: absolute;
+        right: 0;
+        top: 25px;
     }
 </style>

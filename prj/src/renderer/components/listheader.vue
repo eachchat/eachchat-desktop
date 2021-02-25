@@ -21,7 +21,7 @@
             </div> -->
             <div class="secret-chat" @click.stop="mxSquare()"> <!--@click="showCreateEncryptGroup(true)"-->
                 <img class="secret-chat-img" src="../../../static/Img/Main/jgc.png">
-                <span class="secret-chat-label">公共群聊</span> <!--发起密聊-->
+                <span class="secret-chat-label">发现群聊</span> <!--发起密聊-->
             </div>
         </div>
         <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">

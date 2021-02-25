@@ -124,7 +124,7 @@ export default {
             mxLoc: ''
         }
     },
-    props: ['roomId'],
+    props: ['roomId', 'groupAddress'],
     puborprtTimer: null,
     methods: {
         confirm() {
@@ -188,7 +188,7 @@ export default {
             });
         },
         close: function() {
-            this.$emit('close', 'close')
+            this.$emit('close', 'close', this.serverAddress)
         },
         setJoinRule1(txt) {
             this.joinRule = txt;
@@ -262,6 +262,7 @@ export default {
         this.currentRoom = currentRoom;
         let mxEncryption = client.isRoomEncrypted(roomId);
         this.mxEncryption = mxEncryption;
+        this.serverAddress = this.groupAddress || '';
         client.roomState(roomId).then(stateArr => {
             console.log('---stateArr---', stateArr)
 

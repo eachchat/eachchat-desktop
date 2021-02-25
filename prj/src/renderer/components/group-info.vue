@@ -200,8 +200,8 @@
                         >
                         <div class="memberItemOptions" v-show="item.choosen">
                             <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
-                            <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群管理员</div>
-                            <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50">设为群成员</div>
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 &&  item.powerLevel !== 50">设为群管理员</div>
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 && item.powerLevel !== 0">设为群成员</div>
                             <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=showGroupInfo.totalLevels.canKick">移除成员</div>
                         </div>
                     </div>
