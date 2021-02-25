@@ -480,7 +480,7 @@ ipcMain.on('showReportRelationWindow', function(event, leaders) {
 ipcMain.on("showNotice", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
-  if(process.platform == 'darwin'){
+  if(process.platform == 'darwin' || process.platform == 'linux'){
     if(!mainWindow.isFocused()) {
       if(notification != null) {
         notification.close();
