@@ -32,7 +32,7 @@ let isLogin = false;
 let toHide = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
-  emptyIconPath = "/static/Img/Main/logo-empty.ico";
+  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
   if(process.platform == 'darwin'){
     iconPath = "../../static/Img/Main/IconTemplate@3x.png";
   }
@@ -44,6 +44,7 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "../../static/Img/Main/logo@2x.png";
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
+  emptyIconPath = "/static/Img/Main/logo-notice.png";
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/IconTemplate@3x.png";
   }
@@ -542,6 +543,8 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
       notification.close();
     }, 4000)
     notification.on("click", () => {
+      clearFlashIconTimer();
+      appIcon.setImage(path.join(__dirname, iconPath));
       mainWindow.show();
     })
   }
