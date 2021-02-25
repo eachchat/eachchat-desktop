@@ -13,28 +13,30 @@
                     <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
                     <img style="height:20px; width:20px;" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
                 </div>
-                <div class="room-list-loading" v-if="!publicRooms.length">
+                <div class="room-list-loading" v-if="this.fetching">
                     数据加载中...
                 </div>
                 <div class="room-list" else>
                     <div v-for="item in publicRooms" :key="item.room_id" class="room-item">
                         <img class="room-img" :src="item.distUrl" onerror="this.src = './static/Img/User/group-40px@2x.png'"/>
                         <div class="room-xie">
-                            <div class="room-xie1" v-if="item.name" v-html="searchKeyHightLight(item.name)">{{item.name + '(' + item.num_joined_members + ')'}}</div>
-                            <div style="width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:block;" class="room-xie2" v-if="item.topic">{{item.topic}}</div>
-                            <div class="room-xie2" v-if="item.canonical_alias">
-                                <span>{{item.canonical_alias}}</span>
-                            </div>
+                            <div class="room-xie1" v-if="item.name" v-html="searchKeyHightLight((item.name + '(' + item.num_joined_members + ')'))">{{item.name + '(' + item.num_joined_members + ')'}}</div>
+                            <div class="room-xie2">{{item.room_id || item.roomId}}</div>
+                            <div class="room-xie2" v-if="item.topic">{{item.topic}}</div>
                         </div>
-                        <div class="room-xie4" v-if="!item.joined">
+                        <!-- <div class="room-xie4" v-if="!item.joined">
                             <div class="room-join" @click.stop="joinRoom(item)">
-                                <!-- <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/> -->
                                 <span>加入</span>
                             </div>
                         </div>
                         <div class="room-xie4" v-else>
                             <div class="room-join" @click.stop="checkRoom(item)">查看</div>
+                        </div> -->
+                        <div class="room-join" @click.stop="joinRoom(item)" v-if="!item.joined">
+                            <!-- <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/> -->
+                            <span>加入</span>
                         </div>
+                        <div class="room-join" @click.stop="checkRoom(item)" v-else>查看</div>
                     </div>
                 </div>
             </div>
@@ -66,7 +68,8 @@ export default {
             roomText: '',
             publicRooms: [],
             loading: false,
-            bShowDelIco: false
+            bShowDelIco: false,
+            fetching: false
         }
     },
     timer: null,
@@ -97,7 +100,7 @@ export default {
                 this.close('close');
             })
         },
-        getMoreRooms: function(obj, cover) {
+        getMoreRooms: async function(obj, cover) {
             console.log('--obj--', obj);
             console.log('cover', cover);
             const xie = obj || {limit: 200};
@@ -122,8 +125,37 @@ export default {
             console.log('xie', xie)
             const selfId = client.getUserId();
             console.log('this.serverList >>>>', this.serverList)
+            
             if (this.serverList.length) {
                 let arr = [];
+                this.fetching = true;
+                if (cover) this.publicRooms = [];
+                for(let i=0; i<this.serverList.length; i++) {
+                    let xie2 = {...xie, server:this.serverList[i].serverName}
+                    console.log('xie2>>>>', xie2)
+                    let data = await client.publicRooms(xie2).catch((e)=>{
+                        console.log('+++++error serverName+++++', this.serverList[i].serverName)
+                        this.fetching = false;
+                    })
+                    this.fetching = false;
+                    let chunk = data.chunk;
+                    let rooms = client.getRooms();
+                    console.log('---rooms----', rooms)
+                    chunk = chunk.map(c => {
+                        let r = client.getRoom(c.room_id)
+                        console.log('-------rrrrr-----', r)
+                        if (r) {
+                            if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+                        }
+                        c.roomId = c.room_id;
+                        c.distUrl = './static/Img/User/group-40px@2x.png';
+                        return c;
+                    })
+                    this.publicRooms = [...this.publicRooms, ...chunk];
+                    console.log('---查看数据---', this.publicRooms)
+                }
+
+                return 
                 this.serverList.forEach(s => {
                     if (s.serverName) {
                         let xie2 = {...xie, server:s.serverName}
@@ -692,6 +724,7 @@ export default {
         box-sizing: border-box;
         background-color: #fff;
         border-bottom: 1px solid #EEEEEE;
+        position: relative;
     }
     .room-img {
         height: 40px;
@@ -713,6 +746,11 @@ export default {
         font-weight: 400;
         color: #000000;
         line-height: 20px;
+        width: 300px; 
+        text-overflow:ellipsis; 
+        overflow:hidden; 
+        white-space:nowrap; 
+        display:block;
     }
     .room-xie2 {
         height: 18px;
@@ -721,8 +759,11 @@ export default {
         font-weight: 400;
         color: #999999;
         line-height: 18px;
-        display: flex;
-        align-items: center;
+        width: 300px; 
+        text-overflow:ellipsis; 
+        overflow:hidden; 
+        white-space:nowrap; 
+        display:block;
     }
     .room-xie4 {
         flex: 1;
@@ -740,10 +781,12 @@ export default {
         align-items: center;
         color: #fff;
         background-color: #24B36B;   
-        margin-left: 160px;
         font-size: 14px;
         font-family: PingFangSC-Medium, PingFang SC;
         font-weight: 500;
         color: #FFFFFF;
+        position: absolute;
+        right: 0;
+        top: 25px;
     }
 </style>
