@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === "development") {
   notificationIco = "../../static/Img/Main/logo@2x.png";
 }else{
   iconPath = "/static/Img/Main/logo@2x.ico";
-  emptyIconPath = "/static/Img/Main/logo-notice.png";
+  emptyIconPath = "/static/Img/Main/logo-empty.png";
   if(process.platform == 'darwin'){
     iconPath = "/static/Img/Main/IconTemplate@3x.png";
   }
