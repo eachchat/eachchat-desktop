@@ -4121,7 +4121,7 @@ export default {
 
     .chat-name {
         height: 32px;
-        max-width: 150px;
+        max-width: 250px;
         line-height: 32px;
         margin:0px 0px 0px 0px;
         float: left;
