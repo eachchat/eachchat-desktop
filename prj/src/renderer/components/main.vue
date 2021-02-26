@@ -1,7 +1,7 @@
 <template>
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
-            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :isNormal="false" v-show="!isFullScreen"></mac-window-header>
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :isNormal="isNormal" v-show="!isFullScreen"></mac-window-header>
             <div class="User">
                 <img class="login-logo" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
             </div>
@@ -107,6 +107,7 @@ export default {
     },
     data () {
         return {
+            isNormal: true,
             isFullScreen: false,
             toSaveDraft: 0,
             navEnable: true,
@@ -770,6 +771,9 @@ export default {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
         ipcRenderer.on('toLogout', this.softLogout);
         ipcRenderer.on('setIsFullScreen', this.setFullScreen);
+        ipcRenderer.on('isNormal', (e, isNormal) => {
+            this.isNormal = isNormal;
+        })
         console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
         await this.getAppBaseData();
         //this.startCheckUpgrade();

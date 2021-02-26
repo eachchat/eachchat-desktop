@@ -1,7 +1,7 @@
 <template>
     <div class="imageViewerPage">
         <div class="imageWindowHeader">
-            <macImageWinHeadbar class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></macImageWinHeadbar>
+            <macImageWinHeadbar class="macWindowHeader" :isNormal="isNormal" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></macImageWinHeadbar>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
         </div>
         <div class="imageBox" id="imageBoxId" @mousedown="holeDown" @mouseup="holeUp">
@@ -404,9 +404,13 @@ export default {
                 }
             }
         },
+        setHeaderState(ev, state) {
+            this.isNormal = state;
+        },
     },
     data() {
         return {
+            isNormal: true,
             ImageInfos: [],
             curImage: {},
             stageElement: undefined,
@@ -474,6 +478,7 @@ export default {
                 }
             }
 
+            ipcRenderer.on('isNormal', this.setHeaderState)
             let style = "";
             style += "width:" + this.curImage.info.w + "px";
             style += ";"

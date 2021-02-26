@@ -244,16 +244,16 @@
         </div>
         <div class="chat-empty" v-show="isEmpty">
           <div class="win-header-white">
-            <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
+            <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
           <img class="chat-empty-bg" v-show="isEmpty" src="../../../static/Img/Chat/empyt2@2x.png">
         </div>
         <div class="chat" id="chat-page-id" v-show="!isEmpty">
           <div class="win-header" v-show="!isMsgSearch">
-            <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
+            <winHeaderBar @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
           </div>
           <div class="win-header-white" v-show="isMsgSearch">
-            <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
+            <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
           <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
         </div>
@@ -605,6 +605,7 @@ export default {
   },
   data() {
     return {
+      isNormal: true,
       showSearchAllDMChat: true,
       searchDMChatItems: [],
       showAllSearchAllDMChat: false,
@@ -1538,6 +1539,7 @@ export default {
       ipcRenderer.send("win-min");
     },
     Max: function() {
+      console.log("=======ipcmax")
       ipcRenderer.send("win-max");
     },
     scrollToDistPosition(distGroup) {
@@ -3442,6 +3444,10 @@ export default {
       }
       this.isBlure = false;
     },
+    setHeaderState(ev, state) {
+      console.log("state is ", state)
+      this.isNormal = state;
+    },
     async callback(msg, isUpdate=false) {
       
     },
@@ -3464,6 +3470,7 @@ export default {
     ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
     ipcRenderer.on('isFocuse', this.curWindowIsFocuse)
+    ipcRenderer.on('isNormal', this.setHeaderState)
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);

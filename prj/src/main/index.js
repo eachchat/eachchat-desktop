@@ -378,6 +378,7 @@ ipcMain.on('imageViewerTransmit', function(event, toTransmitEvent) {
 });
 
 ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
+  console.log("=======showImageViewWindow")
   // assistWindow.webContents.on('did-finish-load', function() {
   assistWindow.webContents.send("timelines", imageInfos, distImageInfo, screenSize);
   // });
@@ -386,6 +387,7 @@ ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
 })
 
 ipcMain.on('showPersonalImageViewWindow', function(event, url) {
+  console.log("=======showPersonalImageViewWindow")
   // assistWindow.webContents.on('did-finish-load', function() {
   assistWindow.webContents.send("personalUrl", url, screenSize);
   // });
@@ -1087,6 +1089,7 @@ ipcMain.on('win-min', function(event, arg) {
 });
 
 ipcMain.on('win-max', function(event, arg) {
+  console.log("=====index win-max");
   if(process.platform == 'darwin') {
     mainWindow.webContents.send("setIsFullScreen", true);
     mainWindow.setFullScreen(true);
@@ -1095,11 +1098,21 @@ ipcMain.on('win-max', function(event, arg) {
     mainWindow.setWindowButtonVisibility(true);
   }
   else {
-    if(assistWindow.isMaximized()) {
-      assistWindow.unmaximize();
+    if(assistWindow && assistWindow.isVisible()) {
+      if(assistWindow.isMaximized()) {
+        assistWindow.unmaximize();
+      }
+      else {
+        assistWindow.maximize();
+      }
     }
-    else {
-      assistWindow.maximize();
+    else if(mainWindow.isVisible()) {
+      if(mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+      }
+      else {
+        mainWindow.maximize();
+      }
     }
   }
 });
@@ -1209,6 +1222,16 @@ function createWindow () {
   })
   assistWindow.loadURL(imgViewPageWinURL);
   openDevToolsInDevelopment(assistWindow);
+  
+  assistWindow.on('unmaximize', (event) => {
+    console.log("unmaximize")
+    assistWindow.webContents.send("isNormal", true);
+  })
+
+  assistWindow.on('maximize', (event) => {
+    console.log("maximize")
+    assistWindow.webContents.send("isNormal", false);
+  })
 }
 
 ipcMain.on("openDevTools", function(event) {
@@ -1282,6 +1305,17 @@ function openDevToolsInDevelopment(mainWindow) {
       }
     }
   })
+
+  mainWindow.on('unmaximize', (event) => {
+    console.log("unmaximize")
+    mainWindow.webContents.send("isNormal", true);
+  })
+
+  mainWindow.on('maximize', (event) => {
+    console.log("maximize")
+    mainWindow.webContents.send("isNormal", false);
+  })
+
 }
 
 app.on('ready', createWindow)

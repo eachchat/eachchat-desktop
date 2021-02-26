@@ -1,8 +1,9 @@
 <template>
     <div class="ChatHeaderBar" v-show="isWindows()">
-        <img class="header-btn-close" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" v-show="showClose">
-        <img class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px@2x.png" @click="Max()" v-show="showMax">
-        <img class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px@2x.png" @click="Min()" v-show="showMin">
+        <img ondragstart="return false"  class="header-btn-close" src="../../../static/Img/Main/WinClose-20px@2x.png" @click="Close()" v-show="showClose">
+        <img ondragstart="return false"  class="header-btn-max" src="../../../static/Img/Main/WinZoom-20px@2x.png" @click="Max()" v-show="showMax" v-if="isNormal">
+        <img ondragstart="return false" class="header-btn-max" src="../../../static/Img/Main/winzoommax-20px@2x.png" @click="Max()" v-show="showMax"  v-else>
+        <img ondragstart="return false" class="header-btn-min" src="../../../static/Img/Main/WinMinimise-20px@2x.png" @click="Min()" v-show="showMin">
     </div>
 </template>
 
@@ -21,6 +22,10 @@ export default {
             default: true
         },
         showMin: {
+            type: Boolean,
+            default: true
+        },
+        isNormal: {
             type: Boolean,
             default: true
         }
@@ -53,6 +58,8 @@ export default {
             // ipcRenderer.send("win-close");
         },
         Max: function() {
+            this.isNormal = !this.isNormal;
+            console.log("=======max")
             this.$emit("Max");
             // ipcRenderer.send("win-max");
         }
