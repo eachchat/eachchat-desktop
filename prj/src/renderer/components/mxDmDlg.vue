@@ -31,7 +31,7 @@
                         <!-- <i class="el-icon-search"></i> -->
                         <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                     </div>
-                    <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
+                    <input @contextmenu.prevent="openBaseMenu" @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
                     <img v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
                 </div>
                 <!-- <div class="crumbs" v-show="crumbs.length > 1">
@@ -143,7 +143,7 @@ import * as RoomUtil from '../script/room-util';
 import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import {getAddressType} from "../../utils/UserAddress";
 import {ComponentUtil} from '../script/component-util';
-
+import { openBaseMenu } from '../../utils/commonFuncs'
 
 const OPTS = {
     limit: 200,
@@ -186,6 +186,7 @@ export default {
     },
     timer: null,
     methods: {
+        openBaseMenu,
         RejectRoom: function() {
             const roomId = this.queRoomId;
             global.mxMatrixClientPeg.matrixClient.leave(roomId);
