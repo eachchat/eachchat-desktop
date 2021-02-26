@@ -1,0 +1,7 @@
+前提：
+    1.证书。目前用的朋旭早些时候申请的一个证书（cert.p12，双击打开钥匙扣，密码123456）
+    2.公证用的账号密码。目前用的程方的开发者账号生成的一个用于公证的 账号密码
+
+修改点：
+    1.electron-builder需要升级到21.2.0，然后这个版本的builder在做签名时候会有bug，需要对node_modules/app-builder-lib/electron-osx-sign/sign.js做修改。可用同级目录中的sign.js做替换
+    2.yarn run build
