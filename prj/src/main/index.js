@@ -143,6 +143,8 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       label: "退出",
       click: function() {
         clickQuit = true;
+        clearFlashIconTimer();
+        setImgToNormalIcon()
         app.quit();
       }
     }
@@ -250,6 +252,8 @@ ipcMain.on("token-expired", function(event, arg) {
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   isLogin = false;
+  clearFlashIconTimer();
+  setImgToNormalIcon()
   if(mainWindow.isFullScreen()) {
     mainWindow.setFullScreen(false);
     toHide = false;
