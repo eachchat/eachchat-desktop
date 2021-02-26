@@ -140,24 +140,28 @@ export default {
                         this.fetching = false;
                     })
                     this.fetching = false;
-                    let chunk = data.chunk;
-                    let rooms = client.getRooms();
-                    console.log('---rooms----', rooms)
-                    chunk = chunk.map(c => {
-                        let r = client.getRoom(c.room_id)
-                        console.log('-------rrrrr-----', r)
-                        if (r) {
-                            if (r.currentState.members[selfId].membership === 'join') c.joined = true;
-                        }
-                        c.roomId = c.room_id;
-                        c.distUrl = './static/Img/User/group-40px@2x.png';
-                        return c;
-                    })
-                    this.publicRooms = [...this.publicRooms, ...chunk];
-                    console.log('---查看数据---', this.publicRooms)
+                    console.log('data~~~~~~~', data);
+                    if (data && data.chunk) {
+                        let chunk = data.chunk;
+                        let rooms = client.getRooms();
+                        console.log('---rooms----', rooms)
+                        chunk = chunk.map(c => {
+                            let r = client.getRoom(c.room_id)
+                            console.log('-------rrrrr-----', r)
+                            if (r) {
+                                if (r.currentState.members[selfId].membership === 'join') c.joined = true;
+                            }
+                            c.roomId = c.room_id;
+                            c.distUrl = './static/Img/User/group-40px@2x.png';
+                            return c;
+                        })
+                        this.publicRooms = [...this.publicRooms, ...chunk];
+                        console.log('---查看数据---', this.publicRooms)
+                    }
                 }
 
-                return 
+                return;
+
                 this.serverList.forEach(s => {
                     if (s.serverName) {
                         let xie2 = {...xie, server:s.serverName}
