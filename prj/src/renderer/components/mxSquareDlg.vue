@@ -10,7 +10,7 @@
                     <div class="search-logo">
                         <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                     </div>
-                    <input @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
+                    <input @contextmenu.prevent="openBaseMenu" @input="searchRoom" v-model="roomText" class="search-input" type="text" placeholder="搜索">
                     <img style="height:20px; width:20px;" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
                 </div>
                 <div class="room-list-loading" v-if="this.fetching">
@@ -50,6 +50,7 @@ const E2EE_WK_KEY_DEPRECATED = "im.vector.riot.e2ee";
 import {getAddressType} from "../../utils/UserAddress";
 import { mapState, mapActions } from 'vuex';
 import { common } from '../../packages/data/services.js';
+import { openBaseMenu } from '../../utils/commonFuncs'
 const OPTS = {
     limit: 200,
 };
@@ -74,6 +75,7 @@ export default {
     },
     timer: null,
     methods: {
+        openBaseMenu,
         searchKeyHightLight(content){
             return content.replace(this.roomText, function(item) {
                 return '<span style="color:rgba(0, 169, 113, 1);">' + item + "</span>"; 
