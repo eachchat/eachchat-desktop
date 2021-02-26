@@ -250,6 +250,10 @@ ipcMain.on("token-expired", function(event, arg) {
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   isLogin = false;
+  if(mainWindow.isFullScreen()) {
+    mainWindow.setFullScreen(false);
+    toHide = false;
+  }
   Menu.setApplicationMenu(null)
   //mainWindow.hide();
   mainWindow.setResizable(true);
