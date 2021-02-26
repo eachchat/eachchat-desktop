@@ -16,7 +16,7 @@
                             <!-- <i class="el-icon-search"></i> -->
                             <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                         </div>
-                        <input @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
+                        <input @contextmenu.prevent="openBaseMenu" @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
                         <div class="search-logo">
                             <img style="height:20px; width:20px;" v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
                         </div>
@@ -219,6 +219,7 @@ import {Contact, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import {ComponentUtil} from '../script/component-util';
 import {common} from '../../packages/data/services.js';
 import {getAddressType} from "../../utils/UserAddress";
+import { openBaseMenu } from '../../utils/commonFuncs'
 
 
 let gtn = 0;
@@ -288,6 +289,7 @@ export default {
     },
     timer: null,
     methods: {
+        openBaseMenu,
         searchKeyHightLight(content){
             return content.replace(this.memText, function(item) {
                 return '<span style="color:rgba(0, 169, 113, 1);">' + item + "</span>"; 
