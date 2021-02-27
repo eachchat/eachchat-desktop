@@ -21,7 +21,7 @@
                         <img class="room-img" :src="item.distUrl" onerror="this.src = './static/Img/User/group-40px@2x.png'"/>
                         <div class="room-xie">
                             <div class="room-xie1" v-if="item.name" v-html="searchKeyHightLight((item.name + '(' + item.num_joined_members + ')'))">{{item.name + '(' + item.num_joined_members + ')'}}</div>
-                            <div class="room-xie2">{{item.room_id || item.roomId}}</div>
+                            <div class="room-xie2" v-if="item.canonical_alias">{{item.canonical_alias}}</div>
                             <div class="room-xie2" v-if="item.topic">{{item.topic}}</div>
                         </div>
                         <!-- <div class="room-xie4" v-if="!item.joined">
