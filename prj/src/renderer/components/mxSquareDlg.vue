@@ -22,6 +22,7 @@
                         <div class="room-xie">
                             <div class="room-xie1" v-if="item.name" v-html="searchKeyHightLight((item.name + '(' + item.num_joined_members + ')'))">{{item.name + '(' + item.num_joined_members + ')'}}</div>
                             <div class="room-xie2" v-if="item.canonical_alias">{{item.canonical_alias}}</div>
+                            <!-- <div class="room-xie2">{{item.roomId}}</div> -->
                             <div class="room-xie2" v-if="item.topic">{{item.topic}}</div>
                         </div>
                         <!-- <div class="room-xie4" v-if="!item.joined">
@@ -127,16 +128,24 @@ export default {
             console.log('xie', xie)
             const selfId = client.getUserId();
             console.log('this.serverList >>>>', this.serverList)
-            
-            if (this.serverList.length) {
+            let d = selfId.split(':')[1];
+            console.log('selfId >>>>>', selfId)
+            console.log('d >>>>>>', d)
+            let serverList = [d];
+            if (cover) {
+                serverList = [...this.serverList]
+            }
+            if (serverList.length) {
                 let arr = [];
                 this.fetching = true;
-                if (cover) this.publicRooms = [];
-                for(let i=0; i<this.serverList.length; i++) {
-                    let xie2 = {...xie, server:this.serverList[i].serverName}
+                // if (cover) this.publicRooms = [];
+                let publicRooms = [];
+                this.publicRooms = [];
+                for(let i=0; i<serverList.length; i++) {
+                    let xie2 = {...xie, server:serverList[i].serverName}
                     console.log('xie2>>>>', xie2)
                     let data = await client.publicRooms(xie2).catch((e)=>{
-                        console.log('+++++error serverName+++++', this.serverList[i].serverName)
+                        console.log('+++++error serverName+++++', serverList[i].serverName)
                         this.fetching = false;
                     })
                     this.fetching = false;
@@ -155,14 +164,15 @@ export default {
                             c.distUrl = './static/Img/User/group-40px@2x.png';
                             return c;
                         })
-                        this.publicRooms = [...this.publicRooms, ...chunk];
-                        console.log('---查看数据---', this.publicRooms)
+                        publicRooms = [...publicRooms, ...chunk];
                     }
                 }
 
+                this.publicRooms = [...publicRooms];
+
                 return;
 
-                this.serverList.forEach(s => {
+                serverList.forEach(s => {
                     if (s.serverName) {
                         let xie2 = {...xie, server:s.serverName}
                         console.log('xie2>>>>', xie2)
@@ -269,16 +279,21 @@ export default {
 
         searchRoom: function() {
             const roomText = this.roomText;
-            if(roomText.length == 0)
+            let cover = false;
+            if(roomText.length == 0) {
                 this.bShowDelIco = false;
-            else
+            } else {
                 this.bShowDelIco = true;
+                cover = true;
+            }
             if (this.timer) clearTimeout(this.timer);
+            console.log('-----roomText----', roomText.length);
+
             this.timer = setTimeout(()=>{
                 console.log('---opts---', OPTS)
                 if (OPTS.filter) delete OPTS.filter;
                 if (roomText) OPTS.filter = {generic_search_term: roomText};
-                this.getMoreRooms(OPTS, true)
+                this.getMoreRooms(OPTS, cover)
             },320)
         },
         close: function(room) {
