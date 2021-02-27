@@ -2737,12 +2737,14 @@ const common = {
     return result;
   },
 
-  async gmsHomeServers() {
-    var host = global.localStorage.getItem("app_server");
-    var response = await axios.post(host + "/gms/v1/matrix/servernames", 
+  async gmsHomeServers(filter) {
+    //var host = global.localStorage.getItem("app_server");
+    var response = await axios.post("https://gms.each.chat/gms/v1/matrix/servernames", 
       {
+        filters: filter,
         sortOrder: 1,
-        sequenceId: 0
+        sequenceId: 0,
+        perPage: 50
       }
     );
     console.log("============== response is ", response);

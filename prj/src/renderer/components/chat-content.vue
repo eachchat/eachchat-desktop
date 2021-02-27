@@ -699,7 +699,7 @@ export default {
     updateNotificationState() {
       for(let i in this.dealShowGroupList){
         this.showGroupIconName(this.dealShowGroupList[i]);
-        var dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.dealShowGroupList[i].roomId));
+        let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.dealShowGroupList[i].roomId));
         let isMute = this.groupIsSlienceThroughRoomId(this.dealShowGroupList[i].roomId);
         if(isMute && dist.style.display == "none") {
           dist.style.display = "block";
@@ -710,7 +710,7 @@ export default {
       }
       for(let i in this.favouriteRooms){
         this.showGroupIconName(this.favouriteRooms[i]);
-        var dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.favouriteRooms[i].roomId));
+        let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.favouriteRooms[i].roomId));
         let isMute = this.groupIsSlienceThroughRoomId(this.favouriteRooms[i].roomId);
         if(isMute && dist.style.display == "none") {
           dist.style.display = "block";
@@ -721,7 +721,7 @@ export default {
       }
       for(let i in this.lowPriorityGroupList){
         this.showGroupIconName(this.lowPriorityGroupList[i]);
-        var dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.lowPriorityGroupList[i].roomId));
+        let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.lowPriorityGroupList[i].roomId));
         let isMute = this.groupIsSlienceThroughRoomId(this.lowPriorityGroupList[i].roomId);
         if(isMute && dist.style.display == "none") {
           dist.style.display = "block";
