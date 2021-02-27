@@ -142,9 +142,12 @@ export default {
             // const guestAccess = this.guestAccess;
             let promises = [];
             let p1 = window.mxMatrixClientPeg.matrixClient.createAlias(address, roomId).then(()=>{
-                console.log('success!!@')
+                console.log('success!!@');
+                window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.canonical_alias", {
+                    alias: address,
+                }, "").then(()=>{console.log('dangdangdang')});
             }).catch((e) => {
-                console.error(e);
+                console.error('抓住了吗', e);
             });
             let p2 = window.mxMatrixClientPeg.matrixClient.sendStateEvent(roomId, "m.room.join_rules", {join_rule: joinRule}, "").catch((e) => {
                 console.error(e);
@@ -263,6 +266,9 @@ export default {
         let mxEncryption = client.isRoomEncrypted(roomId);
         this.mxEncryption = mxEncryption;
         this.serverAddress = this.groupAddress || '';
+        const canonicalAliasEvent = this.currentRoom.currentState.getStateEvents("m.room.canonical_alias", '');
+        const content = canonicalAliasEvent.getContent();
+        console.log('+++++content++++++', content)
         client.roomState(roomId).then(stateArr => {
             console.log('---stateArr---', stateArr)
 
