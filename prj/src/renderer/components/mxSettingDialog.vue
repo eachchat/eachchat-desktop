@@ -124,7 +124,7 @@ export default {
             mxLoc: ''
         }
     },
-    props: ['roomId', 'groupAddress'],
+    props: ['roomId'],
     puborprtTimer: null,
     methods: {
         confirm() {
@@ -191,7 +191,7 @@ export default {
             });
         },
         close: function() {
-            this.$emit('close', 'close', this.serverAddress)
+            this.$emit('close', 'close')
         },
         setJoinRule1(txt) {
             this.joinRule = txt;
@@ -265,9 +265,14 @@ export default {
         this.currentRoom = currentRoom;
         let mxEncryption = client.isRoomEncrypted(roomId);
         this.mxEncryption = mxEncryption;
-        this.serverAddress = this.groupAddress || '';
+        // this.serverAddress = this.groupAddress || '';
         const canonicalAliasEvent = this.currentRoom.currentState.getStateEvents("m.room.canonical_alias", '');
-        const content = canonicalAliasEvent.getContent();
+        console.log('canonicalAliasEvent>>>>>', canonicalAliasEvent);
+        const content = canonicalAliasEvent ? canonicalAliasEvent.getContent() : '';
+        if (content && content.alias) {
+            let serverAddress = content.alias.split(':')[0].slice(1);
+            this.serverAddress = serverAddress;
+        }
         console.log('+++++content++++++', content)
         client.roomState(roomId).then(stateArr => {
             console.log('---stateArr---', stateArr)

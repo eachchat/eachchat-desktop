@@ -149,7 +149,7 @@
                 <span class="history-file-label">文件</span>
             </div>
         </div>
-        <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId" :groupAddress="groupAddress"></mxSettingDialog>
+        <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="curChat.roomId"></mxChatInfoDlg>
         <mxChatTopicDlg v-if="mxChatTopic" @close="mxChatTopicDlgSetting" :roomId="curChat.roomId"></mxChatTopicDlg>
         <!-- <mxMemberSelectDlg 
@@ -484,7 +484,6 @@ export default {
             this.mxChatTopic = true;
         },
         mxRoomSetting: function(close, serverAddress) {
-            if (serverAddress) this.groupAddress = serverAddress;
             if (close) {
                 return this.mxRoomDlg = false;
                 console.log('closeeeeeeee')
@@ -3798,7 +3797,6 @@ export default {
             mxSelectMemberOpen: false,
             isDm: false,
             initSearchKey: '',
-            groupAddress: ''
         }
     },
     mounted: function() {
@@ -3840,16 +3838,6 @@ export default {
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         this.services = global.services.common;
-        if (this.chat && this.chat.roomId) {
-            const roomId = this.chat.roomId;
-            const v = await global.mxMatrixClientPeg.matrixClient.unstableGetLocalAliases(roomId);
-            if (v && v.aliases && v.aliases.length) {
-                let groupAddress = v.aliases[v.aliases.length - 1]
-                groupAddress = groupAddress.split(':')[0];
-                groupAddress = groupAddress.slice(1);
-                this.groupAddress = groupAddress;
-            }
-        }
     },
     computed: {
         messageListShow: {
