@@ -479,7 +479,10 @@ export default {
     components: {
     },
     async created() {
-        const res = await common.gmsHomeServers();
+        console.log('localStorage.getItem >>>>> ', localStorage.getItem('Domain'))
+        let value = localStorage.getItem('Domain') || '';
+        let filter = [{"operator":"eq","value":value,"logic":1,"field":"tenantName"}];
+        const res = await common.gmsHomeServers(filter);
         console.log('+++++域名信息++++++', res);
         if (res.data && res.data.results) {
             this.serverList = res.data.results;
