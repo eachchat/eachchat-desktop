@@ -1231,11 +1231,11 @@ export default {
         this.ownerId = this.showGroupInfo.ownerId;
         document.addEventListener('click', this.updateCursorPosition);
 
-        roomId && global.mxMatrixClientPeg.matrixClient.unstableGetLocalAliases(roomId).then((v) => {
-            if (v && v.aliases && v.aliases.length) {
-                this.groupAddress = v.aliases[v.aliases.length - 1]
-            }
-        })
+        const canonicalAliasEvent = this.currentRoom.currentState.getStateEvents("m.room.canonical_alias", '');
+        const content = canonicalAliasEvent ? canonicalAliasEvent.getContent() : '';
+        if (content && content.alias) {
+            this.groupAddress = content.alias || ''
+        }
 
         // this.$nextTick(()=>{
         //     this.getMemberImage();
