@@ -512,7 +512,7 @@ export default {
         margin-top: 0px;
         margin-bottom: 2.5px;
         margin-right: 0px;
-        margin-left: 0px;
+        margin-left: 8px;
         color: rgb(211, 211, 211)
     }
 

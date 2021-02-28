@@ -690,10 +690,7 @@ display: none;
 
 .chat-tool-invite-div {
     display: inline-block;
-    vertical-align:middle;
-    float: right;
-    width: 50px;
-    height: 30px;
+    margin-left: 8px;
 }
 
 .departmentsdiv{
