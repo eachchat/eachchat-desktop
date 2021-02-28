@@ -255,7 +255,7 @@
           <div class="win-header-white" v-show="isMsgSearch">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
+          <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" :updateRoomStata="updateRoomStata" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -605,6 +605,7 @@ export default {
   },
   data() {
     return {
+      updateRoomStata: 0,
       isNormal: true,
       showSearchAllDMChat: true,
       searchDMChatItems: [],
@@ -692,15 +693,18 @@ export default {
   },
   methods: {
     handleAccountDataUpdate(ev) {
+      console.log("ev is ", ev.getContent().global.room);
       if (ev.getType() === "m.push_rules") {
+        console.log("handleAccountDataUpdate ")
         this.updateNotificationState();
       }
     },
     updateNotificationState() {
-      for(let i in this.dealShowGroupList){
-        this.showGroupIconName(this.dealShowGroupList[i]);
-        let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.dealShowGroupList[i].roomId));
-        let isMute = this.groupIsSlienceThroughRoomId(this.dealShowGroupList[i].roomId);
+      this.updateRoomStata+=1;
+      for(let i in this.favouriteRooms){
+        this.showGroupIconName(this.favouriteRooms[i]);
+        let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.favouriteRooms[i].roomId));
+        let isMute = this.groupIsSlienceThroughRoomId(this.favouriteRooms[i].roomId);
         if(isMute && dist.style.display == "none") {
           dist.style.display = "block";
         }
@@ -708,10 +712,10 @@ export default {
           dist.style.display = "none";
         }
       }
-      for(let i in this.favouriteRooms){
-        this.showGroupIconName(this.favouriteRooms[i]);
-        let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.favouriteRooms[i].roomId));
-        let isMute = this.groupIsSlienceThroughRoomId(this.favouriteRooms[i].roomId);
+      for(let i in this.dealShowGroupList){
+        this.showGroupIconName(this.dealShowGroupList[i]);
+        let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.dealShowGroupList[i].roomId));
+        let isMute = this.groupIsSlienceThroughRoomId(this.dealShowGroupList[i].roomId);
         if(isMute && dist.style.display == "none") {
           dist.style.display = "block";
         }

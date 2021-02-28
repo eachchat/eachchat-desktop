@@ -3848,8 +3848,11 @@ export default {
             }
         }
     },
-    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg'],
+    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg', 'updateRoomStata'],
     watch: {
+        updateRoomStata: function() {
+            this.groupIsSlience();
+        },
         updateImg: function() {
             this.updateUser++;
         },
