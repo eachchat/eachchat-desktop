@@ -162,6 +162,7 @@ export default {
                             }
                             c.roomId = c.room_id;
                             c.distUrl = './static/Img/User/group-40px@2x.png';
+                            c.distUrl = c.avatar_url ? client.mxcUrlToHttp(c.avatar_url) : './static/Img/User/group-40px@2x.png';
                             return c;
                         })
                         publicRooms = [...publicRooms, ...chunk];
