@@ -161,7 +161,6 @@ export default {
                                 if (r.currentState.members[selfId].membership === 'join') c.joined = true;
                             }
                             c.roomId = c.room_id;
-                            c.distUrl = './static/Img/User/group-40px@2x.png';
                             c.distUrl = c.avatar_url ? client.mxcUrlToHttp(c.avatar_url) : './static/Img/User/group-40px@2x.png';
                             return c;
                         })
@@ -197,7 +196,7 @@ export default {
                                 if (r.currentState.members[selfId].membership === 'join') c.joined = true;
                             }
                             c.roomId = c.room_id;
-                            c.distUrl = './static/Img/User/group-40px@2x.png';
+                            c.distUrl = c.avatar_url ? client.mxcUrlToHttp(c.avatar_url) : './static/Img/User/group-40px@2x.png';
                             return c;
                         })
                         if (cover) return this.publicRooms = [...chunk];
