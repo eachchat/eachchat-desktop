@@ -1688,7 +1688,7 @@ export default {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let o = xie1.currentState.members[key];
                 let obj = {...o, choosen:false}
-                if (obj.membership != 'leave') mxMembers.push(obj);
+                if (obj.membership != 'leave' && obj.membership != 'invite') mxMembers.push(obj);
             }
             return mxMembers.length;
         },
