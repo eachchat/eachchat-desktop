@@ -59,7 +59,7 @@
             </div>
             <div v-show="!showSearchView" class = 'departmentsdiv'>
                 <ul class="departments-list">
-                    <li class="department"
+                    <li :class='["department", {"active-tab": this.activeTab == "invite"}]'
                         @click="inviteRoomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
                         <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
@@ -70,7 +70,7 @@
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </li>
-                    <li class="department"
+                    <li :class='["department", {"active-tab": this.activeTab == "groupchat"}]'
                         @click="roomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
                             <p class="department-name">群聊</p>
@@ -79,7 +79,7 @@
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </li>
-                    <li class="department"
+                    <li :class='["department", {"active-tab": this.activeTab == "department"}]'
                         @click="departmentMenuItemClicked(departmentMenu)">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
                             <p class="department-name">{{ departmentMenu.display_name }}</p>
@@ -216,7 +216,8 @@ export default {
             alertContents: {},
             showChatContactDlg: false,
             showInputContactDlg: false,
-            cleanSearchKey: false
+            cleanSearchKey: false,
+            activeTab: ''
         }
     },
     methods: {  
@@ -501,6 +502,7 @@ export default {
         },
         
         roomItemClick(){
+            this.activeTab = "groupchat"
             this.bOrganizeShow = false;
             this.bContactRoomShow = true;
             this.bInviteRoomShow = false;
@@ -508,6 +510,7 @@ export default {
         },
 
         inviteRoomItemClick(){
+            this.activeTab = 'invite'
             this.bOrganizeShow = false;
             this.bContactRoomShow = false;
             this.bInviteRoomShow = true;
@@ -515,6 +518,7 @@ export default {
         },
 
         departmentMenuItemClicked(department) {
+            this.activeTab = 'department'
             if(department.display_name == this.organizeMenuName){
                 //组织架构模板
                 this.bOrganizeShow = true;
@@ -627,6 +631,11 @@ export default {
 //     background-color: #A8A8A8;
 //     border-radius: 10px;
 // }
+
+.active-tab.active-tab.active-tab{
+    background-color: #dddddd;
+}
+
 ::-webkit-scrollbar {
 /*隐藏滚轮*/
 display: none;
