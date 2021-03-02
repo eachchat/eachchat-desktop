@@ -8,7 +8,8 @@
             </div>
             <div class="list-content">
                 <div class="organization-view">
-                    <div class="item" @click="messageMenuItemClicked()">
+                    <div :class='["item", {"active-tab": this.favouriteType == "message"}]'
+                        @click="messageMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/message@2x.png">
                         <div class="item-info">
                             <p class="item-title">消息</p>
@@ -19,7 +20,8 @@
                     </div>
                 </div>
                 <div class="organization-view">
-                    <div class="item" @click="imageMenuItemClicked()">
+                    <div :class='["item", {"active-tab": this.favouriteType == "image"}]'
+                        @click="imageMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/Image@2x.png">
                         <div class="item-info">
                             <p class="item-title">图片</p>
@@ -30,7 +32,9 @@
                     </div>
                 </div>
                 <div class="organization-view">
-                    <div class="item" @click="fileMenuItemClicked()">
+                    <div 
+                        :class='["item", {"active-tab": this.favouriteType == "file"}]'
+                        @click="fileMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/file@2x.png">
                         <div class="item-info">
                             <p class="item-title">文件</p>
@@ -156,6 +160,12 @@ export default {
 /*隐藏滚轮*/
 display: none;
 }
+
+
+.active-tab.active-tab.active-tab{
+    background-color: #dddddd;
+}
+
 .list-header {
     width: 100%;
     height: 56px;

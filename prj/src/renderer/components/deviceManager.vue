@@ -331,7 +331,7 @@ export default {
 
     .sessionItem {
         width: 100%;
-        height: 60px;
+        min-height: 60px;
         padding: 7px 0px 7px 0px;
         border-bottom: 1px solid rgba(238, 238, 238, 1);
     }
@@ -364,13 +364,11 @@ export default {
 
     .sessionNameDiv {
         max-width: 100%;
-        height: 20px;
     }
 
     .sessionName {
         display: inline-block;
         max-width: 80%;
-        height: 20px;
         line-height: 20px;
         font-size: 14px;
         color: rgba(51, 51, 51, 1);
