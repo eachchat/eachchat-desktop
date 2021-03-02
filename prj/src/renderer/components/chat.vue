@@ -2960,14 +2960,14 @@ export default {
                 let events = levelObj.events;
                 console.log('......levelObj', levelObj);
                 console.log('.....enents', events);
-                if (levelObj.ban) canBan = levelObj.ban;
-                if (events && events['m.room.name']) canName = events['m.room.name'];
-                if (events && events['m.room.server_acl']) canServer = events['m.room.server_acl'];
-                if (events && events['m.room.history_visibility']) canHistory = events['history_visibility'];
-                if (events && events['m.room.encryption']) canEncryption = events['m.room.encryption'];
-                if (events && events['m.room.avatar']) canAvatar = events['m.room.avatar'];
-                if (levelObj.kick) canKick = levelObj.kick;
-                if (levelObj.invite) canInvite = levelObj.invite;
+                if (levelObj) canBan = levelObj.ban;
+                if (events) canName = events['m.room.name'];
+                if (events) canServer = events['m.room.server_acl'];
+                if (events) canHistory = events['history_visibility'];
+                if (events) canEncryption = events['m.room.encryption'];
+                if (events) canAvatar = events['m.room.avatar'];
+                if (levelObj) canKick = levelObj.kick;
+                if (levelObj) canInvite = levelObj.invite;
 
             }
             const totalLevels = {canInvite, canKick, canAvatar, canEncryption, canHistory, canServer, canName, canBan};
