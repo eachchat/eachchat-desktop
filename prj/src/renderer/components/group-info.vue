@@ -1241,6 +1241,8 @@ export default {
         //     this.getMemberImage();
         // })
         this.firstLoad = true;
+        console.log('showGroupInfo.userLevel',    showGroupInfo.userLevel);
+        console.log('showGroupInfo.totalLevels' , showGroupInfo.totalLevels);
     },
     watch: {
         // showGroupInfoTips: function() {
