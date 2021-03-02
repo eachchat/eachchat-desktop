@@ -988,27 +988,29 @@ export default {
       })
       ipcRenderer.send("updateUnreadCount", this.unreadCount);
     },
-    
+    getLastMsgTime(room) {
+      if(room.timeline) {
+        for(var i=room.timeline.length-1;i>=0;i--) {
+          var timeLineTmp = room.timeline[i];
+          if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
+              return timeLineTmp.event.origin_server_ts;
+          }
+          continue;
+        }
+      }
+      if(room.distTimeLine && room.distTimeLine.event.origin_server_ts) {
+        return room.distTimeLine.event.origin_server_ts;
+      }
+      return 0;
+    },
     SortGroupByTimeLine(item1, item2){
       let timeline1 = 0;
       let timeline2 = 0;
       if(item1.timeline.length != 0){
-        let msg1 = this.GetLastShowMessage(item1);
-        if(msg1 && msg1.event){
-          timeline1 = msg1.event.origin_server_ts;
-        }
-        else{
-          timeline1 = 0;
-        }
+        timeline1 = this.getLastMsgTime(item1);
       }
       if(item2.timeline.length != 0){
-        let msg2 = this.GetLastShowMessage(item2);
-        if(msg2 && msg2.event){
-          timeline2 = msg2.event.origin_server_ts;
-        }
-        else{
-          timeline2 = 0;
-        }
+        timeline2 = this.getLastMsgTime(item2);
       }
       return timeline2 - timeline1;
     },
@@ -1795,12 +1797,8 @@ export default {
       var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
       if(distContentElement) {
-        var distTimeLine = this.GetLastShowMessage(item);
+        var distTimeLine = await this.GetLastShowMessage(item);
         if(distTimeLine == undefined) {
-          this.toUpdateTimeLine(item);
-          // distElement.innerHTML = "";
-          // this.showGroupIconName(item);
-          // return;
           return;
         }
         item.distTimeLine = distTimeLine;
@@ -2566,24 +2564,6 @@ export default {
     formatTimeFilter(secondsTime) {
       return ComponentUtil.formatTimeFilter(secondsTime);
     },
-    getMsgLastMsgTime(chatGroupItem) {
-      var distTimeLine = this.GetLastShowMessage(chatGroupItem);
-      if(distTimeLine == undefined) {
-        return ;
-      }
-      
-      let event = distTimeLine.event;
-
-      var formatTime = ""
-      var timesecond = Number(event ? event.origin_server_ts : '');
-
-      if(timesecond.length == 0) {
-        return formatTime;
-      }
-
-      formatTime = this.formatTimeFilter(timesecond);
-      return formatTime;
-    },
     getIdThroughId(groupInfo) {
       return groupInfo.groupId;
     },
@@ -2963,42 +2943,44 @@ export default {
         }
         return "";
     },
-    GetLastShowMessage(chatGroupItem){
+    async GetLastShowMessage(chatGroupItem){
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
-            if(timeLineTmp.getType() == "m.room.member" && i==chatGroupItem.timeline.length-1) {
-              const content = timeLineTmp.getContent();
+          if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
+            return timeLineTmp;
+          }
+          continue;
+        }
+      }
+      
+      var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
+      var _timelineWindow = new Matrix.TimelineWindow(
+          global.mxMatrixClientPeg.matrixClient, 
+          timeLineSet,
+          {windowLimit:Number.MAX_VALUE},
+      )
+      await _timelineWindow.load(undefined, 20);
+      var originalFileListInfo = _timelineWindow.getEvents();
+      let checkedIndex = 0;
+      for(let i=checkedIndex;i<originalFileListInfo.length;i++) {
+        if(['m.room.message', 'm.room.encrypted'].indexOf(originalFileListInfo[checkedIndex].getType()) >= 0) {
+            return originalFileListInfo[checkedIndex];
+        }
+        checkedIndex += 1;
+      }
+      while(_timelineWindow.canPaginate('b')) {
+          await _timelineWindow.paginate("b", 20);
+          let fileListInfoTmp = await _timelineWindow.getEvents();
+          for(let i=checkedIndex;i<fileListInfoTmp.length;i++) {
+            if(['m.room.message', 'm.room.encrypted'].indexOf(fileListInfoTmp[checkedIndex].getType()) >= 0) {
+                return fileListInfoTmp[checkedIndex];
+            }
+            checkedIndex += 1;
+          }
+      }
 
-              if(content.membership == 'join') {
-                if((timeLineTmp.sender ? timeLineTmp.sender.userId : timeLineTmp.event.sender) == this.$store.state.userId) {
-                  return timeLineTmp;
-                }
-              }
-            }
-            else if(timeLineTmp.getType() == "m.room.member" ) {
-            }
-            else {
-              return timeLineTmp;
-            }
-          }
-          if(chatGroupItem.distTimeLine) {
-            return chatGroupItem.distTimeLine;
-          }
-          else {
-            continue;
-          }
-        }
-      }
-      else {
-        if(chatGroupItem.distTimeLine) {
-          return chatGroupItem.distTimeLine;
-        }
-        else {
-          return undefined
-        }
-      }
+      return undefined
     },
     getShowInviteMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){
@@ -3056,159 +3038,6 @@ export default {
         if(['m.room.message', 'm.room.create'].indexOf(event.getType()) >= 0) return true;
         return false;
     },
-    async toUpdateTimeLine(chatGroupItem) {
-      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
-        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-      }
-      var distElement = document.getElementById(this.getChatContentElementId(chatGroupItem.roomId));
-      var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(chatGroupItem.roomId));
-      // var timeLineSet = await this.updateTimelineSet(chatGroupItem);
-      var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
-      var _timelineWindow = new Matrix.TimelineWindow(
-          global.mxMatrixClientPeg.matrixClient, 
-          timeLineSet,
-          {windowLimit:Number.MAX_VALUE},
-      )
-      await _timelineWindow.load(undefined, 20);
-      var fileListInfo = [];
-      var originalFileListInfo = _timelineWindow.getEvents();
-      originalFileListInfo.forEach(item => {
-          if(this.messageFilter(item) && item.event.content){
-              fileListInfo.push(item);
-          } 
-      })
-      while(fileListInfo.length == 0 && _timelineWindow.canPaginate('b')) {
-          await _timelineWindow.paginate("b", 20);
-          var fileListInfoTmp = await _timelineWindow.getEvents();
-          fileListInfoTmp.forEach(item => {
-              if(this.messageFilter(item) && item.event.content){
-                  fileListInfo.push(item);
-              }
-          })
-      }
-      if(fileListInfo.length == 0) {
-        return;
-      }
-      var distTimeLine = undefined;
-      for(var i=fileListInfo.length - 1;i>=0;i--) {
-        if(!fileListInfo[i].isRedacted()) {
-          distTimeLine = fileListInfo[i];
-          break;
-        }
-      }
-      if(distTimeLine == undefined) return;
-      // distTimeLine = fileListInfo[fileListInfo.length - 1];
-      chatGroupItem.distTimeLine = distTimeLine;
-      let event = distTimeLine.event;
-      let chatGroupMsgType = event.type;
-      var chatGroupMsgContent = distTimeLine.getContent();
-
-      if(chatGroupMsgType === "m.room.message")
-      {
-          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-          if(sender.userId) {
-            sender = sender.userId;
-          }
-          if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(chatGroupItem)) {
-            var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
-            // console.log("*** sender ", sender);
-            if(chatGroupMsgContent.msgtype == 'm.file'){
-              distElement.innerHTML =  senderName + "：" + "[文件]" + chatGroupMsgContent.body;
-            }
-            else if(chatGroupMsgContent.msgtype == 'm.text'){
-              distElement.innerHTML = senderName + ":" + chatGroupMsgContent.body;
-            }
-            else if(chatGroupMsgContent.msgtype == 'm.image'){
-              distElement.innerHTML = senderName + "：" + "[图片]";// + chatGroupMsgContent.body;
-            } 
-            else if(chatGroupMsgContent.msgtype == "m.audio") {
-              distElement.innerHTML = senderName + ":" + "[语音]";
-            }
-          }
-          else {
-            if(chatGroupMsgContent.msgtype == 'm.file'){
-              distElement.innerHTML =  "[文件]" + chatGroupMsgContent.body;
-            }
-            else if(chatGroupMsgContent.msgtype == 'm.text'){
-              distElement.innerHTML = chatGroupMsgContent.body;
-            }
-            else if(chatGroupMsgContent.msgtype == 'm.image'){
-              distElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;
-            } 
-            else if(chatGroupMsgContent.msgtype == "m.audio") {
-              distElement.innerHTML = "[语音]";
-            }
-          }
-      }
-      else if(chatGroupMsgType === "m.room.encrypted") {
-          distElement.innerHTML = "收到一条加密消息";
-      }
-      if(distTimeElement) {
-        var formatTime = ""
-        var timesecond = Number(event ? event.origin_server_ts : "");
-
-        if(timesecond.length == 0) {
-          return;
-        }
-
-        formatTime = this.formatTimeFilter(timesecond);
-        distTimeElement.innerHTML = formatTime;
-      }
-      this.sortGroup();
-    },
-    getShowMsgContent(chatGroupItem) {
-      // console.log("cur chat group is ", chatGroupItem);
-      var distTimeLine = this.GetLastShowMessage(chatGroupItem);
-      console.log("*** getShowMsgContent ", distTimeLine);
-      if(distTimeLine == undefined) {
-        this.toUpdateTimeLine(chatGroupItem);
-        return "";
-      }
-      var ret = this.NoticeContent(distTimeLine);
-      // console.log("ret is ===== ", ret == '');
-      if(ret != '') {
-        return ret;
-      }
-      let event = distTimeLine.event;
-      let chatGroupMsgType = event.type;
-      var chatGroupMsgContent = distTimeLine.getContent();
-
-      if(chatGroupMsgType === "m.room.message")
-      {
-          if(chatGroupMsgContent.msgtype == 'm.file'){
-            return "[文件]" + chatGroupMsgContent.body;
-          }
-          else if(chatGroupMsgContent.msgtype == 'm.text'){
-            var sender = distTimeLine.sender.name;
-            var content = chatGroupMsgContent.body;
-            return content;
-          }
-          else if(chatGroupMsgContent.msgtype == 'm.image'){
-            return "[图片]";
-          } 
-      }
-      else if(chatGroupMsgType === "m.room.encrypted") {
-          return "收到一条加密消息";
-          // chatGroupMsgContent = this.msg.getContent();
-          if(chatGroupMsgContent.msgtype == 'm.file'){
-            return "[文件]" + chatGroupMsgContent.body;
-          }
-          else if(chatGroupMsgContent.msgtype == 'm.text'){
-            var sender = distTimeLine.sender.name;
-            var content = chatGroupMsgContent.body;
-            return content;
-          } 
-          else if(chatGroupMsgContent.msgtype == 'm.image'){
-            return "[图片]";
-          }
-          else if(chatGroupMsgContent.msgtype == "m.bad.encrypted") {
-              this.messageContent = chatGroupMsgContent.body;
-          }
-      }
-
-      return "";
-    },
-
     SetGroupItemGround(id){
       let tmpElement = document.getElementById(id)
       if(tmpElement){
