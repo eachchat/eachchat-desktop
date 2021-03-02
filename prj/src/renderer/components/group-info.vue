@@ -166,7 +166,7 @@
                     class="groupMemberAddDivImage" 
                     src="../../../static/Img/Chat/add-20px@2x.png" 
                     @click="mxAddMember"
-                    v-if="showGroupInfo.isOwner"
+                    v-if="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canInvite"
                 > <!--@click="showAddMembers"-->
             </div>
         </div>

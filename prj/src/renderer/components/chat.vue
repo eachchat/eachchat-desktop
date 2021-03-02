@@ -2958,6 +2958,8 @@ export default {
             if (currentState) {
                 let levelObj = currentState.getContent();
                 let events = levelObj.events;
+                console.log('......levelObj', levelObj);
+                console.log('.....enents', events);
                 if (levelObj.ban) canBan = levelObj.ban;
                 if (events && events['m.room.name']) canName = events['m.room.name'];
                 if (events && events['m.room.server_acl']) canServer = events['m.room.server_acl'];
