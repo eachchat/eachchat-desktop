@@ -82,14 +82,24 @@ if(process.platform != 'darwin') {
 //ClearDB(1);
 
 function setImgToNormalIcon() {
-  if(appIcon) {
-    appIcon.setImage(path.join(__dirname, iconPath));
+  try {
+    if(appIcon) {
+      appIcon.setImage(path.join(__dirname, iconPath));
+    }
+  }
+  catch(e) {
+    console.log("setImgToNormalIcon Exception and details is ", e);
   }
 }
 
 function setImgToFlashIcon() {
-  if(appIcon) {
-    appIcon.setImage(path.join(__dirname, emptyIconPath));
+  try {
+    if(appIcon) {
+      appIcon.setImage(path.join(__dirname, emptyIconPath));
+    }
+  }
+  catch(e) {
+    console.log("setImgOfFlashIcon Exception and details is ", e);
   }
 }
 

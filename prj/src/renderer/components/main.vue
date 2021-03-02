@@ -15,13 +15,18 @@
                     @click="menuClicked(index, tabitem.name, tabitem.link, tabitem.view)"
                     :class="{active: index===curindex}"
                     >
+                    <el-tooltip effect="dark" :content="getToolTipContent(index)" placement="bottom-start" popper-class="atooltip1">
                     <p :class="getCurNavIcon(index)"></p>
+                    </el-tooltip>
                     <p id = 'main-invitenum' v-show = 'index == 1 && getInviteNum() != 0' :class = 'getInviteNumClass()'>{{getInviteNum()}}</p>
+
                     <!-- <i :class="getCurNavIcon(index)"></i> -->
                 </el-menu-item>
             </el-menu>
             <div class="NavSetUp" @click="showSetUpPage">
-                <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
+                <el-tooltip effect="dark" content="设置" placement="bottom-start" popper-class="atooltip2">
+                    <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
+                </el-tooltip>
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
@@ -342,6 +347,14 @@ export default {
                 }
             }
         },
+
+        getToolTipContent(cur_index){
+            if(cur_index == 0) return "聊天";
+            else if(cur_index == 1) return "联系人";
+            else if(cur_index == 2)return "收藏";
+            else return "设置";
+        },
+
         getCurNavIcon (cur_index) {
             var endding = " active"
             if(cur_index != this.curindex) {
@@ -781,7 +794,47 @@ export default {
     },
 }
 </script>
+<style lang="scss">
+.el-tooltip__popper.atooltip1 {
+        height: 18px;
+        font-size: 11px !important;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000 !important;
+        background: #E3E3E5 !important;
+        position: absolute;
+        border-radius: 2px !important;
+        padding-top: 4px !important;
+        padding-right: 4px !important;
+        padding-bottom: 0px !important;
+        padding-left: 4px !important;
+        margin-left: 20px !important;
+        margin-top: 0px !important;
+        word-wrap: break-word;
+    } 
+.el-tooltip__popper.atooltip2 {
+        bottom: 10px;
+        height: 18px;
+        font-size: 11px !important;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000 !important;
+        background: #E3E3E5 !important;
+        position: absolute;
+        border-radius: 2px !important;
+        padding-top: 4px !important;
+        padding-right: 4px !important;
+        padding-bottom: 0px !important;
+        padding-left: 4px !important;
+        margin-left: 20px !important;
+        margin-bottom: -3px !important;
+        word-wrap: break-word;
+    } 
 
+.el-tooltip__popper .popper__arrow {
+    display: none !important
+}
+</style>
 <style lang="scss" scoped>
     .group-unread {
         position: absolute;
