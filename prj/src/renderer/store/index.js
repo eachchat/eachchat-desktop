@@ -40,9 +40,31 @@ export default new Vuex.Store({
     curRoomId: undefined,
     inviteRooms: [],
     inviteRoomsNum: 0,
-    nUpdateInviteRoom: 0
+    nUpdateInviteRoom: 0,
+    sendingEvents: {},
   },
   mutations: {
+    saveSendingEvents(state, newEvent) {
+      let exitingSendingEvents = state.sendingEvents[newEvent.event.room_id];
+      if(exitingSendingEvents) {
+        let newSendingEvents = exitingSendingEvents.concat([newEvent]);
+        state.sendingEvents[newEvent.event.room_id] = newSendingEvents;
+      }
+      else {
+        state.sendingEvents[newEvent.event.room_id] = [newEvent];
+      }
+    },
+    removeSendingEvents(state, newEvent) {
+      let exitingSendingEvents = state.sendingEvents[newEvent.event.room_id];
+      if(exitingSendingEvents) {
+        for(let i=0;i<exitingSendingEvents.length;i++) {
+          if(exitingSendingEvents[i].event.room_id == newEvent.event.room_id) {
+            exitingSendingEvents.splice(i, 1);
+          }
+        }
+        state.sendingEvents[newEvent.event.room_id] = exitingSendingEvents;
+      }
+    },
     updateInviteState(state, roomObj){
       for(let index in state.inviteRooms){
         if(state.inviteRooms[index].roomID === roomObj.roomID 
@@ -272,6 +294,9 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getSendingEvents: state => (roomId) => {
+      return state.sendingEvents[roomId] == undefined ? [] : state.sendingEvents[roomId];
+    },
     getInviteRoomsNum: state => () => {
       return state.inviteRoomsNum;
     },

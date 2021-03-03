@@ -2944,6 +2944,7 @@ export default {
         return "";
     },
     async GetLastShowMessage(chatGroupItem){
+      let distItem = undefined;
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
@@ -2962,25 +2963,24 @@ export default {
       )
       await _timelineWindow.load(undefined, 20);
       var originalFileListInfo = _timelineWindow.getEvents();
-      let checkedIndex = 0;
-      for(let i=checkedIndex;i<originalFileListInfo.length;i++) {
-        if(['m.room.message', 'm.room.encrypted'].indexOf(originalFileListInfo[checkedIndex].getType()) >= 0) {
-            return originalFileListInfo[checkedIndex];
+      originalFileListInfo.forEach((item) => {
+        if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
+            distItem = item;
+            return;
         }
-        checkedIndex += 1;
-      }
-      while(_timelineWindow.canPaginate('b')) {
+      })
+      while(_timelineWindow.canPaginate('b') && distItem == undefined) {
           await _timelineWindow.paginate("b", 20);
           let fileListInfoTmp = await _timelineWindow.getEvents();
-          for(let i=checkedIndex;i<fileListInfoTmp.length;i++) {
-            if(['m.room.message', 'm.room.encrypted'].indexOf(fileListInfoTmp[checkedIndex].getType()) >= 0) {
-                return fileListInfoTmp[checkedIndex];
+          fileListInfoTmp.forEach((item) => {
+            if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
+                distItem = item;
+                return;
             }
-            checkedIndex += 1;
-          }
+          })
       }
 
-      return undefined
+      return distItem
     },
     getShowInviteMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){

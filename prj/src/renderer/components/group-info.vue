@@ -1691,7 +1691,7 @@ export default {
     width: 100%;
     height: 22px;
     display: flex;
-    justify-content: space-between;
+    align-items: center;
 }
 
 .groupInfoNameInput {
@@ -1735,7 +1735,7 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    width: 132px;
+    max-width: 142px;
     height: 22px;
     font-size: 15px;
     font-family: PingFangSC-Medium, PingFang SC;
@@ -1763,12 +1763,12 @@ export default {
     // float: right;
     // margin: 0px;
     // padding: 0px;
-    margin-left: 8px;
     display: inline-block;
     width: 20px;
     height: 20px;
 //     float: right;
     margin: 0px;
+    margin-left: 4px;
     padding: 0px;
     background-size: auto 100%;
     background-image: url("../../../static/Img/Chat/edit-20px@2x.png");
