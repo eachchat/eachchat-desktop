@@ -3,7 +3,7 @@
         <div class="groupInfoTitleDiv">
             <p class="groupInfoTitle">设置</p>
         </div>
-        <div class="innerWrap">
+        <div class="innerWrap" :class="{'scrolly': !isDm}">
             <div class="groupInfo-view">
             <div v-if="!isDm" class="groupInfoImageDiv" style="margin-right: 8px;">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
@@ -1404,7 +1404,7 @@ export default {
     // position: absolute;
     position: fixed;
     cursor: default;
-    overflow-y: scroll;
+    // overflow-y: scroll;
     box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
     top: 0;
     right: 0;
@@ -1432,8 +1432,11 @@ export default {
 }
 
 .innerWrap {
-    overflow-y: scroll;
     height: 100%;
+}
+
+.scrolly {
+    overflow-y: scroll;
 }
 
 .groupInfoTitle {
