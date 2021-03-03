@@ -1436,7 +1436,7 @@ export default {
 }
 
 .scrolly {
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .groupInfoTitle {
