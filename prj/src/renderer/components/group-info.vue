@@ -3,7 +3,8 @@
         <div class="groupInfoTitleDiv">
             <p class="groupInfoTitle">设置</p>
         </div>
-        <div class="groupInfo-view">
+        <div class="innerWrap">
+            <div class="groupInfo-view">
             <div v-if="!isDm" class="groupInfoImageDiv" style="margin-right: 8px;">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
                 <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror="this.src = './static/Img/User/group-40px@2x.png'" @click="showGroupImg()">
@@ -207,7 +208,8 @@
                     </div>
                 </li>
             </ul>
-        <!-- </div> -->
+            <!-- </div> -->
+        </div>
         <div class="footer" v-if="!isDm">
             <div class="groupLeave-view"> <!--v-show="isGroup"-->
                 <p class="groupLeaveDiv" @click.stop="mxLeaveRoom()"> <!--@click="leave()"-->
@@ -1399,26 +1401,39 @@ export default {
     padding: 0px;
     border-radius: 2px;
     background:rgba(255, 255, 255, 1);
-    position: absolute;
+    // position: absolute;
+    position: fixed;
     cursor: default;
-    overflow-y: hidden;
+    overflow-y: scroll;
     box-shadow:0px 0px 30px 0px rgba(103,103,103,0.24);
     top: 0;
     right: 0;
     z-index: 3;
-    display: flex;
-    flex-direction: column;
-    flex-flow: column;
+    // display: flex;
+    // flex-direction: column;
+    // flex-flow: column;
+    box-sizing: border-box;
+    padding-top: 56px;
+    padding-bottom: 48px;
+    overflow-x: hidden;
 }
 
 .groupInfoTitleDiv {
     height: 56px;
-    width: 280px;
+    // width: 280px;
     padding: 0px;
     margin: 0px;
     border: 0px;
     background: rgba(255, 255, 255, 1);
     cursor: default;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.innerWrap {
+    overflow-y: scroll;
+    height: 100%;
 }
 
 .groupInfoTitle {
@@ -1429,6 +1444,7 @@ export default {
     margin: 0 0 0 16px;
     font-family: PingFangSC-Medium;
     letter-spacing: 0px;
+
 }
 
 .groupMember-view2 {
@@ -1460,12 +1476,7 @@ export default {
     padding: 0;
     display: block;
     list-style: none;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    height: 0;
-    flex: 1;
     width: 100%;
-    overflow: auto;
 }
 
 .memberItemWrap {}
@@ -2203,9 +2214,9 @@ export default {
 }
 
 .footer{
-    // position: absolute;
-    // left: 0px;
-    // bottom: 0px;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
     width: 100%;
     background: #FFFFFF;
     box-shadow: 0px 1px 0px 0px #EEEEEE;
