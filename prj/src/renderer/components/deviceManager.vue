@@ -34,6 +34,7 @@
 import AlertDlg from './alert-dlg.vue'
 import {Appendzero} from '../../packages/core/Utils.js'
 import AuthDlg from './AuthPwd.vue'
+import { get } from 'lodash'
 export default {
     name: 'DeviceManager',
     props: {
@@ -88,7 +89,7 @@ export default {
             this.showAuthPwd = true;
         },
         _makeDeleteRequest(auth) {
-            return global.mxMatrixClientPeg.matrixClient.deleteMultipleDevices(this.toDeleteItem, auth).then(
+            return global.mxMatrixClientPeg.matrixClient.deleteMultipleDevices( [get(this.toDeleteItem, 'device_id')], auth).then(
                 () => {
                     // this.getDeviceList();
                 },
