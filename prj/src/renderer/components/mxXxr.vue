@@ -179,7 +179,7 @@
                             <div class="shun5">
                                 <img 
                                     class="shun6" 
-                                    src="../../../static/Img/Chat/delete-20px@2x.png"
+                                    src="../../../static/Img/Main/xcck.png"
                                     @click.stop="checkWrap(ele, 1)"
                                 >
                             </div>
