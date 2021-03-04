@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-header height="56px" class="contact-header">
-            <p class="contact-header-title">群聊</p>
+            <p class="contact-header-title">邀请</p>
         </el-header>
         <el-main  style="overflow: hidden">
             <el-container class="bottom-container" id="contact-main-container">
@@ -380,7 +380,6 @@ export default {
     height: 100%;
     //display: flex;
     flex-direction: column;
-    border-left: 0.5px solid rgb(221, 221, 221);
     //border-right: 1px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;

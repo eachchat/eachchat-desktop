@@ -23,7 +23,11 @@
                     <div class="searchView" v-if="showSearchView">
                         <ul class="searchGroupList">
                             <li class="searchGroup" v-for="(group, index) in searchGroup" :key="index">
-                                <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
+                                <img
+                                    @click.stop="groupCheckBoxClicked(group)"
+                                    style="height:20px; width:20px; margin:14px 8px 14px 0;"
+                                    :src="groupChecked(group) ? './static/Img/Main/lg.png' : './static/Img/Main/tmk.png'"
+                                >
                                 <img ondragstart="return false" class="group-icon" :id="'search' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
                                     <p class="group-name" :id="getSearchChatNameId(group)">{{ group.name }}</p>
@@ -43,7 +47,11 @@
                     <div class="RecentChatView" v-show="!showSearchView">
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in showRecentChat" :key="index">
-                                    <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
+                                    <img
+                                        @click.stop="groupCheckBoxClicked(group)"
+                                        style="height:20px; width:20px; margin:14px 8px 14px 0;"
+                                        :src="groupChecked(group) ? './static/Img/Main/lg.png' : './static/Img/Main/tmk.png'"
+                                    >
                                     <img ondragstart="return false" class="group-icon" :id="'transmit' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="group-info">
                                         <p class="group-name" :id="getTransmitNameId(group)">{{ group.showName ? group.showName : group.name }}</p>
@@ -63,7 +71,7 @@
                                 <div class="group-info">
                                     <p class="group-name" :id="getSelectedChatNameId(group)">{{ group.name }}</p>
                                 </div>
-                                <img ondragstart="return false" class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
+                                <img ondragstart="return false" class="group-delete-icon" src="../../../static/Img/Chat/delete-grey-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
                             </li>
                         </ul>
                     </div>
@@ -1477,74 +1485,5 @@ display: none;
         border:1px solid rgba(221,221,221,1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-    }
- .multiSelectCheckbox {
-        display: inline-block;
-        position:relative;
-        width: 20px;
-        height: 20px;
-        background-color: rgba(255, 255, 255, 1);
-        border: 1px solid rgb(221,221,221);
-        border-radius: 4px;
-        font-size: 10px;
-        margin-top: 14px;
-        margin-bottom: 14px;
-        vertical-align:top;
-        cursor: pointer;
-        -webkit-appearance:none;
-        -webkit-user-select:none;
-        user-select:none;
-        -webkit-transition:background-color ease 0.1s;
-        transition:background-color ease 0.1s;
-        float: left;
-        outline: none;
-    }
-
-    .multiSelectCheckbox:checked {
-        background-color: rgb(36, 179, 107);
-        cursor: pointer;
-        outline: none;
-    }
-    .multiSelectCheckbox:indeterminate {
-        background-color: rgb(36, 179, 107);
-        cursor: pointer;
-        outline: none;
-    }
-    .multiSelectCheckbox:indeterminate::after{
-        content:'';
-        top:7px;
-        left:4px;
-        font-size: 10px;
-        position: absolute;
-        background:transparent;
-        border:#fff solid 2px;
-        border-top:none;
-        border-right:none;
-        border-left: none;
-        height:1px;
-        width:10px;
-        // -moz-transform:rotate(-45deg);
-        // -ms-transform:rotate(-45deg);
-        // -webkit-transform:rotate(-45deg);
-        // transform:rotate(-45deg);
-        outline: none;
-    }
-    .multiSelectCheckbox:checked::after {
-        content:'';
-        top:3px;
-        left:3px;
-        font-size: 10px;
-        position: absolute;
-        background:transparent;
-        border:#fff solid 2px;
-        border-top:none;
-        border-right:none;
-        height:6px;
-        width:10px;
-        -moz-transform:rotate(-45deg);
-        -ms-transform:rotate(-45deg);
-        -webkit-transform:rotate(-45deg);
-        transform:rotate(-45deg);
-        outline: none;
     }
 </style>

@@ -216,7 +216,6 @@ export default {
     height: 100%;
     //display: flex;
     flex-direction: column;
-    border-left: 0.5px solid rgb(221, 221, 221);
     //border-right: 1px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;
