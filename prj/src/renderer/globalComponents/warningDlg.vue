@@ -171,8 +171,8 @@ export default {
                     justify-content: center;
                     align-items: center;
                     font-size: 14px;
-                    font-family: PingFangSC-Medium, PingFang SC;
-                    font-weight: 500;
+                    font-family: PingFangSC-Regular;
+                    font-weight: 400;
                     line-height: 20px;
                     cursor: pointer;
                 }
