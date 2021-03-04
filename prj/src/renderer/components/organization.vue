@@ -13,7 +13,7 @@
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
-                    <div class='grid-content'>联系人</div>
+                    <div v-if="searchContacts.length" class='grid-content'>联系人</div>
                     <li class="manager"
                         v-for="contact in searchContacts"
                         @click="SearchContactItemClicked(contact.matrix_id)" 
@@ -24,7 +24,7 @@
                         <p  class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
-                    <div class='grid-content'>组织</div>
+                    <div v-if="searchUsers.length" class='grid-content'>组织</div>
                     <li class="manager"
                         v-for="manager in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
@@ -35,7 +35,7 @@
                         <p class="contact-list-titile">{{ manager.user_title }}</p>
                         </div>
                     </li>
-                    <div class='grid-content'>部门</div>
+                    <div v-if="searchDeparements.length" class='grid-content'>部门</div>
                     <li class="manager"
                         v-for="department in searchDeparements"
                         @click="searchDeparmentItemClicked(department.department_id)" 
@@ -45,7 +45,7 @@
                         <p v-html="msgContentHightLight(department.display_name)" class="department-name">{{ department.display_name }}</p>
                         </div>
                     </li>
-                    <div class='grid-content'>群聊</div>
+                    <div v-if="searchRooms.length" class='grid-content'>群聊</div>
                     <li class="manager"
                         v-for="room in searchRooms"
                         @click="searchRoomItemClicked(room.room_id)" 
