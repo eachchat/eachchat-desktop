@@ -706,7 +706,6 @@ export default {
         top: 20px;
         margin: auto;
         background: rgba(36, 179, 107, 1);
-        border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
     }
