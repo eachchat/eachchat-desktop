@@ -168,7 +168,7 @@ export default {
     background-color: rgb(255, 255, 255);
     border-bottom: 1px solid rgb(238, 238, 238);
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
-    //-webkit-app-region: drag;
+    -webkit-app-region: drag;
     // * {            
     //     -webkit-app-region: no-drag;
     // }
@@ -216,7 +216,6 @@ export default {
     height: 100%;
     //display: flex;
     flex-direction: column;
-    border-left: 0.5px solid rgb(221, 221, 221);
     //border-right: 1px solid rgb(221, 221, 221);
     overflow-y: scroll;
     overflow-x: hidden;
