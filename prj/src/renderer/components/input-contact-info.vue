@@ -283,7 +283,6 @@ export default {
     margin-right: 5px;
     background: #00A971;
     border-radius:4px;
-    border:1px solid rgba(221,221,221,1);
     font-family: PingFangSC-Medium, PingFang SC;
     color: white;
 }

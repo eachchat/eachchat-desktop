@@ -508,7 +508,6 @@ export default {
     background: rgba(0, 169, 113, 1); 
     color: #FFFFFF;
     border-radius:4px;
-    border:1px solid rgba(221,221,221,1);
     font-family: PingFangSC-Regular;
 }
 
