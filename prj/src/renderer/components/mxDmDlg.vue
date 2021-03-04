@@ -32,7 +32,7 @@
                         <img style="height:20px; width:20px;" src="../../../static/Img/Main/xinsousuo.png">
                     </div>
                     <input @contextmenu.prevent="openBaseMenu" @input="searchMember" v-model="memText" class="search-input" type="text" placeholder="搜索">
-                    <img v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png">
+                    <img v-show = 'bShowDelIco' @click="clearSearch" src="../../../static/Img/SearchDlg/clear-20px.png" style="height:20px; width:20px;">
                 </div>
                 <!-- <div class="crumbs" v-show="crumbs.length > 1">
                     <div 
