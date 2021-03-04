@@ -5,12 +5,16 @@
         </el-header>
         <el-main style="overflow: hidden">
             <el-container class="bottom-container" id="organization-main-container">
-                <div v-for="(orgItem, orgIndex) in organizationList">
+                <div class="organization-colunm" v-for="(orgItem, orgIndex) in organizationList">
                     <div class="organization-view-one">
                         <div class="departments-view" v-show="organizationList[orgIndex].departments.length">
                             <ul class="departments-list">
-                                <li class="department"
-                                    v-for="(department, index) in organizationList[orgIndex].departments"
+                                <li v-for="(department, index) in organizationList[orgIndex].departments"
+                                    :class="['department', {'department-check': 
+                                        get(organizationList[orgIndex+1], 'departments.0._attr.parent_id', 
+                                        get(organizationList[orgIndex+1], 'users.0._attr.belong_to_department_id', null))
+                                        === get(department, 'department_id', '')
+                                    }]"
                                     @click="departmentMenuItemClicked(department, orgIndex)" 
                                     :key="index">
                                     <img v-if = 'isCompany(department)' ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/department-40px@2x.png">
@@ -57,6 +61,7 @@ import userInfoContent from './user-info';
 import userInfoTip from './userinfo-tip';
 import '../style/contact-list'
 import { ComponentUtil } from '../script/component-util.js'
+import { get } from 'lodash'
 
 export default {
     name: 'organizationList',
@@ -96,6 +101,7 @@ export default {
 
     },
     methods: {
+        get,
         isCompany(department){
             return department.department_type === 'company'
         },
@@ -279,6 +285,9 @@ export default {
     font-weight: 500;
     letter-spacing: 0px;
 }
+.organization-colunm{
+    box-shadow: 1px 0px 0px 0px #eeeeee;
+}
 .organization-list {
     overflow: scroll;
     list-style: none;
@@ -370,6 +379,9 @@ export default {
     margin: 0;
     list-style: none;
     //border-top: 1px solid rgb(221, 221, 221);
+}
+.department-check{
+    background: #F3F4F7; 
 }
 .department {
     height: 60px;
