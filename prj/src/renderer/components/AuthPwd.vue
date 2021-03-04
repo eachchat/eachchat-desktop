@@ -209,5 +209,6 @@ export default {
         margin: auto;
         background: white;
         border-radius:4px;
+        border:1px solid rgba(221,221,221,1);
     }
 </style>
