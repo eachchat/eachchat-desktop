@@ -2055,8 +2055,8 @@ export default {
         justify-content: center;
         align-items: center;
         font-size: 14px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
         color: #FFFFFF;
         line-height: 20px;
         letter-spacing: 0px;
@@ -2073,8 +2073,8 @@ export default {
         justify-content: center;
         align-items: center;
         font-size: 14px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
         color: #000000;
         line-height: 20px;
         letter-spacing: 0px;
