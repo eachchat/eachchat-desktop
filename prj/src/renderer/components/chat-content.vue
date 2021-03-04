@@ -454,7 +454,12 @@ export default {
         if(this.showGroupList.length != 0)
           this.curChat = this.showGroupList[0];
         this.$nextTick(() => {
-          this.showGroupIconName();
+          this.showGroupIconName()
+            .then((ret) => {
+              setTimeout(() => {
+                this.sortGroup();
+              }, 2000)
+            })
           this.$emit('matrixSyncEnd', true);
         })
 
@@ -1210,6 +1215,7 @@ export default {
       if(data.liveEvent) {
         if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
+          this.$store.commit("removeSendingEvents", ev);
         }
         this.updateChatList(ev);
       }
@@ -1797,8 +1803,21 @@ export default {
       var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
       if(distContentElement) {
-        var distTimeLine = await this.GetLastShowMessage(item);
+        var distTimeLineInfo = await this.GetLastShowMessage(item);
+        var distTimeLine = distTimeLineInfo[0];
+        var distTimeTimeLine = distTimeLineInfo[1];
         if(distTimeLine == undefined) {
+          if(distTimeElement && distTimeTimeLine) {
+            var formatTime = ""
+            var timesecond = Number(distTimeTimeLine.event ? distTimeTimeLine.event.origin_server_ts : '');
+
+            if(timesecond.length == 0) {
+              return;
+            }
+
+            formatTime = this.formatTimeFilter(timesecond);
+            distTimeElement.innerHTML = formatTime;
+          }
           return;
         }
         item.distTimeLine = distTimeLine;
@@ -2945,11 +2964,12 @@ export default {
     },
     async GetLastShowMessage(chatGroupItem){
       let distItem = undefined;
+      let distTimeItem = undefined;
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
           if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
-            return timeLineTmp;
+            return [timeLineTmp, distTimeItem];
           }
           continue;
         }
@@ -2969,9 +2989,10 @@ export default {
             return;
         }
       })
+      let fileListInfoTmp = [];
       while(_timelineWindow.canPaginate('b') && distItem == undefined) {
           await _timelineWindow.paginate("b", 20);
-          let fileListInfoTmp = await _timelineWindow.getEvents();
+          fileListInfoTmp = await _timelineWindow.getEvents();
           fileListInfoTmp.forEach((item) => {
             if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
                 distItem = item;
@@ -2980,7 +3001,16 @@ export default {
           })
       }
 
-      return distItem
+      if(distItem == undefined) {
+        fileListInfoTmp.forEach((item) => {
+          if(item.getType() == 'm.room.create') {
+              distTimeItem = item;
+              return;
+          }
+        })
+      }
+
+      return [distItem, distTimeItem]
     },
     getShowInviteMsgContent(chatGroupItem) {
       if(chatGroupItem.timeline && chatGroupItem.timeline.length == 0){

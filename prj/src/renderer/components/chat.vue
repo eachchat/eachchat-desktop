@@ -329,12 +329,9 @@ export default {
         getShowGroupName() {
             if(this.curChat && this.curChat.name && this.curChat.name.startsWith("Empty room")) {
                 if(this.checkIsEmptyRoom(this.curChat)) {
-                    console.log("**********************8", this.curChat);
                     return "空聊天室";
                 }
             }
-            console.log("**********************9");
-            
             return this.curChat.contactName ? this.curChat.contactName : this.curChat.name;
         },
         clearCache: function() {
@@ -1979,6 +1976,7 @@ export default {
                 else{
                     eventTmp.event.content.msgtype = "m.file";
                 }
+                this.$store.commit("saveSendingEvents", eventTmp);
                 this.sendingList.push(eventTmp);
                 this.messageList.push(eventTmp);
                 setTimeout(() => {
@@ -2406,6 +2404,7 @@ export default {
                 _txnId: curTimeSeconds,
                 message_status: 1,
             };
+            this.$store.commit("saveSendingEvents", eventTmp);
             this.sendingList.push(eventTmp);
             this.messageList.push(eventTmp);
             setTimeout(() => {
@@ -3052,11 +3051,11 @@ export default {
             this.isSerach = false;
             this.isJumpPage = true;
             this.messageList = [];
-            this.sendingList = [];
+            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
             // this.curChat.resetLiveTimeline();
             this.curChat = distChat;
             this._loadTimeline(eventId, undefined, undefined, distChat, 1).then(() => {
-                this.messageList = this._getEvents();
+                this.messageList = this._getEvents().concat(this.sendingList.length == 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
                 console.log("*** this.messageList is ", this.messageList);
                 setTimeout(() => {
                     this.$nextTick(() => {
@@ -3591,7 +3590,7 @@ export default {
                 this.toGetShowMessage()
                     .then((ret) => {
                         this.isRefreshing = false;
-                        this.messageList = this._getEvents();
+                        this.messageList = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
                         setTimeout(() => {
                             this.$nextTick(() => {
                                 this.needToBottom = true;
@@ -3863,7 +3862,7 @@ export default {
                 return;
             }
             this.curChat = this.chat;
-            this.sendingList = [];
+            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
             this.initSearchKey = '';
             this.inviterInfo = undefined;
             this.isInvite = false;
@@ -3878,7 +3877,7 @@ export default {
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
-            this.messageList = this.chat.timeline;
+            this.messageList = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
             setTimeout(() => {
                 this.$nextTick(() => {
                     let div = document.getElementById("message-show-list");
@@ -3896,7 +3895,7 @@ export default {
                 this.isInvite = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
-                this.sendingList = [];
+                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
                 console.log("***1 searchKeyFromList")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
@@ -3911,7 +3910,7 @@ export default {
             else {
                 this.initSearchKey = '';
                 this.inviterInfo = undefined;
-                this.sendingList = [];
+                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
                 this.isInvite = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
@@ -3922,7 +3921,7 @@ export default {
                 console.log("chat ============", this.curChat);
                 console.log("this.curGroupId is ", this.curGroupId);
                 
-                this.messageList = this.curChat.timeline;
+                this.messageList = this.curChat.timeline.concat(this.sendingList.length == 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
                 setTimeout(() => {
                     this.$nextTick(() => {
                         let div = document.getElementById("message-show-list");
@@ -4019,6 +4018,7 @@ export default {
                 for(let i=0;i<this.sendingList.length;i++) {
                     for(let j=getMessageList.length-1;j>= 0;j--){
                         if(this.sendingList[i]._txnId == getMessageList[j]._txnId) {
+                            this.$store.commit("removeSendingEvents", this.sendingList[i]);
                             this.sendingList.splice(i, 1);
                             getMessageList[j].message_status = 0;
                             this.updatemsgStatus = {
