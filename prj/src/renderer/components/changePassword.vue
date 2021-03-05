@@ -416,6 +416,7 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .ChangePasswordConfirmButton:hover {
@@ -428,6 +429,8 @@ export default {
         border-radius:4px;
         background: rgba(36, 179, 107, 1);
         font-family: PingFangSC-Regular;
+        border:none;
+
     }
 
     .ChangePasswordConfirmButton:disabled {
@@ -440,6 +443,8 @@ export default {
         border-radius:4px;
         background: rgba(167, 224, 196, 1);
         font-family: PingFangSC-Regular;
+        border:none;
+
     }
 
     .ChangePasswordCancleButton {

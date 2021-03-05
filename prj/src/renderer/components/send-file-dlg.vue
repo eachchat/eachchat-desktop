@@ -387,6 +387,7 @@ export default {
         border-radius:4px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
+        border: none;
     }
  
     .SendFileConfirmButton:disabled{
@@ -401,6 +402,7 @@ export default {
         border-radius:4px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
+        border: none;
     }
  
     .SendFileCancleButton {

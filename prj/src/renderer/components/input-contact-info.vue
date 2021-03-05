@@ -285,6 +285,7 @@ export default {
     border-radius:4px;
     font-family: PingFangSC-Medium, PingFang SC;
     color: white;
+    border:none;
 }
 .el-table__body tr,
     .el-table__body td {

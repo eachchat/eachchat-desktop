@@ -320,6 +320,7 @@ export default {
                     color: white;
                     border-radius:4px;
                     font-family: PingFangSC-Regular;
+                    border: none;
                 }
             }
         }

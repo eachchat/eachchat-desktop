@@ -1455,6 +1455,7 @@ display: none;
         border-radius:4px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
+        border:none;
     }
  
     .TransmitConfirmButton:disabled{
@@ -1469,6 +1470,7 @@ display: none;
         border-radius:4px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
+        border:none;
     }
  
     .TransmitCancleButton {

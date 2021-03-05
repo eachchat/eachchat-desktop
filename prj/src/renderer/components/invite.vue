@@ -115,6 +115,7 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .InviteConfirmButton:hover {
@@ -127,6 +128,7 @@ export default {
         border-radius:4px;
         background: rgba(36, 179, 107, 1);
         font-family: PingFangSC-Regular;
+        border:none;
     }
 
     .InviteCancleButton {
