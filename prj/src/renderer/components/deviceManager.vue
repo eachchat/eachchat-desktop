@@ -66,6 +66,7 @@ export default {
         },
         canDeleteSession: function(pwd) {
             this.deleteSession(pwd);
+            this.clearPwd+=1;
             this.showAuthPwd = false;
         },
         removeSession: async function(deviceItem) {
@@ -105,7 +106,6 @@ export default {
             try{
                 var ret = await this._makeDeleteRequest(auth);
                 this.getDeviceList();
-                this.clearPwd+=1;
             }
             catch(e) {
                 if (e.httpStatus !== 401 || !e.data || !e.data.flows) {
