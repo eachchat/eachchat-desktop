@@ -365,6 +365,8 @@ export default {
 
     .sessionNameDiv {
         max-width: 100%;
+        display: flex;
+        align-items: center;
     }
 
     .sessionName {
@@ -398,6 +400,7 @@ export default {
         font-family: PingFangSC-Regular;
         font-weight: 400;
         line-height: 16px;
+        margin: 0 8px;
         text-align: center;
         vertical-align: middle;
     }
