@@ -767,6 +767,7 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border: none;
     }
 
     .CertificationConfirmButton:disabled {
@@ -780,6 +781,7 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
 
     .CertificationConfirmButton:hover:disabled {
@@ -807,6 +809,7 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
 
     .CertificationCancleButton {
@@ -845,6 +848,7 @@ export default {
         background: rgba(36, 179, 107, 1);
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
 
     .copyRecoveryKeyBtn {
@@ -870,5 +874,6 @@ export default {
         background: rgba(36, 179, 107, 1);
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border: none;
     }
 </style>

@@ -537,6 +537,7 @@ display: none;
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .TransmitConfirmButton:disabled{
@@ -550,6 +551,7 @@ display: none;
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .multiSelectCheckbox {

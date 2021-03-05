@@ -224,6 +224,7 @@ export default {
         background: rgba(167, 224, 196, 1);
         color: white;
         border-radius:4px;
+        border:none;
     }
  
     .UpgradeConfirmButton:hover {
@@ -236,6 +237,7 @@ export default {
         background: rgba(36, 179, 107, 1);
         color: white;
         border-radius:4px;
+        border:none;
     }
  
     .UpgradeCancleButton {

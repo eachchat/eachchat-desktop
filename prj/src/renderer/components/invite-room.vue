@@ -509,6 +509,7 @@ export default {
     color: #FFFFFF;
     border-radius:4px;
     font-family: PingFangSC-Regular;
+    border: none;
 }
 
 .invite-room-disable-button{

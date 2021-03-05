@@ -177,6 +177,7 @@ export default {
         background: rgba(36, 179, 107, 1);
         color: white;
         border-radius:4px;
+        border: none;
     }
  
     .AuthPwdConfirmButton:hover {
@@ -188,6 +189,7 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(36, 179, 107, 1);
+        border: none;
     }
 
     .AuthPwdConfirmButton:disabled {
@@ -199,6 +201,7 @@ export default {
         background: white;
         border-radius:4px;
         background: rgba(167, 224, 196, 1);
+        border: none;
     }
 
     .AuthPwdCancleButton {

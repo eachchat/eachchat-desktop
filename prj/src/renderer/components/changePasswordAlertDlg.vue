@@ -143,6 +143,8 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
+
     }
 
     .ChangePasswordAlertConfirmButton {
@@ -156,6 +158,8 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
+
     }
  
     .ChangePasswordAlertConfirmButton:hover {
@@ -169,6 +173,8 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
+
     }
  
     .ChangePasswordAlertCancleButton {

@@ -388,7 +388,8 @@ export default {
             border-radius:4px;
             font-family: PingFangSC-Regular;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 400;
+            border:none;
         }
     
         .E2EKeyCertificationConfirmButton:disabled {
@@ -403,7 +404,8 @@ export default {
             border-radius:4px;
             font-family: PingFangSC-Regular;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 400;
+            border:none;
         }
     
         .E2EKeyCertificationConfirmButton:hover {
@@ -418,7 +420,8 @@ export default {
             border-radius:4px;
             font-family: PingFangSC-Regular;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 400;
+            border:none;
         }
     
         .E2EKeyCertificationCancleButton {
@@ -433,7 +436,7 @@ export default {
             border:1px solid rgba(221,221,221,1);
             font-family: PingFangSC-Regular;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 400;
         }
     }
 

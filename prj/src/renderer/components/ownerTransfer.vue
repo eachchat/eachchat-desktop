@@ -435,6 +435,7 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
 
     .OwnerTransferConfirmButton:disabled{
@@ -448,6 +449,8 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
+
     }
  
     .OwnerTransferConfirmButton:hover {
@@ -461,6 +464,8 @@ export default {
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
+
     }
  
     .OwnerTransferCancleButton {
