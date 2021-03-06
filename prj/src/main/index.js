@@ -297,7 +297,56 @@ ipcMain.on('setAutoRun', function(event, isAutoRun) {
   })
 });
 
-ipcMain.on('showAnotherWindow', function(event, groupId, path) {
+ipcMain.on('showTransTmpWindow', function(event, msgListInfo, path) {
+  var title = "";
+  var tmp = undefined;
+  var width = 615;
+  var height = 508;
+  if(process.platform == "darwin") {
+    height = 470;
+    width = 600;
+  }
+  if(path == "historyMsgList") {
+    title = "聊天记录";
+  }
+  else if(path == "fileList") {
+    title = "文件列表";
+  }
+  else if(path == "searchMessageList") {
+    title = "聊天记录";
+  }
+  else if(path == "searchFilesList") {
+    title = "文件列表";
+  }
+  else if(path == "TransmitMsgList") {
+    title = msgListInfo.title;
+  }
+  tmp = new BrowserWindow({
+    height: height,
+    //useContentSize: true,
+    resizable: false,
+    width:width,
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+      enableRemoteModule: true
+    },
+    frame:true,
+    title:title
+  })
+  const sonPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/` + path
+  : `file://${__dirname}/index.html#` + path;
+  tmp.loadURL(sonPageWinURL);
+  //openDevToolsInDevelopment(soloPage);
+  tmp.webContents.on('did-finish-load', function() {
+    tmp.webContents.send("msgListInfo", msgListInfo.list);
+  });
+  tmp.show();
+});
+
+ipcMain.on('showAnotherWindow', function(event, msgListInfo, path) {
+  console.log("========== msgListInfo ", msgListInfo);
   var title = "";
   var width = 615;
   var height = 508;
@@ -318,30 +367,45 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     title = "文件列表";
   }
   else if(path == "TransmitMsgList") {
-    title = "聊天记录";
+    title = msgListInfo.title;
   }
-  soloPage = new BrowserWindow({
-    height: height,
-    //useContentSize: true,
-    resizable: resizableValue,
-    width:width,
-    webPreferences: {
-      webSecurity:false,
-      nodeIntegration:true,
-      enableRemoteModule: true
-    },
-    frame:true,
-    title:title
-  })
-  const sonPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + path
-  : `file://${__dirname}/index.html#` + path;
-  soloPage.loadURL(sonPageWinURL);
-  //openDevToolsInDevelopment(soloPage);
-  soloPage.webContents.on('did-finish-load', function() {
-    soloPage.webContents.send("distGroupInfo", groupId);
-  });
-  soloPage.show();
+  if(!soloPage) {
+    soloPage = new BrowserWindow({
+      height: height,
+      //useContentSize: true,
+      resizable: false,
+      width:width,
+      webPreferences: {
+        webSecurity:false,
+        nodeIntegration:true,
+        enableRemoteModule: true
+      },
+      frame:true,
+      title:title
+    })
+    const sonPageWinURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/#/` + path
+    : `file://${__dirname}/index.html#` + path;
+    soloPage.loadURL(sonPageWinURL);
+    //openDevToolsInDevelopment(soloPage);
+    soloPage.webContents.on('did-finish-load', function() {
+      soloPage.webContents.send("msgListInfo", msgListInfo.list);
+    });
+    soloPage.show();
+    soloPage.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      soloPage.hide();
+    })
+  }
+  else {
+    soloPage.setTitle(title);
+    soloPage.webContents.send("msgListInfo", msgListInfo.list);
+    soloPage.show();
+  }
 });
 
 ipcMain.on('searchAddedMembers', function(event, selectedGroupIds) {
@@ -1245,6 +1309,39 @@ function createWindow () {
   assistWindow.on('maximize', (event) => {
     console.log("maximize")
     assistWindow.webContents.send("isNormal", false);
+  })
+  
+  var width = 615;
+  var height = 508;
+  if(process.platform == "darwin") {
+    height = 470;
+    width = 600;
+  }
+
+  soloPage = new BrowserWindow({
+    height: height,
+    //useContentSize: true,
+    resizable: false,
+    width:width,
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+      enableRemoteModule: true
+    },
+    show: false,
+    frame:true
+  })
+  const sonPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/TransmitMsgList`
+  : `file://${__dirname}/index.html#TransmitMsgList`;
+  soloPage.loadURL(sonPageWinURL);
+  soloPage.on('close', (event) => {
+    if(clickQuit){
+      app.quit();
+      return;
+    }
+    event.preventDefault();
+    soloPage.hide();
   })
 }
 

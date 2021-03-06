@@ -85,11 +85,11 @@
                         <div class="multiSelectTransmit" @click="multiTransMit"></div>
                         <div class="multiSelectTransmitText">逐条转发</div>
                     </div>
-                    <div class="multiSelectTransmitTogetherDiv" v-show="false">
+                    <div class="multiSelectTransmitTogetherDiv">
                         <div class="multiSelectTransmitTogether" @click="multTtransMitTogether"></div>
                         <div class="multiSelectTransmitTogetherText">合并转发</div>
                     </div>
-                    <div class="multiSelectFavDiv">
+                    <div class="multiSelectFavDiv" id="multiSelectFavDivId">
                         <div class="multiSelectFav" @click="multiFav"></div>
                         <div class="multiSelectFavText">收藏</div>
                     </div>
@@ -103,7 +103,7 @@
                 </div>
             </div>
         </div>
-        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="curChat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :imageViewerImageInfo="imageViewerImageInfo" :transmitImageViewer="transmitImageViewer" :key="transmitKey">
+        <transmitDlg  v-show="showTransmitDlg" @closeTransmitDlg="closeTransmitDlg" :curChat="curChat" :transmitTogether="transmitTogether" :transmitMessages="selectedMsgs" :imageViewerImageInfo="imageViewerImageInfo" :transmitImageViewer="transmitImageViewer" :transmitMergeInfo="transmitMergeInfo" :key="transmitKey">
         </transmitDlg>
         <div id="complextype" class="edit-file-blot" style="display:none;">
             <span class="complex" spellcheck="false" contenteditable="false"></span>
@@ -346,6 +346,12 @@ export default {
                 this.curOperate == "";
                 this.showAlertDlg = false;
                 this.multiDel();
+            }
+            else if(this.curOperate == "multTrans") {
+                this.transmitNeedAlert = false;
+                this.curOperate == "";
+                this.showAlertDlg = false;
+                this.multTtransMitTogether();
             }
             this.closeAlertDlg();
         },
@@ -743,6 +749,30 @@ export default {
                         }));
                     }
                 }
+                else if(content.msgtype == "each.chat.merge") {
+                    this.menu.append(new MenuItem({
+                        label: "转发",
+                        click: () => {
+                            this.transMit(msgItem)
+                        }
+                    }));
+                    if(showRedact) {
+                        this.menu.append(new MenuItem({
+                            label: "删除",
+                            click: () => {
+                                this.menuDelete(msgItem)
+                            }
+                        }));
+                    }
+                    if(!this.isSecret) {
+                        this.menu.append(new MenuItem({
+                            label: "多选",
+                            click: () => {
+                                this.msgMultiSelect(msgItem);
+                            }
+                        }));
+                    }
+                }
             }
             this.menu.popup(remote.getCurrentWindow());
         },
@@ -804,10 +834,34 @@ export default {
             this.transmitTogether = false;
         },
         async multTtransMitTogether() {
-            this.recentGroups = await Group.GetGroupByTime();
-            this.transmitKey ++;
-            this.showTransmitDlg = true;
-            this.transmitTogether = true;
+            this.curOperate = "multTrans";
+            if(this.transmitNeedAlert) {
+                this.alertContnets = {
+                    "Details": "你选择的消息中包含语音不能转发，是否继续？",
+                    "Abstrace": "提示"
+                }
+                this.showAlertDlg = true;
+            }
+            else{
+                this.curOperate = "";
+                this.transmitMergeInfo.from_room_id = this.curChat.roomId;
+                this.transmitMergeInfo.from_room_display_name = this.getShowGroupName();
+                this.transmitMergeInfo.from_matrix_ids = [];
+                if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
+                    const cli = window.mxMatrixClientPeg.matrixClient;
+                    const xie1 = cli.getRoom(this.curChat.roomId);
+                    await xie1.loadMembersIfNeeded();
+                    for(let key in xie1.currentState.members) {
+                        // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+                        let o = xie1.currentState.members[key];
+                        let obj = {...o}
+                        if (obj.membership != 'leave') this.transmitMergeInfo.from_matrix_ids.push(obj.userId);
+                    }
+                }
+                this.transmitKey ++;
+                this.showTransmitDlg = true;
+                this.transmitTogether = true;
+            }
         },
         async multiTransMit() {
             this.curOperate = "Trans";
@@ -821,7 +875,6 @@ export default {
             else{
                 console.log("**** transmit");
                 this.curOperate = "";
-                this.recentGroups = await Group.GetGroupByTime();
                 this.transmitKey ++;
                 this.showTransmitDlg = true;
                 this.transmitTogether = false;
@@ -1035,12 +1088,16 @@ export default {
                 this.selectedMsgs.push(curMsg);
             }
             var canShowDelete = true;
+            var canShowFav = true;
             this.selectedMsgs.forEach(k => {
                 if(!this.canRedact(k)) {
                     canShowDelete = false;
                 }
                 if(this.MsgIsVoice(k)) {
                     this.transmitNeedAlert = true;
+                }
+                if(this.MsgIsTransmit(k)) {
+                    canShowFav = false;
                 }
             })
             var deleteElement = document.getElementById("multiSelectDelDivId");
@@ -1049,6 +1106,26 @@ export default {
             }
             else {
                 deleteElement.style.display = 'inline-block';
+            }
+            var favElement = document.getElementById("multiSelectFavDivId");
+            if(!canShowFav) {
+                favElement.style.display = 'None';
+            }
+            else {
+                favElement.style.display = 'inline-block';
+            }
+        },
+        MsgIsTransmit: function(msg) {
+            let msgContent = msg.event.content ? msg.event.content : msg.getContent();
+            let chatGroupMsgType = msg.event.content.msgtype == undefined ? msgContent.msgtype : msg.event.content.msgtype;
+            if(chatGroupMsgType == 'each.chat.merge'){
+                return true;
+            }
+            else if(chatGroupMsgType == "m.bad.encrypted") {
+                return false;
+            }
+            else{
+                return false;
             }
         },
         MsgIsVoice: function(msg) {
@@ -1065,6 +1142,7 @@ export default {
         },
         closeTransmitDlg() {
             this.showTransmitDlg = false;
+            this.transmitMergeInfo = {};
             this.transmitImageViewer = false;
             this.cleanSelected();
             this.selectedMsgs = [];
@@ -1615,7 +1693,7 @@ export default {
                     imageEventId: event.event_id,
                     info: info,
                     body: chatGroupMsgContent.body,
-                    sender: distEvent.sender ? distEvent.sender.userId : distEvent.event.sender,
+                    sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
                     origin_server_ts: distEvent.event.origin_server_ts
                 }
             }
@@ -1711,14 +1789,14 @@ export default {
             }
 
             var totalMemberCount = await this.mxGetMembers();
-            if(totalMemberCount > 2) {
+            if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                 if(groupContentNumElement) {
-                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+                    groupContentNumElement.innerHTML = "";
                 }
             }
             else {
                 if(groupContentNumElement) {
-                    groupContentNumElement.innerHTML = "";
+                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
                 }
             }
 
@@ -3165,7 +3243,7 @@ export default {
         },
 
         messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(event.getType()) >= 0) return true;
+            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
             return false;
         },
 
@@ -3290,7 +3368,7 @@ export default {
                     let curNum = this.messageList.length;
                     this.getShowMessage(this.messageFilter, curNum + 10, 'f')
                         .then((ret) => {
-                            this.messageList = ret
+                            this.messageList = ret.concat(this.sendingList);
                             let index = 0;
                             this.isRefreshing = false;
                             setTimeout(() => {
@@ -3728,8 +3806,8 @@ export default {
             showGroupInfoTips: false,
             showTransmitDlg: false,
             transmitKey:199,
-            recentGroups:[],
             transmitTogether: false,
+            transmitMergeInfo: {},
             selectedMsgs: [],
             editor:null,
             messageList: [],
@@ -3873,7 +3951,7 @@ export default {
             this.CloseFileListPage();
             this.multiToolsClose();
             console.log("chat ============", this.chat);
-            console.log("this.curGroupId is ", this.curGroupId);
+            console.log("this.sendingList is ", this.sendingList.slice(0, this.sendingList.length));
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
@@ -4478,8 +4556,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 56px;
-        margin-right: 56px;
+        margin-left: 20px;
+        margin-right: 27px;
         display: inline-block;
     }
 
@@ -4513,8 +4591,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 56px;
-        margin-right: 56px;
+        margin-left: 27px;
+        margin-right: 27px;
         display: inline-block;
     }
 
@@ -4548,8 +4626,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 56px;
-        margin-right: 56px;
+        margin-left: 27px;
+        margin-right: 27px;
         display: inline-block;
     }
 
@@ -4585,8 +4663,8 @@ export default {
         height: 44px;
         margin-top: 60px;
         margin-bottom: 60px;
-        margin-left: 56px;
-        margin-right: 56px;
+        margin-left: 27px;
+        margin-right: 27px;
         display: inline-block;
     }
 

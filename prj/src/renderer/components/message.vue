@@ -23,7 +23,7 @@
                     </div>
                     <div class="chat-msg-content-mine-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
-                        <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="voice-mine-image" :id="msg.event.event_id" src="../../../static/Img/Chat/msg-mine-voice@2x.png" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
                             <p class="file-size" v-show="false">{{this.voiceLenth}} ”</p>
                         </div>
@@ -38,7 +38,7 @@
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()" v-html="getMsgMineLinkContent(messageContent)"></p>
                         <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >{{getMsgMineLinkContent(messageContent)}}</p>
                     </div>
-                    <div class="chat-msg-content-mine-file-div-angle" v-if="MsgIsFile() && !MsgIsImage()"></div>
+                    <div class="chat-msg-content-mine-file-div-angle" v-if="(MsgIsFile() || MsgIsTransmit()) && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
                     <div class="msgStageDiv" :key="updateStatus">
                         <div :class="getMsgStateClass()" v-if="MsgIsSending()">
@@ -73,7 +73,7 @@
                     </div>
                     <div class="chat-msg-content-others-voice"
                         v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
-                        <img class="voice-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">
+                        <img class="voice-image" :id="msg.event.event_id" :alt="fileName" src="../../../static/Img/Chat/msg-voice@2x.png" style="vertical-align:middle">
                         <div class="voice-info" v-show="false">
                             <p class="file-size">{{this.voiceLenth}} ”</p>
                         </div>
@@ -233,7 +233,12 @@ export default {
                                 clearInterval(this.flashingInterval);
                                 this.flashingIndex = 0;
                                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                if(this.MsgIsMine()) {
+                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice@2x.png");
+                                }
+                                else {
+                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                }
                             })
                         }
                         else {
@@ -244,7 +249,12 @@ export default {
                                     clearInterval(this.flashingInterval);
                                     this.flashingIndex = 0;
                                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                    if(this.MsgIsMine()) {
+                                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice@2x.png");
+                                    }
+                                    else {
+                                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                    }
                                 })
                             })
                         }
@@ -365,7 +375,12 @@ export default {
                                     clearInterval(this.flashingInterval);
                                     this.flashingIndex = 0;
                                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                    if(this.MsgIsMine()) {
+                                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice@2x.png");
+                                    }
+                                    else {
+                                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                    }
                                 })
                             }, 50)
                         }
@@ -379,7 +394,12 @@ export default {
                                     clearInterval(this.flashingInterval);
                                     this.flashingIndex = 0;
                                     var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                    if(this.MsgIsMine()) {
+                                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice@2x.png");
+                                    }
+                                    else {
+                                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                                    }
                                 })
                             })
                         }
@@ -394,7 +414,104 @@ export default {
                     // }
                     this.$emit('showImageOfMessage', this.msg);
                 }
+                else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+                    var MsgList = chatGroupMsgContent.events;
+                    let showMsgList = await this.mergeDetails(MsgList);
+                    console.log("=====to show showMsgList ", showMsgList);
+                    let showMsgInfo = {
+                        title: this.transmitMsgTitle,
+                        list: showMsgList
+                    };
+                    ipcRenderer.send("showAnotherWindow", showMsgInfo, "TransmitMsgList");
+                }
             }
+        },
+        mergeDetails: async function(Events) {
+            let getDetails = [];
+            for(let i = 0; i < Events.length; i++) {
+                let curEvent = Events[i];
+                let chatGroupMsgType = curEvent.type;
+                let chatGroupMsgContent = curEvent.content;
+                let curInfo = {};
+                
+                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender);
+                var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                
+                if(chatGroupMsgType == "m.room.message") {
+                    if(chatGroupMsgContent.msgtype == "m.image") {
+                        let maxSize = 390;
+                        let info = {
+                            w: maxSize,
+                            h: maxSize
+                        };
+                        if(chatGroupMsgContent.info)
+                            info = chatGroupMsgContent.info
+                        if(!info.h)
+                            info.h = maxSize;
+                        if(!info.w)
+                            info.w = maxSize;
+
+                        curInfo = {
+                            msgtype: "m.image",
+                            url: global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url),
+                            event_id: curEvent.event_id,
+                            info: info,
+                            body: chatGroupMsgContent.body,
+                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
+                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
+                            senderUrl: userUrl,
+                            origin_server_ts: curEvent.origin_server_ts
+                        }
+                    }
+                    else if(chatGroupMsgContent.msgtype == "m.text") {
+                        curInfo = {
+                            msgtype: "m.text",
+                            event_id: curEvent.event_id,
+                            body: chatGroupMsgContent.body,
+                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
+                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
+                            senderUrl: userUrl,
+                            origin_server_ts: curEvent.origin_server_ts
+                        }
+                    }
+                    else if(chatGroupMsgContent.msgtype == "m.file") {
+                        let msgs = await Message.FindMessageByMesssageID(curEvent.event_id);
+                        let exitPath = "";
+                        console.log(msgs)
+                        if(msgs.length != 0 && msgs[0].file_local_path != "")
+                            exitPath = msgs[0].file_local_path;
+                        curInfo = {
+                            exitPath: exitPath,
+                            msgtype: "m.file",
+                            url: global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url),
+                            event_id: curEvent.event_id,
+                            info: chatGroupMsgContent.info,
+                            body: chatGroupMsgContent.body,
+                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
+                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
+                            senderUrl: userUrl,
+                            origin_server_ts: curEvent.origin_server_ts
+                        }
+                    }
+                    else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+                        let mergeEvents = chatGroupMsgContent.events;
+                        let showMergeEvents = await this.mergeDetails(mergeEvents);
+                        curInfo = {
+                            msgtype: "each.chat.merge",
+                            event_id: curEvent.event_id,
+                            events: showMergeEvents,
+                            from_room_display_name: chatGroupMsgContent.from_room_display_name,
+                            body: chatGroupMsgContent.body,
+                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
+                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
+                            senderUrl: userUrl,
+                            origin_server_ts: curEvent.origin_server_ts
+                        }
+                    }
+                }
+                getDetails.push(curInfo);
+            }
+            return getDetails;
         },
         voicePlayingImg:function() {
             if (this.flashingInterval) {
@@ -405,19 +522,39 @@ export default {
                 var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
                 // console.log("fileMsgImgElement ia ", fileMsgImgElement);
                 if(this.flashingIndex == 0) {
-                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin0-20px@2x.png");
+                    if(this.MsgIsMine()) {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice-playin0-20px@2x.png");
+                    }
+                    else {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin0-20px@2x.png");
+                    }
                     this.flashingIndex = 1;
                 }
                 else if(this.flashingIndex == 1){
-                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin1-20px@2x.png");
+                    if(this.MsgIsMine()) {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice-playin1-20px@2x.png");
+                    }
+                    else {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin1-20px@2x.png");
+                    }
                     this.flashingIndex = 2;
                 }
                 else if(this.flashingIndex == 2){
-                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    if(this.MsgIsMine()) {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice-playin2-20px@2x.png");
+                    }
+                    else {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    }
                     this.flashingIndex = 0;
                 }
                 else {
-                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    if(this.MsgIsMine()) {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-mine-voice-playin2-20px@2x.png");
+                    }
+                    else {
+                        fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice-playin2-20px@2x.png");
+                    }
                     this.flashingIndex = 0;
                 }
             }, 330);
@@ -534,9 +671,9 @@ export default {
             shell.openExternal(url);
         },
         MsgIsTransmit: function() {
-            let chatGroupMsgType = this.msg.message_type;
-            // console.log("chatGroupMsgType is ", chatGroupMsgType)
-            if(chatGroupMsgType == 106){
+            let msgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            let chatGroupMsgType = this.msg.event.content.msgtype == undefined ? msgContent.msgtype : this.msg.event.content.msgtype;
+            if(chatGroupMsgType == 'each.chat.merge'){
                 return true;
             }
             else if(chatGroupMsgType == "m.bad.encrypted") {
@@ -718,7 +855,48 @@ export default {
                 console.log("*** from info is ", style);
                 return style;
             }
-            
+        },
+        getTransmitContent: async function(events) {
+            let contents = "";
+            for(let i=0;i<events.length;i++) {
+                let chatGroupMsgType = events[i].type;
+                var chatGroupMsgContent = events[i].content ? events[i].content : events[i].getContent();
+                var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(((events[i].sender && events[i].sender.userId) ? events[i].sender.userId : events[i].sender));
+                if(chatGroupMsgType === "m.room.message")
+                {
+                    if(chatGroupMsgContent.msgtype == 'm.file'){
+                        let content = fromUserName + ":[文件]";
+                        contents = contents + content + "\n";
+                    }
+                    else if(chatGroupMsgContent.msgtype == 'm.text'){
+                        let noReturn = chatGroupMsgContent.body.replace(/\n/g, "").replace(/\r\n/g, "");
+                        console.log("===== noReturn ", noReturn);
+                        let content = noReturn.length >= 17 ? fromUserName + ":" + noReturn.substring(0, 17) + "..." : fromUserName + ":" + noReturn;
+                        contents = contents + content + "\n";
+                    }
+                    else if(chatGroupMsgContent.msgtype == 'm.image'){
+                        let content = fromUserName + ":[图片]";
+                        contents = contents + content + "\n";
+                    }
+                    else if(chatGroupMsgContent.msgtype == 'm.audio'){
+                        let content = fromUserName + ":[语音]";
+                        contents = contents + content + "\n";
+                    }
+                    else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+                        console.log("getTransmitContent chatGroupMsgContent ", chatGroupMsgContent);
+                        let content = fromUserName + ":[聊天记录]";
+                        contents = contents + content + "\n";
+                    }
+                    else {
+                        console.log("getTransmitContent chatGroupMsgContent ", chatGroupMsgContent);
+                        let content = fromUserName + ":[无法识别的消息类型]";
+                        contents = contents + content + "\n";
+                    }
+
+
+                }
+            }
+            return contents;
         },
         MsgContent: async function(is_mine=false) {
             if(this.msg === null) {
@@ -786,10 +964,33 @@ export default {
                                 reader.readAsArrayBuffer(blob);
                             })
                     }
-                    var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
-                    // console.log("fileMsgImgElement ia ", fileMsgImgElement);
-                    fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
-                    fileMsgImgElement.setAttribute("height", 12);
+                    // var fileMsgImgElement = document.getElementById(this.msg.event.event_id);
+                    // // console.log("fileMsgImgElement ia ", fileMsgImgElement);
+                    // fileMsgImgElement.setAttribute("src", "./static/Img/Chat/msg-voice@2x.png");
+                    // fileMsgImgElement.setAttribute("height", 12);
+                }
+                else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+                    let fromRoomid = chatGroupMsgContent.from_room_id;
+                    let fromRoomDisplayName = chatGroupMsgContent.from_room_display_name;
+                    let fromUserId1 = chatGroupMsgContent.from_matrix_ids ? chatGroupMsgContent.from_matrix_ids[0] : undefined;
+                    let fromUserId2 = chatGroupMsgContent.from_matrix_ids ? chatGroupMsgContent.from_matrix_ids[1] : undefined;
+                    let events = chatGroupMsgContent.events;
+                    let fromRoom = global.mxMatrixClientPeg.matrixClient.getRoom(fromRoomid);
+                    console.log("========fromRoomid ", fromRoomid);
+                    console.log("========fromRoom ", fromRoom);
+                    if(fromRoom && global.mxMatrixClientPeg.DMCheck(fromRoom) && fromUserId1 && fromUserId2) {
+                        let fromUserName1 = await ComponentUtil.GetDisplayNameByMatrixID(fromUserId1);
+                        let fromUserName2 = await ComponentUtil.GetDisplayNameByMatrixID(fromUserId2);
+                        this.transmitMsgTitle = fromUserName1 + "与" + fromUserName2 + "的聊天记录";
+                    }
+                    else {
+                        this.transmitMsgTitle = "群聊的聊天记录";//fromRoomDisplayName;
+                    }
+                    this.transmitMsgContent = await this.getTransmitContent(events);
+                    console.log("this.transmitMsgContent ", this.transmitMsgContent);
+                }
+                else {
+                    this.messageContent = "无法识别的消息类型";
                 }
             }
             else if(chatGroupMsgType === "m.room.encrypted") {
@@ -1076,6 +1277,7 @@ export default {
             var roomID = this.msg.event.room_id;
             try{
                 global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, txnId ? txnId : this.msg._txnId).then((ret) => {
+                    this.$store.commit("removeSendingEvents", this.msg);
                     this.msg.message_status = 0;
                 }).catch((error) => {
                     console.log("error is ", error.errcode);
@@ -1083,7 +1285,7 @@ export default {
                 })
             }
             catch(error) {
-                this.msg.message_status = 2;
+                this.msg.message_status = 1;
                 console.log("error is ", error);
             }
         },
@@ -1100,11 +1302,17 @@ export default {
                         this.curProcess = 1;
                         this.msg.event.content.file = ret.file;
                         this.msg.event.content.url = ret.url;
-                        global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, this.msg._txnId);
-                        this.msg.message_status = 0;
-                        this.showState = false;
+                        global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, this.msg._txnId).then((ret) => {
+                            this.$store.commit("removeSendingEvents", this.msg);
+                            this.msg.message_status = 0;
+                            this.showState = false;
+                        }).catch((error) => {
+                            console.log("error is ", error.errcode);
+                            this.msg.message_status = 2;
+                        })
                     })
                 }, (e) => {
+                    this.msg.message_status = 2;
                     console.log("**** getInfoForImageFile Exception ", e);
                 })
             }
@@ -1121,6 +1329,7 @@ export default {
                     this.msg.event.content.info.mimetype = fileMIMEFromType(path.extname(showfileObj.name).split('.')[1]);
                     this.msg.event.content.info.size = this.msg.event.content.info.size;
                     global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, this.msg._txnId).then(async (ret) => {
+                        this.$store.commit("removeSendingEvents", this.msg);
                         if(fs.existsSync(this.msg.path)) {
                             let msgs = await Message.FindMessageByMesssageID(ret.event_id);
                             if(msgs.length != 0){
@@ -1139,8 +1348,14 @@ export default {
                         this.msg.message_status = 0;
                         this.showState = false;
                     })
+                    .catch((error) => {
+                            console.log("error is ", error.errcode);
+                            this.msg.message_status = 2;
+                            this.showState = true;
+                        })
                 })
                 .catch((error) => {
+                    this.$store.commit("removeSendingEvents", this.msg);
                     this.msg.message_status = 2;
                     this.showState = true;
                 })
@@ -1190,6 +1405,7 @@ export default {
     mounted: async function() {
         if(this.msg.event.content.msgtype != "m.text" && !this.msg.event.event_id) {
         // if(this.msg.event.msgtype != "m.text") {
+            console.log("====== message this.msg is ", this.msg);
             this.sendFile();
         }
         else if(this.msg.event.content.msgtype == "m.text" && !this.msg.event.event_id) {
@@ -1680,6 +1896,12 @@ export default {
         display: inline-block;
         -webkit-user-select:none;
     }
+
+    .voice-mine-image {
+        height: 16px;
+        display: inline-block;
+        -webkit-user-select:none;
+    }
     
     .file-info {
         height: 40px;
@@ -1969,16 +2191,14 @@ export default {
         flex-direction: row-reverse;
         align-items: center;
         -webkit-user-select:none;
-        .voice-image{
-            transform: rotate(180deg);
-        }
     }
 
     .chat-msg-content-other-transmit {
         float:left;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
-        min-width: 200px;
+        // max-width: 260px;
+        // min-width: 200px;
+        width: 243px;
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
@@ -1990,10 +2210,11 @@ export default {
     .chat-msg-content-mine-transmit {
         float:right;
         background-color: rgba(255, 255, 255, 1);
-        max-width: 260px;
-        min-width: 200px;
+        // max-width: 260px;
+        // min-width: 200px;
+        width: 243px;
         border-radius: 5px;
-        padding: 7px 12px 7px 12px;
+        padding: 10px 12px 10px 12px;
         font-size: 14px;
         text-align: left;
         margin: 0px;
@@ -2006,11 +2227,11 @@ export default {
         max-width: 260px;
         min-width: 20px;
         border: 0px solid rgba(221, 221, 221, 1);
-        padding-bottom: 10px;
+        padding-bottom: 3px;
         font-size: 14px;
-        font-family: 'PingFangSC-medium';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
-        font-weight: 500;
+        font-weight: 400;
         margin: 0px;
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -2023,10 +2244,9 @@ export default {
         max-width: 260px;
         min-width: 20px;
         border-radius: 5px;
-        padding-top: 10px;
+        padding-top: 3px;
         font-size: 12px;
         font-weight: 400;
-        font-family: 'PingFangSC-Regular';
         font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
@@ -2034,7 +2254,7 @@ export default {
         word-wrap: break-word;
         letter-spacing: 0px;
         line-height: 18px;
-        color:rgba(102,102,102,1);
+        color:rgba(153, 153, 153, 1);
     }
     
     .imageTip {
