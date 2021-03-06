@@ -986,11 +986,11 @@ export default {
             this.recentGroups = favGroups.concat(norGroups);
             this.showRecentChat = this.recentGroups;
             console.log("*** this.showRecentChat is ", this.showRecentChat);
-            // setTimeout(() => {
-            //     this.$nextTick(function(){
-            //         this.updageTransmitChatNameAndImg();
-            //     });
-            // }, 0)
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    this.updageTransmitChatNameAndImg();
+                });
+            }, 0)
         }
     },
     
