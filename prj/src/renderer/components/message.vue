@@ -28,15 +28,15 @@
                             <p class="file-size" v-show="false">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
-                    <div class="chat-msg-content-mine-transmit"
+                    <div class="chat-msg-content-mine-transmit" :id="transmitMsgId()"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()" v-html="getMsgMineLinkContent(messageContent)"></p>
-                        <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >{{getMsgMineLinkContent(messageContent)}}</p>
+                        <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">{{messageContent}}</p>
+                        <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >{{messageContent}}</p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="(MsgIsFile() || MsgIsTransmit()) && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
@@ -78,7 +78,7 @@
                             <p class="file-size">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
-                    <div class="chat-msg-content-other-transmit"
+                    <div class="chat-msg-content-other-transmit" :id="transmitMsgId()"
                         v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
@@ -159,6 +159,9 @@ export default {
                     console.log("error is ", error);
                 }
             }
+        },
+        transmitMsgId: function() {
+            return "message-transmit-" + this.msg.event.event_id;
         },
         getMessageTemplateId: function() {
             return "message-template-" + this.msg.event.event_id;
@@ -648,7 +651,9 @@ export default {
         },
         getMsgMineLinkContent: function(content) {
             var dealContent = this.msgContentShowPhoneAndHightLight(content, 'rgba(255, 255, 255, 1)');
-            return dealContent;
+            let distElement = document.getElementById(this.getTextElementId());
+            distElement.innerHTML = dealContent;
+            // return dealContent;
         },
 
         needHightLight(msg){
@@ -870,8 +875,7 @@ export default {
                     }
                     else if(chatGroupMsgContent.msgtype == 'm.text'){
                         let noReturn = chatGroupMsgContent.body.replace(/\n/g, "").replace(/\r\n/g, "");
-                        console.log("===== noReturn ", noReturn);
-                        let content = noReturn.length >= 25 ? fromUserName + ":" + noReturn.substring(0, 25) + "..." : fromUserName + ":" + noReturn;
+                        let content = noReturn.length >= 17 ? fromUserName + ":" + noReturn.substring(0, 17) + "..." : fromUserName + ":" + noReturn;
                         contents = contents + content + "\n";
                     }
                     else if(chatGroupMsgContent.msgtype == 'm.image'){
@@ -883,17 +887,16 @@ export default {
                         contents = contents + content + "\n";
                     }
                     else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
-                        console.log("getTransmitContent chatGroupMsgContent ", chatGroupMsgContent);
                         let content = fromUserName + ":[聊天记录]";
                         contents = contents + content + "\n";
                     }
                     else {
-                        console.log("getTransmitContent chatGroupMsgContent ", chatGroupMsgContent);
                         let content = fromUserName + ":[无法识别的消息类型]";
                         contents = contents + content + "\n";
                     }
-
-
+                }
+                if(i == 3) {
+                    break;
                 }
             }
             return contents;
@@ -927,6 +930,7 @@ export default {
                     if(this.messageContent.length == 0) {
                         this.messageContent = "\n";
                     }
+                    this.getMsgMineLinkContent(this.messageContent);
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     if(chatGroupMsgContent.body)
@@ -970,14 +974,25 @@ export default {
                     // fileMsgImgElement.setAttribute("height", 12);
                 }
                 else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+                    let events = chatGroupMsgContent.events;
+                    let distElement = document.getElementById(this.transmitMsgId());
+                    if(events.length >= 4) {
+                        distElement.style.height = "97px";
+                    }
+                    else if(events.length == 3) {
+                        distElement.style.height = "85px";
+                    }
+                    else if(events.length == 2) {
+                        distElement.style.height = "73px";
+                    }
+                    else if(events.length == 1) {
+                        distElement.style.height = "61px";
+                    }
                     let fromRoomid = chatGroupMsgContent.from_room_id;
                     let fromRoomDisplayName = chatGroupMsgContent.from_room_display_name;
                     let fromUserId1 = chatGroupMsgContent.from_matrix_ids ? chatGroupMsgContent.from_matrix_ids[0] : undefined;
                     let fromUserId2 = chatGroupMsgContent.from_matrix_ids ? chatGroupMsgContent.from_matrix_ids[1] : undefined;
-                    let events = chatGroupMsgContent.events;
                     let fromRoom = global.mxMatrixClientPeg.matrixClient.getRoom(fromRoomid);
-                    console.log("========fromRoomid ", fromRoomid);
-                    console.log("========fromRoom ", fromRoom);
                     if(fromRoom && global.mxMatrixClientPeg.DMCheck(fromRoom) && fromUserId1 && fromUserId2) {
                         let fromUserName1 = await ComponentUtil.GetDisplayNameByMatrixID(fromUserId1);
                         let fromUserName2 = await ComponentUtil.GetDisplayNameByMatrixID(fromUserId2);
@@ -987,7 +1002,6 @@ export default {
                         this.transmitMsgTitle = "群聊的聊天记录";//fromRoomDisplayName;
                     }
                     this.transmitMsgContent = await this.getTransmitContent(events);
-                    console.log("this.transmitMsgContent ", this.transmitMsgContent);
                 }
                 else {
                     this.messageContent = "无法识别的消息类型";
@@ -2199,6 +2213,7 @@ export default {
         // max-width: 260px;
         // min-width: 200px;
         width: 243px;
+        height: 97px;
         border-radius: 5px;
         padding: 7px 12px 7px 12px;
         font-size: 14px;
@@ -2213,6 +2228,7 @@ export default {
         // max-width: 260px;
         // min-width: 200px;
         width: 243px;
+        max-height: 97px;
         border-radius: 5px;
         padding: 10px 12px 10px 12px;
         font-size: 14px;

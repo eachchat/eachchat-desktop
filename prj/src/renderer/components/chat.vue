@@ -24,8 +24,8 @@
         <div class="chat-main" id="chat-main" v-show="!isSerach && !isFileList">
             <Invite class="chat-invite" :inviter="inviterInfo" @joinRoom="joinRoom" @rejectRoom="rejectRoom" v-show="isInvite"></Invite>
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
-                <!-- <ul class="msg-list" id="message-show-list"> -->
-                <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
+                <ul class="msg-list" id="message-show-list">
+                <!-- <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul"> -->
                     <li class="msg-loading" v-bind:key="123">
                         <i class="el-icon-loading" v-show="isRefreshing"></i>
                     </li>
@@ -42,8 +42,8 @@
                             <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
-                <!-- </ul> -->
-                </transition-group>
+                </ul>
+                <!-- </transition-group> -->
             </div>
             <div class="uploadingProc" v-show="showUploadProgress">
                 <label class="uploadingName">{{UploadingName}}</label>
