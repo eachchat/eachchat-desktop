@@ -589,6 +589,12 @@ export default {
             }
 
         },
+        openUrl: function(url) {
+            if(url.indexOf("https://") < 0 && url.indexOf("http://") < 0) {
+                url = "https://" + url;
+            }
+            shell.openExternal(url);
+        },
         msgContentHeightLight: function(curMsg) {
             var showContent = curMsg.content.text;
             // showContent = showContent + ' ';
@@ -627,6 +633,7 @@ export default {
                 })
             }, 0)
         })
+        window.openUrl=this.openUrl;
     }
 }
 </script>
