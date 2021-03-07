@@ -875,7 +875,7 @@ export default {
                     }
                     else if(chatGroupMsgContent.msgtype == 'm.text'){
                         let noReturn = chatGroupMsgContent.body.replace(/\n/g, "").replace(/\r\n/g, "");
-                        let content = noReturn.length >= 17 ? fromUserName + ":" + noReturn.substring(0, 17) + "..." : fromUserName + ":" + noReturn;
+                        let content = noReturn.length >= 16 ? fromUserName + ":" + noReturn.substring(0, 16) + "..." : fromUserName + ":" + noReturn;
                         contents = contents + content + "\n";
                     }
                     else if(chatGroupMsgContent.msgtype == 'm.image'){
