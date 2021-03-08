@@ -368,6 +368,7 @@ export default {
             
             // eventSearch(this.searchKey, this.GroupInfo.roomId)
             // this.matrixSearch()
+            this.sequenceId = 0;
             this.appSearch()
                 .then((ret) => {
                     if(ret.results == undefined) {
@@ -499,41 +500,46 @@ export default {
             }
             if(showContent.msgtype == "m.text") {
                 var textContent = showContent.body;
-                if(textContent.indexOf(this.searchKey) != -1) {
-                    let splitValue = textContent.split(this.searchKey);
-                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                if(textContent.toLowerCase().indexOf(this.searchKey.toLowerCase()) != -1) {
+                    let spliter = textContent.substr(textContent.toLowerCase().indexOf(this.searchKey.toLowerCase()), this.searchKey.length);
+                    let splitValue = textContent.toLowerCase().split(this.searchKey.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + spliter + "</span>");
                     return newInnerHtml;
                 }
             }
             else if(showContent.msgtype == "m.file") {
                 var fileName = showContent.body;
-                if(fileName.indexOf(this.searchKey) != -1) {
-                    let splitValue = fileName.split(this.searchKey);
-                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                if(fileName.toLowerCase().indexOf(this.searchKey.toLowerCase()) != -1) {
+                    let spliter = fileName.substr(fileName.toLowerCase().indexOf(this.searchKey.toLowerCase()), this.searchKey.length);
+                    let splitValue = fileName.toLowerCase().split(this.searchKey.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + spliter + "</span>");
                     return newInnerHtml;
                 }
             }
             else if(showContent.msgtype == "m.image") {
                 var fileName = showContent.body;
-                if(fileName.indexOf(this.searchKey) != -1) {
-                    let splitValue = fileName.split(this.searchKey);
-                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                if(fileName.toLowerCase().indexOf(this.searchKey.toLowerCase()) != -1) {
+                    let spliter = fileName.substr(fileName.toLowerCase().indexOf(this.searchKey.toLowerCase()), this.searchKey.length);
+                    let splitValue = fileName.toLowerCase().split(this.searchKey.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + spliter + "</span>");
                     return newInnerHtml;
                 }
             }
             else if(showContent.msgtype == "m.audio") {
                 var fileName = showContent.body;
-                if(fileName.indexOf(this.searchKey) != -1) {
-                    let splitValue = fileName.split(this.searchKey);
-                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                if(fileName.toLowerCase().indexOf(this.searchKey.toLowerCase()) != -1) {
+                    let spliter = fileName.substr(fileName.toLowerCase().indexOf(this.searchKey.toLowerCase()), this.searchKey.length);
+                    let splitValue = fileName.toLowerCase().split(this.searchKey.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + spliter + "</span>");
                     return newInnerHtml;
                 }
             }
             else if(showContent.name != undefined) {
                 var textContent = showContent.name;
-                if(textContent.indexOf(this.searchKey) != -1) {
-                    let splitValue = textContent.split(this.searchKey);
-                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
+                if(textContent.toLowerCase().indexOf(this.searchKey.toLowerCase()) != -1) {
+                    let spliter = textContent.substr(textContent.toLowerCase().indexOf(this.searchKey.toLowerCase()), this.searchKey.length);
+                    let splitValue = textContent.toLowerCase().split(this.searchKey.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + spliter + "</span>");
                     return newInnerHtml;
                 }
             }
