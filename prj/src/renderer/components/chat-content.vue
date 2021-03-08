@@ -1129,15 +1129,18 @@ export default {
       if(chatGroupMsgType === "m.room.message")
       {
           if(chatGroupMsgContent.msgtype == 'm.file'){
-            return sender + "：[文件]" + chatGroupMsgContent.body;
+            return sender + ":[文件]" + chatGroupMsgContent.body;
           }
           else if(chatGroupMsgContent.msgtype == 'm.text'){
             var content = chatGroupMsgContent.body;
-            return sender + "：" + content;
+            return sender + ":" + content;
           }
           else if(chatGroupMsgContent.msgtype == 'm.image'){
-            return sender + "：[图片]";
+            return sender + ":[图片]";
           } 
+          else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+            return sender + ":[聊天记录]";
+          }
       }
       else if(chatGroupMsgType === "m.room.encrypted") {
           // chatGroupMsgContent = this.msg.getContent();
@@ -1215,7 +1218,6 @@ export default {
       if(data.liveEvent) {
         if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
-          this.$store.commit("removeSendingEvents", ev);
         }
         this.updateChatList(ev);
       }
@@ -1846,6 +1848,9 @@ export default {
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = senderName + ":" + "[语音]";
               }
+              else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+                distContentElement.innerHTML = senderName + ":" + "[聊天记录]";
+              }
             }
             else {
               if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -1859,6 +1864,9 @@ export default {
               } 
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = "[语音]";
+              }
+              else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
+                distContentElement.innerHTML = "[聊天记录]";
               }
             }
         }

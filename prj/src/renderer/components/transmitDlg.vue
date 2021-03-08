@@ -110,6 +110,11 @@ export default {
         chatCreaterContent,
     },
     props: {
+        transmitMergeInfo: {
+            from_room_id: '',
+            from_room_display_name: '',
+            from_matrix_ids: []
+        },
         collectionInfo: {
             type: Object,
             default: function(){
@@ -665,37 +670,25 @@ export default {
             }
         },
         sendTogetherMsg: async function(distGroups, msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            var msgContent = await this.getTogetherMsgContent(msgs);
-            console.log("varcontent is ", msgContent);
+            let haveFailed = false;
+            let togetherContent = await this.getTogetherMsgContent(msgs);
             for(var i=0;i<distGroups.length;i++){
-                var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                 let curTimeSeconds = new Date().getTime();
-                
-                let sendingMsgContentType = 106;
-                let willSendMsgContent = msgContent;
-                let guid = generalGuid();
-                services.common.sendNewMessage(
-                        guid, 
-                        sendingMsgContentType, 
-                        this.curUserInfo.id, 
-                        groupId, 
-                        uid, 
-                        curTimeSeconds, 
-                        willSendMsgContent)
-                    .then((ret) => {
-                        console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
-                            if(ret == undefined) {
-                                return false;
-                            }
-                            else {
-                                this.$emit('updateChatList', ret);
-                            }
+                try{
+                    global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, togetherContent, curTimeSeconds).then((ret) => {
+                        
+                    }).catch((error) => {
+                        haveFailed = true;
                     })
+                }
+                catch(error) {
+                    haveFailed = true;
+                }
             }
+            if(haveFailed) {
+                return false;
+            }
+            return true;
         },
         sendImageViewerMsg: async function(distGroups, imageViewerImageInfo) {
             console.log("sendSingleCollectionMsg ", imageViewerImageInfo);
@@ -865,55 +858,38 @@ export default {
             return true;
         },
         getTogetherMsgContent: async function(msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            var contentTitle = "";
-            var contentText = "";
-            var groupId = this.curChat.group_id;
-            var msgIds = [];
-            var fromId = this.curUserInfo.id;
-            console.log("this.curchat is ", this.curChat.group_type);
-            if(this.curChat.group_type == 102) {
-
-                var nameTemp = this.curChat.group_name;
-                // var userInfos = await services.common.GetDistUserinfo(this.curChat.uid);
-                // var userInfos = await UserInfo.GetUserInfo(this.curChat.uid);
-                // var distUserInfo = userInfos[0];
-                // if(distUserInfo != undefined){
-                //     nameTemp = distUserInfo.user_display_name;
-                // }
-
-                contentTitle = this.curUserInfo.name + "与" + nameTemp + "的聊天记录";
-            }
-            else {
-                contentTitle = "[群聊]";
-            }
-            for(let i=0;i<msgs.length;i++) {
-                if(msgs[i].message_type == 105) {
-                    continue;
-                }
-                if(i < 4) {
-                    if(i == 3) {
-                        contentText = contentText + await this.getMsgContent(msgs[i]);
-                    }
-                    else {
-                        contentText = contentText + await this.getMsgContent(msgs[i]) + "\n";
-                    }
-                }
-                msgIds.push(msgs[i].time_line_id);
-            }
-            console.log("contentText is ", contentText);
-
-            var togetherMsgContent = {
-                "title": contentTitle,
-                "text": contentText,
-                "groupId": groupId,
-                "msgIds": msgIds,
-                "fromId": fromId,
+            var content = {
+                msgtype: "each.chat.merge",
+                body: "[合并消息]",
+                events: [],
+                from_matrix_ids: this.transmitMergeInfo.from_matrix_ids,
+                from_room_id: this.transmitMergeInfo.from_room_id,
+                from_room_display_name: this.transmitMergeInfo.from_room_display_name,
             };
-
-            return togetherMsgContent;
+            msgs.forEach((msg) => {
+                let curContent = msg.getContent();
+                if(curContent.msgtype == "m.audio") {
+                    return;
+                }
+                if(msg.event.content.info != undefined) {
+                    if(msg.event.content.info.h != undefined)
+                    try{
+                        msg.event.content.info.h = parseInt(msg.event.content.info.h);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                    if(msg.event.content.info.w != undefined)
+                    try{
+                        msg.event.content.info.w = parseInt(msg.event.content.info.w);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                }
+                content.events.push(msg);
+            })
+            return content;
         },
         getMsgContent: async function(msg) {
             if(this.msg === null) {

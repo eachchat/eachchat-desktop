@@ -7,7 +7,7 @@
             <div class="groupInfo-view">
             <div v-if="!isDm" class="groupInfoImageDiv" style="margin-right: 8px;">
                 <input style="display:none;" id="mxavai" @change="_onAvatarChanged" type="file" accept="image/*">
-                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror="this.src = './static/Img/User/group-40px@2x.png'" @click="showGroupImg()">
+                <img id="groupInfoImageId" class="groupInfoImage" :src="mxAvatar" onerror="this.src = './static/Img/User/group-40px@10x.png'" @click="showGroupImg()">
                 <img 
                     id="groupInfoImageChangeId" 
                     class="groupInfoImageChange" 
@@ -784,7 +784,7 @@ export default {
                 if (avatarUrl) {
                     this.mxAvatar = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(avatarUrl);
                 } else {
-                    this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@2x.png';
+                    this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@10x.png';
                 }
             }, 500)
             this.showImageCropper = false;
@@ -1210,7 +1210,7 @@ export default {
         if (avatarUrl) {
             this.mxAvatar = client.mxcUrlToHttp(avatarUrl);
         } else {
-            this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? client.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@2x.png';
+            this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? client.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@10x.png';
         }
 
         console.log('----mxRoom----', this.mxRoom);
