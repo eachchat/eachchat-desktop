@@ -35,7 +35,9 @@
                     </div>
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">{{messageContent}}</p>
+                        <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
+                            <linkify :text="messageContent" color="rgba(255, 255, 255, 1)" textDecoration="underline"></linkify>
+                        </p> 
                         <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >{{messageContent}}</p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="(MsgIsFile() || MsgIsTransmit()) && !MsgIsImage()"></div>
@@ -85,7 +87,9 @@
                     </div>
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
-                        <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id" v-html="getMsgOtherLinkContent(messageContent)"></p>
+                        <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
+                            <linkify :text="messageContent" color="#5B6A91" textDecoration="underline"></linkify>
+                        </p>
                         <p v-else class="chat-msg-content-others-txt" :id="msg.event.event_id">{{getMsgOtherLinkContent(messageContent)}}</p>
 
                     </div>
@@ -111,6 +115,7 @@ import {downloadGroupAvatar, generalGuid, Appendzero, fileMIMEFromType, FileUtil
 import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
 import {ComponentUtil} from '../script/component-util.js'
 import { models } from '../../packages/data/models.js';
+import linkify from './linkify'
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 600;
@@ -123,6 +128,7 @@ function extend(target, base) {
 }
 export default {
     components: {
+        linkify,
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     methods: {
@@ -930,7 +936,7 @@ export default {
                     if(this.messageContent.length == 0) {
                         this.messageContent = "\n";
                     }
-                    this.getMsgMineLinkContent(this.messageContent);
+                    // this.getMsgMineLinkContent(this.messageContent);
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     if(chatGroupMsgContent.body)
