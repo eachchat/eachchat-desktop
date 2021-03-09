@@ -150,6 +150,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       }
     },
     {
+      label: "注销",
+      click: function() {
+        mainWindow.webContents.send("LogoutMenuItemClick");
+      }
+    },
+    {
       label: "退出",
       click: function() {
         clickQuit = true;

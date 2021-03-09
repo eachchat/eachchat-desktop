@@ -8,11 +8,7 @@
             if (ind %2) {
               openUrl(item)
             }
-          }">
-          {{
-            item
-          }}
-        </span>
+          }">{{item}}</span>
     </div>
 </template>
 
@@ -34,7 +30,6 @@ export default {
         },
     },
     data: {
-      
     },
     methods: {
        getItems() {
@@ -45,7 +40,7 @@ export default {
        },
        openUrl(url) {
          openUrl(url)
-       }
+       },
     }
 }
 </script>

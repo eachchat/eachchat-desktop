@@ -529,7 +529,7 @@ display: none;
     .TransmitConfirmButton{
         width: 100px;
         height: 32px;
-        margin-left: 5px;
+        margin-left: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
@@ -543,7 +543,6 @@ display: none;
     .TransmitConfirmButton:disabled{
         width: 100px;
         height: 32px;
-        margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
