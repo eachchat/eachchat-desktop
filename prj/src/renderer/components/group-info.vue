@@ -174,7 +174,7 @@
         <!-- <div :class="groupListViewClassName()" v-if="isGroup && !isDm"> -->
             <ul class="groupMember-list" v-if="isGroup && !isDm">
 
-                <li v-for="(item, index) in mxMembers" class="memberItemWrap"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
+                <li v-for="(item, index) in mxMembers" class="memberItemWrap" @click.stop="bubbleGet($event, item, index)"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
                     <!-- <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
                         <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
@@ -196,10 +196,9 @@
                         <img 
                             src="../../../static/Img/Main/sandian.png" 
                             class="memberItemOptionsImg"
-                            @click.self.stop="switchOption(item)"
                             v-if="currentUser.powerLevel > item.powerLevel && item.membership === 'join'"
                         >
-                        <div class="memberItemOptions" v-show="item.choosen">
+                        <div class="memberItemOptions" v-show="item.choosen" :class="{'memberItemOptionsUp':up, 'memberItemOptionsDown':!up}">
                             <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
                             <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 &&  item.powerLevel !== 50">设为群管理员</div>
                             <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 && item.powerLevel !== 0">设为群成员</div>
@@ -339,6 +338,7 @@ export default {
             myDomain: '',
             firstLoad: false,
             nextTime: false,
+            up: false
         }
     },
     components: {
@@ -375,6 +375,28 @@ export default {
     computed: {
     },
     methods: {
+        bubbleGet(e, item, index) {
+            console.log('bubbleGet e.target-----', e.target)
+            console.log('bubbleGet e.currentTarget-----', e.currentTarget)            
+            console.log('bubbleGet item----', item)
+            console.log('getBoundingClientRect----', e.currentTarget.offsetTop)
+            const height = 50;
+            const innerWrap = document.querySelector(".innerWrap");
+            console.log('height-------', height)
+            console.log('innerWrap------', innerWrap)
+            console.log('clientHeight----', innerWrap.clientHeight)
+            console.log('scrollTop ---', innerWrap.scrollTop)
+            console.log('scrollHeight ---', innerWrap.scrollHeight)
+            const clientHeight = innerWrap.clientHeight;
+            const scrollTop = innerWrap.scrollTop;
+            const scrollHeight = innerWrap.scrollHeight;
+            if (scrollHeight - scrollTop <= scrollHeight + height*3 && index >= this.mxMembers.length - 3) {
+                this.up = true
+            } else {
+                this.up = false
+            }
+            this.switchOption(item);
+        },
         showGroupImg() {
             const ipcRenderer = require('electron').ipcRenderer;
             ipcRenderer.send('showPersonalImageViewWindow', this.mxAvatar);
@@ -1563,9 +1585,16 @@ export default {
     box-shadow: 0px 0px 12px 0px rgba(103, 103, 103, 0.14);
     border-radius: 4px;
     border: 1px solid #DDDDDD;
-    top: 32px;
     right: 16px;
     z-index: 1;
+}
+
+.memberItemOptionsUp{
+    top: -80px;
+}
+
+.memberItemOptionsDown {
+    top: 32px;
 }
 
 .optionItem {
