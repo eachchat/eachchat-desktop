@@ -270,7 +270,7 @@ export default {
 .CancelButton {
     width: 100px;
     height: 32px;
-    margin-right: 5px;
+    margin-right: 20px;
     background: white;
     border-radius:4px;
     border:1px solid rgba(221,221,221,1);      
@@ -297,6 +297,7 @@ export default {
     margin-top: 20px;
     margin-bottom: 20px;
     text-align:center;
+    letter-spacing: -3px;
 }
 
 /deep/.el-input--mini .el-input__inner {
