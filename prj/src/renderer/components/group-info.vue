@@ -174,7 +174,7 @@
         <!-- <div :class="groupListViewClassName()" v-if="isGroup && !isDm"> -->
             <ul class="groupMember-list" v-if="isGroup && !isDm">
 
-                <li v-for="(item, index) in mxMembers" class="memberItemWrap"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
+                <li v-for="(item, index) in mxMembers" class="memberItemWrap" @click.stop="bubbleGet($event, item, index)"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
                     <!-- <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
                         <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
@@ -197,7 +197,6 @@
                             src="../../../static/Img/Main/sandian.png" 
                             class="memberItemOptionsImg"
                             v-if="currentUser.powerLevel > item.powerLevel && item.membership === 'join'"
-                            @click.self.stop="bubbleGet(item, index)"
                         >
                         <div class="memberItemOptions" v-show="item.choosen" :class="{'memberItemOptionsUp':up, 'memberItemOptionsDown':!up}">
                             <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
@@ -376,9 +375,11 @@ export default {
     computed: {
     },
     methods: {
-        bubbleGet(item, index) {
-            const height = 50;
+        bubbleGet(e, item, index) {
+            const height = 100;
+            if (e.target.className !== 'memberItemOptionsImg') return;
             const innerWrap = document.querySelector(".innerWrap");
+            console.log('offsetTop----', e.currentTarget.offsetTop);
             console.log('height-------', height)
             console.log('innerWrap------', innerWrap)
             console.log('clientHeight----', innerWrap.clientHeight)
@@ -387,7 +388,9 @@ export default {
             const clientHeight = innerWrap.clientHeight;
             const scrollTop = innerWrap.scrollTop;
             const scrollHeight = innerWrap.scrollHeight;
-            if (scrollHeight - scrollTop <= scrollHeight + height*3 && index >= this.mxMembers.length - 3) {
+            console.log('ggggg', e.currentTarget.offsetTop)
+            console.log('hhhhh', scrollTop + clientHeight)
+            if ( (scrollTop + clientHeight) - e.currentTarget.offsetTop <= height) {
                 this.up = true
             } else {
                 this.up = false
