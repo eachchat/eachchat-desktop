@@ -174,7 +174,7 @@
         <!-- <div :class="groupListViewClassName()" v-if="isGroup && !isDm"> -->
             <ul class="groupMember-list" v-if="isGroup && !isDm">
 
-                <li v-for="(item, index) in mxMembers" class="memberItemWrap" @click.stop="bubbleGet($event, item, index)"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
+                <li v-for="(item, index) in mxMembers" class="memberItemWrap"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
                     <!-- <div class="groupMemberInfoDiv">
                         <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
                         <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
@@ -197,6 +197,7 @@
                             src="../../../static/Img/Main/sandian.png" 
                             class="memberItemOptionsImg"
                             v-if="currentUser.powerLevel > item.powerLevel && item.membership === 'join'"
+                            @click.self.stop="bubbleGet(item, index)"
                         >
                         <div class="memberItemOptions" v-show="item.choosen" :class="{'memberItemOptionsUp':up, 'memberItemOptionsDown':!up}">
                             <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
@@ -375,11 +376,7 @@ export default {
     computed: {
     },
     methods: {
-        bubbleGet(e, item, index) {
-            console.log('bubbleGet e.target-----', e.target)
-            console.log('bubbleGet e.currentTarget-----', e.currentTarget)            
-            console.log('bubbleGet item----', item)
-            console.log('getBoundingClientRect----', e.currentTarget.offsetTop)
+        bubbleGet(item, index) {
             const height = 50;
             const innerWrap = document.querySelector(".innerWrap");
             console.log('height-------', height)
