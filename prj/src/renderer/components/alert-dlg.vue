@@ -236,7 +236,7 @@ export default {
     .AlertConfirmButton {
         width: 100px;
         height: 32px;
-        margin-left: 5px;
+        margin-left: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
         // margin-right: 110px;
@@ -250,7 +250,6 @@ export default {
     .AlertConfirmButton:hover {
         width: 100px;
         height: 32px;
-        margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
         // margin-right: 110px;
@@ -264,10 +263,10 @@ export default {
     .AlertCancleButton {
         width: 100px;
         height: 32px;
-        margin-right: 5px;
+        margin-right: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-left: 180px;
+        margin-left: 170px;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);

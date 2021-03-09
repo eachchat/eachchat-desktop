@@ -210,6 +210,7 @@ export default {
         height: 32px;
         top: 20px;
         margin: auto;
+        margin-right: 20px;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);
