@@ -578,6 +578,13 @@ export default {
                 refreshToken(this);
             }, 1000 * 3600 * 3.5)
         },
+
+        async logoutMenuItemClick(){
+            await global.mxMatrixClientPeg.logout();
+            await global.services.common.logout();
+            ipcRenderer.send("showLoginPageWindow");
+        },
+
         softLogout: function(errObj) {
             if (global.mxMatrixClientPeg.isLoggingOut()) return;
 
@@ -779,6 +786,7 @@ export default {
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
         ipcRenderer.on('toLogout', this.softLogout);
+        ipcRenderer.on('LogoutMenuItemClick', this.logoutMenuItemClick);
         ipcRenderer.on('setIsFullScreen', this.setFullScreen);
         ipcRenderer.on('isNormal', (e, isNormal) => {
             this.isNormal = isNormal;
