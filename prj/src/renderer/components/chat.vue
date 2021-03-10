@@ -677,12 +677,29 @@ export default {
                         }));
                     }
                     if(showRedact) {
-                        this.menu.append(new MenuItem({
-                            label: "删除",
-                            click: () => {
-                                this.menuDelete(msgItem)
-                            }
-                        }));
+                        //todo 删除或撤回
+                        console.log('查看当前信息', msgItem);
+                        let text = '删除';
+                        let timeLimit = 2 * 60 * 1000;
+                        const myUserId = this.curChat.myUserId;
+                        const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                        const members = this.curChat.currentState.members;
+                        const userLevel = members[myUserId].powerLevel;
+                        let redact = 50;
+                        if (currentState) {
+                            let levelObj = currentState.getContent();
+                            redact = levelObj.redact || redact;
+                        }
+                        if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                        if (msgItem.event.sender !== myUserId) text = '删除';
+                        if (userLevel >= redact) {
+                            this.menu.append(new MenuItem({
+                                label: text,
+                                click: () => {
+                                    this.menuDelete(msgItem, text)
+                                }
+                            }));
+                        }
                     }
                     if(!this.isSecret) {
                         this.menu.append(new MenuItem({
@@ -776,12 +793,12 @@ export default {
             }
             this.menu.popup(remote.getCurrentWindow());
         },
-        menuDelete(msg) {
+        menuDelete(msg, text='删除') {
             this.curOperate = "Del";
             this.selectedMsgs.push(msg);
             this.alertContnets = {
-                "Details": "是否删除聊天记录？",
-                "Abstrace": "删除聊天记录"
+                "Details": `是否${text}聊天记录？`,
+                "Abstrace": `${text}删除聊天记录`
             }
             this.showAlertDlg = true;
             // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
