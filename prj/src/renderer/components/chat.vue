@@ -3,6 +3,11 @@
         <mxHistoryPage class="mxHistoryPage" v-show="isSerach" :distRoomId="HistorySearchRoomId" :initSearchKey="initSearchKey" @searchClose="CloseSearchPage" @jumpToEvent="jumpToEvent"/>
         <mxFilePage class="mxFilePage" v-show="isFileList" :distRoom="curChat" :distRoomId="FilelistSearchRoomId" @fileListClose="CloseFileListPage" @showImageOfMessage="showImageOfMessage"/>
         <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
+        <div class="toBottom" v-show="haveNewMsg">
+            <img class="toBottomImg" src="../../../static/Img/Chat/toBottomIco@2x.png" @click="goToBottom">
+            <div class="toBottomText" @click="goToBottom">新消息</div>
+            <img class="toBottomClose" src="../../../static/Img/Chat/toBottomClose@2x.png" @click="closeToBottom">
+        </div>
         <div class="chat-title">
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
@@ -310,6 +315,13 @@ export default {
         mxMemberSelectDlg,
     },
     methods: {
+        closeToBottom() {
+            this.haveNewMsg = false;
+        },
+        goToBottom() {
+            this.SetToBottom();
+            this.haveNewMsg = false;
+        },
         checkIsEmptyRoom() {
             let checkMxMember = [];
             for(let key in this.curChat.currentState.members) {
@@ -3238,8 +3250,12 @@ export default {
         },
 
         SetToBottom: function(){
-            let uldiv = document.getElementById("message-show-list");
-            uldiv.scrollTop = uldiv.scrollHeight;
+            let div = document.getElementById("message-show-list");
+            if(div) {
+                this.$nextTick(() => {
+                    div.scrollTop = div.scrollHeight;
+                })
+            }
         },
 
         messageFilter(event){
@@ -3386,17 +3402,6 @@ export default {
             }
             
         },
-        copyDom: function() {
-            let distUlElement = document.getElementById("message-show-list");
-            let hideUlElement = document.getElementById("message-show-list-hide");
-            let startIndex = distUlElement.childNodes.length - 1;
-            console.log("hideUlElement.childNodes is ", hideUlElement.childNodes);
-            console.log("distUlElement.childNodes is ", distUlElement.childNodes);
-            for(let i=startIndex;i<hideUlElement.childNodes.length;i++) {
-                // console.log("i is ", i);
-                distUlElement.insertBefore(hideUlElement.childNodes[i], distUlElement[2]);
-            }
-        },
         updateChatGroupStatus(roomId, groupStatus) {
             if(groupStatus == MUTE) {
                 this.isMute = true;
@@ -3438,28 +3443,6 @@ export default {
         closeOwnerTransferDlg() {
             this.ownerTransferDialogVisible = false;
             this.ownerTransferchat = {};
-        },
-        callback(msg) {
-            // console.log("chat callback msg is ", msg);
-            console.log("chat callback msg content is ", strMsgContentToJson(msg.message_content));
-            console.log("chat callback msg is ", msg)
-            var msgContent = strMsgContentToJson(msg.message_content);
-            var forceUpdate = true;
-            ipcRenderer.send("flashIcon");
-
-            if(msg.group_id == this.curChat.group_id) {
-                if(this.existingMsgId.indexOf(msg.message_id) == -1) {
-                    forceUpdate = false;
-                    this.messageList.push(msg);
-                    this.existingMsgId.push(msg.message_id);
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        this.$nextTick(() => {
-                            div.scrollTop = div.scrollHeight;
-                        })
-                    }
-                }
-            }
         },
         updateMsgFile(e, localPath, eventId) {
             console.log("updateMsgfile ", localPath, eventId);
@@ -3707,6 +3690,7 @@ export default {
     },
     data() {
         return {
+            haveNewMsg: false,
             sendingList: [],
             isMute: false,
             txnId2EventId: {},
@@ -4090,6 +4074,10 @@ export default {
             if(!this._timelineWindow) {
                 return;
             }
+            let toBottom = false;
+            if(this.IsBottom()) {
+                toBottom = true;
+            }
             this.showGroupName(this.curChat);
             this._timelineWindow.paginate("f", 10).then(() => {
                 var getMessageList = this._getEvents();
@@ -4113,9 +4101,14 @@ export default {
             })
             setTimeout(() => {
                 this.$nextTick(() => {
-                    var div = document.getElementById("message-show-list");
-                    if(div) {
-                        div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+                    if(toBottom) {
+                        var div = document.getElementById("message-show-list");
+                        if(div) {
+                            div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
+                        }
+                    }
+                    else{
+                        this.haveNewMsg = true;
                     }
                 })
             }, 100)
@@ -5022,4 +5015,56 @@ export default {
         text-overflow: ellipsis;
         overflow: hidden;
     }
+
+    .toBottom {
+        width: 142px;
+        height: 36px;
+        position: absolute;
+        right: calc(50% - 71px);
+        bottom: 180px;
+        background: rgba(146, 146, 146, 1);
+        border-radius: 18px;
+        font-size:0
+    }
+    
+    .toBottom:hover {
+        width: 142px;
+        height: 36px;
+        position: absolute;
+        right: calc(50% - 71px);
+        bottom: 180px;
+        background: rgba(146, 146, 146, 1);
+        border-radius: 18px;
+        font-size:0;
+        cursor: pointer;
+    }
+    
+    .toBottomImg {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin: 10px 8px 10px 16px;
+    }
+    
+    .toBottomText {
+        vertical-align: top;
+        display: inline-block;
+        width: 62px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        font-family: 'PingFangSC-Regular';
+        font-weight: 500;
+        color: #FFFFFF;
+        margin: 8px 0px 8px 0px;
+        text-align: center;
+    }
+
+    .toBottomClose {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin: 10px 16px 10px 8px;
+    }
+    
 </style>
