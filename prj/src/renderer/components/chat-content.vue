@@ -1,7 +1,7 @@
 <template>
     <div class="chat-wind">
       <div class="chat-panel" id="chat-panel-id">
-        <div class="chat-list">
+        <div class="chat-list" id="chat-list-id">
           <div class="list-header">
             <listHeader 
               :cleanSearchKey="cleanSearchKey" 
@@ -242,7 +242,11 @@
             </div>
           </div>
         </div>
-        <div class="chat-empty" v-show="isEmpty">
+        <div class="chat-empty-middle" id="chat-empty-middle-id" v-show="isEmpty">
+        </div>
+        <div class="chat-middle" id="chat-middle-id" v-show="!isEmpty">
+        </div>
+        <div class="chat-empty" v-show="isEmpty" id="chat-empty-id">
           <div class="win-header-white">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
@@ -3342,6 +3346,63 @@ export default {
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
     ipcRenderer.on('isFocuse', this.curWindowIsFocuse)
     ipcRenderer.on('isNormal', this.setHeaderState)
+
+    window.onload = function() {
+      let middleElement = document.getElementById("chat-middle-id");
+      let groupListElement = document.getElementById("chat-list-id");
+      let chatElement = document.getElementById("chat-page-id");
+      let chatEmptyElement = document.getElementById("chat-empty-id");
+      let isDraging = false;
+
+      middleElement.onmousedown = function(e) {
+        let startX = e.clientX;
+        middleElement.left = middleElement.offsetLeft;
+        document.onmousemove = function(e) {
+          isDraging = true;
+          let endX = e.clientX;
+          let moveLen = middleElement.left + (endX - startX);
+          groupListElement.style.width = (64 + moveLen).toString() + "px";
+        }
+        
+        document.onmouseup = function(e) {
+          isDraging = false;
+          e.stopPropagation();
+          document.onmousemove = null;
+          document.onmouseup = null;
+          middleElement.releaseCapture && middleElement.releaseCapture();
+        }
+
+        middleElement.setCapture && middleElement.setCapture();
+        return false;
+      }
+
+      groupListElement.onmousemove = function(e) {
+        if(isDraging) {
+          groupListElement.style.cursor = "col-resize";
+        }
+        else {
+          groupListElement.style.cursor = "default";
+        }
+      }
+      
+      chatElement.onmousemove = function(e) {
+        if(isDraging) {
+          chatElement.style.cursor = "col-resize";
+        }
+        else {
+          chatElement.style.cursor = "default";
+        }
+      }
+      
+      chatEmptyElement.onmousemove = function(e) {
+        if(isDraging) {
+          chatEmptyElement.style.cursor = "col-resize";
+        }
+        else {
+          chatEmptyElement.style.cursor = "default";
+        }
+      }
+    }
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);
@@ -3396,6 +3457,26 @@ export default {
     margin: 0px;
   }
 
+  .chat-middle {
+    height: 100%;
+    width: 2px;
+    display: flex;
+    cursor: col-resize;
+    border-left: 1px solid rgb(238, 238, 238);
+    -webkit-user-select:none;
+    background-color: rgba(241, 241, 241, 1);
+  }
+
+  .chat-empty-middle {
+    height: 100%;
+    width: 2px;
+    display: flex;
+    cursor: col-resize;
+    border-left: 1px solid rgb(238, 238, 238);
+    -webkit-user-select:none;
+    background-color: rgba(255, 255, 255, 1);
+  }
+
   .chat-empty {
     width:100%;
     padding-top: 20px;
@@ -3413,7 +3494,7 @@ export default {
   }
 
   .chat {
-    width:calc(100% - 281px);
+    width:100%;
     background-color: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
@@ -3441,9 +3522,10 @@ export default {
   .chat-list {
     height: 100%;
     width: 280px;
+    max-width: 360px;
+    min-width: 280px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgb(238, 238, 238);
     -webkit-app-region: drag;
     -webkit-user-select:none;
     background-color: rgba(255, 255, 255, 1);
