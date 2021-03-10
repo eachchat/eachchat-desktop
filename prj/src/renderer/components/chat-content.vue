@@ -3349,6 +3349,7 @@ export default {
 
     window.onload = function() {
       let middleElement = document.getElementById("chat-middle-id");
+      let emptyMiddleElement = document.getElementById("chat-empty-middle-id");
       let groupListElement = document.getElementById("chat-list-id");
       let chatElement = document.getElementById("chat-page-id");
       let chatEmptyElement = document.getElementById("chat-empty-id");
@@ -3373,6 +3374,28 @@ export default {
         }
 
         middleElement.setCapture && middleElement.setCapture();
+        return false;
+      }
+
+      emptyMiddleElement.onmousedown = function(e) {
+        let startX = e.clientX;
+        emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
+        document.onmousemove = function(e) {
+          isDraging = true;
+          let endX = e.clientX;
+          let moveLen = emptyMiddleElement.left + (endX - startX);
+          groupListElement.style.width = (64 + moveLen).toString() + "px";
+        }
+        
+        document.onmouseup = function(e) {
+          isDraging = false;
+          e.stopPropagation();
+          document.onmousemove = null;
+          document.onmouseup = null;
+          emptyMiddleElement.releaseCapture && emptyMiddleElement.releaseCapture();
+        }
+
+        emptyMiddleElement.setCapture && emptyMiddleElement.setCapture();
         return false;
       }
 
