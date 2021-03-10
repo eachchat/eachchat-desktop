@@ -26,14 +26,14 @@
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
-        <el-main class="tabcontainer" v-show="!navEnable">
+        <el-main class="tabcontainer" v-show="!navEnable && !dataIsLoading">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
-        <div class="loadingDiv" v-show="navEnable">
+        <div class="loadingDiv" v-show="navEnable || dataIsLoading">
             <div class="loadingInfo">
                 <img class="isLoading" id="isLoadingId" src="../../../static/Img/Main/mainLoading@2x.png">
                 <div class="loadingText">正在加载数据</div>
@@ -112,6 +112,7 @@ export default {
             isFullScreen: false,
             toSaveDraft: 0,
             navEnable: true,
+            dataIsLoading: true,
             scrollToRecentUnread: false,
             showChangePassword: false,
             alertContnets: {},
@@ -172,6 +173,10 @@ export default {
         }
     },
     methods: {
+        toDataOk() {
+            console.log("=====================kdkdkdkkdk")
+            this.dataIsLoading = false;
+        },
         getInviteNumClass() {
             let count = this.getInviteNum();
             if(count > 99) {

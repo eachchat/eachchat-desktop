@@ -457,6 +457,12 @@ export default {
         this.ShowAllGroup();
         if(this.showGroupList.length != 0)
           this.curChat = this.showGroupList[0];
+        try{
+          this.getNeededUid();
+        }
+        catch(e) {
+          console.log("===========getNeededUid exception ", e);
+        }
         this.$nextTick(() => {
           this.showGroupIconName()
             .then((ret) => {
@@ -1898,7 +1904,78 @@ export default {
         this.updateGroupContent(item);
       }
     },
+    getNeededUid: async function() {
+      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+      }
+      let curIdSpliterInfo = this.selfUserId.split(":");
+      let curDomainKey = curIdSpliterInfo.pop();
+      let allUid = [];
+      let checkingInterval = null;
+      let maxTimes = 60;
+      let curTimes = 0;
+      let isOtherDomain = matrix_id => {
+        let idSplitInfo = matrix_id.split(":");
+        let idDomainKey = idSplitInfo.pop();
+        console.log("curDomainKey ", curDomainKey);
+        console.log("idDomainKey ", idDomainKey);
+        if(curDomainKey == idDomainKey) return false;
+        else return true;
+      }
+      let toGet = async () => {
+        for(let i=0;i<this.showGroupList.length;i++) {
+          let item = this.showGroupList[i];
+          var distTimeLineInfo = await this.GetLastShowMessage(item);
+          var distTimeLine = distTimeLineInfo[0];
+          if(distTimeLine == undefined) continue;
 
+          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
+          if(sender.userId) {
+            sender = sender.userId;
+          }
+          if(allUid.indexOf(sender) < 0) {
+            allUid.push(sender);
+          }
+        }
+      }
+      let toCheck = async () => {
+        let loadingFinished = true;
+        for(let i=0;i<allUid.length;i++) {
+          if(curTimes > maxTimes) {
+            break;
+          }
+          curTimes += 1;
+          let matrix_id = allUid[i];
+          let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
+          console.log("=======userInfo ", userInfo);
+          if(userInfo && userInfo.user_display_name.length != 0)
+          {
+            continue;
+          }
+          if(isOtherDomain(matrix_id)) {
+            continue;
+          }
+          console.log("========matrix_id is ", matrix_id);
+          loadingFinished = false;
+          break;
+        }
+        return loadingFinished;
+      }
+      await toGet();
+      checkingInterval = setInterval(() => {
+        toCheck().then((ret) => {
+          console.log("=========tucheck ret is ", ret);
+          if(ret) {
+            clearInterval(checkingInterval);
+            this.showGroupIconName()
+              .then((ret) => {
+                  this.sortGroup();
+                  this.$emit('toDataOk');
+                })
+          }
+        })
+      }, 500)
+    },
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
