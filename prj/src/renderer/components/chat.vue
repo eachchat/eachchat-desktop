@@ -5,7 +5,7 @@
         <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
         <div class="toBottom" v-show="haveNewMsg">
             <img class="toBottomImg" src="../../../static/Img/Chat/toBottomIco@2x.png" @click="goToBottom">
-            <div class="toBottomText" @click="goToBottom">新消息</div>
+            <div class="toBottomText" @click="goToBottom">{{newMsgNum}}条新消息</div>
             <img class="toBottomClose" src="../../../static/Img/Chat/toBottomClose@2x.png" @click="closeToBottom">
         </div>
         <div class="chat-title">
@@ -3253,7 +3253,7 @@ export default {
             let div = document.getElementById("message-show-list");
             if(div) {
                 this.$nextTick(() => {
-                    div.scrollTop = div.scrollHeight;
+                    div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' });
                 })
             }
         },
@@ -3690,6 +3690,7 @@ export default {
     },
     data() {
         return {
+            newMsgNum: 0,
             haveNewMsg: false,
             sendingList: [],
             isMute: false,
@@ -3886,6 +3887,7 @@ export default {
                 editorEle && editorEle.addEventListener('contextmenu', () => {
                     openRemoteMenu('copy', 'cut', 'paste')
                 })
+                this.newMsgNum = 0;
             })
         }, 0)
         document.addEventListener('click',this.closeInfoTip);
@@ -3923,6 +3925,7 @@ export default {
             if(!this.chat || (this.chat && !this.chat.roomId)) {
                 return;
             }
+            this.newMsgNum = 0;
             this.curChat = this.chat;
             this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
             this.initSearchKey = '';
@@ -3970,6 +3973,7 @@ export default {
                 this.showHistoryMsgList();
             }
             else {
+                this.newMsgNum = 0;
                 this.initSearchKey = '';
                 this.inviterInfo = undefined;
                 this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
@@ -4013,6 +4017,7 @@ export default {
                 this.showHistoryMsgList();
             }
             else {
+                this.newMsgNum = 0;
                 this.initSearchKey = '';
                 this.inviterInfo = undefined;
                 this.isInvite = false;
@@ -4075,8 +4080,11 @@ export default {
                 return;
             }
             let toBottom = false;
+
             if(this.IsBottom()) {
                 toBottom = true;
+            }
+            else {
             }
             this.showGroupName(this.curChat);
             this._timelineWindow.paginate("f", 10).then(() => {
@@ -4108,7 +4116,10 @@ export default {
                         }
                     }
                     else{
-                        this.haveNewMsg = true;
+                        if((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) {
+                            this.newMsgNum += 1;
+                            this.haveNewMsg = true;
+                        }
                     }
                 })
             }, 100)
@@ -5043,13 +5054,13 @@ export default {
         display: inline-block;
         width: 16px;
         height: 16px;
-        margin: 10px 8px 10px 16px;
+        margin: 10px 5px 10px 13px;
     }
     
     .toBottomText {
         vertical-align: top;
         display: inline-block;
-        width: 62px;
+        width: 74px;
         height: 20px;
         line-height: 20px;
         font-size: 14px;
@@ -5064,7 +5075,7 @@ export default {
         display: inline-block;
         width: 16px;
         height: 16px;
-        margin: 10px 16px 10px 8px;
+        margin: 10px 13px 10px 5px;
     }
     
 </style>
