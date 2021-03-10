@@ -1,7 +1,7 @@
 <template>
     <div class="chat-wind">
       <div class="chat-panel" id="chat-panel-id">
-        <div class="chat-list">
+        <div class="chat-list" id="chat-list-id">
           <div class="list-header">
             <listHeader 
               :cleanSearchKey="cleanSearchKey" 
@@ -242,7 +242,11 @@
             </div>
           </div>
         </div>
-        <div class="chat-empty" v-show="isEmpty">
+        <div class="chat-empty-middle" id="chat-empty-middle-id" v-show="isEmpty">
+        </div>
+        <div class="chat-middle" id="chat-middle-id" v-show="!isEmpty">
+        </div>
+        <div class="chat-empty" v-show="isEmpty" id="chat-empty-id">
           <div class="win-header-white">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
@@ -453,6 +457,12 @@ export default {
         this.ShowAllGroup();
         if(this.showGroupList.length != 0)
           this.curChat = this.showGroupList[0];
+        try{
+          this.getNeededUid();
+        }
+        catch(e) {
+          console.log("===========getNeededUid exception ", e);
+        }
         this.$nextTick(() => {
           this.showGroupIconName()
             .then((ret) => {
@@ -1894,7 +1904,78 @@ export default {
         this.updateGroupContent(item);
       }
     },
+    getNeededUid: async function() {
+      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+      }
+      let curIdSpliterInfo = this.selfUserId.split(":");
+      let curDomainKey = curIdSpliterInfo.pop();
+      let allUid = [];
+      let checkingInterval = null;
+      let maxTimes = 60;
+      let curTimes = 0;
+      let isOtherDomain = matrix_id => {
+        let idSplitInfo = matrix_id.split(":");
+        let idDomainKey = idSplitInfo.pop();
+        console.log("curDomainKey ", curDomainKey);
+        console.log("idDomainKey ", idDomainKey);
+        if(curDomainKey == idDomainKey) return false;
+        else return true;
+      }
+      let toGet = async () => {
+        for(let i=0;i<this.showGroupList.length;i++) {
+          let item = this.showGroupList[i];
+          var distTimeLineInfo = await this.GetLastShowMessage(item);
+          var distTimeLine = distTimeLineInfo[0];
+          if(distTimeLine == undefined) continue;
 
+          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
+          if(sender.userId) {
+            sender = sender.userId;
+          }
+          if(allUid.indexOf(sender) < 0) {
+            allUid.push(sender);
+          }
+        }
+      }
+      let toCheck = async () => {
+        let loadingFinished = true;
+        for(let i=0;i<allUid.length;i++) {
+          if(curTimes > maxTimes) {
+            break;
+          }
+          curTimes += 1;
+          let matrix_id = allUid[i];
+          let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
+          console.log("=======userInfo ", userInfo);
+          if(userInfo && userInfo.user_display_name.length != 0)
+          {
+            continue;
+          }
+          if(isOtherDomain(matrix_id)) {
+            continue;
+          }
+          console.log("========matrix_id is ", matrix_id);
+          loadingFinished = false;
+          break;
+        }
+        return loadingFinished;
+      }
+      await toGet();
+      checkingInterval = setInterval(() => {
+        toCheck().then((ret) => {
+          console.log("=========tucheck ret is ", ret);
+          if(ret) {
+            clearInterval(checkingInterval);
+            this.showGroupIconName()
+              .then((ret) => {
+                  this.sortGroup();
+                  this.$emit('toDataOk');
+                })
+          }
+        })
+      }, 500)
+    },
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
@@ -3342,6 +3423,86 @@ export default {
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
     ipcRenderer.on('isFocuse', this.curWindowIsFocuse)
     ipcRenderer.on('isNormal', this.setHeaderState)
+
+    window.onload = function() {
+      let middleElement = document.getElementById("chat-middle-id");
+      let emptyMiddleElement = document.getElementById("chat-empty-middle-id");
+      let groupListElement = document.getElementById("chat-list-id");
+      let chatElement = document.getElementById("chat-page-id");
+      let chatEmptyElement = document.getElementById("chat-empty-id");
+      let isDraging = false;
+
+      middleElement.onmousedown = function(e) {
+        let startX = e.clientX;
+        middleElement.left = middleElement.offsetLeft;
+        document.onmousemove = function(e) {
+          isDraging = true;
+          let endX = e.clientX;
+          let moveLen = middleElement.left + (endX - startX);
+          groupListElement.style.width = (64 + moveLen).toString() + "px";
+        }
+        
+        document.onmouseup = function(e) {
+          isDraging = false;
+          e.stopPropagation();
+          document.onmousemove = null;
+          document.onmouseup = null;
+          middleElement.releaseCapture && middleElement.releaseCapture();
+        }
+
+        middleElement.setCapture && middleElement.setCapture();
+        return false;
+      }
+
+      emptyMiddleElement.onmousedown = function(e) {
+        let startX = e.clientX;
+        emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
+        document.onmousemove = function(e) {
+          isDraging = true;
+          let endX = e.clientX;
+          let moveLen = emptyMiddleElement.left + (endX - startX);
+          groupListElement.style.width = (64 + moveLen).toString() + "px";
+        }
+        
+        document.onmouseup = function(e) {
+          isDraging = false;
+          e.stopPropagation();
+          document.onmousemove = null;
+          document.onmouseup = null;
+          emptyMiddleElement.releaseCapture && emptyMiddleElement.releaseCapture();
+        }
+
+        emptyMiddleElement.setCapture && emptyMiddleElement.setCapture();
+        return false;
+      }
+
+      groupListElement.onmousemove = function(e) {
+        if(isDraging) {
+          groupListElement.style.cursor = "col-resize";
+        }
+        else {
+          groupListElement.style.cursor = "default";
+        }
+      }
+      
+      chatElement.onmousemove = function(e) {
+        if(isDraging) {
+          chatElement.style.cursor = "col-resize";
+        }
+        else {
+          chatElement.style.cursor = "default";
+        }
+      }
+      
+      chatEmptyElement.onmousemove = function(e) {
+        if(isDraging) {
+          chatEmptyElement.style.cursor = "col-resize";
+        }
+        else {
+          chatEmptyElement.style.cursor = "default";
+        }
+      }
+    }
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);
@@ -3396,6 +3557,26 @@ export default {
     margin: 0px;
   }
 
+  .chat-middle {
+    height: 100%;
+    width: 2px;
+    display: flex;
+    cursor: col-resize;
+    border-left: 1px solid rgb(238, 238, 238);
+    -webkit-user-select:none;
+    background-color: rgba(241, 241, 241, 1);
+  }
+
+  .chat-empty-middle {
+    height: 100%;
+    width: 2px;
+    display: flex;
+    cursor: col-resize;
+    border-left: 1px solid rgb(238, 238, 238);
+    -webkit-user-select:none;
+    background-color: rgba(255, 255, 255, 1);
+  }
+
   .chat-empty {
     width:100%;
     padding-top: 20px;
@@ -3441,9 +3622,10 @@ export default {
   .chat-list {
     height: 100%;
     width: 280px;
+    max-width: 360px;
+    min-width: 280px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgb(238, 238, 238);
     -webkit-app-region: drag;
     -webkit-user-select:none;
     background-color: rgba(255, 255, 255, 1);
