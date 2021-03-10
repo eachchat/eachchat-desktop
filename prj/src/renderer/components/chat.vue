@@ -1151,16 +1151,11 @@ export default {
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
         },
+        getAtNum(string = '') {
+            return (string.match(/@/g)|| '').length
+        },
         inputChanged(content) {
-            // console.log("content is ", content);
-            if(content == undefined) {
-                this.curContent = this.content;
-            }
-            else {
-                this.curContent = content.text;
-            }
             var range = this.editor.getSelection();
-            var content = this.editor.getContents();
             var curInputIndexTmp = 0;
             // console.log("this.curContent is ", this.curContent);
             if(range == null) {
@@ -1172,12 +1167,17 @@ export default {
             if(range != null) {
                 // console.log("range.index is ", range.index);
             }
-            var atIndex = this.curContent.lastIndexOf("@");
             // console.log("atIndex is ", atIndex);
-            // console.log("this.curInputIndex is ", curInputIndexTmp);
+            // console.log("this.curInputIndex is ", curInputIndexTmp);        
             if(this.chatMemberDlgVisible) {
-                var getSearchKey = this.curContent.substring(atIndex + 1, curInputIndexTmp + 1).trim();
-                this.chatMemberSearchKey = getSearchKey;
+                const curText = content.text || ''
+                if (content && this.getAtNum(curText) - this.getAtNum(this.curContent) === 1 ){
+                    this.chatMemberSearchKey = ''
+                }else{
+                    var atIndex = curText.lastIndexOf("@");
+                    var getSearchKey = curText.substring(atIndex + 1, curInputIndexTmp + 1).trim();
+                    this.chatMemberSearchKey = getSearchKey;
+                }
                 // console.log("inputchange this.chatmembersearchkey is ", this.chatMemberSearchKey);
                 // console.log("inputchange this.chatmembersearchkey.length is ", this.chatMemberSearchKey.length);
                 // @ Dlg visialbe need update position.
@@ -1211,6 +1211,12 @@ export default {
             }
             else {
                 this.chatMemberSearchKey = null;
+            }
+            if(content == undefined) {
+                this.curContent = this.content;
+            }
+            else {
+                this.curContent = content.text;
             }
             if(this.curContent.indexOf("@") == -1) {
                 this.chatMemberDlgVisible = false;
