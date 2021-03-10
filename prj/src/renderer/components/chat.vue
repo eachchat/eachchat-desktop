@@ -803,7 +803,7 @@ export default {
                     global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, this.selectedMsgs[i].event.event_id);
                 }
                 console.log('msg xieeeee', des);
-                this.editor.insertText(des);
+                this.editor.insertText(this.content.length, des);
             } else {
                 this.alertContnets = {
                     "Details": `是否${text}聊天记录？`,
