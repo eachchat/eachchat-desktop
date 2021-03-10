@@ -3,17 +3,25 @@ const assert = require('assert')
 const electronPath = require('electron') // Require Electron from the binaries included in node_modules.
 const path = require('path')
 
+
+let exePath = undefined;
+if(process.platform == "win32") exePath = path.join(__dirname, '..//build//win-unpacked//EachChat.exe');
+else if(process.platform == "linux") exePath = path.join(__dirname, '..//build//linux-unpacked//EachChat')
+else exePath = path.join(__dirname, '..//build//mac//EachChat.App')
+
 describe('Application launch', function () {
   this.timeout(50000)
-
-  beforeEach(function () {
+  
+  before(function () {
       console.log("before each")
+      console.log(process.platform)
+      console.log(__dirname)
     this.app = new Application({
       // Your electron path can be any binary
       // i.e for OSX an example path could be '/Applications/MyApp.app/Contents/MacOS/MyApp'
       // But for the sake of the example we fetch it from our node_modules.
       //path: electronPath,
-        path: "D:\\git\\yunify\\YiQiLiao-Desktop\\prj\\build\\win-unpacked\\EachChat.exe",
+        path: exePath,
       // Assuming you have the following directory structure
 
       //  |__ my project
@@ -32,8 +40,8 @@ describe('Application launch', function () {
     return this.app.start()
   })
 
-  afterEach(function () {
-      console.log('aftereach')
+  after(function () {
+    console.log('aftereach')
     if (this.app && this.app.isRunning()) {
       //return this.app.stop()
     }
@@ -54,7 +62,6 @@ describe('Application launch', function () {
     //const text = await elem.getText();
     //console.log(text)
     let elem = await this.app.client.$('#organizationInput');
-    console.log("elem", elem)
     const text = await elem.getText();
     console.log("text", text)
     await elem.setValue("12345667")
