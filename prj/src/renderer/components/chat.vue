@@ -796,17 +796,27 @@ export default {
         menuDelete(msg, text='删除') {
             this.curOperate = "Del";
             this.selectedMsgs.push(msg);
-            this.alertContnets = {
-                "Details": `是否${text}聊天记录？`,
-                "Abstrace": `${text}删除聊天记录`
+            if (text === '撤回') {
+                //todo recall
+                let des = msg.event.content.body;
+                for(let i=0;i<this.selectedMsgs.length;i++) {
+                    global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, this.selectedMsgs[i].event.event_id);
+                }
+                console.log('msg xieeeee', des);
+                this.editor.insertText(des);
+            } else {
+                this.alertContnets = {
+                    "Details": `是否${text}聊天记录？`,
+                    "Abstrace": `${text}删除聊天记录`
+                }
+                this.showAlertDlg = true;
+                // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
+                // .catch((error) => {
+                //     console.log("menuDelete ", error);
+                //     this.$toastMessage({message:'删除成功', time:1500, type:'success'});
+                //     this.multiToolsClose();
+                // })
             }
-            this.showAlertDlg = true;
-            // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
-            // .catch((error) => {
-            //     console.log("menuDelete ", error);
-            //     this.$toastMessage({message:'删除成功', time:1500, type:'success'});
-            //     this.multiToolsClose();
-            // })
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
