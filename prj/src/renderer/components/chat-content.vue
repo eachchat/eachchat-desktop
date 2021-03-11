@@ -945,11 +945,11 @@ export default {
     },
     ShowAllGroup: function(){
       this.unreadCount = 0;
-      this.favouriteRooms.length = 0;
+      this.favouriteRooms.length = 0; //置顶组
       this.favouriteIds = [];
-      this.dealShowGroupList.length = 0;
+      this.dealShowGroupList.length = 0; //普通组
       this.dealShowGroupIds = [];
-      this.lowPriorityGroupList.length = 0;
+      this.lowPriorityGroupList.length = 0; //置底组
       this.lowPriorityGroupIds = [];
       this.hasUnreadItems = [];
       let nInviteRooms = 0;
@@ -1208,7 +1208,7 @@ export default {
         }
       }
     },
-    onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
+    onRoomTimeline(ev, room, toStartOfTimeline, removed, data) { //todo 新消息事件
       // console.log("*** data ", data);
       // console.log("*** room ", room);
       // console.log("*** this.curChat ", this.curChat);
@@ -1229,7 +1229,7 @@ export default {
         if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
         }
-        this.updateChatList(ev);
+        this.updateChatList(ev); //处理数组
       }
       
       if(this.dealingEventIds.length > 20) {
@@ -1260,13 +1260,13 @@ export default {
         //     }, 100)
         // }
     },
-    async updateChatList(newMsg) {
+    async updateChatList(newMsg) { //todo 新消息后更新组
       if(newMsg.isState()) {
         return;
       }
-      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
-      this.updateGroupMsgContent([groupInfo]);
-      this.sortGroup();
+      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id); 
+      this.updateGroupMsgContent([groupInfo]); //更新组的消息
+      this.sortGroup(); //重新排序
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -1647,7 +1647,7 @@ export default {
           }));
         }
         else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
-          this.menu.append(new MenuItem({
+          this.menu.append(new MenuItem({ //todo 加功能
               label: "置顶聊天",
               click: () => {
                   this.favouriteIt(groupItem)
@@ -1808,7 +1808,7 @@ export default {
         }
       }
     },
-    updateGroupContent: async function(item) {
+    updateGroupContent: async function(item) { //todo 更新消息
       if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
         this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
       }
