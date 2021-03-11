@@ -3435,16 +3435,19 @@ export default {
       let groupListElement = document.getElementById("chat-list-id");
       let chatElement = document.getElementById("chat-page-id");
       let chatEmptyElement = document.getElementById("chat-empty-id");
+      let box = document.getElementById("chat-panel-id");
       let isDraging = false;
 
       middleElement.onmousedown = function(e) {
         let startX = e.clientX;
         middleElement.left = middleElement.offsetLeft;
+        chatElement.style.width = (box.clientWidth - middleElement.offsetLeft).toString() + "px";
         document.onmousemove = function(e) {
           isDraging = true;
           let endX = e.clientX;
-          let moveLen = middleElement.left + (endX - startX);
-          groupListElement.style.width = (64 + moveLen).toString() + "px";
+          let moveLen = middleElement.left + (endX - startX) - 64;
+          groupListElement.style.width = moveLen.toString() + "px";
+          chatElement.style.width = moveLen.toString() + "px";
         }
         
         document.onmouseup = function(e) {
@@ -3462,11 +3465,13 @@ export default {
       emptyMiddleElement.onmousedown = function(e) {
         let startX = e.clientX;
         emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
+        chatEmptyElement.style.width = (box.clientWidth - emptyMiddleElement.offsetLeft).toString() + "px";
         document.onmousemove = function(e) {
           isDraging = true;
           let endX = e.clientX;
-          let moveLen = emptyMiddleElement.left + (endX - startX);
-          groupListElement.style.width = (64 + moveLen).toString() + "px";
+          let moveLen = emptyMiddleElement.left + (endX - startX) - 64;
+          groupListElement.style.width = moveLen.toString() + "px";
+          chatEmptyElement.style.width = moveLen.toString() + "px";
         }
         
         document.onmouseup = function(e) {
@@ -3570,6 +3575,7 @@ export default {
     border-left: 1px solid rgb(238, 238, 238);
     -webkit-user-select:none;
     background-color: rgba(241, 241, 241, 1);
+    z-index: 4;
   }
 
   .chat-empty-middle {
@@ -3580,10 +3586,12 @@ export default {
     border-left: 1px solid rgb(238, 238, 238);
     -webkit-user-select:none;
     background-color: rgba(255, 255, 255, 1);
+    z-index: 4;
   }
 
   .chat-empty {
-    width:100%;
+    max-width:calc(100% - 281px);
+    min-width: calc(100% - 361px);
     padding-top: 20px;
     background-color:  rgba(255, 255, 255, 1);
     display: flex;
@@ -3599,7 +3607,8 @@ export default {
   }
 
   .chat {
-    width:calc(100% - 281px);
+    max-width:calc(100% - 281px);
+    min-width: calc(100% - 361px);
     background-color: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
