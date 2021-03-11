@@ -2112,49 +2112,54 @@ export default {
         this.searchId = curSearchId;
         // var searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
         // console.log("*** searchUsers is ", searchUsers);
-        var searchChat = await global.services.common.searchAllChat(searchKey, 3);
-        if(searchResult.id == this.searchId) {
-          if(searchChat.rooms.results.length != 0) {
-            this.searchMessageItems = searchChat.rooms.results;
-            this.showSearchMessage = true;
-            if(searchChat.rooms.more) {
-              this.showSearchAllChatMsg = true;
+        try {
+          var searchChat = await global.services.common.searchAllChat(searchKey, 3);
+          if(searchResult.id == this.searchId) {
+            if(searchChat.rooms.results.length != 0) {
+              this.searchMessageItems = searchChat.rooms.results;
+              this.showSearchMessage = true;
+              if(searchChat.rooms.more) {
+                this.showSearchAllChatMsg = true;
+              }
+              else {
+                this.showSearchAllChatMsg = false;
+              }
             }
             else {
-              this.showSearchAllChatMsg = false;
+              this.showSearchMessage = false;
             }
+            if(false) {
+              this.searchFileItems = searcheRet[i].files.slice(0, 3);
+              if(this.searchFileItems.length == 0) {
+                this.showSearchFile = false;
+              }
+              else {
+                this.showSearchFile = true;
+              }
+              if(searcheRet[i].files.length > 3) {
+                this.showsearchAllFile = true;
+              }
+              else {
+                this.showsearchAllFile = false;
+              }
+            }
+            // if(searchUsers.length != 0) {
+            //   this.searchPeopleItems = searchUsers.slice(0, 3);
+            //   this.showSearchPeople = true;
+            //   if(searchUsers.length > 3) {
+            //     this.showSearchAllMember = true;
+            //   }
+            //   else {
+            //     this.showSearchAllMember = false;
+            //   }
+            // }
+            // else {
+            //     this.showSearchPeople = false;
+            // }
           }
-          else {
-            this.showSearchMessage = false;
-          }
-          if(false) {
-            this.searchFileItems = searcheRet[i].files.slice(0, 3);
-            if(this.searchFileItems.length == 0) {
-              this.showSearchFile = false;
-            }
-            else {
-              this.showSearchFile = true;
-            }
-            if(searcheRet[i].files.length > 3) {
-              this.showsearchAllFile = true;
-            }
-            else {
-              this.showsearchAllFile = false;
-            }
-          }
-          // if(searchUsers.length != 0) {
-          //   this.searchPeopleItems = searchUsers.slice(0, 3);
-          //   this.showSearchPeople = true;
-          //   if(searchUsers.length > 3) {
-          //     this.showSearchAllMember = true;
-          //   }
-          //   else {
-          //     this.showSearchAllMember = false;
-          //   }
-          // }
-          // else {
-          //     this.showSearchPeople = false;
-          // }
+        }
+        catch(e) {
+          console.log("search all chat from app server exception ", e);
         }
         setTimeout(() => {
           this.$nextTick(() => {
