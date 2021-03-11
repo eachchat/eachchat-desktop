@@ -22,7 +22,7 @@
   },
   "build": {
     "productName": "EachChat",
-    "appId": "com.worklyai.eachchat.desktop.testing",
+    "appId": "ai.workly.eachchat",
     "directories": {
       "output": "build"
     },
@@ -47,7 +47,8 @@
     },
     "mac": {
       "icon": "build_mac/icons/icon.icns",
-      "identity": "Beijing Yunify Technology Co., Ltd.",
+      "target": ["pkg"],
+      "identity": null,
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build_mac/entitlements.mac.plist",
