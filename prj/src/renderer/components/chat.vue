@@ -689,12 +689,29 @@ export default {
                         }));
                     }
                     if(showRedact) {
-                        this.menu.append(new MenuItem({
-                            label: "删除",
-                            click: () => {
-                                this.menuDelete(msgItem)
-                            }
-                        }));
+                        //todo 删除或撤回
+                        console.log('查看当前信息', msgItem);
+                        let text = '删除';
+                        let timeLimit = 2 * 60 * 1000;
+                        const myUserId = this.curChat.myUserId;
+                        const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                        const members = this.curChat.currentState.members;
+                        const userLevel = members[myUserId].powerLevel;
+                        let redact = 50;
+                        if (currentState) {
+                            let levelObj = currentState.getContent();
+                            redact = levelObj.redact || redact;
+                        }
+                        if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                        if (msgItem.event.sender !== myUserId) text = '删除';
+                        if (userLevel >= redact) {
+                            this.menu.append(new MenuItem({
+                                label: text,
+                                click: () => {
+                                    this.menuDelete(msgItem, text)
+                                }
+                            }));
+                        }
                     }
                     if(!this.isSecret) {
                         this.menu.append(new MenuItem({
@@ -788,20 +805,30 @@ export default {
             }
             this.menu.popup(remote.getCurrentWindow());
         },
-        menuDelete(msg) {
+        menuDelete(msg, text='删除') {
             this.curOperate = "Del";
             this.selectedMsgs.push(msg);
-            this.alertContnets = {
-                "Details": "是否删除聊天记录？",
-                "Abstrace": "删除聊天记录"
+            if (text === '撤回') {
+                //todo recall
+                let des = msg.event.content.body;
+                for(let i=0;i<this.selectedMsgs.length;i++) {
+                    global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, this.selectedMsgs[i].event.event_id);
+                }
+                console.log('msg xieeeee', des);
+                this.editor.insertText(this.content.length, des);
+            } else {
+                this.alertContnets = {
+                    "Details": `是否${text}聊天记录？`,
+                    "Abstrace": `${text}删除聊天记录`
+                }
+                this.showAlertDlg = true;
+                // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
+                // .catch((error) => {
+                //     console.log("menuDelete ", error);
+                //     this.$toastMessage({message:'删除成功', time:1500, type:'success'});
+                //     this.multiToolsClose();
+                // })
             }
-            this.showAlertDlg = true;
-            // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
-            // .catch((error) => {
-            //     console.log("menuDelete ", error);
-            //     this.$toastMessage({message:'删除成功', time:1500, type:'success'});
-            //     this.multiToolsClose();
-            // })
         },
         menuQuote(msg) {
             var msgContent = msg.getContent();
@@ -1163,16 +1190,11 @@ export default {
         getUsersSelected(usersSelected) {
             this.usersSelected = usersSelected;
         },
+        getAtNum(string = '') {
+            return (string.match(/@/g)|| '').length
+        },
         inputChanged(content) {
-            // console.log("content is ", content);
-            if(content == undefined) {
-                this.curContent = this.content;
-            }
-            else {
-                this.curContent = content.text;
-            }
             var range = this.editor.getSelection();
-            var content = this.editor.getContents();
             var curInputIndexTmp = 0;
             // console.log("this.curContent is ", this.curContent);
             if(range == null) {
@@ -1184,12 +1206,17 @@ export default {
             if(range != null) {
                 // console.log("range.index is ", range.index);
             }
-            var atIndex = this.curContent.lastIndexOf("@");
             // console.log("atIndex is ", atIndex);
-            // console.log("this.curInputIndex is ", curInputIndexTmp);
+            // console.log("this.curInputIndex is ", curInputIndexTmp);        
             if(this.chatMemberDlgVisible) {
-                var getSearchKey = this.curContent.substring(atIndex + 1, curInputIndexTmp + 1).trim();
-                this.chatMemberSearchKey = getSearchKey;
+                const curText = content.text || ''
+                if (content && this.getAtNum(curText) - this.getAtNum(this.curContent) === 1 ){
+                    this.chatMemberSearchKey = ''
+                }else{
+                    var atIndex = curText.lastIndexOf("@");
+                    var getSearchKey = curText.substring(atIndex + 1, curInputIndexTmp + 1).trim();
+                    this.chatMemberSearchKey = getSearchKey;
+                }
                 // console.log("inputchange this.chatmembersearchkey is ", this.chatMemberSearchKey);
                 // console.log("inputchange this.chatmembersearchkey.length is ", this.chatMemberSearchKey.length);
                 // @ Dlg visialbe need update position.
@@ -1223,6 +1250,12 @@ export default {
             }
             else {
                 this.chatMemberSearchKey = null;
+            }
+            if(content == undefined) {
+                this.curContent = this.content;
+            }
+            else {
+                this.curContent = content.text;
             }
             if(this.curContent.indexOf("@") == -1) {
                 this.chatMemberDlgVisible = false;

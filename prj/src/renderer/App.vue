@@ -12,6 +12,7 @@
 
 <style>
   @import '../../static/font.css';
+  @import './style/index.scss';
   html,body,#app {
     margin: 0;
     padding: 0;
