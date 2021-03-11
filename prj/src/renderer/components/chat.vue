@@ -319,6 +319,7 @@ export default {
             this.haveNewMsg = false;
         },
         goToBottom() {
+            this.newMsgNum = 0;
             this.SetToBottom();
             this.haveNewMsg = false;
         },

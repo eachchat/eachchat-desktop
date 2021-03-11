@@ -412,7 +412,7 @@ export default {
 <style lang="scss" scoped>
     .ListHeadBar {
         height: 32px;
-        width: 280px;
+        width: 100%;
         line-height: 32px;
         -webkit-app-region: drag;
     }

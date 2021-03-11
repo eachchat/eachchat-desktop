@@ -2215,49 +2215,54 @@ export default {
         this.searchId = curSearchId;
         // var searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
         // console.log("*** searchUsers is ", searchUsers);
-        var searchChat = await global.services.common.searchAllChat(searchKey, 3);
-        if(searchResult.id == this.searchId) {
-          if(searchChat.rooms.results.length != 0) {
-            this.searchMessageItems = searchChat.rooms.results;
-            this.showSearchMessage = true;
-            if(searchChat.rooms.more) {
-              this.showSearchAllChatMsg = true;
+        try {
+          var searchChat = await global.services.common.searchAllChat(searchKey, 3);
+          if(searchResult.id == this.searchId) {
+            if(searchChat.rooms.results.length != 0) {
+              this.searchMessageItems = searchChat.rooms.results;
+              this.showSearchMessage = true;
+              if(searchChat.rooms.more) {
+                this.showSearchAllChatMsg = true;
+              }
+              else {
+                this.showSearchAllChatMsg = false;
+              }
             }
             else {
-              this.showSearchAllChatMsg = false;
+              this.showSearchMessage = false;
             }
+            if(false) {
+              this.searchFileItems = searcheRet[i].files.slice(0, 3);
+              if(this.searchFileItems.length == 0) {
+                this.showSearchFile = false;
+              }
+              else {
+                this.showSearchFile = true;
+              }
+              if(searcheRet[i].files.length > 3) {
+                this.showsearchAllFile = true;
+              }
+              else {
+                this.showsearchAllFile = false;
+              }
+            }
+            // if(searchUsers.length != 0) {
+            //   this.searchPeopleItems = searchUsers.slice(0, 3);
+            //   this.showSearchPeople = true;
+            //   if(searchUsers.length > 3) {
+            //     this.showSearchAllMember = true;
+            //   }
+            //   else {
+            //     this.showSearchAllMember = false;
+            //   }
+            // }
+            // else {
+            //     this.showSearchPeople = false;
+            // }
           }
-          else {
-            this.showSearchMessage = false;
-          }
-          if(false) {
-            this.searchFileItems = searcheRet[i].files.slice(0, 3);
-            if(this.searchFileItems.length == 0) {
-              this.showSearchFile = false;
-            }
-            else {
-              this.showSearchFile = true;
-            }
-            if(searcheRet[i].files.length > 3) {
-              this.showsearchAllFile = true;
-            }
-            else {
-              this.showsearchAllFile = false;
-            }
-          }
-          // if(searchUsers.length != 0) {
-          //   this.searchPeopleItems = searchUsers.slice(0, 3);
-          //   this.showSearchPeople = true;
-          //   if(searchUsers.length > 3) {
-          //     this.showSearchAllMember = true;
-          //   }
-          //   else {
-          //     this.showSearchAllMember = false;
-          //   }
-          // }
-          // else {
-          //     this.showSearchPeople = false;
-          // }
+        }
+        catch(e) {
+          console.log("search all chat from app server exception ", e);
         }
         setTimeout(() => {
           this.$nextTick(() => {
@@ -3533,16 +3538,19 @@ export default {
       let groupListElement = document.getElementById("chat-list-id");
       let chatElement = document.getElementById("chat-page-id");
       let chatEmptyElement = document.getElementById("chat-empty-id");
+      let box = document.getElementById("chat-panel-id");
       let isDraging = false;
 
       middleElement.onmousedown = function(e) {
         let startX = e.clientX;
         middleElement.left = middleElement.offsetLeft;
+        chatElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
         document.onmousemove = function(e) {
           isDraging = true;
           let endX = e.clientX;
-          let moveLen = middleElement.left + (endX - startX);
-          groupListElement.style.width = (64 + moveLen).toString() + "px";
+          let moveLen = middleElement.left + (endX - startX) - 64;
+          groupListElement.style.width = moveLen.toString() + "px";
+          chatElement.style.width = (box.clientWidth - moveLen).toString() + "px";
         }
         
         document.onmouseup = function(e) {
@@ -3560,11 +3568,14 @@ export default {
       emptyMiddleElement.onmousedown = function(e) {
         let startX = e.clientX;
         emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
+        chatEmptyElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
         document.onmousemove = function(e) {
           isDraging = true;
           let endX = e.clientX;
-          let moveLen = emptyMiddleElement.left + (endX - startX);
-          groupListElement.style.width = (64 + moveLen).toString() + "px";
+          let moveLen = emptyMiddleElement.left + (endX - startX) - 64;
+          let x = chatEmptyElement.style.width;
+          groupListElement.style.width = moveLen.toString() + "px";
+          chatEmptyElement.style.width = (box.clientWidth - moveLen).toString() + "px";
         }
         
         document.onmouseup = function(e) {
@@ -3668,6 +3679,7 @@ export default {
     border-left: 1px solid rgb(238, 238, 238);
     -webkit-user-select:none;
     background-color: rgba(241, 241, 241, 1);
+    z-index: 4;
   }
 
   .chat-empty-middle {
@@ -3678,10 +3690,13 @@ export default {
     border-left: 1px solid rgb(238, 238, 238);
     -webkit-user-select:none;
     background-color: rgba(255, 255, 255, 1);
+    z-index: 4;
   }
 
   .chat-empty {
-    width:100%;
+    width: 100%;
+    min-width: calc(100% - 361px);
+    max-width: calc(100% - 281px);
     padding-top: 20px;
     background-color:  rgba(255, 255, 255, 1);
     display: flex;
@@ -3697,7 +3712,9 @@ export default {
   }
 
   .chat {
-    width:calc(100% - 281px);
+    width: 100%;
+    min-width: calc(100% - 361px);
+    max-width: calc(100% - 281px);
     background-color: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
