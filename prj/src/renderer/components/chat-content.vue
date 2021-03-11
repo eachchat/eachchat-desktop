@@ -19,7 +19,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bCollections'>
+                  v-show='bCollections && !chatGroupItem.localRemoved'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-fav-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -51,7 +51,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bRooms && chatGroupItem.getMyMembership() != "invite"'>
+                  v-show='bRooms && chatGroupItem.getMyMembership() != "invite" && !chatGroupItem.localRemoved'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -81,7 +81,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bRooms'>
+                  v-show='bRooms && !chatGroupItem.localRemoved'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -454,7 +454,26 @@ export default {
             this.showGroupList.push(r);
           }
         })
-        this.ShowAllGroup();
+
+        let removedRoomIds = [];
+        let ls = localStorage.getItem('removedRoomIds');
+        if (ls) {
+          removedRoomIds = ls.split(',');
+        }
+        console.log('-----created removedRoomIds-----', removedRoomIds)
+        removedRoomIds = [...removedRoomIds];
+        let sg = [...this.showGroupList];
+        console.log('kankanSg----', sg)
+        sg.forEach(s => {
+          if (removedRoomIds.indexOf(sg.roomId) >= 0) {
+            s.localRemoved = true
+          } else {
+            s.localRemoved = false
+          }
+        })
+        this.showGroupList = [...sg];
+
+        this.ShowAllGroup(); // todo 分数组
         if(this.showGroupList.length != 0)
           this.curChat = this.showGroupList[0];
         try{
@@ -704,9 +723,85 @@ export default {
       oldElementGroupDiv: null,
       unreadIndex: -1,
       hasUnreadItems: [],
+      removedRoomIds: []
     };
   },
   methods: {
+    setRemovedTab(ev) {
+      console.log('-----setRemovedTab-----', ev)
+      const roomId = ev.event.room_id;
+      let removedRoomIds = localStorage.getItem('removedRoomIds');
+      if (!removedRoomIds) return;
+      removedRoomIds = removedRoomIds.split(',');
+      let idx = removedRoomIds.indexOf(roomId);
+      removedRoomIds.splice(idx, 1);
+      removedRoomIds = removedRoomIds.join(',');
+      localStorage.setItem('removedRoomIds', removedRoomIds);
+      console.log('aaaaa11', this.favouriteRooms)
+      console.log('bbbbb11', this.dealShowGroupList)
+      console.log('ccccc11', this.lowPriorityGroupList)
+      let favouriteRooms = [...this.favouriteRooms];
+      let dealShowGroupList = [...this.dealShowGroupList];
+      let lowPriorityGroupList = [...this.lowPriorityGroupList];
+      console.log('idididididdi', roomId)
+      favouriteRooms.forEach(e => {
+        if (roomId == e.roomId) {
+          e.localRemoved = false
+        }
+      })
+      dealShowGroupList.forEach(e => {
+        if (roomId == e.roomId) {
+          e.localRemoved = false
+        }
+      })
+      lowPriorityGroupList.forEach(e => {
+        if (roomId == e.roomId) {
+          e.localRemoved = false
+        }
+      })
+      this.favouriteRooms = [...favouriteRooms];
+      this.dealShowGroupList = [...dealShowGroupList];
+      this.lowPriorityGroupList = [...lowPriorityGroupList];
+      console.log('aaaaa', this.favouriteRooms)
+      console.log('bbbbb', this.dealShowGroupList)
+      console.log('ccccc', this.lowPriorityGroupList)
+
+    },
+    removeGroup(ele) {
+      console.log('----removeGroup----', ele)
+      // this.removedRoomIds = [...this.removedRoomIds, ele.roomId];
+      const roomId = ele.roomId;
+      let removedRoomIds = [];
+      let ls = localStorage.getItem('removedRoomIds');
+      if (ls) {
+        removedRoomIds = ls.split(',');
+      }
+      removedRoomIds = [...removedRoomIds, roomId];
+      removedRoomIds = removedRoomIds.join(',');
+      console.log('----removeGroup----', removedRoomIds);      
+      localStorage.setItem('removedRoomIds', removedRoomIds);
+      let favouriteRooms = [...this.favouriteRooms];
+      let dealShowGroupList = [...this.dealShowGroupList];
+      let lowPriorityGroupList = [...this.lowPriorityGroupList];
+      favouriteRooms.forEach(e => {
+        if (roomId == e.roomId) {
+          e.localRemoved = true
+        }
+      })
+      dealShowGroupList.forEach(e => {
+        if (roomId == e.roomId) {
+          e.localRemoved = true
+        }
+      })
+      lowPriorityGroupList.forEach(e => {
+        if (roomId == e.roomId) {
+          e.localRemoved = true
+        }
+      })
+      this.favouriteRooms = [...favouriteRooms];
+      this.dealShowGroupList = [...dealShowGroupList];
+      this.lowPriorityGroupList = [...lowPriorityGroupList];
+    },
     handleAccountDataUpdate(ev) {
       console.log("ev is ", ev.getContent().global.room);
       if (ev.getType() === "m.push_rules") {
@@ -1213,6 +1308,8 @@ export default {
       // console.log("*** room ", room);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
+      this.setRemovedTab(ev)
+      
       if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
         return;
       }
@@ -1261,6 +1358,7 @@ export default {
         // }
     },
     async updateChatList(newMsg) { //todo 新消息后更新组
+      console.log('-----updateChatList------', newMsg)
       if(newMsg.isState()) {
         return;
       }
@@ -1671,7 +1769,12 @@ export default {
             }
           }));
         }
-      
+        this.menu.append(new MenuItem({
+          label: "删除",
+          click: () => {
+              this.removeGroup(groupItem)
+          }
+        }));
        /*
         this.menu.append(new MenuItem({
             label: "退出",
