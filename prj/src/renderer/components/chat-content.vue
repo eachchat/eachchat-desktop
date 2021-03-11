@@ -3441,13 +3441,13 @@ export default {
       middleElement.onmousedown = function(e) {
         let startX = e.clientX;
         middleElement.left = middleElement.offsetLeft;
-        chatElement.style.width = (box.clientWidth - middleElement.offsetLeft).toString() + "px";
+        chatElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
         document.onmousemove = function(e) {
           isDraging = true;
           let endX = e.clientX;
           let moveLen = middleElement.left + (endX - startX) - 64;
           groupListElement.style.width = moveLen.toString() + "px";
-          chatElement.style.width = moveLen.toString() + "px";
+          chatElement.style.width = (box.clientWidth - moveLen).toString() + "px";
         }
         
         document.onmouseup = function(e) {
@@ -3465,13 +3465,14 @@ export default {
       emptyMiddleElement.onmousedown = function(e) {
         let startX = e.clientX;
         emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
-        chatEmptyElement.style.width = (box.clientWidth - emptyMiddleElement.offsetLeft).toString() + "px";
+        chatEmptyElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
         document.onmousemove = function(e) {
           isDraging = true;
           let endX = e.clientX;
           let moveLen = emptyMiddleElement.left + (endX - startX) - 64;
+          let x = chatEmptyElement.style.width;
           groupListElement.style.width = moveLen.toString() + "px";
-          chatEmptyElement.style.width = moveLen.toString() + "px";
+          chatEmptyElement.style.width = (box.clientWidth - moveLen).toString() + "px";
         }
         
         document.onmouseup = function(e) {
@@ -3590,8 +3591,9 @@ export default {
   }
 
   .chat-empty {
-    max-width:calc(100% - 281px);
+    width: 100%;
     min-width: calc(100% - 361px);
+    max-width: calc(100% - 281px);
     padding-top: 20px;
     background-color:  rgba(255, 255, 255, 1);
     display: flex;
@@ -3607,8 +3609,9 @@ export default {
   }
 
   .chat {
-    max-width:calc(100% - 281px);
+    width: 100%;
     min-width: calc(100% - 361px);
+    max-width: calc(100% - 281px);
     background-color: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
