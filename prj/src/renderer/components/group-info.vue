@@ -681,12 +681,12 @@ export default {
                 let title = '';
                 if(userDomain == this.myDomain) {
                     let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
-                    title = company + user_title;
+                    title = user_title;
                     title = title ? title : ((depInfo && depInfo.user_title) || '');
                 } else {
                     let company = (contactInfo && contactInfo.company) ? contactInfo.company + '  ' : '';
                     let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
-                    title = company + user_title;
+                    title = user_title;
                     title = title ? title : ((depInfo && depInfo.user_title) || '');
                 }
                 o.title = title ? title : o.userId;
