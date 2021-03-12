@@ -3532,91 +3532,94 @@ export default {
     ipcRenderer.on('isFocuse', this.curWindowIsFocuse)
     ipcRenderer.on('isNormal', this.setHeaderState)
 
-    window.onload = function() {
-      let middleElement = document.getElementById("chat-middle-id");
-      let emptyMiddleElement = document.getElementById("chat-empty-middle-id");
-      let groupListElement = document.getElementById("chat-list-id");
-      let chatElement = document.getElementById("chat-page-id");
-      let chatEmptyElement = document.getElementById("chat-empty-id");
-      let box = document.getElementById("chat-panel-id");
-      let isDraging = false;
+    this.$nextTick(() => {
+      setTimeout(() => {
+        let middleElement = document.getElementById("chat-middle-id");
+        let emptyMiddleElement = document.getElementById("chat-empty-middle-id");
+        let groupListElement = document.getElementById("chat-list-id");
+        let chatElement = document.getElementById("chat-page-id");
+        let chatEmptyElement = document.getElementById("chat-empty-id");
+        let box = document.getElementById("chat-panel-id");
+        let isDraging = false;
 
-      middleElement.onmousedown = function(e) {
-        let startX = e.clientX;
-        middleElement.left = middleElement.offsetLeft;
-        chatElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
-        document.onmousemove = function(e) {
-          isDraging = true;
-          let endX = e.clientX;
-          let moveLen = middleElement.left + (endX - startX) - 64;
-          groupListElement.style.width = moveLen.toString() + "px";
-          chatElement.style.width = (box.clientWidth - moveLen).toString() + "px";
+        middleElement.onmousedown = function(e) {
+          let startX = e.clientX;
+          middleElement.left = middleElement.offsetLeft;
+          chatElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
+          document.onmousemove = function(e) {
+            isDraging = true;
+            let endX = e.clientX;
+            let moveLen = middleElement.left + (endX - startX) - 64;
+            groupListElement.style.width = moveLen.toString() + "px";
+            chatElement.style.width = (box.clientWidth - moveLen).toString() + "px";
+          }
+          
+          document.onmouseup = function(e) {
+            isDraging = false;
+            e.stopPropagation();
+            document.onmousemove = null;
+            document.onmouseup = null;
+            middleElement.releaseCapture && middleElement.releaseCapture();
+          }
+
+          middleElement.setCapture && middleElement.setCapture();
+          return false;
+        }
+
+        emptyMiddleElement.onmousedown = function(e) {
+          console.log("==== is click emptyMiddleElement ", emptyMiddleElement)
+          let startX = e.clientX;
+          emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
+          chatEmptyElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
+          document.onmousemove = function(e) {
+            isDraging = true;
+            let endX = e.clientX;
+            let moveLen = emptyMiddleElement.left + (endX - startX) - 64;
+            let x = chatEmptyElement.style.width;
+            groupListElement.style.width = moveLen.toString() + "px";
+            chatEmptyElement.style.width = (box.clientWidth - moveLen).toString() + "px";
+          }
+          
+          document.onmouseup = function(e) {
+            isDraging = false;
+            e.stopPropagation();
+            document.onmousemove = null;
+            document.onmouseup = null;
+            emptyMiddleElement.releaseCapture && emptyMiddleElement.releaseCapture();
+          }
+
+          emptyMiddleElement.setCapture && emptyMiddleElement.setCapture();
+          return false;
+        }
+
+        groupListElement.onmousemove = function(e) {
+          if(isDraging) {
+            groupListElement.style.cursor = "col-resize";
+          }
+          else {
+            groupListElement.style.cursor = "default";
+          }
         }
         
-        document.onmouseup = function(e) {
-          isDraging = false;
-          e.stopPropagation();
-          document.onmousemove = null;
-          document.onmouseup = null;
-          middleElement.releaseCapture && middleElement.releaseCapture();
-        }
-
-        middleElement.setCapture && middleElement.setCapture();
-        return false;
-      }
-
-      emptyMiddleElement.onmousedown = function(e) {
-        let startX = e.clientX;
-        emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
-        chatEmptyElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
-        document.onmousemove = function(e) {
-          isDraging = true;
-          let endX = e.clientX;
-          let moveLen = emptyMiddleElement.left + (endX - startX) - 64;
-          let x = chatEmptyElement.style.width;
-          groupListElement.style.width = moveLen.toString() + "px";
-          chatEmptyElement.style.width = (box.clientWidth - moveLen).toString() + "px";
+        chatElement.onmousemove = function(e) {
+          if(isDraging) {
+            chatElement.style.cursor = "col-resize";
+          }
+          else {
+            chatElement.style.cursor = "default";
+          }
         }
         
-        document.onmouseup = function(e) {
-          isDraging = false;
-          e.stopPropagation();
-          document.onmousemove = null;
-          document.onmouseup = null;
-          emptyMiddleElement.releaseCapture && emptyMiddleElement.releaseCapture();
+        chatEmptyElement.onmousemove = function(e) {
+          if(isDraging) {
+            chatEmptyElement.style.cursor = "col-resize";
+          }
+          else {
+            chatEmptyElement.style.cursor = "default";
+          }
         }
-
-        emptyMiddleElement.setCapture && emptyMiddleElement.setCapture();
-        return false;
-      }
-
-      groupListElement.onmousemove = function(e) {
-        if(isDraging) {
-          groupListElement.style.cursor = "col-resize";
-        }
-        else {
-          groupListElement.style.cursor = "default";
-        }
-      }
-      
-      chatElement.onmousemove = function(e) {
-        if(isDraging) {
-          chatElement.style.cursor = "col-resize";
-        }
-        else {
-          chatElement.style.cursor = "default";
-        }
-      }
-      
-      chatEmptyElement.onmousemove = function(e) {
-        if(isDraging) {
-          chatEmptyElement.style.cursor = "col-resize";
-        }
-        else {
-          chatEmptyElement.style.cursor = "default";
-        }
-      }
-    }
+      }, 0)
+    })
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);
