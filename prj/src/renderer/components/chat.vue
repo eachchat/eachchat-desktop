@@ -4150,7 +4150,8 @@ export default {
                         }
                     }
                     else{
-                        if((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) {
+                        if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) && 
+                            (['m.room.message', 'm.room.encrypted'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
                             this.newMsgNum += 1;
                             this.haveNewMsg = true;
                         }
