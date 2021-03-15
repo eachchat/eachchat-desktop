@@ -3204,8 +3204,10 @@ export default {
       var originalFileListInfo = _timelineWindow.getEvents();
       originalFileListInfo.forEach((item) => {
         if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
-            distItem = item;
-            return;
+            if(!item.isRedacted()) {
+              distItem = item;
+              return;
+            }
         }
       })
       let fileListInfoTmp = [];
@@ -3214,8 +3216,10 @@ export default {
           fileListInfoTmp = await _timelineWindow.getEvents();
           fileListInfoTmp.forEach((item) => {
             if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
+              if(!item.isRedacted()) {
                 distItem = item;
                 return;
+              }
             }
           })
       }
