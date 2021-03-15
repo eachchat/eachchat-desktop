@@ -2284,6 +2284,8 @@ export default {
           }
         }
         catch(e) {
+          this.showSearchMessage = false;
+          this.showSearchAllChatMsg = false;
           console.log("search all chat from app server exception ", e);
         }
         setTimeout(() => {
