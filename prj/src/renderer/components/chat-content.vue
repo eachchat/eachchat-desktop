@@ -3682,7 +3682,7 @@ export default {
     border-left: 1px solid rgb(238, 238, 238);
     -webkit-user-select:none;
     background-color: rgba(241, 241, 241, 1);
-    z-index: 4;
+    z-index: 1;
   }
 
   .chat-empty-middle {
@@ -3693,7 +3693,7 @@ export default {
     border-left: 1px solid rgb(238, 238, 238);
     -webkit-user-select:none;
     background-color: rgba(255, 255, 255, 1);
-    z-index: 4;
+    z-index: 1;
   }
 
   .chat-empty {

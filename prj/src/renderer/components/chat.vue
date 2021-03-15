@@ -316,6 +316,7 @@ export default {
     },
     methods: {
         closeToBottom() {
+            this.newMsgNum = 0;
             this.haveNewMsg = false;
         },
         goToBottom() {
