@@ -8,7 +8,7 @@
             <el-menu
                 class="nav-menu">
                 <el-menu-item 
-                    :disabled = 'navEnable'
+                    :disabled = 'navEnable || dataIsLoading'
                     class="nav-item"
                     v-for="(tabitem, index) in Navigate"
                     v-bind:key="index"
