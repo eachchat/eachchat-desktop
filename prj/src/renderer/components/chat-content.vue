@@ -1384,7 +1384,7 @@ export default {
         }, 100)
         return;
       }
-      if(newMsg.event.sender == global.mxMatrixClientPeg.matrixClient.getUserId()) {
+      if(newMsg.event.sender == global.mxMatrixClientPeg.matrixClient.getUserId() || newMsg.isRedacted()) {
         return;
       }
       var notificateContent = await this.getNotificationContent(newMsg);
@@ -3186,7 +3186,9 @@ export default {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
           if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
-            return [timeLineTmp, distTimeItem];
+            if(!timeLineTmp.isRedacted()) {
+              return [timeLineTmp, distTimeItem];
+            }
           }
           continue;
         }
