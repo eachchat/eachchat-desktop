@@ -1664,6 +1664,26 @@ export default {
       console.log("=======ipcmax")
       ipcRenderer.send("win-max");
     },
+    reCalculate:function(ev) {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          let middleElement = document.getElementById("chat-middle-id");
+          let emptyMiddleElement = document.getElementById("chat-empty-middle-id");
+          let groupListElement = document.getElementById("chat-list-id");
+          let chatElement = document.getElementById("chat-page-id");
+          let chatEmptyElement = document.getElementById("chat-empty-id");
+          let box = document.getElementById("chat-panel-id");
+          if(middleElement) middleElement.left = middleElement.offsetLeft;
+          if(chatElement) {
+            chatElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
+          } 
+          if(emptyMiddleElement) emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
+          if(chatEmptyElement) {
+            chatEmptyElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
+          }
+        }, 0)
+      })
+    },
     scrollToDistPosition(distGroup) {
       var distGroupItem = document.getElementById(this.getChatGroupNameElementId(distGroup.roomId));
       console.log("*** dist room element client top is ", distGroupItem.offsetTop);
@@ -3531,6 +3551,7 @@ export default {
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
     ipcRenderer.on('isFocuse', this.curWindowIsFocuse)
     ipcRenderer.on('isNormal', this.setHeaderState)
+    ipcRenderer.on('reCalcuate', this.reCalculate)
 
     this.$nextTick(() => {
       setTimeout(() => {

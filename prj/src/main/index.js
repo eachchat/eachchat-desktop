@@ -1431,6 +1431,7 @@ function openDevToolsInDevelopment(mainWindow) {
   mainWindow.on('maximize', (event) => {
     console.log("maximize")
     mainWindow.webContents.send("isNormal", false);
+    mainWindow.webContents.send("reCalcuate");
   })
 
 }
