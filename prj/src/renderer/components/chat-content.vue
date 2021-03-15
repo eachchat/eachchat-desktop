@@ -1103,7 +1103,9 @@ export default {
         for(var i=room.timeline.length-1;i>=0;i--) {
           var timeLineTmp = room.timeline[i];
           if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
+            if(!timeLineTmp.isRedacted()) {
               return timeLineTmp.event.origin_server_ts;
+            }
           }
           continue;
         }
