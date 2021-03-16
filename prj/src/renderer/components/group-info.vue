@@ -20,7 +20,7 @@
                     id="groupInfoImageId" 
                     class="groupInfoImage" 
                     :src="mxAvatar"
-                    onerror="this.src = './static/Img/User/user-40px@2x.png'"
+                    onerror="this.src = './static/Img/User/user-40px@10x.png'"
                     @click="showGroupImg()"
                 >
             </div>
@@ -183,7 +183,7 @@
                     <div class="dvd" v-if="item.dvd">{{item.name}}</div>
                     <div class="memberItem" v-else>
                         <div class="memberItemLeft">
-                            <img onerror="this.src = './static/Img/User/user-40px@2x.png'" :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
+                            <img onerror="this.src = './static/Img/User/user-40px@10x.png'" :src="item.mxAvatar" class="memberItemAvatar" :id="getIdThroughMemberUid(item.userId)" @click="showUserInfoTip($event, item)"> <!--todo 头像需要更替-->
                             <div class="memberItemContent"  @click="showUserInfoTip($event, item)">
                                 <div class="memberItemName">
                                     <span>{{item.dspName}}</span>
@@ -615,7 +615,7 @@ export default {
         },
         async fillMember(o) {
             const cli = window.mxMatrixClientPeg.matrixClient;
-            o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
+            o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@10x.png';
             o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
             const contactInfo = await Contact.GetContactInfo(o.userId);
             const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
@@ -669,7 +669,7 @@ export default {
             for(let key in xie1.currentState.members) {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let o = xie1.currentState.members[key];
-                o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@2x.png';
+                o.mxAvatar = (o.user && o.user.avatarUrl) ? cli.mxcUrlToHttp(o.user.avatarUrl) : './static/Img/User/user-40px@10x.png';
                 o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
                 const contactInfo = await Contact.GetContactInfo(o.userId);
                 const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
@@ -806,7 +806,7 @@ export default {
                 if (avatarUrl) {
                     this.mxAvatar = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(avatarUrl);
                 } else {
-                    this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@10x.png';
+                    this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@10x.png') : './static/Img/User/group-40px@10x.png';
                 }
             }, 500)
             this.showImageCropper = false;
@@ -1232,7 +1232,7 @@ export default {
         if (avatarUrl) {
             this.mxAvatar = client.mxcUrlToHttp(avatarUrl);
         } else {
-            this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? client.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@2x.png') : './static/Img/User/group-40px@10x.png';
+            this.mxAvatar = this.isDm ? ((this.dmMember.user && this.dmMember.user.avatarUrl) ? client.mxcUrlToHttp(this.dmMember.user.avatarUrl) : './static/Img/User/user-40px@10x.png') : './static/Img/User/group-40px@10x.png';
         }
 
         console.log('----mxRoom----', this.mxRoom);
