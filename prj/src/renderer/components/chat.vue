@@ -3279,7 +3279,7 @@ export default {
         IsBottom: function(){
             let uldiv = document.getElementById("message-show-list");
             let client = document.getElementById("message-show");
-            if(uldiv && client && Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 5)
+            if(uldiv && client && Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 150)
                 return true;
             return false;
         },
@@ -3966,6 +3966,8 @@ export default {
             this.initSearchKey = '';
             this.inviterInfo = undefined;
             this.isInvite = false;
+            this.newMsgNum = 0;
+            this.haveNewMsg = false;
             this.isJumpPage = false;
             this.curGroupId = this.chat.roomId;
             console.log("***1 chat")
@@ -3994,6 +3996,8 @@ export default {
                 this.inviterInfo = undefined;
                 this.isInvite = false;
                 this.isJumpPage = false;
+                this.newMsgNum = 0;
+                this.haveNewMsg = false;
                 this.curGroupId = this.curChat.roomId;
                 this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
                 console.log("***1 searchKeyFromList")
@@ -4011,6 +4015,8 @@ export default {
                 this.newMsgNum = 0;
                 this.initSearchKey = '';
                 this.inviterInfo = undefined;
+                this.newMsgNum = 0;
+                this.haveNewMsg = false;
                 this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
                 this.isInvite = false;
                 this.isJumpPage = false;
@@ -4039,6 +4045,8 @@ export default {
                 this.inviterInfo = undefined;
                 this.isInvite = false;
                 this.isJumpPage = false;
+                this.newMsgNum = 0;
+                this.haveNewMsg = false;
                 this.curGroupId = this.curChat.roomId;
                 console.log("***1 searchChat")
                 this.CloseSearchPage();
@@ -4056,6 +4064,8 @@ export default {
                 this.initSearchKey = '';
                 this.inviterInfo = undefined;
                 this.isInvite = false;
+                this.newMsgNum = 0;
+                this.haveNewMsg = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
                 console.log("***2 searchChat")
