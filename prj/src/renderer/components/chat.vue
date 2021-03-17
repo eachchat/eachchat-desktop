@@ -704,9 +704,17 @@ export default {
                             let levelObj = currentState.getContent();
                             redact = levelObj.redact || redact;
                         }
-                        if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
-                        if (msgItem.event.sender !== myUserId) text = '删除';
-                        if (userLevel >= redact) {
+                        console.log('redact Number>>>>>', redact)
+                        console.log('userLevel Number>>>>', userLevel)
+                        if (msgItem.event.sender === myUserId) {
+                            if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                            this.menu.append(new MenuItem({
+                                label: text,
+                                click: () => {
+                                    this.menuDelete(msgItem, text)
+                                }
+                            }));
+                        } else if (userLevel >= redact) {
                             this.menu.append(new MenuItem({
                                 label: text,
                                 click: () => {
