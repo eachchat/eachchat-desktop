@@ -1133,6 +1133,15 @@ ipcMain.on('open-directory-dialog', function(event, arg) {
     event.sender.send('selectedItem', files);
   })
 });
+
+ipcMain.on("change-save-file-path", function(event, arg){
+  dialog.showOpenDialog(mainWindow,{
+    properties: [arg, 'openDirectory']
+  }).then(folder=>{
+    event.sender.send('selected-save-file-path', folder);
+  })
+})
+
 ipcMain.on('open-image-dialog', function(event, arg) {
   dialog.showOpenDialog(mainWindow,{
     properties: [arg, ],

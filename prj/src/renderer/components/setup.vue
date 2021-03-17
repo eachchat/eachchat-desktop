@@ -86,10 +86,10 @@
             </div>
             <div class="setup-with-input">
                 <label class="setup-with-input-label">文件保存位置</label>
-                <div class="setup-with-input-input-div" @click="openLocalStorageDir">
-                  <input class="setup-with-input-input" v-model="localStorePath" disabled="disabled" @click="openLocalStorageDir">
+                <div class="setup-with-input-input-div">
+                  <input class="setup-with-input-input" v-model="localStorePath" readonly="readonly" @click="openLocalStorageDir">
                   <div class="setup-with-input-input-folder-ico">
-                      <img class="icon-folder" src="../../../static/Img/Setup/store-folder-20px@2x.png">
+                      <img class="icon-folder" src="../../../static/Img/Setup/store-folder-20px@2x.png"   @click="changeLocalStorageDir">
                   </div>
                 </div>
             </div>
@@ -362,6 +362,11 @@ export default {
         shell.openPath(this.localStorePath);
       }
     },
+
+    changeLocalStorageDir(){
+      ipcRenderer.send("change-save-file-path", "change-file-path");
+    },
+
     timeDeal(timeOriginal) {
       var timeFormate = timeOriginal.replace("-", "/");
       var timeFormateSplit = timeFormate.split(":");
@@ -523,10 +528,19 @@ export default {
       global.localStorage.setItem("message_notice", false);
       this.flashNotice = false;
     }
+
+    ipcRenderer.on("selected-save-file-path", (event, args) => {
+      if(args && !args.canceled){
+        let path = args.filePaths[0];
+        global.localStorage.setItem("savefile_path", path);
+        this.localStorePath = path;
+      }
+    })
   },
   activated: async function() {
     // this.recentDevice = await services.common.GetRecentDevice();
-    this.localStorePath = await confservice.getCurFilesDir();
+    this.localStorePath = global.localStorage.getItem("savefile_path");
+    if(!this.localStorePath) this.localStorePath = await confservice.getCurFilesDir();
     console.log("this.recentdeivce ", this.recentDevice);
     // console.log("this.localStorePath ", this.localStorePath);
     getdirsize(this.localStorePath, this.updateCacheSize);
@@ -910,26 +924,6 @@ export default {
       letter-spacing:0px;
       padding: 0px;
       border: 0px;
-      cursor: pointer;
-      background-color: rgba(1, 1, 1, 0);
-      text-indent: 6px;
-  }
-
-  .setup-with-input-input:focus {
-      position: absolute;
-      display: inline-block;
-      height: 24px;
-      line-height: 24px;
-      margin-top: 12px;
-      margin-bottom: 12px;
-      width: 288px;
-      font-size: 14px;
-      font-family: PingFangSC-Regular;
-      font-weight: 400;
-      letter-spacing:0px;
-      padding: 0px;
-      border: 0px;
-      outline: none;
       cursor: pointer;
       background-color: rgba(1, 1, 1, 0);
       text-indent: 6px;
