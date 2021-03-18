@@ -1,3 +1,40 @@
 .ql-editor.ql-editor{
     height: 80%;
 }
+
+
+.quote-content.quote-content.quote-content{
+    display: flex;
+    height: 52px;
+    background: #E2E2E5;
+    border-radius: 5px;
+    width: fit-content;
+    padding: 6px 12px;
+    box-sizing: border-box;
+    position: relative;
+}
+.quote-content-img.quote-content-img.quote-content-img{
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.quote-content-span.quote-content-span.quote-content-span{
+    font-size: 13px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #666666;
+    line-height: 20px;
+    margin-right: 8px;
+}
+
+.quote-img-delete.quote-img-delete.quote-img-delete{
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 50%;
+    right: -21px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}

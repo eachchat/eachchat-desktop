@@ -20,6 +20,17 @@ export function openBaseMenu() {
     openRemoteMenu('copy', 'cut', 'paste')
 }
 
+export function getImgUrlByEvent (event) {
+    var distUrl = (event.content.info && event.content.info.thumbnail_url && event.content.info.thumbnail_url.length != 0) ? event.content.info.thumbnail_url : event.content.url;
+    if(!distUrl.startsWith('blob:')) {
+        let iconPath = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distUrl);
+        return iconPath;
+    }
+    else {
+        return distUrl;
+    }
+}
+
 export function UpdateUserAvater(ev){
   const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId()
   if(ev.getType() === 'm.room.member' && ev.getSender() === myUserId){

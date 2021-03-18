@@ -211,7 +211,7 @@ import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import { models } from '../../packages/data/models.js';
-import { openRemoteMenu } from '../../utils/commonFuncs'
+import { openRemoteMenu, getImgUrlByEvent } from '../../utils/commonFuncs'
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -777,6 +777,15 @@ export default {
                             this.downloadFile(msgItem);
                         }
                     }));
+                    if (content.msgtype == "m.image"){
+                        this.menu.append(new MenuItem({
+                            label: "引用",
+                            click: () => {
+                                this.quoteImg(msgItem);
+                            }
+                        }));
+                    }
+
                 }
                 else if(content.msgtype == "m.audio") {
                     if(showRedact) {
@@ -852,6 +861,45 @@ export default {
                 this.editor.insertText(this.content.length, '\n');
                 this.editor.setSelection(this.content.length + 1);
             })
+        },
+
+        getQuoteImgMsg(){
+            const dom = document.getElementById('quote-img')
+            return this.$store.state.quoteMsgMap[(dom && dom.getAttribute('data-roomid')) || '']
+        },
+
+        async quoteImg(msg) {
+            this.editor.setSelection(this.editor.selection.savedRange.index)
+            var dom = document.getElementById('quote-img')
+            const exist = !!dom
+            if (!exist) {
+                dom = document.createElement('div')
+            }
+            dom.setAttribute('class', 'quote-content')
+            dom.setAttribute('id', 'quote-img')
+            dom.setAttribute('data-roomid', this.curChat.roomId)
+            dom.setAttribute('contenteditable', false)
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
+            dom.innerHTML=`
+                <span class="quote-content-span">${userName} : </span>
+                <div class="quote-content-img" style="background-image:url(${getImgUrlByEvent(msg.event)})">
+                </div>
+                <img class="quote-img-delete" id="quote-img-delete" src="../../../static/Img/Chat/quote-delete.png" />
+            `
+            if (!exist) {
+                this.editor.insertText(this.editor.selection.savedRange.index,' ')
+                this.editor.insertEmbed(this.editor.selection.savedRange.index, 'span', dom)
+                this.editor.insertText(this.editor.selection.savedRange.index + 1,' ')
+                this.editor.setSelection(this.editor.selection.savedRange.index - 1)
+            }
+            const deleteBtn = document.getElementById('quote-img-delete')
+            const handler = () => {
+                if (dom && dom.parentNode){
+                    dom.parentNode.removeChild(dom)
+                }
+            }
+            deleteBtn.addEventListener('click', handler, true)
         },
         menuCopy(msg) {
             var msgContent = msg.getContent();
@@ -2520,6 +2568,10 @@ export default {
         },
 
         SendText: function(sendBody, varcontent){
+            const quoteImgMsg = this.getQuoteImgMsg()
+            if (quoteImgMsg) {
+                sendBody.quote_event = quoteImgMsg
+            }
             this.cleanEditor();
             let curTimeSeconds = new Date().getTime();
             var eventTmp = {
@@ -2577,15 +2629,16 @@ export default {
                 let curTimeSeconds = new Date().getTime();
                 
                 if(curMsgItem.hasOwnProperty("span")) {
-                    var fileSpan = curMsgItem.span;
-                    var pathId = fileSpan.id;
-                    var msgInfo = this.idToPath[pathId];
-                    // console.log("this.idToPath is ", this.idToPath)
-                    var filePath = msgInfo.path;
-                    var fileType = msgInfo.type;
-                    if(fileType == "at") {
-                        sendText += ("@" + msgInfo.atName + " ");
-                        sendBody.format = "org.matrix.custom.html";
+                    if (curMsgItem.span.id !== 'quote-img') {    
+                        var fileSpan = curMsgItem.span;
+                        var pathId = fileSpan.id;
+                        var msgInfo = this.idToPath[pathId];
+                        var filePath = msgInfo.path;
+                        var fileType = msgInfo.type;
+                        if(fileType == "at") {
+                            sendText += ("@" + msgInfo.atName + " ");
+                            sendBody.format = "org.matrix.custom.html";
+                        }
                     }
                 }
                 else{
@@ -2593,7 +2646,6 @@ export default {
                     sendText += curMsgItem;
                 }
             }
-            
             if(sendText.length != 0)
             {
                 sendBody.body = sendText.trim();

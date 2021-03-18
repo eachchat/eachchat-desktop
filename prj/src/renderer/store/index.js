@@ -35,6 +35,7 @@ export default new Vuex.Store({
     soundNotice: true, 
     flashNotice: true,
     draft: {},
+    quoteMsgMap: {},
     roomIdToName: {},
     userToAvater: {},
     curRoomId: undefined,

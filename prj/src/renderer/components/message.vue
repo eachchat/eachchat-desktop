@@ -54,6 +54,11 @@
                     </div>
                 </div>
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <div class="quote-content" v-if="hasQuote()">
+                    <span>{{quoteName}} : </span> 
+                    <div class="quote-content-img" :style="`background-image:url(${quoteUrl})`">
+                    </div>
+                </div>
             </div>
             <div class="msg-info-others" v-else>
                 <img class="msg-info-user-img-with-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
@@ -95,6 +100,10 @@
                     </div>
                     <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
+                <div class="quote-content" v-if="hasQuote()">
+                    <span>{{quoteName}} : </span> 
+                    <div class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -116,6 +125,7 @@ import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
 import {ComponentUtil} from '../script/component-util.js'
 import { models } from '../../packages/data/models.js';
 import linkify from './linkify'
+import { getImgUrlByEvent } from '../../utils/commonFuncs'
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 600;
@@ -131,7 +141,15 @@ export default {
         linkify,
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
+    computed: {
+        quoteUrl (){
+            return getImgUrlByEvent(this.msg.event.content.quote_event)
+        }
+    },
     methods: {
+        hasQuote: function() {
+            return  !!this.msg.event.content.quote_event
+        },
         getMsgStateClass: function() {
             if(this.msg.event.content.msgtype != "m.text") {
                 return "fileMsgState";
@@ -1420,6 +1438,7 @@ export default {
             matrixClient: undefined,
             imgWidth: 400,
             imgHeight: 400,
+            quoteName: '',
         }
     },
     mounted: async function() {
@@ -1447,6 +1466,12 @@ export default {
                 }, 500)
             })
         }, 0)
+        if (this.hasQuote()){
+            const sender = this.msg.event.content.quote_event.sender
+            this.quoteName = await ComponentUtil.GetDisplayNameByMatrixID(
+               typeof (sender) === 'string' ? sender : sender.userId
+            )
+        }
         window.openUrl=this.openUrl;
     },
     created: async function() {
@@ -2281,5 +2306,35 @@ export default {
     
     .imageTip {
         text-align: center;
+    }
+    .quote-content{
+        display: flex;
+        height: 52px;
+        background: #E2E2E5;
+        margin-left: 45px;
+        border-radius: 5px;
+        width: fit-content;
+        padding: 6px 12px;
+        box-sizing: border-box;
+        span{
+            font-size: 13px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #666666;
+            line-height: 20px;
+            margin-right: 8px;
+        }
+        .quote-content-img{
+            width: 40px;
+            height: 40px;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    }
+    .msg-info-mine{
+        .quote-content{
+           float: right;
+           margin-right: 56px; 
+        }
     }
 </style>
