@@ -212,7 +212,7 @@ import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import { models } from '../../packages/data/models.js';
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
-
+import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
@@ -895,7 +895,7 @@ export default {
                 <span class="quote-content-span">${userName} : </span>
                 <div class="quote-content-img" style="background-image:url(${getImgUrlByEvent(msg.event)})">
                 </div>
-                <img class="quote-img-delete" id="quote-img-delete" src="../../../static/Img/Chat/quote-delete.png" />
+                <img class="quote-img-delete" id="quote-img-delete" src="${deleteIcon}" />
             `
             if (!exist) {
                 this.editor.insertText(this.editor.selection.savedRange.index,' ')
