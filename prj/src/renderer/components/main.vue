@@ -29,7 +29,7 @@
         <el-main class="tabcontainer" v-show="!navEnable && !dataIsLoading">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
                 :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
@@ -108,6 +108,7 @@ export default {
     },
     data () {
         return {
+            setToRealAll: [],
             isNormal: true,
             isFullScreen: false,
             toSaveDraft: 0,
@@ -402,6 +403,22 @@ export default {
         },
         setFullScreen: function(e, isFullScreen) {
             this.isFullScreen = isFullScreen;
+        },
+        clearAll: function(e, roomIds) {
+            this.setToRealAll = [];
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.setToRealAll = roomIds;
+                }, 200)
+            })
+        },
+        jumpToChat: function(e, roomId) {
+            this.distGroupId = "";
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.distGroupId = roomId;
+                }, 200)
+            })
         },
         updateSelfImage: function(e, args) {
             var state = args[0];
@@ -796,6 +813,8 @@ export default {
         ipcRenderer.on('isNormal', (e, isNormal) => {
             this.isNormal = isNormal;
         })
+        ipcRenderer.on('jumpToChat', this.jumpToChat);
+        ipcRenderer.on('clearAll', this.clearAll);
         console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
         await this.getAppBaseData();
         //this.startCheckUpgrade();

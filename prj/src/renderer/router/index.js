@@ -13,6 +13,7 @@ import SearchFilesListDlg from '../components/searchFileList.vue';
 import SearchMessagesListDlg from '../components/searchMessageList.vue';
 import TransmitMsgListDlg from '../components/transmitTogetherContent.vue';
 import ImgViewDlg from '../components/imgViewer.vue';
+import TrayNotice from '../components/trayNotice.vue';
 
 export default new Router({
   routes: [
@@ -91,6 +92,11 @@ export default new Router({
     {
       path: '/index',
       redirect: '/'
+    },
+    {
+      path: '/trayNotice',
+      name: 'trayNotice',
+      component: TrayNotice,
     }
   ]
 })

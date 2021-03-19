@@ -578,6 +578,8 @@ export default {
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
             this.$emit("isSearching", true);
             this.isSerach = true;
+            this.newMsgNum = 0;
+            this.haveNewMsg = false;
             this.HistorySearchRoomId = this.searchChat.roomId;
         },
         CloseSearchPage: function() {
@@ -599,6 +601,8 @@ export default {
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
             this.$emit("isSearching", true);
             this.isFileList = true;
+            this.newMsgNum = 0;
+            this.haveNewMsg = false;
             this.isScroll = true;
             this.FilelistSearchRoomId = this.curChat.roomId;
         },
