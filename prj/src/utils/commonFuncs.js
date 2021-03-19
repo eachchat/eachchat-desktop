@@ -1,4 +1,4 @@
-import {remote} from 'electron'
+import {remote, nativeImage, clipboard} from 'electron'
 const Menu = remote.Menu;
 const MenuItem = remote.MenuItem;
 const menelabels = {
@@ -29,6 +29,23 @@ export function getImgUrlByEvent (event) {
     else {
         return distUrl;
     }
+}
+
+export function copyImgToClipboard(url){
+    var canvas = document.createElement('CANVAS'),
+    ctx = canvas.getContext('2d'),
+    img = new Image;
+    img.crossOrigin = 'Anonymous';
+    img.onload = function(){
+        canvas.height = img.height;
+        canvas.width = img.width;
+        ctx.drawImage(img,0,0);
+        var dataURL = canvas.toDataURL('image/png');
+        const image = nativeImage.createFromDataURL(dataURL)
+        clipboard.writeImage(image)
+        canvas = null; 
+    };
+    img.src = url
 }
 
 export function UpdateUserAvater(ev){

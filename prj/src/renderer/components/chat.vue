@@ -211,7 +211,7 @@ import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import { models } from '../../packages/data/models.js';
-import { openRemoteMenu, getImgUrlByEvent } from '../../utils/commonFuncs'
+import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
@@ -782,6 +782,12 @@ export default {
                             label: "引用",
                             click: () => {
                                 this.quoteImg(msgItem);
+                            }
+                        }));
+                        this.menu.append(new MenuItem({
+                            label: "复制",
+                            click: () => {
+                               copyImgToClipboard(getImgUrlByEvent(msgItem.event))
                             }
                         }));
                     }
