@@ -332,6 +332,10 @@ export default {
     // listItem
   },
   props: {
+    setToRealAll: {
+      type: Array,
+      default: []
+    },
     toSaveDraft: {
       type: Number,
       default: 0
@@ -365,6 +369,17 @@ export default {
           this.$store.commit("setDraft", [this.curChat.roomId, content]);
         }
       }
+    },
+    setToRealAll: function() {
+      for(let index in this.setToRealAll) {
+        let distRoom = global.mxMatrixClientPeg.matrixClient.getRoom(this.setToRealAll[index])
+        console.log("========== set to read all ", distRoom);
+        if(distRoom) {
+          this.SetRoomReader(distRoom);
+        }
+      }
+      this.trayNoticeInfo = {};
+      ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
     },
     scrollToRecentUnread: function() {
       var distItem = this.getDistUnreadItem();
@@ -417,7 +432,7 @@ export default {
       if(room) {
         console.log('------distGroupId------');
         this.viewRoom(room);
-        this.showDealGroupListUpdate++;
+        // this.showDealGroupListUpdate++;
         this.$nextTick(() => {
           this.showGroupIconName();
         })
@@ -487,6 +502,7 @@ export default {
             .then((ret) => {
               setTimeout(() => {
                 this.sortGroup();
+                this.updateTrayNoticeInfo()
               }, 2000)
             })
           this.$emit('matrixSyncEnd', true);
@@ -495,6 +511,13 @@ export default {
         global.mxMatrixClientPeg.matrixClient.on('Room.receipt', (event, room) => {
           if(this.curChat && (this.curChat.roomId != room.roomId)) {
             if (room.getUnreadNotificationCount() == 0) {
+              try {
+                delete this.trayNoticeInfo[room.roomId];
+                ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
+              }
+              catch(e) {
+
+              }
               this.checkUnreadCount();
             }
           }
@@ -648,6 +671,7 @@ export default {
       isBlure: false,
       //需要展示的用户群组
       dealingEventIds: [],
+      trayNoticeInfo: {},
       searchChat: undefined,
       searchKeyFromList: '',
       selfUserId: undefined,
@@ -1278,6 +1302,44 @@ export default {
       if(this.lowPriorityGroupList.length != 0)
         this.lowPriorityGroupList.sort(this.SortGroupByTimeLine);
     },
+    updateTrayNoticeInfo() {
+      if(this.isWindows()) {
+        let allRooms = [].concat(this.favouriteRooms, this.dealShowGroupList, this.lowPriorityGroupList);
+        allRooms.forEach(async (room)=>{
+          let notificationCount = room.getUnreadNotificationCount();
+          if(notificationCount == undefined || (notificationCount != undefined && notificationCount == 0)) {
+            return;
+          }
+          console.log("*** updateTrayNotice ", notificationCount, "  room ", room)
+          var distUrl = global.mxMatrixClientPeg.getRoomAvatar(room);
+          var distName = room.name;
+          if(!distUrl || distUrl == '') {
+              if(global.mxMatrixClientPeg.DMCheck(room))
+                  distUrl = "./static/Img/User/user-40px@2x.png";
+              else
+                  distUrl = "./static/Img/User/group-40px@2x.png";  
+          }
+          
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
+          if(!distUserId) {
+            distName = this.getShowGroupName(room);
+          }
+          else {
+            distName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          }
+          
+          let trayNoticeObj = {
+            unreadCount: notificationCount,
+            imgUrl: distUrl,
+            chatName: distName,
+            roomId: room.roomId,
+          }
+          this.trayNoticeInfo[room.roomId] = trayNoticeObj;
+          console.log("*** updateTrayNotice ", this.trayNoticeInfo)
+          ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
+        })
+      }
+    },
     sortGroup(){
       if(this.favouriteRooms.length != 0)
         this.favouriteRooms.sort(this.SortGroupByTimeLine);
@@ -1305,9 +1367,9 @@ export default {
         }
       }
     },
-    onRoomTimeline(ev, room, toStartOfTimeline, removed, data) { //todo 新消息事件
+    async onRoomTimeline(ev, room, toStartOfTimeline, removed, data) { //todo 新消息事件
       // console.log("*** data ", data);
-      // console.log("*** room ", room);
+      // console.log("*** room ", room.name);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
       this.setRemovedTab(ev)
@@ -1328,7 +1390,38 @@ export default {
         if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
         }
-        this.updateChatList(ev); //处理数组
+        if(ev.event.sender != global.mxMatrixClientPeg.matrixClient.getUserId() && !ev.isRedacted()) {
+          this.updateChatList(ev); //处理数组
+          if(this.isWindows()) {
+            if((this.curChat && room.roomId != this.curChat.roomId) || this.isFirstLogin || this.isBlure) {
+              var distUrl = global.mxMatrixClientPeg.getRoomAvatar(room);
+              var distName = room.name;
+              if(!distUrl || distUrl == '') {
+                  if(global.mxMatrixClientPeg.DMCheck(room))
+                      distUrl = "./static/Img/User/user-40px@2x.png";
+                  else
+                      distUrl = "./static/Img/User/group-40px@2x.png";  
+              }
+              
+              var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
+              if(!distUserId) {
+                distName = this.getShowGroupName(room);
+              }
+              else {
+                distName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+              }
+              
+              let trayNoticeObj = {
+                unreadCount: this.getUnReadCount(room),
+                imgUrl: distUrl,
+                chatName: distName,
+                roomId: room.roomId,
+              }
+              this.trayNoticeInfo[room.roomId] = trayNoticeObj;
+              ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
+            }
+          }
+        }
       }
       
       if(this.dealingEventIds.length > 20) {
@@ -1432,11 +1525,11 @@ export default {
         }
         try{
           if(global.localStorage.getItem("message_sound")) {
-            // this.amr.play();
+            this.amr.play();
           }
         }
         catch(e) {
-          
+          console.log("play sound exception ", e);
         }
       }
       else {
@@ -3398,8 +3491,17 @@ export default {
         if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
           isSecret = true;
         }
+
         this.showGroupIconName(this.curChat);
         this.$store.commit("setCurChatId", this.curChat.roomId);
+
+        try{
+          delete this.trayNoticeInfo[this.curChat.roomId];
+          ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
+        }
+        catch(e) {
+
+        }
       }
     },
 
@@ -3654,12 +3756,12 @@ export default {
   },
   created: async function() {
     //global.services.common.handlemessage(this.callback);
-    // if(this.amr == null){
-    //     this.amr = new BenzAMRRecorder();
-    //     // console.log("=========================")
-    //     // console.log(path.join(__dirname, "../../../static/sound.wav"))
-    //     this.amr.initWithUrl(path.join(__dirname, "/static/sound.wav"))
-    // }
+    if(this.amr == null){
+        this.amr = new BenzAMRRecorder();
+        // console.log("=========================")
+        // console.log(path.join(__dirname, "../../../static/sound.wav"))
+        this.amr.initWithUrl(path.join(__dirname, "/static/sound.wav"))
+    }
   }
 };
 </script>

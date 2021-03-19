@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div class="setup-title" id="setup-details-notice-id">通知</div>
-            <div class="setup-with-switch" v-show="false">
+            <div class="setup-with-switch" v-show="isWindows()">
                 <label class="setup-with-switch-label">消息提示音</label>
                 <el-switch class="setup-with-switch-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)" :active-color="'#24B36B'">
                 </el-switch>

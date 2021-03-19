@@ -15,6 +15,10 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
+let noticeWindow
+let noticeInfo = {}
+let noticeHeight
+let noticeWindowKeepShow = false
 let assistWindow
 let soloPage = null
 let favouriteDetailWindow
@@ -59,6 +63,10 @@ if (process.env.NODE_ENV === "development") {
 const imgViewPageWinURL = process.env.NODE_ENV === 'development'
 ? `http://localhost:9080/#/ImgView`
 : `file://${__dirname}/index.html#ImgView`;
+
+const trayNoticeURL = process.env.NODE_ENV === 'development'
+? `http://localhost:9080/#/trayNotice`
+: `file://${__dirname}/index.html#trayNotice`;
 
 if(process.platform != 'darwin') {
   const singleInstanceLock = app.requestSingleInstanceLock();
@@ -118,6 +126,22 @@ let timeTmp = 0;
 let countTmp = 1;
 let clickQuit = false;
 
+function checkTrayLeave() {
+  clearInterval(leaveInter);
+  leaveInter = setInterval(() => {
+    trayBounds = appIcon.getBounds();
+    point = screen.getCursorScreenPoint();
+    if(!(trayBounds.x < point.x && trayBounds.y < point.y && point.x < (trayBounds.x + trayBounds.width) && point.y < (trayBounds.y + trayBounds.height))) {
+      clearInterval(leaveInter);
+      isLeave = true;
+      console.log("======notice hide");
+      if(!noticeWindowKeepShow) {
+        noticeWindow.hide();
+      }
+    }
+  }, 100);
+}
+
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
@@ -139,7 +163,25 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon = new Tray(path.join(__dirname, iconPath));
 
   appIcon.on('mouse-move', function(event, position){
-    
+    if(process.platform == "win32") {
+      if(isLeave) {
+        console.log("=========noticewindowdinfo ", noticeInfo)
+        if(noticeInfo && Object.keys(noticeInfo).length == 0) {
+          noticeWindow.hide();
+        }
+        else {
+          isLeave = false;
+          checkTrayLeave();
+          console.log("======notice show", position);
+          let showX = screenSize.width - 20 - 240;
+          let showY = screenSize.height - noticeHeight;
+          console.log("final show posision ", screenSize.width - 20 - 240, " y ", screenSize.height - noticeHeight)
+          noticeWindow.setPosition(showX, showY)
+          noticeWindow.setAlwaysOnTop(true);
+          noticeWindow.show();
+        }
+      }
+    }
   });
 
   let contextMenu = Menu.buildFromTemplate([
@@ -230,6 +272,37 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 
   // setAutoRun(true);
 });
+
+ipcMain.on('checkClick', function(event, ids) {
+  mainWindow.show();
+  mainWindow.focus();
+  if(ids.length == 1) {
+    mainWindow.webContents.send('jumpToChat', ids[0]);
+  }
+  else{
+    mainWindow.webContents.send('clearAll', ids);
+  }
+})
+
+ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
+  noticeWindowKeepShow = arg;
+  if(!arg && isLeave) {
+    noticeWindow.hide();
+  }
+})
+
+ipcMain.on("updateTrayNotice", function(event, arg) {
+  if(process.platform == "win32") {
+    noticeInfo = arg;
+    noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
+    console.log("===== noticeHeight is ", noticeHeight);
+    noticeWindow.setSize(240, noticeHeight);
+    let showX = screenSize.width - 20 - 240;
+    let showY = screenSize.height - noticeHeight;
+    noticeWindow.setPosition(showX, showY)
+    noticeWindow.webContents.send("updateTrayNotice", arg);
+  }
+})
 
 ipcMain.on("updateUnreadCount", function(event, arg) {
   console.log("==========arg ", arg);
@@ -628,26 +701,26 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
     }
   }, 500);
 
-  if(!mainWindow.isFocused()) {
-    if(notification != null) {
-      notification.close();
-    }
-    notification = new Notification({
-      title: title,
-      body: contnet,
-      icon: path.join(__dirname, notificationIco),
-      sound: path.join(__dirname, soundPath)
-    })
-    notification.show();
-    setTimeout(() => {
-      notification.close();
-    }, 4000)
-    notification.on("click", () => {
-      clearFlashIconTimer();
-      setImgToNormalIcon();
-      mainWindow.show();
-    })
-  }
+  // if(!mainWindow.isFocused()) {
+  //   if(notification != null) {
+  //     notification.close();
+  //   }
+  //   notification = new Notification({
+  //     title: title,
+  //     body: contnet,
+  //     icon: path.join(__dirname, notificationIco),
+  //     sound: path.join(__dirname, soundPath)
+  //   })
+  //   notification.show();
+  //   setTimeout(() => {
+  //     notification.close();
+  //   }, 4000)
+  //   notification.on("click", () => {
+  //     clearFlashIconTimer();
+  //     setImgToNormalIcon();
+  //     mainWindow.show();
+  //   })
+  // }
 
 });
 
@@ -1325,7 +1398,25 @@ function createWindow () {
     console.log("maximize")
     assistWindow.webContents.send("isNormal", false);
   })
-  
+  if(process.platform == "win32") {
+    noticeWindow = new BrowserWindow({
+      height: 52,
+      width: 240,
+      frame: false,
+      resizable: true,
+      webPreferences: {
+        webSecurity: false,
+        nodeIntegration: true,
+        enableRemoteModule: true
+      },
+      icon: path.join(__dirname, iconPath),
+      show: false,
+      title: "亿洽"
+    })
+    noticeWindow.setSkipTaskbar(true);
+    noticeWindow.loadURL(trayNoticeURL);
+    openDevToolsInDevelopment(noticeWindow); 
+  }
   var width = 615;
   var height = 508;
   if(process.platform == "darwin") {
