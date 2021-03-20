@@ -1524,7 +1524,7 @@ export default {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
         try{
-          if(global.localStorage.getItem("message_sound")) {
+          if(global.localStorage.getItem("message_sound") == undefined || global.localStorage.getItem("message_sound") == "true") {
             this.amr.play();
           }
         }
