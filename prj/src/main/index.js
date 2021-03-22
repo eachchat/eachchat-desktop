@@ -299,7 +299,7 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
     noticeWindow.setSize(240, noticeHeight);
     let showX = screenSize.width - 20 - 240;
     let showY = screenSize.height - noticeHeight;
-    // noticeWindow.setPosition(showX, showY)
+    noticeWindow.setPosition(showX, showY)
     noticeWindow.webContents.send("updateTrayNotice", arg);
   }
 })

@@ -67,6 +67,9 @@ export default {
           this.totalUnreadCount += item['unreadCount'];
           this.noticeList.push(item);
         }
+        if(this.totalUnreadCount == 0) {
+          ipcRenderer.send('trayNoticeShowOrNot', false);
+        }
         // this.toUpdateCurWindowInfo();
       },
       toUpdateCurWindowInfo() {
