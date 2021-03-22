@@ -1390,8 +1390,8 @@ export default {
         if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
         }
+        this.updateChatList(ev); //处理数组
         if(ev.event.sender != global.mxMatrixClientPeg.matrixClient.getUserId() && !ev.isRedacted()) {
-          this.updateChatList(ev); //处理数组
           if(this.isWindows()) {
             if((this.curChat && room.roomId != this.curChat.roomId) || this.isFirstLogin || this.isBlure) {
               var distUrl = global.mxMatrixClientPeg.getRoomAvatar(room);
