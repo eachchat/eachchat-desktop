@@ -173,7 +173,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
           isLeave = false;
           checkTrayLeave();
           console.log("======notice show", position);
-          let showX = screenSize.width - 20 - 240;
+          let showX = screenSize.width - position.x > 260 ? position.x + 20 : screenSize.width - 20 - 240 ;
           let showY = screenSize.height - noticeHeight;
           console.log("final show posision ", screenSize.width - 20 - 240, " y ", screenSize.height - noticeHeight)
           noticeWindow.setPosition(showX, showY)
@@ -299,7 +299,7 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
     noticeWindow.setSize(240, noticeHeight);
     let showX = screenSize.width - 20 - 240;
     let showY = screenSize.height - noticeHeight;
-    noticeWindow.setPosition(showX, showY)
+    // noticeWindow.setPosition(showX, showY)
     noticeWindow.webContents.send("updateTrayNotice", arg);
   }
 })
