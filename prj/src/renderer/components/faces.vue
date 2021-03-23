@@ -37,10 +37,11 @@ export default {
   display: block;
   padding: 0 0 0 12px;
   & > li {
-    width: 20px !important;
-    height: 20px !important;
+    width: 18px !important;
+    height: 18px !important;
     display: inline-block;
     padding: 9px;
+    font-size: 18px;
     cursor: pointer;
     & > img {
       width: 100%;
