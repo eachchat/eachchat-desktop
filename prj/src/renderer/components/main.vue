@@ -532,9 +532,7 @@ export default {
                     var sVerName = sUrl.split("/").pop();
                     var sForceUpdate = newVersion.forceUpdate;
                     var needUpdate = false;
-                    if(sOsType != undefined && sOsType != "windows") {
-                        return;
-                    }
+   
                     if(lMajor_Version_Number != undefined && sMajor_Version_Number != undefined) {
                         if(Number.parseInt(lMajor_Version_Number) > Number.parseInt(sMajor_Version_Number)) {
                             return;

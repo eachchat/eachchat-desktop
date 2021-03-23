@@ -968,7 +968,16 @@ ipcMain.on("toUpgradePackage", function(event, arg) {
           console.log("finished ")
           try{
             fs.renameSync(distTemp, distPath);
-            shell.openExternal(distPath);
+            if(process.platform == 'win32'){
+              shell.openExternal(distPath);
+            } 
+            else if(process.platform == "darwin") {
+              console.log(distPath)
+              shell.openPath(distPath);
+            }
+            else//(process.platform == 'linux')
+              shell.showItemInFolder(distPath);
+            
             clickQuit = true;
             app.quit();
           }
