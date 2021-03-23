@@ -1,7 +1,9 @@
 <template>
     <div>
         <ul class="faces">
-            <li v-for="item in faceList">
+            <li v-for="item in faceList" :style="{
+              fontSize: isMac() ? '22px' : '18px'
+            }">
                 <!-- <img :src="faceMap[item]" :alt="item" :title="item" @click="insertFace(item)"/> -->
                 <div v-html="item" :title="item" @click="insertFace(item)"></div>
             </li>
@@ -10,6 +12,7 @@
 </template>
 <script>
 import {faceUtils} from '../../packages/core/Utils.js'
+import {environment} from '../../packages/data/index.js'
 // const faceUtils = require('../server/Utils.js');
 
 export default {
@@ -22,6 +25,9 @@ export default {
     };
   },
   methods: {
+    isMac() {
+      return environment.os.isMac;
+    },
     insertFace: function(item) {
       this.$emit('insertFace', item);
     }
@@ -35,17 +41,17 @@ export default {
   list-style: none;
   background-color: white;
   display: block;
-  padding: 0 0 0 12px;
+  padding: 0 14px 0 14px;
   & > li {
-    width: 18px !important;
-    height: 18px !important;
+    width: 20px !important;
+    height: 20px !important;
     display: inline-block;
     padding: 9px;
-    font-size: 18px;
     cursor: pointer;
-    & > img {
+    & > div {
       width: 100%;
       height: 100%;
+      line-height: 100%;
     }
   }
 }

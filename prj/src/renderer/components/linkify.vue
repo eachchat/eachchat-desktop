@@ -1,6 +1,6 @@
 <template>
     <div>
-        <span v-for="(item, ind) in getItems()" :key="ind" :style="{ 
+        <span class="linkify" v-for="(item, ind) in getItems()" :key="ind" :style="{ 
           color: ind % 2 ? color : null, 
           cursor: ind % 2 ? 'pointer' : null,
           textDecoration: ind % 2 ? textDecoration : null,

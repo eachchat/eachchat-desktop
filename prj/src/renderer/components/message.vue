@@ -36,9 +36,11 @@
                     <div class="chat-msg-content-mine-txt-div" 
                         v-on:click="ShowFile()" v-else>
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
-                            <linkify :text="messageContent" color="rgba(255, 255, 255, 1)" textDecoration="underline"></linkify>
+                            <linkify class="chat-msg-content-mine-linkify" :text="messageContent" color="rgba(255, 255, 255, 1)" textDecoration="underline"></linkify>
                         </p> 
-                        <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >{{messageContent}}</p>
+                        <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >
+                            <emoji :text="messageContent"></emoji>    
+                        </p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="(MsgIsFile() || MsgIsTransmit()) && !MsgIsImage()"></div>
                     <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
@@ -93,10 +95,11 @@
                     <div class="chat-msg-content-others-txt-div" 
                         v-on:click="ShowFile()" v-else>
                         <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
-                            <linkify :text="messageContent" color="#5B6A91" textDecoration="underline"></linkify>
+                            <linkify class="chat-msg-content-others-linkify" :text="messageContent" color="#5B6A91" textDecoration="underline"></linkify>
                         </p>
-                        <p v-else class="chat-msg-content-others-txt" :id="msg.event.event_id">{{getMsgOtherLinkContent(messageContent)}}</p>
-
+                        <p v-else class="chat-msg-content-others-txt" :id="msg.event.event_id">    
+                            <emoji :text="messageContent"></emoji>
+                        </p>
                     </div>
                     <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
@@ -125,7 +128,9 @@ import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
 import {ComponentUtil} from '../script/component-util.js'
 import { models } from '../../packages/data/models.js';
 import linkify from './linkify'
+import emoji from './emoji'
 import { getImgUrlByEvent } from '../../utils/commonFuncs'
+import {faceUtils} from '../../packages/core/Utils.js'
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 600;
@@ -139,6 +144,7 @@ function extend(target, base) {
 export default {
     components: {
         linkify,
+        emoji
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     computed: {
