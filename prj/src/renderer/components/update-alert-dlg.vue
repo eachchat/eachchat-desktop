@@ -27,9 +27,8 @@ import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import {ipcRenderer, remote} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
-import {shell} from 'electron'
+import {ipcRenderer, shell} from 'electron'
 export default {
     name: 'UpgradeDlg',
     props: {
@@ -46,6 +45,7 @@ export default {
     data () {
         return {
             curPercent: 1,
+            totleSize: 200 * 1024 * 1024,//default size is max 200M
             isDownloading: false,
             Abstrace: '',
             Details: '',
@@ -54,15 +54,12 @@ export default {
             downloadingInterval: undefined,
             checkingTmpPath: '',
             ipcInited: false,
+
         }
     },
     methods: {
         upGrade: function() {
-            services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.verName, this.upgradeInfo.verId);
-            if(!this.ipcInited) {
-                this.ipcInited = true;
-                ipcRenderer.on('upgradeFileOk', this.toLogout);
-            }
+            global.services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.verName, this.upgradeInfo.verId);
             var targetDir = confservice.getTempPath();
             this.checkingTmpPath = path.join(targetDir, this.upgradeInfo.verName+'_tmp');
             if(this.downloadingInterval) {
@@ -72,22 +69,14 @@ export default {
                 if(fs.existsSync(this.checkingTmpPath)) {
                     this.isDownloading = true;
                     var checkingState = fs.statSync(this.checkingTmpPath);
-                    this.curPercent = parseInt(checkingState.size*100/(66.8*1024*1024))
+
+                    this.curPercent = parseInt(checkingState.size * 100 / (this.totleSize))
+                    console.log("this.totleSize", this.totleSize)
                     console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
                 }
             }, 200);
         },
-        toLogout: function(event, arg) {
-            var distPath = arg[1];
-            console.log("distPath it ", distPath)
-            if(fs.existsSync(distPath)) {
-                console.log("to open it")
-                shell.openItem(distPath);
-                setTimeout(() => {
-                    remote.app.quit();
-                }, 2000)
-            }
-        },
+
         Cancle: function() {
             this.$emit("closeUpgradeDlg", '');
         },
@@ -115,11 +104,16 @@ export default {
 
             return ret;
         },
+
+        getTotleSize(e, ret){
+            console.log(ret)
+            this.totleSize = ret;
+        }
     },
     components: {
     },
-    created: async function () {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
+    created: function () {
+        ipcRenderer.on("getTotleSize", this.getTotleSize);
     },
     mounted: function() {
     },
@@ -192,6 +186,9 @@ export default {
         font-size: 16px;
         vertical-align: top;
         margin-left: 16px;
+        font-family: PingFangSC-Medium;
+        font-weight: 500;
+        letter-spacing: 0px;
     }
 
     .UpgradeContentDetails {
@@ -220,20 +217,6 @@ export default {
         margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-right: 110px;
-        background: rgba(167, 224, 196, 1);
-        color: white;
-        border-radius:4px;
-        border:none;
-    }
- 
-    .UpgradeConfirmButton:hover {
-        width: 100px;
-        height: 32px;
-        margin-left: 5px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        margin-right: 110px;
         background: rgba(36, 179, 107, 1);
         color: white;
         border-radius:4px;
@@ -246,7 +229,7 @@ export default {
         margin-right: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-left: 110px;
+        margin-left: 170px;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);

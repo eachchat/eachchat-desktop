@@ -938,7 +938,7 @@ ipcMain.on("toUpgradePackage", function(event, arg) {
     baseURL: baseURL + ":" + String(port)
   });
 
-  var path = "/api/services/file/v1/version/" + String(versionId);
+  var path = distUrl;
   var headers = {
     Authorization: "Bearer " + token
   };
@@ -961,14 +961,16 @@ ipcMain.on("toUpgradePackage", function(event, arg) {
   try{
     sender.get(path, config)
       .then(function (ret) {
-        // console.log("sender get is ", ret);
+        console.log("sender get is ", ret);
+        event.sender.send('getTotleSize', ret.headers['content-length']);
         ret.data.pipe(fs.createWriteStream(distTemp))
-        .on('finish', async function() {
+        .on('finish', function() {
           console.log("finished ")
           try{
             fs.renameSync(distTemp, distPath);
-            // shell.openExternal(distPath);
-            event.sender.send('upgradeFileOk', [true, distPath]);
+            shell.openExternal(distPath);
+            clickQuit = true;
+            app.quit();
           }
           catch(e) {
             console.log("rename file failed and details is ", e);

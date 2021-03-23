@@ -320,10 +320,20 @@ class APITransaction {
 
   async getNewVersion(accessToken) {
     console.debug("GetNewVersion");
+    let osType;
+    if(environment.os.isWindows){
+      osType = "windows";
+    }
+    else if(environment.os.isOSX){
+      osType = "macos";
+    }
+    else{
+      osType = "linux";
+    }
     var response = await this.commonApi.post(
       "/api/apps/org/v1/version/new",
       {
-        client: "windows"
+        client: osType
       },
       {
         Authorization: "Bearer " + accessToken

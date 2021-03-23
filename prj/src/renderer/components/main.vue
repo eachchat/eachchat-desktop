@@ -313,7 +313,7 @@ export default {
             this.curindex = 3;
             this.$router.push("/main/setup")
         },
-        getAppBaseData:async function() {
+        getAppBaseData:function() {
             const userId = window.localStorage.getItem("mx_user_id");
             confservice.init(userId);
             this.$store.commit("setUserId", userId)
@@ -504,7 +504,9 @@ export default {
                         return;
                     }
 
-                    var lVersion = remote.app.getVersion();
+                    var packageFile = require("../../../package.json");
+                    var lVersion = packageFile.version;
+
                     console.log("lVersion is ", lVersion)
                     var lVerCodeSplit = lVersion.split('.');
                     var lMajor_Version_Number = undefined;
@@ -527,7 +529,7 @@ export default {
                     }
                     console.log("localversion ", lMajor_Version_Number, " ", lMinor_Version_Number, " ", lRevision_Number);
                     console.log("serverversion ", sMajor_Version_Number, " ", sMinor_Version_Number, " ", sRevision_Number);
-                    var sVerName = newVersion.verName;
+                    var sVerName = sUrl.split("/").pop();
                     var sForceUpdate = newVersion.forceUpdate;
                     var needUpdate = false;
                     if(sOsType != undefined && sOsType != "windows") {
@@ -561,6 +563,7 @@ export default {
                             needUpdate = true;
                         }
                     }
+                    
                     if(sForceUpdate != undefined && sForceUpdate){
                         if(needUpdate) {
                             self.showUpgradeAlertDlg = true;
@@ -697,7 +700,8 @@ export default {
             this.unReadCount = count;
         })
 
-        await global.services.common.login()
+        await global.services.common.login();
+        this.startCheckUpgrade();
         global.services.common.InitDbData();
         if(global.mxMatrixClientPeg.homeserve == '') {
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
@@ -816,8 +820,8 @@ export default {
         ipcRenderer.on('jumpToChat', this.jumpToChat);
         ipcRenderer.on('clearAll', this.clearAll);
         console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
-        await this.getAppBaseData();
-        //this.startCheckUpgrade();
+        this.getAppBaseData();
+        
         // this.startRefreshToken();
     },
 }
