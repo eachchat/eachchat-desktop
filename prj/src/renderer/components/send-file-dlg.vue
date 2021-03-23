@@ -153,6 +153,16 @@ export default {
             var targetPath = '';
 
             var distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.sendInfos.distGroupInfo);
+            
+            if(!distUrl || distUrl == '') {
+                if(global.mxMatrixClientPeg.DMCheck(this.sendInfos.distGroupInfo))
+                    distUrl = "./static/Img/User/user-40px@2x.png";
+                else
+                    distUrl = "./static/Img/User/group-40px@2x.png";
+                if(distGroupImageElement) {
+                    distGroupImageElement.setAttribute("src", this.distUrl); 
+                }
+            }
             if(distGroupImageElement != undefined && distUrl) {
               distGroupImageElement.setAttribute("src", distUrl);
             }
