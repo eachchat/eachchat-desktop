@@ -4063,9 +4063,11 @@ export default {
                 if(div) {
                     div.scrollTop = div.scrollHeight + 52;
                 }
+                if(div && (div.clientHeight < div.offsetHeight)) {
+                    this.initMessage();
+                }
             })
-                
-            this.initMessage();
+            
             this.groupIsSlience();
         },
         searchKeyFromList: function() {
@@ -4113,9 +4115,11 @@ export default {
                     if(div) {
                         div.scrollTop = div.scrollHeight + 52;
                     }
+                    if(div && (div.clientHeight < div.offsetHeight)) {
+                        this.initMessage();
+                    }
                 })
-                    
-                this.initMessage();
+                
             }
         },
         searchChat: function() {
@@ -4156,9 +4160,11 @@ export default {
                         if(div) {
                             div.scrollTop = div.scrollHeight + 52;
                         }
+                        if(div && (div.clientHeight < div.offsetHeight)) {
+                            this.initMessage();
+                        }
                     })
                 }, 0)
-                this.initMessage();
             }
         },
         toBottom: function() {
