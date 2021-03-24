@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     isMac() {
-      return environment.os.isMac;
+      return environment.os.isOSX;
     },
     insertFace: function(item) {
       this.$emit('insertFace', item);
