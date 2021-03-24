@@ -66,7 +66,7 @@
                 <img class="msg-info-user-img-with-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
                 <div class="about-msg">
-                    <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup"></div>
+                    <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup">{{getUserShowName()}}</div>
                     <div class="chat-msg-content-others-img"
                         v-on:click="ShowFile()" v-if="MsgIsImage()">
                         <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片" :style="getImageStyle()">
@@ -222,6 +222,16 @@ export default {
         },
         getUserIconId: function() {
             return (this.msg._txnId ? this.msg._txnId : this.msg.event.event_id).toString() + "-usericon"
+        },
+        getUserShowName: function() {
+            var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            var showName = this.$store.getters.getShowName(userId);
+            if(showName.length == 0) {
+                return this.msg.sender && this.msg.sender.name ? this.msg.sender.name : "";
+            }
+            else {
+                return showName;
+            }
         },
         getUserIconSrc: function() {
             var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
@@ -1098,13 +1108,15 @@ export default {
 
             // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
             
-            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender));
-
+            var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(userId);
+            if(this.$store.getters.getShowName(userId) != fromUserName) {
+                this.$store.commit("setShowName", [userId, fromUserName]);
+            }
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;
             }
             
-            var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((userId));
             var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
             

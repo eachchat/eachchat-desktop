@@ -38,6 +38,7 @@ export default new Vuex.Store({
     quoteMsgMap: {},
     roomIdToName: {},
     userToAvater: {},
+    userToName: {},
     curRoomId: undefined,
     inviteRooms: [],
     inviteRoomsNum: 0,
@@ -109,6 +110,11 @@ export default new Vuex.Store({
       var userId = userAvaterInfo[0];
       var avater = userAvaterInfo[1];
       state.userToAvater[userId] = avater;
+    },
+    setShowName(state, userNameInfo) {
+      var userId = userNameInfo[0];
+      var showName = userNameInfo[1];
+      state.userToName[userId] = showName;
     },
     setIdToName(state, userNameInfo) {
       var roomId = userNameInfo[0];
@@ -310,6 +316,9 @@ export default new Vuex.Store({
     },
     getAvater: state => (userId) => {
       return state.userToAvater[userId] == undefined ? "" : state.userToAvater[userId];
+    },
+    getShowName: state => (userId) => {
+      return state.userToName[userId] == undefined ? "" : state.userToName[userId];
     },
     getChatName: state => (roomId) => {
       return state.roomIdToName[roomId] == undefined ? "" : state.roomIdToName[roomId];

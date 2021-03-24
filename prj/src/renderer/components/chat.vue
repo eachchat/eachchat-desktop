@@ -29,8 +29,8 @@
         <div class="chat-main" id="chat-main" v-show="!isSerach && !isFileList">
             <Invite class="chat-invite" :inviter="inviterInfo" @joinRoom="joinRoom" @rejectRoom="rejectRoom" v-show="isInvite"></Invite>
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
-                <ul class="msg-list" id="message-show-list">
-                <!-- <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul"> -->
+                <!-- <ul class="msg-list" id="message-show-list"> -->
+                <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
                     <li class="msg-loading" v-bind:key="123">
                         <i class="el-icon-loading" v-show="isRefreshing"></i>
                     </li>
@@ -47,8 +47,8 @@
                             <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
-                </ul>
-                <!-- </transition-group> -->
+                <!-- </ul> -->
+                </transition-group>
             </div>
             <div class="uploadingProc" v-show="showUploadProgress">
                 <label class="uploadingName">{{UploadingName}}</label>
@@ -588,7 +588,6 @@ export default {
             chatElement.style.backgroundColor = "rgba(241, 241, 241, 1)";
             this.$emit("isSearching", false);
             this.isSerach = false;
-            console.log("*** close search page this.messageList ", this.messageListShow);
             if(this.searchKeyFromList.length != 0) {
                 this.HistorySearchRoomId = "";
                 // this.initMessage();
@@ -3402,7 +3401,6 @@ export default {
             this.lastScrollTop = uldiv.scrollTop;
             console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
             // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-            console.log("====cur num is ", this.messageList.length);
             let curNum = this.messageList.length;
             this.getShowMessage(this.messageFilter, curNum + 10, 'f')
                 .then((ret) => {
@@ -3756,7 +3754,13 @@ export default {
                 this.toGetShowMessage()
                     .then((ret) => {
                         this.isRefreshing = false;
-                        this.messageList = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
+
+                        let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
+                        this.messageList = [];
+                        for(var i=0;i<messageListTmp.length;i++){
+                            this.messageList.push(messageListTmp[i]);
+                        }
+                        
                         setTimeout(() => {
                             this.$nextTick(() => {
                                 this.needToBottom = true;
@@ -3767,14 +3771,13 @@ export default {
                                     div.addEventListener('scroll', this.handleScroll);
                                     this.showScrollBar();
                                 }
-
-                                let uldiv = document.getElementById("message-show-list");
-                                if(uldiv && (uldiv.clientHeight < uldiv.offsetHeight)) {
+                                
+                                if(div && (div.clientHeight < div.offsetHeight)) {
                                     this.handleScroll(true);
                                 }
                                 
                             })
-                        }, 100)
+                        }, 0)
                     })
             }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
@@ -4049,15 +4052,19 @@ export default {
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
-            this.messageList = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        div.scrollTop = div.scrollHeight + 52;
-                    }
-                })
-            }, 0)
+            let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
+            this.messageList = [];
+            for(var i=messageListTmp.length - 1;i>0;i--){
+                this.messageList.unshift(messageListTmp[i]);
+            }
+
+            this.$nextTick(() => {
+                let div = document.getElementById("message-show-list");
+                if(div) {
+                    div.scrollTop = div.scrollHeight + 52;
+                }
+            })
+                
             this.initMessage();
             this.groupIsSlience();
         },
@@ -4091,22 +4098,23 @@ export default {
                 this.isInvite = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
-                console.log("***2 searchKeyFromList")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
                 this.multiToolsClose();
-                console.log("chat ============", this.curChat);
-                console.log("this.curGroupId is ", this.curGroupId);
                 
-                this.messageList = this.curChat.timeline.concat(this.sendingList.length == 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            div.scrollTop = div.scrollHeight + 52;
-                        }
-                    })
-                }, 0)
+                let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
+                this.messageList = [];
+                for(var i=messageListTmp.length - 1;i>0;i--){
+                    this.messageList.unshift(messageListTmp[i]);
+                }
+
+                this.$nextTick(() => {
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.scrollTop = div.scrollHeight + 52;
+                    }
+                })
+                    
                 this.initMessage();
             }
         },
@@ -4118,7 +4126,6 @@ export default {
                 this.newMsgNum = 0;
                 this.haveNewMsg = false;
                 this.curGroupId = this.curChat.roomId;
-                console.log("***1 searchChat")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
                 this.multiToolsClose();
@@ -4138,12 +4145,9 @@ export default {
                 this.haveNewMsg = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
-                console.log("***2 searchChat")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
                 this.multiToolsClose();
-                console.log("chat ============", this.curChat);
-                console.log("this.curGroupId is ", this.curGroupId);
                 
                 this.messageList = this.curChat.timeline;
                 setTimeout(() => {
