@@ -60,7 +60,7 @@ export default {
     methods: {
         upGrade: function() {
             global.services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.verName, this.upgradeInfo.verId);
-            var targetDir = confservice.getTempPath();
+            var targetDir = confservice.getCurFilesDir();
             this.checkingTmpPath = path.join(targetDir, this.upgradeInfo.verName+'_tmp');
             if(this.downloadingInterval) {
                 clearInterval(this.downloadingInterval);

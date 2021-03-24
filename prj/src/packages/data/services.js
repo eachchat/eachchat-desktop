@@ -1354,7 +1354,7 @@ const common = {
   },
 
   async downloadUpgradeFile(url, fileName, versionId) {
-    var targetDir = confservice.getTempPath();
+    var targetDir = confservice.getCurFilesDir();
     var targetPath = path.join(targetDir, fileName);
     ipcRenderer.send('toUpgradePackage', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, versionId]);
     return true;
