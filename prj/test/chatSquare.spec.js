@@ -13,7 +13,7 @@ if(process.platform == "win32") exePath = path.join(__dirname, '..//build//win-u
 else if(process.platform == "linux") exePath = path.join(__dirname, '..//build//linux-unpacked//EachChat')
 else exePath = path.join(__dirname, '..//build//mac//Eachchat.app//Contents//MacOS//Eachchat')
 
-const delay = 3000;
+const delay = 2000;
 
 describe('Application launch', function () {
   this.timeout(80000)

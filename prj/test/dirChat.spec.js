@@ -13,7 +13,7 @@ if(process.platform == "win32") exePath = path.join(__dirname, '..//build//win-u
 else if(process.platform == "linux") exePath = path.join(__dirname, '..//build//linux-unpacked//EachChat')
 else exePath = path.join(__dirname, '..//build//mac//Eachchat.app//Contents//MacOS//Eachchat')
 
-const delay = 3000;
+const delay = 2000;
 
 describe('Application launch', function () {
   this.timeout(80000)
@@ -82,11 +82,37 @@ describe('Application launch', function () {
   it("click direct chat entrance", async function() {
     let that = this;
     let dirChatEnt = await that.app.client.$('.normal-chat');
-    // console.log('???squareEntrance???', squareEntrance)
-    // squareEntrance.click();
+    // console.log('???dirChatEnt???', dirChatEnt)
+    // dirChatEnt.click();
     setTimeout(async () => {
-      console.log('???squareEntrance???', dirChatEnt)
+      console.log('???dirChatEnt???', dirChatEnt)
       dirChatEnt.click();
     }, delay)
   })
+
+  it("choose a member", async function() {
+    let that = this;
+    let member = await that.app.client.$$('.room-item');
+    // console.log('???member???', member[last])
+    // member[last].click();
+    let last = member.length - 1;
+    console.log('----last---', last)
+    setTimeout(async () => {
+      console.log('???member???', member)
+      member.click();
+    }, delay)
+  })
+
+  it("confirm", async function() {
+    let that = this;
+    let confirm= await that.app.client.$('.submit-button');
+    // console.log('???confirm???', confirm)
+    // confirm.click();
+    setTimeout(async () => {
+      console.log('???confirm???', confirm)
+      confirm.click();
+    }, delay)
+  })
+
+ 
 })
