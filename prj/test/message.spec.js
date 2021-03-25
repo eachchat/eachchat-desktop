@@ -15,7 +15,7 @@ else exePath = path.join(__dirname, '..//build//mac//Eachchat.app//Contents//Mac
 
 
 describe('Application launch', function () {
-  this.timeout(50000)
+  this.timeout(80000)
   before(function () {
     console.log("platform is:",process.platform)
     this.app = new Application({
@@ -67,22 +67,62 @@ describe('Application launch', function () {
     await confireBtn.click();
   });
 
-  it("send massage", async function(done){
+  it("select chat", async function(){
+    let self = this;
     async function selectUser () {
       return new Promise(async (resolve, reject)=>{
         setTimeout(async () => {
-          let group = await this.app.client.$('.group-name');  
-          console.log('gggg==>', group)
-          let gitem = group[1];
-          console.log('gggg==>',gitem)
+          let group = await self.app.client.$('.group-list');
+          let gitems = await group.$$('li');
+          let gitem0 = gitems[0];
+          let gitem1 = gitems[1];
           setTimeout(() => {
-            gitem.click()
-            resolve('ok')
-          }, 5000);
-        }, 15000)
+            gitem0.click()
+          }, 0);
+          setTimeout(() => {
+            gitem1.click()
+            console.log('-------select move-----')
+            resolve();
+          }, 1000);
+        }, 10000)
       })
     }
-    await selectUser()
+    let chatSelect = await selectUser();
+    console.log("====chatSelect is ", chatSelect);
+  });
+
+  // it("favourite chat", async function(done){
+  //   let self = this;
+  //   let group = await self.app.client.$('.group-list');
+  //   let gitems = await group.$$('li');
+  //   let gitem0 = gitems[0];
+  //   gitem0.click({button: 'right'})
+    
+  //   const electron = self.app.electron;
+  //   // console.log("======= electron is ", electron);
+  //   const remote = electron.remote;
+  //   // console.log("======= electron is ", electron);
+  //   const menu = await remote.Menu;
+  //   const menuItem = await menu.getApplicationMenu();
+  //   // let menuItem = menu.getItemByNames('置顶聊天')
+  //   console.log("======= menuItem is ", menuItem);
+  // });
+
+  it('send message', async function(done){
+    let self = this;
+    let inputElement = await self.app.client.$('.ql-editor');
+
+    async function sendMsg (done) {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let sendBtnElement = await self.app.client.$('.chat-send');
+          sendBtnElement.click();
+          console.log("=====clickbtn ");
+          done();
+        }, 5000)
+      })
+    }
+    await sendMsg(done);
   })
 
   // it("to orgnization", async function(){
