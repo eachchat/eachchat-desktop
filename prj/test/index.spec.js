@@ -1,1 +1,1 @@
-require('./chatSquare.spec')
+require('./dirChat.spec')

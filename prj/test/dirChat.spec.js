@@ -79,25 +79,14 @@ describe('Application launch', function () {
     }, delay)
   })
 
-  it("click square", async function() {
+  it("click direct chat entrance", async function() {
     let that = this;
-    let squareEntrance = await that.app.client.$('.secret-chat');
+    let dirChatEnt = await that.app.client.$('.normal-chat');
     // console.log('???squareEntrance???', squareEntrance)
     // squareEntrance.click();
     setTimeout(async () => {
-      console.log('???squareEntrance???', squareEntrance)
-      squareEntrance.click();
-    }, delay)
-  })
-
-  it("enter room", async function() {
-    let that = this;
-    let enterRoom = await that.app.client.$('.room-join');
-    // console.log('???enterRoom???', enterRoom)
-    // enterRoom.click();
-    setTimeout(async ()=> {
-      console.log('???enterRoom???', enterRoom)
-      enterRoom.click();
+      console.log('???squareEntrance???', dirChatEnt)
+      dirChatEnt.click();
     }, delay)
   })
 })
