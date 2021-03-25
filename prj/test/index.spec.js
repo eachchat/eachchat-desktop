@@ -1,1 +1,1 @@
-require('./login.spec')
+require('./message.spec')
