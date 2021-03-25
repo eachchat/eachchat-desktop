@@ -3,7 +3,7 @@
         <el-aside class="navigate-panel" width="64px">
             <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :isNormal="isNormal" v-show="!isFullScreen"></mac-window-header>
             <div class="User">
-                <img class="login-logo" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
+                <img class="login-logo img-disable-drag" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
             </div>
             <el-menu
                 class="nav-menu">

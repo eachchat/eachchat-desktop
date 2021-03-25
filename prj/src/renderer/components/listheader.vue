@@ -4,7 +4,7 @@
             <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="toSearch"/>
         </div>
         <div class="new-chat-content-div" id="new-chat-button-id" @click="showCreateNewChatDropDown">
-            <img class="new-chat-content-div-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
+            <img class="new-chat-content-div-img img-disable-drag" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
             <div class="normal-chat" @click.stop="mxDmDlgChange()"> <!--showCreateGroup-->

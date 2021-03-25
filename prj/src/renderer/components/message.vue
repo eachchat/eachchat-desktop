@@ -58,7 +58,7 @@
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                 <div class="quote-content" v-if="hasQuote()">
                     <span>{{quoteName}} : </span> 
-                    <div class="quote-content-img" :style="`background-image:url(${quoteUrl})`">
+                    <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`">
                     </div>
                 </div>
             </div>
@@ -105,7 +105,7 @@
                 </div>
                 <div class="quote-content" v-if="hasQuote()">
                     <span>{{quoteName}} : </span> 
-                    <div class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
+                    <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
                 </div>
             </div>
         </div>
@@ -303,6 +303,11 @@ export default {
                         }
                     })
             }
+        },
+        ShowQuoteImg: async function() {
+            this.$emit('showImageOfMessage', {
+                event:this.msg.event.content.quote_event
+            });
         },
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)

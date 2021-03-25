@@ -308,6 +308,7 @@ export default {
     flex-direction: column;
     margin: 0px;
     cursor: pointer;
+    overflow-y: auto;
 }
 .organization-view {
     width: 280px;
