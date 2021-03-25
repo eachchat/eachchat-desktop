@@ -17,17 +17,18 @@ mac 打包
     1.electron-builder需要升级到21.2.0，然后这个版本的builder在做签名时候会有bug，
     需要对node_modules/app-builder-lib/electron-osx-sign/sign.js做修改。
     可用同级目录中的sign.js做替换
-## 开始   
+### 开始   
 > yarn build
 
 
 
 # Build for upload AppStore
-## 前提 
+### 前提 
 1. 确保`prj/build/mac`路径下有等待打包的app
 2. 取保两个证书在 keychain
 `3rd Party Mac Developer Installer: Beijing Workly Ai Technology Co., Ltd (FU9J7J29L2)`------- `3rd Party Mac Developer Application: Beijing Workly Ai Technology Co., Ltd (FU9J7J29L2)`
-## 开始
+
+### 开始
 > yarn build:pkg
 
 
