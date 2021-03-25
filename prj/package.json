@@ -10,6 +10,9 @@
   "repository": "git@git.internal.yunify.com:YiQiLiao/YiQiLiao-Desktop.git",
   "scripts": {
     "build": "node --max_old_space_size=4096 .electron-vue/build.js && electron-builder",
+    "build:step1": "node --max_old_space_size=4096 .electron-vue/build.js",
+    "build:step2": "electron-builder",
+    "build:pkg": "bin/build.sh",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -47,8 +50,7 @@
     },
     "mac": {
       "icon": "build_mac/icons/icon.icns",
-      "target": ["pkg"],
-      "identity": null,
+      "identity": "Beijing Yunify Technology Co., Ltd.",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build_mac/entitlements.mac.plist",
