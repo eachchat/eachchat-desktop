@@ -459,7 +459,7 @@ export default {
                                         div.scrollTop = div.scrollHeight;
                                         if(div) {
                                             div.addEventListener('scroll', this.handleScroll);
-                                            this.showScrollBar();
+                                            // this.showScrollBar();
                                         }
                                     })
                                 }, 100)
@@ -3755,13 +3755,8 @@ export default {
                     .then((ret) => {
                         this.isRefreshing = false;
 
-                        let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                        this.messageList = [];
-                        for(var i=0;i<messageListTmp.length;i++){
-                            this.messageList.push(messageListTmp[i]);
-                        }
+                        this.messageList = ret.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
                         
-                        setTimeout(() => {
                             this.$nextTick(() => {
                                 this.needToBottom = true;
 
@@ -3769,7 +3764,7 @@ export default {
                                 if(div) {
                                     div.scrollTop = div.scrollHeight + 52;
                                     div.addEventListener('scroll', this.handleScroll);
-                                    this.showScrollBar();
+                                    // this.showScrollBar();
                                 }
                                 
                                 if(div && (div.clientHeight < div.offsetHeight)) {
@@ -3777,7 +3772,6 @@ export default {
                                 }
                                 
                             })
-                        }, 0)
                     })
             }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
@@ -4055,18 +4049,39 @@ export default {
             let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
             this.messageList = [];
             for(var i=messageListTmp.length - 1;i>0;i--){
-                this.messageList.unshift(messageListTmp[i]);
+                if(this.messageFilter(messageListTmp[i])){
+                    this.messageList.unshift(messageListTmp[i]);
+                }
             }
 
-            this.$nextTick(() => {
-                let div = document.getElementById("message-show-list");
-                if(div) {
-                    div.scrollTop = div.scrollHeight + 52;
-                }
-                if(div && (div.clientHeight < div.offsetHeight)) {
-                    this.initMessage();
-                }
-            })
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
+            this.needScrollTop = true;
+            this.needScrollBottom = true;
+            this.existingMsgId = [];
+            this.showGroupName(this.curChat);
+            if(this.editor == undefined) {
+                this.editor = this.$refs.chatQuillEditor.quill;
+            }
+            var content = this.$store.getters.getDraft(this.curChat.roomId);
+            this.editor.setContents(content);
+            this.editor.setSelection(this.content.length + 1);
+            setTimeout(() => {
+                this.showGroupName(this.curChat);
+            }, 1000);
+
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.scrollTop = div.scrollHeight;
+                            if(this.messageList.length < 10) {
+                            setTimeout(() => {
+                                this.initMessage();
+                            }, 500)
+                        }
+                    }
+                })
+            }, 90)
             
             this.groupIsSlience();
         },
@@ -4105,21 +4120,38 @@ export default {
                 this.multiToolsClose();
                 
                 let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                this.messageList = [];
-                for(var i=messageListTmp.length - 1;i>0;i--){
-                    this.messageList.unshift(messageListTmp[i]);
-                }
-
-                this.$nextTick(() => {
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        div.scrollTop = div.scrollHeight + 52;
-                    }
-                    if(div && (div.clientHeight < div.offsetHeight)) {
-                        this.initMessage();
-                    }
-                })
+                this.messageList = messageListTmp;
                 
+
+                this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
+                this.needScrollTop = true;
+                this.needScrollBottom = true;
+                this.existingMsgId = [];
+                this.showGroupName(this.curChat);
+                if(this.editor == undefined) {
+                    this.editor = this.$refs.chatQuillEditor.quill;
+                }
+                var content = this.$store.getters.getDraft(this.curChat.roomId);
+                this.editor.setContents(content);
+                this.editor.setSelection(this.content.length + 1);
+                setTimeout(() => {
+                    this.showGroupName(this.curChat);
+                }, 1000);
+
+                setTimeout(() => {
+                    this.$nextTick(() => {
+                        let div = document.getElementById("message-show-list");
+                        if(div) {
+                            div.scrollTop = div.scrollHeight;
+                            if(this.messageList.length < 10) {
+                                setTimeout(() => {
+                                    this.initMessage();
+                                }, 500)
+                            }
+                        }
+                        
+                    })
+                }, 90)
             }
         },
         searchChat: function() {
@@ -4154,17 +4186,35 @@ export default {
                 this.multiToolsClose();
                 
                 this.messageList = this.curChat.timeline;
+                
+                this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
+                this.needScrollTop = true;
+                this.needScrollBottom = true;
+                this.existingMsgId = [];
+                this.showGroupName(this.curChat);
+                if(this.editor == undefined) {
+                    this.editor = this.$refs.chatQuillEditor.quill;
+                }
+                var content = this.$store.getters.getDraft(this.curChat.roomId);
+                this.editor.setContents(content);
+                this.editor.setSelection(this.content.length + 1);
+                setTimeout(() => {
+                    this.showGroupName(this.curChat);
+                }, 1000);
+
                 setTimeout(() => {
                     this.$nextTick(() => {
                         let div = document.getElementById("message-show-list");
                         if(div) {
-                            div.scrollTop = div.scrollHeight + 52;
-                        }
-                        if(div && (div.clientHeight < div.offsetHeight)) {
-                            this.initMessage();
+                            div.scrollTop = div.scrollHeight;
+                            if(this.messageList.length < 10) {
+                                setTimeout(() => {
+                                    this.initMessage();
+                                }, 500)
+                            }
                         }
                     })
-                }, 0)
+                }, 90)
             }
         },
         toBottom: function() {
@@ -4530,7 +4580,27 @@ export default {
         flex-direction: column;
         list-style: none;
         // height: 100%;
-        overflow-y: scroll;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        border-bottom: 1px solid rgba(221, 221, 221, 1);
+        border-top: 1px solid rgba(221, 221, 221, 1);
+        li {
+            list-style-type: none;
+        }
+    }
+
+    
+    .msg-list:hover {
+        min-height: 99%;
+        background: rgba(241, 241, 241, 1);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        // height: 100%;
+        overflow-y: overlay;
         overflow-x: hidden;
         border-bottom: 1px solid rgba(221, 221, 221, 1);
         border-top: 1px solid rgba(221, 221, 221, 1);
