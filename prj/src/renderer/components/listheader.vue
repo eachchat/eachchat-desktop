@@ -3,7 +3,7 @@
         <div class="Search">
             <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="toSearch"/>
         </div>
-        <div class="new-chat-content-div" id="new-chat-button-id" @click="showCreateNewChatDropDown">
+        <div class="new-chat-content-div" id="new-chat-button-id" @click.stop="showCreateNewChatDropDown">
             <img class="new-chat-content-div-img img-disable-drag" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
