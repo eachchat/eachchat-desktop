@@ -1,1 +1,1 @@
-require('./message.spec')
+require('./chatSquare.spec')
