@@ -3348,6 +3348,7 @@ export default {
         IsBottom: function(){
             let uldiv = document.getElementById("message-show-list");
             let client = document.getElementById("message-show");
+            console.log("======IsBottom uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight ", uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight)
             if(uldiv && client && Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 150)
                 return true;
             return false;
@@ -4046,7 +4047,7 @@ export default {
             this.CloseFileListPage();
             this.multiToolsClose();
             console.log("chat ============", this.chat);
-            console.log("this.sendingList is ", this.sendingList.slice(0, this.sendingList.length));
+            console.log("this.sendingList is ", this.sendingList);
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
@@ -4189,8 +4190,14 @@ export default {
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 
-                this.messageList = this.curChat.timeline;
-                
+                let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
+                this.messageList = [];
+                for(var i=messageListTmp.length - 1;i>0;i--){
+                    if(this.messageFilter(messageListTmp[i])){
+                        this.messageList.unshift(messageListTmp[i]);
+                    }
+                }
+
                 this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
                 this.needScrollTop = true;
                 this.needScrollBottom = true;
@@ -4222,7 +4229,7 @@ export default {
             }
         },
         toBottom: function() {
-            console.log("***** this.chat is ", this.curChat)
+            console.log("***** this.toBottom is ", this.curChat)
             if(!this.curChat || (this.curChat && !this.curChat.roomId)) {
                 return;
             }
@@ -4256,23 +4263,27 @@ export default {
                 return;
             }
             if(!this._timelineWindow) {
-                return;
+                this._loadTimeline();
             }
             let toBottom = false;
 
             if(this.IsBottom()) {
+                console.log("======IsBottom========")
                 toBottom = true;
             }
             else {
             }
             this.showGroupName(this.curChat);
             this._timelineWindow.paginate("f", 10).then(() => {
+                console.log("=======this.sendingList ", this.sendingList);
                 var getMessageList = this._getEvents();
                 for(let i=0;i<this.sendingList.length;i++) {
                     for(let j=getMessageList.length-1;j>= 0;j--){
                         if(this.sendingList[i]._txnId == getMessageList[j]._txnId) {
                             this.$store.commit("removeSendingEvents", this.sendingList[i]);
+                            console.log("=========this.sendingList ", this.sendingList);
                             this.sendingList.splice(i, 1);
+                            console.log("============this.sendingList ", this.sendingList);
                             getMessageList[j].message_status = 0;
                             this.updatemsgStatus = {
                                 "id": getMessageList[j]._txnId ? getMessageList[j]._txnId : getMessageList[j].event.event_id,
@@ -4282,8 +4293,7 @@ export default {
                         }
                     }
                 }
-                getMessageList = getMessageList.concat(this.sendingList);
-                this.messageList = getMessageList;
+                this.messageList = getMessageList.concat(this.sendingList);
                 console.log("*** to get new message ", this.messageList);
             })
             setTimeout(() => {
