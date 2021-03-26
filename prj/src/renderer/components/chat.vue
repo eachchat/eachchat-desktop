@@ -4262,9 +4262,7 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
-            if(!this._timelineWindow) {
-                this._loadTimeline();
-            }
+            this._loadTimeline();
             let toBottom = false;
 
             if(this.IsBottom()) {

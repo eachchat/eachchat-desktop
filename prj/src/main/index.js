@@ -1466,6 +1466,12 @@ function createWindow () {
     })
     noticeWindow.setSkipTaskbar(true);
     noticeWindow.loadURL(trayNoticeURL);
+    noticeWindow.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+    })
     openDevToolsInDevelopment(noticeWindow); 
   }
   var width = 615;
