@@ -1,1 +1,1 @@
-require('./dirChat.spec')
+require('./message.spec')

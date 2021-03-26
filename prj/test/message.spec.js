@@ -15,7 +15,7 @@ else exePath = path.join(__dirname, '..//build//mac//Eachchat.app//Contents//Mac
 
 
 describe('Application launch', function () {
-  this.timeout(80000)
+  this.timeout(30000)
   before(function () {
     console.log("platform is:",process.platform)
     this.app = new Application({
@@ -69,83 +69,94 @@ describe('Application launch', function () {
 
   it("select chat", async function(){
     let self = this;
-    async function selectUser () {
+    async function loadingFinishCheck() {
       return new Promise(async (resolve, reject)=>{
-        setTimeout(async () => {
-          let group = await self.app.client.$('.group-list');
-          let gitems = await group.$$('li');
-          let gitem0 = gitems[0];
-          let gitem1 = gitems[1];
-          setTimeout(() => {
-            gitem0.click()
-          }, 0);
-          setTimeout(() => {
-            gitem1.click()
-            console.log('-------select move-----')
-            resolve();
-          }, 1000);
-        }, 10000)
+        // let chatWindow = await self.app.client.$('.chat-wind');
+        // console.log("===== chatwindow attribute is ", await chatWindow);
+        // resolve();
+        // function checking() {
+
+        // }
+        setTimeout(() => {
+          resolve();
+        }, 10000);
       })
     }
-    let chatSelect = await selectUser();
-    console.log("====chatSelect is ", chatSelect);
+
+    async function selectUser (item) {
+      return new Promise(async (resolve, reject)=>{
+        console.log('-------select move-----', item)
+          setTimeout(() => {
+            item.click()
+            resolve(item);
+          }, 1000);
+      })
+    }
+    async function selectCheck (item) {
+      return new Promise(async (resolve, reject)=>{
+          setTimeout(async () => {
+            let bgColor = await item.getCSSProperty('background-color');
+            if(bgColor.parsed.hex == '#dddddd'){
+              resolve(true);
+            }
+            else {
+              reject(false);
+            }
+            console.log('-------select bgColor-----', bgColor.parsed.hex);
+          }, 1000);
+      })
+    }
+    
+    await loadingFinishCheck();
+    let group = await self.app.client.$('.group-list');
+    let gitems = await group.$$('li');
+    let gitem0 = gitems[0];
+    let chatSelect = await selectUser(gitem0);
+    let checkRet = await selectCheck(chatSelect);
+    assert.equal(checkRet, true)
   });
 
-  // it("favourite chat", async function(done){
-  //   let self = this;
-  //   let group = await self.app.client.$('.group-list');
-  //   let gitems = await group.$$('li');
-  //   let gitem0 = gitems[0];
-  //   gitem0.click({button: 'right'})
-    
-  //   const electron = self.app.electron;
-  //   // console.log("======= electron is ", electron);
-  //   const remote = electron.remote;
-  //   // console.log("======= electron is ", electron);
-  //   const menu = await remote.Menu;
-  //   const menuItem = await menu.getApplicationMenu();
-  //   // let menuItem = menu.getItemByNames('置顶聊天')
-  //   console.log("======= menuItem is ", menuItem);
-  // });
-
-  it('send message', async function(done){
+  it('send message', async function(){
     let self = this;
-    let inputElement = await self.app.client.$('.ql-editor');
 
-    async function sendMsg (done) {
+    async function sendMsg () {
       return new Promise(async (resolve, reject)=>{
         setTimeout(async () => {
           let sendBtnElement = await self.app.client.$('.chat-send');
           sendBtnElement.click();
           console.log("=====clickbtn ");
-          done();
-        }, 5000)
+          resolve();
+        }, 2000)
       })
     }
-    await sendMsg(done);
+    async function setText () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let inputElement = await self.app.client.$('.ql-editor');
+          inputElement.setValue("1234556");
+          resolve();
+        }, 2000)
+      })
+    }
+    await setText();
+    await sendMsg();
   })
 
-  // it("to orgnization", async function(){
-  //   let elMenuItemsClass = ".nav-menu";
-  //   let menuitem = await this.app.client.$(elMenuItemsClass);
-  //   console.log(await menuitem.getAttribute('class'))
+  it("favourite chat", async function(done){
+    let self = this;
+    let group = await self.app.client.$('.group-list');
+    let gitems = await group.$$('li');
+    let gitem0 = gitems[0];
+    gitem0.click({button: 'right'})
     
-  //   let els = await menuitem.$$('li');
-  //   let orgitem = els[1];
-  //   setTimeout(() => {
-  //     orgitem.click()
-  //   }, 5000);
-  // })
+    const electron = self.app.electron;
+    // console.log("======= electron is ", electron);
+    const remote = electron.remote;
+    // console.log("======= electron is ", electron);
+    const menu = await remote.Menu;
+    const menuItem = await menu.getApplicationMenu();
+    // let menuItem = menu.getItemByNames('置顶聊天')
+    console.log("======= menuItem is ", menuItem);
+  });
 
-  // it("to favourite", async function(){
-  //   let elMenuItemsClass = ".nav-menu";
-  //   let menuitem = await this.app.client.$(elMenuItemsClass);
-  //   console.log(await menuitem.getAttribute('class'))
-    
-  //   let els = await menuitem.$$('li');
-  //   let orgitem = els[2];
-  //   setTimeout(() => {
-  //     orgitem.click()
-  //   }, 5000);
-  // })
 })
