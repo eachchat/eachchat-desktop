@@ -918,7 +918,37 @@ function downloadFile(event, arg) {
   }
 }
 
+let updateVersion = false;
+let updateCancel = false;
+ipcMain.on("cancelUpdatePackage", function(event, arg) {
+  updateCancel = true;
+})
+
+ipcMain.on("intallUpgradePackage", function(event, distPath){
+  if(process.platform == 'win32'){
+    shell.openExternal(distPath);
+  } 
+  else if(process.platform == "darwin") {
+    console.log(distPath)
+    shell.openPath(distPath);
+  }
+  else//(process.platform == 'linux')
+    shell.showItemInFolder(distPath);
+  
+  clickQuit = true;
+  app.quit();
+})
+
 ipcMain.on("toUpgradePackage", function(event, arg) {
+  console.log("before updateCancel", updateCancel)
+  console.log("before updateVersion", updateVersion)
+
+  updateCancel = false;
+  if(updateVersion) return;
+  updateVersion = true;
+  console.log("after updateCancel", updateCancel)
+  console.log("after updateVersion", updateVersion)
+
   // url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]
   // console.log("toUpgradePackage is ", arg);
   var distUrl = arg[0];
@@ -958,31 +988,27 @@ ipcMain.on("toUpgradePackage", function(event, arg) {
   if(fs.existsSync(distPath)) {
       fs.unlinkSync(distPath);
   }
+
   try{
     sender.get(path, config)
       .then(function (ret) {
-        console.log("sender get is ", ret);
         event.sender.send('getTotleSize', ret.headers['content-length']);
         ret.data.pipe(fs.createWriteStream(distTemp))
         .on('finish', function() {
+          updateVersion = false;
+          if(updateCancel){
+            updateCancel = false;
+            return;
+          } 
           console.log("finished ")
+          
           try{
             fs.renameSync(distTemp, distPath);
-            if(process.platform == 'win32'){
-              shell.openExternal(distPath);
-            } 
-            else if(process.platform == "darwin") {
-              console.log(distPath)
-              shell.openPath(distPath);
-            }
-            else//(process.platform == 'linux')
-              shell.showItemInFolder(distPath);
-            
-            clickQuit = true;
-            app.quit();
+            event.sender.send('finishUpdateDownload', distPath);
           }
           catch(e) {
             console.log("rename file failed and details is ", e);
+			event.sender.send('finishUpdateDownload', distPath);
           }
         });
     })

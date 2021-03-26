@@ -1,43 +1,38 @@
 <template>
-    <div class="UpgradeLayers" id="UpgradeLayersId">
-        <div class="UpgradeDlg" id="UpgradeDlgId">
+    <div class="UpgradeLayers" id="Step3UpgradeLayersId">
+        <div class="UpgradeDlg" id="Step3UpgradeDlgId">
             <div class="UpgradeContent">
                 <div class="UpgradeContentAbstract">
                     <img class="UpgradeContentAbstraceIco" src="../../../static/Img/Setup/Alert@2x.png">
-                    <label class="UpgradeContentAbstraceContent">{{Abstrace}}</label>
+                    <label class="UpgradeContentAbstraceContent">提示</label>
                 </div>
                 <div class="UpgradeContentDetails">
-                    <label class="UpgradeContentDetailsContent">{{Details}}</label>
+                    <p class="UpgradeContentDetailsContent">亿恰正在运行，请问是否关闭亿洽立即升级</p>
                 </div>
             </div>
-            <div class="UpgradeFotter" v-show="!isDownloading">
-                <button class="UpgradeCancleButton" @click="Cancle()" v-show="canCancel">取消</button>
-                <button class="UpgradeConfirmButton" @click="upGrade()">升级</button>
-            </div>
-            <div class="upgradeProcess" v-show="isDownloading">
-                <el-progress class="downloadingProgress" :percentage="curPercent" color="#11b067" :show-text="false" :stroke-width="10"></el-progress>
+            <div class="UpgradeFotter">
+                <button class="UpgradeCancleButton" @click="Cancel()" >下次再说</button>
+                <button class="UpgradeConfirmButton" @click="install()">立即升级</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import confservice from '../../packages/data/conf_service.js'
-import {ipcRenderer, shell} from 'electron'
+
+import {ipcRenderer} from 'electron'
 export default {
     name: 'UpgradeDlgStep3',
     props: {
-        upgradeInfo: {
-            type: Object,
-            default: {
-            }
+        upgradeFilePath: {
+            type: String,
+            default: ''
         },
-        canCancel: {
+
+        step3:{
             type: Boolean,
-            default: true
-        },
+            default: false
+        }
     },
     data () {
         return {
@@ -55,15 +50,20 @@ export default {
         }
     },
     methods: {
-        Cancle: function() {
-            this.$emit("closeUpgradeDlg", '');
+        Cancel: function() {
+           this.$emit("continueUpgradeDlg", false);
         },
+        install(){
+            ipcRenderer.send("intallUpgradePackage", this.upgradeFilePath);
+            this.Cancel();
+        },
+        
         calcImgPosition: function() {
             if(this.UpgradeDlgElement == null) {
-                this.UpgradeDlgElement = document.getElementById("UpgradeDlgId");
+                this.UpgradeDlgElement = document.getElementById("Step3UpgradeDlgId");
             }
             if(this.UpgradeLayersElement == null) {
-                this.UpgradeLayersElement = document.getElementById("UpgradeLayersId");
+                this.UpgradeLayersElement = document.getElementById("Step3UpgradeLayersId");
             }
             // console.log("remote.b")
             var showScreenHeight = this.UpgradeLayersElement.offsetHeight;
@@ -73,43 +73,23 @@ export default {
             var left = (showScreenWidth - this.dlgWidth) / 2;
             var top = (showScreenHeight - this.dlgHeight) / 2;
 
-            console.log("left ", left)
-            console.log("top ", top)
-            var ret = {
-                "left": left,
-                "top": top
-            }
-
-            return ret;
+            this.UpgradeDlgElement.style.left = left.toString() + "px";
+            this.UpgradeDlgElement.style.top = top.toString() + "px"; 
         }
+
+        
     },
     components: {
     },
     created: function () {
-  
+        
     },
     mounted: function() {
+        
     },
     watch: {
-        upgradeInfo: async function() {
-            if(this.upgradeInfo.downloadUrl == undefined) {
-                return;
-            }
-            if(this.UpgradeDlgElement == null) {
-                this.UpgradeDlgElement = document.getElementById("UpgradeDlgId");
-            }
-
-            if(this.UpgradeLayersElement == null) {
-                this.UpgradeLayersElement = document.getElementById("UpgradeLayersId");
-            }
-
-            this.Details = this.upgradeInfo.description;
-            this.Abstrace = "升级";
-
-            var showPosition = this.calcImgPosition();
-            console.log("showPositon is ", showPosition)
-            this.UpgradeDlgElement.style.left = showPosition.left.toString() + "px";
-            this.UpgradeDlgElement.style.top = showPosition.top.toString() + "px";
+        step3: function(){
+            if(this.step3) this.calcImgPosition();
         }
     }
 }
@@ -129,7 +109,7 @@ export default {
     .UpgradeDlg {
         position: absolute;
         width: 440px;
-        height: 396px;
+        height: 179px;
         display: block;
         background: rgba(255, 255, 255, 1);
     }

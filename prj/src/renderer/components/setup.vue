@@ -113,6 +113,7 @@
             <div class="setup-array-only-label">
                 <label class="setup-array-only-label-label">当前版本</label>
                 <label class="setup-array-only-label-label2">{{lVersion}}</label>
+                <div class="setup-clear-cache-btn" @click="CheckUpdate">检查更新</div>
             </div>
             <div class="setup-array" v-show="false">
                 <label class="setup-array-label">功能介绍</label>
@@ -151,6 +152,7 @@
       <AccountManager v-show="showAccountMgr" :needUpdate="needUpdate" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
       <DeviceManager v-show="showDeviceMgr" @deviceMgrDlgClose="deviceMgrDlgClose"></DeviceManager>
       <OwnerDlg v-show="showOwnerDlg" :updateOwnerInfo="updateOwnerInfo" @CloseownerInfo="CloseownerInfo"></OwnerDlg>
+      <UpdateAlertDlg v-show="showUpgradeAlertDlg" :showUpgradeAlertDlg = "showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo"/>
     </div>
 </template>
 
@@ -176,10 +178,12 @@ import ExportE2EKeyPage from './expore-e2e-key.vue';
 import ImportE2EKeypage from './importE2E.vue';
 import DeviceManager from './deviceManager.vue';
 import OwnerDlg from './ownerDlg.vue';
+import UpdateAlertDlg from './update-alert-dlg.vue'
 import {ComponentUtil} from '../script/component-util';
 
 export default {
   components: {
+    UpdateAlertDlg,
     winHeaderBar,
     AlertDlg,
     AnnouncementDlg,
@@ -201,6 +205,8 @@ export default {
   data() {
     return {
       // showGeneralPage: true,
+      showUpgradeAlertDlg: false,
+      upgradeInfo: {},
       needUpdate: false,
       canChangePwd: false,
       updateOwnerInfo: false,
@@ -236,6 +242,145 @@ export default {
     };
   },
   methods: {
+    closeUpgradeAlertDlg: function() {
+        this.showUpgradeAlertDlg = false;
+        this.upgradeInfo = {};
+    },
+    clearCache: function() {
+        this.showUpgradeAlertDlg = false;
+        this.upgradeInfo = {};
+    },
+    startCheckUpgrade: function() {
+        async function checkUpgrade(self) {
+            var newVersion = await global.services.common.GetNewVersion();
+            console.log("newversion is ", newVersion);
+            if(newVersion == undefined || newVersion == false)
+            {
+                return;
+            }
+            else {
+                var sOsType = newVersion.osType;
+                var sUrl = newVersion.downloadUrl;
+                var sDescription = newVersion.description;
+                let sDescription = "1.功能更新-托盘增加注销\r\n2.功能更新-聊天列表宽度可拖拽调整\r\n3.功能更新-当前聊天页面增加新消息提示\r\n4.功能更新-增加撤回功r\n5.功能更新-增加群组删除功能\n6.功能更新-群描述增加邮箱识别\n7.修复-聊天页面搜索，搜索i可搜出来，搜索io搜不出来\n8.修复-消息防止xss注入代码\n9.修复-重新安装登录后，群组列表最新一条消息发送者未显示组织或联系人内容\n10.修复- @用户有时候会无效的bug\n11.修复-群组头像查看打开大图\n12.修复- 群组成员编辑菜单位置自适应\n13.修复 - 群成员信息隐藏公司信息\n14.UI -整体ui中所有确认与取消的按钮间距调整"
+                var smd5Hash = newVersion.md5Hash;
+                var sId = newVersion.id;
+                var sUpdateTime = newVersion.updateTime;
+                var sVerCode = newVersion.verCode;
+                try{
+                    var sVerCodeSplit = sVerCode.split('.');
+                }
+                catch(err) {
+                    return;
+                }
+                var sMajor_Version_Number = undefined;
+                var sMinor_Version_Number = undefined;
+                var sRevision_Number = undefined;
+                if(sVerCodeSplit.length >= 3) {
+                    sMajor_Version_Number = sVerCodeSplit[0];
+                    sMinor_Version_Number = sVerCodeSplit[1];
+                    sRevision_Number = sVerCodeSplit[2];
+                }
+                else if(sVerCodeSplit.length == 2) {
+                    sMajor_Version_Number = sVerCodeSplit[0];
+                    sMinor_Version_Number = sVerCodeSplit[1];
+                }
+                else if(sVerCodeSplit.length == 1) {
+                    sMajor_Version_Number = sVerCodeSplit[0];
+                }
+                else {
+                    return;
+                }
+
+                var packageFile = require("../../../package.json");
+                var lVersion = packageFile.version;
+
+                console.log("lVersion is ", lVersion)
+                var lVerCodeSplit = lVersion.split('.');
+                var lMajor_Version_Number = undefined;
+                var lMinor_Version_Number = undefined;
+                var lRevision_Number = undefined;
+                if(lVerCodeSplit.length >= 3) {
+                    lMajor_Version_Number = lVerCodeSplit[0];
+                    lMinor_Version_Number = lVerCodeSplit[1];
+                    lRevision_Number = lVerCodeSplit[2];
+                }
+                else if(lVerCodeSplit.length == 2) {
+                    lMajor_Version_Number = lVerCodeSplit[0];
+                    lMinor_Version_Number = lVerCodeSplit[1];
+                }
+                else if(lVerCodeSplit.length == 1) {
+                    lMajor_Version_Number = lVerCodeSplit[0];
+                }
+                else {
+                    return;
+                }
+                console.log("localversion ", lMajor_Version_Number, " ", lMinor_Version_Number, " ", lRevision_Number);
+                console.log("serverversion ", sMajor_Version_Number, " ", sMinor_Version_Number, " ", sRevision_Number);
+                var sVerName = newVersion.verName;
+                let sProductName = sUrl.split("/").pop();
+                var sForceUpdate = newVersion.forceUpdate;
+                var needUpdate = false;
+
+                if(lMajor_Version_Number != undefined && sMajor_Version_Number != undefined) {
+                    if(Number.parseInt(lMajor_Version_Number) > Number.parseInt(sMajor_Version_Number)) {
+                        return;
+                    }
+                    else if(Number.parseInt(lMajor_Version_Number) == Number.parseInt(sMajor_Version_Number)) {
+                        if(lMinor_Version_Number != undefined && sMinor_Version_Number != undefined) {
+                            if(Number.parseInt(lMinor_Version_Number) > Number.parseInt(sMinor_Version_Number)) {
+                                return;
+                            }
+                            else if(Number.parseInt(lMinor_Version_Number) == Number.parseInt(sMinor_Version_Number)) {
+                                if(lRevision_Number != undefined && sRevision_Number != undefined) {
+                                    if(Number.parseInt(lRevision_Number) >= Number.parseInt(sRevision_Number)) {
+                                        return;
+                                    }
+                                    else {
+                                        needUpdate = true;
+                                    }
+                                }
+                            }
+                            else {
+                                needUpdate = true;
+                            }
+                        }
+                    }
+                    else {
+                        needUpdate = true;
+                    }
+                }
+                
+                if(sForceUpdate != undefined && sForceUpdate){
+                    if(needUpdate) {
+                        self.upgradeInfo = {
+                            "downloadUrl": sUrl,
+                            "description": sDescription,
+                            "verName": sVerName,
+                            "verId": sId,
+                        };
+                        self.showUpgradeAlertDlg = true;
+                    }
+                }
+                else {
+                    if(needUpdate) {
+                        self.upgradeInfo = {
+                            "downloadUrl": sUrl,
+                            "description": sDescription,
+                            "verName": sVerName,
+                            "productName": sProductName,
+                            "verId": sId,
+                        };
+                        self.showUpgradeAlertDlg = true;
+                    }
+                }
+            }
+        }
+        checkUpgrade(this);
+        setInterval(() => {
+            checkUpgrade(this);
+        }, 1000 * 3600)
+    },
     CloseownerInfo() {
       this.showOwnerDlg = false;
     },
@@ -340,7 +485,12 @@ export default {
       };
       this.showAlertDlg = true;
     },
-    closeAlertDlg: function() {
+
+    CheckUpdate(){
+      this.startCheckUpgrade();
+    },
+
+    closeAlertDlg() {
       this.showAlertDlg = false;
     },
     clearCache: function() {
@@ -1026,7 +1176,7 @@ export default {
   }
 
   .setup-array-only-label-label {
-    width:calc(100% - 116px);
+    width:calc(100% - 212px);
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;

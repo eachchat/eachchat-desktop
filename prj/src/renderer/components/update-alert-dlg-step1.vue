@@ -12,7 +12,7 @@
                     </p>
                 </div>
                 <div class="UpgradeContentDetails">
-                    <p class="UpgradeContentDetailsContent">{{Details}}</p>
+                    <p class="UpgradeContentDetailsContent" v-html = 'Details'></p>
                 </div>
             </div>
             <div class="UpgradeFotter">
@@ -25,10 +25,6 @@
 </template>
 
 <script>
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import confservice from '../../packages/data/conf_service.js'
-import {ipcRenderer, shell} from 'electron'
 export default {
     name: 'UpgradeDlgStep1',
     props: {
@@ -37,6 +33,11 @@ export default {
             default: {
             }
         },
+
+        step1:{
+            type: Boolean,
+            default: false
+        }
     },
     data () {
         return {
@@ -50,7 +51,8 @@ export default {
             downloadingInterval: undefined,
             checkingTmpPath: '',
             ipcInited: false,
-
+            verName: '',
+            Details: ''
         }
     },
     methods: {
@@ -77,12 +79,8 @@ export default {
 
             console.log("left ", left)
             console.log("top ", top)
-            var ret = {
-                "left": left,
-                "top": top
-            }
-
-            return ret;
+            this.UpgradeDlgElement.style.left = left.toString() + "px";
+            this.UpgradeDlgElement.style.top = top.toString() + "px"; 
         },
     },
     components: {
@@ -91,27 +89,17 @@ export default {
     mounted: function() {
     },
     watch: {
-        upgradeInfo: async function() {
+        step1: function() {
+            if(!this.step1) return;
             if(this.upgradeInfo.downloadUrl == undefined) {
                 return;
-            }
-            if(this.UpgradeDlgElement == null) {
-                this.UpgradeDlgElement = document.getElementById("UpgradeDlgId");
-            }
-
-            if(this.UpgradeLayersElement == null) {
-                this.UpgradeLayersElement = document.getElementById("UpgradeLayersId");
             }
             this.productName = this.upgradeInfo.productName;
             this.Details = this.upgradeInfo.description;
             this.verName = this.upgradeInfo.verName;
 
             this.Abstrace = "版本更新";
-
-            var showPosition = this.calcImgPosition();
-            console.log("showPositon is ", showPosition)
-            this.UpgradeDlgElement.style.left = showPosition.left.toString() + "px";
-            this.UpgradeDlgElement.style.top = showPosition.top.toString() + "px";
+            this.calcImgPosition();
         }
     }
 }
