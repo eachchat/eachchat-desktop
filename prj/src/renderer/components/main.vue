@@ -474,7 +474,7 @@ export default {
                     var sOsType = newVersion.osType;
                     var sUrl = newVersion.downloadUrl;
                     var sDescription = newVersion.description;
-                    let sDescription = "1.功能更新-托盘增加注销\r\n2.功能更新-聊天列表宽度可拖拽调整\r\n3.功能更新-当前聊天页面增加新消息提示\r\n4.功能更新-增加撤回功r\n5.功能更新-增加群组删除功能\n6.功能更新-群描述增加邮箱识别\n7.修复-聊天页面搜索，搜索i可搜出来，搜索io搜不出来\n8.修复-消息防止xss注入代码\n9.修复-重新安装登录后，群组列表最新一条消息发送者未显示组织或联系人内容\n10.修复- @用户有时候会无效的bug\n11.修复-群组头像查看打开大图\n12.修复- 群组成员编辑菜单位置自适应\n13.修复 - 群成员信息隐藏公司信息\n14.UI -整体ui中所有确认与取消的按钮间距调整"
+                    //let sDescription = "1.功能更新-托盘增加注销<br>2.功能更新-聊天列表宽度可拖拽调整<br>3.功能更新-当前聊天页面增加新消息提示<br>4.功能更新-增加撤回功<br>5.功能更新-增加群组删除功能<br>6.功能更新-群描述增加邮箱识别<br>7.修复-聊天页面搜索，搜索i可搜出来，搜索io搜不出来<br>8.修复-消息防止xss注入代码<br>9.修复-重新安装登录后，群组列表最新一条消息发送者未显示组织或联系人内容<br>10.修复- @用户有时候会无效的bug<br>11.修复-群组头像查看打开大图<br>12.修复- 群组成员编辑菜单位置自适应<br>13.修复 - 群成员信息隐藏公司信息<br>14.UI -整体ui中所有确认与取消的按钮间距调整"
                     var smd5Hash = newVersion.md5Hash;
                     var sId = newVersion.id;
                     var sUpdateTime = newVersion.updateTime;
