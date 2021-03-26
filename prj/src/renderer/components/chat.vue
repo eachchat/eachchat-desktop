@@ -68,7 +68,7 @@
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
                     </div>
-                    <div class="chat-send" @click="sendMsg()">
+                    <div class="chat-send" v-show="false" @click="sendMsg()">
                         <i class="el-icon-s-promotion"></i>
                     </div>
                 </div>
