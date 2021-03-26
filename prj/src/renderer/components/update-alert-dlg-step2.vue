@@ -1,9 +1,10 @@
 <template>
-    <div class="UpgradeLayers" id="UpgradeLayersId">
-        <div class="UpgradeDlg" id="UpgradeDlgId">
+    <div class="UpgradeLayers" id="Step2UpgradeLayersId">
+        <div class="UpgradeDlg" id="Step2UpgradeDlgId">
             <div class="UpgradeContent">
                 <div class="UpgradeContentAbstract">
                     <label class="UpgradeContentAbstraceContent">版本更新</label>
+                    <img class = "closeImg" src="../../../static/Img/Chat/delete-20px.png" @click="closeStep">
                 </div>
                 <div class="UpgradeContentDetails">
                     <p class="UpgradeContentDetailsContent">正在下载最新版本安装包</p>
@@ -33,6 +34,11 @@ export default {
             type: Boolean,
             default: true
         },
+
+        step2:{
+            type: Boolean,
+            default: false
+        }
     },
     data () {
         return {
@@ -43,10 +49,14 @@ export default {
             downloadingInterval: undefined,
             checkingTmpPath: '',
             ipcInited: false,
-
         }
     },
     methods: {
+        closeStep(){
+            ipcRenderer.send("cancelUpdatePackage");
+            this.$emit("continueUpgradeDlg", false);
+        },
+
         upGrade: function() {
             global.services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.productName, this.upgradeInfo.verId);
             var targetDir = confservice.getCurFilesDir();
@@ -62,18 +72,26 @@ export default {
                     console.log("this.totleSize", this.totleSize)
                     console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
                 }
-            }, 200);
+            }, 1000);
         },
 
         Cancle: function() {
-            this.$emit("closeUpgradeDlg", '');
+            this.$emit("continueUpgradeDlg", false);
         },
+
+        finishUpdateDownload(e, path){
+            if(this.downloadingInterval) {
+                clearInterval(this.downloadingInterval);
+            }
+            this.$emit("toStep3", path);
+        },
+        
         calcImgPosition: function() {
             if(this.UpgradeDlgElement == null) {
-                this.UpgradeDlgElement = document.getElementById("UpgradeDlgId");
+                this.UpgradeDlgElement = document.getElementById("Step2UpgradeDlgId");
             }
             if(this.UpgradeLayersElement == null) {
-                this.UpgradeLayersElement = document.getElementById("UpgradeLayersId");
+                this.UpgradeLayersElement = document.getElementById("Step2UpgradeLayersId");
             }
             // console.log("remote.b")
             var showScreenHeight = this.UpgradeLayersElement.offsetHeight;
@@ -82,15 +100,8 @@ export default {
             console.log("showScreenWidth ", showScreenWidth)
             var left = (showScreenWidth - this.dlgWidth) / 2;
             var top = (showScreenHeight - this.dlgHeight) / 2;
-
-            console.log("left ", left)
-            console.log("top ", top)
-            var ret = {
-                "left": left,
-                "top": top
-            }
-
-            return ret;
+            this.UpgradeDlgElement.style.left = left.toString() + "px";
+            this.UpgradeDlgElement.style.top = top.toString() + "px"; 
         },
 
         getTotleSize(e, ret){
@@ -102,15 +113,19 @@ export default {
     },
     created: function () {
         ipcRenderer.on("getTotleSize", this.getTotleSize);
+        ipcRenderer.on("finishUpdateDownload", this.finishUpdateDownload);
     },
     mounted: function() {
-        var showPosition = this.calcImgPosition();
-        console.log("showPositon is ", showPosition)
-        this.UpgradeDlgElement.style.left = showPosition.left.toString() + "px";
-        this.UpgradeDlgElement.style.top = showPosition.top.toString() + "px";
-        this.upGrade();
+        
+        
     },
     watch: {
+        step2: function(){
+            if(this.step2){
+                this.calcImgPosition();
+                this.upGrade();
+            }
+        }
     }
 }
 </script>
@@ -159,6 +174,11 @@ export default {
         font-family: PingFangSC-Medium;
         font-weight: 500;
         letter-spacing: 0px;
+    }
+    
+    .closeImg{
+        vertical-align: middle;
+        float:right
     }
 
     .UpgradeContentDetails {

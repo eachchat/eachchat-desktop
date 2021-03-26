@@ -1,8 +1,8 @@
 <template>
     <div class="UpgradeLayers" id="UpgradeLayersId">
-        <UpgradeDlgStep1 v-if="step1" @continueUpgradeDlg="closeUpgradeDlg" :upgradeInfo="upgradeInfo"></UpgradeDlgStep1>
-        <UpgradeDlgStep2 v-if="step2" :upgradeInfo="upgradeInfo"></UpgradeDlgStep2>
-        <UpgradeDlgStep3 v-if="step3"></UpgradeDlgStep3>
+        <UpgradeDlgStep1 v-show="step1" :step1 = "step1" @continueUpgradeDlg="closeUpgradeDlg" :upgradeInfo="upgradeInfo"></UpgradeDlgStep1>
+        <UpgradeDlgStep2 v-show="step2" :step2 = "step2" @continueUpgradeDlg="closeUpgradeDlg" :upgradeInfo="upgradeInfo" @toStep3 = 'toStep3'></UpgradeDlgStep2>
+        <UpgradeDlgStep3 v-show="step3" :step3 = "step3" @continueUpgradeDlg="closeUpgradeDlg" :upgradeFilePath = 'upgradeFilePath'></UpgradeDlgStep3>
     </div>
 </template>
 
@@ -10,7 +10,7 @@
 import UpgradeDlgStep1 from './update-alert-dlg-step1'
 import UpgradeDlgStep2 from './update-alert-dlg-step2'
 import UpgradeDlgStep3 from './update-alert-dlg-step3'
-
+import {ipcRenderer} from 'electron'
 export default {
     name: 'UpgradeDlg',
     props: {
@@ -23,12 +23,17 @@ export default {
             type: Boolean,
             default: true
         },
+        showUpgradeAlertDlg:{
+            types: Boolean,
+            default: true
+        }
     },
     data () {
         return {
-            step1: true,
+            step1: false,
             step2: false,
-            step3: false
+            step3: false,
+            upgradeFilePath: ''
         }   
     },
     methods: {
@@ -41,6 +46,12 @@ export default {
             }
             this.step1 = false;
         },
+        toStep3(path){
+            console.log("toStep3", path);
+            this.upgradeFilePath = path;
+            this.step2 = false;
+            this.step3 = true;
+        }
     },
     components: {
         UpgradeDlgStep1,
@@ -51,8 +62,17 @@ export default {
   
     },
     mounted: function() {
+
     },
-    watch: {}
+    watch: {
+        showUpgradeAlertDlg: function(){
+            if(this.showUpgradeAlertDlg){
+                this.step1 = true;
+                this.step2 = false;
+                this.step3 = false;
+            }
+        }
+    }
 
 }
 </script>
