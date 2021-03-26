@@ -843,7 +843,7 @@ export default {
                     global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, this.selectedMsgs[i].event.event_id);
                 }
                 console.log('msg xieeeee', des);
-                this.editor.insertText(this.content.length, des); //todo 插入的数据会换行
+                // this.editor.insertText(this.content.length, des);
             } else {
                 this.alertContnets = {
                     "Details": `是否${text}聊天记录？`,
