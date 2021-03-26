@@ -68,7 +68,7 @@
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
                     </div>
-                    <div class="chat-send" v-show="false">
+                    <div class="chat-send" @click="sendMsg()">
                         <i class="el-icon-s-promotion"></i>
                     </div>
                 </div>
@@ -3742,6 +3742,7 @@ export default {
         },
         initMessage: function() {
             if(!this.curChat) return;
+            if(this.$store.getters.getCurChatId() != this.curChat.roomId) return;
             // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
             if(this.curChat.getMyMembership() == "invite") {
                 this.isRefreshing = false;
@@ -3753,6 +3754,9 @@ export default {
                 console.log("*** initMessage 。。。。 ");
                 this.toGetShowMessage()
                     .then((ret) => {
+                        if(ret[0].event.room_id != this.curChat.roomId) {
+                            return;
+                        }
                         this.isRefreshing = false;
 
                         this.messageList = ret.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
