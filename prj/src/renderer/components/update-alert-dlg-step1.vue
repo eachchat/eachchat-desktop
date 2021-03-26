@@ -12,7 +12,7 @@
                     </p>
                 </div>
                 <div class="UpgradeContentDetails">
-                    <p class="UpgradeContentDetailsContent">{{Details}}</p>
+                    <p class="UpgradeContentDetailsContent" v-html = 'Details'></p>
                 </div>
             </div>
             <div class="UpgradeFotter">
