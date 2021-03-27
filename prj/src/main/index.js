@@ -129,9 +129,6 @@ let clickQuit = false;
 function checkTrayLeave() {
   clearInterval(leaveInter);
   leaveInter = setInterval(() => {
-    if(clickQuit == true) {
-      return;
-    }
     trayBounds = appIcon.getBounds();
     point = screen.getCursorScreenPoint();
     if(!(trayBounds.x < point.x && trayBounds.y < point.y && point.x < (trayBounds.x + trayBounds.width) && point.y < (trayBounds.y + trayBounds.height))) {
@@ -166,15 +163,9 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon = new Tray(path.join(__dirname, iconPath));
 
   appIcon.on('mouse-move', function(event, position){
-    if(clickQuit == true) {
-      return;
-    }
     if(process.platform == "win32") {
       if(isLeave) {
         console.log("=========noticewindowdinfo ", noticeInfo)
-        if(clickQuit == true) {
-          return;
-        }
         if(noticeInfo && Object.keys(noticeInfo).length == 0) {
           noticeWindow.hide();
         }
@@ -211,7 +202,8 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       click: function() {
         clickQuit = true;
         clearFlashIconTimer();
-        setImgToNormalIcon()
+        setImgToNormalIcon();
+        ipcMain.removeAllListeners();
         app.quit();
       }
     }
@@ -294,9 +286,6 @@ ipcMain.on('checkClick', function(event, ids) {
 })
 
 ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
-  if(clickQuit == true) {
-    return;
-  }
   noticeWindowKeepShow = arg;
   if(!arg && isLeave) {
     noticeWindow.hide();
@@ -307,9 +296,6 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
   if(process.platform == "win32") {
     noticeInfo = arg;
     noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
-    if(clickQuit == true) {
-      return;
-    }
     noticeWindow.setSize(240, noticeHeight);
     let showX = screenSize.width - 20 - 240;
     let showY = screenSize.height - noticeHeight;

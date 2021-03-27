@@ -3370,22 +3370,28 @@ export default {
 
         async getShowMessage(msgFileter, num, type)
         {
-            this._loadTimeline();
-            let msgList = [];
+            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this.timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
+            let msgList = this._getEvents();
             while(this._timelineWindow.canPaginate(type)){
                 //获取历史消息
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
                 msgList = [];
-                tmpList.forEach(item => {
-                    if(msgFileter(item) && item.event.content){
-                        if(!this.isDeleted(item)){
-                            msgList.push(item);
-                            index++;
-                        } 
+
+                for(var i=tmpList.length - 1;i>0;i--){
+                    if(msgFileter(tmpList[i]) && tmpList[i].event.content){
+                        msgList.unshift(tmpList[i]);
+                        index++;
                     }
-                })
+                }
+
                 if(index > num) break;
             }
             return msgList;
@@ -3723,22 +3729,33 @@ export default {
                 this.timeLineSet,
                 {windowLimit:Number.MAX_VALUE},
             )
+            let existingId = [];
             await this._timelineWindow.load(undefined, 20);
             var fileListInfo = [];
             var originalFileListInfo = this._timelineWindow.getEvents();
-            originalFileListInfo.forEach(item => {
-                if(this.messageFilter(item) && item.event.content){
-                    fileListInfo.push(item);
-                } 
-            })
+
+            for(var i=originalFileListInfo.length - 1;i>0;i--){
+                if(this.messageFilter(originalFileListInfo[i]) && originalFileListInfo[i].event.content){
+                    if(existingId.indexOf(originalFileListInfo[i].event.event_id) < 0) {
+                        fileListInfo.unshift(originalFileListInfo[i]);
+                        existingId.push(originalFileListInfo[i].event.event_id);
+                    }
+                }
+            }
+
             while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
                 await this._timelineWindow.paginate("b", 20);
                 var fileListInfoTmp = await this._timelineWindow.getEvents();
-                fileListInfoTmp.forEach(item => {
-                    if(this.messageFilter(item) && item.event.content){
-                        fileListInfo.push(item);
+                
+                for(var i=fileListInfoTmp.length - 1;i>0;i--){
+                    if(this.messageFilter(fileListInfoTmp[i]) && fileListInfoTmp[i].event.content){
+                        if(existingId.indexOf(fileListInfoTmp[i].event.event_id) < 0) {
+                            fileListInfo.unshift(fileListInfoTmp[i]);
+                            existingId.push(fileListInfoTmp[i].event.event_id);
+                        }
                     }
-                })
+                }
+                
             }
             return fileListInfo;
         },
@@ -3763,21 +3780,21 @@ export default {
 
                         this.messageList = ret.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
                         
-                            this.$nextTick(() => {
-                                this.needToBottom = true;
+                        this.$nextTick(() => {
+                            this.needToBottom = true;
 
-                                let div = document.getElementById("message-show-list");
-                                if(div) {
-                                    div.scrollTop = div.scrollHeight + 52;
-                                    div.addEventListener('scroll', this.handleScroll);
-                                    // this.showScrollBar();
-                                }
-                                
-                                if(div && (div.clientHeight < div.offsetHeight)) {
-                                    this.handleScroll(true);
-                                }
-                                
-                            })
+                            let div = document.getElementById("message-show-list");
+                            if(div) {
+                                div.scrollTop = div.scrollHeight + 52;
+                                div.addEventListener('scroll', this.handleScroll);
+                                // this.showScrollBar();
+                            }
+                            
+                            if(div && (div.clientHeight < div.offsetHeight)) {
+                                this.handleScroll(true);
+                            }
+                            
+                        })
                     })
             }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
@@ -4258,12 +4275,18 @@ export default {
             this.initMessage();
             this.updateUser++;
         },
-        newMsg: function() {
+        newMsg: async function() {
             console.log("*** newMsg ", this.newMsg)
             if(this.newMsg == null) {
                 return;
             }
-            this._loadTimeline();
+            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this.timeLineSet,
+                {windowLimit:Number.MAX_VALUE},
+            )
+            await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
             let toBottom = false;
 
             if(this.IsBottom()) {
