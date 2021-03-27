@@ -3370,6 +3370,7 @@ export default {
 
         async getShowMessage(msgFileter, num, type)
         {
+            this._loadTimeline();
             let msgList = [];
             while(this._timelineWindow.canPaginate(type)){
                 //获取历史消息
