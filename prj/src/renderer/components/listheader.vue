@@ -7,12 +7,12 @@
             <img class="new-chat-content-div-img img-disable-drag" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
-            <div class="normal-chat" @click.stop="mxDmDlgChange()"> <!--showCreateGroup-->
-                <img class="normal-chat-img" src="../../../static/Img/Main/jdr.png">
+            <div class="normal-chat " @click.stop="mxDmDlgChange()"> <!--showCreateGroup-->
+                <img class="normal-chat-img img-disable-drag" src="../../../static/Img/Main/jdr.png">
                 <span class="normal-chat-label">发起聊天</span>
             </div>
             <div class="normal-chat" @click.stop="openMxXxr()"> <!--mxCreateRoom showCreateGroup-->
-                <img class="normal-chat-img" src="../../../static/Img/Main/jql.png">
+                <img class="normal-chat-img img-disable-drag" src="../../../static/Img/Main/jql.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
             <!-- <div class="normal-chat" @click.stop="mxDmDlgChangeErp()"> 
@@ -20,7 +20,7 @@
                 <span class="normal-chat-label">发起密聊</span>
             </div> -->
             <div class="secret-chat" @click.stop="mxSquare()"> <!--@click="showCreateEncryptGroup(true)"-->
-                <img class="secret-chat-img" src="../../../static/Img/Main/jgc.png">
+                <img class="secret-chat-img img-disable-drag" src="../../../static/Img/Main/jgc.png">
                 <span class="secret-chat-label">发现群聊</span> <!--发起密聊-->
             </div>
         </div>

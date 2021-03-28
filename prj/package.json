@@ -25,7 +25,7 @@
   },
   "build": {
     "productName": "EachChat",
-    "appId": "ai.workly.eachchat",
+    "appId": "com.worklyai.eachchat.desktop.testing",
     "directories": {
       "output": "build"
     },
