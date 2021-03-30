@@ -214,4 +214,49 @@ describe('Application launch', function () {
     let clickElm = await app.client.$("div=成员");
     await clickElm.click();
   })
+
+  it("click organise user", async function(){
+    let orgRootElm = await app.client.$("p=组织");
+    await orgRootElm.click();
+    await sleep(1000);
+
+    let orgtElm = await app.client.$("p=北京爱工作科技有限公司");
+    assert(await orgtElm.isDisplayed())
+    await orgtElm.click();
+    await sleep(1000);
+
+    orgtElm = await app.client.$("p=产品部");
+    assert(await orgtElm.isDisplayed())
+    await orgtElm.click();
+    await sleep(1000);
+
+    let user = await await app.client.$("p=李少华");
+    expect(await user.isDisplayed())
+    await sleep(1000);
+
+    user = await await app.client.$("p=刘永宏");
+    expect(await user.isDisplayed())
+    await sleep(1000);
+
+    orgtElm = await app.client.$("p=技术部");
+    assert(await orgtElm.isDisplayed());
+    await orgtElm.click();
+    await sleep(1000);
+
+    user = await await app.client.$("p=安明杰");
+    expect(await user.isDisplayed());
+    await sleep(1000);
+
+    user = await await app.client.$("p=周冠杰");
+    expect(await user.isDisplayed());
+    await sleep(1000);
+    await user.click();
+
+    let searchViewElm = await app.client.$(".userInfo-name");
+    expect(await searchViewElm.isExisting()).to.true;
+    await sleep(1000);
+    let clickElm = await app.client.$("div=成员");
+    await clickElm.click();
+    await sleep(1000);
+  })
 })
