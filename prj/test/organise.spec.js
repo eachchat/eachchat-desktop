@@ -166,8 +166,16 @@ describe('Application launch', function () {
     text = await titleItem.getText();
     newStr = text.replace(/[\r\n]/g,"");
     expect(newStr).to.equal("高级软件工程师");
+    titleItem.click();
   })
 
+  it("click organiseUser", async function(){
+    let searchViewElm = await app.client.$(".userInfo-name");
+    expect(await searchViewElm.isExisting()).to.true;
+    let clickElm = await app.client.$("div=成员");
+    await clickElm.click();
+  })
+  return;
   it("search contact", async function(){
     let searchInputClass = ".echat-search-input";
     let searchInputItem = await app.client.$(searchInputClass);
