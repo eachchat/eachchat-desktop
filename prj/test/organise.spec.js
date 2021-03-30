@@ -175,7 +175,7 @@ describe('Application launch', function () {
     let clickElm = await app.client.$("div=成员");
     await clickElm.click();
   })
-  return;
+
   it("search contact", async function(){
     let searchInputClass = ".echat-search-input";
     let searchInputItem = await app.client.$(searchInputClass);
@@ -187,6 +187,16 @@ describe('Application launch', function () {
     let text = await nameItem.getText();
     let newStr = text.replace(/[\r\n]/g,"");
     expect(newStr).to.equal("程旺workly.ai");
+    await nameItem.click();
+  })
+
+  it("click contact", async function(){
+    let searchViewElm = await app.client.$(".userInfo-name");
+    expect(await searchViewElm.isExisting()).to.true;
+    await sleep(1000);
+    let clickElm = await app.client.$("div=成员");
+    await clickElm.click();
+    await sleep(1000);
   })
 
 })
