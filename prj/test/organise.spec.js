@@ -76,7 +76,7 @@ describe('Application launch', function () {
 
   after(function () {
     if (app && app.isRunning()) {
-      return app.stop()
+      //return app.stop()
     }
   })
   
@@ -136,7 +136,18 @@ describe('Application launch', function () {
     let text = await departmentItem.getText();
     let newStr = text.replace(/[\r\n]/g,"");
     expect(newStr).to.equal("北京爱工作科技有限公司");
+    departmentItem.click();
   })
+
+  it("click department", async function(){
+    let list = await app.client.$(".departments-view");
+    assert.isTrue(await list.isExisting());
+    let viewElm1 = await list.$("p=北京爱工作科技有限公司");
+    expect(await viewElm1.isDisplayed()).to.equal(true);
+    let viewElm2 = await list.$("p=北京青云科技股份有限公司");
+    expect(await viewElm2.isDisplayed()).to.equal(true);
+  })
+
 
   it("search organiseUser", async function(){
     let searchInputClass = ".echat-search-input";
