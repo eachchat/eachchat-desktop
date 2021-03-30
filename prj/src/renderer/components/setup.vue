@@ -113,18 +113,18 @@
             <div class="setup-array-only-label">
                 <label class="setup-array-only-label-label">当前版本</label>
                 <label class="setup-array-only-label-label2">{{lVersion}}</label>
-                <div class="setup-clear-cache-btn" @click="CheckUpdate">检查更新</div>
+                <div class="setup-clear-cache-btn" @click="CheckUpdate">软件更新</div>
             </div>
             <div class="setup-array" v-show="false">
                 <label class="setup-array-label">功能介绍</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAbout">
             </div>
             <div class="setup-array">
-                <label class="setup-array-label">软件用户协议</label>
+                <label class="setup-array-label">用户协议</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAgreement">
             </div>
             <div class="setup-array">
-                <label class="setup-array-label">软件隐私政策</label>
+                <label class="setup-array-label">隐私政策</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
             </div>
             <div class="setup-logout" @click="logout()">退出</div>
