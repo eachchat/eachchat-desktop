@@ -1,8 +1,6 @@
----
-mac 打包
----
+# mac 打包
 
-# 关于证书
+## 关于证书
 - 非上传到AppStore 使用前缀为: Developer ID Application 的证书
 - 上传到AppStore 使用前缀为: 3rd Party Mac Developer Installer, 3rd Party Mac Developer Application: 的两种证书
 
@@ -12,7 +10,7 @@ mac 打包
 
 
 
-# Build for non upload Appstore cases
+## 打包不上传Appstore的情况
 修改点：
     1.electron-builder需要升级到21.2.0，然后这个版本的builder在做签名时候会有bug，
     需要对node_modules/app-builder-lib/electron-osx-sign/sign.js做修改。
@@ -22,11 +20,12 @@ mac 打包
 
 
 
-# Build for upload AppStore
+## 打包上传Appstore
 ### 前提 
-1. 确保`prj/build/mac`路径下有等待打包的app
-2. 取保两个证书在 keychain
-`3rd Party Mac Developer Installer: Beijing Workly Ai Technology Co., Ltd (FU9J7J29L2)`------- `3rd Party Mac Developer Application: Beijing Workly Ai Technology Co., Ltd (FU9J7J29L2)`
+1. 修改 `package.json` 中appId为 `ai.workly.eachchat`
+2. 确保`prj/build/mac`路径下有等待打包的app
+3. 取保两个证书在 keychain
+`3rd Party Mac Developer Installer: Beijing Workly Ai Technology Co., Ltd (FU9J7J29L2)`|`3rd Party Mac Developer Application: Beijing Workly Ai Technology Co., Ltd (FU9J7J29L2)`
 
 ### 开始
 > yarn build:pkg
@@ -48,6 +47,8 @@ tmp.iconset 文件不规范， 使用一张 1024*1024 的图片可以生成
 2. 命令行 $ mkdir tmp.iconset，创建一个临时目录存放不同大小的图片
 3. 把原图片转为不同大小的图片，并放入上面的临时目录
 全部拷贝到命令行回车执行，执行结束之后去tmp.iconset查看十张图片是否生成好
+
+```bash
 sips -z 16 16     pic.png --out tmp.iconset/icon_16x16.png
 sips -z 32 32     pic.png --out tmp.iconset/icon_16x16@2x.png
 sips -z 32 32     pic.png --out tmp.iconset/icon_32x32.png
@@ -58,6 +59,8 @@ sips -z 256 256   pic.png --out tmp.iconset/icon_256x256.png
 sips -z 512 512   pic.png --out tmp.iconset/icon_256x256@2x.png
 sips -z 512 512   pic.png --out tmp.iconset/icon_512x512.png
 sips -z 1024 1024   pic.png --out tmp.iconset/icon_512x512@2x.png
+```
+
 4 通过iconutil生成icns文件 $ iconutil -c icns tmp.iconset -o Icon.icns，此时你的目录应该有了你想要的 O(∩_∩)O
 
 
