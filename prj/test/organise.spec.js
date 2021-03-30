@@ -197,4 +197,21 @@ describe('Application launch', function () {
     await clickElm.click();
   })
 
+  it("click contact", async function(){
+    let searchDelClass = ".echat-delete-ico";
+    let searchDelItem = await app.client.$(searchDelClass);
+    await searchDelItem.click();
+    await sleep(2000);
+    let searchViewElm = await app.client.$(".departmentsdiv");
+    assert.isTrue(await searchViewElm.isExisting());
+    let contacts = await searchViewElm.$$(".contact");
+    assert(contacts.length != 0, 'contact list is empty');
+    await contacts[0].click();
+
+    searchViewElm = await app.client.$(".userInfo-name");
+    expect(await searchViewElm.isExisting()).to.true;
+
+    let clickElm = await app.client.$("div=成员");
+    await clickElm.click();
+  })
 })
