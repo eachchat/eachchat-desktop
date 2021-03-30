@@ -169,7 +169,7 @@ describe('Application launch', function () {
     titleItem.click();
   })
 
-  it("click organiseUser", async function(){
+  it("click search organiseUser", async function(){
     let searchViewElm = await app.client.$(".userInfo-name");
     expect(await searchViewElm.isExisting()).to.true;
     let clickElm = await app.client.$("div=成员");
@@ -190,13 +190,11 @@ describe('Application launch', function () {
     await nameItem.click();
   })
 
-  it("click contact", async function(){
+  it("click search contact", async function(){
     let searchViewElm = await app.client.$(".userInfo-name");
     expect(await searchViewElm.isExisting()).to.true;
-    await sleep(1000);
     let clickElm = await app.client.$("div=成员");
     await clickElm.click();
-    await sleep(1000);
   })
 
 })
