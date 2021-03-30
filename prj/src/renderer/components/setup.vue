@@ -264,7 +264,12 @@ export default {
             console.log("newversion is ", newVersion);
             if(newVersion == undefined || newVersion == false)
             {
-                return;
+              self.showNotUpgradeAlertDlg = true;
+              self.notUpgradeContents = {
+                "Details": "目前已经是最新版本",
+                "Abstrace": "提示"
+              };
+              return;
             }
             else {
                 var sOsType = newVersion.osType;
